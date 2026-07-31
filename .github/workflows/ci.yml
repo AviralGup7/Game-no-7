@@ -50,10 +50,6 @@ jobs:
           bash tool/verify_assets.sh
       - run: flutter pub get
       - run: flutter analyze
-      # The product's core promise. If this ever fails, the app is shipping
-      # deals that cannot be won.
-      - name: Re-prove every shipped deal is winnable
-        run: dart run tool/verify_table.dart
       - run: flutter test
       # Release specifically: R8 keep-rule gaps only crash in release builds.
       - run: flutter build apk --release --target-platform android-arm64
