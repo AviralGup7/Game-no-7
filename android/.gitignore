@@ -1,0 +1,13 @@
+# gradle-wrapper.jar is COMMITTED on purpose: Flutter ignores it by default,
+# which silently makes a fresh clone unbuildable for anyone else and for CI.
+/.gradle
+/captures/
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
