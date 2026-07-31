@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Ads need the network; nothing else does. The GAME is fully offline and
+         must keep working with the network switched off. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
+    <!-- Declared because google_mobile_ads reads the advertising ID. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
-        android:label="large_print_hitori"
+        android:label="Large Print Hitori"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,6 +38,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- GOOGLE'S OFFICIAL TEST APP ID. Must be replaced before release:
+             shipping a test ID to production earns zero revenue, and using a
+             real ID during development risks a policy strike from self-clicks.
+        -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

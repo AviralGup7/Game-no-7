@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors AppTheme in lib/widgets/app_theme.dart. Keep in sync or the
+         splash flashes a different colour than the app it hands over to. -->
+    <color name="brand_teal">#0F6B5C</color>
+    <color name="ic_launcher_background">#F6FAF9</color>
+    <color name="splash_background">#F6FAF9</color>
+</resources>
