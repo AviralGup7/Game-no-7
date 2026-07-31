@@ -1,0 +1,6 @@
+# Copy to android/key.properties and fill in. NEVER commit the real file.
+# Generate with: ./tool/make_keystore.sh
+storePassword=CHANGEME
+keyPassword=CHANGEME
+keyAlias=upload
+storeFile=upload-keystore.jks

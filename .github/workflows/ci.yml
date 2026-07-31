@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.35.7'
+
+jobs:
+  icons:
+    name: Branding is reproducible from source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install --quiet pillow
+      # Regenerating must be byte-identical. A diff means the generator changed
+      # without committed icons being refreshed, or someone hand-edited output.
+      - name: Regenerate and diff
+        run: |
+          python tool/generate_icons.py
+          if ! git diff --quiet --exit-code -- android/app/src/main/res assets/branding; then
+            echo "::error::Generated branding differs from committed files."
+            git diff --stat -- android/app/src/main/res assets/branding
+            exit 1
+          fi
+          echo "Branding reproduces exactly."
+
+  flutter:
+    name: Analyze, test, build APK + AAB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Verify audio assets
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          bash tool/verify_assets.sh
+      - run: flutter pub get
+      - run: flutter analyze
+      # The product's core promise. If this ever fails, the app is shipping
+      # deals that cannot be won.
+      - name: Re-prove every shipped deal is winnable
+        run: dart run tool/verify_table.dart
+      - run: flutter test
+      # Release specifically: R8 keep-rule gaps only crash in release builds.
+      - run: flutter build apk --release --target-platform android-arm64
+      - run: flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
