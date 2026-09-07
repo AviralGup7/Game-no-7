@@ -17,7 +17,7 @@ var _upgrade_panel: Control = null
 ## HUD (overlay while playing).
 var _hud: Control = null
 var _touch_layer: Control = null
-var _joystick: Control = null
+var _joystick: VirtualJoystick = null
 var _attack_btn: Control = null
 var _dodge_btn: Control = null
 

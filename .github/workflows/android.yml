@@ -77,10 +77,10 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Surface the error lines as ONE annotation (per-line annotations get
-            # capped by GitHub) so the root cause is readable without the log blob.
+            # Surface the error block as ONE annotation (per-line annotations get
+            # capped by GitHub) so file+message context is readable without the blob.
             printf '::error file=build/export.log,title=godot export failed::'
-            grep -niE "SCRIPT ERROR|Parse Error|Failed to load script|Cannot infer|Variant value|overrides a method|\.gd:[0-9]+|ERROR:|Project export" build/export.log | head -60
+            awk 'BEGIN{on=0} /Failed to load script|SCRIPT ERROR|Parse Error|ERROR:|Project export|\.gd:/{on=1} on' build/export.log | head -120
           fi
           exit "$code"
 
