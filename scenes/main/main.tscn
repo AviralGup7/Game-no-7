@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ui_root.tscn" id="2_ui"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="SceneRouterAnchor" type="Node" parent="."]
+
+[node name="WorldRoot" type="Node3D" parent="."]
+
+[node name="UIRoot" type="CanvasLayer" parent="."]
+
+[node name="UI" parent="UIRoot" instance=ExtResource("2_ui")]
+
+[node name="TransitionLayer" type="CanvasLayer" parent="."]
+
+[node name="DebugRoot" type="CanvasLayer" parent="."]

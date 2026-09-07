@@ -1,0 +1,34 @@
+# Godot 4
+.godot/
+*.tmp
+*.translation
+export_presets.cfg.local
+godot.log
+
+# Build outputs
+build/
+*.apk
+*.aab
+*.keystore
+*.jks
+*.pem
+
+# Local secrets / signing
+android/.android_signing/
+keystore.properties
+*.jks
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Keep empty asset subfolders meaningful but exclude nothing real
+ASSET_LICENSES/downloads/

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CameraProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/main/camera_profile.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+profile_id = &"default"
+distance = 9.0
+height = 5.5
+field_of_view = 62.0
+follow_smoothing = 6.0
+look_height = 1.5
+pitch_degrees = 30.0
+collision_radius = 0.3
+reduced_motion_smoothing = 2.0
+max_shake_amplitude = 1.0

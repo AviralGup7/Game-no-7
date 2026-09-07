@@ -1,0 +1,88 @@
+name: Android build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.4.1-stable"
+  APK_PATH: build/LastStandArena-debug.apk
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+
+      - name: Install matching Android export templates
+        shell: bash
+        run: |
+          URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          mkdir -p /tmp/tpl "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+          curl -sL "$URL" -o /tmp/templates.tpz
+          (cd /tmp/tpl && unzip -q /tmp/templates.tpz)
+          cp -r /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}/"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        shell: bash
+        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Import project
+        shell: bash
+        run: godot --headless --path . --import
+
+      - name: Run headless unit tests
+        shell: bash
+        run: godot --headless --path . --script res://tests/run_tests.gd
+
+      - name: Validate resources & assets
+        shell: bash
+        run: |
+          python3 tool/validate_resources.py
+          python3 scripts/download_assets.py --verify
+
+      - name: Build Android APK (debug export for validation artifact)
+        shell: bash
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" "$APK_PATH"
+
+      - name: Verify APK exists and is non-zero
+        shell: bash
+        run: |
+          test -f "$APK_PATH" && test -s "$APK_PATH"
+          echo "APK size: $(stat -c%s "$APK_PATH") bytes"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LastStandArena-android
+          path: ${{ env.APK_PATH }}
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            build/
+            *.log
+          if-no-files-found: ignore
+
+      - name: Create GitHub release APK (manual tag dispatch only)
+        if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.APK_PATH }}

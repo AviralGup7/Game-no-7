@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Last Stand: Arena placeholder icon: stylized shield + crosshair on a low-poly arena -->
+  <rect width="128" height="128" rx="24" fill="#1a2430"/>
+  <polygon points="64,18 108,38 108,76 64,110 20,76 20,38" fill="#2f6f8f" stroke="#7fc7ff" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="30" fill="none" stroke="#ffcf6e" stroke-width="6"/>
+  <circle cx="64" cy="64" r="9" fill="#ffcf6e"/>
+  <path d="M64 8 L64 34 M64 94 L64 120 M8 64 L34 64 M94 64 L120 64" stroke="#ff8f5e" stroke-width="6" stroke-linecap="round"/>
+</svg>
