@@ -97,10 +97,22 @@ func _face_travel() -> void:
 
 
 func _apply_team_tint() -> void:
-	# Pooled visuals recolor cheaply via a named method when present.
+	# Pooled visuals recolor cheaply via a named method when present; otherwise
+	# fall back to a team-colored material override (gold = player, red = enemy)
+	# so pooled shots stay readable no matter which scene built them.
 	var mesh := get_node_or_null("Visual/Mesh") as MeshInstance3D
-	if mesh != null and mesh.has_method("set_team_tint"):
+	if mesh == null:
+		return
+	if mesh.has_method("set_team_tint"):
 		mesh.call("set_team_tint", team)
+		return
+	var tint := Color(1.0, 0.8, 0.25) if team == TEAM_PLAYER else Color(1.0, 0.2, 0.25)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tint
+	mat.emission_enabled = true
+	mat.emission = tint
+	mat.emission_energy_multiplier = 1.5
+	mesh.material_override = mat
 
 
 func _on_body_entered(body: Node) -> void:

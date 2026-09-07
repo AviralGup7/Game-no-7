@@ -25,6 +25,7 @@ const LEGAL_TRANSITIONS := {
 	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
+	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.GAME_OVER: [State.STARTING_RUN, State.MAIN_MENU],
 	State.LOADING: [State.STARTING_RUN, State.MAIN_MENU, State.PLAYING, State.ERROR],
 	State.ERROR: [State.MAIN_MENU],
@@ -42,6 +43,9 @@ var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standa
 
 
 func _ready() -> void:
+	# GameRoot must outlive pause: the pause toggle + state machine run while
+	# the tree is paused (elapsed time/combo already gate on _paused).
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
 	_score.bind(_current_run, _player_derived_stat)

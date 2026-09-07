@@ -31,6 +31,9 @@ func _ready() -> void:
 		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size(),
 		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size()
 	])
+	# Surface broken content at startup (fatal in debug: bad data should scream).
+	for e in _validation_errors:
+		EventBus.report_error("Content validation: " + e)
 
 
 ## Re-scan all data directories. Called at startup and available to tooling/tests.

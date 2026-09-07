@@ -121,6 +121,13 @@ func _setup_camera(player: Node) -> void:
 	var cam := CAMERA_SCENE.instantiate()
 	cam.name = "CameraRig"
 	_world_root.add_child(cam)
+	# Arenas declare their lens; fall back to the rig default when absent.
+	if cam.has_method("set_camera_profile") and ContentRegistry != null:
+		var cfg: ArenaConfig = ContentRegistry.get_arena(GameRoot.get_run().arena_id)
+		if cfg != null:
+			var prof: CameraProfile = ContentRegistry.get_camera_profile(cfg.default_camera_profile)
+			if prof != null:
+				cam.call("set_camera_profile", prof)
 	if cam.has_method("set_target") and player is Node3D:
 		cam.call("set_target", player)
 

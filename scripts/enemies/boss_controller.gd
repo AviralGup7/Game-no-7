@@ -206,6 +206,7 @@ func _resolve_summon() -> void:
 
 func _on_boss_died() -> void:
 	if EventBus != null:
+		EventBus.boss_slain.emit(_host.get_archetype_id() if _host != null else &"boss")
 		EventBus.announcement.emit(&"boss_slain", "%s defeated!" % _display_name(), &"victory")
 
 

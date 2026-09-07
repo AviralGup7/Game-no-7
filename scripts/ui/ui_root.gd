@@ -352,6 +352,15 @@ func _show_screen(screen: StringName) -> void:
 	_upgrade_panel.visible = screen == &"upgrade_selection"
 	var playing := screen == &"playing" or screen == &"wave_transition"
 	_hud.visible = playing
+	if playing:
+		# Seed widgets from the live run so nothing renders stale/blank before
+		# the first combat event of a fresh run.
+		var run := GameRoot.get_run()
+		if run != null:
+			_hud.set_score(run.score)
+			_hud.set_currency(run.currency)
+			_hud.set_wave(run.current_wave)
+			_hud.set_combo(run.combo)
 	_touch_layer.visible = playing
 	_skill_bar.visible = playing
 	_minimap.visible = playing

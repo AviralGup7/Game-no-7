@@ -228,9 +228,18 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	var final_payload := _apply_status_intake(payload)
 	var taken: Variant = _health.call("take_damage", final_payload)
 	if taken is DamageResult:
+		_apply_payload_status(payload)
 		return taken
 	result.ignored_reason = &"invalid_result"
 	return result
+
+
+## Enemy riders (venom shots, crippling blows): apply the payload's effects.
+func _apply_payload_status(payload: DamagePayload) -> void:
+	if payload == null or payload.status_effects.is_empty():
+		return
+	if _status != null and _status.has_method("apply_effects"):
+		_status.call("apply_effects", payload.status_effects, payload.source)
 
 
 ## Scale + shield an incoming payload through the StatusManager (guard shields,
@@ -346,6 +355,12 @@ func _on_enemy_kill_xp(enemy: Node, _archetype_id: StringName, _score: int, _cur
 
 func _on_leveled_up(new_level: int) -> void:
 	leveled_up.emit(new_level)
+	# The ExperienceComponent owns the level reward (heal + stamina); the player
+	# owns the celebration.
+	if EventBus != null:
+		EventBus.announcement.emit(&"level_up", "Level %d!" % new_level, &"info")
+	if AudioManager != null:
+		AudioManager.play_sfx(&"upgrade_select")
 
 
 func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:

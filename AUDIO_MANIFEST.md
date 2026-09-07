@@ -6,15 +6,16 @@ is accepted; no ripped or copyrighted tracks.
 
 ## Current state
 
-No third-party audio is committed yet. The `AudioManager` autoload gracefully no-ops
-for any cue that has no registered stream, so the game is fully playable silent while
-audio is still being sourced. Audio is added as streams registered by the
-`ContentRegistry` from `res://data/audio/` and referenced by stable cue ids such as:
+No third-party audio is committed yet. The game is never silent anyway:
+`ProceduralSfx` deterministically synthesizes every referenced cue at startup, and
+real drops in `res://data/audio/` (`.tres`/`.ogg`/`.wav`/`.mp3`, registered by the
+`ContentRegistry` keyed by file base name) always take precedence over the
+procedural fallback. The referenced cue ids are:
 
-- `player_attack`, `player_hurt`, `player_dodge`, `player_death`
-- `enemy_hit`, `enemy_death`
-- `upgrade_select`, `pickup`, `wave_started`, `game_over`
-- `arena_menu` (music), `arena_gameplay` (music)
+- SFX: `player_attack`, `player_hurt`, `player_death`, `player_dodge`,
+  `enemy_hit`, `enemy_death`, `enemy_attack`, `enemy_spawn`, `pickup`,
+  `upgrade_select`
+- Music: `music_menu`, `music_calm`, `music_battle`, `music_boss`, `music_victory`
 
 ## Per-audio record (template)
 

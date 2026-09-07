@@ -72,6 +72,9 @@ func equip(config: WeaponConfig, slot: int = 0) -> StringName:
 		replaced = (_slots[slot] as WeaponInstance).config.weapon_id
 	var inst := WeaponInstance.new(config, _run_seed)
 	_apply_derived_stats(inst)
+	# Forward per-instance reload completion so HUD/audio can observe it.
+	if not inst.reloaded.is_connected(_on_instance_reloaded):
+		inst.reloaded.connect(_on_instance_reloaded.bind(config.weapon_id))
 	_slots[slot] = inst
 	weapon_equipped_local.emit(config.weapon_id, slot)
 	if EventBus != null:
@@ -256,6 +259,10 @@ func request_reload() -> bool:
 	if started:
 		reload_started.emit(inst.config.weapon_id)
 	return started
+
+
+func _on_instance_reloaded(weapon_id: StringName) -> void:
+	reload_finished.emit(weapon_id)
 
 
 func reset_for_new_run() -> void:

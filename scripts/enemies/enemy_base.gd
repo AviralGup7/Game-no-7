@@ -124,9 +124,19 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	if taken is DamageResult:
 		var res := taken as DamageResult
 		_on_damage_applied(res, payload)
+		_apply_payload_status(payload)
 		return res
 	result.ignored_reason = &"invalid_result"
 	return result
+
+
+## Projectile/melee riders: apply the payload's status effects to our manager.
+func _apply_payload_status(payload: DamagePayload) -> void:
+	if payload == null or payload.status_effects.is_empty():
+		return
+	var sm := _status_node()
+	if sm != null and sm.has_method("apply_effects"):
+		sm.call("apply_effects", payload.status_effects, payload.source)
 
 
 func force_state(state_id: StringName) -> void:
@@ -251,6 +261,11 @@ func play_attack_sound() -> void:
 		_audio.call("play_attack")
 
 
+func play_spawn_sound() -> void:
+	if _audio != null and _audio.has_method("play_spawn"):
+		_audio.call("play_spawn")
+
+
 func _locomotion_bounds() -> float:
 	return _locomotion.get_bounds()
 
@@ -285,6 +300,8 @@ func _on_damaged(result: DamageResult) -> void:
 		_feedback.call("play_damaged")
 	if _audio != null and _audio.has_method("play_hit"):
 		_audio.call("play_hit")
+	if result.was_critical:
+		_juice_hitstop(0.03, 0.12)
 	if _machine != null:
 		_machine.force_state(&"hurt")
 
@@ -307,7 +324,21 @@ func _on_died() -> void:
 		_feedback.call("play_died")
 	if _audio != null and _audio.has_method("play_death"):
 		_audio.call("play_death")
+	_juice_hitstop(0.05, 0.2)
 	_fade_and_free()
+
+
+## Crit/death punch: micro-freeze + trauma through the run's HitstopManager.
+func _juice_hitstop(duration: float, trauma: float) -> void:
+	if not is_inside_tree():
+		return
+	for node in get_tree().get_nodes_in_group("hitstop_manager"):
+		if node == null or not is_instance_valid(node):
+			continue
+		if node.has_method("request_hitstop"):
+			node.call("request_hitstop", duration)
+		if node.has_method("add_trauma"):
+			node.call("add_trauma", trauma)
 
 
 func _fade_and_free() -> void:

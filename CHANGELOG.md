@@ -58,6 +58,29 @@
   and persistent directors (music, achievements, meta, tutorial).
 - New `skill_1/2/3` input actions (Q/E/R + joypad shoulder/trigger).
 
+### Fixed (audit + fix pass)
+- Pause soft-lock: `PAUSED` had no outgoing transitions, so resume/restart/menu
+  from pause were rejected; added `PAUSED` transitions and made `GameRoot`
+  process while paused so the keyboard toggle works (UI already ran always).
+- Splitter wave-stall: children extending the plan after the pacing timer stopped
+  left the wave unwinnable; the timer restarts when the plan extends (same guard
+  for boss summons).
+- Enemies were immune to slows/stuns: `enemy_base.tscn` lacked the `StatusManager`
+  node the warlord already had; added (auto-binds health).
+- Boss summons never spawned (`summon_requested` unwired); the spawner now extends
+  the plan on summon. New `boss_slain` signal resets boss music to battle.
+- Payload status riders never applied: `apply_damage` on player/enemy now forwards
+  `payload.status_effects` to the local `StatusManager`.
+- Silent cues wired: pickup collection + enemy spawn sounds; level-ups announce on
+  the banner; the adaptive director now receives player-damage events.
+- Hitstop/trauma never triggered: crits/deaths now pulse the `HitstopManager`.
+- Camera shake permanently drifted the lens; base position is captured + restored,
+  reduced-motion initializes from save, and arena camera profiles apply at build.
+- Arena validation errors surface at startup; save flushes on quit request.
+- Touch buttons work with mouse (desktop parity) and draw centered; HUD seeds from
+  the live run so fresh runs never render stale widgets; `reload_finished` forwards
+  from weapon instances; `AUDIO_MANIFEST.md`/README status updated.
+
 ### Modularized
 - Split the 10 largest scripts into focused modules (public APIs unchanged):
   `ui_root` → `UiText` + `UiFactory` + `GameHud` + `UpgradePanel` (658→363);

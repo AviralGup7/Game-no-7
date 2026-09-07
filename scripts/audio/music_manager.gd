@@ -61,6 +61,7 @@ func begin_tracking() -> void:
 	EventBus.enemy_killed.connect(_on_kill)
 	EventBus.enemy_damaged.connect(_on_damaged)
 	EventBus.boss_spawned.connect(_on_boss)
+	EventBus.boss_slain.connect(_on_boss_slain)
 	EventBus.game_state_changed.connect(_on_state_changed)
 
 
@@ -171,6 +172,12 @@ func _on_damaged(_enemy: Node, _result: DamageResult) -> void:
 
 func _on_boss(_boss: Node, _boss_id: StringName) -> void:
 	request_state(STATE_BOSS)
+
+
+func _on_boss_slain(_boss_id: StringName) -> void:
+	# The fight goes on (adds remain); drop back to battle instead of silence.
+	if _state == STATE_BOSS:
+		request_state(STATE_BATTLE)
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:

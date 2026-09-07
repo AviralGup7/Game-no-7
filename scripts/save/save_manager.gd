@@ -27,6 +27,12 @@ func _ready() -> void:
 	_load_from_disk()
 
 
+func _notification(what: int) -> void:
+	# Never lose a debounced write (best scores, armory, achievements) to a quit.
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		_flush_save()
+
+
 ## Pure validator/migrator entry point (delegates to SaveSchema; kept here so
 ## headless tests can load this script by path and call it directly).
 static func normalize_save(raw_data: Variant) -> Dictionary:

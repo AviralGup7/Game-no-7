@@ -9,20 +9,15 @@ with a virtual joystick, attack with a melee weapon, dodge, pick upgrades betwee
 waves, and chase a high score. When you fall, you see your run summary and can
 instantly restart.
 
-> **Project status — Phase 4 progression loop.** This repository is built in defined
-> phases (see `CHANGELOG.md`). Phase 1 delivered the project/Android config, canonical
-> autoloads + scene tree, content registry, player movement + camera, an arena, a UI
-> shell with touch input and the test scaffold. Phase 2 added combat (melee hit
-> resolution, `EnemyBase` damage/death/score) and the first enemy. Phase 3 completed an
-> integrated menu → start run → spawn → enemy AI (Idle/Chase/Attack/Hurt/Dead) →
-> damage/kill → score → wave advance → player death → game-over → clean restart loop,
-> with Basic/Fast/Heavy archetypes and deterministic, headless-tested wave/spawn
-> generation. Phase 4 adds the data-driven progression loop: fight → complete a wave →
-> a deterministic **exactly-3 upgrade selection** opens every two completed waves → the
-> player picks one → a real modifier is applied to gameplay (max HP, move/attack speed,
-> cooldown, resistance, range, knockback, score/currency multipliers, heal-on-kill) →
-> the next wave only starts after the choice → dying and restarting fully clears run
-> upgrades.
+> **Project status — arena build-out + meta game (see `CHANGELOG.md`).** Beyond the
+> Phase 1–4 foundation (project config, combat, integrated run loop, deterministic
+> upgrade selection), the game now ships: 8 enemy archetypes (incl. splitter mites and
+> a 3-phase Warlord boss) with elites, 6 weapons in a 2-slot switchable loadout,
+> 5 active skills + 8 status effects, 7 wave mutators + adaptive difficulty director,
+> 3 arena configs with hazards, a meta game (banked-currency armory, 19 achievements,
+> playable daily challenge), full settings (volumes, remapping, accessibility), and
+> procedural audio fallback so the game is never silent. All content stays data-driven
+> (`.tres` under `res://data/`) and headless-tested.
 
 ---
 
@@ -50,9 +45,10 @@ instantly restart.
 3. `godot --path . --editor` to import assets, then press **F5** (or run the
    `scenes/main/main.tscn` scene).
 4. Keyboard dev controls: `WASD`/arrows to move, `Space`/`Enter` to attack,
-   `Shift` to dodge, `Esc` to pause.
+   `Shift` to dodge, `Q`/`E`/`R` for skills, `Tab` to switch weapons, `Esc` to pause
+   (attack/dodge/skills/weapon-switch are remappable in Settings).
 5. On an Android device/emulator, touch: left-side floating joystick, right-side
-   attack + dodge buttons.
+   attack + dodge + weapon-switch buttons, tappable skill bar.
 
 Run the headless unit tests:
 
@@ -69,7 +65,8 @@ godot --headless --path . --script res://tests/run_tests.gd
 assets/        downloaded third-party assets + placeholders (textures, materials, fonts)
 scenes/        main, arena, player, ui (canonical scene tree)
 scripts/       core autoloads + per-system controllers/state
-data/          typed .tres content: enemies, upgrades, arenas, cameras, weapons, audio
+data/          typed .tres content: enemies, upgrades, arenas, cameras, weapons,
+               skills, status, pickups, waves, audio
 tests/         unit suites + doubles + run_tests.gd (headless runner)
 docs/          BUILD.md, ART_STYLE.md, EXTENDING.md
 tool/          repository/resource validation tooling

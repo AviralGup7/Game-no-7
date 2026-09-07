@@ -30,6 +30,16 @@ func _gui_input(event: InputEvent) -> void:
 			queue_redraw()
 		elif not t.pressed and _held and t.index == _touch_index:
 			_fire()
+	elif event is InputEventMouseButton:
+		# Desktop parity: left-click drives the button exactly like a tap.
+		var mb := event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			if mb.pressed and not _held:
+				_held = true
+				_touch_index = -2
+				queue_redraw()
+			elif not mb.pressed and _held and _touch_index == -2:
+				_fire()
 
 
 func _fire() -> void:
@@ -52,6 +62,10 @@ func cancel() -> void:
 
 
 func _draw() -> void:
+	# Center on the allocated rect (not the radius) so any rect/radius pair
+	# stays visually centered; clamp the ring to the smaller dimension.
+	var center := size * 0.5
+	var r := minf(radius, minf(size.x, size.y) * 0.5)
 	var col := Color(1, 1, 1, 0.18 if _held else 0.10)
-	draw_circle(Vector2(radius, radius), radius, col)
-	draw_arc(Vector2(radius, radius), radius, 0.0, TAU, 48, Color(1, 1, 1, 0.35), 3.0)
+	draw_circle(center, r, col)
+	draw_arc(center, r, 0.0, TAU, 48, Color(1, 1, 1, 0.35), 3.0)

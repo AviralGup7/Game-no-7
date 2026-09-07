@@ -278,6 +278,16 @@ func _wire_director() -> void:
 	_director.reset(_player_max_hp())
 	if not EventBus.enemy_killed.is_connected(_on_director_kill):
 		EventBus.enemy_killed.connect(_on_director_kill)
+	# Feed player damage into the director so it can ease off after heavy hits.
+	if GameRoot != null and GameRoot.get_active_player() != null:
+		var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
+		if hp != null and hp.has_signal("damaged") and not hp.damaged.is_connected(_on_player_damaged):
+			hp.damaged.connect(_on_player_damaged)
+
+
+func _on_player_damaged(result: DamageResult) -> void:
+	if result != null:
+		record_player_damage(result.final_amount)
 
 
 func _player_max_hp() -> float:
@@ -295,8 +305,8 @@ func _on_director_kill(_enemy: Node, _archetype: StringName, _score: int, _curre
 	_director.record_kill()
 
 
-## Called by damage observers (Player routes hurt events here via GameRoot in
-## future wiring; safe to call directly from UI/debug too).
+## Player-hurt feed for the adaptive director (wired to the player HealthComponent
+## in _wire_director; safe to call directly from UI/debug too).
 func record_player_damage(amount: float) -> void:
 	if not _active:
 		return

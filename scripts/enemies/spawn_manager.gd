@@ -165,6 +165,7 @@ func _spawn_one() -> bool:
 	_apply_spawn_scaling(instance, config)
 	_maybe_make_elite(instance, config)
 	_maybe_begin_boss_fight(instance)
+	instance.play_spawn_sound()
 	instance.despawn_requested.connect(_on_enemy_despawn_requested)
 	_active.append(instance)
 	# Success: only now remove the entry from the plan.
@@ -212,8 +213,25 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 
 func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
 	var boss := instance.get_node_or_null("BossController")
-	if boss != null and boss.has_method("begin_fight"):
+	if boss == null:
+		return
+	if boss.has_method("begin_fight"):
 		boss.call("begin_fight")
+	# Boss summons join the plan like splitter children (accounting stays exact).
+	if boss.has_signal("summon_requested") and not boss.summon_requested.is_connected(_on_boss_summon_requested):
+		boss.summon_requested.connect(_on_boss_summon_requested)
+
+
+func _on_boss_summon_requested(archetype_id: StringName, count: int) -> void:
+	var cfg: EnemyConfig = ContentRegistry.get_enemy(archetype_id) if ContentRegistry != null else null
+	if cfg == null:
+		EventBus.report_warning("Boss summoned unknown archetype %s" % String(archetype_id))
+		return
+	for i in range(maxi(count, 0)):
+		_ledger.extend_one(archetype_id)
+	if not _ledger.is_empty() and _timer != null and _timer.is_stopped():
+		_timer.start()
+	EventBus.report_info("Boss summoned %d x %s" % [maxi(count, 0), String(archetype_id)])
 
 
 ## A spawn attempt failed. Retry up to the ledger bound then drop the head as a
@@ -236,6 +254,10 @@ func _on_enemy_despawn_requested(enemy: Node) -> void:
 	if idx >= 0:
 		_active.remove_at(idx)
 		_dispatch_death_effects(enemy)
+		# Splitter children can extend the plan after the pacing timer stopped
+		# (the ledger was momentarily empty); restart it so the wave can't stall.
+		if not _ledger.is_empty() and _timer != null and _timer.is_stopped():
+			_timer.start()
 		_ledger.record_defeat()
 		var archetype := &""
 		if enemy is EnemyBase:
