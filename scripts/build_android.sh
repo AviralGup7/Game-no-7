@@ -65,6 +65,12 @@ step "Run automated tests"
 step "Validate resources"
 (cd "$PROJECT_DIR" && python3 tool/validate_resources.py)
 
+step "Install Android build template into project"
+# Godot's Gradle Android export needs the build template at res://android/build
+# (normally the Project menu -> "Install Android Build Template"). Requires the
+# matching export templates (android_source.zip) to be installed first.
+(cd "$PROJECT_DIR" && bash scripts/install_android_build_template.sh)
+
 step "Export Android APK ($BUILD_TYPE)"
 (cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . "${EXPORT_ARGS[@]}" "$PRESET_NAME" "$APK")
 

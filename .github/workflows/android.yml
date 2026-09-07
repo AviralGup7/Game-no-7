@@ -3,6 +3,7 @@ name: Android build
 on:
   push:
     branches: ["**"]
+    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -142,6 +143,11 @@ jobs:
       - name: Accept Android SDK licenses
         shell: bash
         run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      # Gradle Android export requires the build template inside the project.
+      - name: Install Android build template into project
+        shell: bash
+        run: bash scripts/install_android_build_template.sh
 
       - name: Build + test + export APK (debug, milestone artifact)
         shell: bash
