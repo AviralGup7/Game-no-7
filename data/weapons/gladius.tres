@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="WeaponConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+weapon_id = &"gladius"
+display_name = "Gladius"
+description = "Balanced arena blade. Reliable 3-hit combo."
+kind = &"melee"
+rarity = &"common"
+base_damage = 12.0
+swing_cooldown = 0.55
+windup = 0.12
+range = 2.6
+arc_degrees = 110.0
+max_targets = 0
+knockback = 6.0
+combo_damage_steps = PackedFloat32Array(1, 1, 1.35)
+combo_window = 0.45
+crit_chance = 0.05
+crit_multiplier = 1.6
+on_hit_effects = Array[StringName]([])
+on_hit_effect_chance = 1.0
+unlock_wave = 1
+unlock_cost = 0
+weight = 1.0
+disabled = false
+tags = Array[StringName]([&"starter", &"balanced"])

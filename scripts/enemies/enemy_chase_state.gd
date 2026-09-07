@@ -30,6 +30,10 @@ func physics_update(host: EnemyBase, _delta: float) -> void:
 	var cfg := host.get_config()
 	if cfg == null:
 		return
+	# Ranged archetypes orbit + volley instead of closing to melee.
+	if String(cfg.ai_behavior) == "ranged":
+		host.state_machine_change_to(&"ranged")
+		return
 	var offset := target.global_position - host.global_position
 	offset.y = 0.0
 	var desired := Vector3.FORWARD

@@ -28,7 +28,10 @@ func physics_update(host: EnemyBase, _delta: float) -> void:
 	if cfg == null:
 		return
 	if cfg.detect_range <= 0.0 or host.global_position.distance_to(target.global_position) <= cfg.detect_range:
-		host.state_machine_change_to(&"chase")
+		if String(cfg.ai_behavior) == "ranged":
+			host.state_machine_change_to(&"ranged")
+		else:
+			host.state_machine_change_to(&"chase")
 
 
 static func host_set_still(host: EnemyBase) -> void:

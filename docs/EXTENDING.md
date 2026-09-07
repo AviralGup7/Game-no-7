@@ -68,9 +68,17 @@ so a `1.0` resistance floors at 0, never negative damage.
 
 ## 4. Add a new weapon
 
-1. Add an attack profile data resource under `res://data/weapons/`.
-2. Implement it through the player's `AttackController` interface (cooldown, range,
-   damage, payload) — keep player input/score/UI contracts unchanged.
+1. Add a `WeaponConfig` resource under `res://data/weapons/` (`weapon_id`,
+   `display_name`, `kind` melee/ranged/magic, `damage`, `cooldown`, `range`,
+   `arc_degrees`, `projectile_count`, `projectile_speed`, `crit_chance`,
+   `knockback`, `unlock_wave`, `weight`). The registry validates + caches it.
+2. Melee weapons resolve through `MeleeResolver.resolve_arc(...)`; ranged/magic
+   weapons fire pooled projectiles via `WeaponManager` → `ProjectilePool`.
+3. The legacy `AttackController` (combo timing) stays as a fallback attack path;
+   new weapons go through `WeaponManager` (request/equip/unlock APIs) — keep the
+   player input/score/UI contracts unchanged.
+4. Ranged enemies reuse the same `ProjectilePool` + `EnemyProjectileConfig`
+   (`data/enemies/projectiles/`) through `EnemyRangedState`.
 
 ## 5. Add a new audio cue
 
@@ -123,6 +131,38 @@ Optional cues are safe: a missing cue logs a diagnostic and never crashes.
 3. Mutate the host only through the `EnemyBase` command surface and request transitions
    with `host.state_machine_change_to(&"...")` (or `host.force_state(&"...")` for
    interrupts such as damage/hurt). Never reach into arbitrary nodes from a state.
+
+## 10. Add a new skill / status effect
+
+1. Create `res://data/skills/<name>_skill.tres` (`class SkillConfig`): `skill_id`,
+   `slot`, `cooldown`, `charges`, `radius`/`damage`/`status_id`, `status_duration`,
+   `unlock_wave`. `SkillController` grants + triggers it (Q/E/R or
+   `SkillController.trigger_slot(n)`); effects apply via `AreaDamage` /
+   `ChainLightning` and land in enemy `StatusManager`s.
+2. New status ids go in `StatusManager.STATUS_IDS` (+ `STACK_RULES`) with a
+   `StatusConfig` under `res://data/status/`; `StatusVfx` tints + particles pick
+   up any registered status automatically.
+
+## 11. Add arena hazards / mutators
+
+1. Hazards: extend `ArenaHazards` archetype tables (`data/arenas/<id>.tres`
+   `hazard_id` selects lava/frost/storm fields); per-arena tuning stays in the
+   `.tres`, shared tick/damage logic in `ArenaHazards`.
+2. Mutators: add a `MutatorConfig` under `res://data/mutators/` and list it in the
+   arena `mutator_affinities` (or wave roll table); `WaveManager` applies flags
+   (`enemy_speed_mult`, `enemy_damage_mult`, `spawn_interval_mult`, ...),
+   `SpawnManager` reads them at spawn, `EndlessScaling` past wave 20.
+
+## 12. Add meta / achievements / dailies
+
+1. Meta tracks: add a `MetaTrack` resource under `res://data/meta/`; the armory UI
+   reads tracks generically and `MetaProgression.apply_all_to_run()` pipes rank
+   bonuses into `ProgressionComponent.add_permanent_bonus(...)` at run start.
+2. Achievements: append a `rule_id` in `Achievements.RULES` with a `check(stats)`
+   callable over run stats; unlocking persists through
+   `SaveManager.unlock_achievement(...)` and toasts via `EventBus`.
+3. Daily challenge: `DailyChallenge` derives `(seed, mutator)` from the calendar
+   date; surface it from the menu via `GameRoot.start_daily_run()`.
 
 ## Conventions
 

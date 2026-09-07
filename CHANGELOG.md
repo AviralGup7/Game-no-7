@@ -1,5 +1,53 @@
 # Changelog
 
+## [Unreleased] — Arena build-out · weapons, skills, arenas, enemies, meta
+
+### Added
+- **Data-driven weapon loadout** — `WeaponConfig` resources (`data/weapons/`, 5 shipped:
+  fists, sword, greatsword, bow, wand) auto-discovered by `ContentRegistry`;
+  `WeaponManager` owns the loadout + cooldowns, `MeleeResolver` scores arc hits,
+  `ProjectilePool` serves pooled projectiles for volleys and enemy ranged attacks.
+- **Active skills + status effects** — `SkillConfig` resources (`data/skills/`, 4 shipped),
+  `SkillController` (charges/cooldowns, Q/E/R), `StatusManager` (burn/poison/freeze/slow/
+  stun/vulnerable with refresh/stack rules), `AreaDamage` + `ChainLightning` helpers.
+- **3 new arenas** — `ember`, `frost`, `storm` configs + scenes with `ArenaDecorator`
+  (deterministic props), `ArenaHazards` (lava/ice/storm-floor fields), camera profiles,
+  music cues, unlock waves, and mutator affinities.
+- **5 new enemies** — brute, dasher, spitter (ranged), splitter (spawns mites on death),
+  warden (elite shield-bearer); `StatusComponent`-aware `EnemyBase` (stun gating + slow
+  scaling), elite affixes (`EliteAffix`), buff totems and healers via `EnemySupport`.
+- **Combat depth** — `ComboTracker` (ranked combo with score events), `DamageNumber`
+  popups, `HitstopManager` (hitstop + trauma shake), `PickupManager` (health/energy/
+  score/magnet drops), enemy `AttackTelegraph` + `SpawnEffect` + `DeathEffect`.
+- **Wave director** — `MutatorConfig` resources (`data/mutators/`, 6 shipped: swift/
+  brutal/ember-winds/fragile-rich/necrotic/splitter-surge) applied per wave,
+  `WaveAnnouncer` banners, `DirectorHud`, endless scaling (`EndlessScaling`).
+- **Run flow** — `RunTimer`, `PauseManager` (pause + settings-from-pause), `GameOverFlow`
+  (summary + best-score fanfare), `SettingsPanel` (volumes, motion, remapping),
+  `InputRemapper` (persisted bindings), `TutorialManager` (first-run coach).
+- **Meta game** — `MetaProgression` wallet + 5 upgrade tracks (vitality/power/swift/focus/
+  fortune) applied at run start; `Achievements` (12 achievements, persistent);
+  `DailyChallenge` (seeded daily modifier); `RunHistory` (last-20 runs + aggregates).
+- **Audio/UI/juice** — `MusicManager` (menu/calm/battle/intensity layers),
+  `ArenaAmbience`, damage vignette + low-HP pulse, upgrade/level-up toasts, arena intro
+  cards, boss HP bar, compass objective marker, touch controls (stick + buttons).
+- **Debug tooling** — `DebugConsole` (`give/killall/god/wave/skill/wpn` commands),
+  `PerformanceMonitor` (auto quality scaling), `SaveInspector`, `BalanceReport`.
+- **Unit tests** — 8 new suites (`test_rng_tables`, `test_weapons`, `test_status_skills`,
+  `test_area_combat`, `test_drops_elites`, `test_director_mutators`, `test_meta_misc`,
+  `test_planner_extended`); 200+ new assertions, all autoload-independent.
+
+### Changed
+- `EnemyBase` integrates `StatusManager` (stun pauses AI, slow scales motion);
+  `SpawnManager` supports elites/affixes/telegraphs and composition overrides;
+  `WaveManager`/`WavePlanner` apply mutators + endless scaling + spillover queue.
+- `SaveManager` schema 3: tutorial completion, achievements, meta wallet/ranks.
+- `SettingsData` gained getters; `HealthComponent` gained `get_max()`;
+  `ProgressionComponent` accepts `skill_cooldown_multiplier` + `add_permanent_bonus()`.
+- `Main` builds per-run systems (projectiles, pickups, hitstop, perf, decor, hazards)
+  and persistent directors (music, achievements, meta, tutorial).
+- New `skill_1/2/3` input actions (Q/E/R + joypad shoulder/trigger).
+
 ## [0.4.0] — Phase 4 · Data-driven progression & upgrade loop
 
 ### Added

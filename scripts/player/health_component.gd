@@ -62,6 +62,10 @@ func get_current() -> float:
 	return current_health
 
 
+func get_max() -> float:
+	return max_health
+
+
 ## Core damage intake. Returns the DamageResult synchronously.
 func take_damage(payload: DamagePayload) -> DamageResult:
 	var result := DamageResult.new()

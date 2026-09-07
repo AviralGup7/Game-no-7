@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"bladestorm"
+display_name = "Bladestorm"
+description = "Whirl for 5 rapid hits around you."
+behavior = &"whirl"
+input_action = &"skill_2"
+cooldown = 16.0
+damage_multiplier = 3.0
+radius = 3.5
+knockback = 6.0
+hit_count = 5
+hit_interval = 0.18
+victim_effects = Array[StringName]([&"bleed"])
+victim_effect_chance = 0.6
+unlock_level = 2
+unlock_wave = 2
+weight = 0.9
+disabled = false
+tags = Array[StringName]([&"aoe", &"bleed"])

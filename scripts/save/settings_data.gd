@@ -44,6 +44,67 @@ func set_text_scale(value: float) -> void:
 	text_scale = clampf(value, MIN_TEXT_SCALE, MAX_TEXT_SCALE)
 
 
+func set_muted(value: bool) -> void:
+	muted = value
+
+
+func set_reduced_motion(value: bool) -> void:
+	reduced_motion = value
+
+
+func set_vibration_enabled(value: bool) -> void:
+	vibration_enabled = value
+
+
+func set_high_contrast(value: bool) -> void:
+	high_contrast = value
+
+
+func set_aim_assist_enabled(value: bool) -> void:
+	aim_assist_enabled = value
+
+
+## Read accessors (UI panels and audio/motion systems read through these).
+func get_master_volume() -> float:
+	return master_volume
+
+
+func get_music_volume() -> float:
+	return music_volume
+
+
+func get_sfx_volume() -> float:
+	return sfx_volume
+
+
+func is_muted() -> bool:
+	return muted
+
+
+func get_graphics_quality() -> StringName:
+	return graphics_quality
+
+
+func get_reduced_motion() -> bool:
+	return reduced_motion
+
+
+func get_text_scale() -> float:
+	return text_scale
+
+
+func is_high_contrast() -> bool:
+	return high_contrast
+
+
+func is_vibration_enabled() -> bool:
+	return vibration_enabled
+
+
+func is_aim_assist_enabled() -> bool:
+	return aim_assist_enabled
+
+
 func _clamp01(value: float) -> float:
 	return clampf(value, 0.0, 1.0)
 

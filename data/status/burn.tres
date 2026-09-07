@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusEffectConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+effect_id = &"burn"
+display_name = "Burn"
+is_harmful = true
+duration = 4.0
+max_stacks = 3
+stack_mode = &"add"
+dot_per_second = 4.0
+dot_type = &"fire"
+move_speed_factor = 1.0
+damage_factor = 1.0
+received_damage_factor = 1.0
+tick_interval = 0.5
+tint = Color(1, 0.45, 0.15, 1)
+tags = Array[StringName]([&"dot", &"fire"])

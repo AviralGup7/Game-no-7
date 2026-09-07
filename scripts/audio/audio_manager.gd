@@ -82,6 +82,33 @@ func _bus_index(name: String) -> int:
 	return 0
 
 
+## Live per-bus volume setters (settings UI). Update the cached settings object
+## and re-apply to the mixer without emitting settings_changed (avoids loops).
+func set_master_volume(value: float) -> void:
+	_settings.set_master_volume(value)
+	apply_settings(_settings)
+
+
+func set_music_volume(value: float) -> void:
+	_settings.set_music_volume(value)
+	apply_settings(_settings)
+
+
+func set_sfx_volume(value: float) -> void:
+	_settings.set_sfx_volume(value)
+	apply_settings(_settings)
+
+
+func set_muted(muted: bool) -> void:
+	_settings.set_muted(muted)
+	apply_settings(_settings)
+
+
+## Null-safe stream lookup for the MusicManager (missing cues stay silent).
+func get_cue_stream(cue_id: StringName) -> AudioStream:
+	return _resolve_stream(cue_id)
+
+
 ## Music ---------------------------------------------------------------------
 func play_music(cue_id: StringName) -> void:
 	if cue_id == _current_music_id:

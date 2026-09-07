@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"frost_nova_skill"
+display_name = "Frost Nova"
+description = "Freezing blast: damage plus a heavy slow."
+behavior = &"frost_nova"
+input_action = &"skill_3"
+cooldown = 18.0
+damage_multiplier = 1.6
+radius = 5.0
+knockback = 5.0
+victim_effects = Array[StringName]([&"slow"])
+victim_effect_chance = 1.0
+unlock_level = 5
+unlock_wave = 5
+weight = 0.7
+disabled = false
+tags = Array[StringName]([&"aoe", &"control"])

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"phantom_rush"
+display_name = "Phantom Rush"
+description = "Dash through enemies, striking each one passed."
+behavior = &"dash_strike"
+input_action = &"skill_3"
+cooldown = 10.0
+damage_multiplier = 1.8
+radius = 1.6
+length = 7.0
+knockback = 8.0
+dash_duration = 0.18
+unlock_level = 3
+unlock_wave = 3
+weight = 0.9
+disabled = false
+tags = Array[StringName]([&"mobility", &"line"])

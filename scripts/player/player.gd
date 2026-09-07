@@ -3,8 +3,11 @@ class_name Player
 
 ## Coordinates movement, combat, health, death, and external commands for the player.
 ## Composition: CharacterController (motion), HealthComponent (health), AttackController
-## (attack timing), ProgressionComponent (upgrades), TargetingComponent (aim). UI and
-## future weapon systems talk to THIS node through the stable command interface below.
+## (legacy attack timing), WeaponManager (loadout + melee/volley dispatch),
+## ProgressionComponent (upgrades), TargetingComponent (aim), StaminaComponent
+## (dodge/skill resource), ExperienceComponent (XP/levels), SkillController (active
+## skills), StatusManager (buffs/debuffs). UI and future systems talk to THIS node
+## through the stable command interface below.
 
 signal move_started()
 signal move_stopped()
@@ -16,6 +19,11 @@ signal dodged()
 signal died()
 signal respawned()
 signal upgrade_applied(upgrade_id: StringName)
+signal leveled_up(new_level: int)
+
+const DODGE_STAMINA_COST := 25.0
+const KILL_XP_BASE := 12.0
+const KILL_XP_ELITE_BONUS := 18.0
 
 ## Movement intent coming from the virtual joystick (normalized screen space).
 var _move_input := Vector2.ZERO
@@ -32,6 +40,11 @@ var _targeting: Node = null
 var _feedback: Node = null
 var _player_audio: Node = null
 var _dodge: Node = null
+var _stamina: Node = null
+var _experience: Node = null
+var _skills: Node = null
+var _weapons: Node = null
+var _status: Node = null
 var _bounds_half := -1.0   # -1 => no clamp (set by the scene owner / main)
 
 @export var walk_speed: float = 6.0
@@ -39,6 +52,7 @@ var _bounds_half := -1.0   # -1 => no clamp (set by the scene owner / main)
 
 
 func _ready() -> void:
+	add_to_group("player")
 	_controller = get_node_or_null("CharacterController")
 	_health = get_node_or_null("HealthComponent")
 	_attack = get_node_or_null("AttackController")
@@ -47,6 +61,11 @@ func _ready() -> void:
 	_feedback = get_node_or_null("PlayerFeedback")
 	_player_audio = get_node_or_null("PlayerAudio")
 	_dodge = get_node_or_null("DodgeController")
+	_stamina = get_node_or_null("StaminaComponent")
+	_experience = get_node_or_null("ExperienceComponent")
+	_skills = get_node_or_null("SkillController")
+	_weapons = get_node_or_null("WeaponManager")
+	_status = get_node_or_null("StatusManager")
 	if _health != null:
 		_health.health_changed.connect(_on_health_changed)
 		_health.damaged.connect(_on_damaged)
@@ -59,6 +78,11 @@ func _ready() -> void:
 		_attack.attack_started.connect(_on_attack_started)
 		_attack.attack_finished.connect(_on_attack_finished)
 		_attack.attack_hit.connect(_on_attack_hit)
+	if _weapons != null:
+		if _weapons.has_signal("attack_resolved"):
+			_weapons.attack_resolved.connect(_on_weapon_attack_resolved)
+	if _experience != null and _experience.has_signal("leveled_up"):
+		_experience.leveled_up.connect(_on_leveled_up)
 	if _dodge != null:
 		if _dodge.has_method("bind_health"):
 			_dodge.call("bind_health", _health)
@@ -69,6 +93,8 @@ func _ready() -> void:
 	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
 	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
 		EventBus.enemy_killed.connect(_on_enemy_kill_heal)
+	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_xp):
+		EventBus.enemy_killed.connect(_on_enemy_kill_xp)
 
 
 ## Mitigation provider for the generic HealthComponent: computes post-resistance
@@ -84,6 +110,13 @@ func _mitigation_provider(amount: float, _payload: DamagePayload) -> float:
 func _physics_process(delta: float) -> void:
 	if not _control_enabled or _is_dead:
 		return
+	if _is_stunned():
+		# Stunned: timers still advance so the stun itself can expire, but no input.
+		if _attack != null and _attack.has_method("advance"):
+			_attack.call("advance", delta)
+		if _weapons != null and _weapons.has_method("tick"):
+			_weapons.call("tick", delta)
+		return
 	if _using_actions:
 		if Input.is_action_just_pressed("attack"):
 			request_attack()
@@ -92,7 +125,10 @@ func _physics_process(delta: float) -> void:
 	# Advance attack timers every active step so hits resolve deterministically.
 	if _attack != null and _attack.has_method("advance"):
 		_attack.call("advance", delta)
+	if _weapons != null and _weapons.has_method("tick"):
+		_weapons.call("tick", delta)
 	var move := _gather_move_input()
+	move *= _move_speed_factor()
 	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
 	# only ran mid-dodge would lock the player out forever).
 	if _dodge != null:
@@ -106,8 +142,22 @@ func _physics_process(delta: float) -> void:
 	_clamp_to_bounds()
 
 
+func _is_stunned() -> bool:
+	return _status != null and _status.has_method("is_stunned") and bool(_status.call("is_stunned"))
+
+
+func _move_speed_factor() -> float:
+	if _status != null and _status.has_method("move_speed_factor"):
+		return clampf(float(_status.call("move_speed_factor")), 0.0, 2.0)
+	return 1.0
+
+
 func set_control_enabled(enabled: bool) -> void:
 	_control_enabled = enabled
+	if _skills != null and _skills.has_method("set_enabled"):
+		_skills.call("set_enabled", enabled)
+	if _weapons != null and _weapons.has_method("set_attacks_enabled"):
+		_weapons.call("set_attacks_enabled", enabled)
 	if not enabled:
 		_clear_input()
 
@@ -133,6 +183,12 @@ func clear_move_input() -> void:
 func request_attack() -> void:
 	if _is_dead or not _control_enabled:
 		return
+	# WeaponManager is the primary path when a weapon is equipped; the legacy
+	# AttackController stays as the fallback so older scenes keep working.
+	if _weapons != null and _weapons.has_method("active_instance") and _weapons.call("active_instance") != null:
+		if _weapons.has_method("request_attack"):
+			_weapons.call("request_attack")
+		return
 	if _attack != null and _attack.has_method("request_attack"):
 		_attack.call("request_attack")
 
@@ -141,6 +197,8 @@ func request_dodge() -> bool:
 	if _is_dead or not _control_enabled:
 		return false
 	if _dodge == null or not _dodge.has_method("request"):
+		return false
+	if not try_spend_stamina(DODGE_STAMINA_COST):
 		return false
 	# Direction: prefer the current movement input (camera-relative); fall back to the
 	# body's facing (world -Z) so a standing dodge always goes somewhere.
@@ -153,6 +211,9 @@ func request_dodge() -> bool:
 	var started := bool(_dodge.call("request", dir))
 	if started:
 		dodged.emit()
+	else:
+		# Refund the stamina when the dodge itself refused (cooldown, mid-air...).
+		restore_stamina(DODGE_STAMINA_COST)
 	return started
 
 
@@ -164,11 +225,109 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	if _is_dead:
 		result.ignored_reason = DamageResult.IGNORE_DEAD
 		return result
-	var taken: Variant = _health.call("take_damage", payload)
+	var final_payload := _apply_status_intake(payload)
+	var taken: Variant = _health.call("take_damage", final_payload)
 	if taken is DamageResult:
 		return taken
 	result.ignored_reason = &"invalid_result"
 	return result
+
+
+## Scale + shield an incoming payload through the StatusManager (guard shields,
+## shock vulnerability...). Returns the original payload when no manager exists.
+func _apply_status_intake(payload: DamagePayload) -> DamagePayload:
+	if _status == null or payload == null:
+		return payload
+	var factor := 1.0
+	if _status.has_method("incoming_damage_factor"):
+		factor = float(_status.call("incoming_damage_factor"))
+	var amount := payload.amount * factor
+	if _status.has_method("absorb_direct"):
+		amount = float(_status.call("absorb_direct", amount))
+	if is_equal_approx(amount, payload.amount):
+		return payload
+	var copy := DamagePayload.new()
+	copy.amount = maxf(amount, 0.0)
+	copy.source = payload.source
+	copy.source_id = payload.source_id
+	copy.damage_type = payload.damage_type
+	copy.knockback = payload.knockback
+	copy.hit_position = payload.hit_position
+	copy.can_crit = payload.can_crit
+	copy.critical_multiplier = payload.critical_multiplier
+	copy.was_critical = payload.was_critical
+	copy.status_effects = payload.status_effects.duplicate()
+	copy.metadata = payload.metadata.duplicate()
+	return copy
+
+
+## ---------- Stamina / XP / skill / weapon / status facades ----------
+
+func try_spend_stamina(amount: float) -> bool:
+	if _stamina == null or not _stamina.has_method("try_spend"):
+		return true  # no stamina system wired: actions are free
+	return bool(_stamina.call("try_spend", amount))
+
+
+func restore_stamina(amount: float) -> void:
+	if _stamina != null and _stamina.has_method("restore"):
+		_stamina.call("restore", amount)
+
+
+func get_stamina_fraction() -> float:
+	if _stamina != null and _stamina.has_method("get_fraction"):
+		return float(_stamina.call("get_fraction"))
+	return 1.0
+
+
+func add_xp(amount: float) -> int:
+	if _experience != null and _experience.has_method("add_xp"):
+		return int(_experience.call("add_xp", amount))
+	return 0
+
+
+func get_level() -> int:
+	if _experience != null and _experience.has_method("get_level"):
+		return int(_experience.call("get_level"))
+	return 1
+
+
+func get_xp_fraction() -> float:
+	if _experience != null and _experience.has_method("get_fraction_into_level"):
+		return float(_experience.call("get_fraction_into_level"))
+	return 0.0
+
+
+func request_skill(slot: int) -> bool:
+	if _is_dead or not _control_enabled:
+		return false
+	if _skills != null and _skills.has_method("try_cast_slot"):
+		return bool(_skills.call("try_cast_slot", slot))
+	return false
+
+
+func get_skill_controller() -> Node:
+	return _skills
+
+
+func get_weapon_manager() -> Node:
+	return _weapons
+
+
+func get_status_manager() -> Node:
+	return _status
+
+
+func apply_status_effects(effect_ids: Array, source: Node = null) -> Dictionary:
+	if _status != null and _status.has_method("apply_effects"):
+		return _status.call("apply_effects", effect_ids, source)
+	return {}
+
+
+func cleanse_status(only_harmful: bool = true) -> int:
+	if _status != null and _status.has_method("cleanse_all"):
+		return int(_status.call("cleanse_all", only_harmful))
+	return 0
 
 
 ## Apply an upgrade through the runtime ProgressionComponent. Returns true when it was
@@ -224,6 +383,25 @@ func _on_enemy_kill_heal(_enemy: Node, _archetype_id: StringName, _score: int, _
 		_health.call("heal", heal_amount)
 
 
+## Every valid kill feeds XP (elites are worth extra).
+func _on_enemy_kill_xp(enemy: Node, _archetype_id: StringName, _score: int, _currency: int) -> void:
+	if _is_dead or _experience == null:
+		return
+	var award := KILL_XP_BASE
+	if enemy != null and enemy.has_method("is_elite") and bool(enemy.call("is_elite")):
+		award += KILL_XP_ELITE_BONUS
+	add_xp(award)
+
+
+func _on_leveled_up(new_level: int) -> void:
+	leveled_up.emit(new_level)
+
+
+func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
+	attack_finished.emit()
+	EventBus.report_info("Weapon %s resolved %d hits%s" % [String(weapon_id), hit_count, " CRIT" if was_crit else ""])
+
+
 func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	global_transform = spawn_transform
 	velocity = Vector3.ZERO
@@ -239,8 +417,30 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 		_attack.call("reset_attack_state")
 	if _dodge != null and _dodge.has_method("reset"):
 		_dodge.call("reset")
+	if _stamina != null and _stamina.has_method("reset_for_new_run"):
+		_stamina.call("reset_for_new_run")
+	if _experience != null and _experience.has_method("reset_for_new_run"):
+		_experience.call("reset_for_new_run")
+	if _skills != null and _skills.has_method("reset_for_new_run"):
+		_skills.call("reset_for_new_run")
+	if _weapons != null and _weapons.has_method("reset_for_new_run"):
+		_weapons.call("reset_for_new_run")
+	if _status != null and _status.has_method("clear_all"):
+		_status.call("clear_all")
 	_rebuild_derived_stats()
+	_equip_starter_kit()
 	respawned.emit()
+
+
+## Starter kit: Gladius in slot 0 + the first skill unlocked (all tolerant when
+## the ContentRegistry is unavailable, e.g. headless direct use).
+func _equip_starter_kit() -> void:
+	if _weapons != null and _weapons.has_method("equip_by_id"):
+		_weapons.call("equip_by_id", &"gladius", 0)
+	if _skills != null and _skills.has_method("assign_skill_by_id"):
+		_skills.call("assign_skill_by_id", &"seismic_slam", 0, true)
+		_skills.call("assign_skill_by_id", &"bladestorm", 1, false)
+		_skills.call("assign_skill_by_id", &"phantom_rush", 2, false)
 
 
 func _rebuild_derived_stats() -> void:
@@ -257,6 +457,13 @@ func _rebuild_derived_stats() -> void:
 		var new_max := _derived_max_health()
 		if _health.has_method("set_max_health"):
 			_health.call("set_max_health", new_max)
+	# Stamina + weapons + skills refresh from the same progression source.
+	if _stamina != null and _stamina.has_method("refresh_from_stats"):
+		_stamina.call("refresh_from_stats")
+	if _weapons != null and _weapons.has_method("refresh_derived_stats"):
+		_weapons.call("refresh_derived_stats")
+	if _skills != null and _skills.has_method("set_cooldown_multiplier") and _progression.has_method("get_stat"):
+		_skills.call("set_cooldown_multiplier", float(_progression.call("get_stat", &"skill_cooldown_multiplier", 1.0)))
 
 
 func _derived_max_health() -> float:
@@ -387,6 +594,12 @@ func get_debug_snapshot() -> Dictionary:
 	var ctl: Dictionary = {}
 	if _controller != null and _controller.has_method("get_debug_snapshot"):
 		ctl = _controller.call("get_debug_snapshot")
+	var weap: Dictionary = {}
+	if _weapons != null and _weapons.has_method("get_debug_snapshot"):
+		weap = _weapons.call("get_debug_snapshot")
+	var skl: Dictionary = {}
+	if _skills != null and _skills.has_method("get_debug_snapshot"):
+		skl = _skills.call("get_debug_snapshot")
 	return {
 		"position": global_position,
 		"health": hp,
@@ -394,6 +607,10 @@ func get_debug_snapshot() -> Dictionary:
 		"alive": is_alive(),
 		"control_enabled": _control_enabled,
 		"progression": get_progression_snapshot(),
+		"level": get_level(),
+		"stamina": get_stamina_fraction(),
+		"weapons": weap,
+		"skills": skl,
 	}
 
 

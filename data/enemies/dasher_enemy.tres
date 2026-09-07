@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/dasher_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"dasher"
+display_name = "Dasher"
+scene = ExtResource("2_scene")
+max_health = 14.0
+move_speed = 4.6
+acceleration = 14.0
+attack_damage = 8.0
+attack_range = 1.6
+attack_cooldown = 0.9
+attack_windup = 0.25
+score_value = 15
+currency_value = 2
+knockback_resistance = 0.1
+detect_range = 0.0
+hurt_duration = 0.15
+bounds_radius = 0.5
+navigation_target_update_interval = 0.15
+color_tint = Color(0.95, 0.75, 0.2, 1)
+visual_scale = 0.9
+tags = Array[StringName]([&"fast", &"melee"])
+unlock_wave = 3
+elite_eligible = true
+spawn_priority = 2
+balance_notes = "Very fast, fragile; forces movement and dodging."

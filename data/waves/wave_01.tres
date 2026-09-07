@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WaveConfig" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/waves/wave_spawn_entry.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="e1"]
+script = ExtResource("2_entry")
+archetype_id = &"basic"
+count = 5
+spawn_weight = 1.0
+elite_chance = 0.0
+spawn_tags = Array[StringName]([])
+
+[resource]
+script = ExtResource("1_script")
+wave_number = 1
+spawn_entries = Array[WaveSpawnEntry]([SubResource("e1")])
+spawn_interval = 0.9
+maximum_simultaneous_enemies = 6
+transition_delay = 2.5
+completion_bonus = 20
+upgrade_after_completion = false
+arena_modifier_ids = Array[StringName]([])
+announcement_text_key = &"wave_started"
+difficulty_rating = 1.0

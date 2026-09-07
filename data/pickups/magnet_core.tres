@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PickupConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+pickup_id = &"magnet_core"
+display_name = "Magnet Core"
+effect = &"magnet"
+amount = 0.0
+lifetime = 15.0
+collect_radius = 1.4
+magnet_radius = 6.0
+magnet_speed = 11.0
+tint = Color(0.4, 0.8, 1, 1)
+drop_weight = 0.35
+min_wave = 3
+disabled = false
+tags = Array[StringName]([&"utility"])

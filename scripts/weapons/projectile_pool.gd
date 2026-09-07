@@ -1,0 +1,135 @@
+class_name ProjectilePool
+extends Node
+
+## Scene-tree pool of Projectile nodes shared by player weapons and enemy
+## shooters. Pre-spawns a fixed budget at _ready (no mid-fight allocation),
+## hands out projectiles via `fire()`, and reclaims them on `release_requested`.
+## When exhausted it recycles the oldest active projectile rather than failing,
+## so heavy volleys degrade gracefully instead of dropping shots silently.
+
+signal pool_exhausted_recycled()
+
+@export var pool_size: int = 48
+@export var projectile_scene: PackedScene = null
+
+var _idle: Array[Projectile] = []
+var _active: Array[Projectile] = []
+var _fallback_mesh: SphereMesh = null
+
+
+func _ready() -> void:
+	add_to_group("projectile_pool")
+	_fallback_mesh = SphereMesh.new()
+	_fallback_mesh.radius = 0.18
+	_fallback_mesh.height = 0.36
+	for i in range(maxi(pool_size, 1)):
+		var p := _make_projectile()
+		_idle.append(p)
+
+
+func _make_projectile() -> Projectile:
+	var p: Projectile = null
+	if projectile_scene != null:
+		var inst: Node = projectile_scene.instantiate()
+		if inst is Projectile:
+			p = inst as Projectile
+	if p == null:
+		p = _make_fallback_projectile()
+	add_child(p)
+	p.pool_reset()
+	if not p.release_requested.is_connected(_on_release_requested):
+		p.release_requested.connect(_on_release_requested)
+	var shape := p.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if shape != null and shape.shape == null:
+		var sphere := SphereShape3D.new()
+		sphere.radius = 0.25
+		shape.shape = sphere
+	return p
+
+
+## Minimal code-built projectile so the pool works with zero scene assets.
+func _make_fallback_projectile() -> Projectile:
+	var p := Projectile.new()
+	p.collision_layer = 0
+	p.collision_mask = 7  # world + player + enemy
+	var shape_node := CollisionShape3D.new()
+	shape_node.name = "CollisionShape3D"
+	var sphere := SphereShape3D.new()
+	sphere.radius = 0.25
+	shape_node.shape = sphere
+	p.add_child(shape_node)
+	var visual := Node3D.new()
+	visual.name = "Visual"
+	p.add_child(visual)
+	var mesh := MeshInstance3D.new()
+	mesh.name = "Mesh"
+	mesh.mesh = _fallback_mesh
+	visual.add_child(mesh)
+	return p
+
+
+## Fire one projectile. `config` is forwarded to Projectile.launch() (must at
+## least carry origin + direction). Returns the projectile, or null if the pool
+## node is not inside the tree.
+func fire(config: Dictionary) -> Projectile:
+	if not is_inside_tree():
+		return null
+	var p := _obtain()
+	p.launch(config)
+	return p
+
+
+## Fire a fan of projectiles sharing a config except direction.
+func fire_volley(config: Dictionary, directions: Array[Vector3]) -> Array[Projectile]:
+	var out: Array[Projectile] = []
+	for dir in directions:
+		var cfg := config.duplicate()
+		cfg["direction"] = dir
+		var p := fire(cfg)
+		if p != null:
+			out.append(p)
+	return out
+
+
+func _obtain() -> Projectile:
+	var p: Projectile = null
+	if not _idle.is_empty():
+		p = _idle.pop_back()
+	else:
+		# Recycle the oldest active projectile (deterministic, no allocation).
+		p = _active.pop_front()
+		pool_exhausted_recycled.emit()
+	if p in _active:
+		_active.erase(p)
+	_active.append(p)
+	return p
+
+
+func _on_release_requested(p: Projectile) -> void:
+	release(p)
+
+
+func release(p: Projectile) -> void:
+	if p == null:
+		return
+	_active.erase(p)
+	if p not in _idle:
+		p.pool_reset()
+		_idle.append(p)
+
+
+func release_all() -> void:
+	for p in _active.duplicate():
+		release(p)
+
+
+func idle_count() -> int:
+	return _idle.size()
+
+
+func active_count() -> int:
+	return _active.size()
+
+
+func get_debug_snapshot() -> Dictionary:
+	return {"idle": _idle.size(), "active": _active.size(), "pool_size": pool_size}

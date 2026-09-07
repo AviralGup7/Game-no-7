@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusEffectConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+effect_id = &"bleed"
+display_name = "Bleed"
+is_harmful = true
+duration = 5.0
+max_stacks = 5
+stack_mode = &"add"
+dot_per_second = 2.5
+dot_type = &"bleed"
+move_speed_factor = 1.0
+damage_factor = 1.0
+received_damage_factor = 1.0
+tick_interval = 0.5
+tint = Color(0.7, 0.08, 0.1, 1)
+tags = Array[StringName]([&"dot", &"physical"])

@@ -14,6 +14,11 @@ var _ui_root: Node = null
 var _spawn_manager: SpawnManager = null
 var _wave_manager: WaveManager = null
 var _run_started := false
+## Persistent (run-independent) directors live outside WorldRoot.
+var _music: MusicManager = null
+var _achievements: Achievements = null
+var _meta: MetaProgression = null
+var _tutorial: TutorialManager = null
 
 
 func _ready() -> void:
@@ -22,6 +27,25 @@ func _ready() -> void:
 	if _ui_root == null:
 		_ui_root = get_node_or_null("UIRoot")
 	GameRoot.game_state_changed.connect(_on_state_changed)
+	_create_persistent_directors()
+
+
+## Run-independent observers: music, achievements, meta wallet, tutorial coach.
+## Created once; they self-wire to EventBus and survive world rebuilds.
+func _create_persistent_directors() -> void:
+	_music = MusicManager.new()
+	_music.name = "MusicManager"
+	add_child(_music)
+	_music.begin_tracking()
+	_achievements = Achievements.new()
+	_achievements.name = "Achievements"
+	add_child(_achievements)
+	_meta = MetaProgression.new()
+	_meta.name = "MetaProgression"
+	add_child(_meta)
+	_tutorial = TutorialManager.new()
+	_tutorial.name = "TutorialManager"
+	add_child(_tutorial)
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:
@@ -114,6 +138,62 @@ func _create_systems(arena: Node, player: Node) -> void:
 	_world_root.add_child(wave)
 	_wave_manager = wave as WaveManager
 	_wave_manager.setup(_spawn_manager)
+
+	_create_run_systems(arena, player)
+
+
+## Per-run support systems: projectiles, pickups, juice, perf scaling, arena
+## dressing + hazards. All passive until used; freed with the world on rebuild.
+func _create_run_systems(arena: Node, player: Node) -> void:
+	var seed := GameRoot.get_run().seed
+	var arena_id := GameRoot.get_run().arena_id
+	var half := 12.0
+	if arena.has_method("get_interior_half"):
+		half = float(arena.call("get_interior_half"))
+
+	var projectiles := ProjectilePool.new()
+	projectiles.name = "ProjectilePool"
+	_world_root.add_child(projectiles)
+
+	var pickups := PickupManager.new()
+	pickups.name = "PickupManager"
+	_world_root.add_child(pickups)
+	pickups.configure(seed)
+
+	var hitstop := HitstopManager.new()
+	hitstop.name = "HitstopManager"
+	_world_root.add_child(hitstop)
+
+	var perf := PerformanceMonitor.new()
+	perf.name = "PerformanceMonitor"
+	_world_root.add_child(perf)
+
+	var decorator := ArenaDecorator.new()
+	decorator.name = "ArenaDecorator"
+	(arena as Node).add_child(decorator)
+	decorator.decorate(arena_id, half, seed)
+
+	var hazards := ArenaHazards.new()
+	hazards.name = "ArenaHazards"
+	(arena as Node).add_child(hazards)
+	hazards.configure(arena_id, half, seed)
+
+	# Seed the player's deterministic streams + owned meta bonuses for this run.
+	if player is Node:
+		var skills := (player as Node).get_node_or_null("SkillController")
+		if skills != null and skills.has_method("configure"):
+			skills.call("configure", seed)
+		var weapons := (player as Node).get_node_or_null("WeaponManager")
+		if weapons != null and weapons.has_method("configure"):
+			weapons.call("configure", seed)
+		# Tutorial coach follows real player actions.
+		if _tutorial != null:
+			if (player as Node).has_signal("attack_started"):
+				(player as Node).attack_started.connect(_tutorial.notify_player_attacked)
+			if (player as Node).has_signal("dodged"):
+				(player as Node).dodged.connect(_tutorial.notify_player_dodged)
+	if _meta != null:
+		_meta.apply_all_to_run()
 
 
 func _clear_world() -> void:

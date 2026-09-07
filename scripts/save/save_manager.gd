@@ -3,10 +3,11 @@ extends Node
 ## Versioned local persistence. Owns load/validate/migrate/backup/corruption recovery
 ## of the user save. Never writes during every frame or every score change: changes
 ## mark the store dirty and a debounced flush writes atomically at explicit points.
+## Schema 3 adds tutorial completion, achievements, and the meta-progression wallet.
 
 const SAVE_PATH := "user://last_stand_save.json"
 const BACKUP_PATH := "user://last_stand_save.backup.json"
-const SCHEMA_VERSION := 2
+const SCHEMA_VERSION := 3
 const SAVE_DEBOUNCE_MSEC := 1200
 const MAX_VALID_SAVE_BYTES := 1 << 20  # 1 MiB safety cap
 
@@ -70,6 +71,15 @@ func persist_settings() -> void:
 	mark_dirty()
 
 
+## Replace the live settings object (settings UI apply path) + persist + notify.
+func save_settings(settings: SettingsData) -> void:
+	if settings == null:
+		return
+	_settings = settings
+	persist_settings()
+	EventBus.settings_changed.emit(_settings)
+
+
 func reset_settings() -> void:
 	_settings = SettingsData.new()
 	persist_settings()
@@ -80,13 +90,59 @@ func unlock_upgrade(upgrade_id: String) -> void:
 	var list: Array = _save.progression.unlocked_upgrades
 	if upgrade_id not in list:
 		list.append(upgrade_id)
-	mark_dirty()
+		mark_dirty()
 
 
 func unlock_arena(arena_id: String) -> void:
 	var list: Array = _save.progression.unlocked_arenas
 	if arena_id not in list:
 		list.append(arena_id)
+		mark_dirty()
+
+
+# ---------------------------- Tutorial / achievements / meta ----------------------------
+
+func is_tutorial_completed() -> bool:
+	return bool(_save.get("tutorial_completed", false))
+
+
+func set_tutorial_completed(completed: bool = true) -> void:
+	_save.tutorial_completed = completed
+	mark_dirty()
+
+
+func get_unlocked_achievements() -> Array:
+	return (_save.get("achievements", []) as Array).duplicate()
+
+
+func unlock_achievement(achievement_id: StringName) -> bool:
+	var list: Array = _save.achievements
+	var key := String(achievement_id)
+	if key in list:
+		return false
+	list.append(key)
+	mark_dirty()
+	return true
+
+
+func get_meta_wallet() -> int:
+	return maxi(int(_save.get("meta_wallet", 0)), 0)
+
+
+func set_meta_wallet(balance: int) -> void:
+	_save.meta_wallet = maxi(balance, 0)
+	mark_dirty()
+
+
+func get_meta_ranks() -> Dictionary:
+	return (_save.get("meta_ranks", {}) as Dictionary).duplicate()
+
+
+func set_meta_ranks(ranks: Dictionary) -> void:
+	var clean: Dictionary = {}
+	for key in ranks:
+		clean[String(key)] = maxi(int(ranks[key]), 0)
+	_save.meta_ranks = clean
 	mark_dirty()
 
 
@@ -100,6 +156,11 @@ func request_save() -> bool:
 	if _dirty:
 		return _flush_save()
 	return true
+
+
+## Immediate flush (armory purchases, achievement unlocks, app pause).
+func save_now() -> bool:
+	return _flush_save()
 
 
 # ---------------------------- Persistence ----------------------------
@@ -186,6 +247,10 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 	out.schema_version = SCHEMA_VERSION
 	out.best_score = maxi(0, _int_or(_dict_get(data, "best_score", 0), 0))
 	out.best_wave = maxi(0, _int_or(_dict_get(data, "best_wave", 0), 0))
+	out.tutorial_completed = bool(_dict_get(data, "tutorial_completed", false))
+	out.achievements = _string_list(_dict_get(data, "achievements", []))
+	out.meta_wallet = maxi(0, _int_or(_dict_get(data, "meta_wallet", 0), 0))
+	out.meta_ranks = _string_int_map(_dict_get(data, "meta_ranks", {}))
 	if data.has("lifetime_statistics") and data.lifetime_statistics is Dictionary:
 		var src: Dictionary = data.lifetime_statistics
 		var ls: Dictionary = out.lifetime_statistics
@@ -222,8 +287,9 @@ func validate_save_data(raw_data: Variant) -> Dictionary:
 
 
 static func _migrate_static(data: Dictionary, from_version: int) -> Dictionary:
-	if from_version <= 1:
-		# v1 -> v2: no structural rewrite required; defaults cover new fields.
+	if from_version <= 2:
+		# v1/v2 -> v3: new keys (tutorial/achievements/meta) take safe defaults;
+		# no structural rewrite required.
 		pass
 	return data
 
@@ -233,6 +299,10 @@ static func _default_save_static() -> Dictionary:
 		"schema_version": SCHEMA_VERSION,
 		"best_score": 0,
 		"best_wave": 0,
+		"tutorial_completed": false,
+		"achievements": [],
+		"meta_wallet": 0,
+		"meta_ranks": {},
 		"lifetime_statistics": {
 			"total_runs": 0,
 			"total_kills": 0,
@@ -269,4 +339,14 @@ static func _string_list(value: Variant) -> Array:
 	if value is Array:
 		for item in value:
 			out.append(String(item))
+	return out
+
+
+static func _string_int_map(value: Variant) -> Dictionary:
+	var out: Dictionary = {}
+	if value is Dictionary:
+		for key in value:
+			var v: Variant = value[key]
+			if v is float or v is int:
+				out[String(key)] = maxi(int(v), 0)
 	return out

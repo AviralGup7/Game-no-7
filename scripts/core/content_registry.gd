@@ -1,10 +1,11 @@
 extends Node
 ## Autoload: ContentRegistry
 ## Discovers, validates, caches, and exposes enemy / upgrade / arena / weapon /
-## camera / audio definitions from res://data/** .tres resources. Every registry is
-## tolerant: missing or invalid optional content produces diagnostics + fallback and
-## never crashes startup. Adding content = drop a .tres in the right folder and
-## (optionally) register a default; no core-script rewrites.
+## camera / audio / skill / status / pickup / wave definitions from res://data/**
+## .tres resources. Every registry is tolerant: missing or invalid optional
+## content produces diagnostics + fallback and never crashes startup. Adding
+## content = drop a .tres in the right folder and (optionally) register a
+## default; no core-script rewrites.
 
 const DATA_ROOT := "res://data"
 
@@ -12,7 +13,11 @@ var _enemies: Dictionary = {}        # StringName -> EnemyConfig
 var _upgrades: Dictionary = {}       # StringName -> UpgradeConfig
 var _arenas: Dictionary = {}         # StringName -> ArenaConfig
 var _cameras: Dictionary = {}        # StringName -> CameraProfile
-var _weapons: Dictionary = {}        # StringName -> Resource (weapon profile, future)
+var _weapons: Dictionary = {}        # StringName -> WeaponConfig
+var _skills: Dictionary = {}         # StringName -> SkillConfig
+var _status: Dictionary = {}         # StringName -> StatusEffectConfig
+var _pickups: Dictionary = {}        # StringName -> PickupConfig
+var _waves: Dictionary = {}          # int wave_number -> WaveConfig
 var _audio_cues: Dictionary = {}     # StringName -> AudioStream
 var _selected_arena: StringName = &"default_arena"
 var _validation_errors: Array[String] = []
@@ -21,8 +26,9 @@ var _validation_dirty := true
 
 func _ready() -> void:
 	refresh_all()
-	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras" % [
-		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size()
+	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras, %d weapons, %d skills, %d status, %d pickups, %d waves" % [
+		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size(),
+		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size()
 	])
 
 
@@ -34,6 +40,10 @@ func refresh_all() -> void:
 	_load_typed(&"res://data/arenas", &"arenas")
 	_load_typed(&"res://data/cameras", &"cameras")
 	_load_typed(&"res://data/weapons", &"weapons")
+	_load_typed(&"res://data/skills", &"skills")
+	_load_typed(&"res://data/status", &"status")
+	_load_typed(&"res://data/pickups", &"pickups")
+	_load_typed(&"res://data/waves", &"waves")
 	_load_audio()
 	_validation_dirty = true
 
@@ -65,9 +75,41 @@ func _load_typed(dir_path: String, kind: StringName) -> void:
 				else:
 					_register_resource(_cameras, StringName(cam.profile_id), cam, path)
 			&"weapons":
-				# Weapon profiles are a later-phase content type; hold opaque typed resources.
-				if res.has_method("validate"):
-					_weapons[StringName(res.resource_path.get_file().get_basename())] = res
+				var weapon := res as WeaponConfig
+				if weapon == null:
+					_validation_errors.append("Not a WeaponConfig: %s" % path)
+				else:
+					_register_resource(_weapons, StringName(weapon.weapon_id), weapon, path)
+			&"skills":
+				var skill := res as SkillConfig
+				if skill == null:
+					_validation_errors.append("Not a SkillConfig: %s" % path)
+				else:
+					_register_resource(_skills, StringName(skill.skill_id), skill, path)
+			&"status":
+				var effect := res as StatusEffectConfig
+				if effect == null:
+					_validation_errors.append("Not a StatusEffectConfig: %s" % path)
+				else:
+					_register_resource(_status, StringName(effect.effect_id), effect, path)
+			&"pickups":
+				var pickup := res as PickupConfig
+				if pickup == null:
+					_validation_errors.append("Not a PickupConfig: %s" % path)
+				else:
+					_register_resource(_pickups, StringName(pickup.pickup_id), pickup, path)
+			&"waves":
+				var wave := res as WaveConfig
+				if wave == null:
+					_validation_errors.append("Not a WaveConfig: %s" % path)
+				elif _waves.has(wave.wave_number):
+					_validation_errors.append("Duplicate wave_number %d: %s" % [wave.wave_number, path])
+				else:
+					if wave.has_method("validate"):
+						var wave_problems: Array = wave.call("validate")
+						for p in wave_problems:
+							_validation_errors.append("%s: %s" % [path, p])
+					_waves[wave.wave_number] = wave
 
 
 func _register_one(table: Dictionary, res: Resource, path: String, kind: String) -> void:
@@ -143,6 +185,63 @@ func get_all_upgrades() -> Dictionary:
 	return _upgrades
 
 
+func get_weapon(weapon_id: StringName) -> WeaponConfig:
+	return _weapons.get(weapon_id)
+
+
+func get_all_weapons() -> Dictionary:
+	return _weapons
+
+
+func get_all_weapon_ids() -> Array:
+	return _weapons.keys()
+
+
+func get_skill(skill_id: StringName) -> SkillConfig:
+	return _skills.get(skill_id)
+
+
+func get_all_skills() -> Dictionary:
+	return _skills
+
+
+func get_all_skill_configs() -> Array:
+	return _skills.values()
+
+
+func get_status_effect(effect_id: StringName) -> StatusEffectConfig:
+	return _status.get(effect_id)
+
+
+func get_all_status_effects() -> Dictionary:
+	return _status
+
+
+func get_pickup(pickup_id: StringName) -> PickupConfig:
+	return _pickups.get(pickup_id)
+
+
+func get_all_pickups() -> Dictionary:
+	return _pickups
+
+
+func get_all_pickup_configs() -> Array:
+	return _pickups.values()
+
+
+## Authored wave override for `wave_number`, or null when generated waves apply.
+func get_wave(wave_number: int) -> WaveConfig:
+	return _waves.get(wave_number)
+
+
+func has_authored_wave(wave_number: int) -> bool:
+	return _waves.has(wave_number)
+
+
+func get_all_waves() -> Dictionary:
+	return _waves
+
+
 func get_selected_arena_id() -> StringName:
 	if not _arenas.has(_selected_arena):
 		return &"default_arena"
@@ -200,6 +299,11 @@ func get_debug_snapshot() -> Dictionary:
 		"upgrade_count": _upgrades.size(),
 		"arena_count": _arenas.size(),
 		"camera_count": _cameras.size(),
+		"weapon_count": _weapons.size(),
+		"skill_count": _skills.size(),
+		"status_count": _status.size(),
+		"pickup_count": _pickups.size(),
+		"wave_count": _waves.size(),
 		"audio_cue_count": _audio_cues.size(),
 		"selected_arena": String(_selected_arena),
 		"validation_errors": _validation_errors.size(),

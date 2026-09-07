@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/warlord_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"warlord"
+display_name = "Arena Warlord"
+scene = ExtResource("2_scene")
+max_health = 600.0
+move_speed = 2.4
+acceleration = 7.0
+attack_damage = 18.0
+attack_range = 2.6
+attack_cooldown = 1.2
+attack_windup = 0.5
+score_value = 500
+currency_value = 50
+knockback_resistance = 0.8
+detect_range = 0.0
+hurt_duration = 0.1
+bounds_radius = 1.0
+navigation_target_update_interval = 0.2
+color_tint = Color(0.6, 0.12, 0.35, 1)
+visual_scale = 1.0
+tags = Array[StringName]([&"boss"])
+unlock_wave = 10
+elite_eligible = false
+spawn_priority = 10
+balance_notes = "Wave-10 boss: 3 phases via BossController, slam/charge/summon."

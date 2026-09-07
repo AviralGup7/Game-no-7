@@ -77,6 +77,14 @@ func set_ai_enabled(enabled: bool) -> void:
 func _physics_process(delta: float) -> void:
 	if _config == null or not _alive or not _ai_enabled:
 		return
+	if _is_status_stunned():
+		# Stunned: no AI, no intent; gravity + knockback decay still run.
+		desired_dir = Vector3.ZERO
+		desired_speed = 0.0
+		_apply_gravity(delta)
+		_decay_knockback(delta)
+		_update_motion(delta)
+		return
 	if _machine != null:
 		_machine.physics_update(delta)
 	_apply_gravity(delta)
@@ -347,8 +355,9 @@ func _decay_knockback(delta: float) -> void:
 func _update_motion(delta: float) -> void:
 	var cfg := _config
 	var accel := cfg.acceleration if cfg != null else 8.0
-	var wish_x := desired_dir.x * desired_speed + _knockback.x
-	var wish_z := desired_dir.z * desired_speed + _knockback.z
+	var slow := _status_speed_factor()
+	var wish_x := desired_dir.x * desired_speed * slow + _knockback.x
+	var wish_z := desired_dir.z * desired_speed * slow + _knockback.z
 	velocity.x = move_toward(velocity.x, wish_x, accel * delta)
 	velocity.z = move_toward(velocity.z, wish_z, accel * delta)
 	move_and_slide()
@@ -467,6 +476,60 @@ func _fade_and_free() -> void:
 	var tween := create_tween()
 	tween.tween_interval(0.5)
 	tween.tween_callback(queue_free)
+
+
+## ---------- Elite + boss-phase API (SpawnManager / BossController) ----------
+
+## Mark this enemy elite with the given affix ids (see EliteAffix). Visual tint
+## blends the affixes; scale bumps slightly so elites read at a glance.
+func set_elite(affixes: Array) -> void:
+	set_meta("elite_affixes", affixes.duplicate())
+	var tint := Color.WHITE
+	for raw in affixes:
+		tint = tint.blend(EliteAffix.affix_tint(StringName(String(raw))))
+	if _feedback != null and _feedback.has_method("recolor"):
+		_feedback.call("recolor", tint)
+	_apply_visual_scale((_config.visual_scale if _config != null else 1.0) * 1.12)
+
+
+func is_elite() -> bool:
+	return has_meta("elite_affixes") and not (get_meta("elite_affixes") as Array).is_empty()
+
+
+func get_elite_affixes() -> Array:
+	if not has_meta("elite_affixes"):
+		return []
+	return (get_meta("elite_affixes") as Array).duplicate()
+
+
+## Boss phase bumps: multiply the CURRENT effective scales (stacks with wave
+## scaling without touching the shared config).
+func apply_phase_modifiers(damage_mult: float, speed_mult: float) -> void:
+	_damage_scale *= maxf(damage_mult, 0.01)
+	_speed_scale *= maxf(speed_mult, 0.01)
+
+
+## StatusManager queries (tolerant when the scene has no StatusManager child).
+func _status_node() -> Node:
+	return get_node_or_null("StatusManager")
+
+
+func _is_status_stunned() -> bool:
+	var sm := _status_node()
+	return sm != null and sm.has_method("is_stunned") and bool(sm.call("is_stunned"))
+
+
+func _status_speed_factor() -> float:
+	var sm := _status_node()
+	if sm != null and sm.has_method("move_speed_factor"):
+		return clampf(float(sm.call("move_speed_factor")), 0.0, 2.0)
+	return 1.0
+
+
+func get_health_fraction() -> float:
+	if _health != null and _health.has_method("get_health_ratio"):
+		return clampf(float(_health.call("get_health_ratio")), 0.0, 1.0)
+	return 1.0 if _alive else 0.0
 
 
 func get_debug_snapshot() -> Dictionary:
