@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.1] — Fix: CI Android export templates not installed
+
+### Fixed
+- The CI "Install matching Android export templates" step could exit 0 without actually
+  placing any templates (no `set -e`, silent `curl`/`unzip`/`cp` failures), so the later
+  `godot --export-debug "Android"` step failed with *"Android build template not
+  installed in the project"*. The install logic is now a shared, strict script
+  `scripts/install_export_templates.sh` (used by both the `build-android` and
+  `publish-release` jobs) that downloads with `curl --fail`, extracts with Python's
+  `zipfile`, copies into `~/.local/share/godot/export_templates/<version-string>/`
+  (dot before `stable`, e.g. `4.4.1.stable`), and fails loudly unless
+  `android_debug.apk`, `android_release.apk` and `android_source.zip` are present.
+- `docs/BUILD.md` documents the script and adds a troubleshooting entry for the
+  "Android build template not installed" export error.
+
 ## [0.3.0] — Phase 3 · Integrated run loop (menu → waves → game over)
 
 ### Added (Phase 3)
