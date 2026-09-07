@@ -3,6 +3,11 @@ extends SceneTree
 ##   godot --headless --path . --import          (first run only)
 ##   godot --headless --path . --script res://tests/run_tests.gd
 ## Returns exit code 0 only when every unit + combat integration test passes.
+##
+## Pure unit suites run synchronously in _initialize(). Node-based integration tests
+## are deferred to _process() because nodes added during _initialize() are not yet
+## inside the live tree (global transforms return identity there), which would make
+## positional/spatial assertions invalid.
 
 const UNIT_SUITES := [
 	"res://tests/unit/test_save.gd",
@@ -11,41 +16,43 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_scoring.gd",
 ]
 
+var _failures: Array[String] = []
+var _total := 0
+var _integration_run := false
+
 
 func _initialize() -> void:
-	var failures: Array[String] = []
-	var total := 0
-	var failed := 0
-
+	# Unit suites are pure (no nodes) -> safe to run immediately.
 	for path in UNIT_SUITES:
 		var script: GDScript = load(path)
 		if script == null:
-			failed += 1
-			failures.append("Could not load suite: %s" % path)
+			_failures.append("Could not load suite: %s" % path)
+			_total += 1
 			continue
 		var cases: Array = script.call("suite")
 		for c in cases:
-			total += 1
+			_total += 1
 			if not bool(c.get("passed", false)):
-				failed += 1
-				failures.append("%s :: %s — %s" % [path.get_file(), str(c.get("name", "")), str(c.get("why", ""))])
+				_failures.append("%s :: %s — %s" % [path.get_file(), str(c.get("name", "")), str(c.get("why", ""))])
 
+
+func _process(_delta: float) -> void:
+	if _integration_run:
+		return
+	_integration_run = true
+	# Deferred to the first live frame so Node3D children are truly inside the tree.
 	var combat := _run_combat_integration()
-	total += combat.size()
+	_total += combat.size()
 	for c in combat:
 		if not bool(c.get("passed", false)):
-			failed += 1
-			failures.append("combat :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
+			_failures.append("combat :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
 	print("========================================")
-	print("GDScript tests: %d total, %d failed" % [total, failed])
-	for f in failures:
+	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
+	for f in _failures:
 		print("  FAIL  " + f)
 	print("========================================")
-	if failed == 0 and failures.is_empty():
-		quit(0)
-	else:
-		quit(1)
+	quit(0 if _failures.is_empty() else 1)
 
 
 ## Deterministic combat integration: real HealthComponent damage/invuln/death +
@@ -96,6 +103,9 @@ func _run_combat_integration() -> Array:
 		"why": "",
 	})
 
+	# Advance past the 1s invulnerability window so the next hit can land.
+	clock.advance(2.0)
+
 	# Lethal damage -> death exactly once.
 	var lethal := DamagePayload.new()
 	lethal.amount = 1000.0
@@ -111,16 +121,17 @@ func _run_combat_integration() -> Array:
 	root.remove_child(hp)
 	hp.queue_free()
 
-	# Pure arc query against fake Node3D targets.
+	# Pure arc query against fake Node3D targets (added to tree first so that
+	# global_position reflects their positions).
 	var t1 := Node3D.new()
-	t1.global_position = Vector3(0, 0, -2.0)
-	root.add_child(t1)  # in front, in range
+	root.add_child(t1)
+	t1.global_position = Vector3(0, 0, -2.0)  # in front, in range
 	var t2 := Node3D.new()
-	t2.global_position = Vector3(0, 0, -8.0)
-	root.add_child(t2)  # too far
+	root.add_child(t2)
+	t2.global_position = Vector3(0, 0, -8.0)  # too far
 	var t3 := Node3D.new()
-	t3.global_position = Vector3(0, 0, -1.0)
 	root.add_child(t3)
+	t3.global_position = Vector3(0, 0, -1.0)
 	var arc_hits := CombatQuery.find_targets_in_arc(Vector3.ZERO, Vector3(0, 0, -1), [t1, t2, t3], 3.0, 45.0)
 	results.append({
 		"name": "arc query keeps in-range targets only",
