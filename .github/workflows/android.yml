@@ -65,10 +65,24 @@ jobs:
       - name: Validate resources & assets
         shell: bash
         run: |
-          python3 tool/validate_resources.py
-          python3 scripts/download_assets.py --verify
-          python3 tool/validate_assets.py
-          python3 -m unittest discover -s tests/python -v
+          mkdir -p build
+          check_assets() {
+            if "$@" > build/asset-validation.log 2>&1; then
+              cat build/asset-validation.log
+            else
+              cat build/asset-validation.log
+              # Surface useful diagnostics even when artifact/log hosts are unavailable.
+              while IFS= read -r line; do
+                line="${line//%/%25}"
+                printf '::error title=Asset validation::%s\n' "$line"
+              done < <(tail -30 build/asset-validation.log)
+              return 1
+            fi
+          }
+          check_assets python3 tool/validate_resources.py
+          check_assets python3 scripts/download_assets.py --verify
+          check_assets python3 tool/validate_assets.py
+          check_assets python3 -m unittest discover -s tests/python -v
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project
