@@ -77,10 +77,9 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Godot's headless export.log is small (~tens of lines); annotate all of it
-            # as ONE annotation so the real build error is readable without the blob.
+            # Compact key error lines as ONE annotation (GitHub truncates large ones).
             printf '::error file=build/export.log,title=godot export failed::'
-            cat build/export.log
+            grep -iE "ERROR:|error:|failed|denied|not found|Exception|Could not|FAILURE:|What went wrong" build/export.log | head -25
           fi
           exit "$code"
 

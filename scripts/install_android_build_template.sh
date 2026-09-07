@@ -57,6 +57,12 @@ PY
 # Version marker so the export version check passes (default template identifier).
 echo "${BUILD_VERSION_ID}" > "${PARENT_DIR}/.build_version"
 
+# Python's zipfile does not restore Unix executable bits, so make the Gradle wrapper
+# (and any other launchers) executable -- Godot's own installer preserves these from
+# the zip, but our extraction must restore them explicitly.
+chmod +x "${BUILD_DIR}/gradlew" 2>/dev/null || true
+find "${BUILD_DIR}" -type f \( -name 'gradlew*' -o -name '*.sh' \) -exec chmod +x {} + 2>/dev/null || true
+
 if [ ! -f "${BUILD_DIR}/build.gradle" ]; then
   echo "ERROR: build.gradle not found after extraction; template layout unexpected." >&2
   echo "Contents of ${BUILD_DIR}:" >&2
