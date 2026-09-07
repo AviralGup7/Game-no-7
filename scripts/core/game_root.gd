@@ -42,12 +42,19 @@ func _ready() -> void:
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
 	EventBus.enemy_killed.connect(_on_enemy_killed)
+	EventBus.wave_started.connect(_on_wave_started)
+	EventBus.wave_completed.connect(_on_wave_completed)
 	_sync_player_control()
 	EventBus.game_state_changed.connect(_on_game_state_changed)
 	EventBus.diagnostic.connect(func(_m: String, _s: StringName) -> void: pass)
 	if TestHarness != null:
 		pass
 	EventBus.report_info("GameRoot ready")
+
+
+func _process(delta: float) -> void:
+	if not _paused and _current_state in [State.PLAYING, State.WAVE_TRANSITION] and _current_run.player_alive:
+		_current_run.elapsed_seconds += delta
 
 
 func get_current_state() -> StringName:
@@ -238,6 +245,40 @@ func _next_run_id() -> int:
 
 func _on_game_state_changed(_previous: StringName, _current: StringName) -> void:
 	pass
+
+
+## ---------- Wave integration (record + bonus, routed through GameRoot scoring) ----------
+
+## Keep the run's wave number in sync with the WaveManager-driven waves.
+func record_current_wave(wave_number: int) -> void:
+	_current_run.current_wave = wave_number
+
+
+func _on_wave_started(wave_number: int, _planned: int) -> void:
+	record_current_wave(wave_number)
+
+
+## Exactly-once completion bonus (WaveManager guards emission).
+func _on_wave_completed(_wave_number: int, completion_bonus: int) -> void:
+	award_wave_completion_bonus(completion_bonus)
+
+
+func award_wave_completion_bonus(bonus: int) -> void:
+	if not _current_run.player_alive or bonus <= 0:
+		return
+	_current_run.add_score(bonus)
+	EventBus.score_changed.emit(_current_run.score, bonus)
+
+
+## Clean inter-wave break through the canonical state machine.
+func begin_wave_transition() -> void:
+	if _current_state == State.PLAYING:
+		transition_to(State.WAVE_TRANSITION)
+
+
+func end_wave_transition() -> void:
+	if _current_state == State.WAVE_TRANSITION:
+		transition_to(State.PLAYING)
 
 
 ## ---------- Combat scoring (exactly-once per enemy_killed) ----------

@@ -5,3 +5,4 @@ disable:
 - max-line-length
 - max-returns
 - max-file-lines
+- max-public-methods

@@ -8,6 +8,10 @@ func play_hit() -> void:
 	AudioManager.play_sfx(&"enemy_hit")
 
 
+func play_attack() -> void:
+	AudioManager.play_sfx(&"enemy_attack")
+
+
 func play_death() -> void:
 	AudioManager.play_sfx(&"enemy_death")
 

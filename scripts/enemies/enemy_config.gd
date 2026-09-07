@@ -18,8 +18,16 @@ extends Resource
 @export var score_value: int = 10
 @export var currency_value: int = 1
 @export var knockback_resistance: float = 0.0
+## How far this enemy will first notice a target (0 => always alert).
+@export var detect_range: float = 0.0
+## Seconds spent in the "hurt" reaction after taking damage.
+@export var hurt_duration: float = 0.25
+## World-space XZ radius used to keep enemies inside the arena bounds.
+@export var bounds_radius: float = 0.6
 @export var navigation_target_update_interval: float = 0.2
 @export var color_tint: Color = Color.WHITE
+## Applied to VisualRoot for a distinct silhouette (heavy bigger, fast smaller).
+@export var visual_scale: float = 1.0
 @export var tags: Array[StringName] = []
 @export var unlock_wave: int = 1
 @export var elite_eligible: bool = false
@@ -45,6 +53,12 @@ func validate() -> Array[String]:
 		problems.append("acceleration must be > 0")
 	if attack_damage < 0.0:
 		problems.append("attack_damage cannot be negative")
+	if knockback_resistance < 0.0 or knockback_resistance > 1.0:
+		problems.append("knockback_resistance must be in [0,1]")
+	if hurt_duration < 0.0:
+		problems.append("hurt_duration cannot be negative")
+	if visual_scale <= 0.0:
+		problems.append("visual_scale must be > 0")
 	if score_value < 0:
 		problems.append("score_value cannot be negative")
 	if currency_value < 0:

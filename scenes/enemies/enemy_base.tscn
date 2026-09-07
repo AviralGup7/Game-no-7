@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/enemy_base.gd" id="1_base"]
 [ext_resource type="Script" path="res://scripts/player/health_component.gd" id="2_hp"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_feedback.gd" id="3_fb"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_audio.gd" id="4_aud"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_state_machine.gd" id="5_machine"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.5
@@ -51,3 +52,14 @@ script = ExtResource("3_fb")
 
 [node name="EnemyAudio" type="Node" parent="."]
 script = ExtResource("4_aud")
+
+[node name="EnemyStateMachine" type="Node" parent="."]
+script = ExtResource("5_machine")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 1.5
+target_desired_distance = 1.2
+path_height_tolerance = 0.6
+
+[node name="ModifierReceiver" type="Node" parent="."]
+

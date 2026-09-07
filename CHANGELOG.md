@@ -1,5 +1,58 @@
 # Changelog
 
+## [0.3.0] — Phase 3 · Integrated run loop (menu → waves → game over)
+
+### Added (Phase 3)
+- **Enemy AI state machine** (`EnemyStateMachine` + `EnemyState` base and concrete
+  `Idle`/`Chase`/`Attack`/`Hurt`/`Dead` states). Lightweight `RefCounted` states mutate
+  the host `EnemyBase` only through its public command surface and request transitions
+  via `change_to()`; every route funnels through one `change_to()` so lifecycle and
+  bookkeeping stay in one place.
+- **EnemyBase movement + behaviour host**: real `CharacterBody3D` movement (desired
+  dir/speed, gravity, navigation-aware steering via a `NavigationAgent3D`, decay + stuck
+  recovery for knockback, arena-bounds clamping) driven by the state machine in
+  `_physics_process`. Preserves the Phase 2 command API and the exactly-once death /
+  `enemy_killed` / score guarantees. Adds `set_bounds`, `apply_difficulty`,
+  `get_effective_speed/damage`, `perform_enemy_attack()` (one-queried melee through the
+  player `HealthComponent`), `get_navigation_direction`, and a debug snapshot.
+- **Two new archetypes**: `fast` ("Stinger", low HP / fast / short cooldown) and
+  `heavy` ("Brute", high HP & damage / slow / high knockback resistance / long
+  windup+cooldown), added to `data/enemies/` + `scenes/enemies/` and auto-discovered by
+  `ContentRegistry`.
+- **SpawnManager** (`scripts/enemies/spawn_manager.gd` + scene): owns flattened spawn
+  queues, seeded deterministic point pick, max-simultaneous cap, pacing timer, active
+  enemy registration/removal, `all_cleared` detection and run-end AI deactivation. Does
+  NOT own score/waves.
+- **WavePlanner** (`scripts/waves/wave_planner.gd`): pure deterministic composition
+  table, `WaveConfig` builder and difficulty scalars for waves 1..N.
+- **WaveManager** (`scripts/waves/wave_manager.gd`): drives `WavePlanner`, feeds
+  rollouts + difficulty to the `SpawnManager`, listens for `enemy_spawned` /
+  `all_cleared`, and moves through the GameRoot state machine for clean inter-wave
+  transitions. Completion bonuses are announced via `EventBus.wave_completed` and scored
+  centrally by GameRoot (exactly once) — WaveManager never owns score/saves/upgrades.
+- **Main composition**: builds/tears down the world (arena + player + camera +
+  `EnemyContainer` + SpawnManager + WaveManager) under `WorldRoot`, starts the wave
+  director on `PLAYING`, deactivates AI and stops the director on `GAME_OVER`/`MAIN_MENU`.
+- **GameRoot run hooks**: `record_current_wave`, `award_wave_completion_bonus`,
+  `begin_wave_transition` / `end_wave_transition`, and elapsed-run-time tracking —
+  keeping scoring/wave accounting centralized and exactly-once.
+- **Headless unit suite** `tests/unit/test_waves.gd`: WavePlanner determinism / counts /
+  scaling and validation of the three real archetype `.tres` resources.
+- **TestHarness smoke** items for the Phase 3 loop (`enemy_spawns`, `enemy_takes_damage`,
+  `enemy_dies`, `score_increases`, `wave_progresses`) flipped to deterministic green
+  checks.
+
+### Fixed / Notes
+- Added `EnemyBase.state_machine_change_to()` facade (states were calling it but it was
+  missing).
+- `gdlintrc`: `max-public-methods` disabled because `EnemyBase` intentionally exposes
+  >20 public methods.
+- Deterministic arena navigation floor (flat convex `NavigationMesh`, no runtime baking)
+  and bounds/min-spawn-distance APIs on `Arena`.
+- Remaining known limitation: full menu→wave→game-over play-through and APK artifact are
+  verified via Godot user runs and GitHub Actions (no Godot binary is reachable in this
+  sandbox).
+
 ## [0.2.1] — Fix: Godot 4.4 compile errors (parse / type-inference)
 
 ### Fixed

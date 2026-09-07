@@ -10,10 +10,50 @@ const SPAWN_POINT_GROUP := &"enemy_spawn_point"
 
 @export var arena_id: StringName = &"default_arena"
 @export var config_path: String = &"res://data/arenas/default_arena.tres"
+## Interior half-extent used to keep actors in-bounds and build the nav floor.
+@export var interior_half: float = 12.0
+@export var min_spawn_distance: float = 6.0
+
+
+func _ready() -> void:
+	_build_navigation_floor()
+
+
+## Deterministic, precomputed navigation floor (no runtime baking). Builds a flat
+## convex NavigationMesh covering the walkable interior so NavigationAgent3D enemies
+## get reliable paths on mobile without the cost/fragility of runtime baking.
+func _build_navigation_floor() -> void:
+	var region := get_node_or_null("NavigationRegion3D") as NavigationRegion3D
+	if region == null:
+		return
+	var nm := NavigationMesh.new()
+	nm.cell_size = 0.25
+	nm.cell_height = 0.25
+	nm.agent_radius = 0.4
+	nm.agent_max_climb = 0.4
+	nm.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
+	var h := maxf(interior_half - 0.75, 3.0)
+	var verts := PackedVector3Array([
+		Vector3(-h, 0.0, -h),
+		Vector3(h, 0.0, -h),
+		Vector3(h, 0.0, h),
+		Vector3(-h, 0.0, h),
+	])
+	nm.vertices = verts
+	nm.add_polygon(PackedInt32Array([0, 1, 2, 3]))
+	region.navigation_mesh = nm
 
 
 func get_arena_id() -> StringName:
 	return arena_id
+
+
+func get_interior_half() -> float:
+	return interior_half
+
+
+func get_min_spawn_distance() -> float:
+	return min_spawn_distance
 
 
 func get_player_start() -> Node3D:

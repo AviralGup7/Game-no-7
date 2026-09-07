@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/spawn_manager.gd" id="1_spawn"]
+
+[node name="SpawnManager" type="Node3D"]
+script = ExtResource("1_spawn")
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 0.6
+
+[node name="SpawnEffects" type="Node3D" parent="."]
+
+[node name="SpawnPool" type="Node" parent="."]
+
+[node name="SpawnDebug" type="Node" parent="."]

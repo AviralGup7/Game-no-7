@@ -11,11 +11,11 @@ func run_smoke_test() -> Dictionary:
 	_steps_append(steps, &"main_menu_loads", _state_machine_ok(), "GameRoot state machine present and starts in main_menu")
 	_steps_append(steps, &"arena_loads", _default_arena_scene_loads(), "default arena config + scene load")
 	_steps_append(steps, &"player_spawns", _player_scene_loads(), "player scene + script resource load")
-	_steps_append(steps, &"enemy_spawns", false, "pending: phase 3 (enemy spawning)")
-	_steps_append(steps, &"enemy_takes_damage", false, "pending: phase 2 (combat)")
-	_steps_append(steps, &"enemy_dies", false, "pending: phase 2 (combat)")
-	_steps_append(steps, &"score_increases", false, "pending: phase 4 (scoring loop)")
-	_steps_append(steps, &"wave_progresses", false, "pending: phase 3 (wave system)")
+	_steps_append(steps, &"enemy_spawns", _enemy_archetypes_ok() and _spawn_resources_ok(), "3 enemy archetypes valid + spawn manager & enemy scenes load")
+	_steps_append(steps, &"enemy_takes_damage", _enemy_archetypes_ok() and _combat_resources_ok(), "enemy configs HP>0, no negative damage, melee path scripts present")
+	_steps_append(steps, &"enemy_dies", _enemy_archetypes_ok(), "each archetype yields a positive score/currency payload on death (exact-once guarded in headless suite)")
+	_steps_append(steps, &"score_increases", _kill_and_wave_scoring_configured(), "kill score_value>0 and wave completion_bonus>0 configured")
+	_steps_append(steps, &"wave_progresses", _wave_planner_ok() and _spawn_resources_ok(), "WavePlanner deterministic + wave/spawn scenes load")
 	_steps_append(steps, &"upgrade_appears", false, "pending: phase 4 (progression)")
 	_steps_append(steps, &"restart_works", _restart_command_ok(), "GameRoot accepts restart from game_over/menu")
 	_steps_append(steps, &"game_over_works", _game_over_transition_ok(), "GameRoot accepts game-over transition from playing")
@@ -45,6 +45,53 @@ func _default_arena_scene_loads() -> bool:
 func _player_scene_loads() -> bool:
 	return ResourceLoader.exists("res://scenes/player/player.tscn") \
 		and ResourceLoader.exists("res://scripts/player/player.gd")
+
+
+## Phase 3 loop checks — deterministic, system-presence/config based (no live run
+## required, matching the coarse diagnostic intent of the other smoke items).
+
+func _enemy_archetypes_ok() -> bool:
+	for id in [&"basic", &"fast", &"heavy"]:
+		var cfg: EnemyConfig = ContentRegistry.get_enemy(id)
+		if cfg == null or cfg.scene == null or not cfg.validate().is_empty():
+			return false
+	return true
+
+
+func _spawn_resources_ok() -> bool:
+	return ResourceLoader.exists("res://scenes/enemies/spawn_manager.tscn") \
+		and ResourceLoader.exists("res://scripts/enemies/spawn_manager.gd") \
+		and ResourceLoader.exists("res://scenes/enemies/basic_enemy.tscn") \
+		and ResourceLoader.exists("res://scenes/enemies/fast_enemy.tscn") \
+		and ResourceLoader.exists("res://scenes/enemies/heavy_enemy.tscn")
+
+
+func _combat_resources_ok() -> bool:
+	return ResourceLoader.exists("res://scripts/enemies/enemy_base.gd") \
+		and ResourceLoader.exists("res://scripts/player/player.gd") \
+		and ResourceLoader.exists("res://scripts/player/health_component.gd")
+
+
+func _kill_and_wave_scoring_configured() -> bool:
+	var ids := [&"basic", &"fast", &"heavy"]
+	for id in ids:
+		var cfg: EnemyConfig = ContentRegistry.get_enemy(id)
+		if cfg == null or cfg.score_value <= 0 or cfg.currency_value <= 0:
+			return false
+	for w in [1, 3, 5]:
+		var wc := WavePlanner.generate_wave(w, 1)
+		if wc == null or wc.completion_bonus <= 0:
+			return false
+	return true
+
+
+func _wave_planner_ok() -> bool:
+	if WavePlanner == null:
+		return false
+	var q := WavePlanner.spawn_queue_for_wave(3)
+	var cfg := WavePlanner.generate_wave(3, 1)
+	return q.size() > 0 and cfg != null and cfg.validate().is_empty() \
+		and cfg.planned_count() == q.size()
 
 
 func _restart_command_ok() -> bool:

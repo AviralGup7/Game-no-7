@@ -14,6 +14,11 @@ validates them, and caches them. This file shows each common extension.
    and exposes `ContentRegistry.get_enemy(&"<name>")`.
 4. Add it to wave data so it can appear, plus a `WaveSpawnEntry`.
 
+5. Give it a **detection tuning + presence in waves**: if it should only show up later,
+   add it to the deterministic composition in `wave_planner.gd` (`_counts_for_wave`) and
+   give it an `unlock_wave` in its `.tres`; the `SpawnManager` and `WavePlanner` read the
+   queue composition, so a new archetype is exercised the moment it is queued.
+
 No core script changes.
 
 ## 2. Add a new upgrade
@@ -64,6 +69,27 @@ Optional cues are safe: a missing cue logs a diagnostic and never crashes.
    of `{name, passed, why}` dictionaries (see existing tests).
 2. Add the path to `UNIT_SUITES` in `res://tests/run_tests.gd`.
 3. Run `godot --headless --path . --script res://tests/run_tests.gd`.
+
+## 8. Tune the wave loop (counts, pacing, difficulty)
+
+- Counts / first-wave appearance of each archetype live in `wave_planner.gd`
+  (`_counts_for_wave`, `spawn_queue_for_wave`).
+- Per-wave pacing (spawn interval, simultaneous cap), the completion bonus and the
+  inter-wave `transition_delay` are produced by `WavePlanner.generate_wave(...)` into a
+  typed `WaveConfig` and consumed by `WaveManager` / `SpawnManager`.
+- Stat scaling over waves is `WavePlanner.calculate_difficulty_scalars(wave)` (hp /
+  damage / speed, each clamped) and is applied per enemy at spawn via
+  `EnemyBase.apply_difficulty(...)` — shared `.tres` configs are never mutated.
+
+## 9. Add a new enemy AI state
+
+1. Subclass `EnemyState` (`scripts/enemies/enemy_state.gd`) and implement `_init` calling
+   `super(&"<state_id>")` plus any of `enter/exit/update/physics_update`.
+2. Register the id + instance in `EnemyStateMachine._ready` and add the id to its
+   `STATE_IDS`.
+3. Mutate the host only through the `EnemyBase` command surface and request transitions
+   with `host.state_machine_change_to(&"...")` (or `host.force_state(&"...")` for
+   interrupts such as damage/hurt). Never reach into arbitrary nodes from a state.
 
 ## Conventions
 

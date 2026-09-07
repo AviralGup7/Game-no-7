@@ -14,6 +14,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_combat.gd",
 	"res://tests/unit/test_configs.gd",
 	"res://tests/unit/test_scoring.gd",
+	"res://tests/unit/test_waves.gd",
 ]
 
 var _failures: Array[String] = []
