@@ -87,10 +87,13 @@ func _resolve_hit() -> void:
 	var range_val := _effective_range()
 	var targets := CombatQuery.find_targets_in_arc(origin, forward, candidates, range_val, arc_degrees * 0.5)
 
-	for t in targets:
-		var to_target := (t.global_position - origin) * Vector3(1, 0, 1)
-		var dir := Vector3.FORWARD if to_target.length_squared() < 0.0001 else to_target.normalized()
-		var payload := _build_payload(dir)
+	for candidate in targets:
+		var t: Node3D = candidate as Node3D
+		if t == null:
+			continue
+		var to_target: Vector3 = (t.global_position - origin) * Vector3(1, 0, 1)
+		var dir: Vector3 = Vector3.FORWARD if to_target.length_squared() < 0.0001 else to_target.normalized()
+		var payload: DamagePayload = _build_payload(dir)
 		if not t.has_method("apply_damage"):
 			continue
 		var result: Variant = t.call("apply_damage", payload)

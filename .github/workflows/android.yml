@@ -77,10 +77,9 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Surface the root cause as GitHub annotations so it is readable without
-            # downloading the (blocked) step-log blob.
-            grep -iE "ERROR:|error:|failed|not installed|does not exist|template" build/export.log \
-              | head -25 | sed -E 's/^/::error::export: /' || true
+            # Surface the full failing Godot output as GitHub annotations so it is
+            # readable without downloading the (blocked) step-log blob.
+            sed -E 's/^/::error::export: /' build/export.log | head -80 || true
           fi
           exit "$code"
 

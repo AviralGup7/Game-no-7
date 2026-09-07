@@ -97,8 +97,8 @@ func _on_spawn_tick() -> void:
 func _spawn_one() -> bool:
 	if _pending.is_empty() or not _configured:
 		return false
-	var archetype := _pending.pop_front()
-	var config := ContentRegistry.get_enemy(archetype)
+	var archetype: StringName = _pending.pop_front()
+	var config: EnemyConfig = ContentRegistry.get_enemy(archetype)
 	if config == null or config.scene == null:
 		enemy_spawn_failed.emit(archetype, &"no_config")
 		return false
@@ -151,8 +151,8 @@ func _pick_spawn_point(config: EnemyConfig) -> Node3D:
 	var player_pos := Vector3.ZERO
 	if _player is Node3D and is_instance_valid(_player):
 		player_pos = (_player as Node3D).global_position
-	var points := _arena.call("get_spawn_points") as Array
-	var min_distance := _arena_min_spawn_distance()
+	var points: Array = _arena.call("get_spawn_points")
+	var min_distance: float = _arena_min_spawn_distance()
 	var rng := _rng
 	points = filter_spawn_points(points, player_pos, min_distance, config.archetype_id)
 	if points.is_empty():

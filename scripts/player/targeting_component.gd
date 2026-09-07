@@ -16,7 +16,7 @@ func _ready() -> void:
 	_owner_node = get_parent() as Node3D
 
 
-func set_owner(node: Node3D) -> void:
+func bind_owner(node: Node3D) -> void:
 	_owner_node = node
 
 

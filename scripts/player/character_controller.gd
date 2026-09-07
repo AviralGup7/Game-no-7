@@ -69,13 +69,13 @@ func _camera_yaw() -> float:
 
 func _facing(dir: Vector3) -> void:
 	# Rotate the visual root toward the movement direction smoothly.
-	var visual := _owner_body.get_node_or_null("VisualRoot")
+	var visual: Node3D = _owner_body.get_node_or_null("VisualRoot") as Node3D
 	if visual == null or dir.length_squared() < 0.001:
 		return
-	var target := Transform3D(visual.global_transform)
-	var target_basis := target.basis.looking_at(dir, Vector3.UP)
-	var target_quat := target_basis.get_rotation_quaternion()
-	var current_quat := visual.global_transform.basis.get_rotation_quaternion()
+	var target: Transform3D = Transform3D(visual.global_transform)
+	var target_basis: Basis = target.basis.looking_at(dir, Vector3.UP)
+	var target_quat: Quaternion = target_basis.get_rotation_quaternion()
+	var current_quat: Quaternion = visual.global_transform.basis.get_rotation_quaternion()
 	# Rotation applied in _physics in player; here we set an aim hint that player uses.
 	_owner_body.set_meta("face_quat", target_quat)
 	_owner_body.set_meta("face_current", current_quat)
