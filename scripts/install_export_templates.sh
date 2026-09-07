@@ -13,6 +13,21 @@ VER_DIR="${GODOT_VERSION/-stable/.stable}"
 URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
 DEST="${HOME}/.local/share/godot/export_templates/${VER_DIR}"
 
+REQUIRED=(android_debug.apk android_release.apk android_source.zip version.txt)
+
+already_installed() {
+  for f in "${REQUIRED[@]}"; do
+    [ -f "${DEST}/${f}" ] || return 1
+  done
+  return 0
+}
+
+if already_installed; then
+  echo "Export templates already present for ${VER_DIR}; skipping re-download."
+  ls -1 "${DEST}"
+  exit 0
+fi
+
 echo "Installing export templates ${VER_DIR} -> ${DEST}"
 mkdir -p /tmp/tpl-extract "${DEST}"
 
@@ -39,7 +54,7 @@ echo "Template dir contents:"
 ls -1 "${DEST}"
 
 # Godot's Android exporter requires these build templates to exist under <version>/.
-for f in android_debug.apk android_release.apk android_source.zip version.txt; do
+for f in "${REQUIRED[@]}"; do
   if [ ! -f "${DEST}/${f}" ]; then
     echo "ERROR: expected export template missing: ${DEST}/${f}" >&2
     exit 1

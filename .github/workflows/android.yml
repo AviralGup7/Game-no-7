@@ -22,10 +22,20 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          include-templates: true
 
-      - name: Install matching Android export templates
+      # Verify the templates landed in the canonical location (the setup-godot action
+      # installs them; this step is idempotent and fails loudly if they are missing).
+      - name: Verify Android export templates installed
         shell: bash
         run: bash scripts/install_export_templates.sh
+
+      # Godot 4.x Android export uses a Gradle build that requires a JDK.
+      - name: Set up JDK (Gradle Android export)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -102,10 +112,19 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          include-templates: true
 
-      - name: Install matching Android export templates
+      # Verify the templates landed in the canonical location (idempotent, fails loudly).
+      - name: Verify Android export templates installed
         shell: bash
         run: bash scripts/install_export_templates.sh
+
+      # Godot 4.x Android export uses a Gradle build that requires a JDK.
+      - name: Set up JDK (Gradle Android export)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
