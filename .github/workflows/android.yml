@@ -77,12 +77,10 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Surface compact error lines as ONE annotation (GitHub truncates big
-            # annotations). Gradle failures print a "* What went wrong:" block.
+            # Godot's headless export.log is small (~tens of lines); annotate all of it
+            # as ONE annotation so the real build error is readable without the blob.
             printf '::error file=build/export.log,title=godot export failed::'
-            grep -niE "What went wrong|FAILURE:|Execution failed|Could not|Cannot|not found|FAILED|Error:|\.gradle|Exception|minSdk|targetSdk|compileSdk|license" build/export.log \
-              | head -30
-            grep -niA6 "What went wrong" build/export.log | head -20
+            cat build/export.log
           fi
           exit "$code"
 
