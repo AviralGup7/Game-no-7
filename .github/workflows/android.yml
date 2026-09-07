@@ -26,11 +26,17 @@ jobs:
       - name: Install matching Android export templates
         shell: bash
         run: |
+          # Godot's export-template folder uses the *version string* (dot before
+          # "stable"), e.g. 4.4.1.stable -- not the release-tag name 4.4.1-stable.
+          VER_DIR="${GODOT_VERSION/-stable/.stable}"
           URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
-          mkdir -p /tmp/tpl "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+          DEST="$HOME/.local/share/godot/export_templates/${VER_DIR}"
+          mkdir -p /tmp/tpl "$DEST"
           curl -sL "$URL" -o /tmp/templates.tpz
           (cd /tmp/tpl && unzip -q /tmp/templates.tpz)
-          cp -r /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}/"
+          # The tpz wraps files in a templates/ dir; copy their contents up.
+          cp -r /tmp/tpl/templates/* "$DEST/" 2>/dev/null || cp -r /tmp/tpl/* "$DEST/"
+          ls -1 "$DEST" | head -20
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -102,11 +108,17 @@ jobs:
       - name: Install matching Android export templates
         shell: bash
         run: |
+          # Godot's export-template folder uses the *version string* (dot before
+          # "stable"), e.g. 4.4.1.stable -- not the release-tag name 4.4.1-stable.
+          VER_DIR="${GODOT_VERSION/-stable/.stable}"
           URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
-          mkdir -p /tmp/tpl "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+          DEST="$HOME/.local/share/godot/export_templates/${VER_DIR}"
+          mkdir -p /tmp/tpl "$DEST"
           curl -sL "$URL" -o /tmp/templates.tpz
           (cd /tmp/tpl && unzip -q /tmp/templates.tpz)
-          cp -r /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}/"
+          # The tpz wraps files in a templates/ dir; copy their contents up.
+          cp -r /tmp/tpl/templates/* "$DEST/" 2>/dev/null || cp -r /tmp/tpl/* "$DEST/"
+          ls -1 "$DEST" | head -20
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
