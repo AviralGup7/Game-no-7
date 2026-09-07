@@ -39,7 +39,7 @@ func _fire() -> void:
 	_touch_index = -1
 	if vibrate_on_press:
 		var settings := SaveManager.get_settings()
-		if settings.vibration_enabled and DisplayServer.has_feature(DisplayServer.FEATURE_HAPTICS):
+		if settings.vibration_enabled:
 			Input.vibrate_handheld(15)
 	pressed.emit()
 	queue_redraw()

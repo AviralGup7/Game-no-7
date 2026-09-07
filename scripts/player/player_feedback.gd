@@ -68,8 +68,7 @@ func _request_vibration(duration_msec: int, _amplitude: int) -> void:
 	var settings := SaveManager.get_settings()
 	if not settings.vibration_enabled:
 		return
-	if DisplayServer.has_feature(DisplayServer.FEATURE_HAPTICS):
-		Input.vibrate_handheld(duration_msec)
+	Input.vibrate_handheld(duration_msec)
 
 
 func _reduced_motion() -> bool:
