@@ -108,16 +108,18 @@ func _run_combat_integration() -> Array:
 	clock.advance(2.0)
 
 	# Lethal damage -> death exactly once.
+	# Note: GDScript lambdas capture outer locals by value, so a mutable Array is
+	# used as the counter instead of an int.
 	var lethal := DamagePayload.new()
 	lethal.amount = 1000.0
-	var death_events := 0
-	hp.died.connect(func() -> void: death_events += 1)
+	var death_count: Array[int] = [0]
+	hp.died.connect(func() -> void: death_count[0] += 1)
 	var rl := hp.take_damage(lethal)
 	hp.take_damage(lethal)  # duplicate damage on a corpse
 	results.append({
 		"name": "lethal damage dies once, duplicate ignored",
-		"passed": rl.target_died and death_events == 1 and hp.is_dead(),
-		"why": "died=%d" % death_events,
+		"passed": rl.target_died and death_count[0] == 1 and hp.is_dead(),
+		"why": "died=%d" % death_count[0],
 	})
 	root.remove_child(hp)
 	hp.queue_free()
