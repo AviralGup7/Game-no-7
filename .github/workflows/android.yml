@@ -77,9 +77,10 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Surface the full failing Godot output as GitHub annotations so it is
-            # readable without downloading the (blocked) step-log blob.
-            sed -E 's/^/::error::export: /' build/export.log | head -80 || true
+            # Surface the error lines as ONE annotation (per-line annotations get
+            # capped by GitHub) so the root cause is readable without the log blob.
+            printf '::error file=build/export.log,title=godot export failed::'
+            grep -niE "SCRIPT ERROR|Parse Error|Failed to load script|Cannot infer|Variant value|overrides a method|\.gd:[0-9]+|ERROR:|Project export" build/export.log | head -60
           fi
           exit "$code"
 
