@@ -48,6 +48,21 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 Exit code `0` means all checks pass.
 
+> **Scope note (live-loop integrations):** the headless runner above is invoked with
+> `--script`, which starts a bare `SceneTree` — it does **not** instantiate the
+> project's autoload singletons (`GameRoot`, `EventBus`, `ContentRegistry`,
+> `AudioManager`, …). For that reason the suites in `run_tests.gd` only exercise pure
+> unit logic plus node-based integrations that do not depend on autoloads (e.g. the
+> combat integration uses real `HealthComponent`/`DamagePayload` but injects its own
+> clock). Driving the **real** end-to-end loop through GameRoot/EventBus/ContentRegistry
+> (menu → run → wave-complete → upgrade selection/apply → game-over → restart, or
+> SpawnManager accounting) requires a context where autoloads are live, e.g. a headless
+> run of the main scene (`godot --headless --path .`) or a scene that owns those nodes.
+> Attempting such a real-singleton test inside `run_tests.gd` fails at compile/parse time
+> (autoload identifiers like `EventBus` are unresolved and loading the real `player.tscn`
+> transitively compiles scripts that reference them), so it is intentionally **not**
+> placed there.
+
 ## Android export
 
 An Android export preset named **"Android"** must exist in `export_presets.cfg`
