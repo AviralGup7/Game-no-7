@@ -52,7 +52,16 @@ jobs:
         shell: bash
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" "$APK_PATH"
+          echo "HOME=$HOME"
+          echo "godot templates dir: $HOME/.local/share/godot/export_templates"
+          find "$HOME/.local/share/godot/export_templates" -maxdepth 2 -type f | head -40 || true
+          set +e
+          godot --headless --path . --export-debug "Android" "$APK_PATH" 2>&1 | tee build/export.log
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "--- godot export log (tail) ---"
+          tail -60 build/export.log || true
+          exit "$code"
 
       - name: Verify APK exists and is non-zero
         shell: bash
