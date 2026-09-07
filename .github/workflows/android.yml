@@ -1,0 +1,171 @@
+name: Android build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.4.1-stable"
+  APK_PATH: build/LastStandArena-debug.apk
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      # Verify the templates landed in the canonical location (the setup-godot action
+      # installs them; this step is idempotent and fails loudly if they are missing).
+      - name: Verify Android export templates installed
+        shell: bash
+        run: bash scripts/install_export_templates.sh
+
+      # Godot 4.x Android export uses a Gradle build that requires a JDK.
+      - name: Set up JDK (Gradle Android export)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        shell: bash
+        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Import project
+        shell: bash
+        run: godot --headless --path . --import
+
+      - name: Run headless unit tests
+        shell: bash
+        run: godot --headless --path . --script res://tests/run_tests.gd
+
+      - name: Validate imported 3D assets, animations, textures and audio
+        shell: bash
+        run: godot --headless --path . --script res://tests/validate_asset_imports.gd
+
+      - name: Validate resources & assets
+        shell: bash
+        run: |
+          python3 tool/validate_resources.py
+          python3 scripts/download_assets.py --verify
+          python3 tool/validate_assets.py
+          python3 -m unittest discover -s tests/python -v
+
+      # Gradle Android export requires the build template inside the project.
+      - name: Install Android build template into project
+        shell: bash
+        run: bash scripts/install_android_build_template.sh
+
+      - name: Build Android APK (debug export for validation artifact)
+        shell: bash
+        run: |
+          mkdir -p build
+          echo "HOME=$HOME"
+          echo "godot templates dir: $HOME/.local/share/godot/export_templates"
+          find "$HOME/.local/share/godot/export_templates" -maxdepth 2 -type f | head -40 || true
+          set +e
+          godot --headless --path . --export-debug "Android" "$APK_PATH" 2>&1 | tee build/export.log
+          code=${PIPESTATUS[0]}
+          set -e
+          echo "--- godot export log (tail) ---"
+          tail -80 build/export.log || true
+          if [ "$code" -ne 0 ]; then
+            # Compact key error lines as ONE annotation (GitHub truncates large ones).
+            printf '::error file=build/export.log,title=godot export failed::'
+            grep -iE "ERROR:|error:|failed|denied|not found|Exception|Could not|FAILURE:|What went wrong" build/export.log | head -25
+          fi
+          exit "$code"
+
+      - name: Verify APK exists and is non-zero
+        shell: bash
+        run: |
+          test -f "$APK_PATH" && test -s "$APK_PATH"
+          echo "APK size: $(stat -c%s "$APK_PATH") bytes"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LastStandArena-android
+          path: ${{ env.APK_PATH }}
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            build/
+            *.log
+          if-no-files-found: ignore
+
+  # Publish a milestone APK to a GitHub Release ("push it to git").
+  # Runs only on a tag push or manual workflow_dispatch. Produces the same
+  # reproducible debug-signed APK as the main job and attaches it to a Release.
+  # (A Play-ready release-signed APK needs the owner's keystore configured per
+  # docs/BUILD.md and is built locally; this job proves + archives the CI build.)
+  publish-release:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    # Needed to create a Release and upload the APK asset.
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      # Verify the templates landed in the canonical location (idempotent, fails loudly).
+      - name: Verify Android export templates installed
+        shell: bash
+        run: bash scripts/install_export_templates.sh
+
+      # Godot 4.x Android export uses a Gradle build that requires a JDK.
+      - name: Set up JDK (Gradle Android export)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        shell: bash
+        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      # Gradle Android export requires the build template inside the project.
+      - name: Install Android build template into project
+        shell: bash
+        run: bash scripts/install_android_build_template.sh
+
+      - name: Build + test + export APK (debug, milestone artifact)
+        shell: bash
+        env:
+          BUILD_TYPE: debug
+        run: bash scripts/build_android.sh
+
+      - name: Publish APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/LastStandArena-debug.apk
+          generate_release_notes: true

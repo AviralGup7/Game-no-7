@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"haste"
+display_name = "Haste"
+description = "-10% attack cooldown"
+rarity = &"rare"
+max_stacks = 3
+stat_modifiers = {
+"attack_cooldown_multiplier": -0.1,
+}
+tags = Array[StringName]([])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([])
+unlock_wave = 1
+weight = 1.0
+disabled = false

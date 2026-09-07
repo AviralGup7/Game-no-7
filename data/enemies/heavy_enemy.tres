@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/heavy_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"heavy"
+display_name = "Brute"
+scene = ExtResource("2_scene")
+max_health = 60.0
+move_speed = 1.6
+acceleration = 5.0
+attack_damage = 14.0
+attack_range = 1.9
+attack_cooldown = 2.2
+attack_windup = 0.7
+score_value = 40
+currency_value = 3
+knockback_resistance = 0.65
+detect_range = 0.0
+hurt_duration = 0.4
+bounds_radius = 0.7
+navigation_target_update_interval = 0.3
+color_tint = Color(0.72, 0.28, 0.34, 1)
+visual_scale = 1.5
+tags = Array[StringName]([])
+unlock_wave = 5
+elite_eligible = false
+spawn_priority = 2
+balance_notes = "Heavy: high hp/damage, slow, high knockback resistance, long windup+cooldown."

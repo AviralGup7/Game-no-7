@@ -1,0 +1,81 @@
+extends SceneTree
+## Native import smoke test (run AFTER `godot --headless --path . --import`).
+##   godot --headless --path . --script res://tests/validate_asset_imports.gd
+## No gameplay/autoload dependencies; validates all downloaded resource types and
+## the exact animation names in assets/catalog.json, not just source-file presence.
+
+var _failures: Array[String] = []
+var _checked := 0
+
+
+func _initialize() -> void:
+	var manifest: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string("res://assets/manifest.json")
+	)
+	var catalog: Variant = JSON.parse_string(
+		FileAccess.get_file_as_string("res://assets/catalog.json")
+	)
+	if not manifest is Dictionary or not catalog is Dictionary:
+		push_error("Cannot read asset manifest/catalog")
+		quit(1)
+		return
+	for entry in manifest.get("files", []):
+		var path := "res://%s" % entry["path"]
+		var extension := path.get_extension()
+		if extension not in ["glb", "gltf", "png", "ttf", "ogg", "wav"]:
+			continue
+		_checked += 1
+		var imported := ResourceLoader.load(path)
+		match extension:
+			"glb", "gltf":
+				_check_model(path, imported, catalog)
+			"png":
+				if not imported is Texture2D:
+					_failures.append("Not an imported Texture2D: " + path)
+			"ttf":
+				if not imported is FontFile:
+					_failures.append("Not an imported FontFile: " + path)
+			"ogg", "wav":
+				if not imported is AudioStream:
+					_failures.append("Not an imported AudioStream: " + path)
+				elif (imported as AudioStream).get_length() <= 0.0:
+					_failures.append("Empty audio stream: " + path)
+	if _checked == 0:
+		_failures.append("No importable assets found in the manifest")
+	print("Asset imports: %d resources, %d failures" % [_checked, _failures.size()])
+	for failure in _failures:
+		push_error(failure)
+	quit(0 if _failures.is_empty() else 1)
+
+
+func _check_model(path: String, imported: Resource, catalog: Dictionary) -> void:
+	if not imported is PackedScene:
+		_failures.append("Not an imported PackedScene: " + path)
+		return
+	var instance := (imported as PackedScene).instantiate()
+	if not instance is Node3D:
+		_failures.append("Not a 3D model: " + path)
+		if instance != null:
+			instance.free()
+		return
+	var meshes := instance.find_children("*", "MeshInstance3D", true, false)
+	if not instance is MeshInstance3D and meshes.is_empty():
+		_failures.append("Imported model has no meshes: " + path)
+	for character in catalog.get("characters", {}).values():
+		if path != "res://%s" % character["model"]:
+			continue
+		var skeletons := instance.find_children("*", "Skeleton3D", true, false)
+		if not instance is Skeleton3D and skeletons.is_empty():
+			_failures.append("Character has no imported Skeleton3D: " + path)
+		var players := instance.find_children("*", "AnimationPlayer", true, false)
+		if players.is_empty():
+			_failures.append("Character has no AnimationPlayer: " + path)
+			continue
+		for clip in character["animations"].values():
+			var found := false
+			for player in players:
+				if (player as AnimationPlayer).has_animation(StringName(clip)):
+					found = true
+			if not found:
+				_failures.append("Missing imported clip %s in %s" % [clip, path])
+	instance.free()
