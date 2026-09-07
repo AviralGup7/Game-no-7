@@ -1,20 +1,30 @@
 #!/usr/bin/env bash
 # build_android.sh — reproducible Android APK build for "Last Stand: Arena".
+#
+#   BUILD_TYPE=debug   (default) export a debug-signed APK — no keystore needed.
+#   BUILD_TYPE=release export a release APK (requires the Android export preset's
+#                        release keystore to be configured — see docs/BUILD.md).
+#
 # Exits non-zero on any failure. See docs/BUILD.md.
 set -euo pipefail
 
 GODOT_BIN="${GODOT_BIN:-godot}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OUT_DIR="$PROJECT_DIR/build"
-APK="$OUT_DIR/LastStandArena.apk"
-REPORT="$OUT_DIR/BUILD_REPORT.txt"
-PRESET_NAME="Android"
+BUILD_TYPE="${BUILD_TYPE:-debug}"
+PRESET_NAME="${PRESET_NAME:-Android}"
 PINNED_GODOT="4.4"
 
 export PATH="$PATH"
 
 mkdir -p "$OUT_DIR"
-REPORT_LINES=()
+REPORT="$OUT_DIR/BUILD_REPORT.txt"
+
+case "$BUILD_TYPE" in
+  debug)   APK="$OUT_DIR/LastStandArena-debug.apk"; EXPORT_ARGS=(--export-debug) ;;
+  release) APK="$OUT_DIR/LastStandArena.apk";       EXPORT_ARGS=(--export-release) ;;
+  *) echo "ERROR: BUILD_TYPE must be debug or release (got '$BUILD_TYPE')."; exit 1 ;;
+esac
 
 step() { echo ""; echo "==> $*"; }
 
@@ -23,6 +33,7 @@ if ! command -v "$GODOT_BIN" >/dev/null 2>&1; then
   echo "ERROR: godot binary not found (GODOT_BIN=${GODOT_BIN})." | tee "$REPORT"
   exit 1
 fi
+VERSION_RAW="$("$GODOT_BIN" --version 2>/dev/null || true)"
 
 step "Verify Android export preset exists"
 if ! grep -q "platform=\"Android\"" "$PROJECT_DIR/export_presets.cfg" 2>/dev/null; then
@@ -39,9 +50,8 @@ for f in project.godot scenes/main/main.tscn export_presets.cfg; do
 done
 
 step "Verify documented Godot version"
-VERSION_RAW="$("$GODOT_BIN" --version 2>/dev/null || true)"
 if ! echo "$VERSION_RAW" | grep -q "$PINNED_GODOT"; then
-  echo "WARNING: Godot version '$VERSION_RAW' does not match pinned '$PINNED_GODOT' (continuing)." | tee -a "$REPORT"
+  echo "WARNING: Godot version '$VERSION_RAW' does not match pinned '$PINNED_GODOT' (continuing)." | tee "$REPORT"
 else
   echo "Godot version OK: $VERSION_RAW"
 fi
@@ -55,8 +65,8 @@ step "Run automated tests"
 step "Validate resources"
 (cd "$PROJECT_DIR" && python3 tool/validate_resources.py)
 
-step "Export Android APK"
-(cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . --export-release "$PRESET_NAME" "$APK")
+step "Export Android APK ($BUILD_TYPE)"
+(cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . "${EXPORT_ARGS[@]}" "$PRESET_NAME" "$APK")
 
 step "Verify APK"
 if [ ! -f "$APK" ]; then
@@ -73,6 +83,7 @@ step "Write build report"
 {
   echo "Last Stand: Arena — Android build report"
   echo "Godot:  $VERSION_RAW"
+  echo "Type:   $BUILD_TYPE"
   echo "APK:    $APK"
   echo "Size:   $SIZE bytes"
   echo "Result: SUCCESS"

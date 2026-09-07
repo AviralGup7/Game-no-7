@@ -54,7 +54,8 @@ An Android export preset named **"Android"** must exist in `export_presets.cfg`
 (scaffolded at `export_presets.cfg` — see `export_presets.cfg.example`). Build script:
 
 ```bash
-bash scripts/build_android.sh
+bash scripts/build_android.sh                # debug-signed APK (no keystore needed)
+BUILD_TYPE=release bash scripts/build_android.sh   # release APK (keystore configured)
 ```
 
 What it does:
@@ -70,9 +71,15 @@ What it does:
 9. Verify the APK exists and is non-zero.
 10. Print the APK path and write a concise build report to `build/BUILD_REPORT.txt`.
 
+**Release signing note:** `BUILD_TYPE=release` uses `--export-release`, which requires
+the Android export preset's keystore to be configured (editor setting, never
+committed). Debug builds need no keystore and are what CI publishes as artifacts/milestones.
+
 ### Manual export command
 
 ```bash
+godot --headless --path . --export-debug "Android" build/LastStandArena-debug.apk
+# release (keystore configured in the editor):
 godot --headless --path . --export-release "Android" build/LastStandArena.apk
 ```
 

@@ -2,7 +2,38 @@
 
 All notable changes are tracked per implementation phase.
 
-## [0.1.0] — Phase 1 · Foundation (in progress)
+## [0.2.0] — Phase 2 · Combat + first enemy (in progress)
+
+### Added (Phase 2)
+- **Combat query layer** (`scripts/combat/combat_query.gd`): pure, deterministic arc/
+  range hit selection for melee swings (headless unit-testable).
+- **Melee hit resolution** in `AttackController`: telegraph (`windup`) → arc query over
+  the `enemies` group → validated `DamagePayload` → apply → `attack_hit`, with crit
+  chance, knockback, and damage/range derived through the player `ProgressionComponent`.
+- **Enemy base** (`EnemyBase` CharacterBody3D + scene): lifecycle, `initialize(config,
+  target, seed)`, damage intake, idempotent death, exactly-once `enemy_killed` score
+  payload, knockback seam, tinting via config.
+- **Basic enemy archetype**: `basic_enemy.tscn` + `data/enemies/basic_enemy.tres`
+  (`archetype_id = "basic"`, "Grunt").
+- Enemy **feedback** (hit flash, death sink/fade, recolour) and **audio** wrappers.
+- **GameRoot combat scoring**: on `enemy_killed` updates kills/combo/score/currency
+  with score-multiplier from upgrades, emits `score_changed` / `currency_changed` /
+  `combo_changed` exactly once per kill.
+- Reused `HealthComponent` for enemies (damage, invulnerability, death).
+- Deterministic **combat integration tests** in `tests/run_tests.gd` (damage,
+  invalid payload rejection, invulnerability, heal cap, single death, arc query).
+- CI: `publish-release` job builds + uploads the APK to a GitHub Release on tag/manual
+  dispatch; `scripts/build_android.sh` supports `BUILD_TYPE=debug|release`.
+
+### Verification status (Phase 2)
+- GDScript static lint (`gdlint`): **passes** for scripts + tests.
+- `.tscn`/`.tres` structural validation: **passes** (10 scene/resource files).
+- Cross-reference audit: **clean**.
+- Headless test execution + Android APK export: still **not runnable in the authoring
+  sandbox** (no Godot/Android toolchain); wired into CI + build script for a real
+  runner/local machine.
+
+## [0.1.0] — Phase 1 · Foundation
 
 Working title: **Last Stand: Arena**.
 

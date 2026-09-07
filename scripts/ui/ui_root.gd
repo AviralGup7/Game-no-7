@@ -64,7 +64,7 @@ const _TEXT := {
 	"vibration": "Vibration",
 	"reduced_motion": "Reduced motion",
 	"high_contrast": "High contrast",
-	"version": "v0.1.0",
+	"version": "v0.2.0",
 }
 
 

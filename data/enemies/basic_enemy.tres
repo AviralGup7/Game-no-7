@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/basic_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"basic"
+display_name = "Grunt"
+scene = ExtResource("2_scene")
+max_health = 20.0
+move_speed = 2.5
+acceleration = 8.0
+attack_damage = 6.0
+attack_range = 1.5
+attack_cooldown = 1.4
+attack_windup = 0.4
+score_value = 10
+currency_value = 1
+knockback_resistance = 0.0
+navigation_target_update_interval = 0.2
+color_tint = Color(0.85, 0.5, 0.2, 1)
+tags = Array[StringName]([])
+unlock_wave = 1
+elite_eligible = false
+spawn_priority = 0
+balance_notes = "Phase 2 baseline enemy: reliable melee grunt."

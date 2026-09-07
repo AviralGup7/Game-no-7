@@ -41,6 +41,7 @@ var _active_player: Node = null
 func _ready() -> void:
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
+	EventBus.enemy_killed.connect(_on_enemy_killed)
 	_sync_player_control()
 	EventBus.game_state_changed.connect(_on_game_state_changed)
 	EventBus.diagnostic.connect(func(_m: String, _s: StringName) -> void: pass)
@@ -237,6 +238,35 @@ func _next_run_id() -> int:
 
 func _on_game_state_changed(_previous: StringName, _current: StringName) -> void:
 	pass
+
+
+## ---------- Combat scoring (exactly-once per enemy_killed) ----------
+
+func _on_enemy_killed(_enemy: Node, _archetype_id: StringName, score_value: int, currency_value: int) -> void:
+	if not _current_run.player_alive:
+		return
+	_current_run.add_kill()
+	var multiplier := _score_multiplier()
+	# Raise combo by one then award score including the streak bonus.
+	_current_run.set_combo(_current_run.combo + 1)
+	var gained := Scoring.calculate_kill_score(score_value, _current_run.combo, multiplier)
+	_current_run.add_score(gained)
+	EventBus.score_changed.emit(_current_run.score, gained)
+	_current_run.add_currency(currency_value)
+	EventBus.currency_changed.emit(_current_run.currency, currency_value)
+	EventBus.combo_changed.emit(_current_run.combo, _current_run.best_combo)
+
+
+func _score_multiplier() -> float:
+	var player := _active_player
+	if player == null or not is_instance_valid(player):
+		return 1.0
+	if not player.has_method("get_progression_snapshot"):
+		return 1.0
+	var prog := player.get_node_or_null("ProgressionComponent")
+	if prog == null or not prog.has_method("get_stat"):
+		return 1.0
+	return 1.0 + float(prog.call("get_stat", &"score_multiplier_add", 0.0))
 
 
 ## ---------- Snapshots / diagnostics ----------

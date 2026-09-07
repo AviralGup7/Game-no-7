@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_base.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/player/health_component.gd" id="2_hp"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_feedback.gd" id="3_fb"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_audio.gd" id="4_aud"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
+radius = 0.5
+height = 1.6
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.45
+height = 1.4
+
+[sub_resource type="StandardMaterial3D" id="Mat_enemy"]
+albedo_color = Color(0.85, 0.5, 0.2, 1)
+roughness = 0.6
+
+[node name="EnemyBase" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_base")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape_body")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="CharacterModel" type="Node3D" parent="VisualRoot"]
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot/CharacterModel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+mesh = SubResource("CapsuleMesh_body")
+surface_material_override/0 = SubResource("Mat_enemy")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualRoot"]
+
+[node name="TargetingOrigin" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+
+[node name="AttackOrigin" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -0.5)
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_hp")
+
+[node name="EnemyFeedback" type="Node" parent="."]
+script = ExtResource("3_fb")
+
+[node name="EnemyAudio" type="Node" parent="."]
+script = ExtResource("4_aud")

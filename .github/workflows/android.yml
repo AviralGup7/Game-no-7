@@ -81,8 +81,48 @@ jobs:
             *.log
           if-no-files-found: ignore
 
-      - name: Create GitHub release APK (manual tag dispatch only)
-        if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/')
+  # Publish a milestone APK to a GitHub Release ("push it to git").
+  # Runs only on a tag push or manual workflow_dispatch. Produces the same
+  # reproducible debug-signed APK as the main job and attaches it to a Release.
+  # (A Play-ready release-signed APK needs the owner's keystore configured per
+  # docs/BUILD.md and is built locally; this job proves + archives the CI build.)
+  publish-release:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+
+      - name: Install matching Android export templates
+        shell: bash
+        run: |
+          URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          mkdir -p /tmp/tpl "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}"
+          curl -sL "$URL" -o /tmp/templates.tpz
+          (cd /tmp/tpl && unzip -q /tmp/templates.tpz)
+          cp -r /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}/"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses
+        shell: bash
+        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Build + test + export APK (debug, milestone artifact)
+        shell: bash
+        env:
+          BUILD_TYPE: debug
+        run: bash scripts/build_android.sh
+
+      - name: Publish APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.APK_PATH }}
+          files: build/LastStandArena-debug.apk
+          generate_release_notes: true
