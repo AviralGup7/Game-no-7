@@ -34,6 +34,9 @@ var _wave_completed_flag := false
 var _awaiting_upgrade := false
 ## Active mutators for the current wave (ids).
 var _active_mutators: Array[StringName] = []
+## Forced mutator set (daily challenge): when non-empty, replaces the normal
+## resolve every wave so the whole run shares one deterministic pair.
+var _forced_mutators: Array[StringName] = []
 var _director := DifficultyDirector.new()
 var _director_wired := false
 
@@ -50,6 +53,10 @@ func setup(spawn_manager: SpawnManager) -> void:
 	_spawn = spawn_manager
 	if _spawn != null and not _spawn.all_cleared.is_connected(_on_all_cleared):
 		_spawn.all_cleared.connect(_on_all_cleared)
+
+
+func set_forced_mutators(ids: Array[StringName]) -> void:
+	_forced_mutators = ids.duplicate()
 
 
 func start_run(seed: int) -> void:
@@ -150,9 +157,27 @@ func _launch_wave(wave_number: int) -> void:
 	EventBus.wave_started.emit(wave_number, _planned_count)
 	EventBus.report_info("Wave %d started (%d planned)%s" % [wave_number, _planned_count,
 		(" [" + WaveMutators.banner_text(_active_mutators) + "]") if not _active_mutators.is_empty() else ""])
+	_announce_wave(wave_number)
+
+
+## Banner line for the wave: mutator names ride along so players can adapt.
+func _announce_wave(wave_number: int) -> void:
+	var text := "Wave %d" % wave_number
+	var severity := &"info"
+	if not _active_mutators.is_empty():
+		text += " — " + WaveMutators.banner_text(_active_mutators)
+		severity = &"warning"
+	if wave_number % 10 == 0:
+		severity = &"danger"
+	EventBus.announcement.emit(&"wave_started", text, severity)
 
 
 func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
+	if not _forced_mutators.is_empty():
+		_active_mutators = _forced_mutators.duplicate()
+		for id in _active_mutators:
+			EventBus.wave_mutator_applied.emit(id, wave_number)
+		return
 	# Authored waves declare their own; generated waves roll (director may veto).
 	var declared: Array = []
 	if cfg != null:

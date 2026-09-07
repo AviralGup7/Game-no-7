@@ -2,6 +2,8 @@ extends Node
 ## Autoload: RunAnalytics
 ## Records local, offline-only run statistics for UI, balancing, debugging and future
 ## offline achievements. It must NEVER require network access or external accounts.
+## GameRoot pushes the full run summary via record_run_end() at finalize time (the
+## run_ended signal carries only headline numbers, so nothing is double-captured).
 ## Persistence delegates to SaveManager (lifetime statistics); this autoload keeps a
 ## small in-memory session view and exposes query hooks.
 
@@ -9,8 +11,6 @@ var _session_runs: Array[Dictionary] = []
 
 
 func _ready() -> void:
-	# Observe the run lifecycle for automatic capture when GameRoot drives it.
-	EventBus.run_ended.connect(_on_run_ended)
 	EventBus.report_info("RunAnalytics ready (offline only)")
 
 
@@ -19,10 +19,6 @@ func record_run_end(summary: Dictionary) -> void:
 	# Cap in-memory retention to a small window; durable totals live in the save.
 	if _session_runs.size() > 64:
 		_session_runs.pop_front()
-
-
-func _on_run_ended(_score: int, _wave: int, _best_score: int) -> void:
-	pass
 
 
 ## Aggregate lifetime totals from the save.

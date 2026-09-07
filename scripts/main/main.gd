@@ -46,6 +46,10 @@ func _create_persistent_directors() -> void:
 	_tutorial = TutorialManager.new()
 	_tutorial.name = "TutorialManager"
 	add_child(_tutorial)
+	# The coach speaks through the HUD announcement banner (UI children are ready
+	# before Main, so the banner already exists).
+	if _tutorial.has_method("bind_banner") and _ui_root != null and _ui_root.has_method("get_announcement_banner"):
+		_tutorial.call("bind_banner", _ui_root.call("get_announcement_banner"))
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:
@@ -138,6 +142,7 @@ func _create_systems(arena: Node, player: Node) -> void:
 	_world_root.add_child(wave)
 	_wave_manager = wave as WaveManager
 	_wave_manager.setup(_spawn_manager)
+	_apply_daily_mutators()
 
 	_create_run_systems(arena, player)
 
@@ -186,6 +191,7 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 		var weapons := (player as Node).get_node_or_null("WeaponManager")
 		if weapons != null and weapons.has_method("configure"):
 			weapons.call("configure", seed)
+		_apply_owned_unlocks(player, skills, weapons)
 		# Tutorial coach follows real player actions.
 		if _tutorial != null:
 			if (player as Node).has_signal("attack_started"):
@@ -194,6 +200,33 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 				(player as Node).dodged.connect(_tutorial.notify_player_dodged)
 	if _meta != null:
 		_meta.apply_all_to_run()
+
+
+## Daily runs share one deterministic mutator pair for every wave.
+func _apply_daily_mutators() -> void:
+	if _wave_manager == null:
+		return
+	var daily: Dictionary = GameRoot.get_daily_challenge()
+	if daily.is_empty():
+		return
+	var ids: Array[StringName] = []
+	for m in Array(daily.get("mutators", [])):
+		ids.append(StringName(String(m)))
+	_wave_manager.set_forced_mutators(ids)
+
+
+## Owned armory unlocks take effect: Bladestorm starts unlocked, and the best
+## owned weapon unlock rides in loadout slot 1 (reachable via weapon switch).
+func _apply_owned_unlocks(player: Node, skills: Node, weapons: Node) -> void:
+	if _meta == null or player == null:
+		return
+	if skills != null and skills.has_method("assign_skill_by_id") and _meta.is_skill_unlocked_from_start(&"bladestorm"):
+		skills.call("assign_skill_by_id", &"bladestorm", 1, true)
+	if weapons != null and weapons.has_method("equip_by_id"):
+		for weapon_id in [&"sunbow", &"warreaxe"]:
+			if _meta.is_weapon_unlocked(weapon_id):
+				weapons.call("equip_by_id", weapon_id, 1)
+				break
 
 
 func _clear_world() -> void:

@@ -2,8 +2,11 @@ extends Control
 ## UI root controller. Owns panel switching (only one major screen visible at a time),
 ## hosts the touch controls, routes joystick/action intents to the active player, and
 ## keeps text behind UiText so localization can be added later. Screen construction is
-## shared with UiFactory; the HUD lives in GameHud and upgrade cards in UpgradePanel.
-## Controllers never mutate global state directly: they call GameRoot's command API.
+## shared with UiFactory; the HUD lives in GameHud, upgrade cards in UpgradePanel,
+## the full settings form in SettingsPanel, and the HUD extras (skill bar, minimap,
+## boss frame, damage numbers, announcement banner) are built here and fed from
+## EventBus. Controllers never mutate global state directly: they call GameRoot's
+## command API.
 
 const VIRTUAL_JOYSTICK := preload("res://scripts/ui/virtual_joystick.gd")
 const TOUCH_ACTION := preload("res://scripts/ui/touch_action_button.gd")
@@ -17,6 +20,8 @@ const UPGRADE_CHOICE_COUNT := 3
 ## Screens (mutually exclusive).
 var _main_panel: Control = null
 var _settings_panel: Control = null
+var _armory_panel: Control = null
+var _armory_form: ArmoryPanel = null
 var _pause_panel: Control = null
 var _gameover_panel: Control = null
 var _upgrade_panel: UpgradePanel = null
@@ -28,6 +33,14 @@ var _touch_layer: Control = null
 var _joystick: VirtualJoystick = null
 var _attack_btn: Control = null
 var _dodge_btn: Control = null
+var _switch_btn: Control = null
+
+## HUD extras (built once, fed from EventBus).
+var _skill_bar: SkillBar = null
+var _minimap: Minimap = null
+var _boss_bar: BossHealthBar = null
+var _dmg_layer: DamageNumberLayer = null
+var _banner: AnnouncementBanner = null
 
 var _last_joystick_value := Vector2.ZERO
 var _active_screen := &"none"
@@ -37,6 +50,7 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_build_screens()
 	_build_hud()
+	_build_hud_extras()
 	_build_touch()
 	_upgrade_panel.choice_pressed.connect(_on_upgrade_panel_choice)
 	EventBus.game_state_changed.connect(_on_state_changed)
@@ -45,11 +59,14 @@ func _ready() -> void:
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.combo_changed.connect(_on_combo_changed)
 	EventBus.currency_changed.connect(_on_currency_changed)
+	EventBus.enemy_damaged.connect(_on_enemy_damaged_numbers)
+	EventBus.settings_changed.connect(_on_settings_changed_push)
 	EventBus.run_ended.connect(func(_s: int, _w: int, _b: int) -> void:
 		_refresh_gameover_best()
 		_update_gameover_stats())
 	EventBus.upgrade_choices_presented.connect(_on_upgrade_choices_presented)
 	EventBus.upgrade_selected.connect(_on_upgrade_selected)
+	_push_accessibility_settings()
 	_sync_from_state()
 
 
@@ -64,6 +81,11 @@ func _process(_delta: float) -> void:
 			p.call("set_move_input", v)
 
 
+## Announcement line for tutorial/coach wiring (Main binds the TutorialManager).
+func get_announcement_banner() -> AnnouncementBanner:
+	return _banner
+
+
 # ---------------------------- Screens ----------------------------
 
 func _build_screens() -> void:
@@ -74,6 +96,10 @@ func _build_screens() -> void:
 	UiFactory.title("", box, _font(30))  # spacer
 	var play_btn := UiFactory.button(loc(&"play"), box, _font(20))
 	play_btn.pressed.connect(func() -> void: GameRoot.request_play())
+	var daily_btn := UiFactory.button(loc(&"daily"), box, _font(20))
+	daily_btn.pressed.connect(func() -> void: GameRoot.start_daily_run())
+	var armory_btn := UiFactory.button(loc(&"armory"), box, _font(20))
+	armory_btn.pressed.connect(_open_armory)
 	var settings_btn := UiFactory.button(loc(&"settings"), box, _font(20))
 	settings_btn.pressed.connect(_open_settings)
 	var quit_btn := UiFactory.button(loc(&"quit"), box, _font(20))
@@ -81,6 +107,7 @@ func _build_screens() -> void:
 	_best_menu_labels(box)
 
 	_build_settings_screen()
+	_build_armory_screen()
 	_build_pause_screen()
 	_build_gameover_screen()
 	_build_upgrade_screen()
@@ -107,26 +134,32 @@ func _best_menu_labels(box: VBoxContainer) -> void:
 
 func _build_settings_screen() -> void:
 	_settings_panel = UiFactory.make_panel(self, "SettingsPanel")
+	_settings_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var box := UiFactory.center_box(_settings_panel)
 	UiFactory.title(loc(&"settings"), box, _font(30))
-	var s := SaveManager.get_settings()
-	UiFactory.check(loc(&"mute"), box, s.muted, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.muted = v; _persist(), _font(18))
-	UiFactory.check(loc(&"vibration"), box, s.vibration_enabled, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.vibration_enabled = v; _persist(), _font(18))
-	UiFactory.check(loc(&"reduced_motion"), box, s.reduced_motion, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.reduced_motion = v; _persist(), _font(18))
-	UiFactory.check(loc(&"high_contrast"), box, s.high_contrast, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.high_contrast = v; _persist(), _font(18))
-	var reset_btn := UiFactory.button(loc(&"reset_settings"), box, _font(20))
-	reset_btn.pressed.connect(func() -> void:
-		SaveManager.reset_settings(); _open_settings())
-	var close_btn := UiFactory.button(loc(&"close_settings"), box, _font(20))
-	close_btn.pressed.connect(_close_settings)
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(620, 480)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(scroll)
+	var form := SettingsPanel.new()
+	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	form.close_requested.connect(_close_settings)
+	scroll.add_child(form)
 
 
-func _persist() -> void:
-	SaveManager.persist_settings()
+func _build_armory_screen() -> void:
+	_armory_panel = UiFactory.make_panel(self, "ArmoryPanel")
+	_armory_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var box := UiFactory.center_box(_armory_panel)
+	UiFactory.title(loc(&"armory"), box, _font(30))
+	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(620, 480)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(scroll)
+	_armory_form = ArmoryPanel.new()
+	_armory_form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_armory_form.close_requested.connect(_close_armory)
+	scroll.add_child(_armory_form)
 
 
 func _build_pause_screen() -> void:
@@ -139,6 +172,8 @@ func _build_pause_screen() -> void:
 	restart_btn.pressed.connect(func() -> void: GameRoot.request_restart())
 	var menu_btn := UiFactory.button(loc(&"main_menu"), box, _font(20))
 	menu_btn.pressed.connect(func() -> void: GameRoot.request_main_menu())
+	var armory_btn := UiFactory.button(loc(&"armory"), box, _font(20))
+	armory_btn.pressed.connect(_open_armory)
 	var set_btn := UiFactory.button(loc(&"settings"), box, _font(20))
 	set_btn.pressed.connect(_open_settings)
 
@@ -167,6 +202,48 @@ func _build_upgrade_screen() -> void:
 func _build_hud() -> void:
 	_hud = GameHud.new()
 	add_child(_hud)
+
+
+## Skill bar, minimap, boss frame, damage numbers, announcement banner. The bar and
+## minimap show only while playing; the boss frame manages itself (boss spawn ->
+## death/run end); numbers + banner are always mounted but idle when empty.
+func _build_hud_extras() -> void:
+	_dmg_layer = DamageNumberLayer.new()
+	add_child(_dmg_layer)
+
+	_banner = AnnouncementBanner.new()
+	_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_banner.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_banner.offset_top = 200
+	_banner.offset_bottom = 260
+	add_child(_banner)
+
+	_boss_bar = BossHealthBar.new()
+	_boss_bar.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_boss_bar.offset_left = -210
+	_boss_bar.offset_right = 210
+	_boss_bar.offset_top = 64
+	_boss_bar.offset_bottom = 140
+	add_child(_boss_bar)
+
+	_minimap = Minimap.new()
+	_minimap.anchor_left = 1.0
+	_minimap.anchor_right = 1.0
+	_minimap.offset_left = -172
+	_minimap.offset_right = -12
+	_minimap.offset_top = 64
+	_minimap.offset_bottom = 224
+	add_child(_minimap)
+	_minimap.visible = false
+
+	_skill_bar = SkillBar.new()
+	_skill_bar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_skill_bar.offset_left = -110
+	_skill_bar.offset_right = 110
+	_skill_bar.offset_top = -250
+	_skill_bar.offset_bottom = -160
+	add_child(_skill_bar)
+	_skill_bar.visible = false
 
 
 func _build_touch() -> void:
@@ -222,6 +299,22 @@ func _build_touch() -> void:
 			p.call("request_dodge"))
 	_touch_layer.add_child(_dodge_btn)
 
+	_switch_btn = TOUCH_ACTION.new()
+	_switch_btn.name = "SwitchWeaponButton"
+	_switch_btn.action_name = "switch_weapon"
+	_switch_btn.radius = 30.0
+	_switch_btn.anchor_left = 1.0
+	_switch_btn.anchor_top = 1.0
+	_switch_btn.offset_left = -262
+	_switch_btn.offset_right = -190
+	_switch_btn.offset_top = -206
+	_switch_btn.offset_bottom = -134
+	_switch_btn.pressed.connect(func() -> void:
+		var p := GameRoot.get_active_player()
+		if p != null and is_instance_valid(p) and p.has_method("request_weapon_switch"):
+			p.call("request_weapon_switch"))
+	_touch_layer.add_child(_switch_btn)
+
 
 # ---------------------------- Upgrade cards ----------------------------
 
@@ -253,12 +346,17 @@ func _show_screen(screen: StringName) -> void:
 	_active_screen = screen
 	_main_panel.visible = screen == &"main_menu" or screen == &"main_menu_settings"
 	_settings_panel.visible = screen == &"settings"
+	_armory_panel.visible = screen == &"armory"
 	_pause_panel.visible = screen == &"paused"
 	_gameover_panel.visible = screen == &"game_over"
 	_upgrade_panel.visible = screen == &"upgrade_selection"
 	var playing := screen == &"playing" or screen == &"wave_transition"
 	_hud.visible = playing
 	_touch_layer.visible = playing
+	_skill_bar.visible = playing
+	_minimap.visible = playing
+	# Boss frame self-manages (boss spawn -> death/run end); numbers + banner idle
+	# silently when empty, so they stay mounted across all screens.
 
 
 func _sync_from_state() -> void:
@@ -295,6 +393,19 @@ func _close_settings() -> void:
 		_show_screen(&"paused")
 
 
+func _open_armory() -> void:
+	if _armory_form != null:
+		_armory_form.refresh()
+	_show_screen(&"armory")
+
+
+func _close_armory() -> void:
+	if GameRoot.get_current_state() == GameRoot.State.MAIN_MENU:
+		_show_screen(&"main_menu")
+	elif GameRoot.get_current_state() == GameRoot.State.PAUSED:
+		_show_screen(&"paused")
+
+
 func _request_quit() -> void:
 	get_tree().quit()
 
@@ -319,6 +430,42 @@ func _on_combo_changed(combo: int, best: int) -> void:
 
 func _on_currency_changed(currency: int, _delta: int) -> void:
 	_hud.set_currency(currency)
+
+
+## Damage-number glue: every accepted enemy hit pops a floating number (gold crits).
+func _on_enemy_damaged_numbers(enemy: Node, result: DamageResult) -> void:
+	if _dmg_layer == null or result == null or not result.accepted:
+		return
+	if not (enemy is Node3D):
+		return
+	var pos := (enemy as Node3D).global_position + Vector3(0, 1.2, 0)
+	_dmg_layer.spawn_damage_number(pos, result.final_amount, result.was_critical)
+
+
+## Push reduced-motion + number budget from settings (live on settings_changed).
+func _on_settings_changed_push(_settings: SettingsData) -> void:
+	_push_accessibility_settings()
+
+
+func _push_accessibility_settings() -> void:
+	var reduced := false
+	if SaveManager != null and SaveManager.has_method("get_settings"):
+		var s: SettingsData = SaveManager.call("get_settings")
+		if s != null and s.has_method("get_reduced_motion"):
+			reduced = bool(s.call("get_reduced_motion"))
+	if _banner != null:
+		_banner.set_reduced_motion(reduced)
+	if _dmg_layer != null:
+		_dmg_layer.set_reduced_motion(reduced)
+		_dmg_layer.set_max_live(_perf_number_budget())
+
+
+func _perf_number_budget() -> int:
+	if is_inside_tree():
+		for node in get_tree().get_nodes_in_group("performance_monitor"):
+			if node != null and node.has_method("max_damage_numbers"):
+				return int(node.call("max_damage_numbers"))
+	return 32
 
 
 func _refresh_best_label(label: Label) -> void:

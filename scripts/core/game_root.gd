@@ -38,6 +38,7 @@ var _best_score: int = 0
 var _best_wave: int = 0
 var _paused := false
 var _active_player: Node = null
+var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standard.
 
 
 func _ready() -> void:
@@ -48,10 +49,7 @@ func _ready() -> void:
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.wave_completed.connect(_on_wave_completed)
 	_sync_player_control()
-	EventBus.game_state_changed.connect(_on_game_state_changed)
 	EventBus.diagnostic.connect(func(_m: String, _s: StringName) -> void: pass)
-	if TestHarness != null:
-		pass
 	EventBus.report_info("GameRoot ready")
 
 
@@ -105,7 +103,31 @@ func _unhandled_input(event: InputEvent) -> void:
 func request_play() -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
 		return
+	_daily = {}
 	transition_to(State.STARTING_RUN)
+
+
+## Start today's seeded daily challenge (shared seed, fixed mutators + weapon).
+func start_daily_run() -> void:
+	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
+		return
+	_daily = DailyChallenge.challenge_for_today()
+	transition_to(State.STARTING_RUN)
+
+
+func is_daily_run() -> bool:
+	return not _daily.is_empty()
+
+
+func get_daily_challenge() -> Dictionary:
+	return _daily
+
+
+## Starter weapon for the current run (daily loadout or the default gladius).
+func get_daily_weapon() -> StringName:
+	if _daily.is_empty():
+		return &"gladius"
+	return StringName(String(_daily.get("weapon", "gladius")))
 
 
 func request_restart() -> void:
@@ -206,13 +228,23 @@ func _start_new_run() -> void:
 	_current_run.reset()
 	_current_run.run_id = _next_run_id()
 	_current_run.seed = randi()
+	if not _daily.is_empty():
+		_current_run.seed = int(_daily.get("seed", _current_run.seed))
 	_current_run.arena_id = arena_id
 	_current_run.elapsed_seconds = 0.0
 	_score.reset_run(_current_run)
-	EventBus.report_info("Starting run %d in arena %s (seed %d)" % [_current_run.run_id, String(arena_id), _current_run.seed])
+	EventBus.report_info("Starting run %d in arena %s (seed %d)%s" % [_current_run.run_id, String(arena_id), _current_run.seed,
+		(" [" + String(_daily.get("label", "Daily")) + "]") if not _daily.is_empty() else ""])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
 	EventBus.run_started.emit(_current_run.run_id, _current_run.seed)
+	if not _daily.is_empty():
+		var muts: Array = _daily.get("mutators", [])
+		var names: PackedStringArray = PackedStringArray()
+		for m in muts:
+			names.append(WaveMutators.display_name(StringName(String(m))))
+		EventBus.announcement.emit(&"daily", "%s — mutators: %s" % [
+			String(_daily.get("label", "Daily")), ", ".join(names)], &"warning")
 	transition_to(State.PLAYING)
 
 
@@ -246,10 +278,6 @@ func _get_main() -> Node:
 
 func _next_run_id() -> int:
 	return int(Time.get_ticks_msec()) + randi()
-
-
-func _on_game_state_changed(_previous: StringName, _current: StringName) -> void:
-	pass
 
 
 ## ---------- Wave integration (record + bonus, routed through GameRoot scoring) ----------
@@ -329,8 +357,12 @@ func request_upgrade_selection(upgrade_id: StringName) -> bool:
 
 ## ---------- Combat scoring (exactly-once per enemy_killed) ----------
 
-func _on_enemy_killed(_enemy: Node, _archetype_id: StringName, score_value: int, currency_value: int) -> void:
-	_score.record_kill(score_value, currency_value)
+func _on_enemy_killed(_enemy: Node, archetype_id: StringName, score_value: int, currency_value: int) -> void:
+	_score.record_kill(score_value, currency_value, archetype_id)
+
+
+func get_combat_log() -> CombatLog:
+	return _score.get_combat_log()
 
 
 ## Player progression lookup feeding the scorekeeper's multipliers. Tolerant when no

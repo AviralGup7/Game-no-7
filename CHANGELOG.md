@@ -3,44 +3,54 @@
 ## [Unreleased] — Arena build-out · weapons, skills, arenas, enemies, meta
 
 ### Added
-- **Data-driven weapon loadout** — `WeaponConfig` resources (`data/weapons/`, 5 shipped:
-  fists, sword, greatsword, bow, wand) auto-discovered by `ContentRegistry`;
-  `WeaponManager` owns the loadout + cooldowns, `MeleeResolver` scores arc hits,
-  `ProjectilePool` serves pooled projectiles for volleys and enemy ranged attacks.
-- **Active skills + status effects** — `SkillConfig` resources (`data/skills/`, 4 shipped),
-  `SkillController` (charges/cooldowns, Q/E/R), `StatusManager` (burn/poison/freeze/slow/
-  stun/vulnerable with refresh/stack rules), `AreaDamage` + `ChainLightning` helpers.
-- **3 new arenas** — `ember`, `frost`, `storm` configs + scenes with `ArenaDecorator`
-  (deterministic props), `ArenaHazards` (lava/ice/storm-floor fields), camera profiles,
-  music cues, unlock waves, and mutator affinities.
-- **5 new enemies** — brute, dasher, spitter (ranged), splitter (spawns mites on death),
-  warden (elite shield-bearer); `StatusComponent`-aware `EnemyBase` (stun gating + slow
-  scaling), elite affixes (`EliteAffix`), buff totems and healers via `EnemySupport`.
-- **Combat depth** — `ComboTracker` (ranked combo with score events), `DamageNumber`
-  popups, `HitstopManager` (hitstop + trauma shake), `PickupManager` (health/energy/
-  score/magnet drops), enemy `AttackTelegraph` + `SpawnEffect` + `DeathEffect`.
-- **Wave director** — `MutatorConfig` resources (`data/mutators/`, 6 shipped: swift/
-  brutal/ember-winds/fragile-rich/necrotic/splitter-surge) applied per wave,
-  `WaveAnnouncer` banners, `DirectorHud`, endless scaling (`EndlessScaling`).
-- **Run flow** — `RunTimer`, `PauseManager` (pause + settings-from-pause), `GameOverFlow`
-  (summary + best-score fanfare), `SettingsPanel` (volumes, motion, remapping),
-  `InputRemapper` (persisted bindings), `TutorialManager` (first-run coach).
-- **Meta game** — `MetaProgression` wallet + 5 upgrade tracks (vitality/power/swift/focus/
-  fortune) applied at run start; `Achievements` (12 achievements, persistent);
-  `DailyChallenge` (seeded daily modifier); `RunHistory` (last-20 runs + aggregates).
-- **Audio/UI/juice** — `MusicManager` (menu/calm/battle/intensity layers),
-  `ArenaAmbience`, damage vignette + low-HP pulse, upgrade/level-up toasts, arena intro
-  cards, boss HP bar, compass objective marker, touch controls (stick + buttons).
-- **Debug tooling** — `DebugConsole` (`give/killall/god/wave/skill/wpn` commands),
-  `PerformanceMonitor` (auto quality scaling), `SaveInspector`, `BalanceReport`.
-- **Unit tests** — 8 new suites (`test_rng_tables`, `test_weapons`, `test_status_skills`,
+- **Data-driven weapon loadout** — `WeaponConfig` resources (`data/weapons/`, 6 shipped:
+  gladius, sentinel_spear, stormhammer, sunbow, twinfangs, warreaxe) auto-discovered by
+  `ContentRegistry`; `WeaponManager` owns the 2-slot loadout + cooldowns + switching
+  (Tab / gamepad Y / touch button), `MeleeResolver` scores arc hits, `ProjectilePool`
+  serves pooled projectiles for volleys and enemy ranged attacks.
+- **Active skills + status effects** — `SkillConfig` resources (`data/skills/`, 5 shipped:
+  bladestorm, frost_nova, phantom_rush, seismic_slam, warcry), `SkillController`
+  (charges/cooldowns, Q/E/R + tappable HUD skill bar), `StatusManager` (bleed/burn/
+  guard/regen/shock/slow/stun/warcry with refresh/stack rules), `AreaDamage` helper.
+- **2 new arenas** — `ember_crucible` + `frost_hollow` configs (share the arena scene)
+  with `ArenaDecorator` (deterministic props), `ArenaHazards` (floor fields),
+  per-arena music cue (consulted by `MusicManager`), and unlock waves.
+- **5 new enemies** — dasher, exploder, ranged, splitter (spawns fast mites on death),
+  warlord (3-phase boss via `BossController`); stun gating + slow scaling in `EnemyBase`,
+  elite affixes (`EnemyEliteAffix`), hit-flash/death-sink juice via `EnemyFeedback`.
+- **Combat depth** — `RunScorekeeper` combo (4s window, score events, kill feed in
+  `CombatLog`), `DamageNumberLayer` crit popups, `HitstopManager` (hitstop + trauma
+  shake), `PickupManager` (6 drops: antidote/coin_cache/health_orb/magnet_core/
+  stamina_brew/xp_gem).
+- **Wave director** — 7 static mutators (`WaveMutators`: swift_horde/iron_hide/
+  elite_surge/glass_cannon/bounty_hunt/volatile_mix/ember_winds) resolved per wave,
+  wave + mutator banner announcements, adaptive `DifficultyDirector`, endless planner
+  scaling.
+- **Run flow** — pause overlay + settings-from-pause, game-over run summary,
+  `SettingsPanel` (volumes, mute, motion, vibration, contrast, FPS cap, quality tier,
+  persisted remapping via `InputRemapper`), `TutorialManager` first-run coach speaking
+  through the HUD announcement banner.
+- **Meta game** — `MetaProgression` wallet (banks half the run currency) + 8-item armory
+  (5 stat tracks, 2 weapon unlocks, Bladestorm manual) with a spendable `ArmoryPanel`
+  shop; `Achievements` (19 achievements, persistent); playable `DailyChallenge` (shared
+  daily seed, fixed mutators + starter weapon).
+- **Audio** — `MusicManager` (menu/calm/battle/battle/boss/victory states, heat-driven
+  intensity layers, crossfades); `ProceduralSfx` synthesizes every referenced cue
+  (10 SFX + 5 music beds) so the game is never silent — real drops in `data/audio/`
+  (`.tres`/`.ogg`/`.wav`/`.mp3`) always take precedence.
+- **HUD/widgets** — skill bar, tactical minimap, boss HP frame, announcement banner,
+  damage numbers, combat-event kill feed, armory + daily-challenge menu entries.
+- **Debug tooling** — `PerformanceMonitor` (rolling FPS + auto quality scaling, feeds
+  the damage-number budget).
+- **Unit tests** — 9 new suites (`test_rng_tables`, `test_weapons`, `test_status_skills`,
   `test_area_combat`, `test_drops_elites`, `test_director_mutators`, `test_meta_misc`,
-  `test_planner_extended`); 200+ new assertions, all autoload-independent.
+  `test_planner_extended`, `test_procedural_sfx`); ~200 checked assertions, all
+  autoload-independent.
 
 ### Changed
 - `EnemyBase` integrates `StatusManager` (stun pauses AI, slow scales motion);
-  `SpawnManager` supports elites/affixes/telegraphs and composition overrides;
-  `WaveManager`/`WavePlanner` apply mutators + endless scaling + spillover queue.
+  `SpawnManager` supports elites/affixes and wave-modifier scaling (hp/damage/speed/
+  score/elite/explosive); `WaveManager`/`WavePlanner` apply mutators + endless scaling.
 - `SaveManager` schema 3: tutorial completion, achievements, meta wallet/ranks.
 - `SettingsData` gained getters; `HealthComponent` gained `get_max()`;
   `ProgressionComponent` accepts `skill_cooldown_multiplier` + `add_permanent_bonus()`.

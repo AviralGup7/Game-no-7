@@ -141,10 +141,15 @@ static func resolve_for_wave(declared: Array, wave: int, seed: int, breather: bo
 
 
 ## Human-readable banner line for a set of mutators.
+## Human-readable name for one mutator id (falls back to the raw id).
+static func display_name(mutator_id: StringName) -> String:
+	return String(definition(mutator_id).get("name", String(mutator_id)))
+
+
 static func banner_text(mutator_ids: Array) -> String:
 	if mutator_ids.is_empty():
 		return ""
 	var names: PackedStringArray = []
 	for raw in mutator_ids:
-		names.append(String(definition(StringName(String(raw))).get("name", String(raw))))
+		names.append(display_name(StringName(String(raw))))
 	return "Mutators: " + ", ".join(names)

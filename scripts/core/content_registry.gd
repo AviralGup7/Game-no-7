@@ -51,15 +51,24 @@ func refresh_all() -> void:
 	if _selected_arena == &"" and first_arena != &"":
 		_selected_arena = first_arena
 	_register_audio_cues(loaded["audio"])
+	# Procedural fallback: synthesize any cue still missing so the game is
+	# never silent (real audio drops in data/audio/ always take precedence).
+	ProceduralSfx.ensure_registered()
 	_validation_dirty = true
 
 
 func _register_audio_cues(cues: Dictionary) -> void:
 	_audio_cues.clear()
 	for idn in cues:
-		var stream: AudioStream = cues[idn]
-		_audio_cues[idn] = stream
-		AudioManager.register_cue(idn, stream)
+		register_audio_cue(idn, cues[idn])
+
+
+## Register one cue in both the lookup table and the AudioManager voices.
+func register_audio_cue(cue_id: StringName, stream: AudioStream) -> void:
+	if stream == null:
+		return
+	_audio_cues[cue_id] = stream
+	AudioManager.register_cue(cue_id, stream)
 
 
 # ---------------------- Lookup API ----------------------

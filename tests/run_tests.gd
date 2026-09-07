@@ -28,6 +28,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_meta_misc.gd",
 	"res://tests/unit/test_planner_extended.gd",
 	"res://tests/unit/test_extracted_modules.gd",
+	"res://tests/unit/test_procedural_sfx.gd",
 ]
 
 var _failures: Array[String] = []

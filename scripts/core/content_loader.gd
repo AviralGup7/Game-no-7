@@ -133,7 +133,7 @@ static func _register_resource(table: Dictionary, idn: StringName, res: Resource
 ## in the registry so this loader never touches autoloads).
 static func _load_audio_streams(errors: Array[String]) -> Dictionary:
 	var out: Dictionary = {}
-	var files := _list_resources(&"res://data/audio")
+	var files := _list_resources(&"res://data/audio", AUDIO_EXTENSIONS)
 	for path in files:
 		var stream := ResourceLoader.load(path)
 		if stream is AudioStream:
@@ -144,7 +144,12 @@ static func _load_audio_streams(errors: Array[String]) -> Dictionary:
 	return out
 
 
-static func _list_resources(dir_path: String) -> Array[String]:
+## Audio drops accept raw sound files too (the documented .ogg workflow):
+## anything Godot imports as an AudioStream is a valid cue.
+const AUDIO_EXTENSIONS := [".tres", ".res", ".ogg", ".wav", ".mp3"]
+
+
+static func _list_resources(dir_path: String, extensions: Array = [".tres"]) -> Array[String]:
 	var out: Array[String] = []
 	if not DirAccess.dir_exists_absolute(dir_path):
 		return out
@@ -154,8 +159,17 @@ static func _list_resources(dir_path: String) -> Array[String]:
 	dir.list_dir_begin()
 	var file := dir.get_next()
 	while file != "":
-		if not dir.current_is_dir() and file.ends_with(".tres"):
-			out.append(dir_path.path_join(file))
+		if not dir.current_is_dir() and _has_extension(file, extensions):
+			# Skip Godot's import sidecars; load() resolves the real resource.
+			if not file.ends_with(".import") and not file.ends_with(".godot"):
+				out.append(dir_path.path_join(file))
 		file = dir.get_next()
 	dir.list_dir_end()
 	return out
+
+
+static func _has_extension(file: String, extensions: Array) -> bool:
+	for ext in extensions:
+		if file.ends_with(String(ext)):
+			return true
+	return false

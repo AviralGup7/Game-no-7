@@ -124,6 +124,8 @@ func _physics_process(delta: float) -> void:
 			request_attack()
 		if Input.is_action_just_pressed("dodge"):
 			request_dodge()
+		if Input.is_action_just_pressed("switch_weapon"):
+			request_weapon_switch()
 	# Advance attack timers every active step so hits resolve deterministically.
 	if _attack != null and _attack.has_method("advance"):
 		_attack.call("advance", delta)
@@ -381,15 +383,32 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	respawned.emit()
 
 
-## Starter kit: Gladius in slot 0 + the first skill unlocked (all tolerant when
-## the ContentRegistry is unavailable, e.g. headless direct use).
+## Cycle the weapon loadout (Tab / Y / touch button). Returns false when there is
+## no second weapon to switch to.
+func request_weapon_switch() -> bool:
+	if _is_dead or not _control_enabled:
+		return false
+	if _weapons == null or not _weapons.has_method("cycle_weapon"):
+		return false
+	return bool(_weapons.call("cycle_weapon"))
+
+
+## Starter kit: daily loadout (or Gladius) in slot 0 + the first skill unlocked
+## (all tolerant when the ContentRegistry is unavailable, e.g. headless direct use).
+## Slot 1 + locked skills are filled by Main from owned meta unlocks after reset.
 func _equip_starter_kit() -> void:
 	if _weapons != null and _weapons.has_method("equip_by_id"):
-		_weapons.call("equip_by_id", &"gladius", 0)
+		_weapons.call("equip_by_id", _starter_weapon_id(), 0)
 	if _skills != null and _skills.has_method("assign_skill_by_id"):
 		_skills.call("assign_skill_by_id", &"seismic_slam", 0, true)
 		_skills.call("assign_skill_by_id", &"bladestorm", 1, false)
 		_skills.call("assign_skill_by_id", &"phantom_rush", 2, false)
+
+
+func _starter_weapon_id() -> StringName:
+	if GameRoot != null and GameRoot.has_method("get_daily_weapon"):
+		return StringName(GameRoot.call("get_daily_weapon"))
+	return &"gladius"
 
 
 ## Set the arena interior half-extent for movement/bounds clamping; -1 disables it.

@@ -56,7 +56,6 @@ func _ready() -> void:
 	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
 	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
 	if _health != null:
-		_health.health_changed.connect(func(_c: float, _m: float) -> void: pass)
 		_health.damaged.connect(_on_damaged)
 		_health.died.connect(_on_died)
 
@@ -176,8 +175,6 @@ func apply_difficulty(hp_scale: float, damage_scale: float, speed_scale: float) 
 	_speed_scale = maxf(speed_scale, 1.0)
 	if _health != null and _health.has_method("reset"):
 		_health.call("reset", _scaled_max_health())
-	if _feedback != null and _feedback.has_method("play_damaged"):
-		pass
 
 
 func _scaled_max_health() -> float:

@@ -26,6 +26,7 @@ var _ranks: Dictionary = {}  # item_id -> rank purchased
 
 
 func _ready() -> void:
+	add_to_group("meta_progression")
 	_load()
 	if EventBus != null and not EventBus.run_ended.is_connected(_on_run_ended):
 		EventBus.run_ended.connect(_on_run_ended)

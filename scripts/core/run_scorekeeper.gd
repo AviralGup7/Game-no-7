@@ -13,6 +13,12 @@ const COMBO_WINDOW_SECONDS: float = 4.0
 var _run: RunState = null
 var _stat_provider: Callable = Callable()
 var _last_kill_time: float = 0.0
+var _combat_log := CombatLog.new()
+
+
+## Recent kill feed (debug views / post-run summary).
+func get_combat_log() -> CombatLog:
+	return _combat_log
 
 
 ## Bind to a run + a (key, base) -> float derived-stat provider (GameRoot's
@@ -26,10 +32,12 @@ func bind(run: RunState, stat_provider: Callable) -> void:
 func reset_run(run: RunState) -> void:
 	_run = run
 	_last_kill_time = 0.0
+	_combat_log.clear()
+	_combat_log.log(CombatLog.KIND_SYSTEM, "Run started")
 
 
 ## Exactly-once per enemy_killed: bump combo, award multiplied score + currency.
-func record_kill(score_value: int, currency_value: int) -> void:
+func record_kill(score_value: int, currency_value: int, archetype_id: StringName = &"") -> void:
 	if _run == null or not _run.player_alive:
 		return
 	_run.add_kill()
@@ -40,6 +48,7 @@ func record_kill(score_value: int, currency_value: int) -> void:
 	_last_kill_time = _run.elapsed_seconds
 	var gained := Scoring.calculate_kill_score(score_value, _run.combo, multiplier)
 	_run.add_score(gained)
+	_combat_log.log_kill(archetype_id, gained)
 	EventBus.score_changed.emit(_run.score, gained)
 	var currency_reward := maxi(int(round(float(currency_value) * _currency_multiplier())), 0)
 	_run.add_currency(currency_reward)
@@ -61,6 +70,7 @@ func award_bonus(bonus: int) -> void:
 	if _run == null or not _run.player_alive or bonus <= 0:
 		return
 	_run.add_score(bonus)
+	_combat_log.log(CombatLog.KIND_SYSTEM, "Wave bonus +%d" % bonus)
 	EventBus.score_changed.emit(_run.score, bonus)
 
 

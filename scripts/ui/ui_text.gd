@@ -11,6 +11,8 @@ const TEXT := {
 	"app_title": "LAST STAND",
 	"app_subtitle": "ARENA",
 	"play": "PLAY",
+	"daily": "DAILY CHALLENGE",
+	"armory": "ARMORY",
 	"settings": "SETTINGS",
 	"quit": "QUIT",
 	"resume": "RESUME",

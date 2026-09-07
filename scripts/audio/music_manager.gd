@@ -80,14 +80,24 @@ func _cue_for_state() -> StringName:
 		STATE_MENU:
 			return &"music_menu"
 		STATE_CALM:
-			return &"music_calm"
+			return _arena_cue(&"music_calm")
 		STATE_BATTLE:
-			return &"music_battle"
+			return _arena_cue(&"music_battle")
 		STATE_BOSS:
 			return &"music_boss"
 		STATE_VICTORY:
 			return &"music_victory"
 	return &""
+
+
+## Arena configs may override the calm/battle bed via background_music_cue;
+## unknown or missing ids fall back to the default cue for the state.
+func _arena_cue(fallback: StringName) -> StringName:
+	if GameRoot != null and ContentRegistry != null and AudioManager != null:
+		var arena: ArenaConfig = ContentRegistry.get_arena(GameRoot.get_run().arena_id)
+		if arena != null and arena.background_music_cue != &"" and AudioManager.has_cue(arena.background_music_cue):
+			return arena.background_music_cue
+	return fallback
 
 
 func _play_cue_on_active() -> void:

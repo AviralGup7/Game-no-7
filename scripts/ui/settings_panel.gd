@@ -2,17 +2,21 @@ class_name SettingsPanel
 extends VBoxContainer
 
 ## Full settings form: master/music/SFX volumes, camera shake + reduced motion,
-## touch layout scale, FPS cap, quality tier, and input rebind buttons for the
-## remappable actions. Reads/writes SettingsData through SaveManager and pushes
-## live changes to AudioManager / HitstopManager / PerformanceMonitor.
-## Code-built so it drops into any menu scene.
+## mute/vibration/high-contrast, touch layout scale, FPS cap, quality tier, and
+## input rebind buttons for the remappable actions. Reads/writes SettingsData
+## through SaveManager and pushes live changes to AudioManager / HitstopManager /
+## PerformanceMonitor. Code-built so it drops into any menu scene.
 
 signal settings_applied()
+signal close_requested()
 
 var _settings: SettingsData = null
 var _volume_sliders: Dictionary = {}
 var _shake_check: CheckButton = null
 var _motion_check: CheckButton = null
+var _mute_check: CheckButton = null
+var _vibration_check: CheckButton = null
+var _contrast_check: CheckButton = null
 var _fps_option: OptionButton = null
 var _quality_option: OptionButton = null
 var _rebind_buttons: Dictionary = {}
@@ -24,6 +28,7 @@ func _ready() -> void:
 	_load_settings()
 	_build_audio_section()
 	_build_accessibility_section()
+	_build_general_section()
 	_build_performance_section()
 	_build_rebind_section()
 	_build_buttons()
@@ -77,6 +82,13 @@ func _build_accessibility_section() -> void:
 	var box := _section("Accessibility")
 	_shake_check = _check_row(box, "Camera shake", not _settings.get_reduced_motion() if _settings.has_method("get_reduced_motion") else true)
 	_motion_check = _check_row(box, "Reduced motion", _settings.get_reduced_motion() if _settings.has_method("get_reduced_motion") else false)
+
+
+func _build_general_section() -> void:
+	var box := _section("General")
+	_mute_check = _check_row(box, "Mute audio", _settings.is_muted() if _settings.has_method("is_muted") else false)
+	_vibration_check = _check_row(box, "Vibration", _settings.is_vibration_enabled() if _settings.has_method("is_vibration_enabled") else true)
+	_contrast_check = _check_row(box, "High contrast", _settings.is_high_contrast() if _settings.has_method("is_high_contrast") else false)
 
 
 func _check_row(parent: VBoxContainer, label_text: String, pressed: bool) -> CheckButton:
@@ -139,6 +151,11 @@ func _bindings_text(action: StringName) -> String:
 func _build_buttons() -> void:
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
+	row.add_theme_constant_override("separation", 8)
+	var close := Button.new()
+	close.text = "Close"
+	close.pressed.connect(func() -> void: close_requested.emit())
+	row.add_child(close)
 	var apply := Button.new()
 	apply.text = "Apply"
 	apply.pressed.connect(_apply)
@@ -181,6 +198,7 @@ func _on_volume_changed(_value: float) -> void:
 
 func _on_accessibility_changed(_pressed: bool) -> void:
 	_push_accessibility_live()
+	_push_mute_live()
 
 
 func _on_fps_selected(index: int) -> void:
@@ -213,14 +231,30 @@ func _push_accessibility_live() -> void:
 				node.call("set_reduced_motion", reduced or not _shake_check.button_pressed)
 
 
+func _push_mute_live() -> void:
+	if AudioManager != null and AudioManager.has_method("set_muted"):
+		AudioManager.call("set_muted", _mute_check.button_pressed)
+
+
 func _apply() -> void:
 	if _settings != null:
 		if _settings.has_method("set_master_volume"):
 			_settings.call("set_master_volume", float((_volume_sliders[&"master"] as HSlider).value))
+		if _settings.has_method("set_music_volume"):
+			_settings.call("set_music_volume", float((_volume_sliders[&"music"] as HSlider).value))
+		if _settings.has_method("set_sfx_volume"):
+			_settings.call("set_sfx_volume", float((_volume_sliders[&"sfx"] as HSlider).value))
+		if _settings.has_method("set_muted"):
+			_settings.call("set_muted", _mute_check.button_pressed)
 		if _settings.has_method("set_reduced_motion"):
 			_settings.call("set_reduced_motion", _motion_check.button_pressed)
+		if _settings.has_method("set_vibration_enabled"):
+			_settings.call("set_vibration_enabled", _vibration_check.button_pressed)
+		if _settings.has_method("set_high_contrast"):
+			_settings.call("set_high_contrast", _contrast_check.button_pressed)
 	if SaveManager != null and SaveManager.has_method("save_settings"):
 		SaveManager.call("save_settings", _settings)
 	_push_audio_live()
 	_push_accessibility_live()
+	_push_mute_live()
 	settings_applied.emit()
