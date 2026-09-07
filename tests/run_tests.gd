@@ -36,9 +36,9 @@ func _initialize() -> void:
 				_failures.append("%s :: %s — %s" % [path.get_file(), str(c.get("name", "")), str(c.get("why", ""))])
 
 
-func _process(_delta: float) -> void:
+func _process(_delta: float) -> bool:
 	if _integration_run:
-		return
+		return false
 	_integration_run = true
 	# Deferred to the first live frame so Node3D children are truly inside the tree.
 	var combat := _run_combat_integration()
@@ -53,6 +53,7 @@ func _process(_delta: float) -> void:
 		print("  FAIL  " + f)
 	print("========================================")
 	quit(0 if _failures.is_empty() else 1)
+	return false
 
 
 ## Deterministic combat integration: real HealthComponent damage/invuln/death +
