@@ -5,6 +5,9 @@
 export_presets.cfg.local
 godot.log
 
+# Local asset-sourcing / tool caches (not shipped)
+.cache/
+
 # Build outputs
 build/
 *.apk

@@ -56,8 +56,16 @@ else
   echo "Godot version OK: $VERSION_RAW"
 fi
 
+step "Verify approved asset files (offline)"
+(cd "$PROJECT_DIR" && python3 scripts/download_assets.py --verify)
+(cd "$PROJECT_DIR" && python3 tool/validate_assets.py)
+(cd "$PROJECT_DIR" && python3 -m unittest discover -s tests/python)
+
 step "Import project"
 (cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . --import >/dev/null)
+
+step "Validate native Godot asset imports"
+(cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . --script res://tests/validate_asset_imports.gd)
 
 step "Run automated tests"
 (cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . --script res://tests/run_tests.gd)

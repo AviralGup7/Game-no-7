@@ -53,11 +53,17 @@ jobs:
         shell: bash
         run: godot --headless --path . --script res://tests/run_tests.gd
 
+      - name: Validate imported 3D assets, animations, textures and audio
+        shell: bash
+        run: godot --headless --path . --script res://tests/validate_asset_imports.gd
+
       - name: Validate resources & assets
         shell: bash
         run: |
           python3 tool/validate_resources.py
           python3 scripts/download_assets.py --verify
+          python3 tool/validate_assets.py
+          python3 -m unittest discover -s tests/python -v
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project

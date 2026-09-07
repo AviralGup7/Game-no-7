@@ -46,6 +46,20 @@ Use high-contrast variant (settings toggle) for accessibility.
 - Distinct **colour** and optional emissive accent.
 - Clear **attack telegraph** (pose/colour/flash before a hit).
 
+## Downloaded art family (not yet integrated)
+
+The reviewed kit in `assets/` uses **KayKit Adventurers + Skeletons + Dungeon
+Remastered** for matching characters, weapons, props and texture language, with
+Kenney particle/UI assets and Rajdhani fonts. See `docs/ASSET_CATALOG.md` for exact
+files, animation names and per-role mappings. These downloads do not replace the
+live primitive models or change combat/camera behaviour yet.
+
+Keep the original textured materials when applying the role palette; tint accents
+or duplicate materials rather than flattening every surface to a single colour.
+The character rigs have multiple mesh parts and 1024px gradient atlases: share
+materials/textures where possible, select appropriate import LODs/texture sizes,
+and profile full enemy waves on the target phone. "Low poly" is not an FPS guarantee.
+
 ## Future content rules
 
 New enemies, arenas, cosmetics, pickups and UI must follow the palette + scale above,
