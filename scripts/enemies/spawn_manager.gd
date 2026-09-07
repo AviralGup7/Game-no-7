@@ -1,17 +1,27 @@
 class_name SpawnManager
 extends Node3D
 
-## Owns the physical spawning of enemies for the current wave: a flattened spawn
-## queue, point selection/validation, maximum simultaneous cap, spawn pacing, active
-## enemy tracking, registration/removal and wave-clear detection. It does NOT own
-## score, upgrades, global saves or wave generation — those belong to WaveManager /
-## GameRoot. WaveManager hands it a queue and listens to its signals.
+## Owns the physical spawning of enemies for the current wave: a flattened spawn queue,
+## weighted point selection/validation, maximum simultaneous cap, spawn pacing, active
+## enemy tracking, and authoritative planned/spawned/pending/active/defeated/failed
+## accounting. It does NOT own score, upgrades, global saves or wave generation — those
+## belong to WaveManager / GameRoot.
+##
+## Accounting is authoritative and event-driven: an entry is removed from the plan ONLY
+## after a spawn succeeds; a defeated count increments ONLY when a genuinely killed enemy
+## is removed via its death path. Failed spawn attempts are retried up to a bound and then
+## counted as "failed" (never as defeated), so a bad spawn cannot silently under-fill a
+## wave or falsely complete it.
 
 signal spawn_plan_created(wave_number: int, total_count: int)
 signal enemy_spawn_failed(archetype_id: StringName, reason: StringName)
+signal enemy_defeated(archetype_id: StringName)
 signal all_cleared()
 
 const SPAWN_POINT_GROUP := &"enemy_spawn_point"
+## Bounded retries per queue-head before it is counted as a failed spawn (prevents
+## infinite retry loops while never treating a failed spawn as a defeat).
+const MAX_FAILED_ATTEMPTS := 6
 
 var _arena: Node3D = null
 var _player: Node = null
@@ -27,6 +37,15 @@ var _current_wave := 0
 var _configured := false
 var _run_seed := 0
 var _difficulty := {"hp": 1.0, "damage": 1.0, "speed": 1.0}
+
+## Authoritative accounting counters (event-driven, never inferred from differences).
+var _planned_count := 0
+var _spawned_count := 0
+var _defeated_count := 0
+var _failed_count := 0
+
+var _attempt_head: StringName = &""
+var _attempt_count := 0
 
 
 func _ready() -> void:
@@ -53,14 +72,36 @@ func queue_wave(archetypes: Array[StringName], wave_number: int, interval: float
 	_max_simultaneous = maxi(1, max_simultaneous)
 	_rng.seed = _hash_seed(_run_seed, wave_number)
 	_pending = archetypes.duplicate()
-	spawn_plan_created.emit(_current_wave, _pending.size())
+	_planned_count = _pending.size()
+	spawn_plan_created.emit(_current_wave, _planned_count)
 	if _timer != null:
 		_timer.wait_time = _spawn_interval
 		_timer.start()
 
 
+func get_planned_count() -> int:
+	return _planned_count
+
+
 func get_pending_count() -> int:
 	return _pending.size()
+
+
+func get_spawned_count() -> int:
+	return _spawned_count
+
+
+func get_active_count() -> int:
+	_prune_active()
+	return _active.size()
+
+
+func get_defeated_count() -> int:
+	return _defeated_count
+
+
+func get_failed_count() -> int:
+	return _failed_count
 
 
 func set_difficulty_scalars(scalars: Dictionary) -> void:
@@ -69,12 +110,6 @@ func set_difficulty_scalars(scalars: Dictionary) -> void:
 		"damage": float(scalars.get("damage", 1.0)),
 		"speed": float(scalars.get("speed", 1.0)),
 	}
-
-
-func get_active_count() -> int:
-	# Prune any freed references before counting.
-	_prune_active()
-	return _active.size()
 
 
 func is_spawning() -> bool:
@@ -97,28 +132,25 @@ func _on_spawn_tick() -> void:
 func _spawn_one() -> bool:
 	if _pending.is_empty() or not _configured:
 		return false
-	# PEEK, don't pop: an entry is removed from the plan ONLY after a spawn succeeds,
-	# so a failed spawn can never silently reduce the planned wave count or falsely
-	# complete the wave. Failures are retried on later ticks (bounded below) or reported.
+	# PEEK, don't pop: an entry is removed from the plan ONLY after a spawn succeeds.
 	var archetype: StringName = _pending[0]
+	_reset_attempt_if_new_head(archetype)
+
 	var config: EnemyConfig = ContentRegistry.get_enemy(archetype)
 	if config == null or config.scene == null:
-		enemy_spawn_failed.emit(archetype, &"no_config")
-		EventBus.report_error("Spawn blocked: no config/scene for %s (wave would under-fill)." % String(archetype))
-		return false
+		return _count_failure(archetype, &"no_config",
+			"Missing config/scene for %s; retried up to bound then counted failed." % String(archetype))
 	var point := _pick_spawn_point(config)
 	if point == null:
 		# Fallback: allow any in-bounds point (relax the min-distance rule) so a player
 		# camping every marker cannot cause an infinite no-point stall.
 		point = _fallback_spawn_point()
 	if point == null:
-		enemy_spawn_failed.emit(archetype, &"no_valid_point")
-		EventBus.report_warning("No valid spawn point for %s; retrying next tick." % String(archetype))
-		return false
+		return _count_failure(archetype, &"no_valid_point",
+			"No valid spawn point for %s; retried up to bound then counted failed." % String(archetype))
 	var instance := config.scene.instantiate() as EnemyBase
 	if instance == null:
-		enemy_spawn_failed.emit(archetype, &"bad_scene")
-		return false
+		return _count_failure(archetype, &"bad_scene", "Scene did not yield an EnemyBase for %s." % String(archetype))
 	var parent := _container if _container != null else self
 	parent.add_child(instance)
 	instance.global_transform = point.global_transform
@@ -132,33 +164,48 @@ func _spawn_one() -> bool:
 	_active.append(instance)
 	# Success: only now remove the entry from the plan.
 	_pending.pop_front()
+	_spawned_count += 1
+	_attempt_head = &""
+	_attempt_count = 0
 	EventBus.enemy_spawned.emit(instance, archetype)
 	return true
 
 
-## Fallback spawn point that ignores the min-distance rule but still keeps the spawn
-## inside the arena interior (used when the player is blocking every far spawn point).
-func _fallback_spawn_point() -> Node3D:
-	if _arena == null:
-		return null
-	var half := _arena_half()
-	var points: Array = _arena.call("get_spawn_points")
-	for p in points:
-		var node := p as Node3D
-		if node == null or not is_instance_valid(node) or not node.is_inside_tree():
-			continue
-		var pos := node.global_position
-		# Keep the spawn in-bounds but otherwise relax all distance rules.
-		if absf(pos.x) > half - 0.5 or absf(pos.z) > half - 0.5:
-			continue
-		return node
-	return null
+func _reset_attempt_if_new_head(archetype: StringName) -> void:
+	if archetype != _attempt_head:
+		_attempt_head = archetype
+		_attempt_count = 0
 
 
+## A spawn attempt failed. Retry up to MAX_FAILED_ATTEMPTS then drop the head as a FAILED
+## spawn (recorded separately from defeats so completion accounting stays consistent).
+func _count_failure(archetype: StringName, reason: StringName, message: String) -> bool:
+	_attempt_count += 1
+	if _attempt_count < MAX_FAILED_ATTEMPTS:
+		enemy_spawn_failed.emit(archetype, reason)
+		EventBus.report_warning("%s (attempt %d/%d)" % [message, _attempt_count, MAX_FAILED_ATTEMPTS])
+		return false
+	# Bounded retries exhausted: record the entry as failed and move past it.
+	_pending.pop_front()
+	_failed_count += 1
+	_attempt_head = &""
+	_attempt_count = 0
+	enemy_spawn_failed.emit(archetype, reason)
+	EventBus.report_error("%s (permanently failed after %d attempts)" % [message, MAX_FAILED_ATTEMPTS])
+	return false
+
+
+## A genuinely killed enemy is removed from the active set and counted as defeated.
 func _on_enemy_despawn_requested(enemy: Node) -> void:
 	var idx := _active.find(enemy)
 	if idx >= 0:
 		_active.remove_at(idx)
+		_defeated_count += 1
+		var archetype := &""
+		if enemy is EnemyBase:
+			archetype = (enemy as EnemyBase).get_archetype_id()
+		enemy_defeated.emit(archetype)
+		EventBus.wave_progressed.emit(_current_wave, _defeated_count, _planned_count)
 	_check_cleared()
 
 
@@ -171,6 +218,8 @@ func _prune_active() -> void:
 	var i := _active.size() - 1
 	while i >= 0:
 		if not is_instance_valid(_active[i]) or not _active[i].is_inside_tree():
+			# An enemy that vanished without its death path (e.g. teardown) is not a defeat;
+			# it is simply dropped from the active set.
 			_active.remove_at(i)
 		i -= 1
 
@@ -200,6 +249,24 @@ func _arena_half() -> float:
 	if _arena != null and _arena.has_method("get_interior_half"):
 		return float(_arena.call("get_interior_half"))
 	return 12.0
+
+
+## Fallback spawn point that ignores the min-distance rule but still keeps the spawn
+## inside the arena interior (used when the player is blocking every far spawn point).
+func _fallback_spawn_point() -> Node3D:
+	if _arena == null:
+		return null
+	var half := _arena_half()
+	var points: Array = _arena.call("get_spawn_points")
+	for p in points:
+		var node := p as Node3D
+		if node == null or not is_instance_valid(node) or not node.is_inside_tree():
+			continue
+		var pos := node.global_position
+		if absf(pos.x) > half - 0.5 or absf(pos.z) > half - 0.5:
+			continue
+		return node
+	return null
 
 
 ## Pure, testable filtering. Keeps points that are markers in-tree, far enough from the
@@ -253,6 +320,12 @@ func clear() -> void:
 			enemy.queue_free()
 	_active.clear()
 	_pending.clear()
+	_planned_count = 0
+	_spawned_count = 0
+	_defeated_count = 0
+	_failed_count = 0
+	_attempt_head = &""
+	_attempt_count = 0
 	if _timer != null:
 		_timer.stop()
 
@@ -264,8 +337,12 @@ func force_spawn_one() -> bool:
 func get_debug_snapshot() -> Dictionary:
 	return {
 		"wave": _current_wave,
+		"planned": _planned_count,
 		"pending": _pending.size(),
+		"spawned": _spawned_count,
 		"active": get_active_count(),
+		"defeated": _defeated_count,
+		"failed": _failed_count,
 		"max_simultaneous": _max_simultaneous,
 		"interval": _spawn_interval,
 		"configured": _configured,

@@ -287,6 +287,98 @@ func end_wave_transition() -> void:
 		transition_to(State.PLAYING)
 
 
+## ---------- Progression commands (data-driven, deterministic) ----------
+
+## The WaveManager calls this when a completed wave requests an upgrade. It deterministically
+## chooses the offered upgrades from the run seed + wave + current stacks, stores them in
+## RunState.upgrade_choices, routes the canonical state machine PLAYING -> WAVE_TRANSITION ->
+## UPGRADE_SELECTION, and announces them over EventBus. Returns false (leaving state
+## unchanged) when no eligible upgrade exists — the caller then continues to the next wave.
+func present_upgrade_selection_for_wave(wave_number: int) -> bool:
+	if _current_state != State.PLAYING:
+		EventBus.report_warning("present_upgrade_selection_for_wave requires PLAYING state")
+		return false
+	if not _current_run.player_alive:
+		return false
+	var prog := _progression_node_of(_active_player)
+	if prog == null:
+		return false
+	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog.has_method("get_upgrade_stack_snapshot") else {}
+	var pool: Array[UpgradeConfig] = []
+	for raw in ContentRegistry.get_all_upgrades().values():
+		pool.append(raw as UpgradeConfig)
+	var chosen: Array[UpgradeConfig] = UpgradeSelector.choose_upgrade_choices(pool, 3, _current_run.seed, wave_number, counts)
+	if chosen.is_empty():
+		EventBus.report_info("No eligible upgrades to present after wave %d; continuing" % wave_number)
+		return false
+	_current_run.upgrade_choices = UpgradeSelector.to_id_list(chosen)
+	# Route through the legal state path PLAYING -> WAVE_TRANSITION -> UPGRADE_SELECTION.
+	transition_to(State.WAVE_TRANSITION)
+	transition_to(State.UPGRADE_SELECTION)
+	EventBus.upgrade_choices_presented.emit(_current_run.upgrade_choices)
+	EventBus.report_info("Upgrade choices presented (wave %d): %s" % [wave_number, str(_current_run.upgrade_choices)])
+	return true
+
+
+## Validate + apply a player-selected upgrade. Only an id currently offered (and still
+## legal given the live progression state) can be chosen; arbitrary ids are rejected.
+## On success it applies the upgrade to the runtime ProgressionComponent, mirrors the
+## result into RunState, emits upgrade_selected, and resumes into PLAYING so the
+## WaveManager can start the next wave.
+func request_upgrade_selection(upgrade_id: StringName) -> bool:
+	if _current_state != State.UPGRADE_SELECTION:
+		EventBus.report_warning("request_upgrade_selection requires UPGRADE_SELECTION state")
+		return false
+	if upgrade_id not in _current_run.upgrade_choices:
+		EventBus.report_warning("Upgrade %s is not currently offered" % String(upgrade_id))
+		return false
+	var player := _active_player
+	if player == null or not is_instance_valid(player) or not bool(player.call("is_alive")):
+		EventBus.report_warning("request_upgrade_selection: no live player")
+		return false
+	var cfg := ContentRegistry.get_upgrade(upgrade_id)
+	if cfg == null:
+		EventBus.report_warning("request_upgrade_selection: unknown upgrade %s" % String(upgrade_id))
+		return false
+	var prog := _progression_node_of(player)
+	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog != null and prog.has_method("get_upgrade_stack_snapshot") else {}
+	if not UpgradeSelector.is_eligible(cfg, _current_run.current_wave, counts):
+		EventBus.report_warning("Upgrade %s is no longer selectable" % String(upgrade_id))
+		return false
+	if not player.has_method("apply_upgrade") or not bool(player.call("apply_upgrade", upgrade_id)):
+		EventBus.report_warning("Upgrade %s could not be applied" % String(upgrade_id))
+		return false
+	_sync_run_from_progression(player)
+	_current_run.upgrade_choices.clear()
+	EventBus.upgrade_selected.emit(upgrade_id)
+	EventBus.report_info("Upgrade selected: %s" % String(upgrade_id))
+	# Back into PLAYING; WaveManager observes the state to launch the next wave.
+	transition_to(State.PLAYING)
+	return true
+
+
+func _progression_node_of(player: Node) -> Node:
+	if player == null or not is_instance_valid(player):
+		return null
+	return player.get_node_or_null("ProgressionComponent")
+
+
+## Mirror the runtime ProgressionComponent (source of truth) into the serializable RunState
+## snapshot so game-over summaries/analytics see exactly what is applied.
+func _sync_run_from_progression(player: Node) -> void:
+	var prog := _progression_node_of(player)
+	if prog == null:
+		return
+	if prog.has_method("get_upgrade_stack_snapshot"):
+		_current_run.selected_upgrades = (prog.call("get_upgrade_stack_snapshot") as Dictionary).duplicate()
+	if prog.has_method("get_modifier_snapshot"):
+		var mods: Dictionary = prog.call("get_modifier_snapshot")
+		var keys: Array[StringName] = []
+		for k in mods:
+			keys.append(StringName(String(k)))
+		_current_run.active_modifiers = keys
+
+
 ## ---------- Combat scoring (exactly-once per enemy_killed) ----------
 
 func _on_enemy_killed(_enemy: Node, _archetype_id: StringName, score_value: int, currency_value: int) -> void:

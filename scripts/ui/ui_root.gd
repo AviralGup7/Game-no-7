@@ -7,6 +7,12 @@ extends Control
 const VIRTUAL_JOYSTICK := preload("res://scripts/ui/virtual_joystick.gd")
 const TOUCH_ACTION := preload("res://scripts/ui/touch_action_button.gd")
 
+## Emitted when the player clicks an upgrade card. The UI never modifies progression;
+## GameRoot validates and applies it.
+signal upgrade_chosen(upgrade_id: StringName)
+
+const UPGRADE_CHOICE_COUNT := 3
+
 ## Screens (mutually exclusive).
 var _main_panel: Control = null
 var _settings_panel: Control = null
@@ -32,6 +38,15 @@ var _currency_label: Label = null
 var _last_joystick_value := Vector2.ZERO
 var _active_screen := &"none"
 
+## Upgrade panel state.
+var _upgrade_cards_box: BoxContainer = null
+var _upgrade_note: Label = null
+var _card_buttons: Array[Button] = []
+var _selection_locked := false
+var _toast_label: Label = null
+var _toast_tween: Tween = null
+var _toast_show_until := 0
+
 # Default English strings (single shipped language for now). Localization swaps this
 # table or the whole lookup for translated packs later without touching call sites.
 const _TEXT := {
@@ -56,7 +71,9 @@ const _TEXT := {
 	"time_survived": "Time survived",
 	"wave_reached": "Wave reached",
 	"upgrades_title": "CHOOSE AN UPGRADE",
-	"upgrade_pending": "Upgrades unlock as waves are cleared.",
+	"upgrade_choose_hint": "Choose one — your hero keeps it until the run ends.",
+	"upgrade_none": "No upgrades available this round.",
+	"upgrade_selected_fx": "APPLIED",
 	"retry": "RETRY",
 	"close_settings": "CLOSE",
 	"reset_settings": "RESET SETTINGS",
@@ -82,10 +99,17 @@ func _ready() -> void:
 	EventBus.run_ended.connect(func(_s: int, _w: int, _b: int) -> void:
 		_refresh_gameover_best()
 		_update_gameover_stats())
+	EventBus.upgrade_choices_presented.connect(_on_upgrade_choices_presented)
+	EventBus.upgrade_selected.connect(_on_upgrade_selected)
 	_sync_from_state()
 
 
 func _process(_delta: float) -> void:
+	# Reduced-motion toast expiry (no tween when reduced-motion is enabled).
+	if _toast_show_until > 0 and Time.get_ticks_msec() > _toast_show_until:
+		_toast_show_until = 0
+		if _toast_label != null:
+			_toast_label.visible = false
 	if GameRoot.get_current_state() != GameRoot.State.PLAYING and GameRoot.get_current_state() != GameRoot.State.WAVE_TRANSITION:
 		return
 	var v := _joystick.get_value()
@@ -249,13 +273,23 @@ var _gameover_stats: Label = null
 
 func _build_upgrade_screen() -> void:
 	_upgrade_panel = _make_panel("UpgradePanel")
+	_upgrade_panel.mouse_filter = Control.MOUSE_FILTER_STOP  # block clicks through to HUD
 	var box := _center_container(_upgrade_panel)
 	_title(loc(&"upgrades_title"), box)
-	var note := Label.new()
-	note.text = loc(&"upgrade_pending")
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	note.add_theme_font_size_override("font_size", _font(18))
-	box.add_child(note)
+	var sub := Label.new()
+	sub.text = loc(&"upgrade_choose_hint")
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.add_theme_font_size_override("font_size", _font(15))
+	box.add_child(sub)
+	_upgrade_cards_box = HBoxContainer.new()
+	_upgrade_cards_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	_upgrade_cards_box.add_theme_constant_override("separation", 18)
+	box.add_child(_upgrade_cards_box)
+	_upgrade_note = Label.new()
+	_upgrade_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_upgrade_note.add_theme_font_size_override("font_size", _font(16))
+	box.add_child(_upgrade_note)
+	# Reduced-motion/graceful no-choices hint is filled in on each presentation.
 
 
 func _build_hud() -> void:
@@ -325,6 +359,19 @@ func _build_hud() -> void:
 	pause_btn.pressed.connect(func() -> void: GameRoot.request_pause())
 	_hud.add_child(pause_btn)
 
+	_toast_label = Label.new()
+	_toast_label.name = "UpgradeToast"
+	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_toast_label.offset_top = -120
+	_toast_label.offset_bottom = -60
+	_toast_label.offset_left = 40
+	_toast_label.offset_right = -40
+	_toast_label.add_theme_font_size_override("font_size", _font(18))
+	_toast_label.modulate.a = 1.0
+	_toast_label.visible = false
+	_hud.add_child(_toast_label)
+
 
 func _build_touch() -> void:
 	_touch_layer = Control.new()
@@ -380,6 +427,114 @@ func _build_touch() -> void:
 	_touch_layer.add_child(_dodge_btn)
 
 
+# ---------------------------- Upgrade cards ----------------------------
+
+func _on_upgrade_choices_presented(choices: Array) -> void:
+	_selection_locked = false
+	_clear_upgrade_cards()
+	for raw_id in choices:
+		var cfg := ContentRegistry.get_upgrade(StringName(String(raw_id)))
+		if cfg == null:
+			continue
+		_add_upgrade_card(cfg)
+	if _upgrade_note == null:
+		return
+	_upgrade_note.text = loc(&"upgrade_none") if _card_buttons.is_empty() else ""
+
+
+func _clear_upgrade_cards() -> void:
+	if _upgrade_cards_box == null:
+		return
+	for c in _upgrade_cards_box.get_children():
+		_upgrade_cards_box.remove_child(c)
+		c.queue_free()
+	_card_buttons.clear()
+
+
+func _add_upgrade_card(cfg: UpgradeConfig) -> void:
+	if _upgrade_cards_box == null:
+		return
+	var btn := Button.new()
+	btn.custom_minimum_size = Vector2(170, 200)
+	btn.mouse_filter = Control.MOUSE_FILTER_STOP
+	var stack := _current_stack(cfg.upgrade_id)
+	var rarity := String(cfg.rarity).to_upper()
+	var body := "%s\n[%s]\n\n%s" % [cfg.display_name, rarity, cfg.description]
+	if stack > 0:
+		body += "\nstack %d/%d" % [stack, cfg.max_stacks]
+	btn.text = body
+	btn.add_theme_font_size_override("font_size", _font(13))
+	btn.add_theme_color_override("font_color", _rarity_color(cfg.rarity))
+	var id := cfg.upgrade_id
+	btn.pressed.connect(func() -> void: _on_upgrade_card_pressed(id))
+	_upgrade_cards_box.add_child(btn)
+	_card_buttons.append(btn)
+
+
+func _current_stack(upgrade_id: StringName) -> int:
+	var run := GameRoot.get_run()
+	if run == null:
+		return 0
+	return int(run.selected_upgrades.get(upgrade_id, 0))
+
+
+func _rarity_color(rarity: StringName) -> Color:
+	match rarity:
+		&"common":
+			return Color(0.8, 0.83, 0.86)
+		&"rare":
+			return Color(0.42, 0.68, 0.98)
+		&"epic":
+			return Color(0.75, 0.5, 0.95)
+		&"legendary":
+			return Color(0.98, 0.75, 0.35)
+	return Color.WHITE
+
+
+## A card was clicked. Route ONLY through the GameRoot command; never touch progression.
+func _on_upgrade_card_pressed(upgrade_id: StringName) -> void:
+	if _selection_locked:
+		return
+	if GameRoot.get_current_state() != GameRoot.State.UPGRADE_SELECTION:
+		return
+	if GameRoot.request_upgrade_selection(upgrade_id):
+		_selection_locked = true
+		upgrade_chosen.emit(upgrade_id)
+		_disable_upgrade_cards()
+
+
+func _disable_upgrade_cards() -> void:
+	for btn in _card_buttons:
+		btn.disabled = true
+
+
+## After a valid selection, show a short confirmation toast on the HUD while the next
+## wave begins. Respects reduced-motion (no tween when disabled).
+func _on_upgrade_selected(upgrade_id: StringName) -> void:
+	var cfg := ContentRegistry.get_upgrade(upgrade_id)
+	if cfg == null:
+		return
+	_show_toast("%s  •  %s" % [cfg.display_name.to_upper(), cfg.description.to_upper()])
+
+
+func _show_toast(message: String) -> void:
+	if _toast_label == null:
+		return
+	var settings := SaveManager.get_settings()
+	_toast_label.text = loc(&"upgrade_selected_fx") + "  " + message
+	_toast_label.visible = true
+	_toast_label.modulate.a = 1.0
+	if _toast_tween != null and _toast_tween.is_valid():
+		_toast_tween.kill()
+	if settings != null and settings.reduced_motion:
+		# Reduced motion: show statically for a short, fixed window (no tween).
+		_toast_show_until = Time.get_ticks_msec() + 2000
+		return
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(2.0)
+	_toast_tween.tween_property(_toast_label, "modulate:a", 0.0, 0.5)
+
+
 # ---------------------------- Screen switching ----------------------------
 
 func _show_screen(screen: StringName) -> void:
@@ -413,7 +568,9 @@ func _sync_from_state() -> void:
 
 
 func _on_state_changed(_p: StringName, _c: StringName) -> void:
-	pass  # handled via _sync_from_state; kept for clarity/extension
+	# Reflect every canonical state change onto the panel stack. (Previously this was a
+	# no-op and _sync_from_state() only ran once in _ready, so screens never switched.)
+	_sync_from_state()
 
 
 func _open_settings() -> void:

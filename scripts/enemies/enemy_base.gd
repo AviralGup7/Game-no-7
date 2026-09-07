@@ -428,6 +428,9 @@ func _on_damage_applied(result: DamageResult, payload: DamagePayload) -> void:
 
 func _on_damaged(result: DamageResult) -> void:
 	damaged.emit(result)
+	# EventBus contract: exactly one enemy_damaged per ACCEPTED damage event. HealthComponent
+	# emits its local `damaged` signal only on the accepted path, so this is exactly-once.
+	EventBus.enemy_damaged.emit(self, result)
 	if _feedback != null and _feedback.has_method("play_damaged"):
 		_feedback.call("play_damaged")
 	if _audio != null and _audio.has_method("play_hit"):

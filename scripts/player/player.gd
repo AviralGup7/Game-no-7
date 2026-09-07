@@ -66,6 +66,9 @@ func _ready() -> void:
 			_dodge.call("set_bounds", _bounds_half)
 		if _dodge.has_signal("dodged_started"):
 			_dodge.dodged_started.connect(_on_dodge_started)
+	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
+	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
+		EventBus.enemy_killed.connect(_on_enemy_kill_heal)
 
 
 ## Mitigation provider for the generic HealthComponent: computes post-resistance
@@ -168,12 +171,57 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	return result
 
 
-func apply_upgrade(upgrade_id: StringName) -> void:
-	if _progression != null and _progression.has_method("apply_upgrade_by_id"):
-		if bool(_progression.call("apply_upgrade_by_id", upgrade_id)):
-			upgrade_applied.emit(upgrade_id)
-			AudioManager.play_sfx(&"upgrade_select")
-			_rebuild_derived_stats()
+## Apply an upgrade through the runtime ProgressionComponent. Returns true when it was
+## applied and reflected into derived stats. A max-health upgrade also tops the player
+## up to the new maximum when they were already at full health (so 100/100 -> 120/120).
+func apply_upgrade(upgrade_id: StringName) -> bool:
+	if _progression == null or not _progression.has_method("apply_upgrade_by_id"):
+		return false
+	var was_full := _at_full_health()
+	if not bool(_progression.call("apply_upgrade_by_id", upgrade_id)):
+		return false
+	upgrade_applied.emit(upgrade_id)
+	AudioManager.play_sfx(&"upgrade_select")
+	_rebuild_derived_stats()
+	if was_full:
+		_top_up_health_to_max()
+	return true
+
+
+func _at_full_health() -> bool:
+	if _health == null or _is_dead:
+		return false
+	if _health.has_method("is_dead") and bool(_health.call("is_dead")):
+		return false
+	if _health.has_method("get_health_ratio"):
+		return float(_health.call("get_health_ratio")) >= 0.9999
+	return false
+
+
+## After a successful max-health upgrade from full health, raise current to the new max.
+func _top_up_health_to_max() -> void:
+	if _health == null or not _health.has_method("heal"):
+		return
+	var new_max := _derived_max_health()
+	# Compute the gap between current and the new max and heal exactly that (heal caps
+	# at max and never revives, so this is safe).
+	var current := new_max
+	if _health.has_method("get_current"):
+		current = float(_health.call("get_current"))
+	var gap := maxf(new_max - current, 0.0)
+	if gap > 0.0:
+		_health.call("heal", gap)
+
+
+## Bloodlust-style heal: valid enemy kills heal while the player is alive.
+func _on_enemy_kill_heal(_enemy: Node, _archetype_id: StringName, _score: int, _currency: int) -> void:
+	if _is_dead or _health == null:
+		return
+	if _progression == null or not _progression.has_method("get_stat"):
+		return
+	var heal_amount := float(_progression.call("get_stat", &"healing_on_kill", 0.0))
+	if heal_amount > 0.0 and _health.has_method("heal"):
+		_health.call("heal", heal_amount)
 
 
 func reset_for_new_run(spawn_transform: Transform3D) -> void:

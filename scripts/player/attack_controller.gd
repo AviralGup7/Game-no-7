@@ -88,7 +88,7 @@ func advance(delta: float) -> void:
 			_phase = PHASE_RECOVERY
 	elif _phase == PHASE_RECOVERY:
 		_elapsed += delta
-		if _elapsed >= maxf(attack_cooldown, 0.05):
+		if _elapsed >= _effective_cooldown():
 			_finish_attack()
 
 
@@ -148,6 +148,17 @@ func _facing_forward(owner: CharacterBody3D) -> Vector3:
 	var f := -owner.global_transform.basis.z
 	f.y = 0.0
 	return f if f.length_squared() > 0.001 else Vector3.FORWARD
+
+
+## Effective recovery/cooldown after progression (attack_cooldown_multiplier). A
+## negative modifier is a REDUCTION; clamped so it never increases or goes below floor.
+func _effective_cooldown() -> float:
+	if _owner_body == null or not is_instance_valid(_owner_body):
+		return maxf(attack_cooldown, 0.05)
+	var prog := _owner_body.get_node_or_null("ProgressionComponent")
+	if prog != null and prog.has_method("get_stat"):
+		return float(prog.call("get_stat", &"attack_cooldown_multiplier", attack_cooldown))
+	return maxf(attack_cooldown, 0.05)
 
 
 func _effective_range() -> float:
