@@ -10,6 +10,12 @@ class_name AttackController
 ##   READY -> request -> WINDUP -> (windup passes) -> RESOLVE hit -> RECOVERY/cooldown
 ##        -> READY (+ attack_finished)
 ##
+## Light-melee combo: a press during a landed hit's recovery (within `combo_chain_window`)
+## chains straight into the next escalating swing (step 2, then 3 by default), skipping
+## the cooldown; otherwise the recovery winds down and the combo resets to step 1. Each
+## step applies its own damage/knockback multipliers (step 1 = 1.0, so a plain single
+## swing is unchanged).
+##
 ## Hit resolution is exactly once per swing; the recovery/cooldown window blocks
 ## re-fire ("attack spam"). Duplicate target application is prevented because each
 ## swing resolves a deduped arc result set once.
@@ -34,6 +40,15 @@ const PHASE_RECOVERY := &"recovery"
 ## Melee arc (degrees). 360 => full circle around the player.
 @export var arc_degrees: float = 360.0
 
+## Light-melee combo chain: a second press while a hit's recovery is still inside
+## `combo_chain_window` advances into the next escalating swing (higher damage /
+## knockback) instead of waiting out the full cooldown. Letting the window lapse or
+## reaching `combo_steps` returns to READY and resets the combo to step 1.
+@export var combo_steps: int = 3
+@export var combo_chain_window: float = 0.35
+@export var combo_damage_multipliers: Array[float] = [1.0, 1.2, 1.6]
+@export var combo_knockback_multipliers: Array[float] = [1.0, 1.1, 1.4]
+
 const TARGET_GROUP := "enemies"
 
 var _phase: StringName = PHASE_READY
@@ -41,6 +56,12 @@ var _elapsed := 0.0
 var _crit_roll_source: Callable = Callable()
 var _owner_body: CharacterBody3D = null
 var _disabled := false
+## Current combo step (0 = no combo in progress). The step a swing is on when its hit
+## resolves selects that step's damage / knockback multipliers.
+var _combo_step := 0
+## True only while the just-landed hit is still inside the timing window, so a press
+## can chain. Cleared when the window lapses, the chain is at max steps, or reset.
+var _chain_allowed := false
 
 
 func _ready() -> void:
@@ -86,31 +107,52 @@ func advance(delta: float) -> void:
 			_elapsed = 0.0
 			_resolve_hit()
 			_phase = PHASE_RECOVERY
+			_chain_allowed = true
 	elif _phase == PHASE_RECOVERY:
 		_elapsed += delta
+		if _elapsed > combo_chain_window:
+			# Timing window elapsed without a chained input -> combo can no longer chain;
+			# the recovery still has to wind down before the next swing is READY.
+			_chain_allowed = false
 		if _elapsed >= _effective_cooldown():
 			_finish_attack()
 
 
-## Request an attack. Returns true when one begins; requests while attacking or during
-## the cooldown/recovery window are rejected (no spam).
+## Request an attack. Returns true when a swing begins:
+##   * READY     -> start a fresh combo at step 1.
+##   * RECOVERY  -> chain into the next escalating step, but ONLY while the hit is still
+##                  inside the chain window and the combo has steps remaining.
+## Requests during WINDUP, or during RECOVERY outside the chain window, are rejected.
 func request_attack() -> bool:
-	if not is_attack_ready():
+	if _disabled:
 		return false
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
 		return false
 	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
 		return false
+	if _phase == PHASE_READY:
+		_begin_swing(1)
+		return true
+	if _phase == PHASE_RECOVERY and _chain_allowed and _combo_step < combo_steps:
+		# Chain immediately (skip the full cooldown) into the next escalating swing.
+		_begin_swing(_combo_step + 1)
+		return true
+	return false
+
+
+func _begin_swing(step: int) -> void:
+	_combo_step = maxi(step, 1)
 	_phase = PHASE_WINDUP
 	_elapsed = 0.0
 	attack_started.emit()
-	return true
 
 
 func _finish_attack() -> void:
 	_phase = PHASE_READY
 	_elapsed = 0.0
+	_combo_step = 0
+	_chain_allowed = false
 	attack_finished.emit()
 
 
@@ -197,6 +239,9 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 	if crit:
 		dmg *= maxf(critical_multiplier, 1.0)
 		payload.was_critical = true
+	# Escalate damage/knockback with the combo step (step 1 multiplier is 1.0, so a
+	# plain single swing is unchanged).
+	dmg *= _combo_damage_factor()
 	payload.amount = dmg
 	payload.source = _owner_body
 	payload.source_id = &"melee"
@@ -208,9 +253,27 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 		var prog := _owner_body.get_node_or_null("ProgressionComponent")
 		if prog != null and prog.has_method("get_stat"):
 			k = float(prog.call("get_stat", &"knockback_multiplier", knockback_strength))
-	payload.knockback = direction * maxf(k, 0.0)
+	payload.knockback = direction * maxf(k * _combo_knockback_factor(), 0.0)
 	payload.hit_position = _owner_body.global_position
 	return payload
+
+
+## Multiplier applied to damage for the current combo step (falls back to 1.0).
+func _combo_damage_factor() -> float:
+	return _step_multiplier(combo_damage_multipliers, _combo_step)
+
+
+## Multiplier applied to knockback for the current combo step (falls back to 1.0).
+func _combo_knockback_factor() -> float:
+	return _step_multiplier(combo_knockback_multipliers, _combo_step)
+
+
+func _step_multiplier(multipliers: Array[float], step: int) -> float:
+	if step <= 0:
+		return 1.0
+	if step <= multipliers.size():
+		return multipliers[step - 1]
+	return 1.0
 
 
 func set_attack_cooldown(value: float) -> void:
@@ -230,6 +293,18 @@ func set_attack_range(value: float) -> void:
 func reset_attack_state() -> void:
 	_phase = PHASE_READY
 	_elapsed = 0.0
+	_combo_step = 0
+	_chain_allowed = false
+
+
+## Current combo step: 0 when no combo is in progress, else 1..combo_steps.
+func get_combo_step() -> int:
+	return _combo_step
+
+
+## True while the last landed hit can still chain into the next combo step.
+func is_chain_ready() -> bool:
+	return _chain_allowed
 
 
 func get_debug_snapshot() -> Dictionary:
@@ -241,4 +316,6 @@ func get_debug_snapshot() -> Dictionary:
 		"attack_range": attack_range,
 		"attack_damage": attack_damage,
 		"disabled": _disabled,
+		"combo_step": _combo_step,
+		"chain_allowed": _chain_allowed,
 	}
