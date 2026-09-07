@@ -153,28 +153,16 @@ func _launch_wave(wave_number: int) -> void:
 
 
 func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
-	_active_mutators.clear()
 	# Authored waves declare their own; generated waves roll (director may veto).
 	var declared: Array = []
 	if cfg != null:
 		declared = cfg.arena_modifier_ids.duplicate()
-	if declared.is_empty():
-		if _director.suggest_breather():
-			EventBus.report_info("Director grants a breather: no mutators for wave %d" % wave_number)
-		else:
-			for m in WaveMutators.roll_for_wave(wave_number, _seed):
-				declared.append(m)
-			if _director.suggest_spice() and declared.size() < 2:
-				var extra := WaveMutators.roll_for_wave(wave_number + 100, _seed)
-				for m in extra:
-					if m not in declared:
-						declared.append(m)
-						break
-	for raw in declared:
-		var id := StringName(String(raw))
-		if WaveMutators.is_known(id) and id not in _active_mutators:
-			_active_mutators.append(id)
-			EventBus.wave_mutator_applied.emit(id, wave_number)
+	var breather := _director.suggest_breather()
+	if declared.is_empty() and breather:
+		EventBus.report_info("Director grants a breather: no mutators for wave %d" % wave_number)
+	_active_mutators = WaveMutators.resolve_for_wave(declared, wave_number, _seed, breather, _director.suggest_spice())
+	for id in _active_mutators:
+		EventBus.wave_mutator_applied.emit(id, wave_number)
 
 
 func _push_scaling_to_spawner(wave_number: int, _cfg: WaveConfig) -> void:

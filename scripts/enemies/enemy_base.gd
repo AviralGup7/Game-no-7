@@ -3,9 +3,11 @@ class_name EnemyBase
 
 ## Reusable enemy base. Owns lifecycle, damage intake, idempotent death + exactly-once
 ## score payload (Phase 2 guarantees preserved), and — since Phase 3 — AI behaviour:
-## a state machine (Idle/Chase/Attack/Hurt/Dead), navigation-aware steering, gravity,
-## resistance-aware knockback, arena-bound clamping and a controlled melee attack that
-## damages the player through the existing HealthComponent/apply_damage interface.
+## a state machine (Idle/Chase/Attack/Hurt/Dead) driving movement intent, integrated by
+## EnemyLocomotion (gravity/knockback/clamp/stall), steered by EnemyNavigator (navmesh),
+## and striking through EnemyStriker (guarded melee). Resistance-aware knockback and
+## arena-bound clamping included; attacks damage the player through the existing
+## HealthComponent/apply_damage interface.
 
 signal initialized(archetype_id: StringName)
 signal state_changed(previous_state: StringName, current_state: StringName)
@@ -16,9 +18,6 @@ signal attack_hit(target: Node, result: DamageResult)
 signal despawn_requested(enemy: Node)
 
 const TARGET_GROUP := "enemies"
-const GRAVITY := 18.0
-const KNOCKBACK_DECAY := 18.0
-const STUCK_NUDGE_DIST := 0.05
 
 var _archetype_id: StringName = &"uninitialized"
 var _config: EnemyConfig = null
@@ -32,18 +31,15 @@ var _health: Node = null
 var _feedback: Node = null
 var _audio: Node = null
 var _machine: EnemyStateMachine = null
-var _nav_agent: NavigationAgent3D = null
 var _target: Node3D = null
+var _locomotion := EnemyLocomotion.new()
+var _navigator := EnemyNavigator.new()
+var _striker := EnemyStriker.new()
 
 ## Movement intent produced by the current state.
 var desired_dir := Vector3.ZERO
 var desired_speed := 0.0
 
-var _knockback := Vector3.ZERO
-var _nav_recompute := 0.0
-var _stuck_time := 0.0
-var _last_position := Vector3.ZERO
-var _bounds_half := -1.0    # -1 disables arena clamp (default); set by the spawn manager
 var _ai_enabled := true
 
 ## Per-run difficulty scaling applied at spawn without mutating the shared config.
@@ -58,7 +54,7 @@ func _ready() -> void:
 	_feedback = get_node_or_null("EnemyFeedback")
 	_audio = get_node_or_null("EnemyAudio")
 	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
-	_nav_agent = get_node_or_null("NavigationAgent3D") as NavigationAgent3D
+	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
 	if _health != null:
 		_health.health_changed.connect(func(_c: float, _m: float) -> void: pass)
 		_health.damaged.connect(_on_damaged)
@@ -81,16 +77,11 @@ func _physics_process(delta: float) -> void:
 		# Stunned: no AI, no intent; gravity + knockback decay still run.
 		desired_dir = Vector3.ZERO
 		desired_speed = 0.0
-		_apply_gravity(delta)
-		_decay_knockback(delta)
-		_update_motion(delta)
+		_locomotion.integrate(self, Vector3.ZERO, 0.0, 1.0, delta, false)
 		return
 	if _machine != null:
 		_machine.physics_update(delta)
-	_apply_gravity(delta)
-	_decay_knockback(delta)
-	_update_motion(delta)
-	_detect_stall(delta)
+	_locomotion.integrate(self, desired_dir, desired_speed, _status_speed_factor(), delta)
 
 
 ## ---------- Stable command interface (Phase 2 preserved) ----------
@@ -107,10 +98,10 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_target = target
 	_alive = true
 	_death_handled = false
-	_knockback = Vector3.ZERO
+	_locomotion.reset()
+	_locomotion.configure(config.acceleration, _locomotion_bounds(), config.bounds_radius)
 	desired_dir = Vector3.ZERO
 	desired_speed = 0.0
-	_stuck_time = 0.0
 	if _health != null and _health.has_method("reset"):
 		_health.call("reset", config.max_health)
 	if _feedback != null and _feedback.has_method("recolor"):
@@ -118,9 +109,7 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_apply_visual_scale(config.visual_scale)
 	if _machine != null:
 		_machine.force_state(&"idle")
-	if _nav_agent != null and target != null:
-		_nav_agent.target_position = target.global_position
-		_nav_recompute = 0.0
+	_navigator.reset(target)
 	initialized.emit(_archetype_id)
 
 
@@ -172,7 +161,7 @@ func get_config() -> EnemyConfig:
 
 ## Set arena-bound half extent; -1 disables the clamp.
 func set_bounds(half: float) -> void:
-	_bounds_half = half
+	_locomotion.set_bounds(half)
 
 
 func set_velocity_flat(flat: Vector3) -> void:
@@ -246,172 +235,27 @@ func face_target(target: Node3D) -> void:
 	face_direction(target.global_position - global_position)
 
 
-## Navigation-aware steering: prefers the NavigationAgent3D next-path position when the
-## agent has a usable nav map; otherwise falls back to the caller's direct direction.
+## Navigation-aware steering (see EnemyNavigator): prefers the navmesh path when
+## usable, otherwise falls back to the caller's direct direction.
 func get_navigation_direction(fallback: Vector3) -> Vector3:
-	var target := get_move_target()
-	if _nav_agent == null or target == null or not _nav_usable():
-		return fallback
-	_nav_recompute -= _physics_interval()
-	if _nav_recompute <= 0.0:
-		_nav_agent.target_position = target.global_position
-		_nav_recompute = _config.navigation_target_update_interval if _config != null else 0.2
-	if _nav_agent.is_navigation_finished():
-		return fallback
-	var next := _nav_agent.get_next_path_position()
-	var offset := next - global_position
-	offset.y = 0.0
-	if offset.length_squared() < 0.0001:
-		return fallback
-	return offset.normalized()
+	var interval := _config.navigation_target_update_interval if _config != null else 0.2
+	return _navigator.direction(global_position, get_move_target(), fallback, interval)
 
 
-func _nav_usable() -> bool:
-	if _nav_agent == null:
-		return false
-	var map := _nav_agent.get_navigation_map()
-	if map == null or not map.is_valid():
-		return false
-	return NavigationServer3D.map_get_iteration_id(map) > 0
-
-
-func _physics_interval() -> float:
-	return 1.0 / 60.0
-
-
-## Controlled melee attack against the current target. Returns true when a hit lands.
-## Performs the damage exactly once per call; duplicate protection is provided by the
-## state machine (windup phase) plus the alive guards here and in the target.
+## Controlled melee attack against the current target (see EnemyStriker). Returns
+## true when a hit lands; damage is applied exactly once per call.
 func perform_enemy_attack() -> bool:
-	if not _alive:
-		return false
-	var target := get_move_target()
-	if target == null:
-		return false
-	if not target_in_attack_range(target):
-		return false
-	if _wall_between(target):
-		return false
-	var cfg := _config
-	if cfg == null:
-		return false
-	attack_started.emit()
-	var to_t := target.global_position - global_position
-	to_t.y = 0.0
-	var dir := Vector3.FORWARD
-	if to_t.length_squared() > 0.0001:
-		dir = to_t.normalized()
-	var payload := DamagePayload.new()
-	payload.amount = get_effective_attack_damage()
-	payload.source = self
-	payload.source_id = _archetype_id
-	payload.damage_type = &"physical"
-	payload.knockback = dir * _enemy_knockback_strength()
-	payload.hit_position = global_position
-	if not target.has_method("apply_damage"):
-		return false
-	var result: Variant = target.call("apply_damage", payload)
-	if result is DamageResult:
-		var res := result as DamageResult
-		attack_hit.emit(target, res)
-		if _audio != null and _audio.has_method("play_attack"):
-			_audio.call("play_attack")
-		return res.accepted
-	return false
+	return _striker.execute(self)
 
 
-func _enemy_knockback_strength() -> float:
-	if _config == null:
-		return 4.0
-	# Heavier enemies push harder; scaled by their effective damage for readability.
-	return clampf(3.0 + get_effective_attack_damage() * 0.25, 2.0, 16.0)
+## Attack audio hook for the striker (tolerant when no EnemyAudio child exists).
+func play_attack_sound() -> void:
+	if _audio != null and _audio.has_method("play_attack"):
+		_audio.call("play_attack")
 
 
-func _wall_between(target: Node3D) -> bool:
-	var space := get_world_3d().direct_space_state
-	if space == null:
-		return false
-	var from := global_position + Vector3(0, 0.8, 0)
-	var to := target.global_position + Vector3(0, 0.8, 0)
-	var query := PhysicsRayQueryParameters3D.create(from, to, 0b0001)
-	var hit := space.intersect_ray(query)
-	return not hit.is_empty()
-
-
-## ---------- Movement helpers ----------
-
-func _apply_gravity(delta: float) -> void:
-	if not is_on_floor():
-		velocity.y -= GRAVITY * delta
-
-
-func _decay_knockback(delta: float) -> void:
-	if _knockback.length_squared() <= 0.0:
-		return
-	var decay := KNOCKBACK_DECAY * delta
-	_knockback = _knockback.move_toward(Vector3.ZERO, decay)
-
-
-func _update_motion(delta: float) -> void:
-	var cfg := _config
-	var accel := cfg.acceleration if cfg != null else 8.0
-	var slow := _status_speed_factor()
-	var wish_x := desired_dir.x * desired_speed * slow + _knockback.x
-	var wish_z := desired_dir.z * desired_speed * slow + _knockback.z
-	velocity.x = move_toward(velocity.x, wish_x, accel * delta)
-	velocity.z = move_toward(velocity.z, wish_z, accel * delta)
-	move_and_slide()
-	_clamp_to_bounds()
-
-
-func _clamp_to_bounds() -> void:
-	if _bounds_half < 0.0:
-		return
-	var cfg := _config
-	var margin := cfg.bounds_radius if cfg != null else 0.5
-	var limit := _bounds_half - margin
-	var p := global_position
-	var changed := false
-	if p.x < -limit:
-		p.x = -limit
-		changed = true
-	elif p.x > limit:
-		p.x = limit
-		changed = true
-	if p.z < -limit:
-		p.z = -limit
-		changed = true
-	elif p.z > limit:
-		p.z = limit
-		changed = true
-	if changed:
-		global_position = p
-		velocity.x = 0.0
-		velocity.z = 0.0
-
-
-func _detect_stall(delta: float) -> void:
-	if desired_speed <= 0.0:
-		_stuck_time = 0.0
-		_last_position = global_position
-		return
-	var moved := global_position.distance_to(_last_position)
-	_last_position = global_position
-	if moved < STUCK_NUDGE_DIST * delta * 60.0:
-		_stuck_time += delta
-	else:
-		_stuck_time = 0.0
-	if _stuck_time >= 0.5:
-		_stuck_time = 0.0
-		_apply_stuck_recovery()
-
-
-func _apply_stuck_recovery() -> void:
-	# Nudge perpendicular to the current intent to slide off obstacles/walls.
-	var dir := desired_dir
-	var perp := Vector3(-dir.z, 0.0, dir.x)
-	var strength := maxf(desired_speed * 0.6, 1.0)
-	_knockback += perp * strength
+func _locomotion_bounds() -> float:
+	return _locomotion.get_bounds()
 
 
 func _apply_visual_scale(scale_factor: float) -> void:
@@ -432,7 +276,7 @@ func _on_damage_applied(result: DamageResult, payload: DamagePayload) -> void:
 	var cfg := _config
 	var resistance := cfg.knockback_resistance if cfg != null else 0.0
 	var resisted := payload.knockback * (1.0 - clampf(resistance, 0.0, 1.0))
-	_knockback += Vector3(resisted.x, 0.0, resisted.z)
+	_locomotion.add_knockback(resisted)
 
 
 func _on_damaged(result: DamageResult) -> void:

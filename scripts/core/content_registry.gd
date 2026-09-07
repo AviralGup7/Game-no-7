@@ -1,11 +1,12 @@
 extends Node
 ## Autoload: ContentRegistry
-## Discovers, validates, caches, and exposes enemy / upgrade / arena / weapon /
-## camera / audio / skill / status / pickup / wave definitions from res://data/**
-## .tres resources. Every registry is tolerant: missing or invalid optional
-## content produces diagnostics + fallback and never crashes startup. Adding
-## content = drop a .tres in the right folder and (optionally) register a
-## default; no core-script rewrites.
+## Owns the live content tables and exposes enemy / upgrade / arena / weapon /
+## camera / audio / skill / status / pickup / wave definitions. Scanning +
+## typed registration moved to ContentLoader; this node adopts the loaded tables,
+## keeps arena selection, and registers audio cues. Every registry is tolerant:
+## missing or invalid optional content produces diagnostics + fallback and never
+## crashes startup. Adding content = drop a .tres in the right folder and
+## (optionally) register a default; no core-script rewrites.
 
 const DATA_ROOT := "res://data"
 
@@ -34,129 +35,31 @@ func _ready() -> void:
 
 ## Re-scan all data directories. Called at startup and available to tooling/tests.
 func refresh_all() -> void:
-	_validation_errors.clear()
-	_load_typed(&"res://data/enemies", &"enemies")
-	_load_typed(&"res://data/upgrades", &"upgrades")
-	_load_typed(&"res://data/arenas", &"arenas")
-	_load_typed(&"res://data/cameras", &"cameras")
-	_load_typed(&"res://data/weapons", &"weapons")
-	_load_typed(&"res://data/skills", &"skills")
-	_load_typed(&"res://data/status", &"status")
-	_load_typed(&"res://data/pickups", &"pickups")
-	_load_typed(&"res://data/waves", &"waves")
-	_load_audio()
+	var loaded := ContentLoader.load_all()
+	var tables: Dictionary = loaded["tables"]
+	_enemies = tables[&"enemies"]
+	_upgrades = tables[&"upgrades"]
+	_arenas = tables[&"arenas"]
+	_cameras = tables[&"cameras"]
+	_weapons = tables[&"weapons"]
+	_skills = tables[&"skills"]
+	_status = tables[&"status"]
+	_pickups = tables[&"pickups"]
+	_waves = tables[&"waves"]
+	_validation_errors = loaded["errors"]
+	var first_arena: StringName = loaded.get("first_arena", &"")
+	if _selected_arena == &"" and first_arena != &"":
+		_selected_arena = first_arena
+	_register_audio_cues(loaded["audio"])
 	_validation_dirty = true
 
 
-func _load_typed(dir_path: String, kind: StringName) -> void:
-	var files := _list_resources(dir_path)
-	for path in files:
-		var res := ResourceLoader.load(path)
-		if res == null:
-			_validation_errors.append("Failed to load resource: %s" % path)
-			continue
-		match kind:
-			&"enemies":
-				_register_one(_enemies, res, path, &"enemy")
-			&"upgrades":
-				_register_one(_upgrades, res, path, &"upgrade")
-			&"arenas":
-				var arena := res as ArenaConfig
-				if arena == null:
-					_validation_errors.append("Not an ArenaConfig: %s" % path)
-				else:
-					_register_resource(_arenas, StringName(arena.arena_id), arena, path)
-					if _selected_arena == &"" and arena.arena_id != &"":
-						_selected_arena = arena.arena_id
-			&"cameras":
-				var cam := res as CameraProfile
-				if cam == null:
-					_validation_errors.append("Not a CameraProfile: %s" % path)
-				else:
-					_register_resource(_cameras, StringName(cam.profile_id), cam, path)
-			&"weapons":
-				var weapon := res as WeaponConfig
-				if weapon == null:
-					_validation_errors.append("Not a WeaponConfig: %s" % path)
-				else:
-					_register_resource(_weapons, StringName(weapon.weapon_id), weapon, path)
-			&"skills":
-				var skill := res as SkillConfig
-				if skill == null:
-					_validation_errors.append("Not a SkillConfig: %s" % path)
-				else:
-					_register_resource(_skills, StringName(skill.skill_id), skill, path)
-			&"status":
-				var effect := res as StatusEffectConfig
-				if effect == null:
-					_validation_errors.append("Not a StatusEffectConfig: %s" % path)
-				else:
-					_register_resource(_status, StringName(effect.effect_id), effect, path)
-			&"pickups":
-				var pickup := res as PickupConfig
-				if pickup == null:
-					_validation_errors.append("Not a PickupConfig: %s" % path)
-				else:
-					_register_resource(_pickups, StringName(pickup.pickup_id), pickup, path)
-			&"waves":
-				var wave := res as WaveConfig
-				if wave == null:
-					_validation_errors.append("Not a WaveConfig: %s" % path)
-				elif _waves.has(wave.wave_number):
-					_validation_errors.append("Duplicate wave_number %d: %s" % [wave.wave_number, path])
-				else:
-					if wave.has_method("validate"):
-						var wave_problems: Array = wave.call("validate")
-						for p in wave_problems:
-							_validation_errors.append("%s: %s" % [path, p])
-					_waves[wave.wave_number] = wave
-
-
-func _register_one(table: Dictionary, res: Resource, path: String, kind: String) -> void:
-	var id_value: Variant = res.get("archetype_id") if kind == "enemy" else res.get("upgrade_id")
-	if id_value == null:
-		_validation_errors.append("%s missing id: %s" % [kind, path])
-		return
-	var idn := StringName(String(id_value))
-	_register_resource(table, idn, res, path)
-
-
-func _register_resource(table: Dictionary, idn: StringName, res: Resource, path: String) -> void:
-	if table.has(idn):
-		_validation_errors.append("Duplicate id '%s' across content files" % String(idn))
-		return
-	if res.has_method("validate"):
-		var problems: Array = res.call("validate")
-		for p in problems:
-			_validation_errors.append("%s: %s" % [path, p])
-	table[idn] = res
-
-
-func _load_audio() -> void:
-	var files := _list_resources(&"res://data/audio")
-	for path in files:
-		var stream := ResourceLoader.load(path)
-		if stream is AudioStream:
-			var idn := StringName(path.get_file().get_basename())
-			_audio_cues[idn] = stream
-			AudioManager.register_cue(idn, stream)
-
-
-func _list_resources(dir_path: String) -> Array[String]:
-	var out: Array[String] = []
-	if not DirAccess.dir_exists_absolute(dir_path):
-		return out
-	var dir := DirAccess.open(dir_path)
-	if dir == null:
-		return out
-	dir.list_dir_begin()
-	var file := dir.get_next()
-	while file != "":
-		if not dir.current_is_dir() and file.ends_with(".tres"):
-			out.append(dir_path.path_join(file))
-		file = dir.get_next()
-	dir.list_dir_end()
-	return out
+func _register_audio_cues(cues: Dictionary) -> void:
+	_audio_cues.clear()
+	for idn in cues:
+		var stream: AudioStream = cues[idn]
+		_audio_cues[idn] = stream
+		AudioManager.register_cue(idn, stream)
 
 
 # ---------------------- Lookup API ----------------------
@@ -297,9 +200,6 @@ func get_debug_snapshot() -> Dictionary:
 	return {
 		"enemy_count": _enemies.size(),
 		"upgrade_count": _upgrades.size(),
-		"arena_count": _arenas.size(),
-		"camera_count": _cameras.size(),
-		"weapon_count": _weapons.size(),
 		"skill_count": _skills.size(),
 		"status_count": _status.size(),
 		"pickup_count": _pickups.size(),

@@ -1,0 +1,122 @@
+class_name SaveSchema
+extends RefCounted
+
+## Pure save-schema owner: default document, validator/migrator, and typed readers.
+## Extracted from SaveManager so the schema is unit-testable without the autoload.
+## It never touches disk, timers, or other autoloads; SaveManager keeps the live
+## store + debounced flush and delegates all schema work here.
+
+const SCHEMA_VERSION := 3
+
+
+static func default_save() -> Dictionary:
+	return {
+		"schema_version": SCHEMA_VERSION,
+		"best_score": 0,
+		"best_wave": 0,
+		"tutorial_completed": false,
+		"achievements": [],
+		"meta_wallet": 0,
+		"meta_ranks": {},
+		"lifetime_statistics": {
+			"total_runs": 0,
+			"total_kills": 0,
+			"total_time_seconds": 0.0,
+			"highest_combo": 0,
+		},
+		"settings": SettingsData.new().to_dict(),
+		"progression": {
+			"unlocked_upgrades": [],
+			"unlocked_arenas": ["default_arena"],
+			"unlocked_cosmetics": [],
+		},
+	}
+
+
+## Pure, headless-testable validator/migrator. Accepts any Variant (raw JSON, null,
+## dict with wrong shape) and returns a fully-valid, normalized save Dictionary.
+static func normalize_save(raw_data: Variant) -> Dictionary:
+	var out := default_save()
+	if raw_data == null or not raw_data is Dictionary:
+		return out
+	var data: Dictionary = raw_data
+	var version := _int_or(_dict_get(data, "schema_version", SCHEMA_VERSION), SCHEMA_VERSION)
+	if version > SCHEMA_VERSION:
+		# Newer schema: keep what we understand, discard the rest rather than crash.
+		pass
+	if version < SCHEMA_VERSION:
+		data = _migrate_static(data, version)
+	out.schema_version = SCHEMA_VERSION
+	out.best_score = maxi(0, _int_or(_dict_get(data, "best_score", 0), 0))
+	out.best_wave = maxi(0, _int_or(_dict_get(data, "best_wave", 0), 0))
+	out.tutorial_completed = bool(_dict_get(data, "tutorial_completed", false))
+	out.achievements = _string_list(_dict_get(data, "achievements", []))
+	out.meta_wallet = maxi(0, _int_or(_dict_get(data, "meta_wallet", 0), 0))
+	out.meta_ranks = _string_int_map(_dict_get(data, "meta_ranks", {}))
+	if data.has("lifetime_statistics") and data.lifetime_statistics is Dictionary:
+		var src: Dictionary = data.lifetime_statistics
+		var ls: Dictionary = out.lifetime_statistics
+		ls.total_runs = maxi(0, _int_or(_dict_get(src, "total_runs", 0), 0))
+		ls.total_kills = maxi(0, _int_or(_dict_get(src, "total_kills", 0), 0))
+		ls.total_time_seconds = maxf(0.0, _float_or(_dict_get(src, "total_time_seconds", 0.0), 0.0))
+		ls.highest_combo = maxi(0, _int_or(_dict_get(src, "highest_combo", 0), 0))
+		out.lifetime_statistics = ls
+	if data.has("settings") and data.settings is Dictionary:
+		var sd := SettingsData.new()
+		sd.from_dict(data.settings)
+		out.settings = sd.to_dict()
+	if data.has("progression") and data.progression is Dictionary:
+		var prog: Dictionary = data.progression
+		var unlocked := _string_list(_dict_get(prog, "unlocked_upgrades", []))
+		var arenas := _string_list(_dict_get(prog, "unlocked_arenas", ["default_arena"]))
+		if "default_arena" not in arenas:
+			arenas.append("default_arena")
+		var cosmetics := _string_list(_dict_get(prog, "unlocked_cosmetics", []))
+		out.progression = {
+			"unlocked_upgrades": unlocked,
+			"unlocked_arenas": arenas,
+			"unlocked_cosmetics": cosmetics,
+		}
+	return out
+
+
+static func _migrate_static(data: Dictionary, from_version: int) -> Dictionary:
+	if from_version <= 2:
+		# v1/v2 -> v3: new keys (tutorial/achievements/meta) take safe defaults;
+		# no structural rewrite required.
+		pass
+	return data
+
+
+static func _dict_get(data: Dictionary, key: String, fallback: Variant) -> Variant:
+	return data.get(key, fallback)
+
+
+static func _int_or(value: Variant, fallback: int) -> int:
+	if value is float or value is int:
+		return int(value)
+	return fallback
+
+
+static func _float_or(value: Variant, fallback: float) -> float:
+	if value is float or value is int:
+		return float(value)
+	return fallback
+
+
+static func _string_list(value: Variant) -> Array:
+	var out: Array = []
+	if value is Array:
+		for item in value:
+			out.append(String(item))
+	return out
+
+
+static func _string_int_map(value: Variant) -> Dictionary:
+	var out: Dictionary = {}
+	if value is Dictionary:
+		for key in value:
+			var v: Variant = value[key]
+			if v is float or v is int:
+				out[String(key)] = maxi(int(v), 0)
+	return out

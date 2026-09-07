@@ -48,6 +48,23 @@
   and persistent directors (music, achievements, meta, tutorial).
 - New `skill_1/2/3` input actions (Q/E/R + joypad shoulder/trigger).
 
+### Modularized
+- Split the 10 largest scripts into focused modules (public APIs unchanged):
+  `ui_root` → `UiText` + `UiFactory` + `GameHud` + `UpgradePanel` (658→363);
+  `player` → `PlayerLocomotion` + `PlayerBuild` (617→489);
+  `enemy_base` → `EnemyLocomotion` + `EnemyNavigator` + `EnemyStriker` (548→392);
+  `spawn_manager` → `SpawnLedger` + `SpawnPlacer` (466→353);
+  `game_root` → `RunScorekeeper` + `UpgradeService` (442→359);
+  `skill_controller` → `SkillExecutor` (398→200);
+  `save_manager` → `SaveSchema` (352→241);
+  `attack_controller` → `ComboChain` (321→298);
+  `content_registry` → `ContentLoader` (310→210);
+  mutator resolution → `WaveMutators.resolve_for_wave` (317→305).
+- `DamagePayload.with_amount()` clone helper (mitigation/shield pipelines).
+- New `test_extracted_modules` suite (ComboChain/SpawnLedger/SaveSchema/UiText/payload).
+- Fixed: `ContentRegistry.refresh_all()` now rebuilds fresh tables, so repeated
+  refresh/validate no longer reports every id as a false duplicate.
+
 ## [0.4.0] — Phase 4 · Data-driven progression & upgrade loop
 
 ### Added

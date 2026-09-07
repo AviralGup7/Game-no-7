@@ -164,6 +164,26 @@ Optional cues are safe: a missing cue logs a diagnostic and never crashes.
 3. Daily challenge: `DailyChallenge` derives `(seed, mutator)` from the calendar
    date; surface it from the menu via `GameRoot.start_daily_run()`.
 
+## Module map (large-file splits)
+
+Heads-up for contributors: the biggest scripts are thin orchestrators over focused
+modules. Put new logic in the module, not the orchestrator:
+
+| Orchestrator | Modules | Put new... |
+|---|---|---|
+| `ui_root.gd` | `UiText`, `UiFactory`, `GameHud`, `UpgradePanel` | strings → UiText, widgets → UiFactory, HUD → GameHud, cards → UpgradePanel |
+| `player.gd` | `PlayerLocomotion`, `PlayerBuild` | input/bounds → Locomotion, upgrades/derived stats → Build |
+| `enemy_base.gd` | `EnemyLocomotion`, `EnemyNavigator`, `EnemyStriker` | motion → Locomotion, nav → Navigator, melee → Striker |
+| `spawn_manager.gd` | `SpawnLedger`, `SpawnPlacer` | queue/counters → Ledger, points → Placer |
+| `game_root.gd` | `RunScorekeeper`, `UpgradeService` | score/combo → Scorekeeper, offers/apply → Service |
+| `skill_controller.gd` | `SkillExecutor` | behaviors/scheduled hits → Executor |
+| `attack_controller.gd` | `ComboChain` | combo steps/window → Chain |
+| `save_manager.gd` | `SaveSchema` | defaults/normalize/migrate → Schema |
+| `content_registry.gd` | `ContentLoader` | scanning/registration → Loader |
+
+Pure modules (`ComboChain`, `SpawnLedger`, `SaveSchema`, `UiText`) are covered by
+`tests/unit/test_extracted_modules.gd` — extend that suite when you change them.
+
 ## Conventions
 
 - Stable IDs as `StringName`; never magic numbers — put tuning in the relevant `.tres`.

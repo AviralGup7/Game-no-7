@@ -2,8 +2,9 @@ extends Node
 ## Autoload: GameRoot
 ## Owns global game state: the canonical state machine, the current RunState, pause
 ## overlay handling, content selection, and a narrow command interface consumed by UI
-## controllers. It does not implement combat, AI, save or detailed UI logic; those
-## live in their owning systems.
+## controllers. Scoring/combo/currency math lives in RunScorekeeper and the upgrade
+## selection flow in UpgradeService; combat, AI, save and detailed UI logic live in
+## their owning systems.
 
 const State := {
 	MAIN_MENU = &"main_menu",
@@ -32,19 +33,17 @@ const LEGAL_TRANSITIONS := {
 var _current_state: StringName = State.MAIN_MENU
 var _resume_state: StringName = State.PLAYING
 var _current_run := RunState.new()
+var _score := RunScorekeeper.new()
 var _best_score: int = 0
 var _best_wave: int = 0
 var _paused := false
 var _active_player: Node = null
 
-## Combo lifecycle tuning. Combos decay to 0 after this many seconds without a kill.
-const COMBO_WINDOW_SECONDS: float = 4.0
-var _last_kill_time: float = 0.0
-
 
 func _ready() -> void:
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
+	_score.bind(_current_run, _player_derived_stat)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.wave_completed.connect(_on_wave_completed)
@@ -59,7 +58,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _paused and _current_state in [State.PLAYING, State.WAVE_TRANSITION] and _current_run.player_alive:
 		_current_run.elapsed_seconds += delta
-		_tick_combo_expiry()
+		_score.tick_combo()
 
 
 func get_current_state() -> StringName:
@@ -209,7 +208,7 @@ func _start_new_run() -> void:
 	_current_run.seed = randi()
 	_current_run.arena_id = arena_id
 	_current_run.elapsed_seconds = 0.0
-	_last_kill_time = 0.0
+	_score.reset_run(_current_run)
 	EventBus.report_info("Starting run %d in arena %s (seed %d)" % [_current_run.run_id, String(arena_id), _current_run.seed])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
@@ -270,10 +269,7 @@ func _on_wave_completed(_wave_number: int, completion_bonus: int) -> void:
 
 
 func award_wave_completion_bonus(bonus: int) -> void:
-	if not _current_run.player_alive or bonus <= 0:
-		return
-	_current_run.add_score(bonus)
-	EventBus.score_changed.emit(_current_run.score, bonus)
+	_score.award_bonus(bonus)
 
 
 ## Clean inter-wave break through the canonical state machine.
@@ -289,29 +285,21 @@ func end_wave_transition() -> void:
 
 ## ---------- Progression commands (data-driven, deterministic) ----------
 
-## The WaveManager calls this when a completed wave requests an upgrade. It deterministically
-## chooses the offered upgrades from the run seed + wave + current stacks, stores them in
-## RunState.upgrade_choices, routes the canonical state machine PLAYING -> WAVE_TRANSITION ->
-## UPGRADE_SELECTION, and announces them over EventBus. Returns false (leaving state
-## unchanged) when no eligible upgrade exists — the caller then continues to the next wave.
+## The WaveManager calls this when a completed wave requests an upgrade. The choice
+## set comes from UpgradeService (run seed + wave + current stacks); this method only
+## gates on state/liveness, stores the offer, routes PLAYING -> WAVE_TRANSITION ->
+## UPGRADE_SELECTION, and announces it. Returns false (state unchanged) when no
+## eligible upgrade exists — the caller then continues to the next wave.
 func present_upgrade_selection_for_wave(wave_number: int) -> bool:
 	if _current_state != State.PLAYING:
 		EventBus.report_warning("present_upgrade_selection_for_wave requires PLAYING state")
 		return false
 	if not _current_run.player_alive:
 		return false
-	var prog := _progression_node_of(_active_player)
-	if prog == null:
-		return false
-	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog.has_method("get_upgrade_stack_snapshot") else {}
-	var pool: Array[UpgradeConfig] = []
-	for raw in ContentRegistry.get_all_upgrades().values():
-		pool.append(raw as UpgradeConfig)
-	var chosen: Array[UpgradeConfig] = UpgradeSelector.choose_upgrade_choices(pool, 3, _current_run.seed, wave_number, counts)
+	var chosen := UpgradeService.choose_for_wave(_current_run, _active_player, wave_number)
 	if chosen.is_empty():
-		EventBus.report_info("No eligible upgrades to present after wave %d; continuing" % wave_number)
 		return false
-	_current_run.upgrade_choices = UpgradeSelector.to_id_list(chosen)
+	_current_run.upgrade_choices = chosen
 	# Route through the legal state path PLAYING -> WAVE_TRANSITION -> UPGRADE_SELECTION.
 	transition_to(State.WAVE_TRANSITION)
 	transition_to(State.UPGRADE_SELECTION)
@@ -322,34 +310,16 @@ func present_upgrade_selection_for_wave(wave_number: int) -> bool:
 
 ## Validate + apply a player-selected upgrade. Only an id currently offered (and still
 ## legal given the live progression state) can be chosen; arbitrary ids are rejected.
-## On success it applies the upgrade to the runtime ProgressionComponent, mirrors the
-## result into RunState, emits upgrade_selected, and resumes into PLAYING so the
-## WaveManager can start the next wave.
+## On success it emits upgrade_selected and resumes into PLAYING so the WaveManager
+## can start the next wave.
 func request_upgrade_selection(upgrade_id: StringName) -> bool:
 	if _current_state != State.UPGRADE_SELECTION:
 		EventBus.report_warning("request_upgrade_selection requires UPGRADE_SELECTION state")
 		return false
-	if upgrade_id not in _current_run.upgrade_choices:
-		EventBus.report_warning("Upgrade %s is not currently offered" % String(upgrade_id))
+	if not UpgradeService.validate_selection(_current_run, _active_player, upgrade_id).is_empty():
 		return false
-	var player := _active_player
-	if player == null or not is_instance_valid(player) or not bool(player.call("is_alive")):
-		EventBus.report_warning("request_upgrade_selection: no live player")
+	if not UpgradeService.apply_selection(_current_run, _active_player, upgrade_id):
 		return false
-	var cfg := ContentRegistry.get_upgrade(upgrade_id)
-	if cfg == null:
-		EventBus.report_warning("request_upgrade_selection: unknown upgrade %s" % String(upgrade_id))
-		return false
-	var prog := _progression_node_of(player)
-	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog != null and prog.has_method("get_upgrade_stack_snapshot") else {}
-	if not UpgradeSelector.is_eligible(cfg, _current_run.current_wave, counts):
-		EventBus.report_warning("Upgrade %s is no longer selectable" % String(upgrade_id))
-		return false
-	if not player.has_method("apply_upgrade") or not bool(player.call("apply_upgrade", upgrade_id)):
-		EventBus.report_warning("Upgrade %s could not be applied" % String(upgrade_id))
-		return false
-	_sync_run_from_progression(player)
-	_current_run.upgrade_choices.clear()
 	EventBus.upgrade_selected.emit(upgrade_id)
 	EventBus.report_info("Upgrade selected: %s" % String(upgrade_id))
 	# Back into PLAYING; WaveManager observes the state to launch the next wave.
@@ -357,67 +327,14 @@ func request_upgrade_selection(upgrade_id: StringName) -> bool:
 	return true
 
 
-func _progression_node_of(player: Node) -> Node:
-	if player == null or not is_instance_valid(player):
-		return null
-	return player.get_node_or_null("ProgressionComponent")
-
-
-## Mirror the runtime ProgressionComponent (source of truth) into the serializable RunState
-## snapshot so game-over summaries/analytics see exactly what is applied.
-func _sync_run_from_progression(player: Node) -> void:
-	var prog := _progression_node_of(player)
-	if prog == null:
-		return
-	if prog.has_method("get_upgrade_stack_snapshot"):
-		_current_run.selected_upgrades = (prog.call("get_upgrade_stack_snapshot") as Dictionary).duplicate()
-	if prog.has_method("get_modifier_snapshot"):
-		var mods: Dictionary = prog.call("get_modifier_snapshot")
-		var keys: Array[StringName] = []
-		for k in mods:
-			keys.append(StringName(String(k)))
-		_current_run.active_modifiers = keys
-
-
 ## ---------- Combat scoring (exactly-once per enemy_killed) ----------
 
 func _on_enemy_killed(_enemy: Node, _archetype_id: StringName, score_value: int, currency_value: int) -> void:
-	if not _current_run.player_alive:
-		return
-	_current_run.add_kill()
-	var multiplier := _score_multiplier()
-	# Raise combo by one then award score including the streak bonus; record the kill
-	# time so the combo can expire after the window.
-	_current_run.set_combo(_current_run.combo + 1)
-	_last_kill_time = _current_run.elapsed_seconds
-	var gained := Scoring.calculate_kill_score(score_value, _current_run.combo, multiplier)
-	_current_run.add_score(gained)
-	EventBus.score_changed.emit(_current_run.score, gained)
-	var currency_reward := maxi(int(round(float(currency_value) * _currency_multiplier())), 0)
-	_current_run.add_currency(currency_reward)
-	EventBus.currency_changed.emit(_current_run.currency, currency_reward)
-	EventBus.combo_changed.emit(_current_run.combo, _current_run.best_combo)
+	_score.record_kill(score_value, currency_value)
 
 
-## Reset the combo to 0 when the kill window elapses without another kill. Emits only
-## on an actual value change, and only while the run is still live (game-over-safe:
-## _process no longer runs once the player is dead).
-func _tick_combo_expiry() -> void:
-	if _current_run.combo <= 0:
-		return
-	if _current_run.elapsed_seconds - _last_kill_time > COMBO_WINDOW_SECONDS:
-		_current_run.set_combo(0)
-		EventBus.combo_changed.emit(0, _current_run.best_combo)
-
-
-func _score_multiplier() -> float:
-	return 1.0 + _player_derived_stat(&"score_multiplier_add", 0.0)
-
-
-func _currency_multiplier() -> float:
-	return 1.0 + _player_derived_stat(&"currency_multiplier_add", 0.0)
-
-
+## Player progression lookup feeding the scorekeeper's multipliers. Tolerant when no
+## live player/progression exists (multipliers fall back to their base).
 func _player_derived_stat(key: StringName, base: float) -> float:
 	var player := _active_player
 	if player == null or not is_instance_valid(player):

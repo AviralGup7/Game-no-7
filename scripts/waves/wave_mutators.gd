@@ -116,6 +116,30 @@ static func roll_for_wave(wave: int, seed: int) -> Array[StringName]:
 	return out
 
 
+## Resolve the active set for a wave: authored declarations win; generated waves
+## roll (skipped on a director breather, spiced with an extra on a hot streak).
+## Unknown ids are dropped, duplicates collapsed. Pure in (declared, wave, seed).
+static func resolve_for_wave(declared: Array, wave: int, seed: int, breather: bool, spice: bool) -> Array[StringName]:
+	var out: Array[StringName] = []
+	var pool: Array = declared.duplicate()
+	if pool.is_empty():
+		if breather:
+			return out
+		for m in roll_for_wave(wave, seed):
+			pool.append(m)
+		if spice and pool.size() < 2:
+			var extra := roll_for_wave(wave + 100, seed)
+			for m in extra:
+				if m not in pool:
+					pool.append(m)
+					break
+	for raw in pool:
+		var id := StringName(String(raw))
+		if is_known(id) and id not in out:
+			out.append(id)
+	return out
+
+
 ## Human-readable banner line for a set of mutators.
 static func banner_text(mutator_ids: Array) -> String:
 	if mutator_ids.is_empty():

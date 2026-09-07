@@ -1,7 +1,8 @@
 extends Control
 ## UI root controller. Owns panel switching (only one major screen visible at a time),
 ## hosts the touch controls, routes joystick/action intents to the active player, and
-## keeps text behind a centralized lookup so localization can be added later.
+## keeps text behind UiText so localization can be added later. Screen construction is
+## shared with UiFactory; the HUD lives in GameHud and upgrade cards in UpgradePanel.
 ## Controllers never mutate global state directly: they call GameRoot's command API.
 
 const VIRTUAL_JOYSTICK := preload("res://scripts/ui/virtual_joystick.gd")
@@ -18,71 +19,18 @@ var _main_panel: Control = null
 var _settings_panel: Control = null
 var _pause_panel: Control = null
 var _gameover_panel: Control = null
-var _upgrade_panel: Control = null
+var _upgrade_panel: UpgradePanel = null
+var _gameover_stats: Label = null
 
 ## HUD (overlay while playing).
-var _hud: Control = null
+var _hud: GameHud = null
 var _touch_layer: Control = null
 var _joystick: VirtualJoystick = null
 var _attack_btn: Control = null
 var _dodge_btn: Control = null
 
-## HUD widgets.
-var _hp_label: Label = null
-var _hp_bar: ColorRect = null
-var _score_label: Label = null
-var _wave_label: Label = null
-var _combo_label: Label = null
-var _currency_label: Label = null
-
 var _last_joystick_value := Vector2.ZERO
 var _active_screen := &"none"
-
-## Upgrade panel state.
-var _upgrade_cards_box: BoxContainer = null
-var _upgrade_note: Label = null
-var _card_buttons: Array[Button] = []
-var _selection_locked := false
-var _toast_label: Label = null
-var _toast_tween: Tween = null
-var _toast_show_until := 0
-
-# Default English strings (single shipped language for now). Localization swaps this
-# table or the whole lookup for translated packs later without touching call sites.
-const _TEXT := {
-	"app_title": "LAST STAND",
-	"app_subtitle": "ARENA",
-	"play": "PLAY",
-	"settings": "SETTINGS",
-	"quit": "QUIT",
-	"resume": "RESUME",
-	"restart": "RESTART",
-	"main_menu": "MAIN MENU",
-	"best_score": "Best score",
-	"best_wave": "Best wave",
-	"score": "SCORE",
-	"wave": "WAVE",
-	"combo": "COMBO",
-	"currency": "COINS",
-	"hp": "HP",
-	"paused": "PAUSED",
-	"game_over": "GAME OVER",
-	"kills": "Kills",
-	"time_survived": "Time survived",
-	"wave_reached": "Wave reached",
-	"upgrades_title": "CHOOSE AN UPGRADE",
-	"upgrade_choose_hint": "Choose one — your hero keeps it until the run ends.",
-	"upgrade_none": "No upgrades available this round.",
-	"upgrade_selected_fx": "APPLIED",
-	"retry": "RETRY",
-	"close_settings": "CLOSE",
-	"reset_settings": "RESET SETTINGS",
-	"mute": "Mute audio",
-	"vibration": "Vibration",
-	"reduced_motion": "Reduced motion",
-	"high_contrast": "High contrast",
-	"version": "v0.4.0",
-}
 
 
 func _ready() -> void:
@@ -90,6 +38,7 @@ func _ready() -> void:
 	_build_screens()
 	_build_hud()
 	_build_touch()
+	_upgrade_panel.choice_pressed.connect(_on_upgrade_panel_choice)
 	EventBus.game_state_changed.connect(_on_state_changed)
 	EventBus.player_health_changed.connect(_on_health_changed)
 	EventBus.score_changed.connect(_on_score_changed)
@@ -105,11 +54,6 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	# Reduced-motion toast expiry (no tween when reduced-motion is enabled).
-	if _toast_show_until > 0 and Time.get_ticks_msec() > _toast_show_until:
-		_toast_show_until = 0
-		if _toast_label != null:
-			_toast_label.visible = false
 	if GameRoot.get_current_state() != GameRoot.State.PLAYING and GameRoot.get_current_state() != GameRoot.State.WAVE_TRANSITION:
 		return
 	var v := _joystick.get_value()
@@ -120,76 +64,19 @@ func _process(_delta: float) -> void:
 			p.call("set_move_input", v)
 
 
-# ---------------------------- Layout builders ----------------------------
-
-func _make_panel(name: String) -> Control:
-	var panel := Control.new()
-	panel.name = name
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(panel)
-	panel.visible = false
-	return panel
-
-
-func _center_container(panel: Control) -> VBoxContainer:
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(center)
-	var box := VBoxContainer.new()
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 10)
-	center.add_child(box)
-	return box
-
-
-func _title(text: String, parent: Node) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	l.add_theme_font_size_override("font_size", _font(30))
-	parent.add_child(l)
-	return l
-
-
-func _make_button(text: String, parent: Node) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = Vector2(260, 54)
-	b.add_theme_font_size_override("font_size", _font(20))
-	b.mouse_filter = Control.MOUSE_FILTER_STOP
-	parent.add_child(b)
-	return b
-
-
-func _check(text: String, parent: Node, initial: bool, on_toggle: Callable) -> CheckButton:
-	var c := CheckButton.new()
-	c.text = text
-	c.button_pressed = initial
-	c.add_theme_font_size_override("font_size", _font(18))
-	c.mouse_filter = Control.MOUSE_FILTER_STOP
-	c.toggled.connect(on_toggle)
-	parent.add_child(c)
-	return c
-
-
-func _font(base: int) -> int:
-	var settings := SaveManager.get_settings()
-	return int(round(base * settings.text_scale))
-
+# ---------------------------- Screens ----------------------------
 
 func _build_screens() -> void:
-	_main_panel = _make_panel("MainMenuPanel")
-	var box := _center_container(_main_panel)
-	_title(loc(&"app_title"), box)
-	_title(loc(&"app_subtitle"), box)
-	_title("", box)  # spacer
-	var play_btn := _make_button(loc(&"play"), box)
+	_main_panel = UiFactory.make_panel(self, "MainMenuPanel")
+	var box := UiFactory.center_box(_main_panel)
+	UiFactory.title(loc(&"app_title"), box, _font(30))
+	UiFactory.title(loc(&"app_subtitle"), box, _font(30))
+	UiFactory.title("", box, _font(30))  # spacer
+	var play_btn := UiFactory.button(loc(&"play"), box, _font(20))
 	play_btn.pressed.connect(func() -> void: GameRoot.request_play())
-	var settings_btn := _make_button(loc(&"settings"), box)
+	var settings_btn := UiFactory.button(loc(&"settings"), box, _font(20))
 	settings_btn.pressed.connect(_open_settings)
-	var quit_btn := _make_button(loc(&"quit"), box)
+	var quit_btn := UiFactory.button(loc(&"quit"), box, _font(20))
 	quit_btn.pressed.connect(_request_quit)
 	_best_menu_labels(box)
 
@@ -197,6 +84,10 @@ func _build_screens() -> void:
 	_build_pause_screen()
 	_build_gameover_screen()
 	_build_upgrade_screen()
+
+
+func _font(base: int) -> int:
+	return UiFactory.font_scaled(base)
 
 
 func _best_menu_labels(box: VBoxContainer) -> void:
@@ -215,22 +106,22 @@ func _best_menu_labels(box: VBoxContainer) -> void:
 
 
 func _build_settings_screen() -> void:
-	_settings_panel = _make_panel("SettingsPanel")
-	var box := _center_container(_settings_panel)
-	_title(loc(&"settings"), box)
+	_settings_panel = UiFactory.make_panel(self, "SettingsPanel")
+	var box := UiFactory.center_box(_settings_panel)
+	UiFactory.title(loc(&"settings"), box, _font(30))
 	var s := SaveManager.get_settings()
-	_check(loc(&"mute"), box, s.muted, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.muted = v; _persist())
-	_check(loc(&"vibration"), box, s.vibration_enabled, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.vibration_enabled = v; _persist())
-	_check(loc(&"reduced_motion"), box, s.reduced_motion, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.reduced_motion = v; _persist())
-	_check(loc(&"high_contrast"), box, s.high_contrast, func(v: bool) -> void:
-		var cur := SaveManager.get_settings(); cur.high_contrast = v; _persist())
-	var reset_btn := _make_button(loc(&"reset_settings"), box)
+	UiFactory.check(loc(&"mute"), box, s.muted, func(v: bool) -> void:
+		var cur := SaveManager.get_settings(); cur.muted = v; _persist(), _font(18))
+	UiFactory.check(loc(&"vibration"), box, s.vibration_enabled, func(v: bool) -> void:
+		var cur := SaveManager.get_settings(); cur.vibration_enabled = v; _persist(), _font(18))
+	UiFactory.check(loc(&"reduced_motion"), box, s.reduced_motion, func(v: bool) -> void:
+		var cur := SaveManager.get_settings(); cur.reduced_motion = v; _persist(), _font(18))
+	UiFactory.check(loc(&"high_contrast"), box, s.high_contrast, func(v: bool) -> void:
+		var cur := SaveManager.get_settings(); cur.high_contrast = v; _persist(), _font(18))
+	var reset_btn := UiFactory.button(loc(&"reset_settings"), box, _font(20))
 	reset_btn.pressed.connect(func() -> void:
 		SaveManager.reset_settings(); _open_settings())
-	var close_btn := _make_button(loc(&"close_settings"), box)
+	var close_btn := UiFactory.button(loc(&"close_settings"), box, _font(20))
 	close_btn.pressed.connect(_close_settings)
 
 
@@ -239,138 +130,43 @@ func _persist() -> void:
 
 
 func _build_pause_screen() -> void:
-	_pause_panel = _make_panel("PausePanel")
-	var box := _center_container(_pause_panel)
-	_title(loc(&"paused"), box)
-	var resume_btn := _make_button(loc(&"resume"), box)
+	_pause_panel = UiFactory.make_panel(self, "PausePanel")
+	var box := UiFactory.center_box(_pause_panel)
+	UiFactory.title(loc(&"paused"), box, _font(30))
+	var resume_btn := UiFactory.button(loc(&"resume"), box, _font(20))
 	resume_btn.pressed.connect(func() -> void: GameRoot.request_resume())
-	var restart_btn := _make_button(loc(&"restart"), box)
+	var restart_btn := UiFactory.button(loc(&"restart"), box, _font(20))
 	restart_btn.pressed.connect(func() -> void: GameRoot.request_restart())
-	var menu_btn := _make_button(loc(&"main_menu"), box)
+	var menu_btn := UiFactory.button(loc(&"main_menu"), box, _font(20))
 	menu_btn.pressed.connect(func() -> void: GameRoot.request_main_menu())
-	var set_btn := _make_button(loc(&"settings"), box)
+	var set_btn := UiFactory.button(loc(&"settings"), box, _font(20))
 	set_btn.pressed.connect(_open_settings)
 
 
 func _build_gameover_screen() -> void:
-	_gameover_panel = _make_panel("GameOverPanel")
-	var box := _center_container(_gameover_panel)
-	_title(loc(&"game_over"), box)
+	_gameover_panel = UiFactory.make_panel(self, "GameOverPanel")
+	var box := UiFactory.center_box(_gameover_panel)
+	UiFactory.title(loc(&"game_over"), box, _font(30))
 	var stats := Label.new()
 	stats.name = "RunStatsLabel"
 	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stats.add_theme_font_size_override("font_size", _font(18))
 	box.add_child(stats)
-	var retry_btn := _make_button(loc(&"retry"), box)
+	var retry_btn := UiFactory.button(loc(&"retry"), box, _font(20))
 	retry_btn.pressed.connect(func() -> void: GameRoot.request_play())
-	var menu_btn := _make_button(loc(&"main_menu"), box)
+	var menu_btn := UiFactory.button(loc(&"main_menu"), box, _font(20))
 	menu_btn.pressed.connect(func() -> void: GameRoot.request_main_menu())
 	_gameover_stats = stats
 
 
-var _gameover_stats: Label = null
-
-
 func _build_upgrade_screen() -> void:
-	_upgrade_panel = _make_panel("UpgradePanel")
-	_upgrade_panel.mouse_filter = Control.MOUSE_FILTER_STOP  # block clicks through to HUD
-	var box := _center_container(_upgrade_panel)
-	_title(loc(&"upgrades_title"), box)
-	var sub := Label.new()
-	sub.text = loc(&"upgrade_choose_hint")
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", _font(15))
-	box.add_child(sub)
-	_upgrade_cards_box = HBoxContainer.new()
-	_upgrade_cards_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	_upgrade_cards_box.add_theme_constant_override("separation", 18)
-	box.add_child(_upgrade_cards_box)
-	_upgrade_note = Label.new()
-	_upgrade_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_upgrade_note.add_theme_font_size_override("font_size", _font(16))
-	box.add_child(_upgrade_note)
-	# Reduced-motion/graceful no-choices hint is filled in on each presentation.
+	_upgrade_panel = UpgradePanel.new()
+	add_child(_upgrade_panel)
 
 
 func _build_hud() -> void:
-	_hud = Control.new()
-	_hud.name = "GameplayHUD"
-	_hud.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_hud = GameHud.new()
 	add_child(_hud)
-	_hud.visible = false
-
-	var top := HBoxContainer.new()
-	top.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE, Control.PRESET_MODE_MINSIZE, 12)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_hud.add_child(top)
-
-	_hp_label = Label.new()
-	_hp_label.add_theme_font_size_override("font_size", _font(18))
-	top.add_child(_hp_label)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top.add_child(spacer)
-
-	_wave_label = Label.new()
-	_wave_label.text = loc(&"wave") + " 1"
-	_wave_label.add_theme_font_size_override("font_size", _font(20))
-	top.add_child(_wave_label)
-
-	_combo_label = Label.new()
-	_combo_label.text = ""
-	_combo_label.add_theme_font_size_override("font_size", _font(18))
-	top.add_child(_combo_label)
-
-	_currency_label = Label.new()
-	_currency_label.text = loc(&"currency") + " 0"
-	_currency_label.add_theme_font_size_override("font_size", _font(18))
-	top.add_child(_currency_label)
-
-	_score_label = Label.new()
-	_score_label.text = loc(&"score") + " 0"
-	_score_label.add_theme_font_size_override("font_size", _font(22))
-	top.add_child(_score_label)
-
-	_hp_bar = ColorRect.new()
-	_hp_bar.color = Color(0.3, 0.85, 0.4)
-	_hp_bar.anchor_left = 0.0
-	_hp_bar.anchor_top = 0.0
-	_hp_bar.anchor_right = 0.0
-	_hp_bar.anchor_bottom = 0.0
-	_hp_bar.offset_left = 12
-	_hp_bar.offset_top = 52
-	_hp_bar.offset_bottom = 60
-	_hp_bar.offset_right = 220
-	_hud.add_child(_hp_bar)
-
-	var pause_btn := Button.new()
-	pause_btn.text = "II"
-	pause_btn.anchor_left = 1.0
-	pause_btn.anchor_right = 1.0
-	pause_btn.anchor_top = 0.0
-	pause_btn.offset_left = -80
-	pause_btn.offset_right = -12
-	pause_btn.offset_top = 10
-	pause_btn.offset_bottom = 54
-	pause_btn.add_theme_font_size_override("font_size", _font(20))
-	pause_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-	pause_btn.pressed.connect(func() -> void: GameRoot.request_pause())
-	_hud.add_child(pause_btn)
-
-	_toast_label = Label.new()
-	_toast_label.name = "UpgradeToast"
-	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_toast_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_toast_label.offset_top = -120
-	_toast_label.offset_bottom = -60
-	_toast_label.offset_left = 40
-	_toast_label.offset_right = -40
-	_toast_label.add_theme_font_size_override("font_size", _font(18))
-	_toast_label.modulate.a = 1.0
-	_toast_label.visible = false
-	_hud.add_child(_toast_label)
 
 
 func _build_touch() -> void:
@@ -430,82 +226,16 @@ func _build_touch() -> void:
 # ---------------------------- Upgrade cards ----------------------------
 
 func _on_upgrade_choices_presented(choices: Array) -> void:
-	_selection_locked = false
-	_clear_upgrade_cards()
-	for raw_id in choices:
-		var cfg := ContentRegistry.get_upgrade(StringName(String(raw_id)))
-		if cfg == null:
-			continue
-		_add_upgrade_card(cfg)
-	if _upgrade_note == null:
-		return
-	_upgrade_note.text = loc(&"upgrade_none") if _card_buttons.is_empty() else ""
-
-
-func _clear_upgrade_cards() -> void:
-	if _upgrade_cards_box == null:
-		return
-	for c in _upgrade_cards_box.get_children():
-		_upgrade_cards_box.remove_child(c)
-		c.queue_free()
-	_card_buttons.clear()
-
-
-func _add_upgrade_card(cfg: UpgradeConfig) -> void:
-	if _upgrade_cards_box == null:
-		return
-	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(170, 200)
-	btn.mouse_filter = Control.MOUSE_FILTER_STOP
-	var stack := _current_stack(cfg.upgrade_id)
-	var rarity := String(cfg.rarity).to_upper()
-	var body := "%s\n[%s]\n\n%s" % [cfg.display_name, rarity, cfg.description]
-	if stack > 0:
-		body += "\nstack %d/%d" % [stack, cfg.max_stacks]
-	btn.text = body
-	btn.add_theme_font_size_override("font_size", _font(13))
-	btn.add_theme_color_override("font_color", _rarity_color(cfg.rarity))
-	var id := cfg.upgrade_id
-	btn.pressed.connect(func() -> void: _on_upgrade_card_pressed(id))
-	_upgrade_cards_box.add_child(btn)
-	_card_buttons.append(btn)
-
-
-func _current_stack(upgrade_id: StringName) -> int:
-	var run := GameRoot.get_run()
-	if run == null:
-		return 0
-	return int(run.selected_upgrades.get(upgrade_id, 0))
-
-
-func _rarity_color(rarity: StringName) -> Color:
-	match rarity:
-		&"common":
-			return Color(0.8, 0.83, 0.86)
-		&"rare":
-			return Color(0.42, 0.68, 0.98)
-		&"epic":
-			return Color(0.75, 0.5, 0.95)
-		&"legendary":
-			return Color(0.98, 0.75, 0.35)
-	return Color.WHITE
+	_upgrade_panel.present(choices)
 
 
 ## A card was clicked. Route ONLY through the GameRoot command; never touch progression.
-func _on_upgrade_card_pressed(upgrade_id: StringName) -> void:
-	if _selection_locked:
-		return
+func _on_upgrade_panel_choice(upgrade_id: StringName) -> void:
 	if GameRoot.get_current_state() != GameRoot.State.UPGRADE_SELECTION:
 		return
 	if GameRoot.request_upgrade_selection(upgrade_id):
-		_selection_locked = true
+		_upgrade_panel.lock_selection()
 		upgrade_chosen.emit(upgrade_id)
-		_disable_upgrade_cards()
-
-
-func _disable_upgrade_cards() -> void:
-	for btn in _card_buttons:
-		btn.disabled = true
 
 
 ## After a valid selection, show a short confirmation toast on the HUD while the next
@@ -514,25 +244,7 @@ func _on_upgrade_selected(upgrade_id: StringName) -> void:
 	var cfg := ContentRegistry.get_upgrade(upgrade_id)
 	if cfg == null:
 		return
-	_show_toast("%s  •  %s" % [cfg.display_name.to_upper(), cfg.description.to_upper()])
-
-
-func _show_toast(message: String) -> void:
-	if _toast_label == null:
-		return
-	var settings := SaveManager.get_settings()
-	_toast_label.text = loc(&"upgrade_selected_fx") + "  " + message
-	_toast_label.visible = true
-	_toast_label.modulate.a = 1.0
-	if _toast_tween != null and _toast_tween.is_valid():
-		_toast_tween.kill()
-	if settings != null and settings.reduced_motion:
-		# Reduced motion: show statically for a short, fixed window (no tween).
-		_toast_show_until = Time.get_ticks_msec() + 2000
-		return
-	_toast_tween = create_tween()
-	_toast_tween.tween_interval(2.0)
-	_toast_tween.tween_property(_toast_label, "modulate:a", 0.0, 0.5)
+	_hud.show_toast("%s  •  %s" % [cfg.display_name.to_upper(), cfg.description.to_upper()])
 
 
 # ---------------------------- Screen switching ----------------------------
@@ -568,8 +280,7 @@ func _sync_from_state() -> void:
 
 
 func _on_state_changed(_p: StringName, _c: StringName) -> void:
-	# Reflect every canonical state change onto the panel stack. (Previously this was a
-	# no-op and _sync_from_state() only ran once in _ready, so screens never switched.)
+	# Reflect every canonical state change onto the panel stack.
 	_sync_from_state()
 
 
@@ -591,26 +302,23 @@ func _request_quit() -> void:
 # ---------------------------- HUD updates ----------------------------
 
 func _on_health_changed(current: float, maximum: float) -> void:
-	_hp_label.text = "%s %d / %d" % [loc(&"hp"), int(round(current)), int(round(maximum))]
-	if maximum > 0.0:
-		var ratio := clampf(current / maximum, 0.0, 1.0)
-		_hp_bar.offset_right = 12 + ratio * 208.0
+	_hud.set_health(current, maximum)
 
 
 func _on_score_changed(score: int, _delta: int) -> void:
-	_score_label.text = "%s %d" % [loc(&"score"), score]
+	_hud.set_score(score)
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
-	_wave_label.text = "%s %d" % [loc(&"wave"), wave_number]
+	_hud.set_wave(wave_number)
 
 
 func _on_combo_changed(combo: int, best: int) -> void:
-	_combo_label.text = "%s %d" % [loc(&"combo"), combo] if combo > 1 else ""
+	_hud.set_combo(combo)
 
 
 func _on_currency_changed(currency: int, _delta: int) -> void:
-	_currency_label.text = "%s %d" % [loc(&"currency"), currency]
+	_hud.set_currency(currency)
 
 
 func _refresh_best_label(label: Label) -> void:
@@ -644,10 +352,7 @@ func _update_gameover_stats() -> void:
 # ---------------------------- Localization ----------------------------
 
 func loc(key: StringName) -> String:
-	var k := String(key)
-	if _TEXT.has(k):
-		return _TEXT[k]
-	return k
+	return UiText.get(key)
 
 
 func get_debug_snapshot() -> Dictionary:

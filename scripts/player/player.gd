@@ -6,8 +6,9 @@ class_name Player
 ## (legacy attack timing), WeaponManager (loadout + melee/volley dispatch),
 ## ProgressionComponent (upgrades), TargetingComponent (aim), StaminaComponent
 ## (dodge/skill resource), ExperienceComponent (XP/levels), SkillController (active
-## skills), StatusManager (buffs/debuffs). UI and future systems talk to THIS node
-## through the stable command interface below.
+## skills), StatusManager (buffs/debuffs). Locomotion input/bounds live in
+## PlayerLocomotion and upgrade/derived-stat application in PlayerBuild; UI and future
+## systems talk to THIS node through the stable command interface below.
 
 signal move_started()
 signal move_stopped()
@@ -25,11 +26,8 @@ const DODGE_STAMINA_COST := 25.0
 const KILL_XP_BASE := 12.0
 const KILL_XP_ELITE_BONUS := 18.0
 
-## Movement intent coming from the virtual joystick (normalized screen space).
-var _move_input := Vector2.ZERO
 var _control_enabled := false
 var _is_dead := false
-var _using_actions := true   # dev: fall back to keyboard/controller actions when no joystick input
 
 ## Component references (cached in _ready; tolerant if a scene variant omits them).
 var _controller: Node = null
@@ -45,7 +43,8 @@ var _experience: Node = null
 var _skills: Node = null
 var _weapons: Node = null
 var _status: Node = null
-var _bounds_half := -1.0   # -1 => no clamp (set by the scene owner / main)
+var _locomotion := PlayerLocomotion.new()
+var _build := PlayerBuild.new()
 
 @export var walk_speed: float = 6.0
 @export var max_health: float = 100.0
@@ -66,6 +65,11 @@ func _ready() -> void:
 	_skills = get_node_or_null("SkillController")
 	_weapons = get_node_or_null("WeaponManager")
 	_status = get_node_or_null("StatusManager")
+	_locomotion.bind(self, _dodge, _controller)
+	_build.bind(_health, _progression, _controller, _stamina, _weapons, _skills, walk_speed, max_health)
+	_locomotion.move_started.connect(move_started.emit)
+	_locomotion.move_stopped.connect(move_stopped.emit)
+	_build.upgrade_applied.connect(upgrade_applied.emit)
 	if _health != null:
 		_health.health_changed.connect(_on_health_changed)
 		_health.damaged.connect(_on_damaged)
@@ -86,8 +90,6 @@ func _ready() -> void:
 	if _dodge != null:
 		if _dodge.has_method("bind_health"):
 			_dodge.call("bind_health", _health)
-		if _dodge.has_method("set_bounds"):
-			_dodge.call("set_bounds", _bounds_half)
 		if _dodge.has_signal("dodged_started"):
 			_dodge.dodged_started.connect(_on_dodge_started)
 	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
@@ -117,7 +119,7 @@ func _physics_process(delta: float) -> void:
 		if _weapons != null and _weapons.has_method("tick"):
 			_weapons.call("tick", delta)
 		return
-	if _using_actions:
+	if _locomotion.uses_actions():
 		if Input.is_action_just_pressed("attack"):
 			request_attack()
 		if Input.is_action_just_pressed("dodge"):
@@ -127,7 +129,7 @@ func _physics_process(delta: float) -> void:
 		_attack.call("advance", delta)
 	if _weapons != null and _weapons.has_method("tick"):
 		_weapons.call("tick", delta)
-	var move := _gather_move_input()
+	var move := _locomotion.gather()
 	move *= _move_speed_factor()
 	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
 	# only ran mid-dodge would lock the player out forever).
@@ -138,8 +140,8 @@ func _physics_process(delta: float) -> void:
 		pass  # DodgeController owns motion (burst + recovery) this step
 	elif _controller != null:
 		_controller.call("tick", move, delta)
-	_track_move_signals(move)
-	_clamp_to_bounds()
+	_locomotion.track(move)
+	_locomotion.clamp_to_bounds()
 
 
 func _is_stunned() -> bool:
@@ -163,21 +165,17 @@ func set_control_enabled(enabled: bool) -> void:
 
 
 func enable_action_input(enabled: bool) -> void:
-	_using_actions = enabled
+	_locomotion.set_using_actions(enabled)
 
 
 ## ---------- Command interface ----------
 
 func set_move_input(input_vector: Vector2) -> void:
-	_move_input = input_vector
-	if _move_input.length_squared() > 1.0:
-		_move_input = _move_input.normalized()
+	_locomotion.set_move_input(input_vector)
 
 
 func clear_move_input() -> void:
-	_move_input = Vector2.ZERO
-	if _controller != null and _controller.has_method("tick"):
-		_controller.call("tick", Vector2.ZERO, 0.0)
+	_locomotion.clear_and_idle()
 
 
 func request_attack() -> void:
@@ -204,7 +202,7 @@ func request_dodge() -> bool:
 	# body's facing (world -Z) so a standing dodge always goes somewhere.
 	var dir := Vector3.FORWARD
 	if _controller != null and _controller.has_method("screen_to_world_dir"):
-		var move := _gather_move_input()
+		var move := _locomotion.gather()
 		var world := _controller.call("screen_to_world_dir", move) as Vector3
 		if world.length_squared() > 0.0001:
 			dir = world
@@ -246,19 +244,7 @@ func _apply_status_intake(payload: DamagePayload) -> DamagePayload:
 		amount = float(_status.call("absorb_direct", amount))
 	if is_equal_approx(amount, payload.amount):
 		return payload
-	var copy := DamagePayload.new()
-	copy.amount = maxf(amount, 0.0)
-	copy.source = payload.source
-	copy.source_id = payload.source_id
-	copy.damage_type = payload.damage_type
-	copy.knockback = payload.knockback
-	copy.hit_position = payload.hit_position
-	copy.can_crit = payload.can_crit
-	copy.critical_multiplier = payload.critical_multiplier
-	copy.was_critical = payload.was_critical
-	copy.status_effects = payload.status_effects.duplicate()
-	copy.metadata = payload.metadata.duplicate()
-	return copy
+	return payload.with_amount(amount)
 
 
 ## ---------- Stamina / XP / skill / weapon / status facades ----------
@@ -330,46 +316,9 @@ func cleanse_status(only_harmful: bool = true) -> int:
 	return 0
 
 
-## Apply an upgrade through the runtime ProgressionComponent. Returns true when it was
-## applied and reflected into derived stats. A max-health upgrade also tops the player
-## up to the new maximum when they were already at full health (so 100/100 -> 120/120).
+## Apply an upgrade through the runtime ProgressionComponent (see PlayerBuild).
 func apply_upgrade(upgrade_id: StringName) -> bool:
-	if _progression == null or not _progression.has_method("apply_upgrade_by_id"):
-		return false
-	var was_full := _at_full_health()
-	if not bool(_progression.call("apply_upgrade_by_id", upgrade_id)):
-		return false
-	upgrade_applied.emit(upgrade_id)
-	AudioManager.play_sfx(&"upgrade_select")
-	_rebuild_derived_stats()
-	if was_full:
-		_top_up_health_to_max()
-	return true
-
-
-func _at_full_health() -> bool:
-	if _health == null or _is_dead:
-		return false
-	if _health.has_method("is_dead") and bool(_health.call("is_dead")):
-		return false
-	if _health.has_method("get_health_ratio"):
-		return float(_health.call("get_health_ratio")) >= 0.9999
-	return false
-
-
-## After a successful max-health upgrade from full health, raise current to the new max.
-func _top_up_health_to_max() -> void:
-	if _health == null or not _health.has_method("heal"):
-		return
-	var new_max := _derived_max_health()
-	# Compute the gap between current and the new max and heal exactly that (heal caps
-	# at max and never revives, so this is safe).
-	var current := new_max
-	if _health.has_method("get_current"):
-		current = float(_health.call("get_current"))
-	var gap := maxf(new_max - current, 0.0)
-	if gap > 0.0:
-		_health.call("heal", gap)
+	return _build.apply_upgrade(upgrade_id)
 
 
 ## Bloodlust-style heal: valid enemy kills heal while the player is alive.
@@ -412,7 +361,7 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	if _progression != null and _progression.has_method("reset"):
 		_progression.call("reset")
 	if _health != null and _health.has_method("reset"):
-		_health.call("reset", _derived_max_health())
+		_health.call("reset", _build.derived_max_health())
 	if _attack != null and _attack.has_method("reset_attack_state"):
 		_attack.call("reset_attack_state")
 	if _dodge != null and _dodge.has_method("reset"):
@@ -427,7 +376,7 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 		_weapons.call("reset_for_new_run")
 	if _status != null and _status.has_method("clear_all"):
 		_status.call("clear_all")
-	_rebuild_derived_stats()
+	_build.rebuild_derived_stats()
 	_equip_starter_kit()
 	respawned.emit()
 
@@ -443,64 +392,9 @@ func _equip_starter_kit() -> void:
 		_skills.call("assign_skill_by_id", &"phantom_rush", 2, false)
 
 
-func _rebuild_derived_stats() -> void:
-	if _progression == null:
-		return
-	# Move speed feeds the CharacterController.
-	if _controller != null and _progression.has_method("get_stat"):
-		var speed := float(_progression.call("get_stat", &"move_speed_multiplier", walk_speed))
-		if _controller.has_method("set_move_speed"):
-			_controller.call("set_move_speed", speed)
-	# Max HP feeds the generic HealthComponent (max_health_add). Only raise when the
-	# entity is alive; on a fresh run the health reset uses the derived max.
-	if _health != null and _progression.has_method("get_stat"):
-		var new_max := _derived_max_health()
-		if _health.has_method("set_max_health"):
-			_health.call("set_max_health", new_max)
-	# Stamina + weapons + skills refresh from the same progression source.
-	if _stamina != null and _stamina.has_method("refresh_from_stats"):
-		_stamina.call("refresh_from_stats")
-	if _weapons != null and _weapons.has_method("refresh_derived_stats"):
-		_weapons.call("refresh_derived_stats")
-	if _skills != null and _skills.has_method("set_cooldown_multiplier") and _progression.has_method("get_stat"):
-		_skills.call("set_cooldown_multiplier", float(_progression.call("get_stat", &"skill_cooldown_multiplier", 1.0)))
-
-
-func _derived_max_health() -> float:
-	if _progression != null and _progression.has_method("get_stat"):
-		return maxf(float(_progression.call("get_stat", &"max_health_add", max_health)), 1.0)
-	return maxf(max_health, 1.0)
-
-
 ## Set the arena interior half-extent for movement/bounds clamping; -1 disables it.
 func set_bounds(half: float) -> void:
-	_bounds_half = half
-	if _dodge != null and _dodge.has_method("set_bounds"):
-		_dodge.call("set_bounds", half)
-
-
-func _clamp_to_bounds() -> void:
-	if _bounds_half < 0.0:
-		return
-	var limit := _bounds_half - 0.5
-	var p := global_position
-	var changed := false
-	if p.x < -limit:
-		p.x = -limit
-		changed = true
-	elif p.x > limit:
-		p.x = limit
-		changed = true
-	if p.z < -limit:
-		p.z = -limit
-		changed = true
-	elif p.z > limit:
-		p.z = limit
-		changed = true
-	if changed:
-		global_position = p
-		velocity.x = 0.0
-		velocity.z = 0.0
+	_locomotion.set_bounds(half)
 
 
 func is_alive() -> bool:
@@ -509,27 +403,8 @@ func is_alive() -> bool:
 
 ## ---------- Internal ----------
 
-func _gather_move_input() -> Vector2:
-	var v := _move_input
-	if _using_actions and _move_input == Vector2.ZERO:
-		var x := Input.get_axis("move_left", "move_right")
-		var y := Input.get_axis("move_up", "move_down")
-		v = Vector2(x, y)
-		if v.length_squared() > 1.0:
-			v = v.normalized()
-	return v
-
-
-func _track_move_signals(move: Vector2) -> void:
-	if _was_moving and move == Vector2.ZERO:
-		move_stopped.emit()
-	elif not _was_moving and move != Vector2.ZERO:
-		move_started.emit()
-	_was_moving = move != Vector2.ZERO
-
-
 func _clear_input() -> void:
-	_move_input = Vector2.ZERO
+	_locomotion.clear()
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
@@ -612,6 +487,3 @@ func get_debug_snapshot() -> Dictionary:
 		"weapons": weap,
 		"skills": skl,
 	}
-
-
-var _was_moving := false
