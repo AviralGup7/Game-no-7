@@ -61,16 +61,16 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 ## Downloaded 3D asset kit
 
-The core low-poly asset kit is now included under `assets/`: **4 rigged/animated
-characters, 11 weapons/shields, 43 arena/pickup models, UI and particle textures,
-2 fonts, 29 sound effects, and 2 music loops** (~24.75 MiB of reviewed downloads).
-All source files have pinned provenance, SHA-256 checksums and preserved licences.
+The reviewed asset library now contains **9 rigged/animated character models,
+81 models total, detailed stone maps, UI/particle textures, 2 fonts, 29 sound
+effects and 2 music loops** (~35.05 MiB of locked downloads). All source files have
+pinned provenance, SHA-256 checksums and preserved licences.
 
-**Asset delivery is separate from gameplay integration:** the current game scenes
-still use their primitives and optional audio fallback. Models, animation-state
-wiring, equipment attachments, UI skins and audio registration are not silently
-changed by downloading the files. See **[the asset catalogue](docs/ASSET_CATALOG.md)**
-for file/role mappings, animation names, validation results and the integration checklist.
+**Integrated:** detailed arena floor/wall materials and six distinct pickup models.
+**Still pending:** live character model/animation wiring, equipment attachments,
+UI skinning, full skill VFX and recorded audio registration. See the
+[asset catalogue](docs/ASSET_CATALOG.md) and [quality audit](docs/ASSET_AUDIT.md)
+for exact additions, replacement selections, upstream checks and limitations.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check

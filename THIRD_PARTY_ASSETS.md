@@ -1,6 +1,6 @@
 # Third-party visual assets
 
-Asset review date: **2026-09-07**. Target: the existing Godot 4.4.1, Android,
+Asset review date: **2026-09-08**. Target: the existing Godot 4.4.1, Android,
 **3D third-person** low-poly arena game. Characters and world assets are actual
 3D meshes, not sprite replacements. PNGs are only textures, UI, and particles.
 
@@ -69,3 +69,23 @@ New sources require a fresh licence review and additions to the manifest and
 failures, checksum mismatches, and missing files fail loudly. Validated downloads
 are atomically installed; verification never writes files. Audio has its own
 cue-level record in `AUDIO_MANIFEST.md`.
+
+## 8 September quality pass
+
+- **Quaternius:** Easy Enemy, Ultimate Monsters, Medieval Weapons and Ultimate RPG
+  selected assets. Original CC0 pack evidence and exact mirrors are recorded in
+  `docs/ASSET_AUDIT.md`. Downloaded models live under `assets/characters/creatures/`,
+  `assets/characters/monsters/`, `assets/weapons/medieval/`, `assets/pickups/rpg/`.
+  A shared original CC0 notice is preserved in `ASSET_LICENSES/quaternius.txt`.
+  `license_pack` explicitly links the model sources to that pinned notice source;
+  the validator requires the notice to exist and its licence type to match.
+- **Godot Engine contributors:** three stone PNG maps from the Material Testers
+  demo, pinned repository revision in the lock. **MIT**, not CC0. Retain the exact
+  copyright/permission notice in `ASSET_LICENSES/godot-stone.txt` in distributions.
+  Local materials are newly authored; downloaded pixels are unmodified.
+- **KayKit Skeletons:** added the missing Mage and ranged equipment from the same
+  previously approved, unchanged upstream revision and original CC0 notice.
+
+The shared notice provision does not allow unknown licences, unpinned downloads,
+missing notice files or licence-type mismatches. No paid tiers or application code
+from asset mirrors were downloaded.

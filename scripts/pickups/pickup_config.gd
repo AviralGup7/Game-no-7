@@ -18,6 +18,9 @@ const VALID_EFFECTS := [EFFECT_HEAL, EFFECT_CURRENCY, EFFECT_STAMINA, EFFECT_XP,
 @export var pickup_id: StringName = &""
 @export var display_name: String = ""
 @export var icon: Texture2D = null
+## Optional reviewed source art. Null keeps the tinted primitive fallback.
+@export var visual_scene: PackedScene = null
+@export_range(0.1, 2.0) var visual_extent: float = 0.6
 @export var effect: StringName = EFFECT_HEAL
 ## Base effect magnitude (scaled by `level` at spawn time when > 0).
 @export var amount: float = 25.0

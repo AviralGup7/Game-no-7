@@ -213,6 +213,27 @@ class ManifestTests(AssetTestCase):
         with self.assertRaises(ValueError):
             self.load()
 
+    def test_mit_notice_is_reviewed_and_required(self):
+        self.manifest["sources"]["test"]["license"] = "MIT"
+        self.assertEqual(self.load()["sources"]["test"]["license"], "MIT")
+        self.manifest["files"].pop()
+        with self.assertRaises(ValueError):
+            self.load()
+
+    def test_shared_notice_requires_explicit_matching_pack(self):
+        extra = copy.deepcopy(self.manifest["sources"]["test"])
+        extra["license_pack"] = "test"
+        self.manifest["sources"]["mirror"] = extra
+        self.assertIn("mirror", self.load()["sources"])
+        extra["license"] = "MIT"
+        with self.assertRaises(ValueError):
+            self.load()
+
+    def test_unknown_shared_notice_pack_rejected(self):
+        self.manifest["sources"]["test"]["license_pack"] = "unknown"
+        with self.assertRaises(ValueError):
+            self.load()
+
 
 class FormatTests(AssetTestCase):
     def test_truncated_glb_is_rejected(self):
@@ -255,6 +276,41 @@ class FormatTests(AssetTestCase):
             info = validator.ogg_info(ROOT / f"assets/audio/music/{name}.ogg")
             self.assertGreater(info["duration_seconds"], 10)
             self.assertEqual(info["channels"], 2)
+
+
+class CoverageTests(AssetTestCase):
+    def test_untracked_download_is_detected(self):
+        self.write_existing(self.payload)
+        with patch.object(validator, "ROOT", self.root), self.assertRaisesRegex(ValueError, "untracked"):
+            validator.check_asset_inventory(set())
+
+    def test_missing_runtime_reference_is_detected(self):
+        path = self.root / "scenes/test.tscn"
+        path.parent.mkdir()
+        path.write_text('[ext_resource path="res://assets/missing.glb"]')
+        with patch.object(validator, "ROOT", self.root), self.assertRaisesRegex(ValueError, "missing runtime"):
+            validator.check_asset_inventory(set())
+
+    def test_content_ids_come_from_resources_not_filenames(self):
+        path = self.root / "data/enemies/anything.tres"
+        path.parent.mkdir(parents=True)
+        path.write_text('archetype_id = &"ranged"')
+        with patch.object(validator, "ROOT", self.root):
+            self.assertEqual(validator.content_ids("enemies", "archetype_id"), {"ranged"})
+
+    def test_catalog_covers_expanded_game(self):
+        catalog = json.loads((ROOT / "assets/catalog.json").read_text())
+        self.assertEqual(set(catalog["characters"]), validator.content_ids("enemies", "archetype_id") | {"player"})
+        for category, field in (("weapons", "weapon_id"), ("skills", "skill_id"),
+                                ("pickups", "pickup_id"), ("arenas", "arena_id")):
+            self.assertEqual(set(catalog["gameplay_" + category]), validator.content_ids(category, field))
+
+    def test_pickup_runtime_uses_catalog_models(self):
+        catalog = json.loads((ROOT / "assets/catalog.json").read_text())
+        for name, entry in catalog["gameplay_pickups"].items():
+            data = (ROOT / "data/pickups" / (name + ".tres")).read_text()
+            self.assertIn('path="res://' + entry["model"] + '"', data)
+            self.assertIn('visual_scene = ExtResource("2_visual")', data)
 
 
 if __name__ == "__main__":

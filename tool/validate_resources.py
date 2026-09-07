@@ -102,11 +102,12 @@ def main() -> int:
             if name.endswith((".tscn", ".tres")):
                 count += 1
                 check_file(os.path.join(dirpath, name), problems)
-    for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, "data")):
-        for name in filenames:
-            if name.endswith(".tres"):
-                count += 1
-                check_file(os.path.join(dirpath, name), problems)
+    for folder in ("data", "assets/materials"):
+        for dirpath, _dirnames, filenames in os.walk(os.path.join(ROOT, folder)):
+            for name in filenames:
+                if name.endswith(".tres"):
+                    count += 1
+                    check_file(os.path.join(dirpath, name), problems)
 
     if problems:
         print(f"Validated {count} files: {len(problems)} problem(s)")

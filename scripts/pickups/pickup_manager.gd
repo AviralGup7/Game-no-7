@@ -44,7 +44,6 @@ func _make_pickup() -> Pickup:
 	var p := Pickup.new()
 	p.collision_layer = 0
 	p.collision_mask = 0
-	add_child(p)
 	var visual := Node3D.new()
 	visual.name = "Visual"
 	p.add_child(visual)
@@ -53,7 +52,9 @@ func _make_pickup() -> Pickup:
 	var gem := PrismMesh.new()
 	gem.size = Vector3(0.4, 0.6, 0.4)
 	mesh.mesh = gem
+	mesh.position.y = 0.35
 	visual.add_child(mesh)
+	add_child(p)  # _ready must see Visual/Mesh before caching node references.
 	p.pool_reset()
 	if not p.release_requested.is_connected(_on_release_requested):
 		p.release_requested.connect(_on_release_requested)
