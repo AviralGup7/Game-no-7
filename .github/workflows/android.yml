@@ -58,6 +58,11 @@ jobs:
           python3 tool/validate_resources.py
           python3 scripts/download_assets.py --verify
 
+      # Gradle Android export requires the build template inside the project.
+      - name: Install Android build template into project
+        shell: bash
+        run: bash scripts/install_android_build_template.sh
+
       - name: Build Android APK (debug export for validation artifact)
         shell: bash
         run: |
