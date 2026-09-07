@@ -70,7 +70,13 @@ jobs:
           code=${PIPESTATUS[0]}
           set -e
           echo "--- godot export log (tail) ---"
-          tail -60 build/export.log || true
+          tail -80 build/export.log || true
+          if [ "$code" -ne 0 ]; then
+            # Surface the root cause as GitHub annotations so it is readable without
+            # downloading the (blocked) step-log blob.
+            grep -iE "ERROR:|error:|failed|not installed|does not exist|template" build/export.log \
+              | head -25 | sed -E 's/^/::error::export: /' || true
+          fi
           exit "$code"
 
       - name: Verify APK exists and is non-zero
