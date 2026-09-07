@@ -77,10 +77,10 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Surface the error block as ONE annotation (per-line annotations get
-            # capped by GitHub) so file+message context is readable without the blob.
+            # Surface the tail as ONE annotation (per-line annotations get capped by
+            # GitHub); the Gradle/build failure reason is at the end of the log.
             printf '::error file=build/export.log,title=godot export failed::'
-            awk 'BEGIN{on=0} /Failed to load script|SCRIPT ERROR|Parse Error|ERROR:|Project export|\.gd:/{on=1} on' build/export.log | head -120
+            tail -200 build/export.log
           fi
           exit "$code"
 
