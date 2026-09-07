@@ -1,0 +1,9 @@
+# Reviewed third-party files are checksum-locked byte for byte, including licence
+# notices and textual glTF. Do not let Windows autocrlf change their hashes.
+/assets/** -text
+/ASSET_LICENSES/** -text
+
+# Project-authored catalogues/documentation stay ordinary LF text.
+/assets/manifest.json text eol=lf
+/assets/catalog.json text eol=lf
+/ASSET_LICENSES/README.md text eol=lf
