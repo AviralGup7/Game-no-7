@@ -96,6 +96,13 @@ Optional cues are safe: a missing cue logs a diagnostic and never crashes.
 2. Add the path to `UNIT_SUITES` in `res://tests/run_tests.gd`.
 3. Run `godot --headless --path . --script res://tests/run_tests.gd`.
 
+> **Harness boundary:** that command runs a bare `SceneTree` without the project's
+> autoload singletons (`GameRoot`/`EventBus`/`ContentRegistry`/…), so a unit test there
+> cannot drive the **real** GameRoot loop or instantiate scenes whose scripts reference
+> those singletons (compiles fine in-game, fails under `--script`). Keep suites here
+> pure / autoload-independent. For a real-singleton end-to-end test run a context where
+> autoloads are live (e.g. `godot --headless --path .`) — see the note in `docs/BUILD.md`.
+
 ## 8. Tune the wave loop (counts, pacing, difficulty)
 
 - Counts / first-wave appearance of each archetype live in `wave_planner.gd`
