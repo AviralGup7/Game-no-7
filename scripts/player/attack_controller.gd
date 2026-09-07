@@ -1,18 +1,28 @@
 extends Node
 class_name AttackController
 
-## Owns attack timing and hit resolution for the player's melee weapon. Reused by
-## future weapons via the same command/signal contract. Each completed swing:
-##  1. waits out `attack_cooldown` (duplicate presses rejected),
-##  2. telegraphs for `attack_windup`,
-##  3. resolves targets inside the arc (CombatQuery, against the "enemies" group),
-##  4. builds + validates a DamagePayload, applies it, and emits attack_hit.
+## Owns attack timing and hit resolution for the player's melee weapon. Uses an
+## explicit phase machine advanced by `advance(delta)` (called from the owner's physics
+## loop) instead of scene Tweens, so a paused/disabled owner freezes the attack exactly
+## like the rest of gameplay and `reset_attack_state()` leaves nothing pending behind.
+##
+## Lifecycle per swing:
+##   READY -> request -> WINDUP -> (windup passes) -> RESOLVE hit -> RECOVERY/cooldown
+##        -> READY (+ attack_finished)
+##
+## Hit resolution is exactly once per swing; the recovery/cooldown window blocks
+## re-fire ("attack spam"). Duplicate target application is prevented because each
+## swing resolves a deduped arc result set once.
 
 signal attack_started()
 signal attack_finished()
 signal attack_hit(target: Node, result: DamageResult)
 
-## Attack tuning (may be overridden by ProgressionComponent-derived stats).
+const PHASE_READY := &"ready"
+const PHASE_WINDUP := &"windup"
+const PHASE_RECOVERY := &"recovery"
+
+## Attack tuning (derived stats may override range/damage/cooldown via progression).
 @export var attack_cooldown: float = 0.55
 @export var attack_windup: float = 0.12
 @export var attack_range: float = 2.6
@@ -26,59 +36,90 @@ signal attack_hit(target: Node, result: DamageResult)
 
 const TARGET_GROUP := "enemies"
 
-var _attacking := false
-var _cooldown_until: float = 0.0
-var _time_source: Callable = Callable()
+var _phase: StringName = PHASE_READY
+var _elapsed := 0.0
+var _crit_roll_source: Callable = Callable()
 var _owner_body: CharacterBody3D = null
+var _disabled := false
 
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
 
 
-func set_time_source(source: Callable) -> void:
-	_time_source = source
+## Injectable random source: Callable() -> float in [0,1). Defaults to randf().
+func set_crit_roll_source(source: Callable) -> void:
+	_crit_roll_source = source
 
 
 func is_attacking() -> bool:
-	return _attacking
+	return _phase != PHASE_READY
 
 
 func is_on_cooldown() -> bool:
-	return _now() < _cooldown_until
+	return _phase == PHASE_RECOVERY
 
 
 func is_attack_ready() -> bool:
-	return not _attacking and not is_on_cooldown()
+	return _phase == PHASE_READY and not _disabled
 
 
-## Request an attack. Returns true when one begins; repeated requests are rejected.
+func get_phase() -> StringName:
+	return _phase
+
+
+## Disable attacks (e.g. death / modal states). Idempotent.
+func set_attacks_enabled(enabled: bool) -> void:
+	_disabled = not enabled
+	if _disabled:
+		reset_attack_state()
+
+
+## Advance the attack state machine by `delta` (game time, only advanced while the
+## owner is active/playing so pausing freezes attacks).
+func advance(delta: float) -> void:
+	if _disabled:
+		return
+	if _phase == PHASE_WINDUP:
+		_elapsed += delta
+		if _elapsed >= maxf(attack_windup, 0.0):
+			_elapsed = 0.0
+			_resolve_hit()
+			_phase = PHASE_RECOVERY
+	elif _phase == PHASE_RECOVERY:
+		_elapsed += delta
+		if _elapsed >= maxf(attack_cooldown, 0.05):
+			_finish_attack()
+
+
+## Request an attack. Returns true when one begins; requests while attacking or during
+## the cooldown/recovery window are rejected (no spam).
 func request_attack() -> bool:
 	if not is_attack_ready():
 		return false
-	_attacking = true
-	_cooldown_until = _now() + attack_cooldown
+	var owner := _owner_body
+	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
+		return false
+	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
+		return false
+	_phase = PHASE_WINDUP
+	_elapsed = 0.0
 	attack_started.emit()
-	_schedule_resolution()
 	return true
 
 
-func _schedule_resolution() -> void:
-	if not is_inside_tree():
-		return
-	var tween := create_tween()
-	tween.tween_interval(maxf(attack_windup, 0.0))
-	tween.tween_callback(_resolve_hit)
-	tween.tween_callback(_complete_attack)
+func _finish_attack() -> void:
+	_phase = PHASE_READY
+	_elapsed = 0.0
+	attack_finished.emit()
 
 
-## Build + apply the melee damage to everything in range.
+## Build + apply the melee damage to everything in range (exactly once per swing).
 func _resolve_hit() -> void:
-	if not is_attacking():
-		return
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
-		_complete_attack()
+		return
+	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
 		return
 
 	var origin := owner.global_position
@@ -127,17 +168,30 @@ func _effective_damage() -> float:
 	return dmg
 
 
+func _roll_crit() -> bool:
+	if not can_crit:
+		return false
+	var chance := clampf(crit_chance, 0.0, 1.0)
+	if chance <= 0.0:
+		return false
+	if _crit_roll_source.is_valid():
+		return float(_crit_roll_source.call()) < chance
+	return randf() < chance
+
+
 func _build_payload(direction: Vector3) -> DamagePayload:
 	var payload := DamagePayload.new()
-	payload.amount = _effective_damage()
+	var dmg := _effective_damage()
+	var crit := _roll_crit()
+	if crit:
+		dmg *= maxf(critical_multiplier, 1.0)
+		payload.was_critical = true
+	payload.amount = dmg
 	payload.source = _owner_body
 	payload.source_id = &"melee"
 	payload.damage_type = &"physical"
 	payload.can_crit = can_crit
 	payload.critical_multiplier = critical_multiplier
-	if can_crit and randf() < crit_chance:
-		payload.amount *= critical_multiplier
-		payload.metadata["crit"] = true
 	var k := knockback_strength
 	if _owner_body != null and is_instance_valid(_owner_body):
 		var prog := _owner_body.get_node_or_null("ProgressionComponent")
@@ -146,13 +200,6 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 	payload.knockback = direction * maxf(k, 0.0)
 	payload.hit_position = _owner_body.global_position
 	return payload
-
-
-func _complete_attack() -> void:
-	if not _attacking:
-		return
-	_attacking = false
-	attack_finished.emit()
 
 
 func set_attack_cooldown(value: float) -> void:
@@ -167,22 +214,20 @@ func set_attack_range(value: float) -> void:
 	attack_range = maxf(value, 0.5)
 
 
+## Fully reset the attack state (used on new run / respawn / disable). Because timing
+## is internal accumulation (no tweens), nothing lingers after this call.
 func reset_attack_state() -> void:
-	_attacking = false
-	_cooldown_until = 0.0
-
-
-func _now() -> float:
-	if _time_source.is_valid():
-		return float(_time_source.call())
-	return Time.get_ticks_msec() / 1000.0
+	_phase = PHASE_READY
+	_elapsed = 0.0
 
 
 func get_debug_snapshot() -> Dictionary:
 	return {
-		"attacking": _attacking,
+		"phase": String(_phase),
+		"attacking": is_attacking(),
 		"on_cooldown": is_on_cooldown(),
 		"attack_cooldown": attack_cooldown,
 		"attack_range": attack_range,
 		"attack_damage": attack_damage,
+		"disabled": _disabled,
 	}

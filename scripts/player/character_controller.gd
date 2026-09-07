@@ -9,6 +9,7 @@ class_name CharacterController
 @export var acceleration: float = 24.0
 @export var deceleration: float = 30.0
 @export var gravity: float = 18.0
+@export var turn_speed: float = 14.0  # visual yaw smoothing (radians/sec)
 
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
@@ -36,7 +37,7 @@ func tick(move_input: Vector2, delta: float) -> void:
 	if dir.length_squared() > 0.001:
 		vel.x = move_toward(vel.x, target_h.x, acceleration * delta)
 		vel.z = move_toward(vel.z, target_h.z, acceleration * delta)
-		_facing(dir)
+		_turn_toward(dir, delta)
 	else:
 		vel.x = move_toward(vel.x, 0.0, deceleration * delta)
 		vel.z = move_toward(vel.z, 0.0, deceleration * delta)
@@ -57,6 +58,12 @@ func _screen_dir_to_world(v: Vector2) -> Vector3:
 	return dir3
 
 
+## Public helper so other systems (e.g. the DodgeController owner) can turn a screen
+## joystick vector into a world XZ direction using the same camera-relative basis.
+func screen_to_world_dir(v: Vector2) -> Vector3:
+	return _screen_dir_to_world(v)
+
+
 func _camera_yaw() -> float:
 	var vp := get_viewport()
 	if vp == null:
@@ -67,18 +74,31 @@ func _camera_yaw() -> float:
 	return cam.global_transform.basis.get_euler().y
 
 
-func _facing(dir: Vector3) -> void:
-	# Rotate the visual root toward the movement direction smoothly.
+func _turn_toward(dir: Vector3, delta: float) -> void:
+	# Rotate the visual root toward the movement direction. Visual-only (the body keeps
+	# its world forward so movement/attacks stay omnidirectional for the follow camera).
 	var visual: Node3D = _owner_body.get_node_or_null("VisualRoot") as Node3D
 	if visual == null or dir.length_squared() < 0.001:
 		return
-	var target: Transform3D = Transform3D(visual.global_transform)
-	var target_basis: Basis = target.basis.looking_at(dir, Vector3.UP)
-	var target_quat: Quaternion = target_basis.get_rotation_quaternion()
-	var current_quat: Quaternion = visual.global_transform.basis.get_rotation_quaternion()
-	# Rotation applied in _physics in player; here we set an aim hint that player uses.
-	_owner_body.set_meta("face_quat", target_quat)
-	_owner_body.set_meta("face_current", current_quat)
+	var flat := Vector3(dir.x, 0.0, dir.z)
+	if flat.length_squared() < 0.0001:
+		return
+	var target_yaw := atan2(flat.x, flat.z)  # Godot forward is -Z
+	var current_yaw := _visual_yaw(visual)
+	var diff := wrapf(target_yaw - current_yaw, -PI, PI)
+	var step := turn_speed * delta
+	if absf(diff) > 0.0001:
+		var new_yaw := current_yaw + clampf(diff, -step, step)
+		visual.rotation.y = new_yaw
+
+
+func _visual_yaw(visual: Node3D) -> float:
+	var basis: Basis = visual.global_transform.basis
+	var f := -basis.z
+	f.y = 0.0
+	if f.length_squared() < 0.0001:
+		return visual.rotation.y
+	return atan2(f.x, f.z)
 
 
 func _sanitize(v: Vector2) -> Vector2:

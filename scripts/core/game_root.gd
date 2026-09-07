@@ -37,6 +37,10 @@ var _best_wave: int = 0
 var _paused := false
 var _active_player: Node = null
 
+## Combo lifecycle tuning. Combos decay to 0 after this many seconds without a kill.
+const COMBO_WINDOW_SECONDS: float = 4.0
+var _last_kill_time: float = 0.0
+
 
 func _ready() -> void:
 	_best_score = SaveManager.get_best_score()
@@ -55,6 +59,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not _paused and _current_state in [State.PLAYING, State.WAVE_TRANSITION] and _current_run.player_alive:
 		_current_run.elapsed_seconds += delta
+		_tick_combo_expiry()
 
 
 func get_current_state() -> StringName:
@@ -204,6 +209,7 @@ func _start_new_run() -> void:
 	_current_run.seed = randi()
 	_current_run.arena_id = arena_id
 	_current_run.elapsed_seconds = 0.0
+	_last_kill_time = 0.0
 	EventBus.report_info("Starting run %d in arena %s (seed %d)" % [_current_run.run_id, String(arena_id), _current_run.seed])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
@@ -288,26 +294,48 @@ func _on_enemy_killed(_enemy: Node, _archetype_id: StringName, score_value: int,
 		return
 	_current_run.add_kill()
 	var multiplier := _score_multiplier()
-	# Raise combo by one then award score including the streak bonus.
+	# Raise combo by one then award score including the streak bonus; record the kill
+	# time so the combo can expire after the window.
 	_current_run.set_combo(_current_run.combo + 1)
+	_last_kill_time = _current_run.elapsed_seconds
 	var gained := Scoring.calculate_kill_score(score_value, _current_run.combo, multiplier)
 	_current_run.add_score(gained)
 	EventBus.score_changed.emit(_current_run.score, gained)
-	_current_run.add_currency(currency_value)
-	EventBus.currency_changed.emit(_current_run.currency, currency_value)
+	var currency_reward := maxi(int(round(float(currency_value) * _currency_multiplier())), 0)
+	_current_run.add_currency(currency_reward)
+	EventBus.currency_changed.emit(_current_run.currency, currency_reward)
 	EventBus.combo_changed.emit(_current_run.combo, _current_run.best_combo)
 
 
+## Reset the combo to 0 when the kill window elapses without another kill. Emits only
+## on an actual value change, and only while the run is still live (game-over-safe:
+## _process no longer runs once the player is dead).
+func _tick_combo_expiry() -> void:
+	if _current_run.combo <= 0:
+		return
+	if _current_run.elapsed_seconds - _last_kill_time > COMBO_WINDOW_SECONDS:
+		_current_run.set_combo(0)
+		EventBus.combo_changed.emit(0, _current_run.best_combo)
+
+
 func _score_multiplier() -> float:
+	return 1.0 + _player_derived_stat(&"score_multiplier_add", 0.0)
+
+
+func _currency_multiplier() -> float:
+	return 1.0 + _player_derived_stat(&"currency_multiplier_add", 0.0)
+
+
+func _player_derived_stat(key: StringName, base: float) -> float:
 	var player := _active_player
 	if player == null or not is_instance_valid(player):
-		return 1.0
+		return base
 	if not player.has_method("get_progression_snapshot"):
-		return 1.0
+		return base
 	var prog := player.get_node_or_null("ProgressionComponent")
 	if prog == null or not prog.has_method("get_stat"):
-		return 1.0
-	return 1.0 + float(prog.call("get_stat", &"score_multiplier_add", 0.0))
+		return base
+	return float(prog.call("get_stat", key, base))
 
 
 ## ---------- Snapshots / diagnostics ----------

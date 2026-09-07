@@ -97,14 +97,23 @@ func _on_spawn_tick() -> void:
 func _spawn_one() -> bool:
 	if _pending.is_empty() or not _configured:
 		return false
-	var archetype: StringName = _pending.pop_front()
+	# PEEK, don't pop: an entry is removed from the plan ONLY after a spawn succeeds,
+	# so a failed spawn can never silently reduce the planned wave count or falsely
+	# complete the wave. Failures are retried on later ticks (bounded below) or reported.
+	var archetype: StringName = _pending[0]
 	var config: EnemyConfig = ContentRegistry.get_enemy(archetype)
 	if config == null or config.scene == null:
 		enemy_spawn_failed.emit(archetype, &"no_config")
+		EventBus.report_error("Spawn blocked: no config/scene for %s (wave would under-fill)." % String(archetype))
 		return false
 	var point := _pick_spawn_point(config)
 	if point == null:
+		# Fallback: allow any in-bounds point (relax the min-distance rule) so a player
+		# camping every marker cannot cause an infinite no-point stall.
+		point = _fallback_spawn_point()
+	if point == null:
 		enemy_spawn_failed.emit(archetype, &"no_valid_point")
+		EventBus.report_warning("No valid spawn point for %s; retrying next tick." % String(archetype))
 		return false
 	var instance := config.scene.instantiate() as EnemyBase
 	if instance == null:
@@ -121,8 +130,29 @@ func _spawn_one() -> bool:
 		float(_difficulty.get("speed", 1.0)))
 	instance.despawn_requested.connect(_on_enemy_despawn_requested)
 	_active.append(instance)
+	# Success: only now remove the entry from the plan.
+	_pending.pop_front()
 	EventBus.enemy_spawned.emit(instance, archetype)
 	return true
+
+
+## Fallback spawn point that ignores the min-distance rule but still keeps the spawn
+## inside the arena interior (used when the player is blocking every far spawn point).
+func _fallback_spawn_point() -> Node3D:
+	if _arena == null:
+		return null
+	var half := _arena_half()
+	var points: Array = _arena.call("get_spawn_points")
+	for p in points:
+		var node := p as Node3D
+		if node == null or not is_instance_valid(node) or not node.is_inside_tree():
+			continue
+		var pos := node.global_position
+		# Keep the spawn in-bounds but otherwise relax all distance rules.
+		if absf(pos.x) > half - 0.5 or absf(pos.z) > half - 0.5:
+			continue
+		return node
+	return null
 
 
 func _on_enemy_despawn_requested(enemy: Node) -> void:

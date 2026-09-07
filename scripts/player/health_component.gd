@@ -16,10 +16,19 @@ var current_health: float = 100.0
 var _invulnerable_until: float = 0.0
 var _is_dead := false
 var _time_source: Callable = Callable()   # injectable fake clock for deterministic tests
+var _mitigation_source: Callable = Callable()  # Callable(amount, payload) -> mitigated amount
 
 
 func set_time_source(source: Callable) -> void:
 	_time_source = source
+
+
+## Attach a mitigation provider. The provider is a Callable taking (amount, payload)
+## and returning the post-mitigation amount (>= 0). This keeps HealthComponent generic:
+## Player progression (resistance) or any future armour source can plug in without the
+## component knowing about Player/Progression.
+func set_mitigation_source(source: Callable) -> void:
+	_mitigation_source = source
 
 
 func _ready() -> void:
@@ -62,10 +71,11 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 		result.ignored_reason = DamageResult.IGNORE_INVULNERABLE
 		return result
 	var amount := payload.amount
-	# Damage mitigation hook: component subclasses may override _mitigate.
-	amount = _mitigate(amount, payload)
+	# Damage mitigation: clamp so it can never accidentally heal or go negative.
+	amount = clampf(_mitigate(amount, payload), 0.0, INF)
 	result.accepted = true
 	result.final_amount = amount
+	result.was_critical = payload.was_critical
 	current_health = maxf(current_health - amount, 0.0)
 	result.target_died = current_health <= 0.0
 	result.knockback_applied = payload.knockback
@@ -88,8 +98,11 @@ func heal(amount: float) -> float:
 	return applied
 
 
-func _mitigate(amount: float, _payload: DamagePayload) -> float:
-	# Overridden by entities with resistance/armour. Base returns amount unchanged.
+func _mitigate(amount: float, payload: DamagePayload) -> float:
+	if _mitigation_source.is_valid():
+		var mitigated: Variant = _mitigation_source.call(amount, payload)
+		if mitigated is float or mitigated is int:
+			return float(mitigated)
 	return amount
 
 

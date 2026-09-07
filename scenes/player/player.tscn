@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/player/targeting_component.gd" id="6_tgt"]
 [ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="7_fb"]
 [ext_resource type="Script" path="res://scripts/player/player_audio.gd" id="8_aud"]
+[ext_resource type="Script" path="res://scripts/player/dodge_controller.gd" id="9_dodge"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.45
@@ -61,6 +62,9 @@ script = ExtResource("5_prog")
 
 [node name="TargetingComponent" type="Node" parent="."]
 script = ExtResource("6_tgt")
+
+[node name="DodgeController" type="Node" parent="."]
+script = ExtResource("9_dodge")
 
 [node name="PlayerFeedback" type="Node" parent="."]
 script = ExtResource("7_fb")

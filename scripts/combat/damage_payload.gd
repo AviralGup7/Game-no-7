@@ -29,6 +29,11 @@ var can_crit: bool = false
 ## Multiplier applied on a critical hit. Must be >= 1.0.
 var critical_multiplier: float = 1.0
 
+## True once the attacker has rolled a critical hit for this payload. Set by the
+## attacker BEFORE the payload is validated/applied; the receiving HealthComponent
+## reflects it into DamageResult.was_critical so metadata and result agree.
+var was_critical: bool = false
+
 ## Status effects (tags) this hit tries to apply. Reserved for future content.
 var status_effects: Array[StringName] = []
 

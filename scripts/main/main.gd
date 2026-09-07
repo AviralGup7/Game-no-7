@@ -80,6 +80,9 @@ func _spawn_player(arena: Node) -> Node:
 	if player.has_method("reset_for_new_run"):
 		player.call("reset_for_new_run", spawn)
 	GameRoot.set_active_player(player)
+	# Keep the player inside the arena interior.
+	if player.has_method("set_bounds") and arena.has_method("get_interior_half"):
+		player.call("set_bounds", float(arena.call("get_interior_half")))
 	if player.has_method("set_control_enabled"):
 		player.call("set_control_enabled", true)
 	_setup_camera(player)
