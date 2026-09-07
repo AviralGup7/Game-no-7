@@ -65,4 +65,30 @@ func validate() -> Array[String]:
 		problems.append("currency_value cannot be negative")
 	if unlock_wave < 1:
 		problems.append("unlock_wave must be >= 1")
+	if ai_behavior not in [&"melee", &"ranged"]:
+		problems.append("ai_behavior must be melee or ranged")
+	if ranged_range <= 0.0:
+		problems.append("ranged_range must be > 0")
+	if ranged_cooldown < 0.2:
+		problems.append("ranged_cooldown too small")
+	if ranged_windup < 0.0:
+		problems.append("ranged_windup cannot be negative")
+	if projectile_speed <= 0.0:
+		problems.append("projectile_speed must be > 0")
+	if projectile_count < 1:
+		problems.append("projectile_count must be >= 1")
+	if projectile_damage_scale < 0.0:
+		problems.append("projectile_damage_scale cannot be negative")
+	if preferred_distance < 0.0:
+		problems.append("preferred_distance cannot be negative")
+	if strafe_speed < 0.0:
+		problems.append("strafe_speed cannot be negative")
+	if death_blast_radius < 0.0:
+		problems.append("death_blast_radius cannot be negative")
+	if death_blast_damage_scale < 0.0:
+		problems.append("death_blast_damage_scale cannot be negative")
+	if split_count < 0:
+		problems.append("split_count cannot be negative")
+	if split_count > 0 and String(splits_into).is_empty():
+		problems.append("split_count > 0 requires splits_into")
 	return problems

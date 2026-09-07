@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PickupConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+pickup_id = &"coin_cache"
+display_name = "Coin Cache"
+effect = &"currency"
+amount = 8.0
+lifetime = 25.0
+collect_radius = 1.2
+magnet_radius = 4.0
+magnet_speed = 9.0
+tint = Color(1, 0.85, 0.25, 1)
+drop_weight = 1.0
+min_wave = 1
+disabled = false
+tags = Array[StringName]([&"currency"])

@@ -36,7 +36,7 @@ var _modifiers: Dictionary = {}
 const MULTIPLICATIVE := [
 	&"move_speed_multiplier", &"attack_damage_multiplier", &"knockback_multiplier",
 ]
-const COOLDOWN := [&"attack_cooldown_multiplier", &"dodge_cooldown_multiplier"]
+const COOLDOWN := [&"attack_cooldown_multiplier", &"dodge_cooldown_multiplier", &"skill_cooldown_multiplier"]
 
 
 func reset() -> void:
@@ -159,6 +159,13 @@ func restore_progression(snapshot: Dictionary) -> int:
 				break
 			restored += 1
 	return restored
+
+
+## Add a run-scoped flat bonus to one modifier total (meta-progression armory,
+## debug tooling). Participates in the same derived formulas as upgrade totals
+## and is cleared by reset() like everything else.
+func add_permanent_bonus(key: StringName, delta: float) -> void:
+	_modifiers[key] = float(_modifiers.get(key, 0.0)) + delta
 
 
 func get_debug_snapshot() -> Dictionary:

@@ -14,7 +14,7 @@ class_name AttackController
 ## chains straight into the next escalating swing (step 2, then 3 by default), skipping
 ## the cooldown; otherwise the recovery winds down and the combo resets to step 1. Each
 ## step applies its own damage/knockback multipliers (step 1 = 1.0, so a plain single
-## swing is unchanged).
+## swing is unchanged). Combo state lives in ComboChain; this controller owns timing.
 ##
 ## Hit resolution is exactly once per swing; the recovery/cooldown window blocks
 ## re-fire ("attack spam"). Duplicate target application is prevented because each
@@ -56,12 +56,7 @@ var _elapsed := 0.0
 var _crit_roll_source: Callable = Callable()
 var _owner_body: CharacterBody3D = null
 var _disabled := false
-## Current combo step (0 = no combo in progress). The step a swing is on when its hit
-## resolves selects that step's damage / knockback multipliers.
-var _combo_step := 0
-## True only while the just-landed hit is still inside the timing window, so a press
-## can chain. Cleared when the window lapses, the chain is at max steps, or reset.
-var _chain_allowed := false
+var _chain := ComboChain.new()
 
 
 func _ready() -> void:
@@ -107,15 +102,15 @@ func advance(delta: float) -> void:
 			_elapsed = 0.0
 			_resolve_hit()
 			_phase = PHASE_RECOVERY
-			_chain_allowed = true
+			_chain.open_chain()
 	elif _phase == PHASE_RECOVERY:
 		_elapsed += delta
 		if _elapsed > combo_chain_window:
 			# Timing window elapsed without a chained input -> combo can no longer chain;
 			# the recovery still has to wind down before the next swing is READY.
-			_chain_allowed = false
-		if _elapsed >= _effective_cooldown():
-			_finish_attack()
+			_chain.expire()
+			if _elapsed >= _effective_cooldown():
+				_finish_attack()
 
 
 ## Request an attack. Returns true when a swing begins:
@@ -134,15 +129,17 @@ func request_attack() -> bool:
 	if _phase == PHASE_READY:
 		_begin_swing(1)
 		return true
-	if _phase == PHASE_RECOVERY and _chain_allowed and _combo_step < combo_steps:
+	if _phase == PHASE_RECOVERY:
 		# Chain immediately (skip the full cooldown) into the next escalating swing.
-		_begin_swing(_combo_step + 1)
-		return true
+		var next := _chain.try_chain(combo_steps)
+		if next > 0:
+			_begin_swing(next)
+			return true
 	return false
 
 
 func _begin_swing(step: int) -> void:
-	_combo_step = maxi(step, 1)
+	_chain.begin(step)
 	_phase = PHASE_WINDUP
 	_elapsed = 0.0
 	attack_started.emit()
@@ -151,8 +148,7 @@ func _begin_swing(step: int) -> void:
 func _finish_attack() -> void:
 	_phase = PHASE_READY
 	_elapsed = 0.0
-	_combo_step = 0
-	_chain_allowed = false
+	_chain.finish()
 	attack_finished.emit()
 
 
@@ -241,7 +237,7 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 		payload.was_critical = true
 	# Escalate damage/knockback with the combo step (step 1 multiplier is 1.0, so a
 	# plain single swing is unchanged).
-	dmg *= _combo_damage_factor()
+	dmg *= _chain.damage_factor(combo_damage_multipliers)
 	payload.amount = dmg
 	payload.source = _owner_body
 	payload.source_id = &"melee"
@@ -253,27 +249,9 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 		var prog := _owner_body.get_node_or_null("ProgressionComponent")
 		if prog != null and prog.has_method("get_stat"):
 			k = float(prog.call("get_stat", &"knockback_multiplier", knockback_strength))
-	payload.knockback = direction * maxf(k * _combo_knockback_factor(), 0.0)
+	payload.knockback = direction * maxf(k * _chain.knockback_factor(combo_knockback_multipliers), 0.0)
 	payload.hit_position = _owner_body.global_position
 	return payload
-
-
-## Multiplier applied to damage for the current combo step (falls back to 1.0).
-func _combo_damage_factor() -> float:
-	return _step_multiplier(combo_damage_multipliers, _combo_step)
-
-
-## Multiplier applied to knockback for the current combo step (falls back to 1.0).
-func _combo_knockback_factor() -> float:
-	return _step_multiplier(combo_knockback_multipliers, _combo_step)
-
-
-func _step_multiplier(multipliers: Array[float], step: int) -> float:
-	if step <= 0:
-		return 1.0
-	if step <= multipliers.size():
-		return multipliers[step - 1]
-	return 1.0
 
 
 func set_attack_cooldown(value: float) -> void:
@@ -293,18 +271,17 @@ func set_attack_range(value: float) -> void:
 func reset_attack_state() -> void:
 	_phase = PHASE_READY
 	_elapsed = 0.0
-	_combo_step = 0
-	_chain_allowed = false
+	_chain.reset()
 
 
 ## Current combo step: 0 when no combo is in progress, else 1..combo_steps.
 func get_combo_step() -> int:
-	return _combo_step
+	return _chain.step()
 
 
 ## True while the last landed hit can still chain into the next combo step.
 func is_chain_ready() -> bool:
-	return _chain_allowed
+	return _chain.is_chain_ready()
 
 
 func get_debug_snapshot() -> Dictionary:
@@ -316,6 +293,6 @@ func get_debug_snapshot() -> Dictionary:
 		"attack_range": attack_range,
 		"attack_damage": attack_damage,
 		"disabled": _disabled,
-		"combo_step": _combo_step,
-		"chain_allowed": _chain_allowed,
+		"combo_step": _chain.step(),
+		"chain_allowed": _chain.is_chain_ready(),
 	}

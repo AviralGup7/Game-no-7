@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="WeaponConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+weapon_id = &"warreaxe"
+display_name = "War Axe"
+description = "Slow, brutal chops with huge knockback."
+kind = &"melee"
+rarity = &"rare"
+base_damage = 26.0
+swing_cooldown = 0.95
+windup = 0.22
+range = 2.8
+arc_degrees = 90.0
+max_targets = 3
+knockback = 14.0
+combo_damage_steps = PackedFloat32Array(1, 1.2)
+combo_window = 0.5
+crit_chance = 0.1
+crit_multiplier = 2.0
+on_hit_effects = Array[StringName]([])
+on_hit_effect_chance = 1.0
+unlock_wave = 2
+unlock_cost = 60
+weight = 0.8
+disabled = false
+tags = Array[StringName]([&"heavy", &"knockback"])

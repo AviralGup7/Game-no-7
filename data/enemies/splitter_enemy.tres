@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/splitter_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"splitter"
+display_name = "Broodmother"
+scene = ExtResource("2_scene")
+max_health = 45.0
+move_speed = 1.6
+acceleration = 6.0
+attack_damage = 8.0
+attack_range = 1.8
+attack_cooldown = 1.6
+attack_windup = 0.5
+score_value = 25
+currency_value = 3
+knockback_resistance = 0.35
+detect_range = 0.0
+hurt_duration = 0.2
+bounds_radius = 0.75
+navigation_target_update_interval = 0.25
+color_tint = Color(0.35, 0.75, 0.55, 1)
+visual_scale = 1.15
+tags = Array[StringName]([&"tank", &"splitter"])
+unlock_wave = 5
+elite_eligible = true
+spawn_priority = 2
+splits_into = &"fast"
+split_count = 2
+balance_notes = "Slow tank that bursts into fast enemies; focus or kite."

@@ -83,6 +83,93 @@ static func _counts_for_wave(wave_number: int) -> Dictionary:
 	return {"basic": basic, "fast": fast, "heavy": heavy}
 
 
+## Extended queue: the classic composition plus new-archetype injections from wave 6
+## (ranged backlines, dasher flanks, exploders, splitters, periodic heavies). Waves 1-5
+## are byte-identical to spawn_queue_for_wave so early-game tests stay pinned.
+static func extended_queue_for_wave(wave_number: int, seed: int) -> Array[StringName]:
+	var out := spawn_queue_for_wave(wave_number)
+	var w := maxi(wave_number, 1)
+	if w < 6:
+		return out
+	var rng := RngService.make_generator(seed, RngService.STREAM_WAVES + w * 13)
+	var extra := w - 5
+	var ranged := mini(1 + extra / 2, 5)
+	var dasher := mini(extra / 2, 4)
+	var exploder := mini(maxi(extra - 2, 0) / 2, 3)
+	var splitter := mini(maxi(extra - 3, 0) / 3, 2)
+	var adds: Array[StringName] = []
+	for i in range(ranged):
+		adds.append(&"ranged")
+	for i in range(dasher):
+		adds.append(&"dasher")
+	for i in range(exploder):
+		adds.append(&"exploder")
+	for i in range(splitter):
+		adds.append(&"splitter")
+	# Boss waves (every 10th): the warlord leads, adds trail behind.
+	if w % 10 == 0:
+		out.push_front(&"warlord")
+	# Deterministic interleave: shuffle the NEW adds, then weave them through the
+	# classic queue so the wave reads as mixed packs instead of sorted blocks.
+	for i in range(adds.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var tmp := adds[i]
+		adds[i] = adds[j]
+		adds[j] = tmp
+	var woven: Array[StringName] = []
+	var ai := 0
+	for i in range(out.size()):
+		woven.append(out[i])
+		if ai < adds.size() and (i % 3 == 2 or i == out.size() - 1):
+			woven.append(adds[ai])
+			ai += 1
+	while ai < adds.size():
+		woven.append(adds[ai])
+		ai += 1
+	return woven
+
+
+## Expand an authored WaveConfig's entries into a flat queue with deterministic
+## weight-biased interleaving (no long same-archetype runs).
+static func expand_authored_entries(cfg: WaveConfig, seed: int) -> Array[StringName]:
+	var out: Array[StringName] = []
+	if cfg == null:
+		return out
+	var buckets: Array = []
+	for entry in cfg.spawn_entries:
+		if entry.count > 0:
+			buckets.append({"id": entry.archetype_id, "left": entry.count, "weight": maxf(entry.spawn_weight, 0.01)})
+	if buckets.is_empty():
+		return out
+	var rng := RngService.make_generator(seed, RngService.STREAM_WAVES + cfg.wave_number * 29)
+	var total := 0
+	for b in buckets:
+		total += int(b["left"])
+	var guard := 0
+	while total > 0 and guard < 4096:
+		guard += 1
+		var sum := 0.0
+		for b in buckets:
+			if int(b["left"]) > 0:
+				sum += float(b["weight"])
+		if sum <= 0.0:
+			break
+		var roll := rng.randf() * sum
+		var acc := 0.0
+		var chosen := 0
+		for i in range(buckets.size()):
+			if int(buckets[i]["left"]) <= 0:
+				continue
+			acc += float(buckets[i]["weight"])
+			if roll < acc:
+				chosen = i
+				break
+		out.append(buckets[chosen]["id"])
+		buckets[chosen]["left"] = int(buckets[chosen]["left"]) - 1
+		total -= 1
+	return out
+
+
 ## Difficulty scalars for enemy hp / damage / speed at a given wave (>= 1.0). Applied
 ## per spawned enemy via EnemyBase.apply_difficulty() so shared configs are not mutated.
 static func calculate_difficulty_scalars(wave_number: int) -> Dictionary:

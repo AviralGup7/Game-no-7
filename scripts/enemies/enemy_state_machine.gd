@@ -13,7 +13,7 @@ var _current: EnemyState = null
 var _host: EnemyBase = null
 
 const STATE_IDS := [
-	&"idle", &"chase", &"attack", &"hurt", &"dead",
+	&"idle", &"chase", &"attack", &"hurt", &"dead", &"ranged",
 ]
 
 
@@ -27,6 +27,7 @@ func _ready() -> void:
 	_register(EnemyAttackState.new())
 	_register(EnemyHurtState.new())
 	_register(EnemyDeadState.new())
+	_register(EnemyRangedState.new())
 
 
 func _register(state: EnemyState) -> void:

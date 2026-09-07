@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="WaveConfig" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/waves/wave_spawn_entry.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="e1"]
+script = ExtResource("2_entry")
+archetype_id = &"warlord"
+count = 1
+spawn_weight = 1.0
+elite_chance = 0.0
+spawn_tags = Array[StringName]([&"boss"])
+
+[sub_resource type="Resource" id="e2"]
+script = ExtResource("2_entry")
+archetype_id = &"basic"
+count = 4
+spawn_weight = 0.5
+elite_chance = 0.0
+spawn_tags = Array[StringName]([&"adds"])
+
+[resource]
+script = ExtResource("1_script")
+wave_number = 10
+spawn_entries = Array[WaveSpawnEntry]([SubResource("e1"), SubResource("e2")])
+spawn_interval = 1.2
+maximum_simultaneous_enemies = 8
+transition_delay = 4.0
+completion_bonus = 500
+upgrade_after_completion = true
+arena_modifier_ids = Array[StringName]([])
+announcement_text_key = &"boss_wave"
+difficulty_rating = 3.5

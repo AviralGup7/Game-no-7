@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"warcry_skill"
+display_name = "Warcry"
+description = "Roar: +damage, +speed and resistance for 8s."
+behavior = &"warcry"
+input_action = &"skill_2"
+cooldown = 24.0
+damage_multiplier = 0.0
+radius = 1.0
+caster_effects = Array[StringName]([&"warcry"])
+unlock_level = 4
+unlock_wave = 4
+weight = 0.7
+disabled = false
+tags = Array[StringName]([&"buff"])

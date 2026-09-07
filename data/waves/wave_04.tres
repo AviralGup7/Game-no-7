@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="WaveConfig" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/waves/wave_spawn_entry.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="e1"]
+script = ExtResource("2_entry")
+archetype_id = &"basic"
+count = 8
+spawn_weight = 1.0
+elite_chance = 0.08
+spawn_tags = Array[StringName]([])
+
+[sub_resource type="Resource" id="e2"]
+script = ExtResource("2_entry")
+archetype_id = &"ranged"
+count = 3
+spawn_weight = 0.7
+elite_chance = 0.05
+spawn_tags = Array[StringName]([&"backline"])
+
+[sub_resource type="Resource" id="e3"]
+script = ExtResource("2_entry")
+archetype_id = &"exploder"
+count = 3
+spawn_weight = 0.6
+elite_chance = 0.0
+spawn_tags = Array[StringName]([&"suicide"])
+
+[resource]
+script = ExtResource("1_script")
+wave_number = 4
+spawn_entries = Array[WaveSpawnEntry]([SubResource("e1"), SubResource("e2"), SubResource("e3")])
+spawn_interval = 0.65
+maximum_simultaneous_enemies = 12
+transition_delay = 2.5
+completion_bonus = 80
+upgrade_after_completion = true
+arena_modifier_ids = Array[StringName]([&"ember_winds"])
+announcement_text_key = &"wave_started"
+difficulty_rating = 1.7

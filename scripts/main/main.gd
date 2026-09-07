@@ -14,6 +14,11 @@ var _ui_root: Node = null
 var _spawn_manager: SpawnManager = null
 var _wave_manager: WaveManager = null
 var _run_started := false
+## Persistent (run-independent) directors live outside WorldRoot.
+var _music: MusicManager = null
+var _achievements: Achievements = null
+var _meta: MetaProgression = null
+var _tutorial: TutorialManager = null
 
 
 func _ready() -> void:
@@ -22,6 +27,29 @@ func _ready() -> void:
 	if _ui_root == null:
 		_ui_root = get_node_or_null("UIRoot")
 	GameRoot.game_state_changed.connect(_on_state_changed)
+	_create_persistent_directors()
+
+
+## Run-independent observers: music, achievements, meta wallet, tutorial coach.
+## Created once; they self-wire to EventBus and survive world rebuilds.
+func _create_persistent_directors() -> void:
+	_music = MusicManager.new()
+	_music.name = "MusicManager"
+	add_child(_music)
+	_music.begin_tracking()
+	_achievements = Achievements.new()
+	_achievements.name = "Achievements"
+	add_child(_achievements)
+	_meta = MetaProgression.new()
+	_meta.name = "MetaProgression"
+	add_child(_meta)
+	_tutorial = TutorialManager.new()
+	_tutorial.name = "TutorialManager"
+	add_child(_tutorial)
+	# The coach speaks through the HUD announcement banner (UI children are ready
+	# before Main, so the banner already exists).
+	if _tutorial.has_method("bind_banner") and _ui_root != null and _ui_root.has_method("get_announcement_banner"):
+		_tutorial.call("bind_banner", _ui_root.call("get_announcement_banner"))
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:
@@ -93,6 +121,13 @@ func _setup_camera(player: Node) -> void:
 	var cam := CAMERA_SCENE.instantiate()
 	cam.name = "CameraRig"
 	_world_root.add_child(cam)
+	# Arenas declare their lens; fall back to the rig default when absent.
+	if cam.has_method("set_camera_profile") and ContentRegistry != null:
+		var cfg: ArenaConfig = ContentRegistry.get_arena(GameRoot.get_run().arena_id)
+		if cfg != null:
+			var prof: CameraProfile = ContentRegistry.get_camera_profile(cfg.default_camera_profile)
+			if prof != null:
+				cam.call("set_camera_profile", prof)
 	if cam.has_method("set_target") and player is Node3D:
 		cam.call("set_target", player)
 
@@ -114,6 +149,91 @@ func _create_systems(arena: Node, player: Node) -> void:
 	_world_root.add_child(wave)
 	_wave_manager = wave as WaveManager
 	_wave_manager.setup(_spawn_manager)
+	_apply_daily_mutators()
+
+	_create_run_systems(arena, player)
+
+
+## Per-run support systems: projectiles, pickups, juice, perf scaling, arena
+## dressing + hazards. All passive until used; freed with the world on rebuild.
+func _create_run_systems(arena: Node, player: Node) -> void:
+	var seed := GameRoot.get_run().seed
+	var arena_id := GameRoot.get_run().arena_id
+	var half := 12.0
+	if arena.has_method("get_interior_half"):
+		half = float(arena.call("get_interior_half"))
+
+	var projectiles := ProjectilePool.new()
+	projectiles.name = "ProjectilePool"
+	_world_root.add_child(projectiles)
+
+	var pickups := PickupManager.new()
+	pickups.name = "PickupManager"
+	_world_root.add_child(pickups)
+	pickups.configure(seed)
+
+	var hitstop := HitstopManager.new()
+	hitstop.name = "HitstopManager"
+	_world_root.add_child(hitstop)
+
+	var perf := PerformanceMonitor.new()
+	perf.name = "PerformanceMonitor"
+	_world_root.add_child(perf)
+
+	var decorator := ArenaDecorator.new()
+	decorator.name = "ArenaDecorator"
+	(arena as Node).add_child(decorator)
+	decorator.decorate(arena_id, half, seed)
+
+	var hazards := ArenaHazards.new()
+	hazards.name = "ArenaHazards"
+	(arena as Node).add_child(hazards)
+	hazards.configure(arena_id, half, seed)
+
+	# Seed the player's deterministic streams + owned meta bonuses for this run.
+	if player is Node:
+		var skills := (player as Node).get_node_or_null("SkillController")
+		if skills != null and skills.has_method("configure"):
+			skills.call("configure", seed)
+		var weapons := (player as Node).get_node_or_null("WeaponManager")
+		if weapons != null and weapons.has_method("configure"):
+			weapons.call("configure", seed)
+		_apply_owned_unlocks(player, skills, weapons)
+		# Tutorial coach follows real player actions.
+		if _tutorial != null:
+			if (player as Node).has_signal("attack_started"):
+				(player as Node).attack_started.connect(_tutorial.notify_player_attacked)
+			if (player as Node).has_signal("dodged"):
+				(player as Node).dodged.connect(_tutorial.notify_player_dodged)
+	if _meta != null:
+		_meta.apply_all_to_run()
+
+
+## Daily runs share one deterministic mutator pair for every wave.
+func _apply_daily_mutators() -> void:
+	if _wave_manager == null:
+		return
+	var daily: Dictionary = GameRoot.get_daily_challenge()
+	if daily.is_empty():
+		return
+	var ids: Array[StringName] = []
+	for m in Array(daily.get("mutators", [])):
+		ids.append(StringName(String(m)))
+	_wave_manager.set_forced_mutators(ids)
+
+
+## Owned armory unlocks take effect: Bladestorm starts unlocked, and the best
+## owned weapon unlock rides in loadout slot 1 (reachable via weapon switch).
+func _apply_owned_unlocks(player: Node, skills: Node, weapons: Node) -> void:
+	if _meta == null or player == null:
+		return
+	if skills != null and skills.has_method("assign_skill_by_id") and _meta.is_skill_unlocked_from_start(&"bladestorm"):
+		skills.call("assign_skill_by_id", &"bladestorm", 1, true)
+	if weapons != null and weapons.has_method("equip_by_id"):
+		for weapon_id in [&"sunbow", &"warreaxe"]:
+			if _meta.is_weapon_unlocked(weapon_id):
+				weapons.call("equip_by_id", weapon_id, 1)
+				break
 
 
 func _clear_world() -> void:

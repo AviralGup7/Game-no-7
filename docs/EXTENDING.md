@@ -47,7 +47,7 @@ tests can assert exact upgrade flow.
 | Family | Keys | Formula |
 |---|---|---|
 | multiplicative | `move_speed_multiplier`, `attack_damage_multiplier`, `knockback_multiplier` | `base * (1 + Σ)` |
-| cooldown | `attack_cooldown_multiplier`, `dodge_cooldown_multiplier` | `base * (1 + Σ)`, clamped `>= 0.05` (a *negative* Σ is a reduction) |
+| cooldown | `attack_cooldown_multiplier`, `dodge_cooldown_multiplier`, `skill_cooldown_multiplier` | `base * (1 + Σ)`, clamped `>= 0.05` (a *negative* Σ is a reduction) |
 | additive | `max_health_add`, `attack_range_add`, `healing_on_kill`, `score_multiplier_add`, `currency_multiplier_add` | `base + Σ` |
 | resistance | `damage_resistance_add` | `base + Σ`, clamped `[0, 1]` |
 
@@ -68,9 +68,19 @@ so a `1.0` resistance floors at 0, never negative damage.
 
 ## 4. Add a new weapon
 
-1. Add an attack profile data resource under `res://data/weapons/`.
-2. Implement it through the player's `AttackController` interface (cooldown, range,
-   damage, payload) — keep player input/score/UI contracts unchanged.
+1. Add a `WeaponConfig` resource under `res://data/weapons/` (`weapon_id`,
+   `display_name`, `kind` melee/ranged/magic, `damage`, `cooldown`, `range`,
+   `arc_degrees`, `projectile_count`, `projectile_speed`, `crit_chance`,
+   `knockback`, `unlock_wave`, `weight`). The registry validates + caches it.
+2. Melee weapons resolve through `MeleeResolver.resolve_arc(...)`; ranged/magic
+   weapons fire pooled projectiles via `WeaponManager` → `ProjectilePool`.
+3. The legacy `AttackController` (combo timing) stays as a fallback attack path;
+   new weapons go through `WeaponManager` (request/equip/unlock APIs) — keep the
+   player input/score/UI contracts unchanged.
+4. Ranged enemies reuse the same `ProjectilePool` through `EnemyRangedState`,
+   which builds its volley config inline (`team`/`damage`/`speed`, damage scaled
+   by the enemy `.tres` `projectile_damage_scale`) — no separate projectile
+   config files.
 
 ## 5. Add a new audio cue
 
@@ -81,6 +91,10 @@ so a `1.0` resistance floors at 0, never negative damage.
    `ASSET_LICENSES/`.
 
 Optional cues are safe: a missing cue logs a diagnostic and never crashes.
+Accepted formats are `.tres`/`.res` streams and raw `.ogg`/`.wav`/`.mp3` drops.
+(The 10 gameplay SFX + 5 music beds always resolve: `ProceduralSfx` synthesizes
+any cue still missing after discovery, so the game is never silent. Real drops
+take precedence — procedural fill never overwrites a registered cue.)
 
 ## 6. Add a new UI panel
 
@@ -123,6 +137,70 @@ Optional cues are safe: a missing cue logs a diagnostic and never crashes.
 3. Mutate the host only through the `EnemyBase` command surface and request transitions
    with `host.state_machine_change_to(&"...")` (or `host.force_state(&"...")` for
    interrupts such as damage/hurt). Never reach into arbitrary nodes from a state.
+
+## 10. Add a new skill / status effect
+
+1. Create `res://data/skills/<name>.tres` (`class SkillConfig`): `skill_id`,
+   `slot`, `cooldown`, `charges`, `radius`/`damage`/`status_id`, `status_duration`,
+   `unlock_wave`, `input_action` (`skill_1..3`). `SkillController` grants it via
+   `assign_skill_by_id(...)` and casts it via Q/E/R, the HUD skill bar, or
+   `SkillController.try_cast_slot(n)`; damage/status apply through `SkillExecutor`
+   + `AreaDamage` and land in enemy `StatusManager`s.
+2. New statuses are `StatusEffectConfig` resources under `res://data/status/`
+   (`effect_id`, `duration`, `max_stacks`, `stack_mode` refresh/add, DoT/HoT,
+   speed/damage factors, `stuns`/`roots`, `shield_amount`, `tint`); the registry
+   validates them and `StatusManager.apply_effect(...)` honors the config —
+   no central id table to update.
+
+## 11. Add arena hazards / mutators
+
+1. Hazards: extend the per-arena `match` in `ArenaHazards.configure(...)` with a
+   branch for the new `arena_id` (field layout, tick damage, visuals); shared
+   tick/damage logic stays in `ArenaHazards`. Field tuning lives in the branch,
+   not the arena `.tres`.
+2. Mutators are static data + logic in `WaveMutators` (`ALL`, `resolve_for_wave`,
+   per-id `apply_to_wave_mods` scalars): add the id, its display name/banner
+   text, and its scalar block. `WaveManager` resolves them per wave (authored
+   declarations win, the `DifficultyDirector` may veto into a breather, daily
+   runs force one pair); `SpawnManager` reads the resulting wave mods at spawn.
+   Past the authored waves the planner scales endlessly.
+
+## 12. Add meta / achievements / dailies
+
+1. Meta items: append an entry to the `ARMORY` dict in `meta_progression.gd`
+   (`name`, `cost`, `requires`, `kind` stat/weapon/skill, `stat` + `per_rank` or
+   `target`, `max_rank`, `blurb`). The `ArmoryPanel` shop renders entries
+   generically; `MetaProgression.apply_all_to_run()` pipes owned stat ranks into
+   `ProgressionComponent.add_permanent_bonus(...)` at run start, and `Main`
+   applies owned weapon/skill unlocks to the loadout.
+2. Achievements: append an entry to `Achievements.definitions()` (`name`,
+   `description`, `rarity`, `hint`) and wire its predicate to the run-tracking
+   callbacks (`_on_enemy_killed`, `_on_wave_completed`, ...); unlocking persists
+   through `SaveManager.unlock_achievement(...)` and announces via `EventBus`.
+3. Daily challenge: `DailyChallenge` derives `(seed, mutators, weapon)` from the
+   calendar date; the menu surfaces it via `GameRoot.start_daily_run()`, which
+   fixes the run seed, forces the mutator pair every wave, and equips the daily
+   starter weapon.
+
+## Module map (large-file splits)
+
+Heads-up for contributors: the biggest scripts are thin orchestrators over focused
+modules. Put new logic in the module, not the orchestrator:
+
+| Orchestrator | Modules | Put new... |
+|---|---|---|
+| `ui_root.gd` | `UiText`, `UiFactory`, `GameHud`, `UpgradePanel`, `SettingsPanel`, `ArmoryPanel`, skill bar / minimap / boss bar / damage numbers / banner | strings → UiText, widgets → UiFactory, HUD → GameHud, cards → UpgradePanel, settings form → SettingsPanel, meta shop → ArmoryPanel |
+| `player.gd` | `PlayerLocomotion`, `PlayerBuild` | input/bounds → Locomotion, upgrades/derived stats → Build |
+| `enemy_base.gd` | `EnemyLocomotion`, `EnemyNavigator`, `EnemyStriker` | motion → Locomotion, nav → Navigator, melee → Striker |
+| `spawn_manager.gd` | `SpawnLedger`, `SpawnPlacer` | queue/counters → Ledger, points → Placer |
+| `game_root.gd` | `RunScorekeeper`, `UpgradeService` | score/combo → Scorekeeper, offers/apply → Service |
+| `skill_controller.gd` | `SkillExecutor` | behaviors/scheduled hits → Executor |
+| `attack_controller.gd` | `ComboChain` | combo steps/window → Chain |
+| `save_manager.gd` | `SaveSchema` | defaults/normalize/migrate → Schema |
+| `content_registry.gd` | `ContentLoader` | scanning/registration → Loader |
+
+Pure modules (`ComboChain`, `SpawnLedger`, `SaveSchema`, `UiText`) are covered by
+`tests/unit/test_extracted_modules.gd` — extend that suite when you change them.
 
 ## Conventions
 

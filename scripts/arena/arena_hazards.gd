@@ -1,0 +1,258 @@
+class_name ArenaHazards
+extends Node3D
+
+## Data-driven arena hazards: fire vents (telegraphed radial burns), spike
+## strips (crossing damage), healing circles (player regen zones) and slowing
+## ichor pools. The Arena node owns one of these; Main configures it per arena
+## id + wave mutators (Ember Winds ignites ambient vents). Hazards hit BOTH
+## sides — kiting enemies through vents is a legitimate strategy.
+##
+## Layouts are deterministic in (arena_id, seed) via SpawnPatterns-style math.
+
+signal hazard_triggered(kind: StringName, at: Vector3)
+
+const KIND_VENT := &"vent"
+const KIND_SPIKES := &"spikes"
+const KIND_HEAL := &"heal"
+const KIND_ICHOR := &"ichor"
+
+const VENT_PERIOD := 4.0
+const VENT_TELEGRAPH := 1.0
+const VENT_RADIUS := 2.2
+const VENT_DAMAGE := 15.0
+const SPIKE_DAMAGE := 8.0
+const SPIKE_HALF_WIDTH := 1.2
+const HEAL_PER_SECOND := 6.0
+const HEAL_RADIUS := 2.5
+const ICHOR_SLOW := 0.5
+
+var _hazards: Array = []  # [{kind, pos, timer, active, node}]
+var _enabled := true
+var _arena_half := 12.0
+var _rng := RngService.new()
+
+
+func configure(arena_id: StringName, arena_half: float, seed: int, ambient_burn: bool = false) -> void:
+	_arena_half = arena_half
+	_rng.reseed(seed + hash(String(arena_id)))
+	_clear()
+	_layout_defaults(arena_id)
+	if ambient_burn:
+		_ignite_all_vents()
+
+
+func set_enabled(enabled: bool) -> void:
+	_enabled = enabled
+
+
+func _layout_defaults(arena_id: StringName) -> void:
+	match String(arena_id):
+		"ember_crucible":
+			_add(KIND_VENT, Vector3(5, 0, 5))
+			_add(KIND_VENT, Vector3(-5, 0, -5))
+			_add(KIND_VENT, Vector3(-5, 0, 5))
+			_add(KIND_VENT, Vector3(5, 0, -5))
+			_add(KIND_HEAL, Vector3(0, 0, 0))
+		"frost_hollow":
+			_add(KIND_ICHOR, Vector3(4, 0, 0))
+			_add(KIND_ICHOR, Vector3(-4, 0, 0))
+			_add(KIND_HEAL, Vector3(0, 0, 4))
+			_add(KIND_HEAL, Vector3(0, 0, -4))
+		_:
+			_add(KIND_VENT, Vector3(6, 0, 0))
+			_add(KIND_VENT, Vector3(-6, 0, 0))
+			_add(KIND_SPIKES, Vector3(0, 0, 6))
+			_add(KIND_HEAL, Vector3(0, 0, -6))
+
+
+func add_hazard(kind: StringName, at: Vector3) -> void:
+	_add(kind, at)
+
+
+func _add(kind: StringName, at: Vector3) -> void:
+	var clamped := Vector3(clampf(at.x, -_arena_half + 1.0, _arena_half - 1.0), 0.05, clampf(at.z, -_arena_half + 1.0, _arena_half - 1.0))
+	var marker := _build_marker(kind, clamped)
+	add_child(marker)
+	_hazards.append({"kind": kind, "pos": clamped, "timer": _rng.randf_range(RngService.STREAM_ARENA, 0.0, VENT_PERIOD), "node": marker})
+
+
+func _build_marker(kind: StringName, at: Vector3) -> Node3D:
+	var root := Node3D.new()
+	root.position = at
+	var disc := MeshInstance3D.new()
+	var cyl := CylinderMesh.new()
+	cyl.top_radius = _radius_of(kind)
+	cyl.bottom_radius = _radius_of(kind)
+	cyl.height = 0.08
+	disc.mesh = cyl
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = _color_of(kind, 0.35)
+	mat.emission_enabled = true
+	mat.emission = _color_of(kind, 1.0)
+	mat.emission_energy_multiplier = 0.4
+	disc.material_override = mat
+	root.add_child(disc)
+	root.set_meta("disc", disc)
+	root.set_meta("base_color", _color_of(kind, 1.0))
+	return root
+
+
+func _radius_of(kind: StringName) -> float:
+	match kind:
+		KIND_VENT:
+			return VENT_RADIUS
+		KIND_HEAL:
+			return HEAL_RADIUS
+		KIND_ICHOR:
+			return 2.8
+		KIND_SPIKES:
+			return SPIKE_HALF_WIDTH
+	return 2.0
+
+
+func _color_of(kind: StringName, alpha: float) -> Color:
+	var c := Color.WHITE
+	match kind:
+		KIND_VENT:
+			c = Color(1.0, 0.4, 0.1)
+		KIND_SPIKES:
+			c = Color(0.8, 0.8, 0.85)
+		KIND_HEAL:
+			c = Color(0.4, 1.0, 0.5)
+		KIND_ICHOR:
+			c = Color(0.5, 0.3, 0.9)
+	c.a = alpha
+	return c
+
+
+func _ignite_all_vents() -> void:
+	for h in _hazards:
+		if h["kind"] == KIND_VENT:
+			h["timer"] = VENT_PERIOD - VENT_TELEGRAPH
+
+
+func _physics_process(delta: float) -> void:
+	if not _enabled or _hazards.is_empty():
+		return
+	var victims := _gather_victims()
+	for h in _hazards:
+		match h["kind"]:
+			KIND_VENT:
+				_tick_vent(h, victims, delta)
+			KIND_SPIKES:
+				_tick_spikes(h, victims)
+			KIND_HEAL:
+				_tick_heal(h, victims, delta)
+			KIND_ICHOR:
+				_tick_ichor(h, victims)
+
+
+func _gather_victims() -> Array:
+	var out: Array = []
+	if not is_inside_tree():
+		return out
+	out.append_array(get_tree().get_nodes_in_group("player"))
+	out.append_array(get_tree().get_nodes_in_group("enemies"))
+	return out
+
+
+func _inside(pos: Vector3, center: Vector3, radius: float) -> bool:
+	var dx := pos.x - center.x
+	var dz := pos.z - center.z
+	return dx * dx + dz * dz <= radius * radius
+
+
+func _tick_vent(h: Dictionary, victims: Array, delta: float) -> void:
+	h["timer"] = float(h["timer"]) + delta
+	var marker: Node3D = h["node"]
+	var disc: MeshInstance3D = marker.get_meta("disc")
+	var mat := disc.material_override as StandardMaterial3D
+	if float(h["timer"]) >= VENT_PERIOD - VENT_TELEGRAPH:
+		# Telegraph: pulse bright.
+		var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() / 60.0)
+		mat.emission_energy_multiplier = 0.4 + pulse * 1.6
+	if float(h["timer"]) >= VENT_PERIOD:
+		h["timer"] = 0.0
+		mat.emission_energy_multiplier = 0.4
+		var center: Vector3 = h["pos"]
+		AreaDamage.apply_radial(victims, center, VENT_RADIUS, VENT_DAMAGE, self, &"fire_vent", 6.0, false, AreaDamage.FALLOFF_NONE)
+		_apply_burn(victims, center)
+		hazard_triggered.emit(KIND_VENT, center)
+
+
+func _apply_burn(victims: Array, center: Vector3) -> void:
+	if ContentRegistry == null:
+		return
+	var burn: StatusEffectConfig = ContentRegistry.get_status_effect(&"burn")
+	if burn == null:
+		return
+	for v in victims:
+		if v is Node3D and _inside((v as Node3D).global_position, center, VENT_RADIUS):
+			var sm := (v as Node).get_node_or_null("StatusManager")
+			if sm != null and sm.has_method("apply_effect"):
+				sm.call("apply_effect", burn, 1, self)
+
+
+func _tick_spikes(h: Dictionary, victims: Array) -> void:
+	var center: Vector3 = h["pos"]
+	for v in victims:
+		if v is Node3D and _inside((v as Node3D).global_position, center, SPIKE_HALF_WIDTH):
+			# Throttled by a per-victim cooldown stored in metadata.
+			var key := "spike_cd_%d" % h.hash()
+			var now := Time.get_ticks_msec() / 1000.0
+			if float((v as Node).get_meta(key, 0.0)) > now:
+				continue
+			(v as Node).set_meta(key, now + 1.0)
+			if (v as Node).has_method("apply_damage"):
+				var payload := DamagePayload.new()
+				payload.amount = SPIKE_DAMAGE
+				payload.source = self
+				payload.source_id = &"spike_strip"
+				payload.hit_position = (v as Node3D).global_position
+				if payload.is_valid():
+					(v as Node).call("apply_damage", payload)
+
+
+func _tick_heal(h: Dictionary, victims: Array, delta: float) -> void:
+	var center: Vector3 = h["pos"]
+	for v in victims:
+		if not (v is Node) or not (v as Node).is_in_group("player"):
+			continue
+		if _inside((v as Node3D).global_position, center, HEAL_RADIUS):
+			var hp := (v as Node).get_node_or_null("HealthComponent")
+			if hp != null and hp.has_method("heal"):
+				hp.call("heal", HEAL_PER_SECOND * delta)
+
+
+func _tick_ichor(h: Dictionary, victims: Array) -> void:
+	var center: Vector3 = h["pos"]
+	if ContentRegistry == null:
+		return
+	var slow: StatusEffectConfig = ContentRegistry.get_status_effect(&"slow")
+	if slow == null:
+		return
+	for v in victims:
+		if v is Node3D and _inside((v as Node3D).global_position, center, 2.8):
+			var sm := (v as Node).get_node_or_null("StatusManager")
+			if sm != null and sm.has_method("apply_effect"):
+				sm.call("apply_effect", slow, 1, self)
+
+
+func _clear() -> void:
+	for h in _hazards:
+		var node: Node = h["node"]
+		if is_instance_valid(node):
+			node.queue_free()
+	_hazards.clear()
+
+
+func hazard_count() -> int:
+	return _hazards.size()
+
+
+func get_debug_snapshot() -> Dictionary:
+	var kinds: Array = []
+	for h in _hazards:
+		kinds.append(String(h["kind"]))
+	return {"count": _hazards.size(), "kinds": kinds}

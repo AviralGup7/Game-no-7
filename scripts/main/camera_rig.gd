@@ -14,6 +14,7 @@ var _shake_remaining := 0.0
 var _shake_amplitude := 0.0
 var _enabled := false
 var _reduced_motion := false
+var _base_cam_pos := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -21,9 +22,11 @@ func _ready() -> void:
 	_camera = _find_camera()
 	if _camera != null:
 		_camera.make_current()
+		_base_cam_pos = _camera.position
 	_profile = ContentRegistry.get_camera_profile(&"default")
 	if _profile == null:
 		_profile = CameraProfile.new()
+	_refresh_settings()
 
 
 func _find_camera() -> Camera3D:
@@ -110,12 +113,17 @@ func _raycast_blocked(from: Vector3, to: Vector3) -> Vector3:
 
 
 func _update_shake(delta: float) -> void:
-	if _shake_remaining <= 0.0 or _camera == null:
+	if _camera == null:
+		return
+	if _shake_remaining <= 0.0:
+		# Restore the rig-relative placement so one shake can't drift the lens.
+		if _camera.position != _base_cam_pos:
+			_camera.position = _base_cam_pos
 		return
 	_shake_remaining = maxf(_shake_remaining - delta, 0.0)
 	var strength := _shake_amplitude * (_shake_remaining / maxf(_shake_remaining + 0.1, 0.001))
 	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * strength
-	_camera.position = offset
+	_camera.position = _base_cam_pos + offset
 
 
 func _refresh_settings() -> void:

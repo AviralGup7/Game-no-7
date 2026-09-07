@@ -62,3 +62,21 @@ func is_valid() -> bool:
 		if not knockback.is_finite():
 			return false
 	return true
+
+
+## Full clone with a replaced amount (mitigation/shield pipelines). Status and
+## metadata containers are duplicated so the copy never aliases the original.
+func with_amount(new_amount: float) -> DamagePayload:
+	var copy := DamagePayload.new()
+	copy.amount = maxf(new_amount, 0.0)
+	copy.source = source
+	copy.source_id = source_id
+	copy.damage_type = damage_type
+	copy.knockback = knockback
+	copy.hit_position = hit_position
+	copy.can_crit = can_crit
+	copy.critical_multiplier = critical_multiplier
+	copy.was_critical = was_critical
+	copy.status_effects = status_effects.duplicate()
+	copy.metadata = metadata.duplicate()
+	return copy

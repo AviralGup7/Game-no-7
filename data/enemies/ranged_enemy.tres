@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/ranged_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"ranged"
+display_name = "Slinger"
+scene = ExtResource("2_scene")
+max_health = 16.0
+move_speed = 2.2
+acceleration = 8.0
+attack_damage = 7.0
+attack_range = 1.6
+attack_cooldown = 1.4
+attack_windup = 0.4
+score_value = 15
+currency_value = 2
+knockback_resistance = 0.0
+detect_range = 0.0
+hurt_duration = 0.25
+bounds_radius = 0.6
+navigation_target_update_interval = 0.2
+color_tint = Color(0.55, 0.35, 0.85, 1)
+visual_scale = 1.0
+tags = Array[StringName]([&"ranged"])
+unlock_wave = 2
+elite_eligible = true
+spawn_priority = 1
+ai_behavior = &"ranged"
+ranged_range = 14.0
+ranged_cooldown = 2.2
+ranged_windup = 0.5
+projectile_speed = 12.0
+projectile_count = 1
+projectile_spread = 8.0
+projectile_damage_scale = 0.8
+preferred_distance = 9.0
+strafe_speed = 0.6
+balance_notes = "Keeps distance and volleys; vulnerable up close."

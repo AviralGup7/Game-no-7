@@ -24,6 +24,15 @@ dates, sizes, and per-file SHA-256 checksums are in `assets/manifest.json`. Sour
 notices are saved under `ASSET_LICENSES/`. GitHub's public content API is used
 because direct creator-download hosts are not reachable from this workspace.
 
+## Runtime fallback (procedural audio)
+
+Until staged packs are wired into `res://data/audio/`, the game is never silent:
+`ProceduralSfx` deterministically synthesizes every referenced cue at startup
+(SFX: `player_attack`, `player_hurt`, `player_death`, `player_dodge`, `enemy_hit`,
+`enemy_death`, `enemy_attack`, `enemy_spawn`, `pickup`, `upgrade_select`; music:
+`music_menu`, `music_calm`, `music_battle`, `music_boss`, `music_victory`). Real
+drops always take precedence — procedural fill never overwrites a registered cue.
+
 ## Format and integration
 
 - Music is already compressed **Ogg Vorbis**, not oversized WAV masters or previews.

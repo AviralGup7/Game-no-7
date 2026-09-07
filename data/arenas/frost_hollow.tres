@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ArenaConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/arena_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+arena_id = &"frost_hollow"
+display_name = "Frost Hollow"
+scene = ExtResource("2_scene")
+enemy_spawn_min_player_distance = 7.0
+default_camera_profile = &"default"
+background_music_cue = &"music_battle"
+allowed_archetypes = Array[StringName]([])
+tags = Array[StringName]([&"frost", &"control"])
+unlock_wave = 3

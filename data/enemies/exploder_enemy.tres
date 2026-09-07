@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_config.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/exploder_enemy.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_script")
+archetype_id = &"exploder"
+display_name = "Emberimp"
+scene = ExtResource("2_scene")
+max_health = 12.0
+move_speed = 3.4
+acceleration = 10.0
+attack_damage = 10.0
+attack_range = 1.4
+attack_cooldown = 0.8
+attack_windup = 0.3
+score_value = 20
+currency_value = 2
+knockback_resistance = 0.0
+detect_range = 0.0
+hurt_duration = 0.1
+bounds_radius = 0.55
+navigation_target_update_interval = 0.15
+color_tint = Color(1, 0.3, 0.15, 1)
+visual_scale = 1.0
+tags = Array[StringName]([&"volatile", &"melee"])
+unlock_wave = 4
+elite_eligible = false
+spawn_priority = 3
+explodes_on_death = true
+death_blast_radius = 3.2
+death_blast_damage_scale = 1.6
+balance_notes = "Kill at range or eat the blast; dodge timing tutor."

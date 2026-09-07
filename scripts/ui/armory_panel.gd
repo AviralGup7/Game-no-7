@@ -1,0 +1,112 @@
+class_name ArmoryPanel
+extends VBoxContainer
+
+## Spendable meta-progression shop: lists every ARMORY entry with rank pips,
+## price and prerequisite state, and routes purchases through MetaProgression
+## (which validates, applies live, persists and announces). Finds the meta node
+## via the "meta_progression" group; refresh() rebuilds the list so balances
+## are always current when the screen opens. Code-built, no scene assets.
+
+signal close_requested()
+
+var _wallet_label: Label = null
+var _rows: VBoxContainer = null
+
+
+func _ready() -> void:
+	add_theme_constant_override("separation", 10)
+	_wallet_label = Label.new()
+	_wallet_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_wallet_label.add_theme_font_size_override("font_size", 20)
+	add_child(_wallet_label)
+	_rows = VBoxContainer.new()
+	_rows.add_theme_constant_override("separation", 8)
+	add_child(_rows)
+	var close := Button.new()
+	close.text = "Close"
+	close.custom_minimum_size = Vector2(200, 0)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close.pressed.connect(func() -> void: close_requested.emit())
+	add_child(close)
+	refresh()
+
+
+func _meta() -> MetaProgression:
+	if not is_inside_tree():
+		return null
+	var nodes := get_tree().get_nodes_in_group("meta_progression")
+	if nodes.is_empty():
+		return null
+	return nodes[0] as MetaProgression
+
+
+## Rebuild every row from live meta state. Safe when meta is absent (empty shop).
+func refresh() -> void:
+	if _rows == null:
+		return
+	for child in _rows.get_children():
+		child.queue_free()
+	var meta := _meta()
+	if meta == null:
+		_wallet_label.text = "Armory unavailable"
+		return
+	_wallet_label.text = "Banked coins: %d" % meta.get_wallet()
+	for item_id in MetaProgression.ARMORY:
+		_rows.add_child(_make_row(meta, StringName(String(item_id))))
+
+
+func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
+	var def: Dictionary = MetaProgression.ARMORY[item_id]
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var info := VBoxContainer.new()
+	info.custom_minimum_size = Vector2(330, 0)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var rank := meta.get_rank(item_id)
+	var max_rank := int(def["max_rank"])
+	var name := Label.new()
+	name.text = "%s  %d/%d" % [String(def["name"]), rank, max_rank]
+	name.add_theme_font_size_override("font_size", 17)
+	info.add_child(name)
+	var blurb := Label.new()
+	blurb.text = String(def["blurb"])
+	blurb.add_theme_font_size_override("font_size", 13)
+	blurb.modulate.a = 0.75
+	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(blurb)
+	row.add_child(info)
+	var verdict := meta.can_purchase(item_id)
+	var buy := Button.new()
+	buy.custom_minimum_size = Vector2(150, 56)
+	match verdict:
+		&"ok":
+			buy.text = "BUY  %d" % meta.price_of(item_id)
+			var id := item_id
+			buy.pressed.connect(func() -> void: _on_buy(meta, id))
+		&"maxed":
+			buy.text = "MAXED"
+			buy.disabled = true
+		&"missing_prerequisite":
+			buy.text = "LOCKED"
+			buy.disabled = true
+			buy.tooltip_text = "Requires: %s" % _prereq_names(def)
+		_:
+			buy.text = "%d" % meta.price_of(item_id)
+			buy.disabled = true
+			buy.tooltip_text = "Not enough banked coins"
+	row.add_child(buy)
+	return row
+
+
+func _prereq_names(def: Dictionary) -> String:
+	var names: PackedStringArray = PackedStringArray()
+	for req in Array(def.get("requires", [])):
+		var rdef: Dictionary = MetaProgression.ARMORY.get(StringName(String(req)), {})
+		names.append(String(rdef.get("name", req)))
+	return ", ".join(names)
+
+
+func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
+	if meta.purchase(item_id):
+		AudioManager.play_sfx(&"upgrade_select")
+	refresh()

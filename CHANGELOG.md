@@ -1,5 +1,103 @@
 # Changelog
 
+## [Unreleased] — Arena build-out · weapons, skills, arenas, enemies, meta
+
+### Added
+- **Data-driven weapon loadout** — `WeaponConfig` resources (`data/weapons/`, 6 shipped:
+  gladius, sentinel_spear, stormhammer, sunbow, twinfangs, warreaxe) auto-discovered by
+  `ContentRegistry`; `WeaponManager` owns the 2-slot loadout + cooldowns + switching
+  (Tab / gamepad Y / touch button), `MeleeResolver` scores arc hits, `ProjectilePool`
+  serves pooled projectiles for volleys and enemy ranged attacks.
+- **Active skills + status effects** — `SkillConfig` resources (`data/skills/`, 5 shipped:
+  bladestorm, frost_nova, phantom_rush, seismic_slam, warcry), `SkillController`
+  (charges/cooldowns, Q/E/R + tappable HUD skill bar), `StatusManager` (bleed/burn/
+  guard/regen/shock/slow/stun/warcry with refresh/stack rules), `AreaDamage` helper.
+- **2 new arenas** — `ember_crucible` + `frost_hollow` configs (share the arena scene)
+  with `ArenaDecorator` (deterministic props), `ArenaHazards` (floor fields),
+  per-arena music cue (consulted by `MusicManager`), and unlock waves.
+- **5 new enemies** — dasher, exploder, ranged, splitter (spawns fast mites on death),
+  warlord (3-phase boss via `BossController`); stun gating + slow scaling in `EnemyBase`,
+  elite affixes (`EnemyEliteAffix`), hit-flash/death-sink juice via `EnemyFeedback`.
+- **Combat depth** — `RunScorekeeper` combo (4s window, score events, kill feed in
+  `CombatLog`), `DamageNumberLayer` crit popups, `HitstopManager` (hitstop + trauma
+  shake), `PickupManager` (6 drops: antidote/coin_cache/health_orb/magnet_core/
+  stamina_brew/xp_gem).
+- **Wave director** — 7 static mutators (`WaveMutators`: swift_horde/iron_hide/
+  elite_surge/glass_cannon/bounty_hunt/volatile_mix/ember_winds) resolved per wave,
+  wave + mutator banner announcements, adaptive `DifficultyDirector`, endless planner
+  scaling.
+- **Run flow** — pause overlay + settings-from-pause, game-over run summary,
+  `SettingsPanel` (volumes, mute, motion, vibration, contrast, FPS cap, quality tier,
+  persisted remapping via `InputRemapper`), `TutorialManager` first-run coach speaking
+  through the HUD announcement banner.
+- **Meta game** — `MetaProgression` wallet (banks half the run currency) + 8-item armory
+  (5 stat tracks, 2 weapon unlocks, Bladestorm manual) with a spendable `ArmoryPanel`
+  shop; `Achievements` (19 achievements, persistent); playable `DailyChallenge` (shared
+  daily seed, fixed mutators + starter weapon).
+- **Audio** — `MusicManager` (menu/calm/battle/battle/boss/victory states, heat-driven
+  intensity layers, crossfades); `ProceduralSfx` synthesizes every referenced cue
+  (10 SFX + 5 music beds) so the game is never silent — real drops in `data/audio/`
+  (`.tres`/`.ogg`/`.wav`/`.mp3`) always take precedence.
+- **HUD/widgets** — skill bar, tactical minimap, boss HP frame, announcement banner,
+  damage numbers, combat-event kill feed, armory + daily-challenge menu entries.
+- **Debug tooling** — `PerformanceMonitor` (rolling FPS + auto quality scaling, feeds
+  the damage-number budget).
+- **Unit tests** — 9 new suites (`test_rng_tables`, `test_weapons`, `test_status_skills`,
+  `test_area_combat`, `test_drops_elites`, `test_director_mutators`, `test_meta_misc`,
+  `test_planner_extended`, `test_procedural_sfx`); ~200 checked assertions, all
+  autoload-independent.
+
+### Changed
+- `EnemyBase` integrates `StatusManager` (stun pauses AI, slow scales motion);
+  `SpawnManager` supports elites/affixes and wave-modifier scaling (hp/damage/speed/
+  score/elite/explosive); `WaveManager`/`WavePlanner` apply mutators + endless scaling.
+- `SaveManager` schema 3: tutorial completion, achievements, meta wallet/ranks.
+- `SettingsData` gained getters; `HealthComponent` gained `get_max()`;
+  `ProgressionComponent` accepts `skill_cooldown_multiplier` + `add_permanent_bonus()`.
+- `Main` builds per-run systems (projectiles, pickups, hitstop, perf, decor, hazards)
+  and persistent directors (music, achievements, meta, tutorial).
+- New `skill_1/2/3` input actions (Q/E/R + joypad shoulder/trigger).
+
+### Fixed (audit + fix pass)
+- Pause soft-lock: `PAUSED` had no outgoing transitions, so resume/restart/menu
+  from pause were rejected; added `PAUSED` transitions and made `GameRoot`
+  process while paused so the keyboard toggle works (UI already ran always).
+- Splitter wave-stall: children extending the plan after the pacing timer stopped
+  left the wave unwinnable; the timer restarts when the plan extends (same guard
+  for boss summons).
+- Enemies were immune to slows/stuns: `enemy_base.tscn` lacked the `StatusManager`
+  node the warlord already had; added (auto-binds health).
+- Boss summons never spawned (`summon_requested` unwired); the spawner now extends
+  the plan on summon. New `boss_slain` signal resets boss music to battle.
+- Payload status riders never applied: `apply_damage` on player/enemy now forwards
+  `payload.status_effects` to the local `StatusManager`.
+- Silent cues wired: pickup collection + enemy spawn sounds; level-ups announce on
+  the banner; the adaptive director now receives player-damage events.
+- Hitstop/trauma never triggered: crits/deaths now pulse the `HitstopManager`.
+- Camera shake permanently drifted the lens; base position is captured + restored,
+  reduced-motion initializes from save, and arena camera profiles apply at build.
+- Arena validation errors surface at startup; save flushes on quit request.
+- Touch buttons work with mouse (desktop parity) and draw centered; HUD seeds from
+  the live run so fresh runs never render stale widgets; `reload_finished` forwards
+  from weapon instances; `AUDIO_MANIFEST.md`/README status updated.
+
+### Modularized
+- Split the 10 largest scripts into focused modules (public APIs unchanged):
+  `ui_root` → `UiText` + `UiFactory` + `GameHud` + `UpgradePanel` (658→363);
+  `player` → `PlayerLocomotion` + `PlayerBuild` (617→489);
+  `enemy_base` → `EnemyLocomotion` + `EnemyNavigator` + `EnemyStriker` (548→392);
+  `spawn_manager` → `SpawnLedger` + `SpawnPlacer` (466→353);
+  `game_root` → `RunScorekeeper` + `UpgradeService` (442→359);
+  `skill_controller` → `SkillExecutor` (398→200);
+  `save_manager` → `SaveSchema` (352→241);
+  `attack_controller` → `ComboChain` (321→298);
+  `content_registry` → `ContentLoader` (310→210);
+  mutator resolution → `WaveMutators.resolve_for_wave` (317→305).
+- `DamagePayload.with_amount()` clone helper (mitigation/shield pipelines).
+- New `test_extracted_modules` suite (ComboChain/SpawnLedger/SaveSchema/UiText/payload).
+- Fixed: `ContentRegistry.refresh_all()` now rebuilds fresh tables, so repeated
+  refresh/validate no longer reports every id as a false duplicate.
+
 ## [Unreleased] — 2026-09-07 · Core 3D asset kit
 
 ### Added

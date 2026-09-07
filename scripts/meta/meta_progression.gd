@@ -1,0 +1,165 @@
+class_name MetaProgression
+extends Node
+
+## Cross-run meta progression: a persistent wallet (banked run currency),
+## permanent stat boosts and content unlocks bought from the armory screen.
+## Purchases validate funds + prerequisites, apply immediately to the live
+## ProgressionComponent when a run is active, and persist through SaveManager.
+## All pricing/stats are data (ARMORY) so balance passes never touch logic.
+
+signal purchase_completed(item_id: StringName)
+signal wallet_changed(balance: int)
+
+const ARMORY := {
+	&"vitality Tome": {"name": "Tome of Vitality", "cost": 100, "requires": [], "stat": &"max_health_add", "per_rank": 10.0, "max_rank": 5, "kind": &"stat", "blurb": "+10 max HP per rank, every run."},
+	&"swift_boots": {"name": "Swift Boots", "cost": 120, "requires": [], "stat": &"move_speed_multiplier", "per_rank": 0.03, "max_rank": 5, "kind": &"stat", "blurb": "+3% move speed per rank."},
+	&"whetstone": {"name": "Whetstone", "cost": 150, "requires": [], "stat": &"attack_damage_multiplier", "per_rank": 0.04, "max_rank": 5, "kind": &"stat", "blurb": "+4% damage per rank."},
+	&"second_wind": {"name": "Second Wind", "cost": 200, "requires": [&"vitality Tome"], "stat": &"stamina_max_add", "per_rank": 15.0, "max_rank": 3, "kind": &"stat", "blurb": "+15 stamina per rank."},
+	&"lucky_charm": {"name": "Lucky Charm", "cost": 250, "requires": [], "stat": &"crit_chance_add", "per_rank": 0.02, "max_rank": 3, "kind": &"stat", "blurb": "+2% crit chance per rank."},
+	&"unlock_warreaxe": {"name": "Armory: War Axe", "cost": 300, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"warreaxe", "blurb": "Unlock the War Axe loadout."},
+	&"unlock_sunbow": {"name": "Armory: Sunbow", "cost": 500, "requires": [&"unlock_warreaxe"], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"sunbow", "blurb": "Unlock the Sunbow loadout."},
+	&"unlock_bladestorm": {"name": "Manual: Bladestorm", "cost": 400, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"skill", "target": &"bladestorm", "blurb": "Bladestorm starts unlocked."},
+}
+
+var _wallet := 0
+var _ranks: Dictionary = {}  # item_id -> rank purchased
+
+
+func _ready() -> void:
+	add_to_group("meta_progression")
+	_load()
+	if EventBus != null and not EventBus.run_ended.is_connected(_on_run_ended):
+		EventBus.run_ended.connect(_on_run_ended)
+
+
+func _load() -> void:
+	_wallet = 0
+	_ranks.clear()
+	if SaveManager == null:
+		return
+	if SaveManager.has_method("get_meta_wallet"):
+		_wallet = maxi(int(SaveManager.call("get_meta_wallet")), 0)
+	if SaveManager.has_method("get_meta_ranks"):
+		var ranks: Variant = SaveManager.call("get_meta_ranks")
+		if ranks is Dictionary:
+			_ranks = (ranks as Dictionary).duplicate()
+
+
+func _save() -> void:
+	if SaveManager == null:
+		return
+	if SaveManager.has_method("set_meta_wallet"):
+		SaveManager.call("set_meta_wallet", _wallet)
+	if SaveManager.has_method("set_meta_ranks"):
+		SaveManager.call("set_meta_ranks", _ranks.duplicate())
+	if SaveManager.has_method("save_now"):
+		SaveManager.call("save_now")
+
+
+func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
+	# Bank a cut of the run's unspent currency into the persistent wallet.
+	if GameRoot != null:
+		var earned := maxi(int(GameRoot.get_run().currency / 2), 0)
+		if earned > 0:
+			_wallet += earned
+			_save()
+			wallet_changed.emit(_wallet)
+
+
+func get_wallet() -> int:
+	return _wallet
+
+
+func grant_currency(amount: int) -> void:
+	if amount <= 0:
+		return
+	_wallet += amount
+	_save()
+	wallet_changed.emit(_wallet)
+
+
+func get_rank(item_id: StringName) -> int:
+	return int(_ranks.get(item_id, 0))
+
+
+func is_maxed(item_id: StringName) -> bool:
+	if not ARMORY.has(item_id):
+		return true
+	return get_rank(item_id) >= int(ARMORY[item_id]["max_rank"])
+
+
+func price_of(item_id: StringName) -> int:
+	if not ARMORY.has(item_id):
+		return -1
+	# Linear price growth per rank: cost * (rank+1).
+	return int(ARMORY[item_id]["cost"]) * (get_rank(item_id) + 1)
+
+
+func can_purchase(item_id: StringName) -> StringName:
+	if not ARMORY.has(item_id):
+		return &"unknown_item"
+	if is_maxed(item_id):
+		return &"maxed"
+	for req in ARMORY[item_id]["requires"]:
+		if get_rank(StringName(String(req))) <= 0:
+			return &"missing_prerequisite"
+	if _wallet < price_of(item_id):
+		return &"insufficient_funds"
+	return &"ok"
+
+
+func purchase(item_id: StringName) -> bool:
+	if can_purchase(item_id) != &"ok":
+		return false
+	_wallet -= price_of(item_id)
+	_ranks[item_id] = get_rank(item_id) + 1
+	_save()
+	_apply_live(item_id)
+	purchase_completed.emit(item_id)
+	wallet_changed.emit(_wallet)
+	return true
+
+
+## Push a stat item into the live run's ProgressionComponent when present.
+func _apply_live(item_id: StringName) -> void:
+	var def: Dictionary = ARMORY[item_id]
+	if String(def["kind"]) != "stat":
+		return
+	if GameRoot == null or GameRoot.get_active_player() == null:
+		return
+	var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
+	if prog != null and prog.has_method("add_permanent_bonus"):
+		prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]))
+
+
+## Apply ALL owned ranks at run start (called by Main after world build).
+func apply_all_to_run() -> void:
+	for item_id in _ranks:
+		var def: Dictionary = ARMORY.get(item_id, {})
+		if def.is_empty() or String(def["kind"]) != "stat":
+			continue
+		if GameRoot == null or GameRoot.get_active_player() == null:
+			return
+		var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
+		if prog != null and prog.has_method("add_permanent_bonus"):
+			prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
+
+
+func is_weapon_unlocked(weapon_id: StringName) -> bool:
+	for item_id in _ranks:
+		var def: Dictionary = ARMORY.get(item_id, {})
+		if String(def.get("kind", "")) == "weapon" and StringName(String(def.get("target", ""))) == weapon_id:
+			return get_rank(item_id) > 0
+	return weapon_id == &"gladius"  # starter is always available
+
+
+func is_skill_unlocked_from_start(skill_id: StringName) -> bool:
+	for item_id in _ranks:
+		var def: Dictionary = ARMORY.get(item_id, {})
+		if String(def.get("kind", "")) == "skill" and StringName(String(def.get("target", ""))) == skill_id:
+			return get_rank(item_id) > 0
+	return false
+
+
+func get_debug_snapshot() -> Dictionary:
+	return {"wallet": _wallet, "ranks": _ranks.duplicate()}

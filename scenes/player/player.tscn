@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
@@ -9,6 +9,11 @@
 [ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="7_fb"]
 [ext_resource type="Script" path="res://scripts/player/player_audio.gd" id="8_aud"]
 [ext_resource type="Script" path="res://scripts/player/dodge_controller.gd" id="9_dodge"]
+[ext_resource type="Script" path="res://scripts/player/stamina_component.gd" id="10_stam"]
+[ext_resource type="Script" path="res://scripts/player/experience_component.gd" id="11_xp"]
+[ext_resource type="Script" path="res://scripts/skills/skill_controller.gd" id="12_skills"]
+[ext_resource type="Script" path="res://scripts/weapons/weapon_manager.gd" id="13_weapons"]
+[ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="14_status"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.45
@@ -65,6 +70,21 @@ script = ExtResource("6_tgt")
 
 [node name="DodgeController" type="Node" parent="."]
 script = ExtResource("9_dodge")
+
+[node name="StaminaComponent" type="Node" parent="."]
+script = ExtResource("10_stam")
+
+[node name="ExperienceComponent" type="Node" parent="."]
+script = ExtResource("11_xp")
+
+[node name="SkillController" type="Node" parent="."]
+script = ExtResource("12_skills")
+
+[node name="WeaponManager" type="Node" parent="."]
+script = ExtResource("13_weapons")
+
+[node name="StatusManager" type="Node" parent="."]
+script = ExtResource("14_status")
 
 [node name="PlayerFeedback" type="Node" parent="."]
 script = ExtResource("7_fb")
