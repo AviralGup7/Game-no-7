@@ -28,8 +28,34 @@ No core script changes.
    `stat_modifiers` (use the stable modifier keys listed in `upgrade_config.gd`),
    `prerequisites`, `exclusions`, `unlock_wave`, `weight`, `disabled`.
 3. Validation checks modifier keys/prerequisites/exclusions/rarity automatically.
+4. The `ContentRegistry` auto-discovers it; the `UpgradeSelector` includes it in the
+   valid pool (respecting `unlock_wave`, `disabled`, prerequisites/exclusions/max stacks
+   and `weight`); `GameRoot.present_upgrade_selection_for_wave()` offers it after an
+   upgrade wave and `ProgressionComponent` applies its modifiers.
 
-The upgrade panel still renders whatever the selection system returns — no UI rewrite.
+The upgrade panel (in `scripts/ui/ui_root.gd`) renders whatever the selection system
+returns and sends the click only to `GameRoot.request_upgrade_selection()` — no UI
+rewrite and no direct progression mutation from the UI. The selection is **deterministic**:
+for the same run seed + wave + current stacks the same choices are produced, so headless
+tests can assert exact upgrade flow.
+
+### Modifier semantics (single documented model)
+
+`ProgressionComponent` uses one consistent model. Author values in **decimal domain**
+(`0.15` == `+15%`), and stacking is additive in that domain. Consumers read one of:
+
+| Family | Keys | Formula |
+|---|---|---|
+| multiplicative | `move_speed_multiplier`, `attack_damage_multiplier`, `knockback_multiplier` | `base * (1 + Σ)` |
+| cooldown | `attack_cooldown_multiplier`, `dodge_cooldown_multiplier` | `base * (1 + Σ)`, clamped `>= 0.05` (a *negative* Σ is a reduction) |
+| additive | `max_health_add`, `attack_range_add`, `healing_on_kill`, `score_multiplier_add`, `currency_multiplier_add` | `base + Σ` |
+| resistance | `damage_resistance_add` | `base + Σ`, clamped `[0, 1]` |
+
+Examples: two `+15% damage` stacks → `base * 1.30`. One `-10% cooldown` → `base * 0.9`
+(it can never *increase* cooldown). `max_health_add +20` from `100` → `120` (and if the
+player was already at full health the current HP is topped up to the new max, so
+`100/100 → 120/120`). Resistance is consumed by the player as `damage *= (1 - resistance)`
+so a `1.0` resistance floors at 0, never negative damage.
 
 ## 3. Add a new arena
 

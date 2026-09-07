@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.4.0] — Phase 4 · Data-driven progression & upgrade loop
+
+### Added
+- **Real upgrade library** under `data/upgrades/` — 10 `UpgradeConfig` resources
+  (`vitality`, `swift`, `power`, `haste`, `fortified`, `hunter`, `reach`, `force`,
+  `scavenger`, `bloodlust`), auto-discovered and validated by `ContentRegistry`.
+- **Deterministic upgrade selection** — new `UpgradeSelector` seeds a local RNG from
+  `(run_seed, wave)`; returns exactly 3 valid choices (fewer when the pool is smaller),
+  never duplicates, and respects disabled / unlock_wave / prerequisites / exclusions /
+  max-stacks / weight. It never touches the global RNG.
+- **GameRoot progression commands** — `present_upgrade_selection_for_wave()` and
+  `request_upgrade_selection()` on the canonical state machine
+  (`PLAYING → WAVE_TRANSITION → UPGRADE_SELECTION → PLAYING`). Only offered + still-legal
+  ids can be selected; arbitrary ids are rejected.
+- **WaveManager upgrade integration** — after a wave whose config sets
+  `upgrade_after_completion`, the next wave is held until a valid upgrade is selected;
+  otherwise waves continue through the normal inter-wave transition.
+- **Explicit modifier semantics** (documented in `docs/EXTENDING.md`): multiplicative
+  `base*(1+Σ)`, additive `base+Σ`, cooldown `base*(1+Σ)` with negative = reduction (clamped
+  `>=0.05`), resistance clamped `[0,1]`.
+- **Modifier → gameplay wiring**: max HP (with full-HP top-up 100→120), move speed,
+  attack damage, attack cooldown, damage resistance, attack range, knockback, score /
+  currency multipliers, and heal-on-kill all now change real behaviour.
+- **Upgrade UI** — real selection cards (interactive buttons) with rarity colouring, stack
+  counts, selection locking, and an applied-effect toast that respects reduced-motion.
+- **Real dodge** with temporary invulnerability, burst movement, camera-relative direction,
+  arena clamp and a proper cooldown.
+- **Combo completion** — decays to 0 after a no-kill window, tracked in the run summary;
+  no increase after death.
+- **Authoritative spawn/wave accounting** — `SpawnManager` tracks planned/spawned/pending /
+  active/defeated/failed explicitly; a failed spawn is retried up to a bound and counted as
+  failed (never as a defeat) so it can't under-fill or falsely complete a wave.
+- **`EventBus.enemy_damaged`** now emitted exactly once per accepted enemy damage.
+- **Tests** — new headless suites `test_upgrades`, `test_upgrade_selection`,
+  `test_progression`, `test_combo`; all existing + new suites pass in CI.
+
+### Changed
+- `ProgressionComponent` is the runtime source of truth; `RunState.selected_upgrades` /
+  `active_modifiers` are a serializable mirror kept in sync by GameRoot.
+- Fixes an existing UI bug where `_sync_from_state()` only ran once in `_ready`, so panels
+  (HUD / pause / game-over / upgrade) never switched on state change.
+
+### Notes / limitations
+- Visual assets remain primitive Godot primitives; no external art/audio was introduced
+  in this phase (none with verified licensing were sourced). Optional audio cues degrade
+  gracefully to silence. See the Phase 4 report.
+
 ## [0.3.2] — Fix: Android APK export green in CI (build template + export-time compile)
 
 ### Fixed

@@ -9,15 +9,20 @@ with a virtual joystick, attack with a melee weapon, dodge, pick upgrades betwee
 waves, and chase a high score. When you fall, you see your run summary and can
 instantly restart.
 
-> **Project status — Phase 3 run loop.** This repository is built in defined phases
-> (see `CHANGELOG.md`). Phase 1 delivered the project/Android config, canonical
+> **Project status — Phase 4 progression loop.** This repository is built in defined
+> phases (see `CHANGELOG.md`). Phase 1 delivered the project/Android config, canonical
 > autoloads + scene tree, content registry, player movement + camera, an arena, a UI
 > shell with touch input and the test scaffold. Phase 2 added combat (melee hit
-> resolution, `EnemyBase` damage/death/score) and the first enemy. Phase 3 completes an
+> resolution, `EnemyBase` damage/death/score) and the first enemy. Phase 3 completed an
 > integrated menu → start run → spawn → enemy AI (Idle/Chase/Attack/Hurt/Dead) →
 > damage/kill → score → wave advance → player death → game-over → clean restart loop,
 > with Basic/Fast/Heavy archetypes and deterministic, headless-tested wave/spawn
-> generation. Progression/upgrades land in Phase 4.
+> generation. Phase 4 adds the data-driven progression loop: fight → complete a wave →
+> a deterministic **exactly-3 upgrade selection** opens every two completed waves → the
+> player picks one → a real modifier is applied to gameplay (max HP, move/attack speed,
+> cooldown, resistance, range, knockback, score/currency multipliers, heal-on-kill) →
+> the next wave only starts after the choice → dying and restarting fully clears run
+> upgrades.
 
 ---
 
