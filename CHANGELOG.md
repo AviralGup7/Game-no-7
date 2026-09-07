@@ -1,5 +1,38 @@
 # Changelog
 
+## [Unreleased] — 2026-09-07 · Core 3D asset kit
+
+### Added
+- **178 downloaded asset files + 13 preserved source notices (24.75 MiB):**
+  4 rigged KayKit characters with embedded animation libraries, 11 weapon/shield
+  models with their buffers/textures, 37 arena models, 6 pickup models, 15 particle
+  textures, 55 UI/upgrade images, 2 Rajdhani fonts, 29 SFX and 2 Ogg music loops.
+- **Asset catalogue** (`docs/ASSET_CATALOG.md`, `assets/catalog.json`) mapping the
+  player, Basic/Fast/Heavy enemies, all 10 upgrades, effects, props and audio cues
+  to actual downloaded files. Exact clip names and integration notes included.
+- **Per-file source lock** (`assets/manifest.json`): reviewed creator/licence,
+  immutable source commit, exact download URL, original/local path, size, SHA-256
+  and acquisition date. Updated visual/audio manifests and stored licence notices.
+- **Offline format/dependency/coverage validation**, 28 Python tests, optional
+  Khronos glTF validation, and a native Godot import smoke test for CI/builds.
+
+### Changed
+- Replaced the empty downloader scaffold with an approved-source-only restorer:
+  mandatory size/hash checks, read-only `--verify`, explicit `--repair`, safe paths,
+  atomic writes and pack selection. No credentials or runtime downloads required.
+- Android export presets retain asset/font licence notices. `.gitattributes`
+  prevents line-ending conversion from invalidating source checksums.
+- Build/CI paths verify assets and exercise native Godot resource imports.
+
+### Scope / validation
+- **Downloads only, not an art/gameplay integration milestone.** Live character,
+  arena, UI and audio wiring remain unchanged. No combat/camera/progression changes.
+- 191 file checks, 28 Python tests and 25 existing resource structural checks pass.
+  All 58 models pass Khronos validation with 0 errors; 32 upstream skinned-hierarchy
+  warnings are documented. All 31 audio files decode and contain sound.
+- Godot/Android execution was unavailable locally (engine not installed; release
+  download host unreachable). Native import checks were added but not run here.
+
 ## [0.4.0] — Phase 4 · Data-driven progression & upgrade loop
 
 ### Added

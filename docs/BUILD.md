@@ -22,6 +22,31 @@ godot --headless --path . --import
 Generates `.godot/` caches (global class registry, `.uid` files, import steps). This
 is required before tests/export run and is also done automatically in CI.
 
+The reviewed core art/audio files are checked into `assets/`; a fresh clone does
+not need to download third-party packs. Verify them offline before importing:
+
+```bash
+python3 scripts/download_assets.py --verify
+python3 tool/validate_assets.py
+python3 -m unittest discover -s tests/python -v
+```
+
+Restore a missing approved file with `python3 scripts/download_assets.py`; use
+`--repair` to explicitly replace a damaged file. Downloads require access to the
+pinned GitHub public content URLs but **verification, import and the game do not**.
+No GitHub token is required by the asset downloader. A rate-limit/network error is
+a failed download, not permission to bypass the hash lock; retry later or use the
+already-versioned files. See `docs/ASSET_CATALOG.md` and the provenance manifests.
+
+After import, test actual Godot resource types, skeletons and animation names:
+
+```bash
+godot --headless --path . --script res://tests/validate_asset_imports.gd
+```
+
+The export presets include `ASSET_LICENSES/*.txt` / `*.md` and both provenance
+manifests, retaining the mandatory Rajdhani OFL copyright/licence with the fonts.
+
 ## Environment variables (export / signing)
 
 Never commit a keystore or its passwords. Supply through CI secrets / env instead:
@@ -98,12 +123,15 @@ What the build script does:
 2. Verify `export_presets.cfg` contains the Android preset.
 3. Verify required project files (`project.godot`, main scene, scripts).
 4. Verify the documented Godot version or report a mismatch.
-5. `godot --headless --path . --import`
-6. Run the headless unit tests (`tests/run_tests.gd`).
-7. `python3 tool/validate_resources.py`
-8. `godot --headless --path . --export-release "Android" build/LastStandArena.apk`
-9. Verify the APK exists and is non-zero.
-10. Print the APK path and write a concise build report to `build/BUILD_REPORT.txt`.
+5. Verify locked asset hashes, formats/dependencies and the Python asset tests (offline).
+6. `godot --headless --path . --import`
+7. Run native asset import checks (`tests/validate_asset_imports.gd`).
+8. Run the headless unit tests (`tests/run_tests.gd`).
+9. `python3 tool/validate_resources.py`
+10. Install the Android build template into the project.
+11. Export the selected debug/release APK using the Android preset.
+12. Verify the APK exists and is non-zero.
+13. Print the APK path and write a concise build report to `build/BUILD_REPORT.txt`.
 
 **Release signing note:** `BUILD_TYPE=release` uses `--export-release`, which requires
 the Android export preset's keystore to be configured (editor setting, never

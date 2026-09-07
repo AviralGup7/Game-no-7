@@ -63,10 +63,29 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 ---
 
+## Downloaded 3D asset kit
+
+The core low-poly asset kit is now included under `assets/`: **4 rigged/animated
+characters, 11 weapons/shields, 43 arena/pickup models, UI and particle textures,
+2 fonts, 29 sound effects, and 2 music loops** (~24.75 MiB of reviewed downloads).
+All source files have pinned provenance, SHA-256 checksums and preserved licences.
+
+**Asset delivery is separate from gameplay integration:** the current game scenes
+still use their primitives and optional audio fallback. Models, animation-state
+wiring, equipment attachments, UI skins and audio registration are not silently
+changed by downloading the files. See **[the asset catalogue](docs/ASSET_CATALOG.md)**
+for file/role mappings, animation names, validation results and the integration checklist.
+
+```bash
+python3 scripts/download_assets.py --verify  # offline integrity check
+python3 tool/validate_assets.py              # model dependencies + content coverage
+# If files are missing: python3 scripts/download_assets.py
+```
+
 ## Repository map
 
 ```
-assets/        downloaded third-party assets + placeholders (textures, materials, fonts)
+assets/        reviewed 3D models, animations, textures, UI, fonts, audio + source lock
 scenes/        main, arena, player, ui (canonical scene tree)
 scripts/       core autoloads + per-system controllers/state
 data/          typed .tres content: enemies, upgrades, arenas, cameras, weapons, audio
@@ -86,6 +105,7 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 |---|---|
 | `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
+| `docs/ASSET_CATALOG.md` | Downloaded asset inventory, file/role map, animation names + integration status |
 | `docs/EXTENDING.md` | Step-by-step extension guides |
 | `THIRD_PARTY_ASSETS.md` | Visual asset licences + provenance |
 | `AUDIO_MANIFEST.md` | Audio asset licences + provenance |
