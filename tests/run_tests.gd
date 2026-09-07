@@ -52,21 +52,17 @@ func _initialize() -> void:
 ## pure arc target query, using injected fake-clock time. No physics or audio needed.
 func _run_combat_integration() -> Array:
 	var results: Array = []
-	var HealthScript := load("res://scripts/player/health_component.gd")
-	var Payload := load("res://scripts/combat/damage_payload.gd")
-	var Query := load("res://scripts/combat/combat_query.gd")
-	var FakeClock := load("res://tests/doubles/fake_clock.gd")
 
-	var clock = FakeClock.new()
-	var hp = HealthScript.new()
+	var clock := FakeClock.new()
+	var hp := HealthComponent.new()
 	root.add_child(hp)
 	hp.set_time_source(clock.now)
 	hp.reset(100.0)
 
 	# Damage applies and reduces health.
-	var dmg := Payload.new()
+	var dmg := DamagePayload.new()
 	dmg.amount = 30.0
-	var r1 = hp.take_damage(dmg)
+	var r1 := hp.take_damage(dmg)
 	results.append({
 		"name": "damage applies 30/100 -> 70",
 		"passed": r1.accepted and is_equal_approx(hp.current_health, 70.0) and not r1.target_died,
@@ -74,9 +70,9 @@ func _run_combat_integration() -> Array:
 	})
 
 	# Invalid payloads rejected safely.
-	var bad := Payload.new()
+	var bad := DamagePayload.new()
 	bad.amount = -5.0
-	var rb = hp.take_damage(bad)
+	var rb := hp.take_damage(bad)
 	results.append({
 		"name": "negative damage rejected (invalid_payload)",
 		"passed": not rb.accepted and rb.ignored_reason == DamageResult.IGNORE_INVALID_PAYLOAD,
@@ -85,7 +81,7 @@ func _run_combat_integration() -> Array:
 
 	# Invulnerability window ignores damage.
 	hp.set_invulnerable(1.0)
-	var inv = hp.take_damage(dmg)
+	var inv := hp.take_damage(dmg)
 	results.append({
 		"name": "invulnerable damage ignored",
 		"passed": not inv.accepted and inv.ignored_reason == DamageResult.IGNORE_INVULNERABLE,
@@ -101,11 +97,11 @@ func _run_combat_integration() -> Array:
 	})
 
 	# Lethal damage -> death exactly once.
-	var lethal := Payload.new()
+	var lethal := DamagePayload.new()
 	lethal.amount = 1000.0
 	var death_events := 0
 	hp.died.connect(func() -> void: death_events += 1)
-	var rl = hp.take_damage(lethal)
+	var rl := hp.take_damage(lethal)
 	hp.take_damage(lethal)  # duplicate damage on a corpse
 	results.append({
 		"name": "lethal damage dies once, duplicate ignored",
@@ -116,10 +112,16 @@ func _run_combat_integration() -> Array:
 	hp.queue_free()
 
 	# Pure arc query against fake Node3D targets.
-	var t1 := Node3D.new(); t1.global_position = Vector3(0, 0, -2.0); root.add_child(t1)  # in front, in range
-	var t2 := Node3D.new(); t2.global_position = Vector3(0, 0, -8.0); root.add_child(t2)  # too far
-	var t3 := Node3D.new(); t3.global_position = Vector3(0, 0, -1.0); root.add_child(t3)
-	var arc_hits: Array = Query.find_targets_in_arc(Vector3.ZERO, Vector3(0, 0, -1), [t1, t2, t3], 3.0, 45.0)
+	var t1 := Node3D.new()
+	t1.global_position = Vector3(0, 0, -2.0)
+	root.add_child(t1)  # in front, in range
+	var t2 := Node3D.new()
+	t2.global_position = Vector3(0, 0, -8.0)
+	root.add_child(t2)  # too far
+	var t3 := Node3D.new()
+	t3.global_position = Vector3(0, 0, -1.0)
+	root.add_child(t3)
+	var arc_hits := CombatQuery.find_targets_in_arc(Vector3.ZERO, Vector3(0, 0, -1), [t1, t2, t3], 3.0, 45.0)
 	results.append({
 		"name": "arc query keeps in-range targets only",
 		"passed": arc_hits.size() == 2 and t1 in arc_hits and t3 in arc_hits and t2 not in arc_hits,

@@ -58,7 +58,10 @@ func _screen_dir_to_world(v: Vector2) -> Vector3:
 
 
 func _camera_yaw() -> float:
-	var cam := get_viewport().get_camera_3d() if get_viewport() != null else null
+	var vp := get_viewport()
+	if vp == null:
+		return 0.0
+	var cam := vp.get_camera_3d()
 	if cam == null:
 		return 0.0
 	return cam.global_transform.basis.get_euler().y

@@ -1,3 +1,4 @@
+class_name FakeClock
 extends RefCounted
 ## Deterministic clock for tests. Injectable wherever a system asks for a time
 ## source (see HealthComponent.set_time_source). Advances explicitly, never by wall

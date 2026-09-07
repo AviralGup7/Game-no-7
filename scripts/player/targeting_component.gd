@@ -38,8 +38,10 @@ func pick_best_target(candidates: Array) -> Node:
 			continue
 		if c.has_method("is_alive") and not bool(c.call("is_alive")):
 			continue
-		var pos := c.global_position if c is Node3D else origin
-		var to_target := pos - origin
+		var node := c as Node3D
+		if node == null:
+			continue
+		var to_target := node.global_position - origin
 		var dist := to_target.length()
 		if dist > max_target_range:
 			continue

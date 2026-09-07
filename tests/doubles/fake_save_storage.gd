@@ -1,3 +1,4 @@
+class_name FakeSaveStorage
 extends RefCounted
 ## In-memory save storage double. Lets SaveManager-shaped logic be tested without a
 ## real user:// filesystem. Wire it in where persistence is injected.

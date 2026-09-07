@@ -24,8 +24,10 @@ static func find_targets_in_arc(
 	for t in targets:
 		if not is_valid_target(t):
 			continue
-		var offset := (t.global_position - origin) if t is Node3D else Vector3.ZERO
-		offset.y = 0.0
+		var node := t as Node3D
+		var offset := Vector3.ZERO
+		if node != null:
+			offset = (node.global_position - origin) * Vector3(1, 0, 1)
 		var dist_sq := offset.length_squared()
 		if dist_sq > range * range:
 			continue

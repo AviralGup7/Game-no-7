@@ -105,7 +105,7 @@ func request_save() -> bool:
 # ---------------------------- Persistence ----------------------------
 
 func _load_from_disk() -> void:
-	var raw := _read_raw(SAVE_PATH)
+	var raw: Variant = _read_raw(SAVE_PATH)
 	if raw == null:
 		raw = _read_raw(BACKUP_PATH)
 		if raw != null:
@@ -121,7 +121,7 @@ func _flush_save() -> bool:
 	if not _dirty:
 		return true
 	# Write backup of the previous good file first (destructive-recovery safety).
-	var previous := _read_raw(SAVE_PATH)
+	var previous: Variant = _read_raw(SAVE_PATH)
 	if previous != null:
 		_write_raw(BACKUP_PATH, JSON.stringify(previous))
 	var ok := _write_raw(SAVE_PATH, JSON.stringify(_save))
@@ -177,22 +177,22 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 	if raw_data == null or not raw_data is Dictionary:
 		return out
 	var data: Dictionary = raw_data
-	var version := _int_or(_get(data, "schema_version", SCHEMA_VERSION), SCHEMA_VERSION)
+	var version := _int_or(_dict_get(data, "schema_version", SCHEMA_VERSION), SCHEMA_VERSION)
 	if version > SCHEMA_VERSION:
 		# Newer schema: keep what we understand, discard the rest rather than crash.
 		pass
 	if version < SCHEMA_VERSION:
 		data = _migrate_static(data, version)
 	out.schema_version = SCHEMA_VERSION
-	out.best_score = maxi(0, _int_or(_get(data, "best_score", 0), 0))
-	out.best_wave = maxi(0, _int_or(_get(data, "best_wave", 0), 0))
+	out.best_score = maxi(0, _int_or(_dict_get(data, "best_score", 0), 0))
+	out.best_wave = maxi(0, _int_or(_dict_get(data, "best_wave", 0), 0))
 	if data.has("lifetime_statistics") and data.lifetime_statistics is Dictionary:
 		var src: Dictionary = data.lifetime_statistics
 		var ls: Dictionary = out.lifetime_statistics
-		ls.total_runs = maxi(0, _int_or(_get(src, "total_runs", 0), 0))
-		ls.total_kills = maxi(0, _int_or(_get(src, "total_kills", 0), 0))
-		ls.total_time_seconds = maxf(0.0, _float_or(_get(src, "total_time_seconds", 0.0), 0.0))
-		ls.highest_combo = maxi(0, _int_or(_get(src, "highest_combo", 0), 0))
+		ls.total_runs = maxi(0, _int_or(_dict_get(src, "total_runs", 0), 0))
+		ls.total_kills = maxi(0, _int_or(_dict_get(src, "total_kills", 0), 0))
+		ls.total_time_seconds = maxf(0.0, _float_or(_dict_get(src, "total_time_seconds", 0.0), 0.0))
+		ls.highest_combo = maxi(0, _int_or(_dict_get(src, "highest_combo", 0), 0))
 		out.lifetime_statistics = ls
 	if data.has("settings") and data.settings is Dictionary:
 		var sd := SettingsData.new()
@@ -200,11 +200,11 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 		out.settings = sd.to_dict()
 	if data.has("progression") and data.progression is Dictionary:
 		var prog: Dictionary = data.progression
-		var unlocked := _string_list(_get(prog, "unlocked_upgrades", []))
-		var arenas := _string_list(_get(prog, "unlocked_arenas", ["default_arena"]))
+		var unlocked := _string_list(_dict_get(prog, "unlocked_upgrades", []))
+		var arenas := _string_list(_dict_get(prog, "unlocked_arenas", ["default_arena"]))
 		if "default_arena" not in arenas:
 			arenas.append("default_arena")
-		var cosmetics := _string_list(_get(prog, "unlocked_cosmetics", []))
+		var cosmetics := _string_list(_dict_get(prog, "unlocked_cosmetics", []))
 		out.progression = {
 			"unlocked_upgrades": unlocked,
 			"unlocked_arenas": arenas,
@@ -248,7 +248,7 @@ static func _default_save_static() -> Dictionary:
 	}
 
 
-static func _get(data: Dictionary, key: String, fallback: Variant) -> Variant:
+static func _dict_get(data: Dictionary, key: String, fallback: Variant) -> Variant:
 	return data.get(key, fallback)
 
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.1] — Fix: Godot 4.4 compile errors (parse / type-inference)
+
+### Fixed
+- `save_manager.gd`: renamed the static `_get(...)` helper to `_dict_get(...)` — it
+  collided with `Object._get(StringName)`, breaking the whole script ("function
+  signature doesn't match the parent"). Declared `raw`/`previous` (read from
+  `_read_raw`, which returns Variant) as explicit `Variant` instead of `:=`.
+- Tests: replaced `var X := load(...).new()` with direct references to the registered
+  `class_name` types (`DamagePayload`, `DamageResult`, `HealthComponent`,
+  `CombatQuery`, `Scoring`, `EnemyConfig`, etc.) so `.new()` is statically typed and
+  no longer triggers "cannot infer the type" / "inferred from a Variant value" errors.
+- Added `class_name` to the `FakeClock` and `FakeSaveStorage` test doubles.
+- `combat_query.gd`, `targeting_component.gd`, `character_controller.gd`: removed
+  ternaries whose branches produced a Variant (`t is Node3D`, `c is Node3D`,
+  `get_camera_3d() if ...`) that would fail type inference when those scripts load.
+
+These were latent in Phases 1-2 and surfaced on the first real
+`godot --headless --path . --script res://tests/run_tests.gd` run.
 All notable changes are tracked per implementation phase.
 
 ## [0.2.0] — Phase 2 · Combat + first enemy (in progress)

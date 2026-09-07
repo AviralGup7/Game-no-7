@@ -1,17 +1,18 @@
 extends RefCounted
 
 ## Headless unit tests for the save schema + settings clamping.
-## Runs without autoloads by preloading scripts by path.
+## The save script has no class_name (it is an autoload), so it is loaded by path and
+## its static helpers are called through the loaded script (results are read as
+## Variant; no `:=` inference is used on them).
 
 static func suite() -> Array:
 	var results: Array = []
-
-	# --- normalize_save handles garbage without throwing ---
 	var SaveScript = load("res://scripts/save/save_manager.gd")
-	var normalized := SaveScript.normalize_save(null)
+
+	var normalized = SaveScript.normalize_save(null)
 	results.append({
 		"name": "normalize_save(null) returns a valid default",
-		"passed": normalized is Dictionary and int(normalized.get("schema_version", 0)) == SaveScript.SCHEMA_VERSION,
+		"passed": normalized is Dictionary and int(normalized.get("schema_version", 0)) == int(SaveScript.SCHEMA_VERSION),
 		"why": "",
 	})
 
@@ -23,7 +24,7 @@ static func suite() -> Array:
 	})
 
 	# --- valid data is preserved & migrated ---
-	var migrated := SaveScript.normalize_save({
+	var migrated = SaveScript.normalize_save({
 		"schema_version": 1,
 		"best_score": 42,
 		"best_wave": 7,
@@ -31,13 +32,13 @@ static func suite() -> Array:
 		"progression": {"unlocked_arenas": ["arena_b"], "unlocked_upgrades": [], "unlocked_cosmetics": []},
 	})
 	results.append({
-		"name": "migrates schema 1 -> %d" % SaveScript.SCHEMA_VERSION,
-		"passed": int(migrated.get("schema_version", 0)) == SaveScript.SCHEMA_VERSION and int(migrated.get("best_score", 0)) == 42,
+		"name": "migrates schema 1 -> current",
+		"passed": int(migrated.get("schema_version", 0)) == int(SaveScript.SCHEMA_VERSION) and int(migrated.get("best_score", 0)) == 42,
 		"why": "",
 	})
 
 	# --- negative/oversized values are sanitized ---
-	var sanitized := SaveScript.normalize_save({"schema_version": 2, "best_score": -5, "best_wave": -1})
+	var sanitized = SaveScript.normalize_save({"schema_version": 2, "best_score": -5, "best_wave": -1})
 	results.append({
 		"name": "negative best score/wave are clamped to 0",
 		"passed": int(sanitized.get("best_score", 0)) == 0 and int(sanitized.get("best_wave", 0)) == 0,
@@ -45,15 +46,16 @@ static func suite() -> Array:
 	})
 
 	# --- default arena is always present in unlocked arenas ---
+	var prog: Dictionary = migrated.get("progression", {})
+	var arenas: Array = prog.get("unlocked_arenas", [])
 	results.append({
 		"name": "default_arena always in unlocked_arenas",
-		"passed": "default_arena" in migrated.get("progression", {}).get("unlocked_arenas", []),
+		"passed": "default_arena" in arenas,
 		"why": "",
 	})
 
 	# --- settings clamp ---
-	var SettingsScript = load("res://scripts/save/settings_data.gd")
-	var sd = SettingsScript.new()
+	var sd := SettingsData.new()
 	sd.set_master_volume(2.5)
 	sd.set_master_volume(-1.0)
 	sd.set_sfx_volume(0.4)
@@ -66,7 +68,7 @@ static func suite() -> Array:
 	sd.set_text_scale(0.1)
 	results.append({
 		"name": "text_scale clamped to safe range",
-		"passed": sd.text_scale <= SettingsScript.MAX_TEXT_SCALE and sd.text_scale >= SettingsScript.MIN_TEXT_SCALE,
+		"passed": sd.text_scale <= SettingsData.MAX_TEXT_SCALE and sd.text_scale >= SettingsData.MIN_TEXT_SCALE,
 		"why": "",
 	})
 	sd.set_graphics_quality(&"ultra")

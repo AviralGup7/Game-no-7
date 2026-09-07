@@ -1,10 +1,10 @@
 extends RefCounted
 
-## Headless unit tests for deterministic scoring helpers.
+## Headless unit tests for deterministic scoring helpers. Scoring is a registered
+## class_name, so its static helpers are typed.
 
 static func suite() -> Array:
 	var results: Array = []
-	var Scoring = load("res://scripts/waves/scoring.gd")
 
 	results.append({
 		"name": "kill score positive base scales with combo+multiplier",
