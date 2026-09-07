@@ -59,17 +59,25 @@ BUILD_TYPE=release bash scripts/build_android.sh   # release APK (keystore confi
 ```
 
 CI installs the matching export templates for the pinned Godot version via
+`chickensoft-games/setup-godot` (`include-templates: true`) and verifies them with
 `scripts/install_export_templates.sh`. That script is deliberately strict: it downloads
-the `Godot_v<version>_export_templates.tpz` release asset, extracts it with Python's
-`zipfile`, copies the files into Godot's data dir
+the `Godot_v<version>_export_templates.tpz` release asset (if not already present),
+extracts it with Python's `zipfile`, copies the files into Godot's data dir
 (`~/.local/share/godot/export_templates/<version-string>/`, where the version string
 uses a dot before `stable`, e.g. `4.4.1.stable`), and **fails loudly** unless the
 Android build templates (`android_debug.apk`, `android_release.apk`,
-`android_source.zip`) are actually present. This prevents the historical silent
-failure where the step exited 0 without placing any files and the later
-`godot --export-*` call failed with *"Android build template not installed"*.
+`android_source.zip`) are actually present.
 
-What it does:
+Because the Android export uses Gradle (`gradle_build/use_gradle_build=true`), Godot
+additionally needs the Android **build** source template *inside the project*
+(normally the Project menu → "Install Android Build Template"). In headless CI this is
+done by `scripts/install_android_build_template.sh`, which mirrors Godot's own
+installer: unzip `android_source.zip` into `res://android/build`, add an empty
+`.gdignore`, write the template identifier into `res://android/.build_version`, and
+`chmod +x gradlew` (Python's `zipfile` does not preserve Unix exec bits). Run this
+before `godot --export-*`. A JDK (Temurin 17) is also required for the Gradle build.
+
+What the build script does:
 
 1. Verify `godot` exists.
 2. Verify `export_presets.cfg` contains the Android preset.
@@ -102,11 +110,14 @@ godot --headless --path . --export-release "Android" build/LastStandArena.apk
 
 ## Troubleshooting
 
-- **"Android build template not installed in the project" at export time** → the
-  export templates for the pinned Godot version are not in Godot's data dir. Re-run the
-  template install (`bash scripts/install_export_templates.sh`) and confirm it prints
-  `android_debug.apk` / `android_release.apk` / `android_source.zip` in the listed
-  directory contents; the script now fails loudly if any of them are missing.
+- **"Android build template not installed in the project" at export time** → the export
+  templates for the pinned Godot version are present in Godot's data dir, but the Android
+  **build** template is not installed into the project. Run
+  `bash scripts/install_android_build_template.sh` (creates `res://android/build`,
+  `.gdignore`, `.build_version`) before exporting.
+- **`android/build/gradlew: Permission denied`** → the build template was extracted
+  without Unix exec bits. Re-run `bash scripts/install_android_build_template.sh`, which
+  now `chmod +x`es `gradlew` and shell launchers after extraction.
 - **"Android export not available"** → install Android export templates for the exact
   editor version via Editor → Manage Export Templates.
 - **"preset not found"** → confirm `export_presets.cfg` lists a preset named `Android`.

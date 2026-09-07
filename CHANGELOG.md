@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.3.2] — Fix: Android APK export green in CI (build template + export-time compile)
+
+### Fixed
+- **Android build template installed into the project.** Godot's Gradle Android export
+  (`gradle_build/use_gradle_build=true`) needs the Android build *source* template in the
+  project, not just the runtime export templates in the user data dir. New
+  `scripts/install_android_build_template.sh` mirrors Godot's own installer: it unzips
+  `android_source.zip` into `res://android/build`, writes an empty `.gdignore`, writes the
+  template identifier into `res://android/.build_version`, and restores the Unix
+  executable bit on `gradlew` (Python's `zipfile` does not preserve exec bits, which
+  caused `android/build/gradlew: Permission denied`). `docs/BUILD.md` documents it.
+- **CI setup.** The `build-android` job now (1) installs runtime export templates
+  canonically via `chickensoft-games/setup-godot` (`include-templates: true`) and verifies
+  them with the idempotent `scripts/install_export_templates.sh`, (2) adds a Temurin
+  JDK 17 (Godot's Gradle build needs a JDK), (3) installs the Android build template into
+  the project, and (4) captures/annotates Godot export output for diagnosability.
+- **Export-time GDScript compile errors fixed.** Android export compiles every script,
+  which the headless unit runner/import do not, exposing latent problems now resolved:
+  `targeting_component.gd` renamed `set_owner()` → `bind_owner()` (it overrode
+  `Node.set_owner`); explicit types added in `character_controller.gd`, `attack_controller.gd`,
+  `spawn_manager.gd` and `ui_root.gd` (Variant-inferred locals); `DisplayServer.FEATURE_HAPTICS`
+  removed in `player_feedback.gd` / `touch_action_button.gd` (removed from the engine in 4.3+).
+- **Result.** `.github/workflows/android.yml` `build-android` job is green end-to-end:
+  headless unit tests, resource/asset validation, **`godot --export-debug "Android"`** and the
+  non-empty-APK check all pass; the debug APK is uploaded as the `LastStandArena-android`
+  artifact (milestone validation artifact). The Android build toolchain is not reachable
+  from the authoring sandbox, so this was verified by running the real GitHub Actions CI.
+
 ## [0.3.1] — Fix: CI Android export templates not installed
 
 ### Fixed
