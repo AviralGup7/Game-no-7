@@ -15,7 +15,7 @@
 ## 3. Weapon Verification — VERIFIED
 - Chain `config → WeaponManager → WeaponInstance → PlayerEquipment → model/socket → animation → VFX → audio` for all 9 verified by instantiating each `WeaponConfig` and `models{&"ember_scepter":Skeleton_Staff.gltf, &"moonlance":Spear.glb, &"venom_chain":Dagger.glb}` + reuse, `lengths 0.95/1.8/1.2/1.1/0.6/1.3/1.35/1.85/0.85`, `PlayerEquipment` `BoneAttachment3D handslot.r/l` + `Muzzle` flash, `ModelVisual.create(extent)` scale, `grip_rotation_degrees` identity, no arbitrary offsets; `weapon_attack_clips` 7 melee/hybrid + `Spellcast_Shoot` for `ember_scepter`, ranged clip `2H_Ranged_Shoot`.
 - Switching: `WeaponManager.switch_to/cycle_weapon` → `PlayerEquipment._refresh` frees `_model/_second_model` before re-parenting, no duplicate models, `weapon_switched_local` + `EventBus.weapon_switched` guarded `is_connected`, projectile `EventBus.projectile_fired → EffectDirector`.
-- Tests: `test_regress_milestone1_weapons.py` 7 checks + `test_regress_milestones_2_to_7` weapon switching; `python -m unittest 491 OK`.
+- Tests: `test_regress_milestone1_weapons.py` 7 checks + `test_regress_milestones_2_to_7` weapon switching; `python -m unittest 502 OK`.
 
 ## 4. Skill Verification — VERIFIED
 - **8 skills** distinct: `bladestorm` whirl 5× bleed, `frost_nova_skill` radial 5 m `slow+exposed` (config authoritative `victim_effects [slow,exposed]`, executor defensive early-return avoids double-stack), `phantom_rush` dash_strike `length` via `apply_dash`, `seismic_slam` slam radial 4.5, `warcry_skill` `warcry/frenzy`, `chain_lightning` `chain_jumps 4 decay 0.72`, `mending_light` `heal_surge` + `regen/overguard`, `shatterwave` shockwave line via `ProjectilePool` pierce 99. Each has `SkillConfig` valid, `SkillExecutor` `execute` + `tick` for `pending_hits`/`_dashing`.
@@ -58,7 +58,7 @@
 ## 11. Mobile Validation — NOT YET DEVICE-VERIFIED (STATICALLY VERIFIED)
 - **Build:** `android.yml` split `validate-resources (python verify + unittest) → godot-tests (import + headless) → build-android (JDK17 Android SDK build template) → publish-release` `needs: build-android`, 3-way condition `workflow_dispatch/tag/release`.
 - **Static perf:** `project.godot` `mobile` renderer, `msaa_3d 0`, `vram etc2_astc true`, `keep_screen_on true`, `physics_ticks 60 max_steps 6 gravity 18`.
-- **Device:** `2026-09-08` no Android hardware available in sandbox; static/desktop import + `python 491 OK` + `validate_assets` only; marked **NOT YET DEVICE-VERIFIED**. Target budgets: `active enemies 30/50/75/100`, `projectiles pooled`, `VFX 10/14`, `pickups 32/max24`, `audio 16`, `draw calls` via dungeon reuse, `lights` 1 BossPhaseLight shadowless.
+- **Device:** `2026-09-08` no Android hardware available in sandbox; static/desktop import + `python 502 OK` + `validate_assets` only; marked **NOT YET DEVICE-VERIFIED**. Target budgets: `active enemies 30/50/75/100`, `projectiles pooled`, `VFX 10/14`, `pickups 32/max24`, `audio 16`, `draw calls` via dungeon reuse, `lights` 1 BossPhaseLight shadowless.
 
 ## 12. Measured Performance — STATICALLY VERIFIED (see §11)
 - **Desktop headless import:** `build-android` not executed in sandbox; `godot --import` + `tests/run_tests.gd` + `validate_asset_imports.gd` remain CI-only.

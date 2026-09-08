@@ -22,7 +22,7 @@ Docs: `README` (loop, principles), `BUILD` (4.4.1 pinned, verify/import), `ART_S
 ## Inventory since previous phase (since `850bf0b`/`ba49de0`)
 - **Arena:** `THEMES` dramatic (ember 0.12/0.85 fog0.028 sun1.85, frost 0.18/0.82 fog0.024, default) + `_spawn_landmark` forge/crystal/obelisk emissive+light; `arena_decorator` per-arena braziers/ice shards/stone circle.
 - **Character:** `character_visuals` ground shadow + breathing, `enemy_feedback` crit 1.22 + elite aura, `enemy_base` crit branch, `effect_director` 10/14 bursts 22×0.68s skill colors + projectile/skill/levelup wiring, `player_animation` skill/victory (10 skill map, Cheer), `enemy_animator` stun/cast+telegraph, `boss_controller` phase visuals + lights + audio, `procedural_sfx` 10→28 cues, `skill/wave/experience` audio triggers, `catalog` 7 cues, `upgrade_panel` rarity borders, `touch_controls` 64/52, `camera_rig` combat shake wiring.
-- All 30 commits ahead include hardening (seed, health finite, spawn bounds), lifecycle stress tests, P0 determinism fixes.
+- All 46 commits ahead include hardening (seed, health finite, spawn bounds), lifecycle stress tests, determinism fixes.
 
 ## Content matrix (EXISTS → LOADS → GAMEPLAY INTEGRATED → VISUALLY INTEGRATED → AUDIO INTEGRATED → TESTED → DOCUMENTED)
 
