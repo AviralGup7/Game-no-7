@@ -12,8 +12,9 @@ static func _ids(dir_path: String, property_name: String) -> Dictionary:
 	dir.list_dir_begin()
 	var file := dir.get_next()
 	while file != "":
-		if not dir.current_is_dir() and file.ends_with(".tres"):
-			var resource: Resource = load(dir_path.path_join(file))
+		var clean := file.trim_suffix(".remap")
+		if not dir.current_is_dir() and clean.ends_with(".tres"):
+			var resource: Resource = load(dir_path.path_join(clean))
 			if resource != null:
 				out[String(resource.get(property_name))] = resource
 		file = dir.get_next()

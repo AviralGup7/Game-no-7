@@ -38,8 +38,9 @@ static func suite() -> Array:
 		dir.list_dir_begin()
 		var f := dir.get_next()
 		while f != "":
-			if not dir.current_is_dir() and f.ends_with(".tres"):
-				var extra := load("res://data/upgrades/%s" % f)
+			var clean := f.trim_suffix(".remap")
+			if not dir.current_is_dir() and clean.ends_with(".tres"):
+				var extra := load("res://data/upgrades/%s" % clean)
 				if extra is UpgradeConfig:
 					var eid: String = String(extra.upgrade_id)
 					if eid not in seen:

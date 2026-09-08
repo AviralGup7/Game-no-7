@@ -262,6 +262,11 @@ func _start_new_run() -> void:
 		(" [" + String(_daily.get("label", "Daily")) + "]") if not _daily.is_empty() else ""])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
+	var main := _get_main()
+	if main != null and main.has_method("build_world") and _active_player == null:
+		EventBus.report_error("Failed to build world or spawn player for arena %s" % String(arena_id))
+		transition_to(State.ERROR)
+		return
 	EventBus.run_started.emit(_current_run.run_id, _current_run.seed)
 	if not _daily.is_empty():
 		var muts: Array = _daily.get("mutators", [])

@@ -88,6 +88,10 @@ func get_arena(arena_id: StringName) -> ArenaConfig:
 	return _arenas.get(arena_id)
 
 
+func get_all_arenas() -> Dictionary:
+	return _arenas
+
+
 func get_camera_profile(profile_id: StringName) -> CameraProfile:
 	return _cameras.get(profile_id, _cameras.get(&"default"))
 
@@ -159,6 +163,10 @@ func get_all_waves() -> Dictionary:
 
 func get_selected_arena_id() -> StringName:
 	if not _arenas.has(_selected_arena):
+		if not _arenas.is_empty():
+			var keys: Array = _arenas.keys()
+			keys.sort()
+			return StringName(String(keys[0]))
 		return &"default_arena"
 	return _selected_arena
 

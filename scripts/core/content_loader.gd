@@ -208,15 +208,19 @@ static func _recursive_list(dir_path: String, extensions: Array, out: Array[Stri
 				_recursive_list(full, extensions, out)
 		elif _has_extension(file, extensions):
 			# Skip Godot's import sidecars; load() resolves the real resource.
-			if not file.ends_with(".import") and not file.ends_with(".godot"):
-				out.append(full)
+			var clean_file := file.trim_suffix(".remap")
+			if not clean_file.ends_with(".import") and not clean_file.ends_with(".godot"):
+				var clean_full := dir_path.path_join(clean_file)
+				if clean_full not in out:
+					out.append(clean_full)
 		file = dir.get_next()
 	dir.list_dir_end()
 
 
 static func _has_extension(file: String, extensions: Array) -> bool:
+	var clean := file.trim_suffix(".remap")
 	for ext in extensions:
-		if file.ends_with(String(ext)):
+		if clean.ends_with(String(ext)):
 			return true
 	return false
 

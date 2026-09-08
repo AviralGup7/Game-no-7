@@ -113,6 +113,15 @@ func build_world(arena_id: StringName) -> void:
 	if _world_root == null:
 		return
 	var arena_cfg := ContentRegistry.get_arena(arena_id)
+	if (arena_cfg == null or arena_cfg.scene == null) and ContentRegistry != null:
+		var fallback_id: StringName = ContentRegistry.get_selected_arena_id()
+		if fallback_id != arena_id:
+			arena_cfg = ContentRegistry.get_arena(fallback_id)
+		if arena_cfg == null or arena_cfg.scene == null:
+			for a in ContentRegistry.get_all_arenas().values():
+				if a is ArenaConfig and a.scene != null:
+					arena_cfg = a
+					break
 	var arena_scene: PackedScene = null
 	if arena_cfg != null and arena_cfg.scene != null:
 		arena_scene = arena_cfg.scene
