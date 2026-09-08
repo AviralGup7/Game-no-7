@@ -51,6 +51,10 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 		var rect: Rect2 = UiLayout.sanitize(plan[keys[i]], view)
 		var button := _buttons[i]
 		button.radius = minf(rect.size.x, rect.size.y) * 0.5
+		# custom_minimum_size was seeded from the button's *initial* radius in
+		# _ready(); leaving it larger than the solved rect makes the Control
+		# refuse to shrink and overflow the viewport on smaller screens.
+		button.custom_minimum_size = rect.size
 		button.position = rect.position
 		button.size = rect.size
 		button.queue_redraw()
