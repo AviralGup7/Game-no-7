@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `58e0bf1` (audit: authority isolation + weapon balance + guards) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `694aca7` (tests: arena/camera/minimap guards — lifecycle and accessibility) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.
@@ -72,7 +72,7 @@
 - **No growth:** `active-node`, `timers`, `pooled objects`, `audio players` stable across 20 runs; `SpawnLedger` ledger update on splitter child death, `WaveManager` `player_max_hp` indent fix, `SpawnPlacer` `is_instance_valid` guard prevents stale nodes receiving events.
 
 ## 14. Tests Executed — VERIFIED
-- **Local:** `python -m unittest discover -s tests/python -v` **498 OK** (466 base +7 M1 +18 M2–7 +7 balance/authority). Includes `test_regress_milestone1_weapons` (9 weapons chain), `test_regress_milestones_2_to_7` (18 checks M2–7), `test_regress_polish_integration` (skill anims, boss phases, audio, camera), `test_regress_visuals_ring_and_effect`, `test_regress_save_manager_dirty_flag`, `test_android_permissions`, `test_regress_tooling_and_ci` (3 stages), `test_lifecycle_stress`, `test_integration_wave_boss`.
+- **Local:** `python -m unittest discover -s tests/python -v` **502 OK** (466 base +7 M1 +18 M2–7 +7 balance/authority +4 arena/camera). Includes `test_regress_milestone1_weapons` (9 weapons chain), `test_regress_milestones_2_to_7` (18 checks M2–7), `test_regress_polish_integration` (skill anims, boss phases, audio, camera), `test_regress_visuals_ring_and_effect`, `test_regress_save_manager_dirty_flag`, `test_android_permissions`, `test_regress_tooling_and_ci` (3 stages), `test_lifecycle_stress`, `test_integration_wave_boss`.
 - **CI (queued but not observed in sandbox):** `validate-resources` `tool/validate_resources.py` + `download_assets --verify` + `tool/validate_assets.py` + `unittest`; `godot-tests` `godot --import` + `run_tests.gd` + `validate_asset_imports.gd`; `build-android` `JDK17 + Android SDK + export template + APK`.
 
 ## 15. Bugs Fixed (since `850bf0b`/`ba49de0`)
@@ -107,7 +107,8 @@
 - `e99cbe9` `cleanup + docs + VFX gating: reconcile remaining stale claims, gate noisy VFX` (ART_STYLE/ASSET_AUDIT/RELEASE/procedural_sfx/effect_director)
 - `f8ae1e5` `hardening: game cannot be stopped by stats — status soft-lock guards` (status_effect/config/manager 116 ins, progression 0.1 floor, 491 OK)
 - `58e0bf1` `audit: authority isolation + weapon balance + guards — full-scope hardening` (character_controller/player_animation legacy removal, weapon DPS 1.64×, guards, 498 OK)
-- Remote `origin/arena/01a07f1a-game-no-7` at `58e0bf1`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `9 ahead / 30 behind` `origin/main@850bf0b`.
+- `694aca7` `tests: arena/camera/minimap guards — lifecycle and accessibility throttling` (arena spawn + player aim guards, camera reduced_motion, minimap 15Hz, 502 OK)
+- Remote `origin/arena/01a07f1a-game-no-7` at `694aca7`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `11 ahead / 30 behind` `origin/main@850bf0b`.
 
 ## 19. Broader-Playtest Recommendation — VERIFIED, WITH CONDITIONS
 - **RDY for broader playtest?** **Yes, with NOT YET DEVICE-VERIFIED caveat** — core loop `boot→menu→setup→arena→combat→XP/level→upgrade→harder waves→elites→boss→victory/defeat→summary→meta→armory→new run` verified locally 491 tests + headless import; lifecycle 20-run stable; content 9/8/8/3 present; no placeholder models/UI/silent critical events/generic skill/no broken states/duplicate lights/leaked effects.
