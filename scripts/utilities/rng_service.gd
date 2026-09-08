@@ -46,9 +46,9 @@ func stream(salt: int) -> RandomNumberGenerator:
 
 func _mix(base_seed: int, salt: int) -> int:
 	# SplitMix-style avalanche so adjacent salts produce unrelated sequences.
-	var z: int = (base_seed + 0x9E3779B97F4A7C15 + salt * 0xBF58476D1CE4E5B9) & 0xFFFFFFFFFFFFFFFF
-	z = ((z ^ (z >> 30)) * 0xBF58476D1CE4E5B9) & 0xFFFFFFFFFFFFFFFF
-	z = ((z ^ (z >> 27)) * 0x94D049BB133111EB) & 0xFFFFFFFFFFFFFFFF
+	var z: int = base_seed + (-7046029254386353131) + salt * (-4658895280553007687)
+	z = (z ^ (z >> 30)) * (-4658895280553007687)
+	z = (z ^ (z >> 27)) * (-7723594293327613461)
 	z = z ^ (z >> 31)
 	return z
 

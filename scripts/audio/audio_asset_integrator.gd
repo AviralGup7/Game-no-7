@@ -86,7 +86,7 @@ static func _build_variant_stream(files: Array, volume_db: float) -> AudioStream
 	for f in files:
 		var s := load("res://%s" % f)
 		if s is AudioStream:
-			rand.add_stream(s as AudioStream, 1.0)
+			rand.add_stream(-1, s as AudioStream, 1.0)
 			any = true
 		else:
 			EventBus.report_warning("AudioAssetIntegrator: unimported source " + f)

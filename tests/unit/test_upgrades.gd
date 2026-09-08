@@ -15,7 +15,7 @@ static func suite() -> Array:
 	for id in ids:
 		var res := load("res://data/upgrades/%s.tres" % String(id))
 		var cfg := res as UpgradeConfig
-		var valid := cfg != null and cfg.upgrade_id == id and cfg.validate().is_empty() \
+		var valid: bool = cfg != null and cfg.upgrade_id == id and cfg.validate().is_empty() \
 			and cfg.stat_modifiers.size() >= 1 and cfg.max_stacks >= 1 and cfg.weight > 0.0
 		if not valid:
 			all_valid = false

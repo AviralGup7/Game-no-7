@@ -20,7 +20,7 @@ func trigger(duration: float) -> void:
 	_active = true
 	visible = true
 	# Reset material alpha so reused pooled rings do not start invisible for one frame.
-	var mi := get_node_or_null(&"Disc") as MeshInstance3D
+	var mi := get_node_or_null("Disc") as MeshInstance3D
 	if mi != null and mi.material_override is StandardMaterial3D:
 		var mat := mi.material_override as StandardMaterial3D
 		var c: Color = mat.albedo_color
@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 	# Gentle expansion then dissolve.
 	var grow := 1.0 + 0.35 * t
 	scale = Vector3(_base_scale * grow, _base_scale * grow, _base_scale * grow)
-	var mi := get_node_or_null(&"Disc") as MeshInstance3D
+	var mi := get_node_or_null("Disc") as MeshInstance3D
 	if mi != null and mi.material_override is StandardMaterial3D:
 		var mat := mi.material_override as StandardMaterial3D
 		var c: Color = mat.albedo_color

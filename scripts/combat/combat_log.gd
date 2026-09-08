@@ -71,7 +71,9 @@ func recent(count: int) -> Array:
 	var n := mini(maxi(count, 0), _entries.size())
 	if n <= 0:
 		return []
-	return _entries.slice(_entries.size() - n).duplicate().reverse()
+	var res := _entries.slice(_entries.size() - n).duplicate()
+	res.reverse()
+	return res
 
 
 ## All entries of one kind, oldest-first.

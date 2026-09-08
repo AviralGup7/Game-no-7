@@ -85,7 +85,7 @@ func _ready() -> void:
 			EventBus.skill_cast.connect(_on_skill_cast)
 		if not EventBus.player_leveled_up.is_connected(_on_level_up):
 			EventBus.player_leveled_up.connect(_on_level_up)
-		if not EventBus.boss_slain.is_connected(_on_victory):
+		if not EventBus.boss_slain.is_connected(_on_boss_victory):
 			EventBus.boss_slain.connect(_on_boss_victory)
 	_play(idle_clip)
 
@@ -195,7 +195,7 @@ func _on_hurt(result: DamageResult) -> void:
 func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 	if _dead or caster != _player:
 		return
-	var clip := skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
+	var clip: StringName = skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
 	if String(clip).is_empty() or not _animation.has_animation(clip):
 		clip = &"Spellcast_Shoot"
 		if not _animation.has_animation(clip):

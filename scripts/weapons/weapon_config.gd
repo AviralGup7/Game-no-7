@@ -172,16 +172,25 @@ func paper_dps() -> float:
 	return base_damage * avg_step * projectile_factor / swing_cooldown
 
 ## Hardened: clamp weapon stats.
-func _validated_weapon_stats() -> void:
+func _validated_weapon_stats(damage: float = -1.0, cooldown: float = -1.0, range_val: float = -1.0) -> void:
+	if damage < 0.0:
+		damage = base_damage
+	if cooldown < 0.0:
+		cooldown = swing_cooldown
+	if range_val < 0.0:
+		range_val = range
 	if not is_finite(damage) or damage < 0.0:
 		damage = 10.0
 	damage = clampf(damage, 0.0, 10000.0)
+	base_damage = damage
 	if not is_finite(cooldown) or cooldown < 0.0:
 		cooldown = 0.5
 	cooldown = clampf(cooldown, 0.05, 10.0)
+	swing_cooldown = cooldown
 	if not is_finite(range_val) or range_val <= 0.0:
 		range_val = 2.0
 	range_val = clampf(range_val, 0.1, 20.0)
+	range = range_val
 
 ## Export-range guard: editor sliders are clamped and runtime values are re-clamped
 ## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.

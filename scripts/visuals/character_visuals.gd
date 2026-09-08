@@ -47,7 +47,7 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	if mount == null:
 		return null
 	# Idempotent: never double-mount on a pooled/re-used actor.
-	var existing := mount.get_node_or_null(&"CharacterVisual")
+	var existing := mount.get_node_or_null("CharacterVisual")
 	if existing != null and existing.get_child_count() > 0:
 		return existing as Node3D
 

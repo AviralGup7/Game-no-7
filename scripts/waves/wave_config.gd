@@ -51,8 +51,18 @@ func validate() -> Array[String]:
 			problems.append(p)
 	return problems
 
+var enemy_count: int = 0
+var elite_count: int = 0
+var boss_count: int = 0
+
 ## Hardened: clamp wave config totals.
-func _validated_counts() -> void:
+func _validated_counts(e_count: int = -1, el_count: int = -1, b_count: int = -1) -> void:
+	if e_count >= 0:
+		enemy_count = e_count
+	if el_count >= 0:
+		elite_count = el_count
+	if b_count >= 0:
+		boss_count = b_count
 	enemy_count = clampi(enemy_count, 0, 200)
 	elite_count = clampi(elite_count, 0, 20)
 	boss_count = clampi(boss_count, 0, 1)

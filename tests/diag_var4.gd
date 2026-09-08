@@ -1,4 +1,3 @@
-extends RefCounted
 ## DIAG variant 4: spawn manager integration: compile-check slice of the enemy encounter integration.
 
 extends SceneTree

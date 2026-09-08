@@ -1,4 +1,3 @@
-extends RefCounted
 ## DIAG variant 3: boss integration: compile-check slice of the enemy encounter integration.
 
 extends SceneTree

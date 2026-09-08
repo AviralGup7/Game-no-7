@@ -44,8 +44,6 @@ func _reset_later() -> void:
 	if is_inside_tree() and get_tree() != null:
 		await get_tree().process_frame
 	_transitioning = false
-	else:
-		_transitioning = false
 
 
 func is_transitioning() -> bool:

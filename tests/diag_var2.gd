@@ -1,4 +1,3 @@
-extends RefCounted
 ## DIAG variant: compile-check slice of the enemy encounter integration.
 extends SceneTree
 ## Headless test runner.
