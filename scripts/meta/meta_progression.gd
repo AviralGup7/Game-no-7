@@ -28,6 +28,9 @@ const ARMORY := {
 
 var _wallet := 0
 var _ranks: Dictionary = {}  # item_id -> rank purchased
+var _prestige_rank := 0
+
+signal prestige_completed(new_rank: int)
 
 
 func _ready() -> void:
@@ -40,10 +43,15 @@ func _ready() -> void:
 func _load() -> void:
 	_wallet = 0
 	_ranks.clear()
+	_prestige_rank = 0
 	if SaveManager == null:
 		return
 	if SaveManager.has_method("get_meta_wallet"):
 		_wallet = maxi(int(SaveManager.call("get_meta_wallet")), 0)
+	if SaveManager.has_method("get_prestige_rank"):
+		_prestige_rank = int(SaveManager.call("get_prestige_rank"))
+	if GameRoot != null and GameRoot.has_method("set_prestige_rank"):
+		GameRoot.call("set_prestige_rank", _prestige_rank)
 	if SaveManager.has_method("get_meta_ranks"):
 		var ranks: Variant = SaveManager.call("get_meta_ranks")
 		if ranks is Dictionary:
@@ -66,21 +74,29 @@ func _save() -> void:
 		SaveManager.call("set_meta_wallet", _wallet)
 	if SaveManager.has_method("set_meta_ranks"):
 		SaveManager.call("set_meta_ranks", _ranks.duplicate())
+	if SaveManager.has_method("set_prestige_rank"):
+		SaveManager.call("set_prestige_rank", _prestige_rank)
 	if SaveManager.has_method("save_now"):
 		SaveManager.call("save_now")
 
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
 	# Bank a cut of the run's unspent currency into the persistent wallet.
+	# Prestige multiplies the banked cut; victory runs bank a slightly larger share.
 	if GameRoot != null and GameRoot.has_method("get_run"):
 		var run: Variant = GameRoot.call("get_run")
 		if run != null:
 			var currency := 0
+			var victory := false
 			if run is Dictionary:
 				currency = int((run as Dictionary).get("currency", 0))
+				victory = bool((run as Dictionary).get("victory", false))
 			elif "currency" in run:
 				currency = int((run as Object).get("currency"))
-			var earned := maxi(int(currency / 2), 0)
+				if "victory" in run:
+					victory = bool((run as Object).get("victory"))
+			var share := 0.55 if victory else 0.5
+			var earned := maxi(int(round(float(currency) * share * Prestige.currency_multiplier(_prestige_rank))), 0)
 			if earned > 0:
 				_wallet += earned
 				_save()
@@ -198,8 +214,75 @@ func is_skill_unlocked_from_start(skill_id: StringName) -> bool:
 	return false
 
 
+func get_prestige_rank() -> int:
+	return _prestige_rank
+
+
+func prestige_title() -> String:
+	return Prestige.title_for(_prestige_rank)
+
+
+## Fraction of armory items that have at least one rank (0..1).
+func armory_completion() -> float:
+	if ARMORY.is_empty():
+		return 1.0
+	var owned := 0
+	for item_id in ARMORY:
+		if get_rank(item_id) > 0:
+			owned += 1
+	return float(owned) / float(ARMORY.size())
+
+
+func can_prestige() -> StringName:
+	return Prestige.can_prestige(_prestige_rank, _wallet, armory_completion())
+
+
+func prestige_cost() -> int:
+	return Prestige.cost_for_rank(_prestige_rank)
+
+
+## Spend wallet + reset armory ranks for a permanent prestige rank.
+## Keeps weapon/skill unlocks (kind != stat) so the player doesn't lose content.
+func perform_prestige() -> bool:
+	if can_prestige() != &"ok":
+		return false
+	var cost := prestige_cost()
+	_wallet = maxi(_wallet - cost, 0)
+	# Strip stat ranks only; keep unlock purchases.
+	var kept: Dictionary = {}
+	for item_id in _ranks:
+		var def: Dictionary = ARMORY.get(item_id, {})
+		if def.is_empty():
+			continue
+		if String(def.get("kind", "")) != "stat":
+			kept[item_id] = _ranks[item_id]
+	_ranks = kept
+	_prestige_rank = mini(_prestige_rank + 1, Prestige.MAX_PRESTIGE)
+	# Unlock cosmetics for the new rank.
+	for c in Prestige.cosmetics_for_rank(_prestige_rank):
+		if SaveManager != null and SaveManager.has_method("unlock_cosmetic"):
+			SaveManager.call("unlock_cosmetic", String(c))
+	_save()
+	if GameRoot != null and GameRoot.has_method("set_prestige_rank"):
+		GameRoot.call("set_prestige_rank", _prestige_rank)
+	prestige_completed.emit(_prestige_rank)
+	wallet_changed.emit(_wallet)
+	if EventBus != null:
+		EventBus.announcement.emit(
+			&"prestige",
+			"Prestige %d — %s" % [_prestige_rank, Prestige.title_for(_prestige_rank)],
+			&"victory"
+		)
+	return true
+
+
 func get_debug_snapshot() -> Dictionary:
-	return {"wallet": _wallet, "ranks": _ranks.duplicate()}
+	return {
+		"wallet": _wallet,
+		"ranks": _ranks.duplicate(),
+		"prestige_rank": _prestige_rank,
+		"title": Prestige.title_for(_prestige_rank),
+	}
 
 ## Hardened: clamp meta currency before spend.
 func _validated_spend(cost: int, have: int) -> bool:

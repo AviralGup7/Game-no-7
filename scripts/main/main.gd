@@ -261,6 +261,12 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 	hazards.name = "ArenaHazards"
 	(arena as Node).add_child(hazards)
 	hazards.configure(arena_id, half, seed)
+	# Dense arena layouts + pressure plates + moving hazards for differentiation.
+	if hazards.has_method("apply_mode_pressure"):
+		var mode_id := GameMode.MODE_STANDARD
+		if GameRoot != null and GameRoot.has_method("get_run_mode"):
+			mode_id = StringName(GameRoot.call("get_run_mode"))
+		hazards.call("apply_mode_pressure", mode_id)
 
 	# Agent 4 presentation: pooled VFX director (impact/death/wave/status feedback).
 	var effects := EffectDirector.new()
@@ -276,6 +282,7 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 		if weapons != null and weapons.has_method("configure"):
 			weapons.call("configure", seed)
 		_apply_owned_unlocks(player, skills, weapons)
+		_attach_build_effects(player, seed)
 		# Tutorial coach follows real player actions.
 		if _tutorial != null:
 			if (player as Node).has_signal("attack_started"):
@@ -299,6 +306,22 @@ func _apply_daily_mutators() -> void:
 	for m in Array(daily.get("mutators", [])):
 		ids.append(StringName(String(m)))
 	_wave_manager.set_forced_mutators(ids)
+
+
+## Attach the transformative upgrade runtime (BuildEffects) to the live player.
+func _attach_build_effects(player: Node, run_seed: int) -> void:
+	if player == null:
+		return
+	var existing := player.get_node_or_null("BuildEffects")
+	if existing != null:
+		if existing.has_method("configure"):
+			existing.call("configure", run_seed)
+		return
+	var fx := BuildEffects.new()
+	fx.name = "BuildEffects"
+	player.add_child(fx)
+	var prog := player.get_node_or_null("ProgressionComponent")
+	fx.bind(player, prog, run_seed)
 
 
 ## Owned armory unlocks take effect: starter content remains in slot 0 while

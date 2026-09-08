@@ -275,3 +275,28 @@ internals:
 - Stable IDs as `StringName`; never magic numbers — put tuning in the relevant `.tres`.
 - Validate new content resources (`validate()` returns problems).
 - Prefer typed resources; keep large logic out of one script.
+
+## 11. Add a game mode
+
+Modes live in `scripts/meta/game_mode.gd` (`GameMode.CATALOG`). Add an entry with
+`display_name`, `blurb`, `objective`, score/currency mults, `max_waves` (0 = endless),
+`target_seconds` (survival), `upgrade_every`, `forced_mutators`, optional `fixed_weapon`,
+and `narrator_id`. Override `spawn_queue()` for scripted compositions (see Boss Rush /
+Campaign). Run Setup discovers modes via `GameMode.all_mode_ids()`; GameRoot stores
+`RunState.mode_id`; WaveManager reads queues, mutators, upgrade cadence and victory.
+
+## 12. Add a transformative upgrade
+
+1. Create `res://data/upgrades/<name>.tres` with `category = &"transform"` and
+   `effect_tags` listing one or more of the keys in `UpgradeConfig.KNOWN_EFFECT_TAGS`
+   (or add a new key and handle it in `scripts/progression/build_effects.gd`).
+2. Optional small `stat_modifiers` still apply through ProgressionComponent.
+3. BuildEffects is attached by Main on world build and listens to dodge / damage /
+   kill signals — no UI or WaveManager changes needed.
+
+## 13. Prestige / cosmetics
+
+`scripts/meta/prestige.gd` owns costs, multipliers, titles and cosmetic ids.
+`MetaProgression.perform_prestige()` spends the wallet, strips stat ranks (keeps
+weapon/skill unlocks), bumps `prestige_rank` (save schema v5), and unlocks cosmetics
+via `SaveManager.unlock_cosmetic`. Armory panel shows the prestige row automatically.
