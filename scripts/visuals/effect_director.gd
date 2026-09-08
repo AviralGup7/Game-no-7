@@ -75,10 +75,19 @@ func _wire_events() -> void:
 	if _wired or EventBus == null:
 		return
 	_wired = true
+	EventBus.enemy_spawned.connect(_on_enemy_spawned)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	EventBus.wave_started.connect(_on_wave_started)
+	EventBus.wave_completed.connect(_on_wave_completed)
 	EventBus.pickup_collected.connect(_on_pickup_collected)
 	EventBus.status_applied.connect(_on_status_applied)
+	EventBus.boss_spawned.connect(_on_boss_spawned)
+	EventBus.boss_slain.connect(_on_boss_slain)
+
+
+func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
+	if is_instance_valid(enemy) and enemy is Node3D:
+		ring_at((enemy as Node3D).global_position, Color(0.9, 0.5, 0.3), 1.1)
 
 
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
@@ -88,6 +97,22 @@ func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currenc
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
 	ring_at(Vector3.ZERO, Color(0.8, 0.5, 0.25), 6.0)
+
+
+func _on_wave_completed(_wave_number: int, _bonus: int) -> void:
+	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.35), 7.0)
+
+
+func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
+	var at := Vector3.ZERO
+	if is_instance_valid(boss) and boss is Node3D:
+		at = (boss as Node3D).global_position
+	ring_at(at, Color(0.9, 0.2, 0.15), 4.5)
+	burst_at(at, Color(0.9, 0.3, 0.2), 1.6)
+
+
+func _on_boss_slain(_boss_id: StringName) -> void:
+	ring_at(Vector3.ZERO, Color(1.0, 0.8, 0.3), 8.0)
 
 
 func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) -> void:
@@ -194,6 +219,7 @@ func _make_sprite(path: String) -> QuadMesh:
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.vertex_color_use_as_albedo = true
 	mat.albedo_texture = load(path)
 	quad.material = mat
 	return quad

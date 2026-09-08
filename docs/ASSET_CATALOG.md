@@ -11,12 +11,26 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
 
 ## Integration status — important
 
-- **Integrated:** detailed arena floor/wall materials; six distinct pickup models.
-  Pickups preserve collection/magnet logic, pool visual variants, retain the source
-  materials and keep a primitive fallback when a config has no art.
-- **Downloaded but not integrated:** all player/enemy rigs and animation maps,
-  weapon attachments/loadout art, environment prop models, UI skins, skill particle
-  effects and recorded audio registration. Live actors still use primitives.
+- **Integrated (environment/presentation pass, Agent 4):**
+  - Detailed arena floor/wall materials; six distinct pickup models.
+  - Approved **character + enemy models** mounted onto the live actors (player via
+    `VisualRoot/CharacterModel` + a scene mount node; all eight enemy archetypes via
+    a narrow `EnemyBase` hook) through `scripts/visuals/character_visuals.gd`. Fitted
+    to height, foot-grounded, glTF +Z rotated onto Godot −Z, idle-looped when the rig
+    exposes the clip, and always falling back to the primitive if a model is absent.
+  - **KayKit dungeon props** (pillars/columns, banners, torches, crates, barrels,
+    rubble) placed deterministically by `ArenaDecorator` with per-arena compositions
+    and primitive fallback; **arena themes** (sky/fog/sun/ambient + floor/wall tint)
+    give Default / Ember Crucible / Frost Hollow distinct identities.
+  - **Pooled VFX** (`EffectDirector`): GPU bursts + ground rings for enemy spawn /
+    death, wave start/completion, pickups, boss spawn/slain and status effects.
+  - **Recorded audio registered** (`AudioAssetIntegrator`): the approved SFX variants
+    (pooled randomizers) and the two looping music tracks mapped onto the existing
+    `music_menu/calm/battle/boss/victory` cues, taking precedence over the procedural
+    fallback.
+- **Still pending (not owned here / not yet wired):** weapon *attachment* visuals on
+  the rigged hands, UI skinning, per-arena bespoke art variants, and recorded boss
+  music (the approved library ships only a menu loop and one combat loop).
 - Existing source art remains available; preferred equipment/reward selections
   replace old choices in the catalogue, not by destructive source-file overwrites.
 

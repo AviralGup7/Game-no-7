@@ -66,11 +66,14 @@ The reviewed asset library now contains **9 rigged/animated character models,
 effects and 2 music loops** (~35.05 MiB of locked downloads). All source files have
 pinned provenance, SHA-256 checksums and preserved licences.
 
-**Integrated:** detailed arena floor/wall materials and six distinct pickup models.
-**Still pending:** live character model/animation wiring, equipment attachments,
-UI skinning, full skill VFX and recorded audio registration. See the
-[asset catalogue](docs/ASSET_CATALOG.md) and [quality audit](docs/ASSET_AUDIT.md)
-for exact additions, replacement selections, upstream checks and limitations.
+**Integrated:** detailed arena floor/wall materials, six distinct pickup models,
+the approved character + enemy models on the live actors, KayKit dungeon props and
+per-arena themes (Default / Ember Crucible / Frost Hollow), pooled death/wave/boss/
+status VFX, and the approved recorded SFX + music registered over the procedural
+fallback. See the [asset catalogue](docs/ASSET_CATALOG.md) and
+[quality audit](docs/ASSET_AUDIT.md) for exact additions, replacement selections,
+upstream checks and limitations. Weapon hand-attachments and UI skinning remain
+future work.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check

@@ -46,12 +46,22 @@ drops always take precedence — procedural fill never overwrites a registered c
 
 See `THIRD_PARTY_ASSETS.md` for shared asset policy and restore/verification commands.
 
-## Planned cue map (not registered in the running game yet)
+## Registered cue map
+
+Since the environment/presentation pass these cues are **live**: `AudioAssetIntegrator`
+(`scripts/audio/audio_asset_integrator.gd`) reads the authoritative
+`assets/catalog.json` cue map at startup and registers every approved SFX variant
+(one `AudioStreamRandomizer` pool per cue) plus the two looping music tracks onto
+the existing state cues, taking precedence over `ProceduralSfx` fallback. State
+mapping: `music_menu` → `arena_menu.ogg`; `music_calm` / `music_battle` /
+`music_boss` / `music_victory` → `arena_gameplay.ogg` (the approved library ships one
+menu loop and one combat loop, so combat-adjacent states share the combat track).
 
 Paths below are relative to `assets/audio/`. Every file is in the checksum lock.
 The full variant lists, intended buses, loop flags, and suggested gains are in
-`assets/catalog.json`. Those JSON fields are **planning metadata**, not Godot
-import settings or a new audio registry. `data/audio/` is still unchanged.
+`assets/catalog.json`. Those JSON fields are metadata (not a new audio registry);
+`data/audio/` remains empty because the integrator loads straight from `assets/audio/`
+and can force Ogg looping at runtime.
 
 | Cue | Downloaded file(s) | Intended use |
 |---|---|---|
