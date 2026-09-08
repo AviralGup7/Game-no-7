@@ -39,6 +39,8 @@ var _best_score: int = 0
 var _best_wave: int = 0
 var _paused := false
 var _active_player: Player = null
+## World-build seam (registered by Main / test harnesses; see _call_build_world).
+var _world_builder: Callable = Callable()
 var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standard.
 var _pending_mode: StringName = GameMode.MODE_STANDARD
 var _prestige_rank: int = 0
@@ -341,7 +343,7 @@ func _start_new_run() -> void:
 		(" [" + String(_daily.get("label", "Daily")) + "]") if not _daily.is_empty() else ""])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
-	if _get_main() != null and _active_player == null:
+	if _world_builder.is_valid() and _active_player == null:
 		EventBus.report_error("Failed to build world or spawn player for arena %s" % String(arena_id))
 		transition_to(State.ERROR)
 		return
@@ -361,13 +363,13 @@ func _start_new_run() -> void:
 
 
 func _call_build_world(arena_id: StringName) -> void:
-	# Locate the Main scene root (composition anchor). If not present (headless tests
-	# that drive systems directly), building is skipped gracefully.
-	var main := _get_main()
-	if main == null:
-		EventBus.report_warning("Main scene not present; skipping world build (headless/direct use)")
+	# World-build seam: Main registers itself as the builder at startup; headless
+	# UI harnesses register their own. A typed Callable reference (NOT string
+	# dispatch) keeps the contract explicit — see docs/ARCHITECTURE.md.
+	if _world_builder.is_valid():
+		_world_builder.call(arena_id)
 		return
-	main.build_world(arena_id)
+	EventBus.report_warning("No world builder registered; skipping world build (headless/direct use)")
 
 
 func _finalize_run() -> void:
@@ -390,10 +392,9 @@ func _finalize_run() -> void:
 	_set_paused(false)
 
 
-func _get_main() -> Main:
-	if get_tree() == null or get_tree().current_scene == null:
-		return null
-	return get_tree().current_scene as Main
+## Register the run-world builder (Main at runtime; a test harness headlessly).
+func set_world_builder(builder: Callable) -> void:
+	_world_builder = builder
 
 
 func _next_run_id() -> int:

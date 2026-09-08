@@ -23,6 +23,8 @@ var _tutorial: TutorialManager = null
 
 
 func _ready() -> void:
+	# Composition anchor: GameRoot delegates run-world assembly here.
+	GameRoot.set_world_builder(build_world)
 	_world_root = get_node_or_null("WorldRoot") as Node3D
 	_ui_root = get_node_or_null("UIRoot/UI") as UiRoot
 	if _ui_root == null:
