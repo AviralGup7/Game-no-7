@@ -35,11 +35,16 @@ func _init(cfg: StatusEffectConfig = null, applied_stacks: int = 1, from: Node =
 
 ## Copy build modifiers onto this runtime object. The shared .tres stays immutable.
 func set_power_modifiers(duration_mult: float = 1.0, dot_mult: float = 1.0, hot_mult: float = 1.0) -> void:
-	duration_multiplier = clampf(duration_mult, 0.05, 10.0)
-	dot_multiplier = clampf(dot_mult, 0.0, 10.0)
-	hot_multiplier = clampf(hot_mult, 0.0, 10.0)
+	duration_multiplier = clampf(duration_mult, 0.05, 10.0) if is_finite(duration_mult) else 1.0
+	dot_multiplier = clampf(dot_mult, 0.0, 10.0) if is_finite(dot_mult) else 1.0
+	hot_multiplier = clampf(hot_mult, 0.0, 10.0) if is_finite(hot_mult) else 1.0
 	if config != null and not config.is_permanent():
-		remaining = maxf(remaining, config.duration * duration_multiplier)
+		var base := config.duration * duration_multiplier
+		# Hard stop: status-physics soft-locks (stun/root) never outlast a short window
+		# even if a future save carries an inflated duration multiplier.
+		if config.stuns or config.roots:
+			base = minf(base, 3.0)
+		remaining = maxf(remaining, base)
 
 
 func effect_id() -> StringName:
@@ -83,48 +88,70 @@ func reapply(extra_stacks: int = 1, from: Node = null, duration_mult: float = 1.
 ## accrual is capped to the portion of this frame during which the effect was
 ## active, preventing a large frame from dealing damage after expiry.
 func tick(delta: float) -> int:
-	if config == null or delta <= 0.0 or is_expired():
+	if config == null or delta <= 0.0 or not is_finite(delta) or is_expired():
 		return 0
 	var active_delta := delta
 	if not is_permanent():
 		active_delta = minf(delta, remaining)
 		remaining = maxf(remaining - delta, 0.0)
-	_tick_accrual += active_delta
+	if not is_finite(config.tick_interval) or config.tick_interval <= 0.0:
+		return 0
+	_tick_accrual += clampf(active_delta, 0.0, 60.0)
+	# Guard huge hitches: one frame can only yield a bounded number of ticks.
 	var ticks := 0
-	while _tick_accrual >= config.tick_interval:
+	var budget := 64
+	while _tick_accrual >= config.tick_interval and budget > 0:
 		_tick_accrual -= config.tick_interval
 		ticks += 1
+		budget -= 1
+	if budget == 0:
+		_tick_accrual = 0.0
 	return ticks
 
 
 func dot_per_tick() -> float:
 	if config == null:
 		return 0.0
-	return config.dot_per_second * dot_multiplier * config.tick_interval * float(stacks)
+	var v := config.dot_per_second * dot_multiplier * config.tick_interval * float(maxi(stacks, 1))
+	return clampf(v, 0.0, 10000.0) if is_finite(v) else 0.0
 
 
 func hot_per_tick() -> float:
 	if config == null:
 		return 0.0
-	return config.hot_per_second * hot_multiplier * config.tick_interval * float(stacks)
+	var v := config.hot_per_second * hot_multiplier * config.tick_interval * float(maxi(stacks, 1))
+	return clampf(v, 0.0, 10000.0) if is_finite(v) else 0.0
 
 
 func move_speed_factor() -> float:
 	if config == null:
 		return 1.0
-	return pow(config.move_speed_factor, float(stacks))
+	var base := config.move_speed_factor
+	if not is_finite(base) or base < 0.0:
+		return 1.0
+	# Never stall the game on malformed/NaN saves — a finite factor is guaranteed.
+	var v := pow(base, float(maxi(stacks, 1)))
+	return clampf(v, 0.0, 10.0) if is_finite(v) else 1.0
 
 
 func damage_factor() -> float:
 	if config == null:
 		return 1.0
-	return pow(config.damage_factor, float(stacks))
+	var base := config.damage_factor
+	if not is_finite(base) or base < 0.0:
+		return 1.0
+	var v := pow(base, float(maxi(stacks, 1)))
+	return clampf(v, 0.0, 10.0) if is_finite(v) else 1.0
 
 
 func received_damage_factor() -> float:
 	if config == null:
 		return 1.0
-	return pow(config.received_damage_factor, float(stacks))
+	var base := config.received_damage_factor
+	if not is_finite(base) or base < 0.0:
+		return 1.0
+	var v := pow(base, float(maxi(stacks, 1)))
+	return clampf(v, 0.0, 10.0) if is_finite(v) else 1.0
 
 
 func shield_total() -> float:

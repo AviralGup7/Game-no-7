@@ -123,7 +123,13 @@ func get_stat(key: StringName, base: float) -> float:
 		return base
 	var total := float(_modifiers[key])
 	if key in MULTIPLICATIVE:
-		return base * (1.0 + total)
+		# Never stall gameplay with a zero/negative speed or damage multiplier:
+		# even a 100% penalty leaves 10% base so the run stays playable.
+		var factor := 1.0 + total
+		if not is_finite(factor):
+			factor = 1.0
+		factor = maxf(factor, 0.1)
+		return base * factor
 	if key in COOLDOWN:
 		# Cooldown reduction is expressed as a NEGATIVE total; clamp so we never go
 		# below a small floor (i.e. -10% cooldown cannot become +10% cooldown).
@@ -134,6 +140,12 @@ func get_stat(key: StringName, base: float) -> float:
 	# score/currency/xp multipliers, crit values, projectile counts/pierce and
 	# stamina/pickup bonuses. Percentage-like additive values are authored in
 	# decimal form and consumers choose the neutral base they need.
+	# Hard stop: health never drops below 1, damage stays playable.
+	if key == &"max_health_add":
+		return maxf(base + total, 1.0)
+	if key == &"attack_damage_multiplier":
+		# Already covered as MULTIPLICATIVE, but keep for future additive overrides.
+		return base + total
 	return base + total
 
 
