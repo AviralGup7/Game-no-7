@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0] — Polished presentation & release fix (2026-09-08)
+
+- **Arena identities**: per-arena themes (ember 0.12/0.85 fog 0.028 sun1.85, frost 0.18/0.82 fog0.024, default) plus central `Landmark` (forge lava 4.5+light2.2, crystal prisms 1.8, obelisk+cap) via `arena.gd:THEMES`+`_spawn_landmark`; `arena_decorator` distinct clutter (ember 18+5 braziers, frost columns+ice shards, default stone circle).
+- **Character polish**: `character_visuals.gd` ground shadow + breathing bob, `player_animation` skill/victory clips (10 skill map, Cheer on level/boss), `enemy_animator` stun/cast + telegraph sync, `boss_controller` phase visuals (tint/scale/light) + audio.
+- **Combat feel**: pooled bursts 10×22/0.68s + emissive rings, crit gold 0.82+1.05, elite aura, hitstop 0.04/0.16, camera combat shake wiring (skill/wave/boss).
+- **Audio**: `procedural_sfx` 10→28 cues, `skill_controller`/`experience`/`wave_manager`/`boss_controller` play `skill_cast`/`ready`/`level_up`/`wave_started`/`completed`/`boss_*`; `catalog.json` 7 new cues.
+- **UI / mobile**: `upgrade_panel` rarity borders, `touch_controls` 64/52 thumb-friendly, `camera_rig` impulse, safe-area.
+- **CI fix**: `android.yml` `publish-release` now triggers on `release: published` (was skipped) plus tags/dispatch, tag fallback uses `event.release.tag_name`; version bump `0.4.0→0.5.0` code 2 to unblock `v0.5.0`.
+
 ## [Unreleased] — Enemy/encounter ecosystem pass (Agent 2, 2026-09-08)
 
 - **Roster models + animations integrated**: every archetype mounts its catalogued
