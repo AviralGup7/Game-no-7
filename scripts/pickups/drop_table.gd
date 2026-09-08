@@ -39,7 +39,7 @@ func reset_pity() -> void:
 
 ## Resolve drops for one kill. Returns pickup ids (possibly empty).
 ## `is_elite` / `is_boss` raise quantity; `luck_bonus` adds flat chance.
-func roll_drops(archetype_id: StringName, wave_number: int, is_elite: bool, is_boss: bool, luck_bonus: float, rng: RngService) -> Array[StringName]:
+func roll_drops(_archetype_id: StringName, wave_number: int, is_elite: bool, is_boss: bool, luck_bonus: float, rng: RngService) -> Array[StringName]:
 	var out: Array[StringName] = []
 	var eligible := _eligible(wave_number)
 	if eligible.is_empty():
