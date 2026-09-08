@@ -92,6 +92,15 @@ func extend_one(archetype: StringName) -> void:
 	_planned_count += 1
 
 
+## A child that was burst-spawned directly at its parent's death position (not
+## queued): it is already in the arena, so it counts as planned AND spawned
+## WITHOUT entering the pending queue. Defeats still flow through record_defeat(),
+## so completion bookkeeping stays exact either way.
+func register_direct_spawn(archetype: StringName) -> void:
+	_planned_count += 1
+	_spawned_count += 1
+
+
 ## A genuinely killed enemy is counted as defeated (called on its death path only).
 func record_defeat() -> void:
 	_defeated_count += 1

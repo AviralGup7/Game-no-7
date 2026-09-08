@@ -13,14 +13,17 @@ var _current: EnemyState = null
 var _host: EnemyBase = null
 
 const STATE_IDS := [
-	&"idle", &"chase", &"attack", &"hurt", &"dead", &"ranged",
+	&"idle", &"chase", &"attack", &"hurt", &"dead", &"ranged", &"dash", &"fuse",
 ]
+
+var _event_bus: Node = null
+var _event_bus_resolved := false
 
 
 func _ready() -> void:
 	_host = get_parent() as EnemyBase
 	if _host == null:
-		EventBus.report_warning("EnemyStateMachine parent is not EnemyBase")
+		_report_warning("EnemyStateMachine parent is not EnemyBase")
 		return
 	_register(EnemyIdleState.new())
 	_register(EnemyChaseState.new())
@@ -28,6 +31,22 @@ func _ready() -> void:
 	_register(EnemyHurtState.new())
 	_register(EnemyDeadState.new())
 	_register(EnemyRangedState.new())
+	_register(EnemyDashState.new())
+	_register(EnemyFuseState.new())
+
+
+func _eb() -> Node:
+	if not _event_bus_resolved:
+		_event_bus_resolved = true
+		if is_inside_tree():
+			_event_bus = get_node_or_null("/root/EventBus")
+	return _event_bus
+
+
+func _report_warning(message: String) -> void:
+	var bus := _eb()
+	if bus != null:
+		bus.report_warning(message)
 
 
 func _register(state: EnemyState) -> void:
@@ -53,7 +72,7 @@ func change_to(state_id: StringName) -> bool:
 	if _host == null:
 		return false
 	if not _states.has(state_id):
-		EventBus.report_warning("Enemy %s: unknown state %s" % [String(_host.get_archetype_id()), String(state_id)])
+		_report_warning("Enemy %s: unknown state %s" % [String(_host.get_archetype_id()), String(state_id)])
 		return false
 	if _current != null and _current.get_id() == state_id:
 		return false
@@ -71,7 +90,7 @@ func change_to(state_id: StringName) -> bool:
 ## Force a transition from any context (used by damage/death handlers).
 func force_state(state_id: StringName) -> bool:
 	if not _states.has(state_id):
-		EventBus.report_warning("Enemy force_state unknown: %s" % String(state_id))
+		_report_warning("Enemy force_state unknown: %s" % String(state_id))
 		return false
 	if _current != null and _current.get_id() == state_id:
 		return true

@@ -1,16 +1,24 @@
 class_name EnemyRangedState
 extends EnemyState
 
-## AI state for ranged enemies: strafe at preferred distance, then plant and
-## fire a projectile volley through the shared ProjectilePool. Falls back to
-## chasing when the target is far outside weapon range or the pool is missing
-## (in which case it still plays the windup so the telegraph reads).
+## AI state for ranged enemies: strafe at preferred distance, then plant, telegraph
+## (flash + windup sound) and fire a projectile volley through the shared
+## ProjectilePool. Improvements over the base orbit:
+##  - kites hard when the player closes inside ~55% of the preferred distance,
+##    cancelling a windup rather than firing into melee;
+##  - volleys lead a moving target slightly (distance / projectile speed based);
+##  - the windup telegraphs through EnemyBase feedback/audio hooks.
+## Falls back to chasing when the target is far outside weapon range; missing
+## projectile pools never crash, they only skip the volley.
 ##
 ## Config surface (read from EnemyConfig when present, else defaults):
 ## ranged_range, ranged_cooldown, ranged_windup, projectile_speed,
-## projectile_damage_scale, preferred_distance, strafe_speed.
+## projectile_damage_scale, projectile_spread, preferred_distance, strafe_speed.
 
 const KEY := &"ranged"
+
+const KITE_FACTOR := 0.55
+const LEAD_FACTOR := 0.6
 
 var _cooldown := 0.0
 var _windup := 0.0
@@ -55,6 +63,14 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 		var dir := host.get_navigation_direction(to.normalized() if dist > 0.01 else Vector3.FORWARD)
 		host.set_desired_move(dir, host.get_effective_speed())
 		return
+	# Kite: player too close -> back away at full speed, abort any windup.
+	if dist < preferred * KITE_FACTOR:
+		if _firing:
+			_firing = false
+			_windup = 0.0
+		var away := -to.normalized() if dist > 0.01 else Vector3.BACK
+		host.set_desired_move(away, host.get_effective_speed())
+		return
 	if _firing:
 		_windup -= delta
 		host.set_desired_move(Vector3.ZERO, 0.0)
@@ -66,6 +82,9 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 		_firing = true
 		_windup = _cfg(host, &"ranged_windup", 0.5)
 		host.set_desired_move(Vector3.ZERO, 0.0)
+		# Telegraph the volley so it can be dodged/side-stepped.
+		host.play_telegraph_feedback()
+		host.play_windup_sound()
 		return
 	# Strafe orbit at preferred distance (drift in/out + sideways).
 	var radial := Vector3.ZERO
@@ -89,7 +108,8 @@ func _fire(host: EnemyBase, target: Node3D) -> void:
 		return
 	var pool := pools[0] as ProjectilePool
 	var from: Vector3 = host.global_position + Vector3(0, 1.2, 0)
-	var aim: Vector3 = target.global_position - from
+	var aim_point: Vector3 = _lead_point(host, target, from)
+	var aim: Vector3 = aim_point - from
 	aim.y = 0.0
 	if aim.length_squared() < 0.0001:
 		aim = Vector3.FORWARD
@@ -109,6 +129,21 @@ func _fire(host: EnemyBase, target: Node3D) -> void:
 		"source": host,
 		"source_id": host.get_archetype_id(),
 	}, dirs)
+
+
+## Lead a moving target proportionally to the projectile's time of flight.
+func _lead_point(host: EnemyBase, target: Node3D, from: Vector3) -> Vector3:
+	var point: Vector3 = target.global_position
+	var v: Variant = target.get("velocity")
+	if v == null or not (v is Vector3):
+		return point
+	var flat_vel := v as Vector3
+	flat_vel.y = 0.0
+	if flat_vel.length_squared() < 0.25:
+		return point
+	var speed := _cfg(host, &"projectile_speed", 12.0)
+	var flight := from.distance_to(point) / maxf(speed, 0.01)
+	return point + flat_vel * (flight * LEAD_FACTOR)
 
 
 ## Read an optional numeric field from the host config with a default.

@@ -9,16 +9,21 @@ extends RefCounted
 
 const SWIFT := &"swift"
 const BRUISER := &"bruiser"
-const VOLATILE := &"volatile"    # explodes on death
-const VAMPIRIC := &"vampiric"    # heals allies on hit (handled by AI hook)
+const VOLATILE := &"volatile"    # explodes on death (SpawnManager dispatch)
+const VAMPIRIC := &"vampiric"    # heals itself for a share of damage dealt (EnemyBase hook)
 const ARMORED := &"armored"
-const FRENZIED := &"frenzied"    # attacks faster when wounded
+const FRENZIED := &"frenzied"    # attacks faster below half health (EnemyBase cadence hook)
 const ALL := [SWIFT, BRUISER, VOLATILE, VAMPIRIC, ARMORED, FRENZIED]
 
 const ELITE_HP_MULT := 2.2
 const ELITE_DAMAGE_MULT := 1.35
 const ELITE_SCORE_MULT := 3.0
 const ELITE_CURRENCY_MULT := 3.0
+## Fraction of accepted damage dealt that a VAMPIRIC elite heals back per hit.
+const VAMPIRIC_HEAL_RATIO := 0.15
+## Health fraction below which a FRENZIED elite's attack cooldown is halved-ish.
+const FRENZIED_HP_TRIGGER := 0.5
+const FRENZIED_COOLDOWN_MULT := 0.55
 
 
 ## Roll 1-2 distinct affixes for an elite of `archetype` at `wave`.

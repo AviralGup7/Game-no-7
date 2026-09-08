@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemies/enemy_base.gd" id="1_base"]
 [ext_resource type="Script" path="res://scripts/player/health_component.gd" id="2_hp"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/enemies/enemy_audio.gd" id="4_aud"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_state_machine.gd" id="5_machine"]
 [ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="6_status"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="7_animator"]
+[ext_resource type="PackedScene" path="res://assets/characters/monsters/Demon.gltf" id="8_model"]
 
 [sub_resource type="SphereShape3D" id="SphereShape_body"]
 radius = 0.55
@@ -23,7 +25,7 @@ emission_energy_multiplier = 0.4
 
 [node name="EnemyBase" type="CharacterBody3D"]
 collision_layer = 4
-collision_mask = 1
+collision_mask = 5
 script = ExtResource("1_base")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -61,6 +63,18 @@ script = ExtResource("5_machine")
 
 [node name="StatusManager" type="Node" parent="."]
 script = ExtResource("6_status")
+
+[node name="EnemyAnimator" type="Node" parent="."]
+script = ExtResource("7_animator")
+model_scene = ExtResource("8_model")
+model_extent = 1.9
+animation_map = {
+"idle": "Idle",
+"run": "Run",
+"attack": "Punch",
+"hurt": "HitReact",
+"death": "Death"
+}
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 1.5

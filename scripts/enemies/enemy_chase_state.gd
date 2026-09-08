@@ -2,8 +2,11 @@ class_name EnemyChaseState
 extends EnemyState
 
 ## Chase: steers toward the target at the configured move speed (via navigation when
-## available, else direct pursuit) and transitions to Attack once in range. Falls back
-## to Idle when the target disappears.
+## available, else direct pursuit) and transitions to Attack once in range. Each enemy
+## aims at its own approach point (deterministic per spawn) so packs fan out around
+## the player instead of stacking. Archetypes with a dash_trigger_range launch a
+## telegraphed charge instead of walking in; exploders ignite inside fuse_range.
+## Falls back to Idle when the target disappears.
 
 func _init() -> void:
 	super(&"chase")
@@ -23,18 +26,32 @@ func physics_update(host: EnemyBase, _delta: float) -> void:
 		host.set_desired_move(Vector3.ZERO, 0.0)
 		host.state_machine_change_to(&"idle")
 		return
-	if host.target_in_attack_range(target):
-		host.set_desired_move(Vector3.ZERO, 0.0)
-		host.state_machine_change_to(&"attack")
-		return
 	var cfg := host.get_config()
 	if cfg == null:
 		return
+	var flat_offset := target.global_position - host.global_position
+	flat_offset.y = 0.0
+	var dist := flat_offset.length()
 	# Ranged archetypes orbit + volley instead of closing to melee.
 	if String(cfg.ai_behavior) == "ranged":
 		host.state_machine_change_to(&"ranged")
 		return
-	var offset := target.global_position - host.global_position
+	# Exploder: inside the fuse radius, plant and ignite instead of meleeing.
+	if cfg.fuse_range > 0.0 and dist <= cfg.fuse_range:
+		host.state_machine_change_to(&"fuse")
+		return
+	# Dasher: prefer a telegraphed charge over walking in once off cooldown.
+	if cfg.dash_trigger_range > 0.0 and dist <= cfg.dash_trigger_range and dist > cfg.attack_range:
+		if host.try_begin_dash():
+			host.state_machine_change_to(&"dash")
+			return
+	if host.target_in_attack_range(target):
+		host.set_desired_move(Vector3.ZERO, 0.0)
+		host.state_machine_change_to(&"attack")
+		return
+	# Steer to this enemy's personal approach point (fan-out, anti-stacking).
+	var approach := host.get_approach_point(target.global_position)
+	var offset := approach - host.global_position
 	offset.y = 0.0
 	var desired := Vector3.FORWARD
 	if offset.length_squared() > 0.0001:

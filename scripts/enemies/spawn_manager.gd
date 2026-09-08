@@ -12,15 +12,24 @@ extends Node3D
 ## Extended responsibilities: elite rolling (EliteAffix), wave-modifier scaling
 ## (mutators + director, via set_wave_modifiers), death-effect dispatch (volatile
 ## blasts, splitter children — which EXTEND the plan so accounting stays exact),
-## and boss fight kickoff (BossController.begin_fight).
+## and boss fight kickoff (BossController.begin_fight, seeded for determinism).
+##
+## Pacing: waves open with a small immediate burst (up to INITIAL_BURST) so the
+## arena fills promptly; the rest trickle on the SpawnTimer. Spawn order and
+## placement stay deterministic in (run_seed, wave_number).
 
 signal spawn_plan_created(wave_number: int, total_count: int)
+signal enemy_spawned(enemy: EnemyBase, archetype_id: StringName)
 signal enemy_spawn_failed(archetype_id: StringName, reason: StringName)
 signal enemy_defeated(archetype_id: StringName)
 signal elite_spawned(enemy: EnemyBase, affixes: Array)
 signal all_cleared()
 
 const SPAWN_POINT_GROUP := &"enemy_spawn_point"
+const INITIAL_BURST := 3
+const SPAWN_JITTER_RADIUS := 1.2
+const SPLIT_BURST_RADIUS := 0.9
+const SPLIT_BURST_PUSH := 3.0
 
 var _arena: Node3D = null
 var _player: Node = null
@@ -39,12 +48,26 @@ var _difficulty := {"hp": 1.0, "damage": 1.0, "speed": 1.0}
 ## Wave-modifier multipliers (mutators + director). Neutral by default.
 var _wave_mods := {"hp_mult": 1.0, "damage_mult": 1.0, "speed_mult": 1.0, "score_mult": 1.0, "elite_bonus": 0.0, "explode_chance": 0.0}
 var _spawn_index := 0
+## Optional test/tooling seam: a Callable(StringName) -> EnemyConfig. When invalid,
+## the ContentRegistry autoload is used (normal game path).
+var _content_provider: Callable = Callable()
+
+var _event_bus: Node = null
+var _event_bus_resolved := false
 
 
 func _ready() -> void:
 	_timer = get_node_or_null("SpawnTimer") as Timer
 	if _timer != null:
 		_timer.timeout.connect(_on_spawn_tick)
+
+
+func _eb() -> Node:
+	if not _event_bus_resolved:
+		_event_bus_resolved = true
+		if is_inside_tree():
+			_event_bus = get_node_or_null("/root/EventBus")
+	return _event_bus
 
 
 func configure(arena: Node3D, player: Node, container: Node3D, run_seed: int = 0) -> void:
@@ -54,6 +77,24 @@ func configure(arena: Node3D, player: Node, container: Node3D, run_seed: int = 0
 	_run_seed = run_seed
 	_configured = arena != null and player != null
 	clear()
+
+
+## Point ContentRegistry lookups at a custom provider (headless tests / tooling).
+func set_content_provider(provider: Callable) -> void:
+	_content_provider = provider
+
+
+func _resolve_enemy_config(archetype_id: StringName) -> EnemyConfig:
+	if _content_provider.is_valid():
+		var provided: Variant = _content_provider.call(archetype_id)
+		if provided is EnemyConfig:
+			return provided
+		return null
+	if is_inside_tree():
+		var registry := get_node_or_null("/root/ContentRegistry")
+		if registry != null and registry.has_method("get_enemy"):
+			return registry.call("get_enemy", archetype_id)
+	return null
 
 
 ## Register a new spawn plan. `archetypes` is an ordered flat queue; entry count and
@@ -70,6 +111,11 @@ func queue_wave(archetypes: Array[StringName], wave_number: int, interval: float
 	if _timer != null:
 		_timer.wait_time = _spawn_interval
 		_timer.start()
+	# Opening burst: drop the first few enemies immediately so the wave reads as
+	# an encounter, not a trickle. Same order/accounting as timer spawns.
+	for _i in range(mini(INITIAL_BURST, _max_simultaneous)):
+		if not _spawn_one():
+			break
 
 
 func get_planned_count() -> int:
@@ -142,7 +188,7 @@ func _spawn_one() -> bool:
 	var archetype: StringName = _ledger.peek()
 	_ledger.note_head(archetype)
 
-	var config: EnemyConfig = ContentRegistry.get_enemy(archetype)
+	var config: EnemyConfig = _resolve_enemy_config(archetype)
 	if config == null or config.scene == null:
 		return _count_failure(archetype, &"no_config",
 			"Missing config/scene for %s; retried up to bound then counted failed." % String(archetype))
@@ -159,20 +205,39 @@ func _spawn_one() -> bool:
 		return _count_failure(archetype, &"bad_scene", "Scene did not yield an EnemyBase for %s." % String(archetype))
 	var parent := _container if _container != null else self
 	parent.add_child(instance)
+	# Deterministic jitter around the marker so simultaneous spawns on the same
+	# point do not stack into one body.
 	instance.global_transform = point.global_transform
+	instance.global_position = point.global_position + _spawn_jitter()
 	instance.set_bounds(SpawnPlacer.interior_half(_arena))
 	instance.initialize(config, _player as Node3D, _run_seed)
+	instance.set_spawn_serial(_spawn_index)
 	_apply_spawn_scaling(instance, config)
 	_maybe_make_elite(instance, config)
 	_maybe_begin_boss_fight(instance)
-	instance.play_spawn_sound()
-	instance.despawn_requested.connect(_on_enemy_despawn_requested)
-	_active.append(instance)
+	_activate_enemy(instance, archetype)
 	# Success: only now remove the entry from the plan.
 	_ledger.pop_on_success()
 	_spawn_index += 1
-	EventBus.enemy_spawned.emit(instance, archetype)
 	return true
+
+
+## Shared wiring for any enemy entering the arena (queue spawns + split bursts):
+## despawn bookkeeping, active tracking, spawn sound + EventBus notification.
+func _activate_enemy(instance: EnemyBase, archetype: StringName) -> void:
+	instance.play_spawn_sound()
+	instance.despawn_requested.connect(_on_enemy_despawn_requested)
+	_active.append(instance)
+	enemy_spawned.emit(instance, archetype)
+	var bus := _eb()
+	if bus != null:
+		bus.enemy_spawned.emit(instance, archetype)
+
+
+func _spawn_jitter() -> Vector3:
+	var angle := _rng.randf_range(-PI, PI)
+	var radius := _rng.randf_range(0.0, SPAWN_JITTER_RADIUS)
+	return Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
 
 
 ## Combined wave-difficulty + mutator/director scaling in one call so the shared
@@ -208,7 +273,9 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 	if instance.has_method("set_elite"):
 		instance.call("set_elite", affixes)
 	elite_spawned.emit(instance, affixes)
-	EventBus.report_info("Elite %s spawned (%s)" % [String(instance.get_archetype_id()), str(affixes)])
+	var bus := _eb()
+	if bus != null:
+		bus.report_info("Elite %s spawned (%s)" % [String(instance.get_archetype_id()), str(affixes)])
 
 
 func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
@@ -216,33 +283,40 @@ func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
 	if boss == null:
 		return
 	if boss.has_method("begin_fight"):
-		boss.call("begin_fight")
+		boss.call("begin_fight", _run_seed)
 	# Boss summons join the plan like splitter children (accounting stays exact).
 	if boss.has_signal("summon_requested") and not boss.summon_requested.is_connected(_on_boss_summon_requested):
 		boss.summon_requested.connect(_on_boss_summon_requested)
 
 
 func _on_boss_summon_requested(archetype_id: StringName, count: int) -> void:
-	var cfg: EnemyConfig = ContentRegistry.get_enemy(archetype_id) if ContentRegistry != null else null
+	var cfg: EnemyConfig = _resolve_enemy_config(archetype_id)
 	if cfg == null:
-		EventBus.report_warning("Boss summoned unknown archetype %s" % String(archetype_id))
+		var bus := _eb()
+		if bus != null:
+			bus.report_warning("Boss summoned unknown archetype %s" % String(archetype_id))
 		return
 	for i in range(maxi(count, 0)):
 		_ledger.extend_one(archetype_id)
 	if not _ledger.is_empty() and _timer != null and _timer.is_stopped():
 		_timer.start()
-	EventBus.report_info("Boss summoned %d x %s" % [maxi(count, 0), String(archetype_id)])
+	var bus := _eb()
+	if bus != null:
+		bus.report_info("Boss summoned %d x %s" % [maxi(count, 0), String(archetype_id)])
 
 
 ## A spawn attempt failed. Retry up to the ledger bound then drop the head as a
 ## FAILED spawn (recorded separately from defeats so completion stays consistent).
 func _count_failure(archetype: StringName, reason: StringName, message: String) -> bool:
 	enemy_spawn_failed.emit(archetype, reason)
+	var bus := _eb()
 	if _ledger.note_attempt():
 		# Bounded retries exhausted: the entry was dropped as failed, move past it.
-		EventBus.report_error("%s (permanently failed after %d attempts)" % [message, SpawnLedger.MAX_FAILED_ATTEMPTS])
+		if bus != null:
+			bus.report_error("%s (permanently failed after %d attempts)" % [message, SpawnLedger.MAX_FAILED_ATTEMPTS])
 	else:
-		EventBus.report_warning("%s (attempt %d/%d)" % [message, _ledger.attempt_count(), SpawnLedger.MAX_FAILED_ATTEMPTS])
+		if bus != null:
+			bus.report_warning("%s (attempt %d/%d)" % [message, _ledger.attempt_count(), SpawnLedger.MAX_FAILED_ATTEMPTS])
 	return false
 
 
@@ -263,12 +337,16 @@ func _on_enemy_despawn_requested(enemy: Node) -> void:
 		if enemy is EnemyBase:
 			archetype = (enemy as EnemyBase).get_archetype_id()
 		enemy_defeated.emit(archetype)
-		EventBus.wave_progressed.emit(_current_wave, _ledger.defeated_count(), _ledger.planned_count())
+		var bus := _eb()
+		if bus != null:
+			bus.wave_progressed.emit(_current_wave, _ledger.defeated_count(), _ledger.planned_count())
 	_check_cleared()
 
 
-## Volatile explosions + splitter children. Children EXTEND the plan (planned and
-## pending both grow) so wave completion still requires killing everything.
+## Volatile explosions + splitter children. Children EXTEND the plan (planned grows)
+## so wave completion still requires killing everything; when split_burst is enabled
+## they are spawned immediately around the parent's death position, otherwise they
+## join the pending queue like normal spawns.
 func _dispatch_death_effects(enemy: Node) -> void:
 	if enemy == null or not (enemy is EnemyBase):
 		return
@@ -285,13 +363,57 @@ func _dispatch_death_effects(enemy: Node) -> void:
 		volatile = true
 	if volatile:
 		_detonate(base, pos, config)
-	# Splitter children join the pending queue (plan extended, accounting exact).
 	if config != null and config.split_count > 0 and not String(config.splits_into).is_empty():
-		var child_cfg: EnemyConfig = ContentRegistry.get_enemy(config.splits_into)
-		if child_cfg != null:
-			for i in range(config.split_count):
+		_dispatch_split(base, config, pos)
+
+
+func _dispatch_split(base: EnemyBase, config: EnemyConfig, at: Vector3) -> void:
+	var child_cfg: EnemyConfig = _resolve_enemy_config(config.splits_into)
+	if child_cfg == null:
+		# Unknown child archetype: keep the plan honest — queue the entries so the
+		# normal bounded-retry path records them as FAILED (never silently skipped).
+		var bus := _eb()
+		if bus != null:
+			bus.report_warning("%s splits into unknown archetype %s" % [String(config.archetype_id), String(config.splits_into)])
+		for i in range(config.split_count):
+			_ledger.extend_one(config.splits_into)
+		return
+	if config.split_burst and _configured:
+		# Burst at the parent: immediate spawns, direct ledger registration.
+		for i in range(config.split_count):
+			if not _spawn_split_child(child_cfg, at, i, config.split_count):
 				_ledger.extend_one(config.splits_into)
-			EventBus.report_info("%s split into %d x %s" % [String(base.get_archetype_id()), config.split_count, String(config.splits_into)])
+	else:
+		for i in range(config.split_count):
+			_ledger.extend_one(config.splits_into)
+	var bus := _eb()
+	if bus != null:
+		bus.report_info("%s split into %d x %s" % [String(base.get_archetype_id()), config.split_count, String(config.splits_into)])
+
+
+## Burst-spawn one child around the parent position. Returns false when the spawn
+## was impossible (caller falls back to extending the pending queue).
+func _spawn_split_child(child_cfg: EnemyConfig, at: Vector3, index: int, total: int) -> bool:
+	if child_cfg.scene == null or not _configured:
+		return false
+	var instance := child_cfg.scene.instantiate() as EnemyBase
+	if instance == null:
+		return false
+	var parent := _container if _container != null else self
+	parent.add_child(instance)
+	var angle := TAU * float(index) / float(maxi(total, 1)) + _rng.randf_range(-0.35, 0.35)
+	var outward := Vector3(cos(angle), 0.0, sin(angle))
+	instance.global_position = at + outward * SPLIT_BURST_RADIUS
+	instance.set_bounds(SpawnPlacer.interior_half(_arena))
+	instance.initialize(child_cfg, _player as Node3D, _run_seed)
+	instance.set_spawn_serial(_spawn_index)
+	_apply_spawn_scaling(instance, child_cfg)
+	# Children inherit wave scaling but never roll elite (keeps burst costs legible).
+	_activate_enemy(instance, child_cfg.archetype_id)
+	instance.set_velocity_flat(outward * SPLIT_BURST_PUSH)
+	_ledger.register_direct_spawn(child_cfg.archetype_id)
+	_spawn_index += 1
+	return true
 
 
 func _detonate(source: EnemyBase, at: Vector3, config: EnemyConfig) -> void:

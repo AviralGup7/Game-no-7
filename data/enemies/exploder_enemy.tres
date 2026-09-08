@@ -31,4 +31,6 @@ spawn_priority = 3
 explodes_on_death = true
 death_blast_radius = 3.2
 death_blast_damage_scale = 1.6
-balance_notes = "Kill at range or eat the blast; dodge timing tutor."
+fuse_range = 2.6
+fuse_time = 0.75
+balance_notes = "Kill at range or eat the blast; dodge timing tutor. Inside fuse range it plants and blinks for fuse_time before self-detonating; any hit interrupts the fuse (counterplay)."

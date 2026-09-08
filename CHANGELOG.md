@@ -1,5 +1,44 @@
 # Changelog
 
+## [Unreleased] — Enemy/encounter ecosystem pass (Agent 2, 2026-09-08)
+
+- **Roster models + animations integrated**: every archetype mounts its catalogued
+  model via the new `EnemyAnimator` (ModelVisual fitting, untouched physics), with
+  idle/run loops, windup-scaled attack clips, hurt and death one-shots
+  (Skeleton Minion/Rogue/Warrior/Mage, Rat, Spider, Demon, BlueDemon).
+- **Distinct combat identities**: Dashers telegraph a straight-line charge with a
+  single contact hit and a vulnerable recovery (new `EnemyDashState`); Exploders
+  plant and blink inside fuse range before self-detonating through the normal
+  exactly-once death path (new `EnemyFuseState`); Fast skirmishers back-pedal after
+  each sting; Heavies/Bosses gained poise so telegraphed swings are not
+  perma-staggered; melee windups now abort cleanly when the target escapes.
+- **Ranged polish**: kiting when crowded, windup telegraphs (flash + sound), and
+  target-leading volleys through the existing ProjectilePool.
+- **Splitter burst**: children burst around the parent's death position with
+  outward scatter and extend the SpawnLedger plan (`register_direct_spawn`), with a
+  queue fallback when direct spawning is impossible — accounting stays exact.
+- **Boss encounter**: warlord phases authored as `BossPhaseConfig` resources on the
+  BossController node; deterministic (run-seeded) ability picks; real telegraphs,
+  travelling charge, recovery windows and a phase-transition stagger; UI stays
+  event-driven through the existing `boss_spawned`/`boss_phase_changed` contracts.
+- **Elite affix behavior completed**: VAMPIRIC heals from damage dealt, FRENZIED
+  attacks faster below half health (both via EnemyBase hooks, configs untouched).
+- **Spawn/anti-overlap**: opening burst pacing, deterministic per-marker jitter,
+  per-enemy approach offsets (fan-out), and enemy/enemy collision so packs cannot
+  stack in one body.
+- **Feedback/audio**: telegraph flash, longer death window for death animations,
+  and three new CC0 synthesized cues (`enemy_windup`, `enemy_dash`,
+  `enemy_explosion`) auto-registered from `data/audio/`.
+- **Robustness**: enemy scripts resolve EventBus/AudioManager through the tree
+  (null-safe under the bare headless harness), unblocking real enemy integration
+  tests; fixed a duplicate-member block in `enemy_config.gd`.
+- **Tests**: new `test_enemy_behaviors.gd` unit suite (ledger direct-spawn
+  accounting, boss phase math, phase/config validation) plus the
+  `_run_enemy_encounter_integration` section in `run_tests.gd` covering state
+  transitions, attack timing/whiff, poise, dash, fuse, ranged kiting, vampiric /
+  frenzied hooks, boss phases + deterministic abilities, and the full SpawnManager
+  wave cycle (burst, failed-spawn distinction, splitter bursts, no false clears).
+
 ## [Unreleased] — Environment / presentation pass (Agent 4, 2026-09-08)
 
 ### Visual
