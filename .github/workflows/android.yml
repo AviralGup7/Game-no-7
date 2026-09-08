@@ -102,6 +102,27 @@ jobs:
         shell: bash
         run: godot --headless --path . --script res://tests/run_tests.gd
 
+      # Real-node UI suite (screens, navigation, and the UiLayout geometry
+      # contract across Android resolutions / text scales). It was previously
+      # never invoked by CI, so UI regressions could land unnoticed.
+      # The script isolates save data into a disposable profile.
+      - name: Run headless UI validation
+        shell: bash
+        run: bash scripts/ui/run_ui_validation.sh
+
+      - name: UI validation failure details
+        if: failure()
+        shell: bash
+        run: |
+          for f in build/ui-tests-*.log; do
+            [ -f "$f" ] || continue
+            grep -hE '(UI FAIL:|SCRIPT ERROR:|Parse Error:)' "$f" \
+              | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort -u | head -40 \
+              | while IFS= read -r line; do
+                  echo "::error title=UI validation::${line}"
+                done
+          done
+
       - name: Validate imported 3D assets, animations, textures and audio
         shell: bash
         run: godot --headless --path . --script res://tests/validate_asset_imports.gd

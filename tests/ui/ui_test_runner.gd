@@ -127,6 +127,7 @@ func _run() -> void:
 	GameRoot.request_main_menu()
 	await _settle()
 	await _test_layouts()
+	_test_layout_solver()
 	await _test_armory_and_save()
 	await _test_tutorial()
 	_check("summary zero time is finite", not RunSummaryPanel.performance({"kills": 9, "elapsed_seconds": 0}).contains("inf"))
@@ -263,6 +264,47 @@ func _test_layouts() -> void:
 	await _settle()
 	_check("live text scale metadata applied", _ui._menu.get_theme_default_font() == UiTheme.REGULAR)
 	_ui._apply_settings(SaveManager.get_settings())
+
+## Pure geometry contract for the overlay solver: exercised over every common
+## Android resolution (16:9, 18:9, 19.5:9, 4:3, portrait) at every text scale.
+func _test_layout_solver() -> void:
+	var resolutions := [
+		Vector2(1280, 720), Vector2(1920, 1080), Vector2(2340, 1080), Vector2(2400, 1080),
+		Vector2(960, 540), Vector2(1024, 768), Vector2(1600, 720), Vector2(720, 1280),
+		Vector2(1080, 2340), Vector2(800, 1280), Vector2(2560, 1600), Vector2(640, 360),
+	]
+	var controls := ["stick", "skills", "attack", "dodge", "swap"]
+	var all_keys := controls + ["top_bar", "vitals", "minimap", "boss", "banner", "toast"]
+	for view in resolutions:
+		for scale in [1.0, 1.4, 2.0]:
+			var plan := UiLayout.compute(view, scale)
+			var tag := "%dx%d @%.1f" % [view.x, view.y, scale]
+			for key in all_keys:
+				var rect: Rect2 = plan[key]
+				if UiLayout.is_collapsed(rect):
+					continue
+				_check("%s inside safe area %s" % [key, tag],
+					rect.position.x >= -0.5 and rect.position.y >= -0.5
+					and rect.end.x <= view.x + 0.5 and rect.end.y <= view.y + 0.5)
+			for key in ["attack", "dodge", "swap"]:
+				var target: Rect2 = plan[key]
+				_check("%s meets touch floor %s" % [key, tag],
+					minf(target.size.x, target.size.y) >= UiLayout.MIN_TOUCH - 0.01)
+			for i in range(all_keys.size()):
+				for j in range(i + 1, all_keys.size()):
+					var a: Rect2 = plan[all_keys[i]]
+					var b: Rect2 = plan[all_keys[j]]
+					if UiLayout.is_collapsed(a) or UiLayout.is_collapsed(b):
+						continue
+					if all_keys[i] == "top_bar" or all_keys[j] == "top_bar":
+						continue
+					_check("%s and %s do not overlap %s" % [all_keys[i], all_keys[j], tag],
+						not a.intersects(b))
+	# Degenerate inputs must never produce a NaN or out-of-bounds rect.
+	var sanitized := UiLayout.sanitize(Rect2(Vector2(NAN, -900), Vector2(INF, -5)), Vector2(1280, 720))
+	_check("solver sanitizes degenerate rects",
+		sanitized.position.x >= 0.0 and sanitized.size.x <= 1280.0 and sanitized.size.y >= 1.0)
+
 
 func _test_armory_and_save() -> void:
 	GameRoot.request_main_menu()

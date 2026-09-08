@@ -24,7 +24,7 @@ func _ready() -> void:
 	var arena_card := UiFactory.card(body)
 	UiFactory.title("ARENA INTEL", arena_card, 22)
 	_arenas = OptionButton.new()
-	_arenas.custom_minimum_size.y = 56
+	_arenas.custom_minimum_size.y = UiTheme.TOUCH_MIN
 	arena_card.add_child(_arenas)
 	_arena_info = UiFactory.label("", arena_card)
 	# Discover supplied arena resources rather than maintaining a duplicate list.
@@ -35,17 +35,21 @@ func _ready() -> void:
 			if config != null and config.arena_id not in _arena_ids:
 				_arena_ids.append(config.arena_id)
 				_arenas.add_item(config.display_name)
-	_arenas.item_selected.connect(func(_i: int) -> void: _refresh_details())
+	_arenas.item_selected.connect(func(_i: int) -> void:
+		UiFactory.play_press("OPTION")
+		_refresh_details())
 	var weapon_card := UiFactory.card(body)
 	UiFactory.title("LOADOUT INTEL", weapon_card, 22)
 	_weapons = OptionButton.new()
-	_weapons.custom_minimum_size.y = 56
+	_weapons.custom_minimum_size.y = UiTheme.TOUCH_MIN
 	weapon_card.add_child(_weapons)
 	_weapon_ids = ContentRegistry.get_all_weapon_ids()
 	_weapon_ids.sort()
 	for id in _weapon_ids:
 		_weapons.add_item(ContentRegistry.get_weapon(id).display_name)
-	_weapons.item_selected.connect(func(_i: int) -> void: _refresh_details())
+	_weapons.item_selected.connect(func(_i: int) -> void:
+		UiFactory.play_press("OPTION")
+		_refresh_details())
 	_weapon_info = UiFactory.label("", weapon_card)
 	_feedback = UiFactory.label("", body, 20)
 	_feedback.modulate = UiTheme.GOLD

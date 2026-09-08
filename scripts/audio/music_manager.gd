@@ -27,6 +27,9 @@ var _layer := 0
 var _players: Array[AudioStreamPlayer] = []
 var _active_index := 0
 var _fading := 0.0
+## Outgoing player's volume when the current crossfade started. Capturing it
+## (instead of assuming full level) keeps rapid state changes pop-free.
+var _outgoing_from_db := -60.0
 var _wired := false
 
 
@@ -63,6 +66,11 @@ func begin_tracking() -> void:
 	EventBus.boss_spawned.connect(_on_boss)
 	EventBus.boss_slain.connect(_on_boss_slain)
 	EventBus.game_state_changed.connect(_on_state_changed)
+	# Fresh launch boots straight into the menu with no transition firing, so
+	# seed the menu bed here; every later state arrives via game_state_changed.
+	if GameRoot != null and GameRoot.has_method("get_current_state"):
+		if GameRoot.call("get_current_state") == &"main_menu" and _players.size() == 2:
+			request_state(STATE_MENU)
 
 
 func request_state(state: StringName) -> void:
@@ -72,6 +80,8 @@ func request_state(state: StringName) -> void:
 	_state = state
 	_fading = CROSSFADE_SECONDS
 	_active_index = (_active_index + 1) % _players.size()
+	if _players.size() == 2:
+		_outgoing_from_db = _players[(_active_index + 1) % 2].volume_db
 	_play_cue_on_active()
 	music_state_changed.emit(old, state)
 
@@ -133,7 +143,7 @@ func _process(delta: float) -> void:
 		var incoming: AudioStreamPlayer = _players[_active_index]
 		var outgoing: AudioStreamPlayer = _players[(_active_index + 1) % 2]
 		incoming.volume_db = lerpf(-60.0, _layer_volume_db(), t)
-		outgoing.volume_db = lerpf(_layer_volume_db(), -60.0, t)
+		outgoing.volume_db = lerpf(_outgoing_from_db, -60.0, t)
 		if _fading <= 0.0:
 			outgoing.stop()
 			incoming.volume_db = _layer_volume_db()
@@ -164,6 +174,8 @@ func add_heat(amount: float) -> void:
 
 
 func _on_run_started(_run_id: int, _seed: int) -> void:
+	# A restarted run must open calm even if the previous run ended mid-fight.
+	_heat = 0.0
 	request_state(STATE_CALM)
 
 

@@ -111,12 +111,18 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 
 
 ## Play a looping idle clip when the imported rig exposes one; otherwise no-op.
+## The loop flag is forced (same as EnemyAnimator) so the fallback idle never
+## plays once and freezes on the last frame when no animator drives the rig.
 static func _play_idle(root: Node3D, clip: String) -> void:
 	if clip.is_empty():
 		return
 	for player in root.find_children("*", "AnimationPlayer", true, false):
-		if (player as AnimationPlayer).has_animation(StringName(clip)):
-			(player as AnimationPlayer).play(StringName(clip))
+		var anim_player := player as AnimationPlayer
+		if anim_player != null and anim_player.has_animation(StringName(clip)):
+			var anim := anim_player.get_animation(StringName(clip))
+			if anim != null and anim.loop_mode == Animation.LOOP_NONE:
+				anim.loop_mode = Animation.LOOP_LINEAR
+			anim_player.play(StringName(clip))
 			return
 
 

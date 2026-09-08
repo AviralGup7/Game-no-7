@@ -14,6 +14,8 @@ var _health: Node = null
 var _ghost_value := 1.0
 var _reduced_motion := false
 var _health_label: Label
+var _fade_tween: Tween = null
+var _spawn_token := 0
 
 
 func _ready() -> void:
@@ -21,13 +23,22 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 20)
+	_name_label.add_theme_font_size_override("font_size", 22)
+	_name_label.add_theme_font_override("font", UiTheme.BOLD)
+	_name_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_name_label.add_theme_constant_override("outline_size", 5)
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_name_label)
 	_phase_label = Label.new()
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_phase_label.add_theme_font_size_override("font_size", 13)
+	_phase_label.add_theme_font_size_override("font_size", 15)
+	_phase_label.modulate = UiTheme.GOLD
+	_phase_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_phase_label)
 	_health_label = UiFactory.label("", self, 18)
+	_health_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_health_label.add_theme_constant_override("outline_size", 4)
+	add_theme_constant_override("separation", 2)
 	var stack := Control.new()
 	stack.custom_minimum_size = Vector2(0, 16)
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -67,6 +78,7 @@ func _make_bar(fill: Color) -> ProgressBar:
 
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	_unbind()
+	_spawn_token += 1
 	_boss = boss
 	_name_label.text = _boss_name(boss)
 	_phase_label.text = "BOSS ENCOUNTER"
@@ -81,6 +93,7 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 		if boss.has_signal("died"):
 			boss.died.connect(_on_boss_died)
 	visible = true
+	_fade_to(1.0, 0.25)
 
 
 func _boss_name(boss: Node) -> String:
@@ -109,13 +122,41 @@ func _on_phase_changed(boss: Node, phase: int, max_phases: int) -> void:
 
 
 func _on_boss_died() -> void:
-	visible = false
-	_unbind()
+	_hide_bar()
 
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
-	visible = false
+	_hide_bar()
+
+
+## Soft show/hide instead of blinking: fade in on spawn, fade out on death or
+## run end. Instant when reduced motion is on or the node is off-tree.
+func _fade_to(target: float, duration: float) -> void:
+	if _fade_tween != null and _fade_tween.is_valid():
+		_fade_tween.kill()
+	_fade_tween = null
+	if _reduced_motion or not is_inside_tree():
+		modulate.a = target
+		return
+	var tween := create_tween()
+	_fade_tween = tween
+	tween.tween_property(self, "modulate:a", target, duration)
+
+
+func _hide_bar() -> void:
 	_unbind()
+	_spawn_token += 1
+	var token := _spawn_token
+	if _reduced_motion or not is_inside_tree():
+		visible = false
+		return
+	_fade_to(0.0, 0.3)
+	var tween := create_tween()
+	tween.tween_interval(0.3)
+	# A new boss may spawn during the fade; only hide when nothing replaced us.
+	tween.tween_callback(func() -> void:
+		if token == _spawn_token:
+			visible = false)
 
 
 func _unbind() -> void:
