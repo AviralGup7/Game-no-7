@@ -28,7 +28,8 @@ static func pick_point(arena: Node, player_position: Vector3, archetype: StringN
 	if arena == null:
 		return null
 	var points: Array = arena.call("get_spawn_points")
-	points = filter_spawn_points(points, player_position, min_spawn_distance(arena), archetype)
+	var half := interior_half(arena)
+	points = filter_spawn_points(points, player_position, min_spawn_distance(arena), archetype, half)
 	if points.is_empty():
 		return null
 	return points[rng.randi_range(0, points.size() - 1)] as Node3D
@@ -54,8 +55,8 @@ static func fallback_point(arena: Node) -> Node3D:
 
 ## Pure, testable filtering. Keeps points that are markers in-tree, far enough from
 ## the player, inside the arena interior, and permitted for the archetype.
-static func filter_spawn_points(points: Array, player_position: Vector3, min_distance: float, archetype: StringName) -> Array:
-	var half := 12.0
+static func filter_spawn_points(points: Array, player_position: Vector3, min_distance: float, archetype: StringName, interior_half_value: float = 12.0) -> Array:
+	var half := interior_half_value
 	var out: Array = []
 	for p in points:
 		var node := p as Node3D

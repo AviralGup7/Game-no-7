@@ -38,7 +38,9 @@ static func load_all() -> Dictionary:
 	var first_arena := &""
 	var arenas: Dictionary = tables[&"arenas"]
 	if not arenas.is_empty():
-		first_arena = arenas.keys()[0]
+		var keys: Array = arenas.keys()
+		keys.sort()
+		first_arena = StringName(String(keys[0]))
 	return {
 		"tables": tables,
 		"waves": tables[&"waves"],
@@ -198,6 +200,7 @@ static func _list_resources(dir_path: String, extensions: Array = [".tres"]) -> 
 				out.append(dir_path.path_join(file))
 		file = dir.get_next()
 	dir.list_dir_end()
+	out.sort()
 	return out
 
 

@@ -18,11 +18,12 @@ static func spread_directions(facing: Vector3, projectile_count: int, spread_deg
 	if flat.length_squared() < 0.0001:
 		flat = Vector3.FORWARD
 	flat = flat.normalized()
-	if n == 1 or spread_degrees <= 0.0:
+	var clamped_spread := maxf(spread_degrees, 0.0)
+	if n == 1 or clamped_spread <= 0.0:
 		for i in range(n):
 			out.append(flat)
 		return out
-	var half := deg_to_rad(spread_degrees) * 0.5
+	var half := deg_to_rad(clamped_spread) * 0.5
 	for i in range(n):
 		var t := 0.0
 		if n > 1:

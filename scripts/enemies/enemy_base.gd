@@ -591,6 +591,7 @@ func _juice_hitstop(duration: float, trauma: float) -> void:
 			node.call("request_hitstop", duration)
 		if node.has_method("add_trauma"):
 			node.call("add_trauma", trauma)
+		break  # Only one manager owns the global time_scale; avoid stacking the freeze
 
 
 func _fade_and_free() -> void:
