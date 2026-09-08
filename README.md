@@ -104,6 +104,7 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 | Doc | Purpose |
 |---|---|
 | `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
+| `docs/ANDROID_PERMISSIONS.md` | why the app requests no Android permissions + how to verify |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
 | `docs/ASSET_CATALOG.md` | Downloaded asset inventory, file/role map, animation names + integration status |
 | `docs/EXTENDING.md` | Step-by-step extension guides |
