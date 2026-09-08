@@ -12,7 +12,7 @@ on:
         required: true
         type: string
   # Build + publish the APK whenever a Release is published from the GitHub UI
-  # (github.ref is refs/tags/<tag> for this event, so publish-release fires).
+  # (event_name == 'release'; publish-release also handles tag pushes and manual dispatch).
   release:
     types: [published]
 
@@ -203,8 +203,13 @@ jobs:
   # ---- Stage 3: publish (only when a Release is cut / workflow_dispatch) ----
   # Publish only the APK produced by the successful validation/build job.
   # This is a debug-signed milestone, not a Play-ready production build.
+  # Fix: `release` events (GitHub UI → Publish release) have event_name == 'release',
+  # not a tag ref, so the previous `workflow_dispatch || tags` check skipped them.
   publish-release:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || startsWith(github.ref, 'refs/tags/')
+      || github.event_name == 'release'
     needs: build-android
     runs-on: ubuntu-latest
     permissions:
@@ -227,9 +232,9 @@ jobs:
       - name: Publish APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          tag_name: ${{ inputs.release_tag || github.event.release.tag_name || github.ref_name }}
           target_commitish: ${{ github.sha }}
-          name: ${{ inputs.release_tag || github.ref_name }}
+          name: ${{ inputs.release_tag || github.event.release.tag_name || github.ref_name }}
           files: |
             build/LastStandArena-debug.apk
             build/SHA256SUMS.txt
