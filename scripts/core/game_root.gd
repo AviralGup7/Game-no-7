@@ -50,8 +50,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
-	if SaveManager != null and SaveManager.has_method("get_prestige_rank"):
-		_prestige_rank = int(SaveManager.call("get_prestige_rank"))
+	_prestige_rank = SaveManager.get_prestige_rank()
 	_score.bind(_current_run, _player_derived_stat)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	EventBus.wave_started.connect(_on_wave_started)

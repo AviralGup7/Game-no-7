@@ -85,8 +85,8 @@ func present(daily: bool = false) -> void:
 	if not _weapon_ids.is_empty(): _weapons.select(maxi(_weapon_ids.find(weapon), 0))
 	if not _mode_ids.is_empty():
 		var pending := GameMode.MODE_STANDARD
-		if GameRoot != null and GameRoot.has_method("get_pending_mode"):
-			pending = StringName(GameRoot.call("get_pending_mode"))
+		if GameRoot != null:
+			pending = GameRoot.get_pending_mode()
 		_modes.select(maxi(_mode_ids.find(pending), 0))
 	_modes.disabled = daily
 	_daily_info.visible = daily

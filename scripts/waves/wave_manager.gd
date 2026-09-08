@@ -145,12 +145,8 @@ func _wave_queue(wave_number: int, cfg: WaveConfig) -> Array[StringName]:
 
 
 func _run_mode() -> StringName:
-	if GameRoot != null and GameRoot.has_method("get_run_mode"):
-		return StringName(GameRoot.call("get_run_mode"))
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null and "mode_id" in run:
-			return StringName(String(run.mode_id))
+	if GameRoot != null:
+		return GameRoot.get_run_mode()
 	return GameMode.MODE_STANDARD
 
 
@@ -196,10 +192,9 @@ func _announce_wave(wave_number: int) -> void:
 	EventBus.announcement.emit(&"wave_started", text, severity)
 	# Narrative layer: campaign beats + arena lore on milestones.
 	var arena_id := &"default_arena"
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null and "arena_id" in run:
-			arena_id = StringName(String(run.arena_id))
+	var run := GameRoot.get_run() if GameRoot != null else null
+	if run != null and run.arena_id != &"":
+		arena_id = run.arena_id
 	Narrator.announce_wave(mode_id, arena_id, wave_number)
 
 
@@ -277,8 +272,8 @@ func _complete_current_wave() -> void:
 	_tick_director_clock()
 	# Mode win condition: finishing the cap wave ends the run in victory.
 	if GameMode.is_victory_wave(_run_mode(), _current_wave):
-		if GameRoot != null and GameRoot.has_method("declare_victory"):
-			GameRoot.call("declare_victory")
+		if GameRoot != null:
+			GameRoot.declare_victory()
 		stop()
 		return
 	var wants_upgrade := cfg.upgrade_after_completion or GameMode.wants_upgrade(_run_mode(), _current_wave)

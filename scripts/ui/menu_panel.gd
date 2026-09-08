@@ -52,9 +52,8 @@ func _fit() -> void:
 func refresh() -> void:
 	var prestige := 0
 	var title := "Unproven"
-	if SaveManager != null and SaveManager.has_method("get_prestige_rank"):
-		prestige = int(SaveManager.call("get_prestige_rank"))
-		title = Prestige.title_for(prestige)
+	prestige = SaveManager.get_prestige_rank()
+	title = Prestige.title_for(prestige)
 	_records.text = "PERSONAL BEST  %s    /    WAVE %d    /    BANK %d\n%s  •  Prestige %d" % [
 		SaveManager.get_best_score(), SaveManager.get_best_wave(), SaveManager.get_meta_wallet(),
 		title, prestige]

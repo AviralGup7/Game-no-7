@@ -366,15 +366,15 @@ func _tick_mover(h: Dictionary, victims: Array, delta: float) -> void:
 		return
 	h["tick"] = 0.0
 	for v in victims:
-		if v is Node3D and _inside((v as Node3D).global_position, pos, MOVER_RADIUS):
-			if (v as Node).has_method("apply_damage"):
-				var payload := DamagePayload.new()
-				payload.amount = MOVER_DAMAGE
-				payload.source = self
-				payload.source_id = &"moving_hazard"
-				payload.hit_position = (v as Node3D).global_position
-				if payload.is_valid():
-					(v as Node).call("apply_damage", payload)
+		var body := v as Damageable
+		if body != null and _inside(body.global_position, pos, MOVER_RADIUS):
+			var payload := DamagePayload.new()
+			payload.amount = MOVER_DAMAGE
+			payload.source = self
+			payload.source_id = &"moving_hazard"
+			payload.hit_position = body.global_position
+			if payload.is_valid():
+				body.apply_damage(payload)
 
 
 func _clear() -> void:

@@ -68,7 +68,13 @@ func _refresh_targets() -> void:
 ## whose arena predates the group contract; no arena (UI tests) keeps the default
 ## arena_half.
 func _find_arena() -> Arena:
-	return get_tree().get_first_node_in_group(Arena.ARENA_GROUP) as Arena
+	var arena := get_tree().get_first_node_in_group(Arena.ARENA_GROUP) as Arena
+	if arena != null:
+		return arena
+	# Legacy path fallback: the group is authoritative, but keep the direct
+	# lookup so a half-built scene still resolves during restart swaps.
+	var cs := get_tree().current_scene
+	return cs.get_node_or_null("WorldRoot/Arena") as Arena if cs != null else null
 
 
 func _draw() -> void:

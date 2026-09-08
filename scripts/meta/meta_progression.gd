@@ -241,11 +241,10 @@ func perform_prestige() -> bool:
 	_prestige_rank = mini(_prestige_rank + 1, Prestige.MAX_PRESTIGE)
 	# Unlock cosmetics for the new rank.
 	for c in Prestige.cosmetics_for_rank(_prestige_rank):
-		if SaveManager != null and SaveManager.has_method("unlock_cosmetic"):
-			SaveManager.call("unlock_cosmetic", String(c))
+		SaveManager.unlock_cosmetic(String(c))
 	_save()
-	if GameRoot != null and GameRoot.has_method("set_prestige_rank"):
-		GameRoot.call("set_prestige_rank", _prestige_rank)
+	if GameRoot != null:
+		GameRoot.set_prestige_rank(_prestige_rank)
 	prestige_completed.emit(_prestige_rank)
 	wallet_changed.emit(_wallet)
 	if EventBus != null:

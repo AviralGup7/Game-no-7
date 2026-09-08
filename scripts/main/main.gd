@@ -248,11 +248,10 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	arena.add_child(hazards)
 	hazards.configure(arena_id, half, seed)
 	# Dense arena layouts + pressure plates + moving hazards for differentiation.
-	if hazards.has_method("apply_mode_pressure"):
-		var mode_id := GameMode.MODE_STANDARD
-		if GameRoot != null and GameRoot.has_method("get_run_mode"):
-			mode_id = StringName(GameRoot.call("get_run_mode"))
-		hazards.call("apply_mode_pressure", mode_id)
+	var mode_id := GameMode.MODE_STANDARD
+	if GameRoot != null:
+		mode_id = GameRoot.get_run_mode()
+	hazards.apply_mode_pressure(mode_id)
 
 	# Agent 4 presentation: pooled VFX director (impact/death/wave/status feedback).
 	var effects := EffectDirector.new()

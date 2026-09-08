@@ -36,3 +36,9 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 ## implementation reports alive; override when the entity owns a death state.
 func is_alive() -> bool:
 	return true
+
+
+## Current health as a 0..1 fraction for execute/kill-aid checks. The base
+## implementation reports full health; override when the entity owns health.
+func get_health_fraction() -> float:
+	return 1.0
