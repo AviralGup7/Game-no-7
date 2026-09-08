@@ -118,8 +118,9 @@ jobs:
         run: |
           for f in build/ui-tests-*.log build/ui-import.log; do
             [ -f "$f" ] || continue
-            grep -hoE '(UI FAIL:|SCRIPT ERROR:|Parse Error:|Failed to load script)[^\r]*' "$f" \
-              | sort -u | head -40 | while IFS= read -r line; do
+            grep -hE '(UI FAIL:|SCRIPT ERROR:|Parse Error:|Failed to load script)' "$f" \
+              | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort -u | head -40 \
+              | while IFS= read -r line; do
                   echo "::error title=UIDIAG::${line}"
                 done
             grep -hoE 'UI TESTS: [0-9]+ checks, [0-9]+ failed' "$f" | head -2 | while IFS= read -r line; do
