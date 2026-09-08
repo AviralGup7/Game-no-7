@@ -37,6 +37,10 @@ func _create_persistent_directors() -> void:
 	_music.name = "MusicManager"
 	add_child(_music)
 	_music.begin_tracking()
+	# Agent 4 audio: register the approved recorded SFX + looping music tracks over the
+	# procedural fallback (real cues always take precedence; safe + idempotent).
+	var audio_assets := AudioAssetIntegrator.new()
+	audio_assets.register()
 	_achievements = Achievements.new()
 	_achievements.name = "Achievements"
 	add_child(_achievements)
@@ -189,6 +193,11 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 	hazards.name = "ArenaHazards"
 	(arena as Node).add_child(hazards)
 	hazards.configure(arena_id, half, seed)
+
+	# Agent 4 presentation: pooled VFX director (impact/death/wave/status feedback).
+	var effects := EffectDirector.new()
+	effects.name = "EffectDirector"
+	_world_root.add_child(effects)
 
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
 	if player is Node:

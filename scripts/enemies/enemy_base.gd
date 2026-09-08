@@ -106,6 +106,10 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	if _feedback != null and _feedback.has_method("recolor"):
 		_feedback.call("recolor", config.color_tint)
 	_apply_visual_scale(config.visual_scale)
+	# Presentation hook (Agent 4): mount the archetype's approved model under
+	# VisualRoot/CharacterModel. No gameplay effect; primitives remain if absent.
+	if CharacterVisuals.has_model(config.archetype_id):
+		CharacterVisuals.mount(self, config.archetype_id)
 	if _machine != null:
 		_machine.force_state(&"idle")
 	_navigator.reset(target)

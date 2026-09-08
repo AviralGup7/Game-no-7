@@ -11,6 +11,7 @@ extends SceneTree
 
 const UNIT_SUITES := [
 	"res://tests/unit/test_model_visual.gd",
+	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_save.gd",
 	"res://tests/unit/test_combat.gd",
 	"res://tests/unit/test_configs.gd",

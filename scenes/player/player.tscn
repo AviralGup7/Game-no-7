@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/skills/skill_controller.gd" id="12_skills"]
 [ext_resource type="Script" path="res://scripts/weapons/weapon_manager.gd" id="13_weapons"]
 [ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="14_status"]
+[ext_resource type="Script" path="res://scripts/visuals/visual_mount.gd" id="15_mount"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.45
@@ -31,6 +32,10 @@ roughness = 0.55
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1_player")
+
+[node name="VisualMount" type="Node3D" parent="."]
+script = ExtResource("15_mount")
+role = &"player"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
