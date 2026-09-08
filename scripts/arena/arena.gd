@@ -17,6 +17,114 @@ const SPAWN_POINT_GROUP := &"enemy_spawn_point"
 
 func _ready() -> void:
 	_build_navigation_floor()
+	# Presentation (Agent 4): give the active arena a distinct lighting/sky/mood.
+	apply_theme(_resolve_arena_id())
+
+
+## Presentation entry point. Reads the run's real arena id (the shared arena scene is
+## reused by every ArenaConfig, so the scene's default id is not authoritative).
+func apply_theme(theme_arena_id: StringName) -> void:
+	var preset: Dictionary = THEMES.get(String(theme_arena_id))
+	if preset.is_empty():
+		# Unknown arena keeps the scene-authored daylight preset.
+		return
+	_apply_sky_and_light(preset)
+	_tint_surfaces(preset)
+
+
+func _resolve_arena_id() -> StringName:
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run := GameRoot.get_run()
+		if run != null:
+			var idn: StringName = run.get("arena_id")
+			if idn != null and String(idn) != "":
+				return idn
+	return arena_id
+
+
+## Per-arena mood presets. Keep dynamic lights minimal (one sun) for Android.
+const THEMES := {
+	"ember_crucible": {
+		"sky_top": Color(0.16, 0.06, 0.05),
+		"sky_horizon": Color(0.6, 0.22, 0.1),
+		"ground_horizon": Color(0.2, 0.07, 0.04),
+		"fog_color": Color(0.5, 0.2, 0.09),
+		"fog_density": 0.02,
+		"sun_color": Color(1.0, 0.58, 0.3),
+		"sun_energy": 1.55,
+		"ambient_color": Color(0.75, 0.42, 0.3),
+		"floor_tint": Color(0.62, 0.4, 0.3),
+		"wall_tint": Color(0.5, 0.28, 0.22),
+	},
+	"frost_hollow": {
+		"sky_top": Color(0.25, 0.34, 0.5),
+		"sky_horizon": Color(0.75, 0.82, 0.92),
+		"ground_horizon": Color(0.45, 0.52, 0.62),
+		"fog_color": Color(0.75, 0.83, 0.92),
+		"fog_density": 0.018,
+		"sun_color": Color(0.75, 0.85, 1.0),
+		"sun_energy": 1.35,
+		"ambient_color": Color(0.7, 0.78, 0.9),
+		"floor_tint": Color(0.66, 0.72, 0.82),
+		"wall_tint": Color(0.5, 0.56, 0.68),
+	},
+}
+
+
+func _apply_sky_and_light(preset: Dictionary) -> void:
+	# Sun
+	var sun := get_node_or_null("Lighting/Sun") as DirectionalLight3D
+	if sun != null:
+		sun.light_color = preset.get("sun_color", sun.light_color)
+		sun.light_energy = float(preset.get("sun_energy", sun.light_energy))
+	# Fresh sky + fog environment (never mutate the scene's shared default resource).
+	var pm := ProceduralSkyMaterial.new()
+	pm.sky_top_color = preset.get("sky_top", Color(0.36, 0.6, 0.85))
+	pm.sky_horizon_color = preset.get("sky_horizon", Color(0.72, 0.8, 0.9))
+	pm.ground_horizon_color = preset.get("ground_horizon", Color(0.55, 0.6, 0.66))
+	pm.ground_bottom_color = pm.sky_horizon_color.darkened(0.6)
+	var sky := Sky.new()
+	sky.sky_material = pm
+	var env := Environment.new()
+	env.background_mode = Environment.BG_SKY
+	env.background_sky = sky
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	env.ambient_light_color = preset.get("ambient_color", Color(0.62, 0.68, 0.75))
+	env.ambient_light_energy = 1.0
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.fog_enabled = true
+	env.fog_light_color = preset.get("fog_color", Color(0.7, 0.7, 0.7))
+	env.fog_density = float(preset.get("fog_density", 0.012))
+	env.fog_sky_affect = 0.35
+	var wenv := get_node_or_null("Environment") as WorldEnvironment
+	if wenv != null:
+		wenv.environment = env
+
+
+func _tint_surfaces(preset: Dictionary) -> void:
+	_tint_geometry(&"Geometry", preset.get("floor_tint", Color.WHITE), preset.get("wall_tint", Color.WHITE))
+
+
+func _tint_geometry(root_path: String, floor_tint: Color, wall_tint: Color) -> void:
+	var root := get_node_or_null(root_path)
+	if root == null:
+		return
+	for child in root.get_children():
+		if not child is MeshInstance3D:
+			continue
+		var mi := child as MeshInstance3D
+		var name := child.name
+		var tint: Color
+		if name == &"Floor":
+			tint = floor_tint
+		elif String(name).begins_with("Wall"):
+			tint = wall_tint
+		else:
+			continue
+		var base := mi.mesh.material as StandardMaterial3D
+		var dup: StandardMaterial3D = (base.duplicate(true) if base != null else StandardMaterial3D.new())
+		dup.albedo_color = tint
+		mi.material_override = dup
 
 
 ## Deterministic, precomputed navigation floor (no runtime baking). Builds a flat

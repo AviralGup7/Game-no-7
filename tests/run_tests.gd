@@ -11,6 +11,8 @@ extends SceneTree
 
 const UNIT_SUITES := [
 	"res://tests/unit/test_model_visual.gd",
+	"res://tests/unit/test_character_visuals.gd",
+	"res://tests/unit/test_presentation_scripts.gd",
 	"res://tests/unit/test_save.gd",
 	"res://tests/unit/test_combat.gd",
 	"res://tests/unit/test_configs.gd",
@@ -23,6 +25,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_rng_tables.gd",
 	"res://tests/unit/test_weapons.gd",
 	"res://tests/unit/test_status_skills.gd",
+	"res://tests/unit/test_content_progression.gd",
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_drops_elites.gd",
 	"res://tests/unit/test_director_mutators.gd",

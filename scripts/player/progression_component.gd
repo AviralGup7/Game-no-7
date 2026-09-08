@@ -32,9 +32,14 @@ const MIN_COOLDOWN := 0.05
 var _stacks: Dictionary = {}
 # accumulated effective modifier totals (modifier key -> total across stacks).
 var _modifiers: Dictionary = {}
+# The progression owner is also the authority for wave-gated run upgrades. GameRoot
+# updates this mirror as waves start; direct callers cannot apply a future upgrade.
+var _current_wave: int = 1
 
 const MULTIPLICATIVE := [
 	&"move_speed_multiplier", &"attack_damage_multiplier", &"knockback_multiplier",
+	&"skill_damage_multiplier", &"area_radius_multiplier", &"area_damage_multiplier",
+	&"status_duration_multiplier", &"status_damage_multiplier",
 ]
 const COOLDOWN := [&"attack_cooldown_multiplier", &"dodge_cooldown_multiplier", &"skill_cooldown_multiplier"]
 
@@ -42,12 +47,24 @@ const COOLDOWN := [&"attack_cooldown_multiplier", &"dodge_cooldown_multiplier", 
 func reset() -> void:
 	_stacks.clear()
 	_modifiers.clear()
+	_current_wave = 1
+
+
+## Set the authoritative run wave used by direct application and restore calls.
+## UpgradeService still validates the offered-card contract; this check protects
+## every other caller of ProgressionComponent as well.
+func set_current_wave(wave_number: int) -> void:
+	_current_wave = maxi(wave_number, 1)
+
+
+func get_current_wave() -> int:
+	return _current_wave
 
 
 func apply_upgrade(config: UpgradeConfig) -> bool:
-	if config == null:
+	if config == null or not config.validate().is_empty():
 		return false
-	if config.disabled:
+	if config.disabled or _current_wave < config.unlock_wave:
 		return false
 	if not _meets_prerequisites(config):
 		return false
@@ -62,6 +79,8 @@ func apply_upgrade(config: UpgradeConfig) -> bool:
 
 
 func apply_upgrade_by_id(upgrade_id: StringName) -> bool:
+	if ContentRegistry == null:
+		return false
 	var config: UpgradeConfig = ContentRegistry.get_upgrade(upgrade_id)
 	if config == null:
 		EventBus.report_warning("apply_upgrade_by_id: unknown upgrade %s" % String(upgrade_id))
@@ -105,7 +124,9 @@ func get_stat(key: StringName, base: float) -> float:
 	if key == &"damage_resistance_add":
 		return clampf(base + total, 0.0, 1.0)
 	# Additive family: max_health_add, attack_range_add, healing_on_kill,
-	# score_multiplier_add, currency_multiplier_add.
+	# score/currency/xp multipliers, crit values, projectile counts/pierce and
+	# stamina/pickup bonuses. Percentage-like additive values are authored in
+	# decimal form and consumers choose the neutral base they need.
 	return base + total
 
 
@@ -141,23 +162,47 @@ func get_progression_snapshot() -> Dictionary:
 ## Restore a serialized run progression snapshot. Only recognized upgrade ids with a
 ## positive stack count up to their max are applied; invalid ids are ignored (and a
 ## diagnostic emitted). Returns the number of upgrades successfully restored.
-func restore_progression(snapshot: Dictionary) -> int:
+func restore_progression(snapshot: Dictionary, wave_number: int = -1) -> int:
 	var restored := 0
 	_stacks.clear()
 	_modifiers.clear()
-	if snapshot == null or snapshot.is_empty():
+	if wave_number > 0:
+		_current_wave = maxi(wave_number, 1)
+	if snapshot == null or snapshot.is_empty() or ContentRegistry == null:
 		return 0
+	# Apply in stable id order and make repeated passes so a child upgrade is not
+	# lost merely because a JSON dictionary serialized its prerequisite later.
+	var ids: Array[String] = []
 	for raw_id in snapshot:
-		var config: UpgradeConfig = ContentRegistry.get_upgrade(StringName(String(raw_id)))
-		if config == null:
-			EventBus.report_warning("restore_progression: ignoring unknown upgrade %s" % String(raw_id))
-			continue
-		var count := maxi(int(snapshot[raw_id]), 0)
-		count = mini(count, config.max_stacks)
-		for i in count:
-			if not apply_upgrade(config):
-				break
-			restored += 1
+		ids.append(String(raw_id))
+	ids.sort()
+	var pending: Dictionary = {}
+	for id in ids:
+		pending[id] = mini(maxi(int(snapshot[id]), 0), 999999)
+	var made_progress := true
+	while made_progress and not pending.is_empty():
+		made_progress = false
+		for id in ids:
+			if not pending.has(id) or int(pending[id]) <= 0:
+				continue
+			var config: UpgradeConfig = ContentRegistry.get_upgrade(StringName(id))
+			if config == null:
+				EventBus.report_warning("restore_progression: ignoring unknown upgrade %s" % id)
+				pending.erase(id)
+				continue
+			if apply_upgrade(config):
+				pending[id] = int(pending[id]) - 1
+				restored += 1
+				made_progress = true
+			else:
+				# A blocked prerequisite may become valid on a later pass. A hard
+				# wave/exclusion/max-stack failure is naturally exhausted below.
+				continue
+		for id in ids:
+			if pending.has(id) and int(pending[id]) <= 0:
+				pending.erase(id)
+	# Any remaining positive entries were invalid for this run (future wave,
+	# exclusion cycle, or malformed data); never partially invent their stats.
 	return restored
 
 
@@ -165,6 +210,8 @@ func restore_progression(snapshot: Dictionary) -> int:
 ## debug tooling). Participates in the same derived formulas as upgrade totals
 ## and is cleared by reset() like everything else.
 func add_permanent_bonus(key: StringName, delta: float) -> void:
+	if key not in UpgradeConfig.MODIFIER_KEYS or not is_finite(delta):
+		return
 	_modifiers[key] = float(_modifiers.get(key, 0.0)) + delta
 
 

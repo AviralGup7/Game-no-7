@@ -33,6 +33,7 @@ static func load_all() -> Dictionary:
 	_load_typed(&"res://data/status", &"status", tables, errors)
 	_load_typed(&"res://data/pickups", &"pickups", tables, errors)
 	_load_typed(&"res://data/waves", &"waves", tables, errors)
+	_validate_references(tables, errors)
 	var audio := _load_audio_streams(errors)
 	var first_arena := &""
 	var arenas: Dictionary = tables[&"arenas"]
@@ -45,6 +46,38 @@ static func load_all() -> Dictionary:
 		"errors": errors,
 		"first_arena": first_arena,
 	}
+
+
+## Cross-resource references are validated after every directory is loaded. A
+## malformed reference remains visible in the registry for diagnostics but is
+## never silently treated as a valid build card/proc.
+static func _validate_references(tables: Dictionary, errors: Array[String]) -> void:
+	var statuses: Dictionary = tables[&"status"]
+	for raw in (tables[&"weapons"] as Dictionary).values():
+		var weapon := raw as WeaponConfig
+		if weapon == null:
+			continue
+		for effect_id in weapon.on_hit_effects:
+			if not statuses.has(effect_id):
+				errors.append("weapon %s references unknown status %s" % [String(weapon.weapon_id), String(effect_id)])
+	for raw in (tables[&"skills"] as Dictionary).values():
+		var skill := raw as SkillConfig
+		if skill == null:
+			continue
+		for effect_id in skill.victim_effects + skill.caster_effects:
+			if not statuses.has(effect_id):
+				errors.append("skill %s references unknown status %s" % [String(skill.skill_id), String(effect_id)])
+	var upgrades: Dictionary = tables[&"upgrades"]
+	for raw in upgrades.values():
+		var upgrade := raw as UpgradeConfig
+		if upgrade == null:
+			continue
+		for prereq in upgrade.prerequisites:
+			if not upgrades.has(prereq):
+				errors.append("upgrade %s references unknown prerequisite %s" % [String(upgrade.upgrade_id), String(prereq)])
+		for exclusion in upgrade.exclusions:
+			if not upgrades.has(exclusion):
+				errors.append("upgrade %s references unknown exclusion %s" % [String(upgrade.upgrade_id), String(exclusion)])
 
 
 static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, errors: Array[String]) -> void:

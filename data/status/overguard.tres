@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StatusEffectConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/status/status_effect_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+effect_id = &"overguard"
+display_name = "Overguard"
+is_harmful = false
+duration = 8.0
+max_stacks = 1
+stack_mode = &"refresh"
+move_speed_factor = 1.0
+damage_factor = 1.0
+received_damage_factor = 0.85
+shield_amount = 45.0
+tick_interval = 0.5
+tint = Color(0.4, 0.7, 1, 1)
+tags = Array[StringName]([&"buff", &"shield", &"defense"])

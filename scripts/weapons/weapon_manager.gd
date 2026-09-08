@@ -19,9 +19,10 @@ signal reload_finished(weapon_id: StringName)
 const LOADOUT_SLOTS := 2
 const ENEMY_GROUP := "enemies"
 
-var _slots: Array = []           # WeaponInstance or null per slot
+var _slots: Array = [null, null] # WeaponInstance or null per slot
 var _active_slot := 0
 var _run_seed := 0
+var _current_wave := 1
 var _attacks_enabled := true
 var _projectile_pool: ProjectilePool = null
 var _owner_body: Node3D = null
@@ -32,6 +33,29 @@ func _ready() -> void:
 	_slots.fill(null)
 	_owner_body = get_parent() as Node3D
 	_locate_projectile_pool()
+	_bind_status_refresh()
+
+
+func _bind_status_refresh() -> void:
+	if _owner_body == null:
+		return
+	var status := _owner_body.get_node_or_null("StatusManager") as StatusManager
+	if status == null:
+		return
+	if not status.effect_applied.is_connected(_on_status_applied):
+		status.effect_applied.connect(_on_status_applied)
+	if not status.effect_expired.is_connected(_on_status_removed):
+		status.effect_expired.connect(_on_status_removed)
+	if not status.effect_cleansed.is_connected(_on_status_removed):
+		status.effect_cleansed.connect(_on_status_removed)
+
+
+func _on_status_applied(_effect_id: StringName, _stacks: int) -> void:
+	refresh_derived_stats()
+
+
+func _on_status_removed(_effect_id: StringName) -> void:
+	refresh_derived_stats()
 
 
 func _locate_projectile_pool() -> void:
@@ -64,7 +88,7 @@ func cancel_in_progress() -> void:
 ## Equip a weapon config into a slot (replaces whatever was there). Returns the
 ## replaced weapon id, or &"" when the slot was empty.
 func equip(config: WeaponConfig, slot: int = 0) -> StringName:
-	if config == null:
+	if config == null or not config.validate().is_empty() or config.disabled:
 		return &""
 	slot = clampi(slot, 0, LOADOUT_SLOTS - 1)
 	var replaced := &""
@@ -83,15 +107,26 @@ func equip(config: WeaponConfig, slot: int = 0) -> StringName:
 
 
 ## Equip by registry id (looks the config up via ContentRegistry). False when
-## unknown/disabled or the registry is unavailable (headless direct use).
-func equip_by_id(weapon_id: StringName, slot: int = 0) -> bool:
+## unknown/disabled/future-wave or the registry is unavailable. Setup flows may
+## explicitly bypass the wave gate for a starter/daily loadout.
+func equip_by_id(weapon_id: StringName, slot: int = 0, bypass_wave_gate: bool = false) -> bool:
 	if ContentRegistry == null:
 		return false
 	var cfg: WeaponConfig = ContentRegistry.get_weapon(weapon_id)
-	if cfg == null or cfg.disabled:
+	if cfg == null or not cfg.validate().is_empty() or cfg.disabled:
+		return false
+	if not bypass_wave_gate and _current_wave < cfg.unlock_wave:
 		return false
 	equip(cfg, slot)
 	return true
+
+
+func set_current_wave(wave_number: int) -> void:
+	_current_wave = maxi(wave_number, 1)
+
+
+func get_current_wave() -> int:
+	return _current_wave
 
 
 func switch_to(slot: int) -> bool:
@@ -132,6 +167,16 @@ func slot_instance(slot: int) -> WeaponInstance:
 	return _slots[slot] as WeaponInstance
 
 
+## Stable loadout mirror for RunState/save summaries. Empty slots are omitted.
+func get_loadout_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for raw in _slots:
+		var inst := raw as WeaponInstance
+		if inst != null and inst.config != null:
+			ids.append(inst.config.weapon_id)
+	return ids
+
+
 ## Refresh wielder-derived modifiers on every equipped weapon (call after any
 ## upgrade / external stat change).
 func refresh_derived_stats() -> void:
@@ -142,11 +187,20 @@ func refresh_derived_stats() -> void:
 
 func _apply_derived_stats(inst: WeaponInstance) -> void:
 	var prog := _progression()
-	inst.damage_multiplier = _stat(prog, &"attack_damage_multiplier", 1.0)
+	var status_damage := 1.0
+	if _owner_body != null:
+		var status := _owner_body.get_node_or_null("StatusManager")
+		if status != null and status.has_method("outgoing_damage_factor"):
+			status_damage = maxf(float(status.call("outgoing_damage_factor")), 0.0)
+	inst.damage_multiplier = _stat(prog, &"attack_damage_multiplier", 1.0) * status_damage
 	inst.cooldown_multiplier = _stat(prog, &"attack_cooldown_multiplier", 1.0)
 	inst.range_bonus = _stat(prog, &"attack_range_add", 0.0)
 	inst.knockback_multiplier = _stat(prog, &"knockback_multiplier", 1.0)
 	inst.crit_chance_bonus = _stat(prog, &"crit_chance_add", 0.0)
+	inst.crit_multiplier_bonus = _stat(prog, &"crit_multiplier_add", 0.0)
+	inst.status_chance_bonus = _stat(prog, &"status_chance_add", 0.0)
+	inst.projectile_count_bonus = maxi(int(round(_stat(prog, &"projectile_count_add", 0.0))), 0)
+	inst.projectile_pierce_bonus = maxi(int(round(_stat(prog, &"projectile_pierce_add", 0.0))), 0)
 
 
 func _progression() -> Node:
@@ -218,7 +272,12 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 			continue
 		var sm := (target as Node).get_node_or_null("StatusManager") if target is Node else null
 		if sm != null and sm.has_method("apply_effects"):
-			sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
+			var applied: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
+			var result: Variant = entry.get("result")
+			if result is DamageResult and applied is Dictionary:
+				for raw_id in applied:
+					if int(applied[raw_id]) > 0:
+						(result as DamageResult).status_effects_applied.append(StringName(String(raw_id)))
 
 
 func _fire_volley(inst: WeaponInstance, origin: Vector3, facing: Vector3, was_crit: bool) -> void:
@@ -226,24 +285,25 @@ func _fire_volley(inst: WeaponInstance, origin: Vector3, facing: Vector3, was_cr
 	if _projectile_pool == null:
 		return
 	var cfg := inst.config
-	var dirs := RangedResolver.spread_directions(facing, cfg.projectile_count, cfg.projectile_spread_degrees)
+	var dirs := RangedResolver.spread_directions(facing, inst.effective_projectile_count(), cfg.projectile_spread_degrees)
 	var muzzle := RangedResolver.muzzle_position(origin, facing)
 	var damage := inst.effective_damage()
 	if was_crit:
-		damage *= cfg.crit_multiplier
+		damage *= inst.effective_crit_multiplier()
 	var cfg_dict := {
 		"team": Projectile.TEAM_PLAYER,
 		"origin": muzzle,
 		"speed": cfg.projectile_speed,
 		"damage": damage,
 		"knockback": inst.effective_knockback(),
-		"pierce": cfg.projectile_pierce,
+		"pierce": inst.effective_projectile_pierce(),
+		"damage_type": cfg.damage_type,
 		"max_distance": cfg.projectile_speed * cfg.projectile_lifetime,
 		"lifetime": cfg.projectile_lifetime,
 		"source": _owner_body,
 		"source_id": cfg.weapon_id,
 		"was_critical": was_crit,
-		"critical_multiplier": cfg.crit_multiplier,
+		"critical_multiplier": inst.effective_crit_multiplier(),
 		"status_effects": cfg.on_hit_effects if inst.roll_on_hit_effects() else [],
 	}
 	_projectile_pool.fire_volley(cfg_dict, dirs)

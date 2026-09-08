@@ -98,6 +98,8 @@ func _obtain() -> Projectile:
 	else:
 		# Recycle the oldest active projectile (deterministic, no allocation).
 		p = _active.pop_front()
+		if p != null:
+			p.pool_reset()
 		pool_exhausted_recycled.emit()
 	if p in _active:
 		_active.erase(p)

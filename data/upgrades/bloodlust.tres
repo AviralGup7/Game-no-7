@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"bloodlust"
 display_name = "Bloodlust"
-description = "Heal 4 HP on enemy kill"
+description = "Heal 4 HP on enemy kill. Sustain scales with aggressive builds."
 rarity = &"epic"
+category = &"sustain"
 max_stacks = 2
 stat_modifiers = {
 "healing_on_kill": 4.0,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"sustain", &"kill", &"physical"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.7
 disabled = false

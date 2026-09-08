@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+weapon_id = &"moonlance"
+display_name = "Moonlance"
+description = "A reach-focused hybrid: pierce the front rank, then send a frost shard through the gap."
+kind = &"hybrid"
+rarity = &"epic"
+attack_pattern = &"hybrid"
+damage_type = &"frost"
+base_damage = 17.0
+swing_cooldown = 0.82
+windup = 0.17
+range = 4.5
+arc_degrees = 42.0
+max_targets = 3
+knockback = 5.0
+combo_damage_steps = PackedFloat32Array(1, 1.25)
+combo_window = 0.48
+crit_chance = 0.1
+crit_multiplier = 1.9
+on_hit_effects = Array[StringName]([&"slow"])
+on_hit_effect_chance = 0.45
+projectile_speed = 21.0
+projectile_count = 1
+projectile_spread_degrees = 0.0
+projectile_lifetime = 1.1
+projectile_radius = 0.25
+projectile_pierce = 1
+ammo_per_magazine = 0
+reload_seconds = 0.0
+unlock_wave = 5
+unlock_cost = 260
+weight = 0.5
+disabled = false
+tags = Array[StringName]([&"hybrid", &"reach", &"frost", &"control"])

@@ -46,6 +46,16 @@ godot --headless --path . --script res://tests/validate_asset_imports.gd
 
 The export presets include `ASSET_LICENSES/*.txt` / `*.md` and both provenance
 manifests, retaining the mandatory Rajdhani OFL copyright/licence with the fonts.
+A `docs/ANDROID_PERMISSIONS.md` policy is also bundled so the no-permission posture is
+auditable from inside the APK.
+
+## Android permissions
+
+The game is fully offline and requests **no Android runtime permissions** (verified:
+no networking, sensors, microphone/camera, external storage, or vibration use; saves
+use internal `user://`). Keep it that way — see `docs/ANDROID_PERMISSIONS.md` for the
+rationale, the Godot debug-vs-release `INTERNET` nuance, and how to inspect a built
+APK's manifest with `aapt dump permissions`.
 
 ## Environment variables (export / signing)
 

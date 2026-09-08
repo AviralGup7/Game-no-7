@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"volatile_core"
+display_name = "Volatile Core"
+description = "+25% area damage, but -10% resistance. Explode packs before they can surround you."
+rarity = &"epic"
+category = &"hybrid"
+max_stacks = 1
+stat_modifiers = {
+"area_damage_multiplier": 0.25,
+"damage_resistance_add": -0.1,
+}
+tags = Array[StringName]([&"aoe", &"skill", &"tradeoff"])
+prerequisites = Array[StringName]([&"arcane_surge"])
+exclusions = Array[StringName]([&"iron_wall", &"last_stand"])
+unlock_wave = 5
+weight = 0.3
+disabled = false

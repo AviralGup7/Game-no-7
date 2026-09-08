@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"chain_reaction"
+display_name = "Chain Reaction"
+description = "+20% area skill damage and +10% area. Requires Broad Sweep to unlock the full crowd-control plan."
+rarity = &"epic"
+category = &"aoe"
+max_stacks = 2
+stat_modifiers = {
+"area_damage_multiplier": 0.2,
+"area_radius_multiplier": 0.1,
+}
+tags = Array[StringName]([&"aoe", &"damage", &"combo"])
+prerequisites = Array[StringName]([&"broad_sweep"])
+exclusions = Array[StringName]([])
+unlock_wave = 5
+weight = 0.42
+disabled = false

@@ -19,6 +19,11 @@ const ARMORY := {
 	&"unlock_warreaxe": {"name": "Armory: War Axe", "cost": 300, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"warreaxe", "blurb": "Unlock the War Axe loadout."},
 	&"unlock_sunbow": {"name": "Armory: Sunbow", "cost": 500, "requires": [&"unlock_warreaxe"], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"sunbow", "blurb": "Unlock the Sunbow loadout."},
 	&"unlock_bladestorm": {"name": "Manual: Bladestorm", "cost": 400, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"skill", "target": &"bladestorm", "blurb": "Bladestorm starts unlocked."},
+	&"unlock_sentinel_spear": {"name": "Armory: Sentinel Spear", "cost": 260, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"sentinel_spear", "blurb": "Unlock the reach weapon."},
+	&"unlock_moonlance": {"name": "Armory: Moonlance", "cost": 650, "requires": [&"unlock_sentinel_spear"], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"moonlance", "blurb": "Unlock the hybrid frost weapon."},
+	&"unlock_chain_lightning": {"name": "Manual: Chain Lightning", "cost": 650, "requires": [&"unlock_bladestorm"], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"skill", "target": &"chain_lightning", "blurb": "Unlock the chain-control skill."},
+	&"unlock_mending_light": {"name": "Manual: Mending Light", "cost": 500, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"skill", "target": &"mending_light", "blurb": "Unlock the sustain skill."},
+	&"status_lens": {"name": "Status Lens", "cost": 320, "requires": [], "stat": &"status_chance_add", "per_rank": 0.04, "max_rank": 3, "kind": &"stat", "blurb": "+4% status chance per rank."},
 }
 
 var _wallet := 0
@@ -130,6 +135,9 @@ func _apply_live(item_id: StringName) -> void:
 	var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
 	if prog != null and prog.has_method("add_permanent_bonus"):
 		prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]))
+	var player := GameRoot.get_active_player()
+	if player != null and player.has_method("rebuild_derived_stats"):
+		player.call("rebuild_derived_stats")
 
 
 ## Apply ALL owned ranks at run start (called by Main after world build).
@@ -143,6 +151,17 @@ func apply_all_to_run() -> void:
 		var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
 		if prog != null and prog.has_method("add_permanent_bonus"):
 			prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
+
+
+func unlocked_targets(kind: StringName) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for item_id in ARMORY:
+		var def: Dictionary = ARMORY[item_id]
+		if StringName(String(def.get("kind", ""))) != kind:
+			continue
+		if get_rank(item_id) > 0:
+			out.append(StringName(String(def.get("target", ""))))
+	return out
 
 
 func is_weapon_unlocked(weapon_id: StringName) -> bool:

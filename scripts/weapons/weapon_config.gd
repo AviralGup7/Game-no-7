@@ -10,6 +10,13 @@ extends Resource
 const KIND_MELEE := &"melee"
 const KIND_RANGED := &"ranged"
 const KIND_HYBRID := &"hybrid"  # melee swing that also launches a projectile
+const ATTACK_ARC := &"arc"
+const ATTACK_THRUST := &"thrust"
+const ATTACK_FLURRY := &"flurry"
+const ATTACK_VOLLEY := &"volley"
+const ATTACK_HYBRID := &"hybrid"
+const VALID_ATTACK_PATTERNS := [ATTACK_ARC, ATTACK_THRUST, ATTACK_FLURRY, ATTACK_VOLLEY, ATTACK_HYBRID]
+const VALID_DAMAGE_TYPES := [&"physical", &"fire", &"frost", &"shock", &"bleed", &"poison"]
 const VALID_KINDS := [KIND_MELEE, KIND_RANGED, KIND_HYBRID]
 
 @export var weapon_id: StringName = &""
@@ -18,6 +25,10 @@ const VALID_KINDS := [KIND_MELEE, KIND_RANGED, KIND_HYBRID]
 @export var icon: Texture2D = null
 @export var kind: StringName = KIND_MELEE
 @export var rarity: StringName = &"common"
+## Descriptive resolver hint. Geometry still comes from the numeric fields below,
+## so custom content can use the existing resolver without new id branches.
+@export var attack_pattern: StringName = &"arc"
+@export var damage_type: StringName = &"physical"
 
 ## Base damage per hit before upgrades / difficulty scaling.
 @export var base_damage: float = 10.0
@@ -72,6 +83,10 @@ func validate() -> Array[String]:
 		problems.append("invalid kind: %s" % String(kind))
 	if rarity not in VALID_RARITIES:
 		problems.append("invalid rarity: %s" % String(rarity))
+	if attack_pattern not in VALID_ATTACK_PATTERNS:
+		problems.append("invalid attack_pattern: %s" % String(attack_pattern))
+	if damage_type not in VALID_DAMAGE_TYPES:
+		problems.append("invalid damage_type: %s" % String(damage_type))
 	if base_damage < 0.0:
 		problems.append("base_damage cannot be negative")
 	if swing_cooldown < 0.05:
@@ -153,4 +168,5 @@ func paper_dps() -> float:
 		for m in combo_damage_steps:
 			sum += m
 		avg_step = sum / float(combo_damage_steps.size())
-	return base_damage * avg_step / swing_cooldown
+	var projectile_factor := float(projectile_count) if is_ranged() else 1.0
+	return base_damage * avg_step * projectile_factor / swing_cooldown
