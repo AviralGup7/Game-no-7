@@ -409,8 +409,32 @@ func _make_enemy(cfg: EnemyConfig, pos: Vector3, target: Node3D, run_seed: int =
 	return enemy
 
 
+## Step an enemy until `predicate` holds, up to `max_steps`. Returns true if the
+## condition was met. Fixed frame counts are fragile here: taking damage forces
+## the enemy through the `hurt` state (hurt_duration, default 0.25s) before it
+## can chase or wind up a swing, so a hand-counted budget that ignores the
+## stagger silently observes the wrong phase.
+func _step_enemy_until(
+	enemy: EnemyBase, dt: float, max_steps: int, predicate: Callable
+) -> bool:
+	for i in range(max_steps):
+		if predicate.call():
+			return true
+		_step_enemy(enemy, dt)
+	return predicate.call()
+
+
 func _step_enemy(enemy: EnemyBase, dt: float) -> void:
+	var before := enemy.global_position
 	enemy._physics_process(dt)
+	# move_and_slide() integrates against the ENGINE's physics tick, not the dt we
+	# pass in, and these enemies have set_physics_process(false) with no real
+	# physics frames running — so the body barely advances and any assertion about
+	# closing distance (dash contact, kiting) silently observes a stationary enemy.
+	# Advance the body ourselves from the velocity the AI just produced, honouring
+	# the test's dt, and only when the state machine has not teleported the node.
+	if enemy.global_position.is_equal_approx(before):
+		enemy.global_position = before + Vector3(enemy.velocity.x, 0.0, enemy.velocity.z) * dt
 	# Keep the arena flat: no gravity drift in headless tests.
 	var p := enemy.global_position
 	enemy.global_position = Vector3(p.x, 0.0, p.z)
@@ -509,6 +533,10 @@ func _run_enemy_encounter_integration() -> Array:
 	var poise_cfg := _basic_cfg()
 	poise_cfg.poise = 30.0
 	poise_cfg.attack_windup = 5.0  # long swing to interrupt-test
+	# The chip damage below totals 35, which would kill the 20 hp default and make
+	# the enemy report `dead` instead of the `hurt` stagger this asserts. Give it
+	# enough health to survive breaking its own poise budget.
+	poise_cfg.max_health = 200.0
 	var bruiser := _make_enemy(poise_cfg, Vector3.ZERO, poise_target)
 	_step_enemy(bruiser, 1.0 / 60.0)
 	_step_enemy(bruiser, 1.0 / 60.0)  # attacking (long windup)
@@ -572,8 +600,12 @@ func _run_enemy_encounter_integration() -> Array:
 		_step_enemy(skirmisher, 0.05)  # past windup -> retreat
 	var away := (skirmisher.global_position - skirm_target.global_position).normalized()
 	var retreating := skirmisher.desired_dir.dot(away) > 0.5 and skirmisher.get_state() == &"attack"
-	for i in range(10):
-		_step_enemy(skirmisher, 0.05)
+	# Stop the moment the retreat hands control back to chase. The target is still
+	# inside attack_range, so chase re-enters attack on the very next step and a
+	# fixed 10-step budget would observe that second swing instead of the re-engage.
+	_step_enemy_until(
+		skirmisher, 0.05, 20, func() -> bool: return skirmisher.get_state() == &"chase"
+	)
 	results.append({
 		"name": "fast skirmisher back-pedals after landing a hit, then re-engages",
 		"passed": retreating and skirmisher.get_state() == &"chase",
@@ -694,11 +726,12 @@ func _run_enemy_encounter_integration() -> Array:
 	vampire.set_elite([EliteAffix.VAMPIRIC])
 	vampire.apply_damage(_lethal_payload(null).with_amount(15.0))  # 20 -> 5 hp
 	var hp_before := vampire.get_health_fraction()
-	_step_enemy(vampire, 1.0 / 60.0)
-	_step_enemy(vampire, 1.0 / 60.0)
-	for i in range(6):
-		_step_enemy(vampire, 0.05)  # land one hit
-	var healed := vampire.get_health_fraction() > hp_before
+	# apply_damage above forced the vampire into `hurt`; it must clear that stagger
+	# (0.25s) and then complete a 0.2s windup before any hit — and therefore any
+	# lifesteal — can happen. Step until it actually heals rather than guessing.
+	var healed := _step_enemy_until(
+		vampire, 0.05, 40, func() -> bool: return vampire.get_health_fraction() > hp_before
+	)
 	results.append({
 		"name": "vampiric elite heals from the damage it deals",
 		"passed": healed and vampire.is_elite()
