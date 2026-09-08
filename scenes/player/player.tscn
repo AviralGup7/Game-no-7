@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/skills/skill_controller.gd" id="12_skills"]
 [ext_resource type="Script" path="res://scripts/weapons/weapon_manager.gd" id="13_weapons"]
 [ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="14_status"]
+[ext_resource type="Script" path="res://scripts/visuals/visual_mount.gd" id="15_mount"]
 
 [ext_resource type="PackedScene" path="res://assets/characters/adventurers/Knight.glb" id="15_knight"]
 [ext_resource type="Script" path="res://scripts/player/player_animation.gd" id="16_anim"]
@@ -35,6 +36,10 @@ collision_mask = 1
 floor_snap_length = 0.25
 safe_margin = 0.02
 script = ExtResource("1_player")
+
+[node name="VisualMount" type="Node3D" parent="."]
+script = ExtResource("15_mount")
+role = &"player"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
