@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `694aca7` (tests: arena/camera/minimap guards — lifecycle and accessibility) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `994631b` **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.
@@ -18,7 +18,7 @@
 - Tests: `test_regress_milestone1_weapons.py` 7 checks + `test_regress_milestones_2_to_7` weapon switching; `python -m unittest 491 OK`.
 
 ## 4. Skill Verification — VERIFIED
-- **8 skills** distinct: `bladestorm` whirl 5× bleed, `frost_nova_skill` radial 5 m + guaranteed `slow` (avoids double-stack), `phantom_rush` dash_strike `length` via `apply_dash`, `seismic_slam` slam radial 4.5, `warcry_skill` `warcry/frenzy`, `chain_lightning` `chain_jumps 4 decay 0.72`, `mending_light` `heal_surge` + `regen/overguard`, `shatterwave` shockwave line via `ProjectilePool` pierce 99. Each has `SkillConfig` valid, `SkillExecutor` `execute` + `tick` for `pending_hits`/`_dashing`.
+- **8 skills** distinct: `bladestorm` whirl 5× bleed, `frost_nova_skill` radial 5 m `slow+exposed` (config authoritative `victim_effects [slow,exposed]`, executor defensive early-return avoids double-stack), `phantom_rush` dash_strike `length` via `apply_dash`, `seismic_slam` slam radial 4.5, `warcry_skill` `warcry/frenzy`, `chain_lightning` `chain_jumps 4 decay 0.72`, `mending_light` `heal_surge` + `regen/overguard`, `shatterwave` shockwave line via `ProjectilePool` pierce 99. Each has `SkillConfig` valid, `SkillExecutor` `execute` + `tick` for `pending_hits`/`_dashing`.
 - **Presentation distinct:** `PlayerAnimation.skill_cast_clips` 10 mappings (`bladestorm:Spin, phantom_rush:Dodge_Forward, seismic_slam:Chop, frost_nova:Spellcast_Shoot, warcry:Raise, ...`), `EffectDirector.SKILL_COLORS` 10 tints + `SKILL_RING_TEXTURES/BURST_TEXTURES` distinct kenney shapes (`trace_01/smoke_03/dirt_01/circle_05/magic_01/magic_03/flare_01/circle_01`) + `_skill_radius` 2.4–4.8 & `_skill_burst_scale` 1.18–1.65 `spread/amount` per skill, `AudioManager play_sfx skill_cast/skill_ready` (`-8/-12dB`), `CameraRig.add_shake` on `skill_cast`, `CharacterController` dash preserved `distance/duration` `recovery/invuln/stamina`.
 - **Cleanup:** `SkillExecutor.reset_scheduled`, `SkillController._tick_cooldowns` `skill_ready` emit, `tick` even when disabled.
 
@@ -108,7 +108,7 @@
 - `f8ae1e5` `hardening: game cannot be stopped by stats — status soft-lock guards` (status_effect/config/manager 116 ins, progression 0.1 floor, 491 OK)
 - `58e0bf1` `audit: authority isolation + weapon balance + guards — full-scope hardening` (character_controller/player_animation legacy removal, weapon DPS 1.64×, guards, 498 OK)
 - `694aca7` `tests: arena/camera/minimap guards — lifecycle and accessibility throttling` (arena spawn + player aim guards, camera reduced_motion, minimap 15Hz, 502 OK)
-- Remote `origin/arena/01a07f1a-game-no-7` at `694aca7`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `11 ahead / 30 behind` `origin/main@850bf0b`.
+- Remote `origin/arena/01a07f1a-game-no-7` at `994631b`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `13 ahead / 30 behind` `origin/main@850bf0b`.
 
 ## 19. Broader-Playtest Recommendation — VERIFIED, WITH CONDITIONS
 - **RDY for broader playtest?** **Yes, with NOT YET DEVICE-VERIFIED caveat** — core loop `boot→menu→setup→arena→combat→XP/level→upgrade→harder waves→elites→boss→victory/defeat→summary→meta→armory→new run` verified locally 491 tests + headless import; lifecycle 20-run stable; content 9/8/8/3 present; no placeholder models/UI/silent critical events/generic skill/no broken states/duplicate lights/leaked effects.

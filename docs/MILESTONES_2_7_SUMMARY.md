@@ -1,6 +1,6 @@
 # Milestones 2–7 — Completion Summary (2026-09-08)
 
-**Branch:** `arena/01a07f1a-game-no-7` continuing from `bd9c12c` (M1) → this commit.
+**Branch:** `arena/01a07f1a-game-no-7` at `994631b` (docs sync) continuing from `bd9c12c` (M1).
 **Base audit:** `docs/MILESTONE0_AUDIT.md` at `168d74b`.
 
 ## M2 — Skills VFX / EffectDirector / Statuses / Enemy-Boss Presentation
@@ -28,9 +28,9 @@
 - `project.godot` `renderer/rendering_method="mobile"`, `msaa_3d=0`, `vram_compression import_etc2_astc`, `Mobile` feature, `keep_screen_on true`, `physics_ticks 60 / max_steps 6`; `export_presets.cfg` `arm64-v8a true`, `version 0.5.0 code 2`, `gradle_build`; `.github/workflows/android.yml` split `validate-resources + godot-tests → build-android → publish-release` (parallel Stage 1, 3-way tag/release/dispatch).
 
 ## M7 — Cleanup / Docs / Release-candidate
-- Zero `TODO/FIXME/PLACEHOLDER` in `scripts/scenes`; DEBUG only cosmetic bounded `randf_range` (camera, damage numbers); `docs/MILESTONE0_AUDIT.md` determinism PASS (`RngService` salted streams vs cosmetic), content matrix reconciled; `project.godot` version `0.5.0` matches `export_presets.cfg` + `CHANGELOG.md`; branch clean, pushed, CI queued.
+- Zero `TODO/FIXME/PLACEHOLDER` in `scripts/scenes`; DEBUG only cosmetic bounded `randf_range` (camera, damage numbers); `docs/MILESTONE0_AUDIT.md` determinism PASS (`RngService` salted streams vs cosmetic), content matrix reconciled; `project.godot` version `0.5.0` matches `export_presets.cfg` + `CHANGELOG.md`; branch at `994631b` 13 ahead/30 behind `850bf0b`, clean, pushed, CI queued.
 
 ## Verification
-- `python -m unittest discover -s tests/python → 491 OK` (was 473 after M1, +18 M2–7).
+- `python -m unittest discover -s tests/python → 502 OK` (was 473 after M1, +18 M2–7, +11 hardening/balance/guards).
 - `headless` import + `validate_resources` offline per `android.yml` Stages 1a/1b.
 - All 9 weapons integrated (M1), 8 skills/13 statuses/8 enemies/3 arenas/6 pickups present and wired.

@@ -122,5 +122,5 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 314 (was 95) — all green
-- Validated files: 139/139 (was 85)
+- Tests: 502 (was 95) — all green
+- Validated files: 139/139 (was 85) — 502 tests

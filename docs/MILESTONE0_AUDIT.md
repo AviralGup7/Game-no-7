@@ -1,7 +1,7 @@
 # Milestone 0 — Repository and Current-State Audit (2026-09-08)
 
 **Branch:** `arena/01a07f1a-game-no-7` at `6b4ca67` (tag `v0.5.0`) + `1faec6a` CI fix (both pushed).  
-**Base:** `origin/main` at `850bf0b`. Divergence: 30 ahead / 3 behind (main has unrelated merges). Working tree clean. No unpushed commits. Tag `v0.5.0` pushed, CI run `34187704091` queued for that tag.
+**Base:** `origin/main` at `850bf0b`. Divergence: 13 ahead / 30 behind (main at 850bf0b, branch at 994631b). Working tree clean. Working tree clean. No unpushed commits. Tag `v0.5.0` pushed, CI run `34187704091` queued for that tag.
 
 ## Repository discipline
 - `git status` clean, `origin/arena/01a07f1a-game-no-7` at `6b4ca67`, `git ls-remote` confirms same.
