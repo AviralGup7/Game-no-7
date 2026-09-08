@@ -60,7 +60,9 @@ func is_dead() -> bool:
 
 
 func get_health_ratio() -> float:
-	return current_health / max_health
+	if not is_finite(current_health) or not is_finite(max_health) or max_health <= 0.0:
+		return 0.0
+	return clampf(current_health / max_health, 0.0, 1.0)
 
 
 func get_current() -> float:

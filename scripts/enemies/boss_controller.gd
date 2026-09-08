@@ -179,7 +179,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
-	if _host == null or maximum <= 0.0:
+	if _host == null or not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		return
 	var frac := clampf(current / maximum, 0.0, 1.0)
 	var target := phase_index_for_fraction(frac, _phases)

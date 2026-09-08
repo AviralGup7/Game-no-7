@@ -129,13 +129,19 @@ func seed_from_run() -> void:
 	if weapons != null: set_weapon(weapons.active_weapon_id())
 
 func set_health(current: float, maximum: float) -> void:
-	_hp_bar.value = clampf(current / maximum, 0, 1) if maximum > 0 else 0
+	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
+		_hp_bar.value = 0.0
+	else:
+		_hp_bar.value = clampf(current / maximum, 0, 1)
 	var low := _hp_bar.value <= 0.25
 	_hp_label.text = "%s %d/%d" % [("LOW HP" if low else "HP") if _compact else ("LOW HEALTH" if low else "HEALTH"), ceili(current), ceili(maximum)]
 	_hp_label.modulate = UiTheme.GOLD if low else Color.WHITE
 
 func set_stamina(current: float, maximum: float) -> void:
-	_stamina_bar.value = clampf(current / maximum, 0, 1) if maximum > 0 else 0
+	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
+		_stamina_bar.value = 0.0
+	else:
+		_stamina_bar.value = clampf(current / maximum, 0, 1)
 	_stamina_label.text = ("ST  %d / %d" if _compact else "STAMINA  %d / %d") % [ceili(current), ceili(maximum)]
 
 func _on_xp(_total: int, level: int, into: int, required: int) -> void:
