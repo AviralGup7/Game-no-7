@@ -171,7 +171,9 @@ static func _damageable(c: Variant) -> bool:
 
 
 static func _radius_of(c: Variant) -> float:
-	if c != null and (c as Node).has_method("get_config"):
+	if c == null or not is_instance_valid(c):
+		return 0.0
+	if (c as Node).has_method("get_config"):
 		var cfg: Variant = (c as Node).call("get_config")
 		if cfg is EnemyConfig:
 			return (cfg as EnemyConfig).bounds_radius

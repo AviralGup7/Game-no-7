@@ -39,7 +39,8 @@ func _ready() -> void:
 	_player = get_parent() as Player
 	_legacy = _player.get_node_or_null("AttackController") as AttackController
 	_weapons = _player.get_node_or_null("WeaponManager") as WeaponManager
-	_animation = _player.get_node("VisualRoot/CharacterModel").find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var char_root := _player.get_node_or_null("VisualRoot/CharacterModel")
+	_animation = (char_root.find_child("AnimationPlayer", true, false) as AnimationPlayer) if char_root != null else null
 	if _animation == null:
 		set_physics_process(false)
 		return
@@ -136,7 +137,9 @@ func _align_contact(recovery: float) -> void:
 func _on_dodge() -> void:
 	if _dead:
 		return
-	var dodge := _player.get_node("DodgeController") as DodgeController
+	var dodge := _player.get_node_or_null("DodgeController") as DodgeController
+	if dodge == null:
+		return
 	_locked = true
 	_play(dodge_clip, true, _length(dodge_clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
 

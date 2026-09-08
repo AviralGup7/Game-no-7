@@ -21,7 +21,10 @@ var _flash_left := 0.0
 
 func _ready() -> void:
 	_manager = get_parent().get_node_or_null("WeaponManager") as WeaponManager
-	var character := get_parent().get_node("VisualRoot/CharacterModel")
+	var character := get_parent().get_node_or_null("VisualRoot/CharacterModel")
+	if character == null:
+		set_process(false)
+		return
 	var skeleton := character.find_child("Skeleton3D", true, false) as Skeleton3D
 	if skeleton == null or _manager == null:
 		set_process(false)

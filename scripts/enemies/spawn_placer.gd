@@ -11,13 +11,13 @@ const DEFAULT_INTERIOR_HALF := 12.0
 
 
 static func min_spawn_distance(arena: Node) -> float:
-	if arena != null and arena.has_method("get_min_spawn_distance"):
+	if arena != null and is_instance_valid(arena) and arena.has_method("get_min_spawn_distance"):
 		return float(arena.call("get_min_spawn_distance"))
 	return DEFAULT_MIN_SPAWN_DISTANCE
 
 
 static func interior_half(arena: Node) -> float:
-	if arena != null and arena.has_method("get_interior_half"):
+	if arena != null and is_instance_valid(arena) and arena.has_method("get_interior_half"):
 		return float(arena.call("get_interior_half"))
 	return DEFAULT_INTERIOR_HALF
 
@@ -25,7 +25,9 @@ static func interior_half(arena: Node) -> float:
 ## Pick a random valid marker for `archetype`, or null when every marker is
 ## rejected (caller falls back to fallback_point).
 static func pick_point(arena: Node, player_position: Vector3, archetype: StringName, rng: RandomNumberGenerator) -> Node3D:
-	if arena == null:
+	if arena == null or not is_instance_valid(arena):
+		return null
+	if not arena.has_method("get_spawn_points"):
 		return null
 	var points: Array = arena.call("get_spawn_points")
 	var half := interior_half(arena)
@@ -38,7 +40,9 @@ static func pick_point(arena: Node, player_position: Vector3, archetype: StringN
 ## Fallback point that ignores the min-distance rule but still keeps the spawn
 ## inside the arena interior.
 static func fallback_point(arena: Node) -> Node3D:
-	if arena == null:
+	if arena == null or not is_instance_valid(arena):
+		return null
+	if not arena.has_method("get_spawn_points"):
 		return null
 	var half := interior_half(arena)
 	var points: Array = arena.call("get_spawn_points")
