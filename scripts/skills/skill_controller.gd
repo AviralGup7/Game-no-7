@@ -83,7 +83,10 @@ func unlock_skill(skill_id: StringName) -> bool:
 	if cfg == null or not cfg.validate().is_empty() or cfg.disabled or _current_wave < cfg.unlock_wave:
 		return false
 	var level := _current_level()
-	if level >= 0 and level < cfg.unlock_level:
+	# _current_level returns -1 when no ExperienceComponent is present (headless
+	# tests). Treat unknown level as blocked for any non-trivial level gate so
+	# skills do not unlock for free outside the intended progression.
+	if level < cfg.unlock_level:
 		return false
 	_unlocked[skill_id] = true
 	skill_unlock_changed.emit(skill_id, true)

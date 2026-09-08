@@ -34,10 +34,16 @@ func apply_theme(theme_arena_id: StringName) -> void:
 
 func _resolve_arena_id() -> StringName:
 	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run := GameRoot.get_run()
+		var run: Variant = GameRoot.call("get_run")
 		if run != null:
-			var idn: StringName = run.get("arena_id")
-			if idn != null and String(idn) != "":
+			var idn: StringName = &""
+			if run is Dictionary:
+				idn = StringName(String((run as Dictionary).get("arena_id", &"")))
+			elif run is Object and "arena_id" in run:
+				idn = (run as Object).get("arena_id")
+				if typeof(idn) == TYPE_STRING:
+					idn = StringName(String(idn))
+			if idn != &"" and String(idn) != "":
 				return idn
 	return arena_id
 

@@ -100,9 +100,14 @@ func advance(delta: float) -> void:
 		_elapsed += delta
 		if _elapsed >= maxf(attack_windup, 0.0):
 			_elapsed = 0.0
-			_resolve_hit()
+			var hits := _resolve_hit()
 			_phase = PHASE_RECOVERY
-			_chain.open_chain()
+			# Only open the chain window when the swing actually landed; whiffs
+			# must not escalate into a combo.
+			if hits > 0:
+				_chain.open_chain()
+			else:
+				_chain.expire()
 	elif _phase == PHASE_RECOVERY:
 		_elapsed += delta
 		if _elapsed > combo_chain_window:
@@ -153,18 +158,20 @@ func _finish_attack() -> void:
 
 
 ## Build + apply the melee damage to everything in range (exactly once per swing).
-func _resolve_hit() -> void:
+## Returns the number of targets that were successfully hit.
+func _resolve_hit() -> int:
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
-		return
+		return 0
 	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
-		return
+		return 0
 
 	var origin := owner.global_position
 	var forward := _facing_forward(owner)
 	var candidates := owner.get_tree().get_nodes_in_group(TARGET_GROUP)
 	var range_val := _effective_range()
 	var targets := CombatQuery.find_targets_in_arc(origin, forward, candidates, range_val, arc_degrees * 0.5)
+	var hits := 0
 
 	for candidate in targets:
 		var t: Node3D = candidate as Node3D
@@ -178,7 +185,10 @@ func _resolve_hit() -> void:
 		var result: Variant = t.call("apply_damage", payload)
 		if result is DamageResult:
 			attack_hit.emit(t, result)
+			if (result as DamageResult).accepted:
+				hits += 1
 	# All targets resolved exactly once per swing (CombatQuery dedupes by list order).
+	return hits
 
 
 func _facing_forward(owner: CharacterBody3D) -> Vector3:
