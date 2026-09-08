@@ -130,6 +130,7 @@ func reset_for_new_run() -> void:
 	_xp = 0
 	_level = 1
 	_xp_multiplier = 1.0
+	xp_changed.emit(_xp, _level, _xp_into_level(), xp_for_level(_level))
 
 
 func get_debug_snapshot() -> Dictionary:

@@ -298,6 +298,14 @@ func _resolve_summon() -> void:
 	summon_requested.emit(&"basic", 2 if not _enraged else 3)
 
 
+func _exit_tree() -> void:
+	# Prevent stale boss health_changed/died connections after despawn/reuse.
+	if _health != null and _health.has_signal("health_changed") and _health.health_changed.is_connected(_on_health_changed):
+		_health.health_changed.disconnect(_on_health_changed)
+	if _host != null and _host.has_signal("died") and _host.died.is_connected(_on_boss_died):
+		_host.died.disconnect(_on_boss_died)
+
+
 func _on_boss_died() -> void:
 	_telegraph_left = 0.0
 	_telegraph_kind = &""

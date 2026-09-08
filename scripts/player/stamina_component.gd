@@ -75,6 +75,9 @@ func try_spend(amount: float) -> bool:
 	if _current < amount:
 		_exhausted = true
 		exhausted.emit()
+		stamina_changed.emit(_current, _max)
+		if EventBus != null:
+			EventBus.stamina_changed.emit(_current, _max)
 		return false
 	_current -= amount
 	_since_spend = 0.0
