@@ -181,41 +181,55 @@ gameplay-adjacent tuning.*
 
 ## Remaining known issues
 
-1. **Not executed: Godot itself.** No engine binary could be obtained in this sandbox
-   (see *Verification*), so `--headless --check-only`, project import, `tests/run_tests.gd`
-   and `validate_asset_imports.gd` were **not run here**. Fix #4 means CI will now genuinely
-   execute the GDScript suite — **expect the first run on this branch to be the first honest
-   result in a while, and budget for it surfacing pre-existing failures.**
-2. **Not executed: the Android build.** No JDK and no Android SDK in the sandbox, so the
-   Gradle export could not run locally. Android review was config-level: the preset requests
-   no permissions, targets `arm64-v8a` only, `script_export_mode=2`, immersive mode,
-   landscape-locked, `keep_screen_on`. `export_path` (`build/LastStandArena.apk`) differing
-   from CI's `-debug.apk` is **correct** — the preset holds the release default and CI passes
-   an explicit debug path.
-3. **`scripts/audio/audio_config.gd`** references `res://data/audio_config/` in a comment;
+1. **Godot was never executable in this sandbox**, so `--headless --check-only`, project
+   import, `tests/run_tests.gd` and `validate_asset_imports.gd` could not be run locally;
+   the substitute toolchain is described under *Verification*. This prediction proved
+   correct and then some: the first honest CI run surfaced **20 pre-existing failures**,
+   all now fixed (see *Phase 2*). **Both the Godot job and the Android build are now green
+   on PR #18.**
+2. **The Android APK now builds in CI** (2m43s) — it had been skipped for the life of this
+   branch because it is gated on the test job. It is still an unsigned `--export-debug`
+   build and **has not been installed or run on a physical device**; no one has verified
+   touch input, thermals, or frame pacing on real hardware. Config-level review stands: no
+   permissions requested, `arm64-v8a` only, `script_export_mode=2`, immersive, landscape,
+   `keep_screen_on`. `export_path` differing from CI's `-debug.apk` is **correct** — the
+   preset holds the release default and CI passes an explicit debug path.
+3. **The encounter suite now depends on a test-side physics integrator.** `_step_enemy`
+   advances the body from `velocity * dt` because `move_and_slide()` ignores the caller's
+   delta. That is a faithful stand-in for straight-line motion but it does **not** model
+   collision response or floor snapping, so these tests cannot catch regressions in
+   collision behaviour. Worth revisiting if enemy movement ever gains terrain interaction.
+4. **`scripts/audio/audio_config.gd`** references `res://data/audio_config/` in a comment;
    no such directory exists (streams live in `res://data/audio/`). Comment-only, left alone.
-4. **Enemy scene duplication** (above) — deliberately not restructured: it is a scene-file
+5. **Enemy scene duplication** (above) — deliberately not restructured: it is a scene-file
    change that would conflict with any branch touching enemies.
-5. **Dead `_validated_*` helpers** (above) — deliberately retained, guarded by the validator.
-6. **`ContentRegistry` never halts on validation failure** — changing that is a behavioural
+6. **Dead `_validated_*` helpers** (above) — deliberately retained, guarded by the validator.
+7. **`ContentRegistry` never halts on validation failure** — changing that is a behavioural
    decision about whether bad content should be fatal; flagged, not changed.
 
 ---
 
 ## Recommended merge order
 
-> **Update.** Since this section was first written, `arena/01a08130-game-no-7` has been
-> merged to `main` (PR #17), along with an Android performance pass. This branch has been
-> merged **up to date with the new `main`** — three conflicts (`tutorial_manager.gd`,
-> `wave_manager.gd`, `test_regress_sweep_fixes.py`) were all resolved in `main`'s favour,
-> plus a duplicate `_exit_tree` in `performance_monitor.gd` removed. See the two
-> *Superseded on merge* notes above. Full gate re-run green on the merged tree.
+> **Update 2 (current).** `main` has since absorbed PRs #17, #19 and #20, including a
+> sibling agent's stress/soak pass. This branch is merged up to date with that `main`
+> (`60cd7ac`). Four conflicts, all resolved deliberately: `health_component.gd` and
+> `progression_component.gd` were the **same two bugs found independently** by the other
+> agent (kept the variant with one fewer redundant emission / lookup, credited theirs in
+> the comment); `game_root.gd` was comment-only; for `main._clear_world()` I took **their**
+> `child.free()` over mine, because that code rebuilds the world synchronously and must not
+> race a deferred deletion. `gdparse` re-run post-merge confirms no duplicate function
+> definitions, the known hazard when two branches fix the same bug in the same file.
 
 | Order | Branch | Overlap with this branch | Result |
 |-------|--------|--------------------------|--------|
 | — | `arena/01a08130-game-no-7` — character integrity, mount math | none | **Already merged** (PR #17) |
-| 1 | **`arena/01a08132-game-no-7`** (this one) | merged up to date with `main` | Merge next |
-| 2 | `arena/01a08131-game-no-7` — UI/audio polish | 5 files | Clean, auto-merges |
+| — | `arena/01a08131-game-no-7` — UI/audio polish, stress/soak fixes | resolved | **Already merged** (PRs #19, #20) |
+| 1 | **`arena/01a08132-game-no-7`** (this one, PR #18) | merged up to date with `main` | **Ready to merge — CI green** |
+
+Both sibling branches have landed, so the ordering question below is now historical; this
+branch is last and carries the merge resolution. The original reasoning is kept for the
+record.
 
 **Merge this branch before `...131`.** It is the only one touching the run lifecycle
 (`game_root`/`main`), its changes are small and localized, and `...131` is a broad
@@ -238,6 +252,65 @@ critical fixes intact (`_on_skill_ready` wiring, `_set_paused(false)`, detach-be
 
 ---
 
+## Phase 2 — bugs found by the restored CI gate
+
+Fix `7ceb04a` above restored the real headless test runner (it had been reduced to a
+compile probe, so **the Godot job had not actually executed a single assertion**). The
+first honest run surfaced 20 failures across five rounds. All of them predated this
+branch. Each was classified as a product bug or a stale test by reading the assertion,
+reading the implementation, and reproducing the reported numbers before changing anything.
+
+### Product bugs (shipping defects)
+
+| # | Bug | Impact |
+|---|---|---|
+| P1 | `ProgressionComponent._accumulate` dropped the **first stack of every upgrade** | The finite-guard read `_modifiers.get(k, 0.0)` but the assignment indexed `_modifiers[k]`, which on a missing key errors and yields `null` → `float(null) == 0.0`. `apply_upgrade()` still returned `true`, so it was silent. Every upgrade needed two copies to do anything. |
+| P2 | `WavePlanner._counts_for_wave` left the `heavy` tier uncapped | `planned_count()` reached 46 by wave 40 against the file's own documented ceiling of 40. Capped at 12: curve untouched until wave 27, worst case pinned to exactly 40. |
+| P3 | `CriticalSystem.roll` let pity manufacture crits from nothing | The pity bonus was added unconditionally, so a weapon at **0% crit still crit** once enough non-crits stacked. Pity now escalates an existing chance only. |
+| P4 | `SaveSchema._string_list` corrupted or erased id lists | Built ids with `String(item)` on every element. Values that coerce silently smuggled a bogus id (`4` → `"4"`); values that raise aborted the typed function so the **entire list returned empty** — one malformed entry wiped every equipped weapon. |
+| P5 | `BossController._advance_to` lost the phase signal to a cosmetic failure | `_apply_phase_visuals` calls `create_tween()`, which fails outside the tree, aborting between the stat bumps and `phase_advanced.emit()`. Multipliers applied, but UI/audio/analytics never heard about it. |
+| P6 | **`HealthComponent.reset()` enraged every boss at spawn** | `reset()` went through `set_max_health()`, which clamps the OLD `current_health` against the NEW maximum and emits that pairing first: resetting a fresh 100 hp component to a 600 hp boss published `health_changed(100, 600)` — a 16% health fraction. `BossController` advances phases one-way, so it read that as past the 33% Enrage threshold and jumped straight to the final phase **before the fight started**: Enrage damage and speed multipliers applied, no Fury phase, no phase signals. |
+
+P6 is the most consequential find of the whole audit: it changed every boss encounter in
+the shipped game, and it was invisible because the phase multipliers applied correctly —
+only the *timing* was wrong.
+
+### Test-infrastructure defects
+
+These were not product bugs, but they made the suite assert against meaningless data:
+
+- **Node3D fixtures were never in the tree.** `get_global_transform()` falls back to the
+  identity transform outside the tree, so parentless dummies all reported
+  `global_position == ORIGIN` regardless of the `.position` set on them. `AreaDamage` and
+  `MeleeResolver` read `.global_position`, so every target collapsed onto the blast centre:
+  radial damage hit an out-of-radius dummy for full damage and melee arc filtering returned
+  all four candidates. Fixed by attaching fixtures and splitting the runner's suite list into
+  `UNIT_SUITES` (pure) and `NODE_SUITES` (deferred to a live frame).
+- **`move_and_slide()` ignores the caller's delta.** Encounter tests drive
+  `_physics_process` manually with `set_physics_process(false)` and no real physics frames,
+  so bodies never moved and distance-closing assertions watched a stationary enemy.
+- **Fixed frame budgets ignored the `hurt` stagger** that `apply_damage` forces before an
+  enemy can act, and over-stepped past transitions into a second swing. Replaced with a
+  predicate-driven `_step_enemy_until()`.
+- **`PackedScene.pack()` only serializes children whose `owner` is the pack root.** The
+  spawn-manager fixture never set owners, so spawned enemies had no `HealthComponent`,
+  `apply_damage` was rejected, nothing could die, and every defeat/clear assertion failed.
+- **`CombatLog.new(4)`** vs the class's `maxi(capacity, 8)` floor, and a melee arc fixture
+  sitting at *exactly* the 45° boundary (inclusion decided by float rounding).
+
+### Two process findings worth keeping
+
+1. **GitHub caps `::error` annotations at 10 per step.** The runner emitted one per failure,
+   so every round showed exactly 10 and silently dropped the tail — which is why each fix
+   appeared to "reveal" a fresh batch. The runner now emits one aggregated annotation. This
+   is what exposed the last hidden failure.
+2. **String-pinning guards can enshrine bugs.** Two Python guards asserted the literal
+   defective expression `"clampf(float(_modifiers"`, so they actively resisted the P1 fix; a
+   third pinned `child.queue_free()` and failed the merge when `main` landed an equally valid
+   `child.free()`. All three were rewritten to assert the *property* rather than the text.
+
+---
+
 ## Verification
 
 **Tooling constraint.** No Godot binary is reachable from this environment: every release
@@ -246,7 +319,7 @@ mirrors, docker, huggingface) fails at TLS; npm and PyPI are the only reachable 
 and neither ships a Linux engine build. `java` and the Android SDK are also absent. I
 substituted a static toolchain rather than skipping verification.
 
-**All green on the final commit (tree clean):**
+**All green on the final commit (tree clean). CI on PR #18 is green end to end: `Validate resources & Python tests` pass, `Godot headless tests` pass, `Build Android APK` pass (2m43s) — the Android build had been gated behind the failing test job and had never run on this branch until now.**
 
 | Check | Result |
 |---|---|
@@ -255,7 +328,7 @@ substituted a static toolchain rather than skipping verification.
 | `tool/validate_resources.py` | Validated 110 files: OK |
 | `tool/validate_assets.py` | 81 models, 79 PNGs, 31 audio, 2 fonts — all deps present |
 | `tool/validate_guards.py` | 139/139 files, 69 passed, 0 failed |
-| `python3 -m unittest discover -s tests/python` | **529 tests OK** (502 before, +27 new) |
+| `python3 -m unittest discover -s tests/python` | **597 tests OK** (502 at branch point) |
 
 Additionally written for this audit: a signal-arity cross-checker (EventBus, same-file and
 cross-class typed vars — found bug #1), a scene-node-path cross-checker (6 hits, all verified
@@ -273,3 +346,26 @@ ac5ee43  fix: three crash/soft-lock bugs in the core run lifecycle
 7ad37b0  docs: correct the Android permission policy on haptics
 0db1c65  test: regression guards for the release-readiness QA pass
 ```
+
+**Phase 2 commits** (CI-gate fixes, likewise separated):
+
+```
+3dfcde9  fix: upgrades' first stack silently did nothing; cap wave heavy count
+d67d4a5  fix: zero-chance crits, and run Node3D suites inside the live tree
+210bbaa  fix: malformed save ids wiped equipped lists; unhide CI failures past 10
+faa0aee  test: make encounter stepping physical and condition-driven
+1b54d47  fix: boss phase signal lost to a cosmetic failure; unpacked test fixture
+73fe82e  test: stop dasher stepping at the recovery release; instrument boss phase
+b4962f8  test: report boss health_changed connection count and starting phase
+df61895  fix: every boss spawned already enraged (HealthComponent.reset)
+60cd7ac  Merge origin/main into arena/01a08132-game-no-7
+ffb3008  test: assert detach-before-release as a property, not a literal call
+```
+
+**Merge note.** `main` advanced during this phase (PRs #17, #19, #20). Another agent
+independently found and fixed P1 and P6; the conflicts were resolved keeping the variant
+with one fewer redundant signal emission and crediting the other in the comment. For
+`main._clear_world()` I took *their* `child.free()` over my `queue_free()`, because the
+surrounding code rebuilds the world synchronously in the same call and must not race a
+deferred deletion. Post-merge `gdparse` confirms no duplicate function definitions — the
+known hazard when two branches fix the same bug in the same file.
