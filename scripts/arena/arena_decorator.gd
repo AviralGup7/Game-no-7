@@ -16,6 +16,9 @@ const MAX_CLUTTER := 22
 const MAX_WALL_PROPS := 8
 const CENTER_CLEAR_RADIUS := 3.0
 const PILLAR_CLEARANCE := 2.3
+## Props (including colliding pillars) keep this far from the player spawn so a
+## run can never start with the hero stuck inside decoration collision.
+const SPAWN_CLEAR_RADIUS := 2.5
 
 const DUNGEON := "res://assets/environment/dungeon/"
 const SC_PILLAR := DUNGEON + "pillar.glb"
@@ -186,11 +189,25 @@ func _centerish(half: float, radius: float) -> Vector3:
 	return Vector3(radius * 0.7, 0, 0)
 
 
-## An open spot away from centre and previously-placed structural props.
+## Player spawn in arena-local coordinates (the decorator sits at the arena
+## origin, so marker positions compare directly). Null when unknown (headless).
+func _player_spawn_local() -> Variant:
+	var arena := get_parent()
+	if arena != null and arena.has_method("get_player_start"):
+		var marker := arena.call("get_player_start") as Node3D
+		if marker != null:
+			return marker.position
+	return null
+
+
+## An open spot away from centre, the player spawn, and previously-placed props.
 func _open_spot(half: float, margin: float) -> Vector3:
+	var spawn: Variant = _player_spawn_local()
 	for _attempt in range(24):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, half - margin)
 		if Vector2(p.x, p.z).length() < CENTER_CLEAR_RADIUS:
+			continue
+		if spawn != null and Vector2(p.x - spawn.x, p.z - spawn.z).length() < SPAWN_CLEAR_RADIUS:
 			continue
 		var blocked := false
 		for n in _spawned:

@@ -13,6 +13,12 @@
   start/stop breathing; `PlayerAnimation`/`PlayerEquipment` re-bind late mounts,
   stop before animation-library surgery, and rest the death pose; `PlayerFeedback`
   re-collects late-mounted weapon meshes.
+- **Enemy facing**: all 8 `EnemyAnimator` nodes set `yaw_offset_degrees = 180.0` —
+  every model authors forward as +Z (verified from bind-pose joints) while
+  `face_direction` aims VisualRoot −Z at the player, so enemies faced backwards.
+- **Spawn safety**: `ArenaDecorator._open_spot` keeps props/pillars 2.5 m clear of
+  `PlayerStart` so runs can't begin inside decoration collision.
+- **Lint**: repo-wide `gdlint` clean (renamed `_p_check`/`_pl` locals).
 
 ## [0.5.0] — Polished presentation & release fix (2026-09-08)
 

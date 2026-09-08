@@ -11,9 +11,9 @@ def read(rel):
 class SweepFixTests(unittest.TestCase):
     def test_wave_manager_player_max_hp_indent(self):
         txt = read("scripts/waves/wave_manager.gd")
-        # Must use _pl variable, not bare double GameRoot.get_active_player() with broken indent
-        self.assertIn("var _pl: Variant = GameRoot.get_active_player()", txt)
-        self.assertIn("var hp := (_pl as Node).get_node_or_null", txt)
+        # Must use a cached player variable, not bare double GameRoot.get_active_player() with broken indent
+        self.assertIn("var live_player: Variant = GameRoot.get_active_player()", txt)
+        self.assertIn("var hp := (live_player as Node).get_node_or_null", txt)
         # Broken indent pattern must be gone
         self.assertNotIn("if GameRoot.get_active_player() != null:\n\t\tvar hp :=", txt)
         self.assertNotIn("\t\tif GameRoot.get_active_player() != null:\n\t\tvar hp", txt)
