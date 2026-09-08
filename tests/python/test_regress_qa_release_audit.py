@@ -93,13 +93,24 @@ class WorldRebuildNameCollisionTests(unittest.TestCase):
     """
 
     def test_clear_world_removes_before_freeing(self):
+        """Assert the property (detach precedes release), not a literal call.
+
+        Either free() or queue_free() is acceptable as long as the node is
+        detached first; origin/main independently settled on the immediate
+        free(), which is stronger here because build_world() runs synchronously.
+        """
         body = func_body(read("scripts/main/main.gd"), "_clear_world")
-        self.assertIn("remove_child(child)", body)
-        self.assertIn("child.queue_free()", body)
+        code = "\n".join(
+            ln for ln in body.splitlines() if not ln.strip().startswith("#")
+        )
+        self.assertIn("remove_child(child)", code)
+        m = re.search(r"child\.(queue_free|free)\(\)", code)
+        self.assertIsNotNone(m, "the detached child must be released")
         self.assertLess(
-            body.index("remove_child(child)"),
-            body.index("child.queue_free()"),
-            "remove_child must happen before queue_free to free the node name immediately",
+            code.index("remove_child(child)"),
+            m.start(),
+            "remove_child must happen before the free so the node name is "
+            "released before build_world() re-adds the replacements",
         )
 
 
