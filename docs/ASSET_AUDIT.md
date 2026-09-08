@@ -88,13 +88,21 @@ backups. Newly preferred choices are explicit in `assets/catalog.json`.
 
 - Offline hash verification: **222/222**.
 - Structural resource validation: **70 files**, no errors.
-- Python tests: **36 passing**, including provenance, shared-licence safeguards,
+- Python tests: **37 passing**, including provenance, shared-licence safeguards,
   untracked/missing source detection and expanded content coverage.
 - Khronos glTF validator: **81 models, 0 errors, 49 warnings**. Warnings concern
   skinned-node transforms/root placement and PNG features; they are not silently
   discarded. Native importer and device review remain necessary.
-- Added native tests for imported materials, six pickup models and model normalization.
-  Local Godot execution is unavailable: engine download host fails TLS here.
+- **Native Godot 4.4.1 CI passed**, including headless unit tests, all imported
+  assets/animation names, detailed materials, six pickup models and normalization.
+  Android APK export succeeded for commit `00c432b`:
+  https://github.com/AviralGup7/Game-no-7/actions/runs/34171952660
+- The post-import audit caught Godot extracting embedded textures into untracked
+  PNGs. Set the scene importer default to **Embed as Basis Universal** so fresh
+  imports keep textures in the engine cache, not duplicated in source directories.
+  The successful CI run verifies this fix on a clean checkout.
+- Local Godot execution remains unavailable (engine download host TLS failure);
+  native validation above ran on GitHub Actions, not locally or on a phone.
 
 **Not completed:** replacing live actor primitives, animation-state adapters,
 weapon attachments/loadout visuals, UI skinning, full skill VFX and downloaded audio
