@@ -834,8 +834,8 @@ func _run_boss_integration(target: Node3D) -> Array:
 	})
 
 	# Cross the 0.66 threshold -> phase 1 (Fury).
-	var boss_max := boss_hp.max_health
-	var hc_connections := boss_hp.health_changed.get_connections().size()
+	# The boss must still be in the intro phase before any damage: a spurious
+	# early transition is one-way and would leave it permanently enraged.
 	var phase_at_start := controller.current_phase()
 	boss.apply_damage(_lethal_payload(null).with_amount(210.0))  # 600 -> 390 (0.65)
 	var frac_after_first := boss.get_health_fraction()
@@ -847,12 +847,11 @@ func _run_boss_integration(target: Node3D) -> Array:
 	var enrage_damage := is_equal_approx(boss.get_effective_attack_damage(), 18.0 * 1.25 * 1.5)
 	results.append({
 		"name": "boss: phases advance on health thresholds with stacking stat bumps",
-		"passed": p1 and p2 and fury_damage and enrage_damage
+		"passed": phase_at_start == 0 and p1 and p2 and fury_damage and enrage_damage
 			and phases_seen.size() == 2 and phases_seen[0] == [1, 3] and phases_seen[1] == [2, 3],
-		"why": "phase=%d dmg=%.2f seen=%s max=%.1f frac1=%.3f conns=%d p0=%d" % [
+		"why": "phase=%d dmg=%.2f seen=%s frac1=%.3f p0=%d" % [
 			controller.current_phase(), boss.get_effective_attack_damage(),
-			str(phases_seen), boss_max, frac_after_first,
-			hc_connections, phase_at_start],
+			str(phases_seen), frac_after_first, phase_at_start],
 	})
 
 	# Boss death clears telegraphs and does not double-fire phase events.

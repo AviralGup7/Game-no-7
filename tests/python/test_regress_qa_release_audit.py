@@ -584,3 +584,65 @@ class EncounterSteppingTests(unittest.TestCase):
             txt,
             "fixed frame budgets are fragile; a predicate-driven helper is required",
         )
+
+
+class HealthResetAtomicityTests(unittest.TestCase):
+    """HealthComponent.reset() must not publish an intermediate health state.
+
+    reset() called set_max_health() first, which clamps the OLD current_health
+    against the NEW maximum and emits that pairing before current_health is
+    raised. Resetting a fresh 100 hp component to a 600 hp boss therefore
+    published health_changed(100, 600) -- a 16% health fraction -- and
+    BossController, which only ever advances phases upward, read it as "below the
+    33% Enrage threshold" and enraged the boss before the fight began, with the
+    phase damage/speed multipliers already applied.
+    """
+
+    def test_reset_assigns_both_fields_before_emitting(self):
+        body = func_body(read("scripts/player/health_component.gd"), "reset")
+        code = "\n".join(
+            ln for ln in body.splitlines() if not ln.strip().startswith("#")
+        )
+        self.assertNotIn(
+            "set_max_health(",
+            code,
+            "reset() must not route through set_max_health(); it emits a "
+            "clamped intermediate state",
+        )
+        max_at = body.find("max_health = maxf(max_hp")
+        cur_at = body.find("current_health = max_health")
+        emit_at = body.find("health_changed.emit")
+        for name, pos in (("max assignment", max_at), ("current assignment", cur_at)):
+            self.assertNotEqual(pos, -1, "reset() must set %s directly" % name)
+            self.assertLess(pos, emit_at, "%s must precede the emit" % name)
+
+    def test_reset_still_emits_exactly_one_change(self):
+        body = func_body(read("scripts/player/health_component.gd"), "reset")
+        self.assertEqual(
+            body.count("health_changed.emit"),
+            1,
+            "reset() must emit exactly one health_changed",
+        )
+
+
+class BossPhaseGatingTests(unittest.TestCase):
+    """Phase advancement belongs to the fight, not to spawn-time setup."""
+
+    def test_health_traffic_before_begin_fight_is_ignored(self):
+        body = func_body(read("scripts/enemies/boss_controller.gd"), "_on_health_changed")
+        self.assertIn(
+            "if not _announced_intro:",
+            body,
+            "pre-fight health changes must not trigger a phase transition",
+        )
+        gate_at = body.find("if not _announced_intro:")
+        advance_at = body.find("_advance_to(")
+        self.assertLess(gate_at, advance_at, "the gate must precede _advance_to")
+
+    def test_phase_advancement_remains_one_way(self):
+        body = func_body(read("scripts/enemies/boss_controller.gd"), "_on_health_changed")
+        self.assertIn(
+            "if target > _phase:",
+            body,
+            "phases must only ever advance, never regress on healing",
+        )

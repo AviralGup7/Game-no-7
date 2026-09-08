@@ -183,6 +183,12 @@ func _physics_process(delta: float) -> void:
 func _on_health_changed(current: float, maximum: float) -> void:
 	if _host == null or not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		return
+	# Phases belong to the fight. Health traffic before begin_fight() is setup
+	# noise (spawn, difficulty scaling, max-health resets) and must never burn a
+	# phase transition — advancement is one-way, so a spurious early jump would
+	# leave the boss permanently enraged.
+	if not _announced_intro:
+		return
 	var frac := clampf(current / maximum, 0.0, 1.0)
 	var target := phase_index_for_fraction(frac, _phases)
 	if target > _phase:

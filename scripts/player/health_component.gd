@@ -139,9 +139,15 @@ func _die() -> void:
 func reset(max_hp: float) -> void:
 	_is_dead = false
 	_invulnerable_until = 0.0
-	set_max_health(max_hp)
-	current_health = max_hp
-	health_changed.emit(current_health, max_hp)
+	# Set both fields before emitting. Going through set_max_health() would clamp
+	# the OLD current_health against the NEW maximum and emit that intermediate
+	# state first: resetting a fresh 100 hp component to a 600 hp boss published
+	# health_changed(100, 600) -- a 16% health fraction. BossController reads that
+	# as "below the 33% threshold" and jumps straight to Enrage before the fight
+	# starts, with the phase multipliers already applied and no way back down.
+	max_health = maxf(max_hp, 1.0)
+	current_health = max_health
+	health_changed.emit(current_health, max_health)
 
 
 func _now() -> float:
