@@ -40,6 +40,7 @@ static func project_to_map(world_xz: Vector2, center_px: Vector2, radius_px: flo
 
 
 func _process(delta: float) -> void:
+	if not is_visible_in_tree(): return
 	_accum += delta
 	if _accum < UPDATE_INTERVAL:
 		return
@@ -51,6 +52,9 @@ func _process(delta: float) -> void:
 func _refresh_targets() -> void:
 	if not is_inside_tree():
 		return
+	var world_arena := get_tree().current_scene.get_node_or_null("WorldRoot/Arena") if get_tree().current_scene != null else null
+	if world_arena != null and world_arena.has_method("get_interior_half"):
+		arena_half = float(world_arena.call("get_interior_half"))
 	var players := get_tree().get_nodes_in_group("player")
 	_player = players[0] as Node3D if not players.is_empty() else null
 	_enemies = get_tree().get_nodes_in_group("enemies")
@@ -66,10 +70,10 @@ func _draw() -> void:
 	# Range rings.
 	draw_arc(center, radius * 0.5, 0, TAU, 32, Color(1, 1, 1, 0.08), 1.0)
 	for p in _pickups:
-		if p is Node3D and (p as Node).has_method("is_active") and bool((p as Node).call("is_active")):
+		if is_instance_valid(p) and p is Node3D and (p as Node).has_method("is_active") and bool((p as Node).call("is_active")):
 			_dot(center, radius, (p as Node3D).global_position, PICKUP_COLOR, DOT_RADIUS * 0.7)
 	for e in _enemies:
-		if not (e is Node3D) or not is_instance_valid(e):
+		if not is_instance_valid(e) or not (e is Node3D):
 			continue
 		if (e as Node).has_method("is_alive") and not bool((e as Node).call("is_alive")):
 			continue

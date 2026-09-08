@@ -13,12 +13,24 @@ signal pressed
 
 var _touch_index := -1
 var _held := false
+var _label: Label
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = Vector2(radius * 2, radius * 2)
 	modulate.a = opacity
+	_label = Label.new()
+	_label.set_anchors_preset(PRESET_FULL_RECT)
+	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label.mouse_filter = MOUSE_FILTER_IGNORE
+	_label.text = {"attack": "ATTACK", "dodge": "DODGE", "switch_weapon": "SWAP"}.get(action_name, action_name.to_upper())
+	_label.add_theme_font_override("font", UiTheme.BOLD)
+	_label.add_theme_font_size_override("font_size", 18)
+	add_child(_label)
+	visibility_changed.connect(func() -> void:
+		if not is_visible_in_tree(): cancel())
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -66,6 +78,15 @@ func _draw() -> void:
 	# stays visually centered; clamp the ring to the smaller dimension.
 	var center := size * 0.5
 	var r := minf(radius, minf(size.x, size.y) * 0.5)
-	var col := Color(1, 1, 1, 0.18 if _held else 0.10)
+	var col := Color("365064") if _held else UiTheme.INK
 	draw_circle(center, r, col)
-	draw_arc(center, r, 0.0, TAU, 48, Color(1, 1, 1, 0.35), 3.0)
+	draw_arc(center, r, 0.0, TAU, 48, UiTheme.GOLD if _held else UiTheme.CYAN, 3.0)
+
+
+func _input(event: InputEvent) -> void:
+	if not _held:
+		return
+	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
+		if not get_global_rect().has_point(event.position): cancel()
+	elif event is InputEventMouseButton and not event.pressed and _touch_index == -2:
+		if not get_global_rect().has_point(event.position): cancel()
