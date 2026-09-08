@@ -96,6 +96,8 @@ func spawn_pickup(pickup_id: StringName, at: Vector3, level: int = 1) -> Pickup:
 	_live.append(p)
 	if EventBus != null:
 		EventBus.pickup_spawned.emit(p, pickup_id)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"item_drop", -10.0)
 	return p
 
 

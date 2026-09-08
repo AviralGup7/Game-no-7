@@ -67,6 +67,33 @@ const SKILL_COLORS := {
 	&"mending_light": Color(0.48, 1.0, 0.58),
 	&"shatterwave": Color(0.78, 0.68, 1.0),
 }
+
+## Per-skill ring/burst textures from the shared kenney library — gives each skill
+## a shape identity beyond colour/radius (trace for whirl, smoke for dash, dirt for slam, etc).
+const SKILL_RING_TEXTURES := {
+	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
+	&"frost_nova": "res://assets/effects/kenney/circle_05.png",
+	&"frost_nova_skill": "res://assets/effects/kenney/circle_05.png",
+	&"phantom_rush": "res://assets/effects/kenney/smoke_03.png",
+	&"seismic_slam": "res://assets/effects/kenney/dirt_01.png",
+	&"warcry": "res://assets/effects/kenney/magic_01.png",
+	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
+	&"chain_lightning": "res://assets/effects/kenney/magic_03.png",
+	&"mending_light": "res://assets/effects/kenney/flare_01.png",
+	&"shatterwave": "res://assets/effects/kenney/circle_01.png",
+}
+const SKILL_BURST_TEXTURES := {
+	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
+	&"frost_nova": "res://assets/effects/kenney/star_04.png",
+	&"frost_nova_skill": "res://assets/effects/kenney/star_04.png",
+	&"phantom_rush": "res://assets/effects/kenney/smoke_01.png",
+	&"seismic_slam": "res://assets/effects/kenney/spark_04.png",
+	&"warcry": "res://assets/effects/kenney/magic_01.png",
+	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
+	&"chain_lightning": "res://assets/effects/kenney/star_01.png",
+	&"mending_light": "res://assets/effects/kenney/light_01.png",
+	&"shatterwave": "res://assets/effects/kenney/circle_05.png",
+}
 var _bursts: Array[GPUParticles3D] = []
 var _burst_template: GPUParticles3D = null
 var _ring_pool: Array[Node3D] = []
@@ -172,13 +199,13 @@ func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
-	ring_at(Vector3.ZERO, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_BOSS)
-	burst_at(Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_BOSS)
+	ring_at(Vector3.ZERO, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
+	burst_at(Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
 
 
 func _on_wave_completed(_wave_number: int, _bonus: int) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.88, 0.38), 8.0, PRIORITY_BOSS)
-	burst_at(Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45, PRIORITY_BOSS)
+	ring_at(Vector3.ZERO, Color(1.0, 0.88, 0.38), 8.0, PRIORITY_SPAWN)
+	burst_at(Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45, PRIORITY_SPAWN)
 
 
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
@@ -232,8 +259,49 @@ func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 	var color: Color = SKILL_COLORS.get(skill_id, Color(0.8, 0.6, 0.2))
 	var radius := _skill_radius(skill_id)
 	var burst_scale := _skill_burst_scale(skill_id)
-	ring_at(at, color, radius, PRIORITY_SKILL)
-	burst_at(at + Vector3(0, 0.3, 0), color, burst_scale, PRIORITY_SKILL)
+	var ring_tex: String = SKILL_RING_TEXTURES.get(skill_id, RING_TEXTURE)
+	var burst_tex: String = SKILL_BURST_TEXTURES.get(skill_id, BURST_TEXTURE)
+	# Ring with skill-specific shape texture — distinct identity beyond colour.
+	var ring := _claim_ring(PRIORITY_SKILL)
+	if ring != null:
+		ring.global_position = at + Vector3(0.02, 0, 0.02)
+		var mi := ring.get_node_or_null("Disc") as MeshInstance3D
+		if mi != null:
+			var mat := mi.material_override as StandardMaterial3D
+			if mat != null:
+				mat.albedo_color = Color(color, 0.45)
+				if ResourceLoader.exists(ring_tex):
+					mat.albedo_texture = load(ring_tex)
+		ring.scale = Vector3(radius, radius, radius)
+		_show_ring(ring, 0.6)
+		_ring_prios[ring] = PRIORITY_SKILL
+	# Burst with skill-specific texture/amount — reuse pooled burst but swap its sprite for variety.
+	var burst := _claim_burst(PRIORITY_SKILL)
+	if burst != null:
+		burst.global_position = at + Vector3(0, 0.3, 0)
+		var bmat := burst.process_material as ParticleProcessMaterial
+		if bmat != null:
+			bmat.color = color
+			# Per-skill particle tuning: whirls more particles, slams more spread.
+			match skill_id:
+				&"bladestorm":
+					bmat.spread = 85.0; burst.amount = 28
+				&"seismic_slam":
+					bmat.spread = 45.0; burst.amount = 26
+				&"phantom_rush":
+					bmat.spread = 68.0; burst.amount = 20
+				&"chain_lightning":
+					bmat.spread = 75.0; burst.amount = 24
+				_:
+					bmat.spread = 68.0; burst.amount = 22
+		if burst.draw_pass_1 is QuadMesh and ResourceLoader.exists(burst_tex):
+			var quad := burst.draw_pass_1 as QuadMesh
+			var qmat := quad.material as StandardMaterial3D
+			if qmat != null:
+				qmat.albedo_texture = load(burst_tex)
+		burst.scale = Vector3.ONE * burst_scale
+		burst.restart()
+		_burst_prios[burst] = PRIORITY_SKILL
 
 
 func _skill_radius(skill_id: StringName) -> float:
