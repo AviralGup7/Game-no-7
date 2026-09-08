@@ -24,7 +24,7 @@ import urllib.request
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "assets/manifest.json"
 MAX_FILE_BYTES = 64 * 1024 * 1024
-ALLOWED_SUFFIXES = {".glb", ".gltf", ".bin", ".png", ".ttf", ".ogg", ".wav", ".txt", ".md"}
+ALLOWED_SUFFIXES = {".glb", ".gltf", ".bin", ".png", ".jpg", ".hdr", ".ttf", ".ogg", ".wav", ".txt", ".md"}
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 REPOSITORY = re.compile(r"https://github\.com/([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)\Z")
