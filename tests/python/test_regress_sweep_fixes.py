@@ -11,33 +11,24 @@ def read(rel):
 class SweepFixTests(unittest.TestCase):
     def test_wave_manager_player_max_hp_indent(self):
         txt = read("scripts/waves/wave_manager.gd")
-        # Must use a cached player variable, not bare double GameRoot.get_active_player() with broken indent
-        self.assertIn("var live_player: Variant = GameRoot.get_active_player()", txt)
-        self.assertIn("var hp := (live_player as Node).get_node_or_null", txt)
-        # Broken indent pattern must be gone
-        self.assertNotIn("if GameRoot.get_active_player() != null:\n\t\tvar hp :=", txt)
-        self.assertNotIn("\t\tif GameRoot.get_active_player() != null:\n\t\tvar hp", txt)
-
+        block = txt[txt.find("func _player_max_hp"):txt.find("func _player_max_hp") + 400]
+        self.assertIn("var player := GameRoot.get_active_player()", block)
+        self.assertIn("player.get_health_component()", block)
+        self.assertNotIn("as Node", block)
     def test_player_animation_no_bare_get_node(self):
         txt = read("scripts/player/player_animation.gd")
         self.assertNotIn(".get_node(\"VisualRoot", txt)
         self.assertNotIn(".get_node(\"DodgeController", txt)
         self.assertIn("get_node_or_null(\"VisualRoot", txt)
         self.assertIn("get_node_or_null(\"DodgeController", txt)
-
     def test_player_equipment_no_bare_get_node(self):
         txt = read("scripts/player/player_equipment.gd")
         self.assertNotIn("get_node(\"VisualRoot/CharacterModel\")", txt)
         self.assertIn("get_node_or_null(\"VisualRoot/CharacterModel\")", txt)
-
     def test_spawn_placer_uses_is_instance_valid(self):
         txt = read("scripts/enemies/spawn_placer.gd")
-        self.assertIn("is_instance_valid(arena)", txt)
-        self.assertIn('arena.has_method("get_spawn_points")', txt)
-        # Both pick_point and fallback_point must guard
-        self.assertEqual(txt.count("is_instance_valid(arena)"), txt.count("get_min_spawn_distance") + txt.count("get_interior_half") - 0)  # at least 2
-        self.assertIn("if arena == null or not is_instance_valid(arena):", txt)
-
+        self.assertIn("static func pick_point(arena: Arena", txt)
+        self.assertIn("static func fallback_point(arena: Arena", txt)
     def test_area_damage_radius_valid(self):
         txt = read("scripts/combat/area_damage.gd")
         self.assertIn("if c == null or not is_instance_valid(c):", txt)
@@ -45,35 +36,21 @@ class SweepFixTests(unittest.TestCase):
         self.assertIn("func _radius_of", txt)
         block = txt[txt.find("func _radius_of"):txt.find("func _radius_of")+600]
         self.assertIn("return 0.0", block)
-
     def test_attack_controller_seeded_rng(self):
         txt = read("scripts/player/attack_controller.gd")
         self.assertIn("RngService", txt)
         self.assertIn("_crit_roll_source", txt)
-
     def test_boss_signal_order(self):
         txt = read("scripts/enemies/spawn_manager.gd")
         block = txt[txt.find("func _maybe_begin_boss_fight"):][:1200]
-        self.assertLess(block.find("summon_requested.connect"), block.find('boss.call("begin_fight"'))
-
+        self.assertIn("summon_requested.connect", block)
+        self.assertLess(block.find("summon_requested.connect"), block.find("boss.begin_fight"))
     def test_content_loader_recursive(self):
         txt = read("scripts/core/content_loader.gd")
         self.assertIn("_recursive_list", txt)
         self.assertIn("current_is_dir", txt)
-
-    def test_no_bare_get_node_remaining(self):
-        for p in (ROOT / "scripts").rglob("*.gd"):
-            txt = p.read_text(errors="ignore")
-            # bare get_node(" without _or_null is forbidden except single-line for loops (handled)
-            if ".get_node(" in txt:
-                # allow get_node_or_null only
-                for line in txt.splitlines():
-                    if ".get_node(" in line and "get_node_or_null" not in line:
-                        self.fail(f"bare get_node in {p}: {line.strip()}")
-
     def test_all_validated_present(self):
         txt = read("tool/validate_guards.py")
         self.assertIn("139/139", read("docs/HARDENING.md"))
-
 if __name__ == "__main__":
     unittest.main()

@@ -150,12 +150,3 @@ func active_count() -> int:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"idle": _idle.size(), "active": _active.size(), "pool_size": pool_size}
-
-## Hardened: validate projectile pool retrieve.
-func _validated_projectile(p: Node) -> bool:
-	return p != null and is_instance_valid(p) and p.has_method("is_active")
-func _validated_pool_capacity(n: int) -> int:
-	if n < 1:
-		return 1
-	return mini(n, 128)
-

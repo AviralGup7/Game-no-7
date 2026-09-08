@@ -14,7 +14,7 @@ signal effect_expired(effect_id: StringName)
 signal effect_cleansed(effect_id: StringName)
 
 var _effects: Dictionary = {}  # StringName -> StatusEffect
-var _health: Node = null
+var _health: HealthComponent = null
 var _owner_body: Node = null
 var _shield_layers: Dictionary = {}  # effect id -> remaining shield contribution
 var _shield_pool: float = 0.0
@@ -22,10 +22,12 @@ var _shield_pool: float = 0.0
 
 func _ready() -> void:
 	_owner_body = get_parent()
-	_health = get_parent().get_node_or_null("HealthComponent") if get_parent() != null else null
+	_health = get_parent().get_node_or_null("HealthComponent") as HealthComponent if get_parent() != null else null
 
 
-func bind_health(health_node: Node) -> void:
+## Explicit health binding for hosts that add this StatusManager dynamically
+## (the scene-wired path resolves in _ready above).
+func bind_health(health_node: HealthComponent) -> void:
 	_health = health_node
 
 
@@ -173,10 +175,10 @@ func _apply_ticks(fx: StatusEffect, ticks: int) -> void:
 	if _health == null or not is_instance_valid(_health):
 		return
 	var dot := fx.dot_per_tick() * float(ticks)
-	var damage_allowed := not (_health.has_method("is_dead") and bool(_health.call("is_dead")))
-	if damage_allowed and _health.has_method("is_invulnerable"):
-		damage_allowed = not bool(_health.call("is_invulnerable"))
-	if dot > 0.0 and damage_allowed and _health.has_method("take_damage"):
+	var damage_allowed := not _health.is_dead()
+	if damage_allowed:
+		damage_allowed = not _health.is_invulnerable()
+	if dot > 0.0 and damage_allowed:
 		dot = absorb_direct(dot)
 		if dot > 0.0:
 			var payload := DamagePayload.new()
@@ -186,10 +188,10 @@ func _apply_ticks(fx: StatusEffect, ticks: int) -> void:
 			payload.damage_type = fx.config.dot_type if fx.config != null else &"physical"
 			payload.hit_position = (_owner_body as Node3D).global_position if _owner_body is Node3D else Vector3.ZERO
 			if payload.is_valid():
-				_health.call("take_damage", payload)
+				_health.take_damage(payload)
 	var hot := fx.hot_per_tick() * float(ticks)
-	if hot > 0.0 and _health.has_method("heal"):
-		_health.call("heal", hot)
+	if hot > 0.0:
+		_health.heal(hot)
 
 
 func _remove_effect(effect_id: StringName) -> void:
@@ -210,12 +212,12 @@ func _power_for(source: Node) -> Dictionary:
 	var provider := source
 	if provider == null or not is_instance_valid(provider):
 		provider = _owner_body
-	var prog := provider.get_node_or_null("ProgressionComponent") if provider is Node else null
+	var prog := provider.get_node_or_null("ProgressionComponent") as ProgressionComponent if provider is Node else null
 	var duration := 1.0
 	var damage := 1.0
-	if prog != null and prog.has_method("get_stat"):
-		duration = float(prog.call("get_stat", &"status_duration_multiplier", 1.0))
-		damage = float(prog.call("get_stat", &"status_damage_multiplier", 1.0))
+	if prog != null:
+		duration = prog.get_stat(&"status_duration_multiplier", 1.0)
+		damage = prog.get_stat(&"status_damage_multiplier", 1.0)
 	return {"duration": clampf(duration, 0.05, 10.0), "damage": clampf(damage, 0.0, 10.0)}
 
 
@@ -314,19 +316,4 @@ func get_debug_snapshot() -> Dictionary:
 	for id in _effects:
 		list.append((_effects[id] as StatusEffect).get_debug_snapshot())
 	return {"effects": list, "shield": _shield_pool}
-
-## Hardened: validate incoming status effects batch.
-func _validated_effects(effects: Array) -> Array:
-	var out: Array = []
-	for e in effects:
-		if e == null or not is_instance_valid(e as Object):
-			continue
-		if e is Dictionary and e.has("id"):
-			var dur:float = float(e.get("duration", 0.0))
-			if not is_finite(dur) or dur <= 0.0:
-				continue
-			out.append(e)
-		elif e is StatusEffect and is_finite(e.duration):
-			out.append(e)
-	return out
 

@@ -245,14 +245,3 @@ func add_permanent_bonus(key: StringName, delta: float) -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"upgrade_stacks": _stacks.duplicate(), "modifiers": _modifiers.duplicate()}
-
-## Hardened: additional progression validators.
-func _validated_wave_for_unlock(w: int) -> int:
-	if w < 1:
-		return 1
-	return mini(w, 999)
-func _validated_stack(n: int) -> int:
-	if n < 0:
-		return 0
-	return mini(n, 99)
-

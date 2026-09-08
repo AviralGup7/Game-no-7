@@ -104,7 +104,9 @@ func _refresh_details() -> void:
 		return
 	var supported := weapon.weapon_id == starter and not weapon.disabled
 	var current := arena.arena_id == ContentRegistry.get_selected_arena_id()
-	var selectable := current or GameRoot.has_method("request_arena_selection")
+	# Arena selection is not wired in this build (UiCommands.select_arena only
+	# accepts the already-selected arena); previews stay read-only.
+	var selectable := current
 	_start.disabled = not supported or not selectable
 	_feedback.text = "Starter: %s. Skills unlock as you gain XP; choose upgrades after waves." % starter_config.display_name
 	if not current and not selectable:
@@ -133,11 +135,3 @@ func _launch() -> void:
 		GameRoot.start_daily_run()
 	else:
 		GameRoot.request_play()
-
-## Hardened: clamp run seed input.
-func _validated_setup_seed(s: int) -> int:
-	if s != 0:
-		return s
-	var r := randi()
-	return r if r != 0 else 1
-

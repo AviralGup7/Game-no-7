@@ -19,10 +19,3 @@ func tick(delta: float, attempt: Callable) -> void:
 	remaining = maxf(remaining - maxf(delta, 0.0), 0.0)
 	if remaining > 0.0 and bool(attempt.call()):
 		clear()
-
-## Hardened: validate attack buffer timing.
-func _validated_buffer_time(t: float) -> float:
-	if not is_finite(t) or t < 0.0:
-		return 0.2
-	return clampf(t, 0.0, 1.0)
-

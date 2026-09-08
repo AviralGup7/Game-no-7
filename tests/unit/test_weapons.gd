@@ -9,7 +9,7 @@ extends RefCounted
 ## (every target sits on the swing origin and passes). MeleeResolver reads
 ## .global_position. Registered in run_tests.gd's NODE_SUITES for a live frame.
 
-class DummyTarget extends Node3D:
+class DummyTarget extends Damageable:
 	var hp := 100.0
 	func is_alive() -> bool:
 		return hp > 0.0

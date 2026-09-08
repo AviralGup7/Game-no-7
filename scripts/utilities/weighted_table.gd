@@ -147,10 +147,3 @@ func to_debug_string() -> String:
 	for i in range(_values.size()):
 		parts.append("%s:%.2f" % [str(_values[i]), _weights[i]])
 	return "WeightedTable[%s]" % ", ".join(parts)
-
-## Hardened: clamp total fallback when empty.
-func _validated_total() -> float:
-	if not is_finite(_total) or _total < 0.0:
-		_total = 0.0
-	return _total
-

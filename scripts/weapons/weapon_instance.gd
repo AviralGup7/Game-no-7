@@ -247,12 +247,3 @@ func cancel_attack() -> void:
 		_windup_left = 0.0
 		_recovery_left = effective_cooldown()
 		phase = PHASE_RECOVERY
-
-## Hardened: validate weapon instance config.
-func _validated_config(cfg: Resource) -> bool:
-	return cfg != null and is_instance_valid(cfg)
-func _validated_level(lv: int) -> int:
-	if lv < 1:
-		return 1
-	return mini(lv, 99)
-

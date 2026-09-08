@@ -9,8 +9,8 @@ signal health_changed(current: float, maximum: float)
 signal damaged(result: DamageResult)
 signal died()
 
-@export var max_health: float = 100.0
-@export var invulnerability_window: float = 0.4
+@export_range(1.0, 100000.0, 1.0) var max_health: float = 100.0
+@export_range(0.0, 10.0, 0.01) var invulnerability_window: float = 0.4
 
 var current_health: float = 100.0
 var _invulnerable_until: float = 0.0
@@ -166,18 +166,3 @@ func get_debug_snapshot() -> Dictionary:
 		"invulnerable": is_invulnerable(),
 		"is_dead": _is_dead,
 	}
-
-## Hardened: clamp health regen and validated payload.
-func _validated_heal_amount(a: float) -> float:
-	if not is_finite(a) or a <= 0.0:
-		return 0.0
-	return clampf(a, 0.0, 10000.0)
-func _validated_health_ratio(r: float) -> float:
-	if not is_finite(r):
-		return 0.0
-	return clampf(r, 0.0, 1.0)
-
-## Hardened: health export guard second layer.
-func _export_range_guard_health() -> void:
-	pass
-

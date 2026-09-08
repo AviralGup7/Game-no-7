@@ -169,10 +169,3 @@ static func pattern_for_wave(wave: int, seed: int, previous: StringName) -> Stri
 	if pool.is_empty():
 		return PATTERN_SCATTER
 	return pool[rng.randi_range(0, pool.size() - 1)]
-
-## Hardened: validate spawn count.
-func _validated_spawn_count(n: int) -> int:
-	if n < 0:
-		return 0
-	return mini(n, 100)
-

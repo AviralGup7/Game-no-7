@@ -25,10 +25,3 @@ func _ready() -> void:
 		EventBus.report_warning("VisualMount: no model mounted for role %s (path %s) — %s" % [
 			String(role), CharacterVisuals.model_path(role),
 			"primitive Body fallback kept" if fallback else "NO FALLBACK VISUAL PRESENT"])
-
-## Hardened: validate visual mount.
-func _validated_mount(host: Node, id: StringName) -> bool:
-	if host == null or not is_instance_valid(host):
-		return false
-	return id != &""
-

@@ -33,7 +33,6 @@ class CIPipelineTests(unittest.TestCase):
         txt = read(".github/workflows/android.yml")
         self.assertIn("needs: build-android", txt)
         self.assertIn("softprops/action-gh-release", txt)
-
 class ValidateResourcesTests(unittest.TestCase):
     def test_validate_resources_exists(self):
         txt = read("tool/validate_resources.py")
@@ -48,15 +47,14 @@ class ValidateResourcesTests(unittest.TestCase):
         txt = read("tool/validate_assets.py")
         self.assertIn("glTF", txt)
         self.assertIn("bufferView", txt)
-
 class ScriptHardeningCoverageTests(unittest.TestCase):
-    def test_at_least_85_validated(self):
-        # quick coverage: count files with _validated
-        import pathlib
-        root = ROOT / "scripts"
-        gds = list(root.rglob("*.gd"))
-        validated = sum(1 for p in gds if "_validated" in p.read_text(errors="ignore"))
-        self.assertGreaterEqual(validated, 85, f"only {validated} files have _validated, expected >=85")
+    def test_typed_architecture_gate(self):
+        # The _validated_* coverage metric is retired with the theater itself.
+        # Its replacement is the typed-architecture gate.
+        import subprocess, sys
+        r = subprocess.run([sys.executable, str(ROOT / "tool" / "check_typed_arch.py")],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, f"check_typed_arch failed:\n{r.stdout}")
     def test_no_bare_GameRoot_get_run_in_main(self):
         txt = read("scripts/main/main.gd")
         # main should use _safe_seed/_safe_arena_id, not bare GameRoot.get_run().seed
@@ -67,36 +65,9 @@ class ScriptHardeningCoverageTests(unittest.TestCase):
         txt = read("scripts/audio/audio_manager.gd")
         self.assertIn("EventBus", txt)
         # we hardened with _validated_volume
-        self.assertIn("_validated_volume", txt)
-
 class ScoringAndWaveTests(unittest.TestCase):
-    def test_scoring_validated(self):
-        self.assertIn("_validated_score_delta", read("scripts/waves/scoring.gd"))
     def test_wave_spawn_entry_count(self):
         txt = read("scripts/waves/wave_spawn_entry.gd")
-        self.assertIn("archetype_id == &\"\"", txt)
-    def test_wave_mutators_weight(self):
-        self.assertIn("_validated_mutator_weight", read("scripts/waves/wave_mutators.gd"))
-
-class SaveTests(unittest.TestCase):
-    def test_save_schema_exists(self):
-        txt = read("scripts/save/save_schema.gd")
-        self.assertIn("_validated_schema_version", txt)
-    def test_settings_data_exists(self):
-        txt = read("scripts/save/settings_data.gd")
-        self.assertIn("_validated_volume", txt)
-
-class PerformanceAndRngTests(unittest.TestCase):
-    def test_performance_monitor(self):
-        self.assertIn("_validated_sample", read("scripts/utilities/performance_monitor.gd"))
-    def test_rng_chance(self):
-        self.assertIn("_validated_chance", read("scripts/utilities/rng_service.gd"))
-    def test_weighted_total(self):
-        self.assertIn("_validated_total", read("scripts/utilities/weighted_table.gd"))
-
-class VisualMountTests(unittest.TestCase):
-    def test_visual_mount(self):
-        self.assertIn("_validated_mount", read("scripts/visuals/visual_mount.gd"))
-
+        self.assertIn("String(archetype_id).is_empty()", txt)
 if __name__ == "__main__":
     unittest.main()

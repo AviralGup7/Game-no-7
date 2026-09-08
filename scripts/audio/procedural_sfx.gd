@@ -272,10 +272,3 @@ static func _arpeggio(freqs: Array[float], vol: float) -> PackedFloat32Array:
 		var root := sin(TAU * round(108.0 * dur) * t / dur) * 0.25
 		out[i] = (tone * 0.7 + root) * vol
 	return out
-
-## Hardened: clamp procedural pitch.
-func _validated_pitch(p: float) -> float:
-	if not is_finite(p) or p <= 0.0:
-		return 1.0
-	return clampf(p, 0.1, 4.0)
-

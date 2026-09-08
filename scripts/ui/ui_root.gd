@@ -1,4 +1,5 @@
 extends Control
+class_name UiRoot
 ## Composition and navigation only. Panels own their presentation; canonical
 ## state changes always come from EventBus and commands go through GameRoot.
 signal upgrade_chosen(upgrade_id: StringName)
@@ -319,15 +320,18 @@ func _apply_settings(settings: SettingsData) -> void:
 	_boss_bar.set_reduced_motion(settings.reduced_motion)
 	_touch.set_high_contrast(settings.high_contrast)
 	for node in get_tree().get_nodes_in_group("hitstop_manager"):
-		if node.has_method("set_reduced_motion"): node.call("set_reduced_motion", settings.reduced_motion)
+		var hitstop := node as HitstopManager
+		if hitstop != null:
+			hitstop.set_reduced_motion(settings.reduced_motion)
 	for node in get_tree().get_nodes_in_group("performance_monitor"):
-		if node.has_method("set_tier"):
-			var tier_idx := [&"low", &"medium", &"high"].find(settings.graphics_quality)
-			if tier_idx < 0:
-				tier_idx = 2  # high is the default when save carries an unknown/legacy value
-			node.call("set_tier", tier_idx)
-		if node.has_method("max_damage_numbers"):
-			_numbers.set_max_live(int(node.call("max_damage_numbers")))
+		var monitor := node as PerformanceMonitor
+		if monitor == null:
+			continue
+		var tier_idx := [&"low", &"medium", &"high"].find(settings.graphics_quality)
+		if tier_idx < 0:
+			tier_idx = 2  # high is the default when save carries an unknown/legacy value
+		monitor.set_tier(tier_idx)
+		_numbers.set_max_live(monitor.max_damage_numbers())
 	_layout.call_deferred()
 
 func get_announcement_banner() -> AnnouncementBanner: return _banner
@@ -348,10 +352,3 @@ func _request_quit() -> void:
 	_confirm.cancel_button_text = "CANCEL"
 	_confirm_command = func() -> void: get_tree().quit()
 	_popup_confirm()
-
-## Hardened: validate ui root state before transition.
-func _validated_state(s: StringName) -> bool:
-	if s == &"":
-		return false
-	return true
-

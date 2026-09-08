@@ -58,8 +58,8 @@ func _ready() -> void:
 
 func _load_persisted() -> void:
 	_unlocked.clear()
-	if SaveManager != null and SaveManager.has_method("get_unlocked_achievements"):
-		for raw in SaveManager.call("get_unlocked_achievements"):
+	if SaveManager != null:
+		for raw in SaveManager.get_unlocked_achievements():
 			_unlocked[StringName(String(raw))] = true
 
 
@@ -104,8 +104,8 @@ func unlock(achievement_id: StringName) -> bool:
 	if not definitions().has(achievement_id):
 		return false
 	_unlocked[achievement_id] = true
-	if SaveManager != null and SaveManager.has_method("unlock_achievement"):
-		SaveManager.call("unlock_achievement", achievement_id)
+	if SaveManager != null:
+		SaveManager.unlock_achievement(achievement_id)
 	achievement_unlocked_local.emit(achievement_id)
 	if EventBus != null:
 		EventBus.achievement_unlocked.emit(achievement_id)
@@ -131,7 +131,8 @@ func _on_enemy_killed(enemy: Node, archetype_id: StringName, _score: int, _curre
 		unlock(&"slayer_200")
 	if _run_kills >= 500:
 		unlock(&"slayer_500")
-	if enemy != null and enemy.has_method("is_elite") and bool(enemy.call("is_elite")):
+	var elite := enemy as EnemyBase
+	if elite != null and elite.is_elite():
 		_run_elites += 1
 		if _run_elites >= 5:
 			unlock(&"elite_hunter")
@@ -204,25 +205,18 @@ func _on_wave_completed(wave_number: int, _bonus: int) -> void:
 		unlock(&"flawless")
 
 
-func _safe_run() -> Variant:
-	if GameRoot == null or not GameRoot.has_method("get_run"):
+func _safe_run() -> RunState:
+	if GameRoot == null:
 		return null
-	return GameRoot.call("get_run")
+	return GameRoot.get_run()
 
 func _selected_upgrade_count() -> int:
-	var run: Variant = _safe_run()
+	var run := _safe_run()
 	if run == null:
 		return 0
-	var upgrades: Variant = null
-	if run is Dictionary:
-		upgrades = (run as Dictionary).get("selected_upgrades", {})
-	elif "selected_upgrades" in run:
-		upgrades = (run as Object).get("selected_upgrades")
-	if not upgrades is Dictionary:
-		return 0
 	var count := 0
-	for id in (upgrades as Dictionary):
-		count += int((upgrades as Dictionary)[id])
+	for id in run.selected_upgrades:
+		count += int(run.selected_upgrades[id])
 	return count
 
 func _on_upgrade_selected(_upgrade_id: StringName) -> void:
@@ -256,13 +250,4 @@ func get_debug_snapshot() -> Dictionary:
 		"run_kills": _run_kills,
 		"run_max_combo": _run_max_combo,
 	}
-
-## Hardened: validate achievement unlock guard.
-func _validated_unlock(id: StringName) -> bool:
-	if id == &"":
-		return false
-	if SaveManager != null and SaveManager.has_method("has_achievement"):
-		if bool(SaveManager.call("has_achievement", id)):
-			return false
-	return true
 

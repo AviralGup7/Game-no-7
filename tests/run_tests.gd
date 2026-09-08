@@ -375,7 +375,7 @@ func _run_attack_combo_integration() -> Array:
 ## Autoload-free by construction (EventBus/AudioManager lookups null-guard).
 ## ===========================================================================
 
-class _FakeTarget extends Node3D:
+class _FakeTarget extends Damageable:
 	## Damage-recording stand-in for the player.
 	var hits: Array = []
 	var alive := true

@@ -1,5 +1,5 @@
 class_name UpgradeConfig
-extends Resource
+extends ValidatedConfig
 
 ## Data-driven player upgrade. Applied through the ProgressionComponent interface
 ## (never by editing arbitrary node properties). Rarity, stack limits, prerequisites,
@@ -107,13 +107,3 @@ func modifier_value(key: StringName, fallback: float) -> float:
 		if v is float or v is int:
 			return float(v)
 	return fallback
-
-## Hardened: clamp upgrade config weights.
-func _validated_upgrade() -> void:
-	if not is_finite(weight) or weight < 0.0:
-		weight = 1.0
-	weight = clampf(weight, 0.0, 100.0)
-	if max_stacks < 1:
-		max_stacks = 1
-	max_stacks = mini(max_stacks, 99)
-

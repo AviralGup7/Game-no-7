@@ -39,21 +39,17 @@ func _on_run_started(_id: int, _seed: int) -> void:
 	# run_started follows world construction, so keep weapon_equipped's value.
 	var player := GameRoot.get_active_player()
 	if is_instance_valid(player):
-		var manager := player.get_node_or_null("WeaponManager")
-		if manager != null and manager.has_method("active_weapon_id"):
-			_record_weapon(manager.call("active_weapon_id"))
+		_record_weapon(player.get_weapon_manager().active_weapon_id())
 
 func _record_weapon(id: StringName) -> void:
 	var cfg := ContentRegistry.get_weapon(id)
 	_weapon = cfg.display_name if cfg != null else String(id)
 
 func capture() -> void:
-	if GameRoot == null or not GameRoot.has_method("get_run"):
+	var run := GameRoot.get_run()
+	if run == null:
 		return
-	var run: Variant = GameRoot.call("get_run")
-	if run == null or not run.has_method("summary"):
-		return
-	_summary = (run.call("summary") as Dictionary).duplicate(true)
+	_summary = run.summary().duplicate(true)
 	_finish_capture.call_deferred(int(_summary.get("run_id", 0)))
 
 func _finish_capture(run_id: int) -> void:
@@ -134,14 +130,3 @@ func _build_rewards() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"page": _page, "summary": _summary.duplicate(true), "reward": _reward, "wallet": _bank_after}
-
-## Hardened: additional run summary validators.
-func _validated_duration(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 0.0
-	return clampf(d, 0.0, 9999.0)
-func _validated_score(s: int) -> int:
-	if s < 0:
-		return 0
-	return mini(s, 999999999)
-

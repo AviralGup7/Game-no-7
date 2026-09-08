@@ -137,19 +137,28 @@ static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, 
 				elif (tables[&"waves"] as Dictionary).has(wave.wave_number):
 					errors.append("Duplicate wave_number %d: %s" % [wave.wave_number, path])
 				else:
-					if wave.has_method("validate"):
-						var wave_problems: Array = wave.call("validate")
-						for p in wave_problems:
-							errors.append("%s: %s" % [path, p])
+					for problem in wave.validate():
+						errors.append("%s: %s" % [path, problem])
 					(tables[&"waves"] as Dictionary)[wave.wave_number] = wave
 
 
+## Typed id extraction: enemy configs carry archetype_id, upgrades upgrade_id.
+## A resource of the wrong type in a content directory is a hard authoring error;
+## an empty id is reported by each config's own validate().
 static func _register_one(table: Dictionary, res: Resource, path: String, kind: String, errors: Array[String]) -> void:
-	var id_value: Variant = res.get("archetype_id") if kind == "enemy" else res.get("upgrade_id")
-	if id_value == null:
-		errors.append("%s missing id: %s" % [kind, path])
-		return
-	var idn := StringName(String(id_value))
+	var idn := &""
+	if kind == &"enemy":
+		var enemy_cfg := res as EnemyConfig
+		if enemy_cfg == null:
+			errors.append("Not an EnemyConfig: %s" % path)
+			return
+		idn = enemy_cfg.archetype_id
+	else:
+		var upgrade_cfg := res as UpgradeConfig
+		if upgrade_cfg == null:
+			errors.append("Not an UpgradeConfig: %s" % path)
+			return
+		idn = upgrade_cfg.upgrade_id
 	_register_resource(table, idn, res, path, errors)
 
 
@@ -157,10 +166,10 @@ static func _register_resource(table: Dictionary, idn: StringName, res: Resource
 	if table.has(idn):
 		errors.append("Duplicate id '%s' across content files" % String(idn))
 		return
-	if res.has_method("validate"):
-		var problems: Array = res.call("validate")
-		for p in problems:
-			errors.append("%s: %s" % [path, p])
+	var cfg := res as ValidatedConfig
+	if cfg != null:
+		for problem in cfg.validate():
+			errors.append("%s: %s" % [path, problem])
 	table[idn] = res
 
 
@@ -223,10 +232,3 @@ static func _has_extension(file: String, extensions: Array) -> bool:
 		if clean.ends_with(String(ext)):
 			return true
 	return false
-
-## Hardened: validate content path before load.
-func _validated_content_path(p: String) -> bool:
-	if p.is_empty() or not p.begins_with("res://"):
-		return false
-	return true
-

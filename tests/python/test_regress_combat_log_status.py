@@ -15,15 +15,13 @@ class CombatLogStatusTests(unittest.TestCase):
         self.assertIn("remaining = maxf(remaining - delta, 0.0)",txt)
     def test_music_manager_null_run_guard(self):
         txt=read("scripts/audio/music_manager.gd")
-        self.assertIn('GameRoot.has_method("get_run")',txt)
-        self.assertIn('var run: Variant = GameRoot.call("get_run")',txt)
-        self.assertIn("if run != null:",txt)
-        self.assertIn("if run is Dictionary:",txt)
+        self.assertIn("GameRoot.get_run()",txt)
+        self.assertIn("if run != null",txt)
     def test_weapon_manager_avoids_shadowing(self):
         txt=read("scripts/weapons/weapon_manager.gd")
-        self.assertIn("var status_result: Variant = sm.call",txt)
-        self.assertNotIn("var applied: Variant = sm.call(\"apply_effects\"",txt)
-        self.assertIn("status_result is Dictionary",txt)
+        self.assertIn("as StatusManager",txt)
+        self.assertIn("sm.apply_effects(",txt)
+        self.assertNotIn("sm.call(",txt)
     def test_wave_manager_rebinds_director_damage(self):
         txt=read("scripts/waves/wave_manager.gd")
         self.assertIn("func _rebind_player_damage()",txt)

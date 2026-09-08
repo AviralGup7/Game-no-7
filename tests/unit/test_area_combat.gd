@@ -11,7 +11,7 @@ extends RefCounted
 ## live tree root and free them at the end of the suite. This suite is registered
 ## in run_tests.gd's NODE_SUITES so it runs on a live frame.
 
-class DummyTarget extends Node3D:
+class DummyTarget extends Damageable:
 	var hp := 100.0
 	func is_alive() -> bool:
 		return hp > 0.0

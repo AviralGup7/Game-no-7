@@ -136,7 +136,7 @@ func request_attack() -> bool:
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
 		return false
-	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
+	if owner is Damageable and not (owner as Damageable).is_alive():
 		return false
 	if _phase == PHASE_READY:
 		_begin_swing(1)
@@ -170,7 +170,7 @@ func _resolve_hit() -> int:
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
 		return 0
-	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
+	if owner is Damageable and not (owner as Damageable).is_alive():
 		return 0
 
 	var origin := owner.global_position
@@ -187,13 +187,13 @@ func _resolve_hit() -> int:
 		var to_target: Vector3 = (t.global_position - origin) * Vector3(1, 0, 1)
 		var dir: Vector3 = Vector3.FORWARD if to_target.length_squared() < 0.0001 else to_target.normalized()
 		var payload: DamagePayload = _build_payload(dir)
-		if not t.has_method("apply_damage"):
+		var damageable := t as Damageable
+		if damageable == null:
 			continue
-		var result: Variant = t.call("apply_damage", payload)
-		if result is DamageResult:
-			attack_hit.emit(t, result)
-			if (result as DamageResult).accepted:
-				hits += 1
+		var result := damageable.apply_damage(payload)
+		attack_hit.emit(t, result)
+		if result.accepted:
+			hits += 1
 	# All targets resolved exactly once per swing (CombatQuery dedupes by list order).
 	return hits
 
@@ -210,27 +210,27 @@ func _facing_forward(owner: CharacterBody3D) -> Vector3:
 func _effective_cooldown() -> float:
 	if _owner_body == null or not is_instance_valid(_owner_body):
 		return maxf(attack_cooldown, 0.05)
-	var prog := _owner_body.get_node_or_null("ProgressionComponent")
-	if prog != null and prog.has_method("get_stat"):
-		return float(prog.call("get_stat", &"attack_cooldown_multiplier", attack_cooldown))
+	var prog := _owner_body.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	if prog != null:
+		return prog.get_stat(&"attack_cooldown_multiplier", attack_cooldown)
 	return maxf(attack_cooldown, 0.05)
 
 
 func _effective_range() -> float:
 	if _owner_body == null or not is_instance_valid(_owner_body):
 		return attack_range
-	var prog := _owner_body.get_node_or_null("ProgressionComponent")
-	if prog != null and prog.has_method("get_stat"):
-		return float(prog.call("get_stat", &"attack_range_add", attack_range))
+	var prog := _owner_body.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	if prog != null:
+		return prog.get_stat(&"attack_range_add", attack_range)
 	return attack_range
 
 
 func _effective_damage() -> float:
 	var dmg := attack_damage
 	if _owner_body != null and is_instance_valid(_owner_body):
-		var prog := _owner_body.get_node_or_null("ProgressionComponent")
-		if prog != null and prog.has_method("get_stat"):
-			dmg = float(prog.call("get_stat", &"attack_damage_multiplier", attack_damage))
+		var prog := _owner_body.get_node_or_null("ProgressionComponent") as ProgressionComponent
+		if prog != null:
+			dmg = prog.get_stat(&"attack_damage_multiplier", attack_damage)
 	return dmg
 
 
@@ -245,17 +245,13 @@ func _roll_crit() -> bool:
 	# Deterministic fallback: seed from run + global tick so crits are replay-stable
 	# when no injected source is wired (headless/gameplay). Pure cosmetic randf() is
 	# avoided for gameplay-affecting rolls per project determinism rule.
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		var seed_val := 0
-		if run != null:
-			if run is Dictionary:
-				seed_val = int((run as Dictionary).get("seed", 0))
-			elif "seed" in run:
-				seed_val = int((run as Object).get("seed"))
-		if seed_val != 0:
-			var svc := RngService.new(seed_val)
-			return svc.chance(RngService.STREAM_CRITS, chance)
+	var run := GameRoot.get_run() if GameRoot != null else null
+	var seed_val := 0
+	if run != null:
+		seed_val = run.seed
+	if seed_val != 0:
+		var svc := RngService.new(seed_val)
+		return svc.chance(RngService.STREAM_CRITS, chance)
 	return randf() < chance
 
 
@@ -277,9 +273,9 @@ func _build_payload(direction: Vector3) -> DamagePayload:
 	payload.critical_multiplier = critical_multiplier
 	var k := knockback_strength
 	if _owner_body != null and is_instance_valid(_owner_body):
-		var prog := _owner_body.get_node_or_null("ProgressionComponent")
-		if prog != null and prog.has_method("get_stat"):
-			k = float(prog.call("get_stat", &"knockback_multiplier", knockback_strength))
+		var prog := _owner_body.get_node_or_null("ProgressionComponent") as ProgressionComponent
+		if prog != null:
+			k = prog.get_stat(&"knockback_multiplier", knockback_strength)
 	payload.knockback = direction * maxf(k * _chain.knockback_factor(combo_knockback_multipliers), 0.0)
 	payload.hit_position = _owner_body.global_position
 	return payload
@@ -327,10 +323,4 @@ func get_debug_snapshot() -> Dictionary:
 		"combo_step": _chain.step(),
 		"chain_allowed": _chain.is_chain_ready(),
 	}
-
-## Hardened: validate attack damage.
-func _validated_attack_damage(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 10.0
-	return clampf(d, 0.0, 10000.0)
 

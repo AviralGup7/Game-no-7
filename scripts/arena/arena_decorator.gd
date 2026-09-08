@@ -192,9 +192,9 @@ func _centerish(half: float, radius: float) -> Vector3:
 ## Player spawn in arena-local coordinates (the decorator sits at the arena
 ## origin, so marker positions compare directly). Null when unknown (headless).
 func _player_spawn_local() -> Variant:
-	var arena := get_parent()
-	if arena != null and arena.has_method("get_player_start"):
-		var marker := arena.call("get_player_start") as Node3D
+	var arena := get_parent() as Arena
+	if arena != null:
+		var marker := arena.get_player_start()
 		if marker != null:
 			return marker.position
 	return null
@@ -318,10 +318,3 @@ func _primitive_banner(holder: Node) -> void:
 	pole.position.y = 2.25
 	pole.material_override = _mat(Color(0.3, 0.25, 0.2))
 	holder.add_child(pole)
-
-## Hardened: validate decoration seed.
-func _validated_decor_seed(s: int) -> int:
-	if s == 0:
-		return 1
-	return s
-

@@ -21,9 +21,11 @@ func _am() -> Node:
 ## they arrive in bursts). Slight per-play pitch variance keeps packs of enemies
 ## from sounding like one machine-gunned sample. (Global RNG is auto-seeded.)
 func _play(cue_id: StringName, volume_db: float = -8.0, pitch_lo: float = 0.95, pitch_hi: float = 1.05) -> void:
+	# /root/AudioManager is the AudioManager autoload by construction (the
+	# documented autoload-optional seam); no has_method probe is needed.
 	var manager := _am()
-	if manager != null and manager.has_method("play_sfx"):
-		manager.call("play_sfx", cue_id, volume_db, randf_range(pitch_lo, pitch_hi))
+	if manager != null:
+		manager.play_sfx(cue_id, volume_db, randf_range(pitch_lo, pitch_hi))
 
 
 func play_hit() -> void:
@@ -53,15 +55,3 @@ func play_dash() -> void:
 
 func play_explosion() -> void:
 	_play(&"enemy_explosion", -6.0, 0.92, 1.0)
-
-## Hardened: validate audio playback guards.
-func _validated_play(cue: StringName) -> bool:
-	if cue == &"":
-		return false
-	if not is_inside_tree() or not is_instance_valid(self):
-		return false
-	return true
-func _guarded_play(cue: StringName) -> void:
-	if not _validated_play(cue):
-		return
-

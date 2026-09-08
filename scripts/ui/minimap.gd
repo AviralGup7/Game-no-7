@@ -52,9 +52,9 @@ func _process(delta: float) -> void:
 func _refresh_targets() -> void:
 	if not is_inside_tree():
 		return
-	var world_arena := get_tree().current_scene.get_node_or_null("WorldRoot/Arena") if get_tree().current_scene != null else null
-	if world_arena != null and world_arena.has_method("get_interior_half"):
-		arena_half = float(world_arena.call("get_interior_half"))
+	var world_arena := get_tree().current_scene.get_node_or_null("WorldRoot/Arena") as Arena if get_tree().current_scene != null else null
+	if world_arena != null:
+		arena_half = world_arena.get_interior_half()
 	var players := get_tree().get_nodes_in_group("player")
 	_player = players[0] as Node3D if not players.is_empty() else null
 	_enemies = get_tree().get_nodes_in_group("enemies")
@@ -70,19 +70,21 @@ func _draw() -> void:
 	# Range rings.
 	draw_arc(center, radius * 0.5, 0, TAU, 32, Color(1, 1, 1, 0.08), 1.0)
 	for p in _pickups:
-		if is_instance_valid(p) and p is Node3D and (p as Node).has_method("is_active") and bool((p as Node).call("is_active")):
-			_dot(center, radius, (p as Node3D).global_position, PICKUP_COLOR, DOT_RADIUS * 0.7)
+		var pickup := p as Pickup
+		if pickup != null and pickup.is_active():
+			_dot(center, radius, pickup.global_position, PICKUP_COLOR, DOT_RADIUS * 0.7)
 	for e in _enemies:
 		if not is_instance_valid(e) or not (e is Node3D):
 			continue
-		if (e as Node).has_method("is_alive") and not bool((e as Node).call("is_alive")):
+		var enemy := e as Damageable
+		if enemy != null and not enemy.is_alive():
 			continue
 		var color := ENEMY_COLOR
 		var r := DOT_RADIUS
 		if (e as Node).is_in_group("boss"):
 			color = BOSS_COLOR
 			r = BOSS_RADIUS
-		elif (e as Node).has_method("is_elite") and bool((e as Node).call("is_elite")):
+		elif enemy is EnemyBase and (enemy as EnemyBase).is_elite():
 			color = ELITE_COLOR
 			r = ELITE_RADIUS
 		_dot(center, radius, (e as Node3D).global_position, color, r)
@@ -98,14 +100,4 @@ func _draw() -> void:
 
 func _dot(center: Vector2, radius: float, world_pos: Vector3, color: Color, r: float) -> void:
 	draw_circle(project_to_map(Vector2(world_pos.x, world_pos.z), center, radius, arena_half), r, color)
-
-## Hardened: clamp world-to-map transform.
-func _validated_map_pos(pos: Vector2, size: Vector2) -> Vector2:
-	if not is_finite(pos.x) or not is_finite(pos.y):
-		return Vector2.ZERO
-	return Vector2(clampf(pos.x, 0.0, size.x), clampf(pos.y, 0.0, size.y))
-
-## Hardened: minimap export guard second layer.
-func _export_range_guard_minimap() -> void:
-	pass
 

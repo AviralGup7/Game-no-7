@@ -1,5 +1,62 @@
 # Changelog
 
+## [Unreleased] — Typed architecture overhaul (2026-09-09)
+
+Ends the duck-typing architecture: every component interaction is now a typed,
+direct method call. **~10,000 lines rewritten across Player, EnemyBase,
+GameRoot, all systems and every UI panel.**
+
+### Removed
+- **All 168 `_validated_*`/`_guarded_*` "validation theater" helpers** (141
+  were provably dead — defined, never called). The guards that were real are
+  inlined at their use sites; `docs/HARDENING.md` is marked SUPERSEDED.
+- **All duck typing in `scripts/`**: 308 `.call("...")` sites and 297
+  `has_method()` probes are gone (one sanctioned `has_method` assertion
+  remains in `test_harness.gd`, where probing IS the job). Dead branches
+  exposed by removed probes were deleted (GameRoot armory/arena-selection
+  probes that never existed, projectile `set_team_tint`, chase-state dead
+  clause, content-loader untyped registration).
+- **`run is Dictionary` probing everywhere** — `GameRoot.get_run()` is typed
+  (`RunState`); consumers read fields directly.
+- 5 pure-theater python test files; ~130 theater assertions stripped from the
+  rest (now pinned to real guards instead).
+
+### Added
+- `tool/check_typed_arch.py` — architecture gate: bans `.call("...")` string
+  dispatch and `has_method(` (allowlisted exception), verifies `as T` casts
+  and `Class.member()` calls resolve against declared `class_name`s +
+  extends chains (133 classes, 8 autoloads).
+- `scripts/core/validated_config.gd` — `ValidatedConfig` protocol base;
+  all content configs extend it and ContentLoader runs their `validate()`.
+- `class_name RingFade`; `HitstopManager`/`PerformanceMonitor`/`CameraRig`/
+  `CharacterController` typed casts in feedback/UI code.
+- Real `@export_range` editor enforcement on every authored content config
+  (replacing the `pass`-stub `_export_range_guard` documentation theater).
+- `docs/ARCHITECTURE.md` — the typed component model, autoload policy,
+  seams, and the enforcement gates.
+- Typed component accessors on Player (`get_health_component()`,
+  `get_weapon_manager()`, `get_skill_controller()`, …).
+
+### Changed
+- `UiCommands.action` is a closed typed dispatch (unknown command → warn +
+  false); TouchControls/SkillBar route through it.
+- `weapon_manager`/`attack_controller`/`skill_controller`/`dodge_controller`/
+  `stamina_component` resolve ProgressionComponent/StatusManager as typed
+  refs; status effects source from `EnemyBase.get_archetype_id()`.
+- SpawnManager's boss path is fully typed (`as BossController`, connect
+  `summon_requested` **before** `begin_fight`); arena/placer APIs take
+  `Arena` types; fake_arena test double now `extends Arena`.
+- `audio_manager` volume/pitch clamps inlined at the voice-claim site;
+  `event_bus` dead `_safe_emit`/`_guarded_*` wrappers removed.
+- `tool/validate_guards.py` rewritten: pins the real inlined guards +
+  @export_range contracts + theater-stays-dead (was: asserted 139/139
+  helpers exist).
+
+### Verified
+- `gdparse` over all scripts + tests; `gdlint` clean on changed files.
+- `tool/check_typed_arch.py`: clean. `tool/validate_guards.py`: exit 0.
+- `python3 -m unittest discover tests/python`: 353 tests, all passing.
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no

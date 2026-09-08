@@ -15,12 +15,10 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         # distinct radii
         self.assertIn("shatterwave", txt)
         self.assertIn("chain_lightning", txt)
-
     def test_status_colors_cover_all_13(self):
         txt = read("scripts/visuals/effect_director.gd")
         for sid in ["burn","bleed","shock","slow","stun","guard","regen","warcry","exposed","frenzy","haste","overguard","poison"]:
             self.assertIn(f'&"{sid}"', txt)
-
     def test_effect_director_priority_and_saturation(self):
         txt = read("scripts/visuals/effect_director.gd")
         self.assertIn("PRIORITY_CRITICAL", txt)
@@ -32,7 +30,6 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         self.assertIn("Saturated: steal", txt)
         self.assertIn("_burst_prios", txt)
         self.assertIn("_ring_prios", txt)
-
     def test_enemy_boss_presentation(self):
         txt = read("scripts/enemies/boss_controller.gd")
         self.assertIn("BossPhaseLight", txt)
@@ -42,7 +39,6 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         self.assertIn("THEMES", txt2)
         self.assertIn("forge", txt2)
         self.assertIn("crystal", txt2)
-
 class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
     def test_attack_controller_isolated_legacy(self):
         txt = read("scripts/player/attack_controller.gd")
@@ -50,14 +46,12 @@ class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
         self.assertIn("authoritative combat is Player", txt)
         txt2 = read("scripts/player/combo_chain.gd")
         self.assertIn("LEGACY ISOLATED", txt2)
-
     def test_player_authoritative_chain(self):
         txt = read("scripts/player/player.gd")
         self.assertIn("Player → WeaponManager → WeaponInstance", txt)
         self.assertIn("MeleeResolver", txt)
         self.assertIn("DamagePayload", txt)
         self.assertIn("Legacy fallback", txt)
-
     def test_dash_intent(self):
         txt = read("scripts/player/player.gd")
         self.assertIn("request_dodge", txt)
@@ -65,16 +59,13 @@ class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
         txt2 = read("scripts/player/dodge_controller.gd")
         self.assertIn("is_dodging", txt2)
         self.assertIn("get_dodge_direction", txt2)
-
     def test_event_bus_hardening(self):
         txt = read("scripts/core/event_bus.gd")
         self.assertIn("hardened lifecycle", txt.lower())
         self.assertIn("is_connected", txt)
-        self.assertIn("_guarded_connect", txt)
         # Player and EffectDirector use is_connected guards
         self.assertIn("is_connected", read("scripts/player/player.gd"))
         self.assertIn("is_connected", read("scripts/visuals/effect_director.gd"))
-
 class Milestone4_AudioAndPolish(unittest.TestCase):
     def test_audio_mapping_documented(self):
         txt = read("scripts/audio/procedural_sfx.gd")
@@ -89,7 +80,6 @@ class Milestone4_AudioAndPolish(unittest.TestCase):
         self.assertGreaterEqual(len(cues), 28)
         self.assertIn("skill_cast", cues)
         self.assertIn("boss_spawned", cues)
-
     def test_ui_polish(self):
         txt = read("scripts/ui/upgrade_panel.gd")
         self.assertIn("rarity", txt.lower())
@@ -98,14 +88,12 @@ class Milestone4_AudioAndPolish(unittest.TestCase):
         txt3 = read("scripts/main/camera_rig.gd")
         self.assertIn("add_shake", txt3)
         self.assertIn("boss_slain", txt3)
-
     def test_arena_camera_polish(self):
         txt = read("scripts/arena/arena.gd")
         self.assertIn("apply_theme", txt)
         self.assertIn("emissive", txt)
         txt2 = read("scripts/main/camera_rig.gd")
         self.assertIn("max_shake_amplitude", txt2)
-
 class Milestone5_IntegrationPersistence(unittest.TestCase):
     def test_persistence_dirty_flag(self):
         txt = read("scripts/save/save_manager.gd")
@@ -119,7 +107,6 @@ class Milestone5_IntegrationPersistence(unittest.TestCase):
         txt = read("scripts/player/player.gd")
         self.assertIn("get_build_snapshot", txt)
         self.assertIn("equipped_weapons", txt)
-
 class Milestone6_AndroidPerf(unittest.TestCase):
     def test_mobile_renderer_and_perf(self):
         txt = read("project.godot")
@@ -133,7 +120,6 @@ class Milestone6_AndroidPerf(unittest.TestCase):
         self.assertIn("validate-resources", txt3)
         self.assertIn("godot-tests", txt3)
         self.assertIn("build-android", txt3)
-
 class Milestone7_CleanupDocs(unittest.TestCase):
     def test_no_todo_markers(self):
         import pathlib, re
@@ -157,6 +143,5 @@ class Milestone7_CleanupDocs(unittest.TestCase):
         self.assertIn("ember_scepter", txt)
         self.assertIn("moonlance", txt)
         self.assertIn("venom_chain", txt)
-
 if __name__ == "__main__":
     unittest.main()

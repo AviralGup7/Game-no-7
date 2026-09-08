@@ -1,4 +1,5 @@
 extends Node
+class_name Main
 ## Main scene controller: pure composition + lifecycle coordination. It builds the
 ## gameplay world (arena + player + camera + spawn/wave systems) under WorldRoot when a
 ## run starts, starts/tears down the wave director with GameRoot state changes, and
@@ -10,7 +11,7 @@ const SPAWN_SCENE := preload("res://scenes/enemies/spawn_manager.tscn")
 const WAVE_MANAGER_SCRIPT := preload("res://scripts/waves/wave_manager.gd")
 
 var _world_root: Node3D = null
-var _ui_root: Node = null
+var _ui_root: UiRoot = null
 var _spawn_manager: SpawnManager = null
 var _wave_manager: WaveManager = null
 var _run_started := false
@@ -23,9 +24,9 @@ var _tutorial: TutorialManager = null
 
 func _ready() -> void:
 	_world_root = get_node_or_null("WorldRoot") as Node3D
-	_ui_root = get_node_or_null("UIRoot/UI")
+	_ui_root = get_node_or_null("UIRoot/UI") as UiRoot
 	if _ui_root == null:
-		_ui_root = get_node_or_null("UIRoot")
+		_ui_root = get_node_or_null("UIRoot") as UiRoot
 	EventBus.game_state_changed.connect(_on_state_changed)
 	_create_persistent_directors()
 
@@ -48,8 +49,8 @@ func _create_persistent_directors() -> void:
 	add_child(_tutorial)
 	# The coach speaks through the HUD announcement banner (UI children are ready
 	# before Main, so the banner already exists).
-	if _tutorial.has_method("bind_banner") and _ui_root != null and _ui_root.has_method("get_announcement_banner"):
-		_tutorial.call("bind_banner", _ui_root.call("get_announcement_banner"))
+	if _ui_root != null:
+		_tutorial.bind_banner(_ui_root.get_announcement_banner())
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:
@@ -63,30 +64,22 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 			_stop_run_waves()
 
 
-func _safe_run() -> Variant:
-	if GameRoot == null or not GameRoot.has_method("get_run"):
-		return null
-	return GameRoot.call("get_run")
+## GameRoot.get_run() is typed (RunState): the old Dictionary/"seed" in run theater
+## branches existed only for a guard sweep and could never occur in practice.
+func _safe_run() -> RunState:
+	return GameRoot.get_run()
 
 func _safe_seed(default: int = 0) -> int:
-	var run: Variant = _safe_run()
+	var run := _safe_run()
 	if run == null:
 		return default
-	if run is Dictionary:
-		return int((run as Dictionary).get("seed", default))
-	if "seed" in run:
-		return int((run as Object).get("seed"))
-	return default
+	return run.seed
 
 func _safe_arena_id(default: StringName = &"default_arena") -> StringName:
-	var run: Variant = _safe_run()
+	var run := _safe_run()
 	if run == null:
 		return default
-	if run is Dictionary:
-		return StringName(String((run as Dictionary).get("arena_id", default)))
-	if "arena_id" in run:
-		return StringName(String((run as Object).get("arena_id")))
-	return default
+	return run.arena_id
 
 func _start_run_waves() -> void:
 	if _wave_manager == null or _spawn_manager == null:
@@ -126,7 +119,7 @@ func build_world(arena_id: StringName) -> void:
 	else:
 		EventBus.report_error("Arena config/scene missing for %s" % String(arena_id))
 		return
-	var arena := arena_scene.instantiate()
+	var arena := arena_scene.instantiate() as Arena
 	if arena == null:
 		EventBus.report_error("Arena scene failed to instantiate: %s" % arena_scene.resource_path)
 		return
@@ -139,7 +132,7 @@ func build_world(arena_id: StringName) -> void:
 	_create_systems(arena, player)
 
 
-func _spawn_player(arena: Node) -> Node:
+func _spawn_player(arena: Arena) -> Player:
 	var start_marker := arena.get_node_or_null("PlayerStart") as Marker3D
 	var spawn := Transform3D.IDENTITY
 	if start_marker != null:
@@ -147,21 +140,18 @@ func _spawn_player(arena: Node) -> Node:
 	if PLAYER_SCENE == null:
 		EventBus.report_error("Player scene failed to load: scenes/player/player.tscn (the player will not appear)")
 		return null
-	var player := PLAYER_SCENE.instantiate()
+	var player := PLAYER_SCENE.instantiate() as Player
 	if player == null:
 		EventBus.report_error("Player scene failed to instantiate: scenes/player/player.tscn (the player will not appear)")
 		return null
 	player.name = "Player"
 	_world_root.add_child(player)
 	_validate_player_visual(player)
-	if player.has_method("reset_for_new_run"):
-		player.call("reset_for_new_run", spawn)
+	player.reset_for_new_run(spawn)
 	GameRoot.set_active_player(player)
 	# Keep the player inside the arena interior.
-	if player.has_method("set_bounds") and arena.has_method("get_interior_half"):
-		player.call("set_bounds", float(arena.call("get_interior_half")))
-	if player.has_method("set_control_enabled"):
-		player.call("set_control_enabled", true)
+	player.set_bounds(arena.get_interior_half())
+	player.set_control_enabled(true)
 	_setup_camera(player)
 	return player
 
@@ -169,7 +159,7 @@ func _spawn_player(arena: Node) -> Node:
 ## Verify the player spawned with its full authored visuals. If the scene failed
 ## to build CharacterModel/Audio/attachments, log a clear diagnostic instead of
 ## silently running an invisible or partially-assembled hero.
-func _validate_player_visual(player: Node) -> void:
+func _validate_player_visual(player: Player) -> void:
 	var visual_root := player.get_node_or_null("VisualRoot") as Node3D
 	if visual_root == null:
 		EventBus.report_error("Player spawned WITHOUT VisualRoot — the hero will be invisible on device")
@@ -183,22 +173,20 @@ func _validate_player_visual(player: Node) -> void:
 		EventBus.report_diagnostic("Player CharacterModel has no primitive Body; model mount is the only visual", &"warning")
 
 
-func _setup_camera(player: Node) -> void:
-	var cam := CAMERA_SCENE.instantiate()
+func _setup_camera(player: Player) -> void:
+	var cam := CAMERA_SCENE.instantiate() as CameraRig
 	cam.name = "CameraRig"
 	_world_root.add_child(cam)
 	# Arenas declare their lens; fall back to the rig default when absent.
-	if cam.has_method("set_camera_profile") and ContentRegistry != null:
-		var cfg: ArenaConfig = ContentRegistry.get_arena(_safe_arena_id())
-		if cfg != null:
-			var prof: CameraProfile = ContentRegistry.get_camera_profile(cfg.default_camera_profile)
-			if prof != null:
-				cam.call("set_camera_profile", prof)
-	if cam.has_method("set_target") and player is Node3D:
-		cam.call("set_target", player)
+	var cfg: ArenaConfig = ContentRegistry.get_arena(_safe_arena_id())
+	if cfg != null:
+		var prof: CameraProfile = ContentRegistry.get_camera_profile(cfg.default_camera_profile)
+		if prof != null:
+			cam.set_camera_profile(prof)
+	cam.set_target(player)
 
 
-func _create_systems(arena: Node, player: Node) -> void:
+func _create_systems(arena: Arena, player: Player) -> void:
 	# EnemyContainer holds spawned enemies.
 	var container := Node3D.new()
 	container.name = "EnemyContainer"
@@ -228,12 +216,10 @@ func _create_systems(arena: Node, player: Node) -> void:
 
 ## Per-run support systems: projectiles, pickups, juice, perf scaling, arena
 ## dressing + hazards. All passive until used; freed with the world on rebuild.
-func _create_run_systems(arena: Node, player: Node) -> void:
+func _create_run_systems(arena: Arena, player: Player) -> void:
 	var seed := _safe_seed()
 	var arena_id := _safe_arena_id()
-	var half := 12.0
-	if arena.has_method("get_interior_half"):
-		half = float(arena.call("get_interior_half"))
+	var half := arena.get_interior_half()
 
 	var projectiles := ProjectilePool.new()
 	projectiles.name = "ProjectilePool"
@@ -254,12 +240,12 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 
 	var decorator := ArenaDecorator.new()
 	decorator.name = "ArenaDecorator"
-	(arena as Node).add_child(decorator)
+	arena.add_child(decorator)
 	decorator.decorate(arena_id, half, seed)
 
 	var hazards := ArenaHazards.new()
 	hazards.name = "ArenaHazards"
-	(arena as Node).add_child(hazards)
+	arena.add_child(hazards)
 	hazards.configure(arena_id, half, seed)
 
 	# Agent 4 presentation: pooled VFX director (impact/death/wave/status feedback).
@@ -268,24 +254,19 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 	_world_root.add_child(effects)
 
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
-	if player is Node:
-		var skills := (player as Node).get_node_or_null("SkillController")
-		if skills != null and skills.has_method("configure"):
-			skills.call("configure", seed)
-		var weapons := (player as Node).get_node_or_null("WeaponManager")
-		if weapons != null and weapons.has_method("configure"):
-			weapons.call("configure", seed)
-		_apply_owned_unlocks(player, skills, weapons)
-		# Tutorial coach follows real player actions.
-		if _tutorial != null:
-			if (player as Node).has_signal("attack_started"):
-				(player as Node).attack_started.connect(_tutorial.notify_player_attacked)
-			if (player as Node).has_signal("dodged"):
-				(player as Node).dodged.connect(_tutorial.notify_player_dodged)
+	var skills := player.get_skill_controller()
+	if skills != null:
+		skills.configure(seed)
+	var weapons := player.get_weapon_manager()
+	weapons.configure(seed)
+	_apply_owned_unlocks(player, skills, weapons)
+	# Tutorial coach follows real player actions.
+	if _tutorial != null:
+		player.attack_started.connect(_tutorial.notify_player_attacked)
+		player.dodged.connect(_tutorial.notify_player_dodged)
 	if _meta != null:
 		_meta.apply_all_to_run()
-	if player.has_method("rebuild_derived_stats"):
-		player.call("rebuild_derived_stats")
+	player.rebuild_derived_stats()
 
 
 ## Daily runs share one deterministic mutator pair for every wave.
@@ -304,25 +285,24 @@ func _apply_daily_mutators() -> void:
 ## Owned armory unlocks take effect: starter content remains in slot 0 while
 ## the first owned weapon/skills fill the optional loadout slots. The meta table
 ## supplies targets, so adding a new unlock does not require another id branch.
-func _apply_owned_unlocks(player: Node, skills: Node, weapons: Node) -> void:
+func _apply_owned_unlocks(player: Player, skills: SkillController, weapons: WeaponManager) -> void:
 	if _meta == null or player == null:
 		return
-	if skills != null and skills.has_method("assign_skill_by_id"):
+	if skills != null:
 		var skill_slot := 1
 		for skill_id in _meta.unlocked_targets(&"skill"):
 			if skill_slot >= 3:
 				break
 			if ContentRegistry.get_skill(skill_id) != null:
-				skills.call("assign_skill_by_id", skill_id, skill_slot, true)
+				skills.assign_skill_by_id(skill_id, skill_slot, true)
 				skill_slot += 1
-	if weapons != null and weapons.has_method("equip_by_id"):
-		var weapon_slot := 1
-		for weapon_id in _meta.unlocked_targets(&"weapon"):
-			if weapon_slot >= 2:
-				break
-			if ContentRegistry.get_weapon(weapon_id) != null:
-				weapons.call("equip_by_id", weapon_id, weapon_slot, true)
-				weapon_slot += 1
+	var weapon_slot := 1
+	for weapon_id in _meta.unlocked_targets(&"weapon"):
+		if weapon_slot >= 2:
+			break
+		if ContentRegistry.get_weapon(weapon_id) != null:
+			weapons.equip_by_id(weapon_id, weapon_slot, true)
+			weapon_slot += 1
 
 
 func _clear_world() -> void:
@@ -355,14 +335,4 @@ func get_debug_snapshot() -> Dictionary:
 		"run_started": _run_started,
 		"wave": _wave_manager.get_debug_snapshot() if _wave_manager != null else {},
 	}
-
-## Hardened: additional main guards beyond _safe_run.
-func _validated_wave_number(n: int) -> int:
-	if n < 1:
-		return 1
-	return mini(n, 999)
-func _validated_delta(delta: float) -> float:
-	if not is_finite(delta) or delta <= 0.0:
-		return 0.016
-	return clampf(delta, 0.0, 0.2)
 

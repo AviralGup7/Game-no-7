@@ -16,20 +16,20 @@ const VALID_STACK_MODES := [STACK_REFRESH, STACK_ADD, STACK_RESET]
 @export var icon: Texture2D = null
 @export var is_harmful: bool = true
 ## Base duration in seconds (0 = permanent until cleansed).
-@export var duration: float = 4.0
-@export var max_stacks: int = 1
+@export_range(0.05, 300.0, 0.05) var duration: float = 4.0
+@export_range(1, 20) var max_stacks: int = 1
 @export var stack_mode: StringName = STACK_REFRESH
 ## Damage-over-time per second per stack (0 = none).
-@export var dot_per_second: float = 0.0
+@export_range(0.0, 1000.0, 0.1) var dot_per_second: float = 0.0
 @export var dot_type: StringName = &"physical"
 ## Heal-over-time per second per stack (0 = none).
-@export var hot_per_second: float = 0.0
+@export_range(0.0, 1000.0, 0.1) var hot_per_second: float = 0.0
 ## Multiplicative move-speed factor per stack (1.0 = neutral).
-@export var move_speed_factor: float = 1.0
+@export_range(0.0, 10.0, 0.05) var move_speed_factor: float = 1.0
 ## Multiplicative outgoing-damage factor per stack (1.0 = neutral).
-@export var damage_factor: float = 1.0
+@export_range(0.0, 10.0, 0.05) var damage_factor: float = 1.0
 ## Multiplicative incoming-damage factor per stack (1.0 = neutral).
-@export var received_damage_factor: float = 1.0
+@export_range(0.0, 10.0, 0.05) var received_damage_factor: float = 1.0
 ## Stun / root flags.
 @export var stuns: bool = false
 @export var roots: bool = false
@@ -79,28 +79,3 @@ func validate() -> Array[String]:
 
 func is_permanent() -> bool:
 	return duration <= 0.0
-
-## Hardened: clamp status effect config.
-func _validated_status() -> void:
-	if not is_finite(duration) or duration < 0.0:
-		duration = 3.0
-	duration = clampf(duration, 0.0, 60.0)
-	# Permanent (0) is only allowed when neither stuns nor roots nor shield
-	# would create a soft-lock; otherwise promote to the shortest finite lock.
-	if duration <= 0.0 and (stuns or roots or shield_amount > 0.0):
-		duration = 3.0
-	if not is_finite(tick_interval) or tick_interval <= 0.0:
-		tick_interval = 0.5
-	tick_interval = clampf(tick_interval, 0.05, 5.0)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

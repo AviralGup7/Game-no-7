@@ -1,25 +1,22 @@
 class_name FakeArena
-extends Node3D
+extends Arena
 
-## Test double implementing the documented arena duck-typing surface consumed by
-## SpawnPlacer (get_spawn_points / get_interior_half / get_min_spawn_distance).
-## Markers are plain Marker3D children so they pass the in-tree filter.
+## Test double extending the REAL Arena type: SpawnPlacer/SpawnManager hold typed
+## Arena references (see docs/ARCHITECTURE.md), so the fixture must be an Arena,
+## not a duck-typed lookalike. It inherits the interior_half/min_spawn_distance
+## exports and overrides only get_spawn_points() (its markers are hand-fed, not
+## scene-grouped). _ready skips the navigation-floor/theme build the fake does
+## not need.
 
 var _markers: Array[Node3D] = []
-var _interior_half := 12.0
-var _min_spawn_distance := 2.0
+
+
+func _ready() -> void:
+	pass  # pure geometry fixture: no nav floor, no theme
 
 
 func get_spawn_points() -> Array[Node3D]:
 	return _markers
-
-
-func get_interior_half() -> float:
-	return _interior_half
-
-
-func get_min_spawn_distance() -> float:
-	return _min_spawn_distance
 
 
 func add_marker(pos: Vector3) -> Node3D:
@@ -31,8 +28,8 @@ func add_marker(pos: Vector3) -> Node3D:
 
 
 func set_interior_half(half: float) -> void:
-	_interior_half = half
+	interior_half = half
 
 
 func set_min_spawn_distance(distance: float) -> void:
-	_min_spawn_distance = distance
+	min_spawn_distance = distance

@@ -91,10 +91,3 @@ static func clamped_number(data: Dictionary, key: String, low: float, high: floa
 	if v is float or v is int:
 		return clampf(float(v), low, high)
 	return fallback
-
-## Hardened: validate json helpers.
-func _validated_json_dict(d: Dictionary) -> bool:
-	return d != null
-func _validated_json_path(p: String) -> bool:
-	return not p.is_empty() and p.begins_with("res://")
-

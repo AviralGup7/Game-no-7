@@ -10,26 +10,24 @@ const DEFAULT_MIN_SPAWN_DISTANCE := 6.0
 const DEFAULT_INTERIOR_HALF := 12.0
 
 
-static func min_spawn_distance(arena: Node) -> float:
-	if arena != null and is_instance_valid(arena) and arena.has_method("get_min_spawn_distance"):
-		return float(arena.call("get_min_spawn_distance"))
+static func min_spawn_distance(arena: Arena) -> float:
+	if arena != null and is_instance_valid(arena):
+		return arena.get_min_spawn_distance()
 	return DEFAULT_MIN_SPAWN_DISTANCE
 
 
-static func interior_half(arena: Node) -> float:
-	if arena != null and is_instance_valid(arena) and arena.has_method("get_interior_half"):
-		return float(arena.call("get_interior_half"))
+static func interior_half(arena: Arena) -> float:
+	if arena != null and is_instance_valid(arena):
+		return arena.get_interior_half()
 	return DEFAULT_INTERIOR_HALF
 
 
 ## Pick a random valid marker for `archetype`, or null when every marker is
 ## rejected (caller falls back to fallback_point).
-static func pick_point(arena: Node, player_position: Vector3, archetype: StringName, rng: RandomNumberGenerator) -> Node3D:
+static func pick_point(arena: Arena, player_position: Vector3, archetype: StringName, rng: RandomNumberGenerator) -> Node3D:
 	if arena == null or not is_instance_valid(arena):
 		return null
-	if not arena.has_method("get_spawn_points"):
-		return null
-	var points: Array = arena.call("get_spawn_points")
+	var points: Array = arena.get_spawn_points()
 	var half := interior_half(arena)
 	points = filter_spawn_points(points, player_position, min_spawn_distance(arena), archetype, half)
 	if points.is_empty():
@@ -39,13 +37,11 @@ static func pick_point(arena: Node, player_position: Vector3, archetype: StringN
 
 ## Fallback point that ignores the min-distance rule but still keeps the spawn
 ## inside the arena interior.
-static func fallback_point(arena: Node) -> Node3D:
+static func fallback_point(arena: Arena) -> Node3D:
 	if arena == null or not is_instance_valid(arena):
 		return null
-	if not arena.has_method("get_spawn_points"):
-		return null
 	var half := interior_half(arena)
-	var points: Array = arena.call("get_spawn_points")
+	var points: Array = arena.get_spawn_points()
 	for p in points:
 		var node := p as Node3D
 		if node == null or not is_instance_valid(node) or not node.is_inside_tree():
@@ -91,14 +87,4 @@ static func _point_allowed_for(point: Node, archetype: StringName) -> Variant:
 		if archetype in blocked:
 			return false
 	return null
-
-## Hardened: validate placement inputs.
-func _validated_half(half: float) -> float:
-	if not is_finite(half) or half <= 0.0:
-		return 24.0
-	return clampf(half, 4.0, 100.0)
-func _validated_player_pos(pos: Vector3) -> Vector3:
-	if not is_finite(pos.x) or not is_finite(pos.z):
-		return Vector3.ZERO
-	return pos
 

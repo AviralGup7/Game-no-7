@@ -90,9 +90,10 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 	for c in candidates:
 		if c == null or not is_instance_valid(c) or not (c is Node3D):
 			continue
-		if not c.has_method("apply_damage"):
+		var damageable := c as Damageable
+		if damageable == null:
 			continue
-		if c.has_method("is_alive") and not bool(c.call("is_alive")):
+		if not damageable.is_alive():
 			continue
 		var to: Vector3 = (c as Node3D).global_position - origin
 		var along := to.dot(dir)
@@ -103,14 +104,4 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 			hits.append({"target": c, "distance": along})
 	hits.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
 	return hits
-
-## Hardened: validate ranged launch.
-func _validated_ranged_launch(speed: float, damage: float) -> Dictionary:
-	if not is_finite(speed) or speed <= 0.0:
-		speed = 18.0
-	if not is_finite(damage) or damage < 0.0:
-		damage = 10.0
-	speed = clampf(speed, 0.1, 100.0)
-	damage = clampf(damage, 0.0, 999999.0)
-	return {"speed": speed, "damage": damage}
 

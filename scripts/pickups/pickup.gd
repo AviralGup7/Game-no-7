@@ -167,10 +167,3 @@ func get_debug_snapshot() -> Dictionary:
 		"age": _age,
 		"level": level,
 	}
-
-## Hardened: validate pickup value.
-func _validated_value(v: int) -> int:
-	if v < 0:
-		return 0
-	return mini(v, 999999)
-

@@ -38,7 +38,12 @@ func pick_best_target(candidates: Array) -> Node:
 	for c in candidates:
 		if not is_instance_valid(c):
 			continue
-		if c.has_method("is_alive") and not bool(c.call("is_alive")):
+		# Damageable is the explicit combat protocol (see damageable.gd): a plain
+		# Node3D without it is not a valid target, no string-based probing.
+		var candidate := c as Damageable
+		if candidate == null:
+			continue
+		if not candidate.is_alive():
 			continue
 		var node := c as Node3D
 		if node == null:
@@ -72,10 +77,4 @@ func get_debug_snapshot() -> Dictionary:
 		"aim_assist_strength": aim_assist_strength,
 		"max_target_range": max_target_range,
 	}
-
-## Hardened: validate targeting range.
-func _validated_target_range(r: float) -> float:
-	if not is_finite(r) or r <= 0.0:
-		return 8.0
-	return clampf(r, 0.1, 50.0)
 

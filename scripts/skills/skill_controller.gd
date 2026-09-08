@@ -120,9 +120,9 @@ func unlock_available() -> int:
 func _current_level() -> int:
 	if _owner_body == null:
 		return -1
-	var experience := _owner_body.get_node_or_null("ExperienceComponent")
-	if experience != null and experience.has_method("get_level"):
-		return int(experience.call("get_level"))
+	var experience := _owner_body.get_node_or_null("ExperienceComponent") as ExperienceComponent
+	if experience != null:
+		return experience.get_level()
 	return -1
 
 
@@ -193,7 +193,7 @@ func _tick_cooldowns(delta: float) -> void:
 					skill_became_ready.emit(cfg.skill_id)
 					if EventBus != null:
 						EventBus.skill_ready.emit(cfg.skill_id)
-					if AudioManager != null and AudioManager.has_method("play_sfx"):
+					if AudioManager != null:
 						AudioManager.play_sfx(&"skill_ready", -12.0)
 
 
@@ -217,7 +217,7 @@ func try_cast_slot(slot: int) -> bool:
 	skill_cast_local.emit(cfg.skill_id, slot)
 	if EventBus != null:
 		EventBus.skill_cast.emit(cfg.skill_id, _owner_body)
-	if AudioManager != null and AudioManager.has_method("play_sfx"):
+	if AudioManager != null:
 		AudioManager.play_sfx(&"skill_cast", -8.0, 1.0 + 0.05 * slot)
 	return true
 
@@ -225,16 +225,18 @@ func try_cast_slot(slot: int) -> bool:
 func _is_caster_stunned() -> bool:
 	if _owner_body == null:
 		return false
-	var sm := _owner_body.get_node_or_null("StatusManager")
-	return sm != null and sm.has_method("is_stunned") and bool(sm.call("is_stunned"))
+	var sm := _owner_body.get_node_or_null("StatusManager") as StatusManager
+	return sm != null and sm.is_stunned()
 
 
 func _pay_stamina(cfg: SkillConfig) -> bool:
 	if cfg.stamina_cost <= 0.0:
 		return true
-	if _owner_body == null or not _owner_body.has_method("try_spend_stamina"):
-		return true  # no stamina system wired: skills are free
-	return bool(_owner_body.call("try_spend_stamina", cfg.stamina_cost))
+	if _owner_body == null:
+		return true  # no owner bound: skills are free
+	if _owner_body is Player:
+		return (_owner_body as Player).try_spend_stamina(cfg.stamina_cost)
+	return true  # non-Player owners (tests) have no stamina: skills are free
 
 
 func _enemies() -> Array:
@@ -260,10 +262,4 @@ func get_debug_snapshot() -> Dictionary:
 			"ready": is_slot_ready(i),
 		})
 	return {"slots": slots, "pending_hits": _executor.pending_hits_count(), "dashing": _executor.is_dashing()}
-
-## Hardened: clamp cooldowns to prevent negative timers.
-func _validated_cooldown(cd: float) -> float:
-	if not is_finite(cd) or cd < 0.0:
-		return 0.05
-	return clampf(cd, 0.05, 60.0)
 

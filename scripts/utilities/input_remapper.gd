@@ -166,10 +166,3 @@ static func _events_match(a: InputEvent, b: InputEvent) -> bool:
 	if a is InputEventJoypadButton and b is InputEventJoypadButton:
 		return (a as InputEventJoypadButton).button_index == (b as InputEventJoypadButton).button_index
 	return false
-
-## Hardened: validate input remap.
-func _validated_action(action: StringName) -> bool:
-	return action != &""
-func _validated_event(ev: InputEvent) -> bool:
-	return ev != null and is_instance_valid(ev)
-
