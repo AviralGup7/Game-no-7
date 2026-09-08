@@ -380,11 +380,16 @@ func _enemy_feedback_checks(tag: String, player: Node, container: Node) -> void:
 	_check(tag + " hit accepted", res != null and res.accepted)
 	var snap := _sfx_snapshot()
 	_check(tag + " hit sound exactly once", snap["total"] == 1 and _count(snap, "enemy_hit") == 1, str(snap))
-	var meshes: Array = feedback.call("_target_meshes")
+	# Main refactored _target_meshes() into lazy _flash_meshes (populated by the
+	# apply_damage above via play_damaged); verify the real collected set. The
+	# merged flash starts transparent and ramps via tween, so tick first: the
+	# overlay-on assertion must observe the mounted flash, not pre-ramp state.
+	await _frames(2)
+	var meshes: Array = feedback.get("_flash_meshes")
 	_check(tag + " flash targets exist", not meshes.is_empty())
 	var overlay_set := true
 	for m in meshes:
-		if (m as MeshInstance3D).material_overlay != feedback.get("_overlay"):
+		if (m as MeshInstance3D).material_overlay != feedback.get("_flash_material"):
 			overlay_set = false
 	_check(tag + " hit flash overlay on", overlay_set)
 	await get_tree().create_timer(0.5).timeout

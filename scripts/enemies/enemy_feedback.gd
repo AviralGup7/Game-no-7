@@ -2,146 +2,104 @@ extends Node
 class_name EnemyFeedback
 
 ## Enemy damage/telegraph/death feedback: hit flash, telegraph flash, death handling.
-## Purely presentational; never mutates health/state. Hit/crit juice is gated by
-## the shared reduced-motion setting; the telegraph flash (gameplay readability)
-## and the death sink (structural, hides the body before free) always play.
-##
-## Implementation notes:
-##  - Node3D has no `modulate`, so color flashes use a per-enemy overlay material
-##    (same pattern as PlayerFeedback) applied to the live mesh set. Meshes are
-##    re-scanned per flash so GLB models mounted after _ready are included.
-##  - Scale pops are relative to the visual's CURRENT scale, never absolute, so
-##    archetype visual_scale and elite bumps survive being hit.
-##  - At most two short tweens (flash + pop) run per enemy; a new flash kills the
-##    previous one instead of piling up.
+## Purely presentational; never mutates health/state. Disabled details are gated by
+## the shared settings (reduced motion / low graphics) where relevant.
 
 var _visual: Node3D = null
-var _overlay: StandardMaterial3D = null
+var _flash_material: StandardMaterial3D = null
+var _flash_meshes: Array[MeshInstance3D] = []
+var _flash_visible := false
+var _feedback_tween: Tween = null
+var _scaling_feedback := false
 var _flash_color := Color(1.0, 0.9, 0.9)
-var _crit_color := Color(1.0, 0.92, 0.35)
 var _telegraph_color := Color(1.0, 0.55, 0.2)
 var _hit_flash_duration := 0.1
 var _telegraph_flash_duration := 0.18
-var _flash_tween: Tween = null
-var _pop_tween: Tween = null
-## Scale the in-flight pop returns to. Restored when a pop is interrupted so
-## rapid hits can never ratchet the visual larger.
-var _pop_base := Vector3.ONE
-var _pop_base_valid := false
 
 
 func _ready() -> void:
 	var owner := get_parent()
 	_visual = owner.get_node_or_null("VisualRoot") as Node3D
-	_overlay = StandardMaterial3D.new()
-	_overlay.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_overlay.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_overlay.no_depth_test = false
-	_overlay.albedo_color = Color(1, 1, 1, 0)
+	# Node3D has no modulate property. A private, reusable material overlay
+	# provides the existing flash without runtime errors on every spawn/hit.
+	_flash_material = StandardMaterial3D.new()
+	_flash_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_flash_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 
 
 func play_damaged() -> void:
-	if _visual == null or not is_inside_tree() or _reduced_motion():
+	if _visual == null or not is_inside_tree():
 		return
-	_flash(_flash_color, 0.03, _hit_flash_duration)
-	_pop(1.12, 0.06, 0.12)
+	var tween := _begin_feedback(true)
+	tween.set_parallel(true)
+	tween.tween_method(_set_flash_color, Color.TRANSPARENT, _flash_color, 0.03)
+	tween.tween_property(_visual, "scale", Vector3.ONE * 1.12, 0.06)
+	tween.chain().tween_method(_set_flash_color, _flash_color, Color.TRANSPARENT, _hit_flash_duration)
+	tween.parallel().tween_property(_visual, "scale", Vector3.ONE, 0.12)
 
 
 func play_crit() -> void:
-	if _visual == null or not is_inside_tree() or _reduced_motion():
+	if _visual == null or not is_inside_tree():
 		return
-	_flash(_crit_color, 0.04, 0.18)
-	_pop(1.22, 0.08, 0.18)
+	var tween := _begin_feedback(true)
+	tween.set_parallel(true)
+	tween.tween_method(_set_flash_color, Color.TRANSPARENT, Color(1.0, 0.92, 0.35), 0.04)
+	tween.tween_property(_visual, "scale", Vector3.ONE * 1.22, 0.08)
+	tween.chain().tween_method(_set_flash_color, Color(1.0, 0.92, 0.35), Color.TRANSPARENT, 0.18)
+	tween.parallel().tween_property(_visual, "scale", Vector3.ONE, 0.18)
 
 
 ## Attack/dash/fuse telegraph: warm warning flash, slower return than the hit flash
-## so the windup reads at a distance. Always plays (gameplay information).
+## so the windup reads at a distance.
 func play_telegraph() -> void:
 	if _visual == null or not is_inside_tree():
 		return
-	_flash(_telegraph_color, 0.05, _telegraph_flash_duration)
+	var tween := _begin_feedback()
+	tween.tween_method(_set_flash_color, Color.TRANSPARENT, _telegraph_color, 0.05)
+	tween.tween_method(_set_flash_color, _telegraph_color, Color.TRANSPARENT, _telegraph_flash_duration)
 
 
 func play_died() -> void:
-	# Sink + shrink timed to fill EnemyBase's 0.8 s free window (0.75 s total),
-	# so the death reads fully instead of vanishing early into an empty wait.
+	# A quick sink + fade before the enemy is freed.
 	if _visual == null or not is_inside_tree():
 		return
-	_kill_tweens()
-	var base_pos := _visual.position
-	var base_scale := _visual.scale
-	var tween := create_tween()
+	var tween := _begin_feedback(true)
 	tween.set_parallel(true)
-	tween.tween_property(_visual, "position", base_pos + Vector3(0, -0.2, 0), 0.3)
-	tween.tween_property(_visual, "scale", base_scale * 1.1, 0.3)
-	tween.chain().tween_property(_visual, "scale", Vector3.ZERO, 0.45)
+	tween.tween_property(_visual, "position", _visual.position + Vector3(0, -0.2, 0), 0.25)
+	tween.tween_property(_visual, "scale", Vector3.ONE * 1.15, 0.25)
+	tween.chain().tween_property(_visual, "scale", Vector3.ZERO, 0.15)
 
 
-## Color flash through the shared overlay slot (never touches albedo/override).
-func _flash(color: Color, hold: float, release: float) -> void:
-	if _flash_tween != null and _flash_tween.is_valid():
-		_flash_tween.kill()
-	_flash_tween = null
-	var meshes := _target_meshes()
-	if meshes.is_empty():
+func _begin_feedback(scales: bool = false) -> Tween:
+	# New feedback replaces the previous transient instead of stacking writers
+	# on the same transform/material during rapid multi-hit attacks.
+	if _feedback_tween != null and _feedback_tween.is_valid():
+		_feedback_tween.kill()
+		if _scaling_feedback:
+			# Complete the cancelled pulse's existing return target; a telegraph
+			# must not strand the model at a partially expanded scale.
+			_visual.scale = Vector3.ONE
+	_scaling_feedback = scales
+	_set_flash_color(Color.TRANSPARENT)
+	_feedback_tween = create_tween()
+	return _feedback_tween
+
+
+func _set_flash_color(color: Color) -> void:
+	if _flash_material == null or _visual == null:
 		return
-	_overlay.albedo_color = Color(color.r, color.g, color.b, 0.55)
-	for mesh in meshes:
-		mesh.material_overlay = _overlay
-	var tween := create_tween()
-	_flash_tween = tween
-	tween.tween_interval(hold)
-	tween.tween_property(_overlay, "albedo_color:a", 0.0, release)
-	tween.tween_callback(_clear_overlay)
-
-
-func _clear_overlay() -> void:
-	_flash_tween = null
-	if _visual == null or not is_instance_valid(_visual):
+	if _flash_meshes.is_empty():
+		# First use is after EnemyAnimator mounted the rig, not in _ready().
+		for node in _visual.find_children("*", "MeshInstance3D", true, false):
+			_flash_meshes.append(node as MeshInstance3D)
+	_flash_material.albedo_color = color
+	var show_flash := color.a > 0.0
+	if show_flash == _flash_visible:
 		return
-	for mesh in _target_meshes():
-		if is_instance_valid(mesh) and mesh.material_overlay == _overlay:
-			mesh.material_overlay = null
-
-
-## Scale pop relative to whatever scale the visual currently has.
-func _pop(peak: float, up_time: float, down_time: float) -> void:
-	_stop_pop()
-	_pop_base = _visual.scale
-	_pop_base_valid = true
-	var tween := create_tween()
-	_pop_tween = tween
-	tween.tween_property(_visual, "scale", _pop_base * peak, up_time)
-	tween.tween_property(_visual, "scale", _pop_base, down_time)
-
-
-func _stop_pop() -> void:
-	if _pop_tween != null and _pop_tween.is_valid():
-		_pop_tween.kill()
-		if _pop_base_valid and _visual != null and is_instance_valid(_visual):
-			_visual.scale = _pop_base
-	_pop_tween = null
-
-
-func _kill_tweens() -> void:
-	if _flash_tween != null and _flash_tween.is_valid():
-		_flash_tween.kill()
-	_flash_tween = null
-	_stop_pop()
-	_clear_overlay()
-
-
-## Live mesh set under the visual root (includes late-mounted GLB models).
-## Skips the fake ground-shadow decal, which must stay dark.
-func _target_meshes() -> Array[MeshInstance3D]:
-	var out: Array[MeshInstance3D] = []
-	if _visual == null or not is_instance_valid(_visual):
-		return out
-	for node in _visual.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		if mesh != null and mesh.name != &"GroundShadow":
-			out.append(mesh)
-	return out
+	_flash_visible = show_flash
+	for mesh in _flash_meshes:
+		if is_instance_valid(mesh):
+			mesh.material_overlay = _flash_material if color.a > 0.0 else null
 
 
 func recolor(color: Color) -> void:
@@ -200,12 +158,6 @@ func _add_elite_aura() -> void:
 	tween.tween_property(ring, "scale", Vector3.ONE, 0.85).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
-func _reduced_motion() -> bool:
-	if SaveManager == null:
-		return false
-	return SaveManager.get_settings().reduced_motion
-
-
 func get_debug_snapshot() -> Dictionary:
 	return {"visual_present": _visual != null}
 
@@ -216,3 +168,4 @@ func _validated_feedback(kind: StringName) -> bool:
 	if not is_inside_tree():
 		return false
 	return true
+

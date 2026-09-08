@@ -119,6 +119,19 @@ take precedence — procedural fill never overwrites a registered cue.)
 2. Drive it from `GameRoot` state via `EventBus.game_state_changed` and the panel
    switching in `ui_root.gd` — UI never mutates global state, it calls the narrow
    `GameRoot` command API.
+3. Build widgets with `UiFactory` and style them from `UiTheme`. Use the shared
+   spacing scale (`UiTheme.SPACE_S/M/L`) instead of ad-hoc pixel gaps, and never
+   set an interactive control smaller than `UiTheme.TOUCH_MIN` (88px) — the
+   factory clamps buttons and checks for you.
+4. For a **gameplay overlay** (something drawn over the arena, not a full-screen
+   modal), do not position it by hand. Add its rect to `UiLayout.compute()` in
+   `scripts/ui/ui_layout.gd` and place it from `ui_root._layout()` with
+   `UiLayout.place()`. `UiLayout` is a pure static solver: no tree, viewport or
+   singleton access, so `_test_layout_solver` in `tests/ui/ui_test_runner.gd`
+   can assert — across every Android resolution and text scale — that the new
+   element stays inside the safe area, clears the touch controls and never
+   overlaps another overlay. Handle `UiLayout.is_collapsed()` by hiding the
+   element on screens that have no room for it.
 
 ## 7. Add a new test
 

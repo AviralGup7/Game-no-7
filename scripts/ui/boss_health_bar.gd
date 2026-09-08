@@ -23,13 +23,22 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_name_label.add_theme_font_size_override("font_size", 20)
+	_name_label.add_theme_font_size_override("font_size", 22)
+	_name_label.add_theme_font_override("font", UiTheme.BOLD)
+	_name_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_name_label.add_theme_constant_override("outline_size", 5)
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_name_label)
 	_phase_label = Label.new()
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_phase_label.add_theme_font_size_override("font_size", 13)
+	_phase_label.add_theme_font_size_override("font_size", 15)
+	_phase_label.modulate = UiTheme.GOLD
+	_phase_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_phase_label)
 	_health_label = UiFactory.label("", self, 18)
+	_health_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_health_label.add_theme_constant_override("outline_size", 4)
+	add_theme_constant_override("separation", 2)
 	var stack := Control.new()
 	stack.custom_minimum_size = Vector2(0, 16)
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE

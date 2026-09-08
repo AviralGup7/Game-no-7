@@ -440,8 +440,11 @@ func _mount_checks(tag: String, player: Node) -> void:
 	_check(tag + " Knight meshes visible", visible_meshes >= 1, str(visible_meshes))
 	var body := cm.get_node_or_null("Body")
 	_check(tag + " no stale fallback Body alongside model", body == null or not (body as MeshInstance3D).visible)
-	var shadow := (visual as Node).find_child("*Shadow*", true, false) if visual != null else null
+	# GroundShadow is parented to the mount (CharacterModel), not the bobbing
+	# wrapper, so it stays planted. Lock that placement, not just existence.
+	var shadow := (cm as Node).find_child("*Shadow*", true, false)
 	_check(tag + " ground shadow present", shadow != null)
+	_check(tag + " shadow planted on mount", shadow != null and shadow.get_parent() == cm)
 	if shadow != null and player != null:
 		var sp := (shadow as Node3D).global_position
 		var pp := (player as Node3D).global_position
@@ -505,7 +508,10 @@ func _feedback_checks(tag: String, player: Node, container: Node) -> void:
 	_stop_all_sfx()
 	var res: DamageResult = enemy.call("apply_damage", payload)
 	_check(tag + " barrage hit accepted", res != null and res.accepted)
-	var meshes: Array = feedback.call("_target_meshes")
+	# Main refactored _target_meshes() into lazy _flash_meshes and starts the
+	# flash transparent (tween ramps up); let the tween tick before asserting.
+	await _frames(2)
+	var meshes: Array = feedback.get("_flash_meshes")
 	var on := false
 	for m in meshes:
 		if is_instance_valid(m) and (m as MeshInstance3D).material_overlay != null:

@@ -88,15 +88,22 @@ func cancel() -> void:
 
 
 func _draw() -> void:
+	# Resting hint: a dimmed ring anchored inside the capture area shows where the
+	# stick lives without competing with the arena behind it.
 	if not _active:
-		var center := Vector2(minf(radius + 16, size.x * 0.5), size.y * 0.5)
-		draw_circle(center, radius * 0.8, UiTheme.INK)
-		draw_arc(center, radius * 0.8, 0, TAU, 48, UiTheme.CYAN, 2.0)
-		draw_circle(center, 24, UiTheme.CYAN)
+		var center := size * 0.5
+		var rest := minf(radius * 0.8, minf(size.x, size.y) * 0.42)
+		draw_circle(center, rest, Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.45))
+		draw_arc(center, rest, 0, TAU, 48, Color(UiTheme.CYAN.r, UiTheme.CYAN.g, UiTheme.CYAN.b, 0.75), 2.0)
+		draw_circle(center, rest * 0.3, Color(UiTheme.CYAN.r, UiTheme.CYAN.g, UiTheme.CYAN.b, 0.8))
 		return
-	draw_circle(_base, radius, Color(1, 1, 1, 0.10))
-	draw_circle(_base, radius, Color(1, 1, 1, 0.10), false, 3.0, true)
-	draw_circle(_knob, 34.0, Color(1, 1, 1, 0.30))
+	# _gui_input positions are already control-local, so draw them as-is.
+	var local_base := _base
+	var local_knob := _knob
+	draw_circle(local_base, radius, Color(0, 0, 0, 0.35))
+	draw_arc(local_base, radius, 0, TAU, 48, Color(UiTheme.CYAN.r, UiTheme.CYAN.g, UiTheme.CYAN.b, 0.8), 3.0)
+	draw_circle(local_knob, 34.0, Color(1, 1, 1, 0.45))
+	draw_arc(local_knob, 34.0, 0, TAU, 32, UiTheme.GOLD, 2.0)
 
 
 func _input(event: InputEvent) -> void:

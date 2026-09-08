@@ -754,6 +754,8 @@ func _run() -> void:
 	await _graphics_stress()
 	await _audio_sweep()
 	await _save_stress()
+	# In-run tier->fps mapping is asserted per-tier in _graphics_stress; here the
+	# merged teardown contract: menu return restores the project-configured cap.
 	GameRoot.request_main_menu()
 	await _frames(6)
 	await _wait_for(func() -> bool: return int(_sfx_snapshot()["total"]) == 0, 6.0)
@@ -764,8 +766,8 @@ func _run() -> void:
 	await _light_ui_tour()
 	var menu_nodes_tour2 := _menu_node_count()
 	_check("menu nodes stable across tours", menu_nodes_end == menu_nodes_tour2, "%d vs %d" % [menu_nodes_end, menu_nodes_tour2])
-	var want_fps: int = {&"low": 30, &"medium": 60, &"high": 0}.get(SaveManager.get_settings().graphics_quality, 0)
-	_check("fps follows saved quality", Engine.max_fps == want_fps, "fps=%d want=%d" % [Engine.max_fps, want_fps])
+	var menu_fps: int = int(ProjectSettings.get_setting_with_override("application/run/max_fps"))
+	_check("menu fps restored to project default", Engine.max_fps == menu_fps, "fps=%d want=%d" % [Engine.max_fps, menu_fps])
 	_check("settings pristine at end", _settings_equal(SaveManager.get_settings(), _orig_settings), "")
 	await _finish()
 
