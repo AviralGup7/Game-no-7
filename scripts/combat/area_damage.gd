@@ -129,7 +129,8 @@ static func _nearest_damageable(candidates: Array, from: Vector3, radius: float)
 		if not _damageable(c):
 			continue
 		var d := (c as Node3D).global_position.distance_to(from)
-		if d <= best_dist:
+		# Strict < keeps candidate order stable on ties (deterministic chain).
+		if d < best_dist or (is_equal_approx(d, best_dist) and best == null):
 			best = c
 			best_dist = d
 	return best

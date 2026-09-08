@@ -22,9 +22,9 @@ const State := {
 const LEGAL_TRANSITIONS := {
 	State.MAIN_MENU: [State.STARTING_RUN, State.LOADING],
 	State.STARTING_RUN: [State.PLAYING, State.ERROR, State.MAIN_MENU],
-	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
+	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.GAME_OVER: [State.STARTING_RUN, State.MAIN_MENU],
 	State.LOADING: [State.STARTING_RUN, State.MAIN_MENU, State.PLAYING, State.ERROR],
@@ -136,7 +136,18 @@ func get_daily_weapon() -> StringName:
 
 
 func request_restart() -> void:
-	transition_to(State.STARTING_RUN)
+	# Restart must succeed from any gameplay state. If direct transition is illegal
+	# (e.g. future states), fall back through MAIN_MENU so the canonical path still runs.
+	if not transition_to(State.STARTING_RUN):
+		# Ensure pause does not survive the restart.
+		_paused = false
+		if get_tree() != null:
+			get_tree().paused = false
+		_current_run.paused = false
+		# Force reset via MAIN_MENU when direct edge is missing.
+		if _current_state != State.MAIN_MENU:
+			_apply_state(State.MAIN_MENU)
+		transition_to(State.STARTING_RUN)
 
 
 func request_main_menu() -> void:

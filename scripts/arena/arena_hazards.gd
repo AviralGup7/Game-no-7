@@ -196,10 +196,14 @@ func _apply_burn(victims: Array, center: Vector3) -> void:
 
 func _tick_spikes(h: Dictionary, victims: Array) -> void:
 	var center: Vector3 = h["pos"]
+	# Use a stable identifier per hazard (index in _hazards + position hash)
+	# instead of dictionary hash which may include volatile timer/node identity.
+	var hazard_index := _hazards.find(h)
+	var stable_id := "%d_%.1f_%.1f" % [hazard_index, center.x, center.z] if hazard_index >= 0 else str(center)
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, SPIKE_HALF_WIDTH):
 			# Throttled by a per-victim cooldown stored in metadata.
-			var key := "spike_cd_%d" % h.hash()
+			var key := "spike_cd_%s" % stable_id
 			var now := Time.get_ticks_msec() / 1000.0
 			if float((v as Node).get_meta(key, 0.0)) > now:
 				continue

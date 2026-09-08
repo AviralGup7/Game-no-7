@@ -225,8 +225,8 @@ func _flush_save() -> bool:
 	if previous != null:
 		_write_raw(BACKUP_PATH, JSON.stringify(previous))
 	var ok := _write_raw(SAVE_PATH, JSON.stringify(_save))
-	_dirty = false
 	if ok:
+		_dirty = false
 		EventBus.save_completed.emit()
 	else:
 		EventBus.save_failed.emit(&"write_failed")

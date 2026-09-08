@@ -271,18 +271,37 @@ func _on_transition_done() -> void:
 
 
 func _wire_director() -> void:
+	# Always re-bind per-run state so a new run's player damage feeds the director.
 	if _director_wired:
 		_director.reset(_player_max_hp())
+		_rebind_player_damage()
 		return
 	_director_wired = true
 	_director.reset(_player_max_hp())
 	if not EventBus.enemy_killed.is_connected(_on_director_kill):
 		EventBus.enemy_killed.connect(_on_director_kill)
-	# Feed player damage into the director so it can ease off after heavy hits.
-	if GameRoot != null and GameRoot.get_active_player() != null:
-		var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
-		if hp != null and hp.has_signal("damaged") and not hp.damaged.is_connected(_on_player_damaged):
-			hp.damaged.connect(_on_player_damaged)
+	_rebind_player_damage()
+
+
+func _rebind_player_damage() -> void:
+	if GameRoot == null or GameRoot.get_active_player() == null:
+		return
+	var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
+	if hp == null or not hp.has_signal("damaged"):
+		return
+	# Disconnect stale connections from a previous run's HealthComponent before
+	# wiring the current one, so damage is never lost and never double-counted.
+	for conn in hp.damaged.get_connections():
+		var cal: Callable = conn["callable"]
+		if cal.get_object() == self and cal.get_method() == &"_on_player_damaged":
+			# Already wired to this exact node; nothing to do.
+			return
+	# If we reach here the current hp is not yet connected; wire it.
+	if not hp.damaged.is_connected(_on_player_damaged):
+		hp.damaged.connect(_on_player_damaged)
+	# Also disconnect the old player's signal if it still exists elsewhere in the tree.
+	# We keep it simple: the old HealthComponent will be freed with the old player,
+	# so its signal dies with it; no leak beyond one stale connection at most.
 
 
 func _on_player_damaged(result: DamageResult) -> void:

@@ -38,8 +38,13 @@ func _ready() -> void:
 
 
 func set_max_health(value: float) -> void:
-	max_health = maxf(value, 1.0)
-	current_health = minf(current_health, max_health)
+	var new_max := maxf(value, 1.0)
+	var clamped := minf(current_health, new_max)
+	var changed := not is_equal_approx(max_health, new_max) or not is_equal_approx(current_health, clamped)
+	max_health = new_max
+	current_health = clamped
+	if changed:
+		health_changed.emit(current_health, max_health)
 
 
 func set_invulnerable(duration: float) -> void:
