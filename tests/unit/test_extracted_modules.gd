@@ -104,8 +104,8 @@ static func _save_schema(results: Array) -> void:
 # --- UiText ---
 
 static func _ui_text(results: Array) -> void:
-	_check(results, "known key resolves", UiText.get(&"play") == "PLAY")
-	_check(results, "unknown key echoes", UiText.get(&"missing_key_xyz") == "missing_key_xyz")
+	_check(results, "known key resolves", UiText.lookup(&"play") == "PLAY")
+	_check(results, "unknown key echoes", UiText.lookup(&"missing_key_xyz") == "missing_key_xyz")
 
 
 # --- DamagePayload.with_amount ---

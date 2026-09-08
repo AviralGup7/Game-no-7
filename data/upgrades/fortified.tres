@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"fortified"
 display_name = "Fortified"
-description = "+10% damage resistance"
+description = "+10% damage resistance. The efficient defense choice."
 rarity = &"rare"
+category = &"defense"
 max_stacks = 3
 stat_modifiers = {
 "damage_resistance_add": 0.1,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"defense", &"resistance"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.9
 disabled = false

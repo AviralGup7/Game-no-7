@@ -173,6 +173,10 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	if _feedback != null and _feedback.has_method("recolor"):
 		_feedback.call("recolor", config.color_tint)
 	_apply_visual_scale(config.visual_scale)
+	# Presentation hook (Agent 4): mount the archetype's approved model under
+	# VisualRoot/CharacterModel. No gameplay effect; primitives remain if absent.
+	if CharacterVisuals.has_model(config.archetype_id):
+		CharacterVisuals.mount(self, config.archetype_id)
 	if _machine != null:
 		_machine.force_state(&"idle")
 	_navigator.reset(target)
@@ -187,23 +191,50 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	if not _alive:
 		result.ignored_reason = DamageResult.IGNORE_DEAD
 		return result
-	var taken: Variant = _health.call("take_damage", payload)
+	# Status mitigation/shields are an intake stage, but do not consume a shield
+	# for malformed or invulnerable hits that HealthComponent will reject.
+	var final_payload := payload
+	if payload != null and payload.is_valid() and not (_health.has_method("is_invulnerable") and bool(_health.call("is_invulnerable"))):
+		final_payload = _apply_status_intake(payload)
+	var taken: Variant = _health.call("take_damage", final_payload)
 	if taken is DamageResult:
 		var res := taken as DamageResult
 		_on_damage_applied(res, payload)
-		_apply_payload_status(payload)
+		# Invulnerability, shields and dead-state rejection must not grant a
+		# status proc. Only an accepted hit is allowed to advance a build synergy.
+		if res.accepted and res.final_amount > 0.0:
+			_apply_payload_status(payload, res)
 		return res
 	result.ignored_reason = &"invalid_result"
 	return result
 
 
 ## Projectile/melee riders: apply the payload's status effects to our manager.
-func _apply_payload_status(payload: DamagePayload) -> void:
+func _apply_payload_status(payload: DamagePayload, result: DamageResult = null) -> void:
 	if payload == null or payload.status_effects.is_empty():
 		return
 	var sm := _status_node()
 	if sm != null and sm.has_method("apply_effects"):
-		sm.call("apply_effects", payload.status_effects, payload.source)
+		var applied: Variant = sm.call("apply_effects", payload.status_effects, payload.source)
+		if result != null and applied is Dictionary:
+			for raw_id in applied:
+				if int(applied[raw_id]) > 0:
+					result.status_effects_applied.append(StringName(String(raw_id)))
+
+
+func _apply_status_intake(payload: DamagePayload) -> DamagePayload:
+	var sm := _status_node()
+	if sm == null or payload == null:
+		return payload
+	var factor := 1.0
+	if sm.has_method("incoming_damage_factor"):
+		factor = float(sm.call("incoming_damage_factor"))
+	var amount := payload.amount * factor
+	if sm.has_method("absorb_direct"):
+		amount = float(sm.call("absorb_direct", amount))
+	if is_equal_approx(amount, payload.amount):
+		return payload
+	return payload.with_amount(amount)
 
 
 func force_state(state_id: StringName) -> void:

@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"haste"
 display_name = "Haste"
-description = "-10% attack cooldown"
+description = "-10% attack cooldown. Stack it to turn flurries into sustained pressure."
 rarity = &"rare"
+category = &"damage"
 max_stacks = 3
 stat_modifiers = {
 "attack_cooldown_multiplier": -0.1,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"damage", &"tempo"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.95
 disabled = false

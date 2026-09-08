@@ -4,6 +4,12 @@ extends RefCounted
 ## Runtime-only state for a single run. Never written directly to disk; the only
 ## serialization path is summary() / lifetime-export which omit live node refs and
 ## transient objects. Owned by GameRoot and reset per run.
+##
+## `selected_upgrades` remains the authoritative progression mirror. The rest of
+## the build fields are a read-only serialization mirror used by summaries and
+## SaveManager; live weapon/skill instances remain owned by their components.
+
+const BUILD_SCHEMA_VERSION := 1
 
 var run_id: int = 0
 var seed: int = 0
@@ -21,6 +27,9 @@ var paused: bool = false
 var upgrade_choices: Array[StringName] = []
 var selected_upgrades: Dictionary = {}          # upgrade_id -> stack count
 var active_modifiers: Array[StringName] = []
+var equipped_weapons: Array[StringName] = []
+var equipped_skills: Array[StringName] = []
+var build_archetypes: Array[StringName] = []
 var completed_objectives: Array[StringName] = []
 var run_statistics: Dictionary = {}
 
@@ -42,6 +51,9 @@ func reset() -> void:
 	upgrade_choices.clear()
 	selected_upgrades.clear()
 	active_modifiers.clear()
+	equipped_weapons.clear()
+	equipped_skills.clear()
+	build_archetypes.clear()
 	completed_objectives.clear()
 	run_statistics.clear()
 
@@ -73,7 +85,41 @@ func add_damage_taken(amount: float) -> void:
 	damage_taken += maxf(amount, 0.0)
 
 
-## A safe, serializable snapshot suitable for a run-summary screen or analytics.
+## Update the serializable build mirror from a component-owned snapshot. IDs are
+## normalized to StringNames, duplicates are removed while preserving loadout order.
+func set_build_snapshot(snapshot: Dictionary) -> void:
+	equipped_weapons = _unique_ids(snapshot.get("equipped_weapons", []))
+	equipped_skills = _unique_ids(snapshot.get("equipped_skills", []))
+	build_archetypes = _unique_ids(snapshot.get("build_archetypes", []))
+
+
+func build_snapshot() -> Dictionary:
+	return {
+		"schema_version": BUILD_SCHEMA_VERSION,
+		"seed": seed,
+		"current_wave": current_wave,
+		"equipped_weapons": equipped_weapons.duplicate(),
+		"equipped_skills": equipped_skills.duplicate(),
+		"build_archetypes": build_archetypes.duplicate(),
+		"selected_upgrades": selected_upgrades.duplicate(),
+		"active_modifiers": active_modifiers.duplicate(),
+	}
+
+
+func _unique_ids(raw_values: Variant) -> Array[StringName]:
+	var out: Array[StringName] = []
+	if not raw_values is Array:
+		return out
+	for raw in raw_values:
+		var id := StringName(String(raw))
+		if String(id).is_empty() or id in out:
+			continue
+		out.append(id)
+	return out
+
+
+## A safe, serializable snapshot suitable for a run-summary screen, analytics or
+## SaveManager's last-run build record. No live node references are included.
 func summary() -> Dictionary:
 	return {
 		"run_id": run_id,
@@ -90,4 +136,8 @@ func summary() -> Dictionary:
 		"player_alive": player_alive,
 		"selected_upgrades": selected_upgrades.duplicate(),
 		"active_modifiers": active_modifiers.duplicate(),
+		"build": build_snapshot(),
+		"equipped_weapons": equipped_weapons.duplicate(),
+		"equipped_skills": equipped_skills.duplicate(),
+		"build_archetypes": build_archetypes.duplicate(),
 	}

@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"vitality"
 display_name = "Vitality"
-description = "+20 maximum health"
+description = "+20 maximum health. A safe foundation for sustain and shield builds."
 rarity = &"rare"
+category = &"defense"
 max_stacks = 3
 stat_modifiers = {
 "max_health_add": 20.0,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"defense", &"health"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 1.05
 disabled = false

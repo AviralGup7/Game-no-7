@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"last_stand"
+display_name = "Last Stand"
+description = "+20% resistance and +15 max HP, but blocks Glass Cannon. Survive the late wave."
+rarity = &"legendary"
+category = &"defense"
+max_stacks = 1
+stat_modifiers = {
+"damage_resistance_add": 0.2,
+"max_health_add": 15.0,
+}
+tags = Array[StringName]([&"defense", &"late", &"fortress"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([&"glass_cannon"])
+unlock_wave = 7
+weight = 0.28
+disabled = false

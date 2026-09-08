@@ -56,12 +56,24 @@ drops always take precedence — procedural fill never overwrites a registered c
 
 See `THIRD_PARTY_ASSETS.md` for shared asset policy and restore/verification commands.
 
-## Planned cue map (not registered in the running game yet)
+## Registered cue map
+
+Since the environment/presentation pass these cues are **live**: `AudioAssetIntegrator`
+(`scripts/audio/audio_asset_integrator.gd`) reads the authoritative
+`assets/catalog.json` cue map at startup and registers every approved SFX variant
+(one `AudioStreamRandomizer` pool per cue) plus the two looping music tracks onto
+the existing state cues, taking precedence over `ProceduralSfx` fallback. State
+mapping: `music_menu` → `arena_menu.ogg`; `music_calm` / `music_battle` /
+`music_boss` / `music_victory` → `arena_gameplay.ogg` (the approved library ships one
+menu loop and one combat loop, so combat-adjacent states share the combat track).
 
 Paths below are relative to `assets/audio/`. Every file is in the checksum lock.
 The full variant lists, intended buses, loop flags, and suggested gains are in
-`assets/catalog.json`. Those JSON fields are **planning metadata**, not Godot
-import settings or a new audio registry. `data/audio/` is still unchanged.
+`assets/catalog.json`. Those JSON fields are metadata (not a new audio registry);
+`data/audio/` also contains nine player-only cue resources loaded through the existing
+ContentLoader/ContentRegistry path. The integrator subsequently registers catalogue
+variants, taking precedence over those initial mappings, and can force Ogg looping
+at runtime. No source audio bytes are duplicated or changed.
 
 | Cue | Downloaded file(s) | Intended use |
 |---|---|---|
@@ -69,6 +81,11 @@ import settings or a new audio registry. `data/audio/` is still unchanged.
 | `player_hurt` | `sfx/impact/impact_punch_medium_000.ogg`, `sfx/impact/impact_punch_medium_001.ogg` | Player impact (non-vocal) |
 | `player_dodge` | `sfx/rpg/cloth_1.ogg`, `sfx/rpg/cloth_2.ogg`, `sfx/rpg/cloth_3.ogg` | Cloth swish |
 | `player_death` | `sfx/impact/impact_soft_heavy_000.ogg` | Body fall (non-vocal) |
+| `player_step` | `sfx/impact/footstep_concrete_000.ogg` | Distance-paced grounded footsteps |
+| `player_switch` | `sfx/rpg/draw_knife_1.ogg` | Successful weapon switch |
+| `player_shot` | `sfx/rpg/knife_slice_2.ogg` | Arrow release swish |
+| `player_reload` | `sfx/rpg/cloth_2.ogg` | Reload start |
+| `player_low_health` | `sfx/impact/impact_punch_heavy_000.ogg` | Once on entering low health |
 | `enemy_attack` | `sfx/rpg/chop.ogg` | Melee attack |
 | `enemy_hit` | `sfx/impact/impact_wood_medium_000.ogg`, `sfx/impact/impact_generic_light_000.ogg`, `sfx/impact/impact_generic_light_001.ogg` | Impact / bone-like knock |
 | `enemy_death` | `sfx/impact/impact_wood_heavy_000.ogg`, `sfx/impact/impact_punch_heavy_000.ogg` | Heavy impact |
@@ -92,7 +109,7 @@ original RPG Vorbis files decode with peaks above 0 dBFS, so they should not be
 played together at full gain. Source audio was deliberately **not normalized or
 re-encoded**. Start SFX around −8 dB (footsteps lower), then mix on the target
 device; the two music sources also have different loudness. Suggested gains are
-not applied to gameplay yet.
+now applied by PlayerAudio for player cues; other systems retain their own gains.
 
 Enable **Loop** on the two music streams in Godot and audition their transitions.
 Leave SFX non-looping. Wrap clips/variants in `AudioStreamRandomizer` resources

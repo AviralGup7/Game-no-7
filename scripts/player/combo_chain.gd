@@ -20,6 +20,7 @@ func reset() -> void:
 ## Begin a swing at `step` (fresh combos start at 1).
 func begin(step: int) -> void:
 	_step = maxi(step, 1)
+	_chain_allowed = false
 
 
 ## The recovery just resolved a hit: chaining is allowed until the window lapses.

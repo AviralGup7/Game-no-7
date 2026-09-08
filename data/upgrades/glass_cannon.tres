@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"glass_cannon"
+display_name = "Glass Cannon"
+description = "+25% attack damage, but -15% damage resistance. Choose burst over forgiveness."
+rarity = &"epic"
+category = &"hybrid"
+max_stacks = 1
+stat_modifiers = {
+"attack_damage_multiplier": 0.25,
+"damage_resistance_add": -0.15,
+"max_health_add": -25.0,
+}
+tags = Array[StringName]([&"damage", &"tradeoff", &"glass"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([&"fortified", &"iron_wall", &"last_stand"])
+unlock_wave = 3
+weight = 0.45
+disabled = false

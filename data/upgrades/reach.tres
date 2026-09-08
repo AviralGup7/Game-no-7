@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"reach"
 display_name = "Reach"
-description = "+0.35 attack range"
+description = "+0.35 attack range. Particularly valuable for spears, chains and hybrid weapons."
 rarity = &"common"
+category = &"mobility"
 max_stacks = 3
 stat_modifiers = {
 "attack_range_add": 0.35,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"mobility", &"reach"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.9
 disabled = false

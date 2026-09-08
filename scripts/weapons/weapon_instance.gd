@@ -26,6 +26,10 @@ var cooldown_multiplier: float = 1.0
 var range_bonus: float = 0.0
 var knockback_multiplier: float = 1.0
 var crit_chance_bonus: float = 0.0
+var crit_multiplier_bonus: float = 0.0
+var status_chance_bonus: float = 0.0
+var projectile_count_bonus: int = 0
+var projectile_pierce_bonus: int = 0
 
 var _windup_left: float = 0.0
 var _recovery_left: float = 0.0
@@ -179,6 +183,24 @@ func effective_crit_chance() -> float:
 	return clampf(config.crit_chance + crit_chance_bonus, 0.0, 1.0)
 
 
+func effective_crit_multiplier() -> float:
+	if config == null:
+		return 1.0
+	return maxf(config.crit_multiplier + crit_multiplier_bonus, 1.0)
+
+
+func effective_projectile_count() -> int:
+	if config == null:
+		return 1
+	return clampi(config.projectile_count + projectile_count_bonus, 1, RangedResolver.MAX_PROJECTILES_PER_SHOT)
+
+
+func effective_projectile_pierce() -> int:
+	if config == null:
+		return 0
+	return maxi(config.projectile_pierce + projectile_pierce_bonus, 0)
+
+
 ## Roll a critical hit for the CURRENT swing (uses the isolated crit stream).
 func roll_crit() -> bool:
 	return _rng.chance(crit_seed_salt, effective_crit_chance())
@@ -188,7 +210,7 @@ func roll_crit() -> bool:
 func roll_on_hit_effects() -> bool:
 	if config == null or config.on_hit_effects.is_empty():
 		return false
-	return _rng.chance(RngService.STREAM_DROPS, config.on_hit_effect_chance)
+	return _rng.chance(RngService.STREAM_DROPS, clampf(config.on_hit_effect_chance + status_chance_bonus, 0.0, 1.0))
 
 
 ## Build a DamagePayload for the current swing (crit already rolled when
@@ -198,10 +220,10 @@ func build_payload(source: Node, source_id: StringName) -> DamagePayload:
 	payload.amount = effective_damage()
 	payload.source = source
 	payload.source_id = source_id
-	payload.damage_type = &"physical"
+	payload.damage_type = config.damage_type if config != null else &"physical"
 	if config != null:
 		payload.can_crit = config.crit_chance > 0.0 or crit_chance_bonus > 0.0
-		payload.critical_multiplier = config.crit_multiplier
+		payload.critical_multiplier = effective_crit_multiplier()
 	return payload
 
 
@@ -215,3 +237,13 @@ func get_debug_snapshot() -> Dictionary:
 		"cooldown": effective_cooldown(),
 		"range": effective_range(),
 	}
+
+
+## Interrupt a swing without replenishing ammo, skipping recovery, or cancelling reload.
+func cancel_attack() -> void:
+	_chain_left = 0.0
+	combo_step = 0
+	if phase == PHASE_WINDUP:
+		_windup_left = 0.0
+		_recovery_left = effective_cooldown()
+		phase = PHASE_RECOVERY

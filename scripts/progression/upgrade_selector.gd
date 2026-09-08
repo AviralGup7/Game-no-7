@@ -24,10 +24,18 @@ static func choose_upgrade_choices(
 	wave_number: int,
 	stack_counts: Dictionary
 ) -> Array[UpgradeConfig]:
-	var want := maxi(count, 1)
+	if count <= 0 or wave_number < 1:
+		return []
+	var want := count
 	var eligible := eligible_upgrades(pool, wave_number, stack_counts)
 	if eligible.is_empty():
 		return []
+	# Resource discovery order is filesystem-dependent. Sorting by the stable
+	# content id makes the deterministic contract survive editor/import ordering
+	# changes and saves/reloads on different platforms.
+	eligible.sort_custom(func(a: UpgradeConfig, b: UpgradeConfig) -> bool:
+		return String(a.upgrade_id) < String(b.upgrade_id)
+	)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash_seed(run_seed, wave_number)  # deterministic; never touches global RNG
 
@@ -52,7 +60,7 @@ static func eligible_upgrades(pool: Array, wave_number: int, stack_counts: Dicti
 	var out: Array[UpgradeConfig] = []
 	for raw in pool:
 		var cfg := raw as UpgradeConfig
-		if cfg == null:
+		if cfg == null or not cfg.validate().is_empty():
 			continue
 		if not is_eligible(cfg, wave_number, stack_counts):
 			continue
@@ -61,7 +69,7 @@ static func eligible_upgrades(pool: Array, wave_number: int, stack_counts: Dicti
 
 
 static func is_eligible(cfg: UpgradeConfig, wave_number: int, stack_counts: Dictionary) -> bool:
-	if cfg == null:
+	if cfg == null or not cfg.validate().is_empty():
 		return false
 	if cfg.disabled:
 		return false

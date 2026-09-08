@@ -9,14 +9,18 @@ class_name CharacterController
 @export var acceleration: float = 24.0
 @export var deceleration: float = 30.0
 @export var gravity: float = 18.0
-@export var turn_speed: float = 14.0  # visual yaw smoothing (radians/sec)
+@export var turn_speed: float = 14.0  # shared combat/visual yaw smoothing (radians/sec)
 
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
+var _weapons: WeaponManager
+var _legacy: AttackController
 
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
+	_weapons = get_parent().get_node_or_null("WeaponManager") as WeaponManager
+	_legacy = get_parent().get_node_or_null("AttackController") as AttackController
 	if _owner_body == null:
 		push_warning("CharacterController parent is not a CharacterBody3D")
 
@@ -34,10 +38,15 @@ func tick(move_input: Vector2, delta: float) -> void:
 
 	var dir := _screen_dir_to_world(_last_move_input)
 	var target_h := dir * move_speed
+	var inst := _weapons.active_instance() if _weapons != null else null
+	var locked := inst != null and inst.phase == WeaponInstance.PHASE_WINDUP
+	if inst == null and _legacy != null:
+		locked = _legacy.get_phase() == AttackController.PHASE_WINDUP
 	if dir.length_squared() > 0.001:
 		vel.x = move_toward(vel.x, target_h.x, acceleration * delta)
 		vel.z = move_toward(vel.z, target_h.z, acceleration * delta)
-		_turn_toward(dir, delta)
+		if not locked:
+			_turn_toward(dir, delta)
 	else:
 		vel.x = move_toward(vel.x, 0.0, deceleration * delta)
 		vel.z = move_toward(vel.z, 0.0, deceleration * delta)
@@ -47,14 +56,14 @@ func tick(move_input: Vector2, delta: float) -> void:
 
 
 ## Horizontal ground movement basis relative to the camera rig yaw (screen-forwards
-## maps to camera forward). Returns a normalized Vector3 in world XZ.
+## maps to camera forward). Preserves analog magnitude in world XZ.
 func _screen_dir_to_world(v: Vector2) -> Vector3:
 	var cam_yaw := _camera_yaw()
 	var forward := Vector3(-sin(cam_yaw), 0.0, -cos(cam_yaw))
-	var right := Vector3(forward.z, 0.0, -forward.x)
-	var dir3 := (forward * v.y + right * v.x)
+	var right := Vector3(-forward.z, 0.0, forward.x)
+	var dir3 := (-forward * v.y + right * v.x)
 	if dir3.length_squared() > 0.0001:
-		dir3 = dir3.normalized()
+		dir3 = dir3.normalized() * minf(v.length(), 1.0)
 	return dir3
 
 
@@ -75,30 +84,15 @@ func _camera_yaw() -> float:
 
 
 func _turn_toward(dir: Vector3, delta: float) -> void:
-	# Rotate the visual root toward the movement direction. Visual-only (the body keeps
-	# its world forward so movement/attacks stay omnidirectional for the follow camera).
-	var visual: Node3D = _owner_body.get_node_or_null("VisualRoot") as Node3D
-	if visual == null or dir.length_squared() < 0.001:
+	if dir.length_squared() < 0.0001:
 		return
-	var flat := Vector3(dir.x, 0.0, dir.z)
-	if flat.length_squared() < 0.0001:
-		return
-	var target_yaw := atan2(flat.x, flat.z)  # Godot forward is -Z
-	var current_yaw := _visual_yaw(visual)
-	var diff := wrapf(target_yaw - current_yaw, -PI, PI)
-	var step := turn_speed * delta
-	if absf(diff) > 0.0001:
-		var new_yaw := current_yaw + clampf(diff, -step, step)
-		visual.rotation.y = new_yaw
+	var target_yaw := atan2(-dir.x, -dir.z)
+	_owner_body.global_rotation.y = rotate_toward(_owner_body.global_rotation.y, target_yaw, turn_speed * delta)
 
 
-func _visual_yaw(visual: Node3D) -> float:
-	var basis: Basis = visual.global_transform.basis
-	var f := -basis.z
-	f.y = 0.0
-	if f.length_squared() < 0.0001:
-		return visual.rotation.y
-	return atan2(f.x, f.z)
+func face_direction(direction: Vector3) -> void:
+	if _owner_body != null and direction.length_squared() > 0.0001:
+		_owner_body.global_rotation.y = atan2(-direction.x, -direction.z)
 
 
 func _sanitize(v: Vector2) -> Vector2:
@@ -122,3 +116,11 @@ func get_debug_snapshot() -> Dictionary:
 		"is_moving": is_moving(),
 		"move_speed": move_speed,
 	}
+
+
+## Input callbacks may stop intent, but must never integrate physics a second time.
+func stop() -> void:
+	_last_move_input = Vector2.ZERO
+	if _owner_body != null:
+		_owner_body.velocity.x = 0.0
+		_owner_body.velocity.z = 0.0

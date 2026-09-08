@@ -24,11 +24,16 @@ var _step_index := 0
 var _step_timer := 0.0
 var _completed: Dictionary = {}
 var _banner: AnnouncementBanner = null
+var _practiced_all := true
 
 
 func _ready() -> void:
+	add_to_group("tutorial_manager")
 	if EventBus != null:
 		EventBus.run_started.connect(_on_run_started)
+		EventBus.run_ended.connect(func(_s: int, _w: int, _b: int) -> void: _stop())
+		EventBus.game_state_changed.connect(func(_p: StringName, current: StringName) -> void:
+			if current == &"main_menu": _stop())
 
 
 func bind_banner(banner: AnnouncementBanner) -> void:
@@ -46,6 +51,7 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 	if is_tutorial_done():
 		return
 	_active = true
+	_practiced_all = true
 	_step_index = 0
 	_step_timer = 0.0
 	_wire_events()
@@ -73,7 +79,7 @@ func _show_current() -> void:
 	_step_timer = 0.0
 	tutorial_step_shown.emit(id, step_text(id))
 	if _banner != null:
-		_banner.announce(step_text(id), &"info")
+		_banner.set_coach("COACH %d / %d — %s" % [_step_index + 1, STEP_ORDER.size(), step_text(id)])
 
 
 static func step_text(step_id: StringName) -> String:
@@ -81,11 +87,11 @@ static func step_text(step_id: StringName) -> String:
 		STEP_MOVE:
 			return "Move with the left stick (WASD on keyboard)"
 		STEP_ATTACK:
-			return "Attack with the sword button (Space)"
+			return "Tap ATTACK or %s. Face your target and chain hits." % UiCommands.binding(&"attack")
 		STEP_DODGE:
-			return "Dodge through danger (Shift) — brief invulnerability!"
+			return "DODGE / %s avoids danger but costs stamina." % UiCommands.binding(&"dodge")
 		STEP_SKILL:
-			return "Unleash a skill (Q) when the bar lights up"
+			return "Tap a READY skill or %s. Level labels mean locked." % UiCommands.binding(&"skill_1")
 		STEP_UPGRADE:
 			return "Clear waves to earn upgrades — pick one!"
 		STEP_SURVIVE:
@@ -94,12 +100,13 @@ static func step_text(step_id: StringName) -> String:
 
 
 func _process(delta: float) -> void:
-	if not _active:
+	if not _active or GameRoot.get_current_state() not in [&"playing", &"wave_transition"]:
 		return
 	_step_timer += delta
 	_poll_player_triggers()
 	if _step_timer >= STEP_TIMEOUT:
-		_complete_current()  # timeout fallback: never trap the player
+		_practiced_all = false
+		_complete_current()  # never trap the player; do not mark unpracticed tutorial done
 
 
 func _poll_player_triggers() -> void:
@@ -108,14 +115,14 @@ func _poll_player_triggers() -> void:
 	var player := GameRoot.get_active_player()
 	match _current_step():
 		STEP_MOVE:
-			if player.has_method("get_debug_snapshot"):
-				pass  # movement tracked via velocity below
 			if player is CharacterBody3D and (player as CharacterBody3D).velocity.length() > 1.0:
 				_complete_current()
 		STEP_ATTACK:
-			pass  # completed via attack signal wiring below
+			if player.has_signal("attack_started"):
+				_connect_once(player.attack_started, notify_player_attacked)
 		STEP_DODGE:
-			pass
+			if player.has_signal("dodged"):
+				_connect_once(player.dodged, notify_player_dodged)
 
 
 func _current_step() -> StringName:
@@ -161,14 +168,16 @@ func _complete_current() -> void:
 
 func _finish() -> void:
 	_active = false
-	_completed[&"finished"] = true
-	if SaveManager != null and SaveManager.has_method("set_tutorial_completed"):
+	if _banner != null: _banner.set_coach("")
+	_completed[&"finished"] = _practiced_all
+	if _practiced_all and SaveManager != null and SaveManager.has_method("set_tutorial_completed"):
 		SaveManager.call("set_tutorial_completed", true)
 	tutorial_finished.emit()
 
 
 func skip_tutorial() -> void:
 	if _active:
+		_practiced_all = true
 		_finish()
 
 
@@ -178,3 +187,14 @@ func is_active() -> bool:
 
 func current_step() -> StringName:
 	return _current_step()
+
+
+func _stop() -> void:
+	_active = false
+	if _banner != null: _banner.set_coach("")
+
+
+func replay_next_run() -> void:
+	_stop()
+	_completed.clear()
+	SaveManager.set_tutorial_completed(false)

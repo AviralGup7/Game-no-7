@@ -28,11 +28,13 @@ func set_aim_assist(value: float) -> void:
 ## distance and angular closeness to the owner's facing. Pure enough to unit test.
 func pick_best_target(candidates: Array) -> Node:
 	if _owner_node == null or candidates.is_empty():
-		return null if candidates.is_empty() else candidates[0]
+		return null
 	var best: Node = null
 	var best_score := -INF
 	var origin := _owner_node.global_position
 	var facing := _facing_forward()
+	var range_squared := maxf(max_target_range, 0.0) * maxf(max_target_range, 0.0)
+	var cone := cos(deg_to_rad(clampf(angular_favor_degrees, 0.0, 89.0)))
 	for c in candidates:
 		if not is_instance_valid(c):
 			continue
@@ -42,14 +44,16 @@ func pick_best_target(candidates: Array) -> Node:
 		if node == null:
 			continue
 		var to_target := node.global_position - origin
-		var dist := to_target.length()
-		if dist > max_target_range:
+		to_target.y = 0.0
+		var distance_squared := to_target.length_squared()
+		if distance_squared > range_squared:
 			continue
-		to_target = to_target.normalized()
-		var dot := facing.dot(to_target)
-		var angle_penalty := clampf(1.0 - (dot + 1.0) * 0.5, 0.0, 1.0)
-		# Favor nearer and more forward targets.
-		var score := dot * (1.0 - aim_assist_strength) - angle_penalty + (1.0 / (1.0 + dist))
+		var dist := sqrt(distance_squared)
+		var dot := facing.dot(to_target / dist) if dist > 0.0001 else 1.0
+		# Aim preference is bounded in metres: a distant forward enemy cannot
+		# steal aim from a close threat. Equal scores preserve candidate order.
+		var favor := clampf((dot - cone) / maxf(1.0 - cone, 0.001), 0.0, 1.0)
+		var score := -dist + favor * clampf(aim_assist_strength, 0.0, 1.0)
 		if score > best_score:
 			best_score = score
 			best = c

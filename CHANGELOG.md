@@ -39,6 +39,30 @@
   frenzied hooks, boss phases + deterministic abilities, and the full SpawnManager
   wave cycle (burst, failed-spawn distinction, splitter bursts, no false clears).
 
+## [Unreleased] — Environment / presentation pass (Agent 4, 2026-09-08)
+
+### Visual
+- **Live character + enemy models**: `scripts/visuals/character_visuals.gd` mounts the
+  approved Knight + 8 archetype models onto `VisualRoot/CharacterModel` (height-fit,
+  foot-grounded, +Z→−Z yaw, optional idle loop) with a primitive fallback; player wired
+  via a scene mount node, enemies via a narrow `EnemyBase` hook. No gameplay change.
+- **Arena identity**: `ArenaDecorator` now places approved KayKit dungeon props
+  (pillars/columns, banners, torches, crates, barrels, rubble) with per-arena
+  compositions + primitive fallback; `arena.gd` applies per-arena sky/fog/sun/ambient
+  and floor/wall tint themes for Default, Ember Crucible and Frost Hollow.
+- **Pooled VFX** (`scripts/visuals/effect_director.gd`): mobile-capped GPU bursts +
+  ground rings for enemy spawn/death, wave start/completion, pickups, boss spawn/slain
+  and status effects (via existing `EventBus` signals; no gameplay edits).
+
+### Audio
+- **Approved audio registered**: `AudioAssetIntegrator` reads `assets/catalog.json`
+  at startup and registers the recorded SFX pools + looping menu/combat music onto the
+  existing `music_*` state cues over the procedural fallback.
+
+### Validation
+- Unit suite `test_character_visuals` + `validate_asset_imports` presentation checks
+  (role model import/idle coverage, VFX sprite textures). Full Android CI green.
+
 ## [Unreleased] — Asset audit and medium-detail upgrade (2026-09-08)
 
 - Verify all 191 prior downloads; add 31 licensed/locked files (~10.30 MiB),

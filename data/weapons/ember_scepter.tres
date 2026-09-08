@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WeaponConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+weapon_id = &"ember_scepter"
+display_name = "Ember Scepter"
+description = "A wide three-bolt fan that trades single-target precision for persistent fire."
+kind = &"ranged"
+rarity = &"rare"
+attack_pattern = &"volley"
+damage_type = &"fire"
+base_damage = 8.5
+swing_cooldown = 0.88
+windup = 0.2
+range = 14.0
+arc_degrees = 30.0
+max_targets = 0
+knockback = 2.0
+combo_damage_steps = PackedFloat32Array(1)
+combo_window = 0.0
+crit_chance = 0.08
+crit_multiplier = 1.8
+on_hit_effects = Array[StringName]([&"burn"])
+on_hit_effect_chance = 0.85
+projectile_speed = 18.0
+projectile_count = 3
+projectile_spread_degrees = 24.0
+projectile_lifetime = 1.0
+projectile_radius = 0.24
+projectile_pierce = 0
+ammo_per_magazine = 0
+reload_seconds = 0.0
+unlock_wave = 5
+unlock_cost = 180
+weight = 0.65
+disabled = false
+tags = Array[StringName]([&"ranged", &"volley", &"fire", &"status"])

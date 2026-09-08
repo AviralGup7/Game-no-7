@@ -58,9 +58,10 @@ tests can assert exact upgrade flow.
 
 | Family | Keys | Formula |
 |---|---|---|
-| multiplicative | `move_speed_multiplier`, `attack_damage_multiplier`, `knockback_multiplier` | `base * (1 + Σ)` |
+| multiplicative | `move_speed_multiplier`, `attack_damage_multiplier`, `knockback_multiplier`, `skill_damage_multiplier`, `area_radius_multiplier`, `area_damage_multiplier`, `status_duration_multiplier`, `status_damage_multiplier` | `base * (1 + Σ)` |
 | cooldown | `attack_cooldown_multiplier`, `dodge_cooldown_multiplier`, `skill_cooldown_multiplier` | `base * (1 + Σ)`, clamped `>= 0.05` (a *negative* Σ is a reduction) |
-| additive | `max_health_add`, `attack_range_add`, `healing_on_kill`, `score_multiplier_add`, `currency_multiplier_add` | `base + Σ` |
+| additive | `max_health_add`, `attack_range_add`, `healing_on_kill`, `score_multiplier_add`, `currency_multiplier_add`, `crit_chance_add`, `crit_multiplier_add`, `projectile_count_add`, `projectile_pierce_add`, stamina/pickup/xp keys | `base + Σ` |
+| chance/status forwarding | `status_chance_add` | copied to weapon/skill proc resolvers and clamped at use |
 | resistance | `damage_resistance_add` | `base + Σ`, clamped `[0, 1]` |
 
 Examples: two `+15% damage` stacks → `base * 1.30`. One `-10% cooldown` → `base * 0.9`
@@ -80,19 +81,23 @@ so a `1.0` resistance floors at 0, never negative damage.
 
 ## 4. Add a new weapon
 
-1. Add a `WeaponConfig` resource under `res://data/weapons/` (`weapon_id`,
-   `display_name`, `kind` melee/ranged/magic, `damage`, `cooldown`, `range`,
-   `arc_degrees`, `projectile_count`, `projectile_speed`, `crit_chance`,
-   `knockback`, `unlock_wave`, `weight`). The registry validates + caches it.
-2. Melee weapons resolve through `MeleeResolver.resolve_arc(...)`; ranged/magic
-   weapons fire pooled projectiles via `WeaponManager` → `ProjectilePool`.
-3. The legacy `AttackController` (combo timing) stays as a fallback attack path;
-   new weapons go through `WeaponManager` (request/equip/unlock APIs) — keep the
-   player input/score/UI contracts unchanged.
-4. Ranged enemies reuse the same `ProjectilePool` through `EnemyRangedState`,
-   which builds its volley config inline (`team`/`damage`/`speed`, damage scaled
-   by the enemy `.tres` `projectile_damage_scale`) — no separate projectile
-   config files.
+1. Add a `WeaponConfig` resource under `res://data/weapons/`. Required tuning includes
+   `weapon_id`, `kind` (`melee`, `ranged`, or `hybrid`), `attack_pattern`, `damage_type`,
+   `base_damage`, `swing_cooldown`, `range`, `arc_degrees`, combo steps, crit tuning,
+   and `unlock_wave`/`weight`. Ranged or hybrid weapons also set projectile speed,
+   lifetime, count and pierce. The registry validates + caches it.
+2. Melee and hybrid swings use `WeaponManager` → `MeleeResolver`; ranged and hybrid
+   shots use the same manager → `RangedResolver` → fixed `ProjectilePool` path.
+   `attack_pattern` and tags describe identity while numeric fields tune geometry and
+   cadence; no new resolver branch is needed for normal content.
+3. The legacy `AttackController` remains a fallback for older scenes. New loadouts use
+   `WeaponManager.equip_by_id(id, slot, bypass_wave_gate=false)`. Ordinary calls reject
+   unknown, disabled, invalid, and future-wave ids; only run setup may explicitly pass
+   `true` for a starter/daily/meta loadout. `set_current_wave()` is driven by GameRoot.
+4. `WeaponManager.get_loadout_ids()` is the stable serialization mirror. It never owns
+   content discovery: callers must resolve configs through `ContentRegistry`.
+5. Ranged enemies reuse the same `ProjectilePool` through `EnemyRangedState`; no
+   separate projectile runtime is introduced.
 
 ## 5. Add a new audio cue
 
@@ -152,17 +157,23 @@ take precedence — procedural fill never overwrites a registered cue.)
 
 ## 10. Add a new skill / status effect
 
-1. Create `res://data/skills/<name>.tres` (`class SkillConfig`): `skill_id`,
-   `slot`, `cooldown`, `charges`, `radius`/`damage`/`status_id`, `status_duration`,
-   `unlock_wave`, `input_action` (`skill_1..3`). `SkillController` grants it via
-   `assign_skill_by_id(...)` and casts it via Q/E/R, the HUD skill bar, or
-   `SkillController.try_cast_slot(n)`; damage/status apply through `SkillExecutor`
-   + `AreaDamage` and land in enemy `StatusManager`s.
-2. New statuses are `StatusEffectConfig` resources under `res://data/status/`
-   (`effect_id`, `duration`, `max_stacks`, `stack_mode` refresh/add, DoT/HoT,
-   speed/damage factors, `stuns`/`roots`, `shield_amount`, `tint`); the registry
-   validates them and `StatusManager.apply_effect(...)` honors the config —
-   no central id table to update.
+1. Create `res://data/skills/<name>.tres` (`SkillConfig`) with `skill_id`, one of the
+   validated `behavior` ids (`slam`, `whirl`, `dash_strike`, `shockwave`,
+   `chain_lightning`, `warcry`, `heal_surge`, `frost_nova`), cooldown/stamina,
+   damage/radius/length tuning, optional victim/caster status ids, and
+   `unlock_wave`/`input_action`. `SkillController` owns slots, unlock gates and
+   cooldowns; `SkillExecutor` sends damage through `AreaDamage`, status through
+   `StatusManager`, and shockwaves through `ProjectilePool`.
+2. New statuses are `StatusEffectConfig` resources under `res://data/status/` with
+   `effect_id`, duration, max stacks, `stack_mode` (`refresh`, `add`, `reset`), DoT/HoT,
+   speed/damage factors, `stuns`/`roots`, `shield_amount`, and tint. The registry
+   validates cross-resource ids, and `StatusManager.apply_effect(...)` copies caster
+   duration/status power into runtime `StatusEffect` instances without mutating the
+   shared `.tres`. Cleansing and expiry remove unspent shield layers.
+3. `SkillController.set_current_wave()` and `unlock_skill()` are the public gate for
+   ordinary runtime unlocks; both the resource's level and wave gates must be met.
+   `unlock_available()` reconciles a level-up and a later wave-up. `get_assigned_skill_ids()` is the serialization mirror;
+   UI should only call `try_cast_slot()` and never mutate configs or progression.
 
 ## 11. Add arena hazards / mutators
 
@@ -213,6 +224,32 @@ modules. Put new logic in the module, not the orchestrator:
 
 Pure modules (`ComboChain`, `SpawnLedger`, `SaveSchema`, `UiText`) are covered by
 `tests/unit/test_extracted_modules.gd` — extend that suite when you change them.
+
+## Public progression/content contracts
+
+These are the seams other branches should use rather than reaching into component
+internals:
+
+- `ContentRegistry` is the only discovery/lookup authority: use
+  `get_weapon`, `get_skill`, `get_status_effect`, `get_upgrade`, and the corresponding
+  `get_all_*` methods. Do not scan `res://data` from gameplay code.
+- `ProgressionComponent` is the live source of truth. Apply with
+  `apply_upgrade_by_id()` (or a validated `UpgradeConfig`), query with `get_stat()` and
+  `get_upgrade_stack_snapshot()`, and restore with `restore_progression(snapshot, wave)`.
+  `RunState.selected_upgrades` and `active_modifiers` are mirrors only.
+- `GameRoot.record_current_wave()` is the wave command seam. It propagates the current
+  gate to progression, weapons and skills. `GameRoot.request_upgrade_selection(id)`
+  is the only UI-facing upgrade command and rejects stale/unoffered/dead-player picks.
+- `WeaponManager` exposes `equip_by_id(id, slot, bypass_wave_gate)`,
+  `request_attack()`, `get_loadout_ids()`, and `refresh_derived_stats()`.
+  `SkillController` exposes `assign_skill_by_id`, `unlock_skill`, `try_cast_slot`,
+  `set_current_wave`, and `get_assigned_skill_ids()`.
+- `StatusManager` owns runtime status instances. Use `apply_effect`/`apply_effects`,
+  `cleanse`/`cleanse_all`, `absorb_direct`, and aggregate query methods; never edit a
+  shared status resource during a run. `ProjectilePool` is fixed-size and callers must
+  tolerate recycled/released projectiles.
+- Run persistence stores only normalized IDs, stacks, modifiers and build tags in
+  `RunState.summary()`/`SaveSchema.last_run_build`; live Nodes are never serialized.
 
 ## Conventions
 

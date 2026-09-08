@@ -708,18 +708,78 @@
     }
   },
   "upgrade_icons": {
+    "adrenaline": "assets/ui/upgrades/hourglass.png",
+    "arcane_surge": "assets/ui/upgrades/crown_a.png",
     "bloodlust": "assets/ui/upgrades/skull.png",
+    "broad_sweep": "assets/ui/upgrades/arrow_horizontal.png",
+    "chain_reaction": "assets/ui/upgrades/exploding.png",
+    "critical_edge": "assets/ui/upgrades/sword.png",
+    "deep_quiver": "assets/ui/upgrades/bow.png",
+    "devastating_crit": "assets/ui/upgrades/skull.png",
+    "field_medic": "assets/ui/upgrades/flask_full.png",
+    "fleetfoot": "assets/ui/upgrades/pawn_up.png",
     "force": "assets/ui/upgrades/hand.png",
     "fortified": "assets/ui/upgrades/shield.png",
+    "glass_cannon": "assets/ui/upgrades/skull.png",
     "haste": "assets/ui/upgrades/hourglass.png",
     "hunter": "assets/ui/upgrades/award.png",
+    "iron_wall": "assets/ui/upgrades/shield.png",
+    "last_stand": "assets/ui/upgrades/suit_hearts_broken.png",
+    "marked_prey": "assets/ui/icons/target.png",
     "power": "assets/ui/upgrades/sword.png",
+    "quartermaster": "assets/ui/upgrades/pouch.png",
     "reach": "assets/ui/upgrades/arrow_horizontal.png",
+    "repeater": "assets/ui/upgrades/bow.png",
     "scavenger": "assets/ui/upgrades/pouch.png",
+    "scholar": "assets/ui/upgrades/award.png",
+    "stamina_reservoir": "assets/ui/upgrades/hourglass.png",
+    "status_attunement": "assets/ui/upgrades/flask_full.png",
     "swift": "assets/ui/upgrades/pawn_up.png",
-    "vitality": "assets/ui/upgrades/suit_hearts.png"
+    "toxicology": "assets/ui/upgrades/flask_full.png",
+    "vitality": "assets/ui/upgrades/suit_hearts.png",
+    "volatile_core": "assets/ui/upgrades/exploding.png"
   },
   "audio_cues": {
+    "player_step": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/footstep_concrete_000.ogg"
+      ],
+      "suggested_volume_db": -16.0
+    },
+    "player_switch": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/draw_knife_1.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_shot": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/knife_slice_2.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_reload": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/cloth_2.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_low_health": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -12.0
+    },
     "player_attack": {
       "bus": "SFX",
       "loop": false,
@@ -955,6 +1015,18 @@
     "warreaxe": {
       "model": "assets/weapons/medieval/Axe_Double.glb",
       "status": "downloaded; attachment integration pending"
+    },
+    "ember_scepter": {
+      "model": "assets/weapons/skeletons/Skeleton_Staff.gltf",
+      "status": "downloaded; attachment integration pending"
+    },
+    "moonlance": {
+      "model": "assets/weapons/medieval/Spear.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "venom_chain": {
+      "model": "assets/weapons/medieval/Dagger.glb",
+      "status": "downloaded; attachment integration pending"
     }
   },
   "gameplay_pickups": {
@@ -1002,6 +1074,18 @@
     },
     "warcry_skill": {
       "texture": "assets/effects/kenney/magic_01.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "chain_lightning": {
+      "texture": "assets/effects/kenney/magic_03.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "mending_light": {
+      "texture": "assets/effects/kenney/flare_01.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "shatterwave": {
+      "texture": "assets/effects/kenney/circle_01.png",
       "status": "source texture ready; skill VFX integration pending"
     }
   },

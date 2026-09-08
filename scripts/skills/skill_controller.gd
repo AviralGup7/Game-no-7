@@ -15,8 +15,9 @@ signal skill_unlock_changed(skill_id: StringName, unlocked: bool)
 const SKILL_SLOTS := 3
 const ENEMY_GROUP := "enemies"
 
-var _slots: Array = []          # SkillConfig or null
-var _cooldowns: Array[float] = []
+var _slots: Array = [null, null, null] # SkillConfig or null
+var _cooldowns: Array[float] = [0.0, 0.0, 0.0]
+var _current_wave := 1
 var _unlocked: Dictionary = {}  # StringName -> bool
 var _enabled := true
 var _cooldown_multiplier := 1.0
@@ -46,9 +47,15 @@ func set_cooldown_multiplier(mult: float) -> void:
 	_cooldown_multiplier = clampf(mult, 0.05, 4.0)
 
 
+## Copy build modifiers into the executor without giving it ownership of
+## ProgressionComponent or mutating any shared SkillConfig resource.
+func set_combat_modifiers(skill_damage: float = 1.0, area_radius: float = 1.0, area_damage: float = 1.0, status_chance: float = 0.0) -> void:
+	_executor.set_combat_modifiers(skill_damage, area_radius, area_damage, status_chance)
+
+
 ## Bind a config to a slot (locked until unlock_skill unless `unlocked`).
 func assign_skill(config: SkillConfig, slot: int, unlocked: bool = false) -> bool:
-	if config == null:
+	if config == null or not config.validate().is_empty() or config.disabled:
 		return false
 	slot = clampi(slot, 0, SKILL_SLOTS - 1)
 	_slots[slot] = config
@@ -70,6 +77,14 @@ func assign_skill_by_id(skill_id: StringName, slot: int, unlocked: bool = false)
 func unlock_skill(skill_id: StringName) -> bool:
 	if _unlocked.get(skill_id, false):
 		return false
+	if ContentRegistry == null:
+		return false
+	var cfg: SkillConfig = ContentRegistry.get_skill(skill_id)
+	if cfg == null or not cfg.validate().is_empty() or cfg.disabled or _current_wave < cfg.unlock_wave:
+		return false
+	var level := _current_level()
+	if level >= 0 and level < cfg.unlock_level:
+		return false
 	_unlocked[skill_id] = true
 	skill_unlock_changed.emit(skill_id, true)
 	if EventBus != null:
@@ -79,6 +94,44 @@ func unlock_skill(skill_id: StringName) -> bool:
 
 func is_unlocked(skill_id: StringName) -> bool:
 	return bool(_unlocked.get(skill_id, false))
+
+
+func set_current_wave(wave_number: int) -> void:
+	_current_wave = maxi(wave_number, 1)
+
+
+## Unlock every registry skill whose level and wave gates are now satisfied. This
+## catches a level-up before its wave as well as a wave-up after its level-up.
+func unlock_available() -> int:
+	if ContentRegistry == null:
+		return 0
+	var unlocked_count := 0
+	for raw in ContentRegistry.get_all_skill_configs():
+		var cfg := raw as SkillConfig
+		if cfg != null and _current_wave >= cfg.unlock_wave and _current_level() >= cfg.unlock_level:
+			if unlock_skill(cfg.skill_id):
+				unlocked_count += 1
+	return unlocked_count
+
+
+func _current_level() -> int:
+	if _owner_body == null:
+		return -1
+	var experience := _owner_body.get_node_or_null("ExperienceComponent")
+	if experience != null and experience.has_method("get_level"):
+		return int(experience.call("get_level"))
+	return -1
+
+
+## Stable assigned-skill mirror for RunState save summaries. Locked skills remain
+## part of the loadout; unlock state stays in this controller.
+func get_assigned_skill_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for raw in _slots:
+		var cfg := raw as SkillConfig
+		if cfg != null:
+			ids.append(cfg.skill_id)
+	return ids
 
 
 func slot_skill(slot: int) -> SkillConfig:
@@ -186,6 +239,8 @@ func _enemies() -> Array:
 func reset_for_new_run() -> void:
 	_cooldowns.fill(0.0)
 	_executor.reset_scheduled()
+	# A new run starts from neutral skill tuning; PlayerBuild reapplies any
+	# permanent/run modifiers immediately after this reset.
 
 
 func get_debug_snapshot() -> Dictionary:
