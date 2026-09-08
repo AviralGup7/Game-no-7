@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `4cb3a43` → next commit (this report) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `1fdda9f` (follow-up catalog/VFX/audio) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.
@@ -19,7 +19,7 @@
 
 ## 4. Skill Verification — VERIFIED
 - **8 skills** distinct: `bladestorm` whirl 5× bleed, `frost_nova_skill` radial 5 m + guaranteed `slow` (avoids double-stack), `phantom_rush` dash_strike `length` via `apply_dash`, `seismic_slam` slam radial 4.5, `warcry_skill` `warcry/frenzy`, `chain_lightning` `chain_jumps 4 decay 0.72`, `mending_light` `heal_surge` + `regen/overguard`, `shatterwave` shockwave line via `ProjectilePool` pierce 99. Each has `SkillConfig` valid, `SkillExecutor` `execute` + `tick` for `pending_hits`/`_dashing`.
-- **Presentation distinct:** `PlayerAnimation.skill_cast_clips` 10 mappings (`bladestorm:Spin, phantom_rush:Dodge_Forward, seismic_slam:Chop, frost_nova:Spellcast_Shoot, warcry:Raise, ...`), `EffectDirector.SKILL_COLORS` 10 tints + `_skill_radius` 2.4–4.8 & `_skill_burst_scale` 1.18–1.65, `AudioManager play_sfx skill_cast/skill_ready` (`-8/-12dB`), `CameraRig.add_shake` on `skill_cast`, `CharacterController` dash preserved `distance/duration` `recovery/invuln/stamina`.
+- **Presentation distinct:** `PlayerAnimation.skill_cast_clips` 10 mappings (`bladestorm:Spin, phantom_rush:Dodge_Forward, seismic_slam:Chop, frost_nova:Spellcast_Shoot, warcry:Raise, ...`), `EffectDirector.SKILL_COLORS` 10 tints + `SKILL_RING_TEXTURES/BURST_TEXTURES` distinct kenney shapes (`trace_01/smoke_03/dirt_01/circle_05/magic_01/magic_03/flare_01/circle_01`) + `_skill_radius` 2.4–4.8 & `_skill_burst_scale` 1.18–1.65 `spread/amount` per skill, `AudioManager play_sfx skill_cast/skill_ready` (`-8/-12dB`), `CameraRig.add_shake` on `skill_cast`, `CharacterController` dash preserved `distance/duration` `recovery/invuln/stamina`.
 - **Cleanup:** `SkillExecutor.reset_scheduled`, `SkillController._tick_cooldowns` `skill_ready` emit, `tick` even when disabled.
 
 ## 5. Enemy Verification — VERIFIED
@@ -35,14 +35,14 @@
 - **Lighting:** single `BossPhaseLight` `OmniLight3D` reused (no duplicates): tint `White/Orange(1,0.55,0.22)/Red(1,0.28,0.12)` via `EnemyFeedback.recolor`, `VisualRoot` scale `1+0.12*phase`, light `range 5+1.5*phase` `energy 1.2+0.5*phase` pulse tween `*1.6 0.18→0.45s`, `shadows OFF`, `_exit_tree` disconnects `health_changed/died`.
 
 ## 7. VFX Status — VERIFIED
-- **Pooled:** `EffectDirector` `MAX_BURSTS 10 / MAX_RINGS 14 / MAX_MUZZLE 4`, burst `22*0.68s` `one_shot`, ring `QuadMesh` flat `0.45→0` fade via `RingFade` `trigger(duration)` idle `visible=false` cost 0.
-- **Priority 9 classes:** `CRITICAL 100 / BOSS 90 / PLAYER 80 / SKILL 60 / ENEMY_DEATH 50 / SPAWN 45 / PICKUP 35 / ENEMY_HIT 30 / HIT 30 / STATUS 25 / AMBIENT 10`; `_burst_prios/_ring_prios` maps, `_claim_burst/ring(priority)` grow to cap then steal lowest `< priority` else drop → preserves critical/player/boss, drops low `HIT/AMBIENT`.
-- **Distinct:** `STATUS_COLORS` 13, `SKILL_COLORS` 10 + `STATUS` burst for `burn/shock/poison/bleed`; `skill_cast` per-skill radius/burst, `enemy_damaged` crit gold 0.82+ring vs hit 0.42, `wave/boss/pickup` bounded.
+- **Pooled:** `EffectDirector` `MAX_BURSTS 10 / MAX_RINGS 14 / MAX_MUZZLE 4`, burst `22*0.68s` `one_shot` `one-shot 68% spread`, ring `QuadMesh` flat `0.45→0` fade via `RingFade` `trigger(duration)` idle `visible=false` cost 0.
+- **Priority 9 classes:** `CRITICAL 100 / BOSS 90 / PLAYER 80 / SKILL 60 / ENEMY_DEATH 50 / SPAWN 45 / PICKUP 35 / ENEMY_HIT 30 / HIT 30 / STATUS 25 / AMBIENT 10`; `SPAWN` (`enemy_spawned/wave_started/completed`) and `PICKUP` (`pickup_spawned/collected`) now correctly classified (wave was BOSS, pickup was AMBIENT); `_burst_prios/_ring_prios` maps, `_claim_burst/ring(priority)` grow to cap then steal lowest `< priority` else drop → preserves critical/player/boss, drops low `HIT/AMBIENT`.
+- **Distinct:** `STATUS_COLORS` 13, `SKILL_COLORS` 10 + `SKILL_RING/BURST_TEXTURES` per-skill kenney shapes (`trace/smoke/dirt/circle/magic/flare`) + `spread/amount` tuning + `STATUS` burst for `burn/shock/poison/bleed`; `skill_cast` per-skill radius 2.4–4.8 / burst 1.18–1.65, `enemy_damaged` crit gold 0.82+ring vs hit 0.42, `wave/boss/pickup` bounded.
 - **Diagnostics:** per-effect `report_info` only (debug print), no per-frame allocation, no `print` spam (removed Batch3).
 - **Pool saturation stress:** 50-cycle wave/splitter/boss simulation keeps `active bursts ≤10`.
 
 ## 8. Audio Status — STATICALLY VERIFIED (LIVE via procedural fallback)
-- **Definitive mapping** `cue → event → caller → file → fallback → test` in `procedural_sfx.gd` header + `assets/catalog.json` 31 cues + `data/audio/*.tres`: **LIVE** 31 catalog (real file or procedural synthesized `22050 mono 8-bit`), **FALLBACK** `ProceduralSfx.ensure_registered()` 29 SFX +5 music `music_menu/calm/battle/boss/victory` seamless integer-cycle loops, **RESERVED** `footstep/equip/item_drop` ready `footstep_concrete 3` via `AudioManager.has_cue` seam not yet bound to gameplay, **UNUSED** none.
+- **Definitive mapping** `cue → event → caller → file → fallback → test` in `procedural_sfx.gd` header + `assets/catalog.json` 31 cues + `data/audio/*.tres`: **LIVE** 34 catalog (`player_step` distance-based `PlayerAudio` `stride 1.8/0.9`, `equip` via `player_switch` alias, `item_drop` via `PickupManager.spawn_pickup`, plus all prior) real file or procedural synthesized `22050 mono 8-bit`, **FALLBACK** `ProceduralSfx.ensure_registered()` 29 SFX +5 music `music_menu/calm/battle/boss/victory` seamless loops, **RESERVED→LIVE** migrated `footstep/equip/item_drop` now bound, **UNUSED** none.
 - **Coverage:** weapons `player_attack/shot/reload/switch`, skills `skill_cast/ready`, boss `boss_spawned/phase_changed/slain`, pickups `pickup`, UI `ui_confirm/back/upgrade_select`, waves `wave_started/completed`, `level_up`, `game_over`, `player_step/hurt/dodge/death/low_health`, `enemy_hit/death/attack/spawn/windup/dash/explosion`.
 - **Voices:** `AudioManager` `MAX_SFX_VOICES 16` pooled `AudioStreamPlayer`, `_claim_voice` idle→oldest stealing, `cooldown` spam guard via `AudioConfig`, `volume/pitch_var` roll, bounded.
 
