@@ -112,6 +112,8 @@ func _on_level_up() -> void:
 	leveled_up.emit(_level)
 	if EventBus != null:
 		EventBus.player_leveled_up.emit(_level, _xp)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"level_up", -8.0)
 
 
 func _unlock_skills_for_level() -> void:

@@ -18,6 +18,19 @@ extends Node
 @export var hurt_clip: StringName = &"Hit_A"
 @export var death_clip: StringName = &"Death_A"
 @export var reload_clip: StringName = &"2H_Ranged_Reload"
+@export var victory_clip: StringName = &"Cheer"
+@export var skill_cast_clips: Dictionary[StringName, StringName] = {
+	&"bladestorm": &"2H_Melee_Attack_Spin",
+	&"phantom_rush": &"Dodge_Forward",
+	&"seismic_slam": &"2H_Melee_Attack_Chop",
+	&"frost_nova": &"Spellcast_Shoot",
+	&"frost_nova_skill": &"Spellcast_Shoot",
+	&"warcry": &"Spellcast_Raise",
+	&"warcry_skill": &"Spellcast_Raise",
+	&"mending_light": &"Spellcast_Raise",
+	&"chain_lightning": &"Spellcast_Shoot",
+	&"shatterwave": &"Spellcast_Shoot",
+}
 @export_range(0.05, 0.9) var contact_fraction: float = 0.32
 @export var blend_seconds: float = 0.07
 @export var walk_cycle_distance: float = 1.8
@@ -64,6 +77,13 @@ func _ready() -> void:
 	if _weapons != null:
 		_weapons.attack_resolved.connect(_on_contact)
 		_weapons.weapon_switched_local.connect(_on_switch)
+	if EventBus != null:
+		if not EventBus.skill_cast.is_connected(_on_skill_cast):
+			EventBus.skill_cast.connect(_on_skill_cast)
+		if not EventBus.player_leveled_up.is_connected(_on_level_up):
+			EventBus.player_leveled_up.connect(_on_level_up)
+		if not EventBus.boss_slain.is_connected(_on_victory):
+			EventBus.boss_slain.connect(_on_boss_victory)
 	_play(idle_clip)
 
 
@@ -172,6 +192,33 @@ func _on_hurt(result: DamageResult) -> void:
 		return
 	_locked = true
 	_play(hurt_clip, true, 2.0)
+
+
+func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
+	if _dead or caster != _player:
+		return
+	var clip := skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
+	if String(clip).is_empty() or not _animation.has_animation(clip):
+		clip = &"Spellcast_Shoot"
+		if not _animation.has_animation(clip):
+			clip = idle_clip
+	_locked = true
+	# Skill cast is brief: align to ~0.4s so it reads but doesn't freeze combat.
+	_play(clip, true, _length(clip) / 0.45)
+
+
+func _on_level_up(_new_level: int, _xp: int) -> void:
+	if _dead:
+		return
+	_locked = true
+	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 1.1)
+
+
+func _on_boss_victory(_boss_id: StringName) -> void:
+	if _dead:
+		return
+	_locked = true
+	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 0.9)
 
 
 func _on_death() -> void:

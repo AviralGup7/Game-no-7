@@ -17,6 +17,8 @@ const KEY_RUN := &"run"
 const KEY_ATTACK := &"attack"
 const KEY_HURT := &"hurt"
 const KEY_DEATH := &"death"
+const KEY_STUN := &"stun"
+const KEY_CAST := &"cast"
 
 const RUN_PACE_REFERENCE_SPEED := 3.5
 
@@ -46,6 +48,13 @@ func _ready() -> void:
 		_host.attack_started.connect(_on_attack_started)
 	if _host.has_signal("died"):
 		_host.died.connect(_on_died)
+	if EventBus != null and not EventBus.status_applied.is_connected(_on_status_applied):
+		EventBus.status_applied.connect(_on_status_applied)
+	# Boss telegraphs drive a cast-like anticipation where available.
+	var boss := _host.get_node_or_null("BossController")
+	if boss != null and boss.has_signal("telegraph_started"):
+		if not boss.telegraph_started.is_connected(_on_boss_telegraph):
+			boss.telegraph_started.connect(_on_boss_telegraph)
 
 
 func _mount_model() -> void:
@@ -99,12 +108,23 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 	if _dead:
 		return
 	match current:
-		&"idle", &"attack", &"fuse":
+		&"idle", &"fuse":
 			_loop(KEY_IDLE)
-		&"chase", &"ranged", &"dash":
+		&"attack":
+			# Attack state's idle is handled by _on_attack_started one-shot; keep idle until it fires.
+			_loop(KEY_IDLE)
+		&"chase", &"dash":
 			_loop(KEY_RUN)
+		&"ranged":
+			# Cast-capable ranged archetypes play their cast clip if supplied, otherwise run.
+			if _clips.has(KEY_CAST):
+				_one_shot(KEY_CAST)
+			else:
+				_loop(KEY_RUN)
 		&"hurt":
 			_one_shot(KEY_HURT)
+		&"stunned":
+			_one_shot(KEY_STUN if _clips.has(KEY_STUN) else KEY_HURT)
 
 
 func _on_attack_started() -> void:
@@ -120,6 +140,29 @@ func _on_attack_started() -> void:
 			speed = clampf(anim.length / (cfg.attack_windup + 0.15), 0.5, 3.0)
 	_one_shot(KEY_ATTACK, speed)
 
+
+func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> void:
+	if _dead or target != _host:
+		return
+	if effect_id == &"stun":
+		_one_shot(KEY_STUN if _clips.has(KEY_STUN) else KEY_HURT, 1.0)
+	elif effect_id in [&"shock", &"slow"] and _clips.has(KEY_CAST):
+		# Subtle cast hit for shock/slow application (non-interrupting).
+		pass
+
+
+func _on_boss_telegraph(kind: StringName, duration: float) -> void:
+	if _dead:
+		return
+	var clip := KEY_CAST if _clips.has(KEY_CAST) else KEY_ATTACK
+	# Scale cast to telegraph duration so anticipation reads synchronously.
+	var cname := _clip(clip)
+	if _player != null and cname != "" and _player.has_animation(cname):
+		var anim := _player.get_animation(cname)
+		var speed := clampf(anim.length / maxf(duration, 0.2), 0.5, 2.5)
+		_one_shot(clip, speed)
+	else:
+		_one_shot(clip)
 
 ## Stagger feedback arrives through the Hurt STATE (poise-guarded hits intentionally
 ## do not play the flinch — the EnemyFeedback flash covers them).

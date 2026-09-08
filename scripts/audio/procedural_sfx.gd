@@ -14,8 +14,11 @@ const MIX_RATE := 22050
 
 const SFX_CUES: Array[StringName] = [
 	&"player_attack", &"player_hurt", &"player_death", &"player_dodge",
-	&"enemy_hit", &"enemy_death", &"enemy_attack", &"enemy_spawn",
-	&"pickup", &"upgrade_select",
+	&"player_step", &"player_switch", &"player_shot", &"player_reload", &"player_low_health",
+	&"enemy_hit", &"enemy_death", &"enemy_attack", &"enemy_spawn", &"enemy_windup", &"enemy_dash", &"enemy_explosion",
+	&"pickup", &"upgrade_select", &"ui_confirm", &"ui_back",
+	&"skill_cast", &"skill_ready", &"level_up",
+	&"wave_started", &"wave_completed", &"boss_spawned", &"boss_phase_changed", &"boss_slain", &"game_over",
 ]
 const MUSIC_CUES: Array[StringName] = [
 	&"music_menu", &"music_calm", &"music_battle", &"music_boss", &"music_victory",
@@ -45,6 +48,16 @@ static func make_sfx(cue_id: StringName) -> AudioStreamWAV:
 			return _to_stream(_sweep(0.6, 400.0, 50.0, 0.6, 0.2), false)
 		&"player_dodge":
 			return _to_stream(_whoosh(0.12, 0.35), false)
+		&"player_step":
+			return _to_stream(_click(0.07, 180.0, 0.25), false)
+		&"player_switch":
+			return _to_stream(_sweep(0.12, 400.0, 800.0, 0.45, 0.1), false)
+		&"player_shot":
+			return _to_stream(_sweep(0.14, 700.0, 300.0, 0.5, 0.2), false)
+		&"player_reload":
+			return _to_stream(_click(0.15, 220.0, 0.4), false)
+		&"player_low_health":
+			return _to_stream(_sweep(0.35, 200.0, 80.0, 0.55, 0.15), false)
 		&"enemy_hit":
 			return _to_stream(_click(0.1, 300.0, 0.55), false)
 		&"enemy_death":
@@ -53,10 +66,38 @@ static func make_sfx(cue_id: StringName) -> AudioStreamWAV:
 			return _to_stream(_growl(0.2, 0.5), false)
 		&"enemy_spawn":
 			return _to_stream(_sweep(0.25, 100.0, 600.0, 0.4, 0.0), false)
+		&"enemy_windup":
+			return _to_stream(_sweep(0.35, 120.0, 480.0, 0.42, 0.25), false)
+		&"enemy_dash":
+			return _to_stream(_whoosh(0.18, 0.45), false)
+		&"enemy_explosion":
+			return _to_stream(_thud(0.4, 90.0, 30.0, 0.7), false)
 		&"pickup":
 			return _to_stream(_blip(0.18, [880.0, 1320.0], 0.5), false)
 		&"upgrade_select":
 			return _to_stream(_blip(0.4, [523.25, 659.25, 783.99], 0.5), false)
+		&"ui_confirm":
+			return _to_stream(_blip(0.12, [660.0, 880.0], 0.45), false)
+		&"ui_back":
+			return _to_stream(_blip(0.12, [440.0, 330.0], 0.4), false)
+		&"skill_cast":
+			return _to_stream(_sweep(0.22, 500.0, 900.0, 0.55, 0.15), false)
+		&"skill_ready":
+			return _to_stream(_blip(0.2, [523.25, 1046.5], 0.45), false)
+		&"level_up":
+			return _to_stream(_blip(0.5, [440.0, 554.0, 659.0, 880.0], 0.6), false)
+		&"wave_started":
+			return _to_stream(_sweep(0.4, 200.0, 600.0, 0.6, 0.05), false)
+		&"wave_completed":
+			return _to_stream(_blip(0.6, [392.0, 523.25, 659.25, 783.99], 0.6), false)
+		&"boss_spawned":
+			return _to_stream(_sweep(0.7, 80.0, 180.0, 0.65, 0.2), false)
+		&"boss_phase_changed":
+			return _to_stream(_sweep(0.5, 150.0, 320.0, 0.6, 0.25), false)
+		&"boss_slain":
+			return _to_stream(_blip(0.8, [260.0, 329.0, 392.0, 523.25], 0.65), false)
+		&"game_over":
+			return _to_stream(_sweep(0.8, 400.0, 60.0, 0.55, 0.1), false)
 	return _to_stream(_click(0.1, 440.0, 0.4), false)
 
 

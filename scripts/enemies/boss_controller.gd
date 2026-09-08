@@ -147,6 +147,8 @@ func begin_fight(run_seed: int = 0) -> void:
 	if bus != null:
 		bus.boss_spawned.emit(_host, _host.get_archetype_id())
 		bus.announcement.emit(&"boss_spawned", "%s has entered the arena!" % _display_name(), &"danger")
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"boss_spawned", -6.0)
 
 
 func _display_name() -> String:
@@ -202,13 +204,55 @@ func _advance_to(index: int) -> void:
 	# Phase transition stagger: the boss reels, giving a short breathing room.
 	if _host != null:
 		_host.set_move_override(Vector3.ZERO, 0.0, PHASE_STAGGER)
+		_apply_phase_visuals(_phase)
 	phase_advanced.emit(_phase, _phases.size())
 	var bus := _eb()
 	if bus != null:
 		bus.boss_phase_changed.emit(_host, _phase, _phases.size())
 		bus.announcement.emit(&"boss_phase", "%s: %s!" % [_display_name(), phase_name()], &"warning")
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"boss_phase_changed", -7.0, 1.0 + 0.08 * _phase)
 	# A short pause before the phase's first ability so the change is felt.
 	_ability_cooldown = 0.8
+
+
+func _apply_phase_visuals(phase: int) -> void:
+	if _host == null:
+		return
+	var feedback := _host.get_node_or_null("EnemyFeedback")
+	var tint := Color.WHITE
+	match phase:
+		0:
+			tint = Color(1, 1, 1) # Awakening — keep authored tint
+			# No recolour; just a pulse
+		1:
+			tint = Color(1.0, 0.55, 0.22) # Fury — warm orange
+		2:
+			tint = Color(1.0, 0.28, 0.12) # Enrage — hot red with emissive in feedback
+		_:
+			tint = Color(1.0, 0.62, 0.18)
+	if phase > 0 and feedback != null and feedback.has_method("recolor"):
+		feedback.call("recolor", tint)
+	# Scale bump for readability on mobile
+	var vr := _host.get_node_or_null("VisualRoot") as Node3D
+	if vr != null:
+		var target := 1.0 + 0.12 * float(phase)
+		var tw := vr.create_tween()
+		tw.tween_property(vr, "scale", Vector3.ONE * target, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Burst via EffectDirector (handled through bus) — also add local light pulse
+	var light := _host.get_node_or_null("BossPhaseLight") as OmniLight3D
+	if light == null:
+		light = OmniLight3D.new()
+		light.name = "BossPhaseLight"
+		_host.add_child(light)
+	light.light_color = tint if phase > 0 else Color(1.0, 0.82, 0.35)
+	light.omni_range = 5.0 + 1.5 * float(phase)
+	light.light_energy = 1.2 + 0.5 * float(phase)
+	light.position.y = 1.8
+	light.visible = true
+	var lt := light.create_tween()
+	lt.tween_property(light, "light_energy", light.light_energy * 1.6, 0.18)
+	lt.tween_property(light, "light_energy", light.light_energy, 0.45)
 
 
 func _trigger_ability() -> void:
@@ -322,6 +366,8 @@ func _on_boss_died() -> void:
 	if bus != null:
 		bus.boss_slain.emit(_host.get_archetype_id() if _host != null else &"boss")
 		bus.announcement.emit(&"boss_slain", "%s defeated!" % _display_name(), &"victory")
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"boss_slain", -6.0)
 
 
 func get_debug_snapshot() -> Dictionary:

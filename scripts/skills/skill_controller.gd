@@ -193,6 +193,8 @@ func _tick_cooldowns(delta: float) -> void:
 					skill_became_ready.emit(cfg.skill_id)
 					if EventBus != null:
 						EventBus.skill_ready.emit(cfg.skill_id)
+					if AudioManager != null and AudioManager.has_method("play_sfx"):
+						AudioManager.play_sfx(&"skill_ready", -12.0)
 
 
 ## Attempt to cast the skill in `slot`. Returns false with no side effects when
@@ -215,6 +217,8 @@ func try_cast_slot(slot: int) -> bool:
 	skill_cast_local.emit(cfg.skill_id, slot)
 	if EventBus != null:
 		EventBus.skill_cast.emit(cfg.skill_id, _owner_body)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"skill_cast", -8.0, 1.0 + 0.05 * slot)
 	return true
 
 

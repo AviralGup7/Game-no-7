@@ -162,6 +162,8 @@ func _launch_wave(wave_number: int) -> void:
 	EventBus.report_info("Wave %d started (%d planned)%s" % [wave_number, _planned_count,
 		(" [" + WaveMutators.banner_text(_active_mutators) + "]") if not _active_mutators.is_empty() else ""])
 	_announce_wave(wave_number)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"wave_started", -8.0, 1.0 + 0.02 * (wave_number % 5))
 
 
 ## Banner line for the wave: mutator names ride along so players can adapt.
@@ -239,6 +241,8 @@ func _complete_current_wave() -> void:
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
 	if cfg.upgrade_after_completion:
 		# Open a deterministic upgrade selection; GameRoot routes PLAYING -> UPGRADE_SELECTION.
