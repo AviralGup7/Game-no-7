@@ -25,7 +25,7 @@ const LEGAL_TRANSITIONS := {
 	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.GAME_OVER: [State.STARTING_RUN, State.MAIN_MENU],
 	State.LOADING: [State.STARTING_RUN, State.MAIN_MENU, State.PLAYING, State.ERROR],
 	State.ERROR: [State.MAIN_MENU],
@@ -92,14 +92,15 @@ func is_paused() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause"):
-		if _current_state == State.PLAYING or _current_state == State.WAVE_TRANSITION:
-			request_pause()
-		elif _current_state == State.PAUSED:
-			request_resume()
-	if event.is_action_pressed("ui_cancel"):
-		if _current_state == State.PAUSED:
-			request_resume()
+	# "pause" and "ui_cancel" both default to Escape, so they must be handled as one
+	# toggle: two independent `if`s would pause and immediately resume on one press.
+	if not (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
+		return
+	if _current_state == State.PAUSED:
+		request_resume()
+	elif _can_pause_from(_current_state):
+		request_pause()
+	get_viewport().set_input_as_handled()
 
 
 ## ---------- Command interface (called by UI controllers / inputs) ----------
@@ -264,6 +265,7 @@ func _call_build_world(arena_id: StringName) -> void:
 
 
 func _finalize_run() -> void:
+	_sync_run_build_mirror()
 	var summary := _current_run.summary()
 	# Persist best score/wave and lifetime stats via the save/analytics systems.
 	_best_score = maxi(_best_score, _current_run.score)
@@ -288,7 +290,19 @@ func _next_run_id() -> int:
 
 ## Keep the run's wave number in sync with the WaveManager-driven waves.
 func record_current_wave(wave_number: int) -> void:
-	_current_run.current_wave = wave_number
+	_current_run.current_wave = maxi(wave_number, 0)
+	if _active_player != null and is_instance_valid(_active_player):
+		var prog := _active_player.get_node_or_null("ProgressionComponent")
+		if prog != null and prog.has_method("set_current_wave"):
+			prog.call("set_current_wave", maxi(wave_number, 1))
+		var weapons := _active_player.get_node_or_null("WeaponManager")
+		if weapons != null and weapons.has_method("set_current_wave"):
+			weapons.call("set_current_wave", maxi(wave_number, 1))
+		var skills := _active_player.get_node_or_null("SkillController")
+		if skills != null and skills.has_method("set_current_wave"):
+			skills.call("set_current_wave", maxi(wave_number, 1))
+		if skills != null and skills.has_method("unlock_available"):
+			skills.call("unlock_available")
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
@@ -352,6 +366,7 @@ func request_upgrade_selection(upgrade_id: StringName) -> bool:
 		return false
 	if not UpgradeService.apply_selection(_current_run, _active_player, upgrade_id):
 		return false
+	_sync_run_build_mirror()
 	EventBus.upgrade_selected.emit(upgrade_id)
 	EventBus.report_info("Upgrade selected: %s" % String(upgrade_id))
 	# Back into PLAYING; WaveManager observes the state to launch the next wave.
@@ -384,6 +399,13 @@ func _player_derived_stat(key: StringName, base: float) -> float:
 
 
 ## ---------- Snapshots / diagnostics ----------
+
+func _sync_run_build_mirror() -> void:
+	if _active_player == null or not is_instance_valid(_active_player):
+		return
+	if _active_player.has_method("get_build_snapshot"):
+		_current_run.set_build_snapshot(_active_player.call("get_build_snapshot"))
+
 
 func get_debug_snapshot() -> Dictionary:
 	return {

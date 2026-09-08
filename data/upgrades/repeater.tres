@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"repeater"
+display_name = "Repeater"
+description = "+1 projectile per shot, but +12% attack cooldown. Volley weapons gain coverage at a real tempo cost."
+rarity = &"epic"
+category = &"projectile"
+max_stacks = 2
+stat_modifiers = {
+"projectile_count_add": 1.0,
+"attack_cooldown_multiplier": 0.12,
+}
+tags = Array[StringName]([&"projectile", &"volley", &"tradeoff"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([])
+unlock_wave = 4
+weight = 0.38
+disabled = false

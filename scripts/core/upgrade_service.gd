@@ -62,6 +62,11 @@ static func validate_selection(run: RunState, player: Node, upgrade_id: StringNa
 ## Apply a validated pick to the runtime ProgressionComponent and mirror the
 ## result into RunState. Returns false (with a warning) when application fails.
 static func apply_selection(run: RunState, player: Node, upgrade_id: StringName) -> bool:
+	# Keep this method safe when called outside GameRoot as well. GameRoot normally
+	# performs the same validation before reaching here, but the service is the
+	# authoritative last gate against stale offers, future waves and invalid ids.
+	if not validate_selection(run, player, upgrade_id).is_empty():
+		return false
 	if player == null or not player.has_method("apply_upgrade") or not bool(player.call("apply_upgrade", upgrade_id)):
 		EventBus.report_warning("Upgrade %s could not be applied" % String(upgrade_id))
 		return false

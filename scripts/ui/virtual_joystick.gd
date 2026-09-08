@@ -89,7 +89,16 @@ func cancel() -> void:
 
 func _draw() -> void:
 	if not _active:
+		var center := Vector2(minf(radius + 16, size.x * 0.5), size.y * 0.5)
+		draw_circle(center, radius * 0.8, UiTheme.INK)
+		draw_arc(center, radius * 0.8, 0, TAU, 48, UiTheme.CYAN, 2.0)
+		draw_circle(center, 24, UiTheme.CYAN)
 		return
 	draw_circle(_base, radius, Color(1, 1, 1, 0.10))
 	draw_circle(_base, radius, Color(1, 1, 1, 0.10), false, 3.0, true)
 	draw_circle(_knob, 34.0, Color(1, 1, 1, 0.30))
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
+		cancel()

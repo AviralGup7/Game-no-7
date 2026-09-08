@@ -11,12 +11,26 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
 
 ## Integration status — important
 
-- **Integrated:** detailed arena floor/wall materials; six distinct pickup models.
-  Pickups preserve collection/magnet logic, pool visual variants, retain the source
-  materials and keep a primitive fallback when a config has no art.
-- **Downloaded but not integrated:** all player/enemy rigs and animation maps,
-  weapon attachments/loadout art, environment prop models, UI skins, skill particle
-  effects and recorded audio registration. Live actors still use primitives.
+- **Integrated (environment/presentation pass, Agent 4):**
+  - Detailed arena floor/wall materials; six distinct pickup models.
+  - Approved **character + enemy models** mounted onto the live actors (player via
+    `VisualRoot/CharacterModel` + a scene mount node; all eight enemy archetypes via
+    a narrow `EnemyBase` hook) through `scripts/visuals/character_visuals.gd`. Fitted
+    to height, foot-grounded, glTF +Z rotated onto Godot −Z, idle-looped when the rig
+    exposes the clip, and always falling back to the primitive if a model is absent.
+  - **KayKit dungeon props** (pillars/columns, banners, torches, crates, barrels,
+    rubble) placed deterministically by `ArenaDecorator` with per-arena compositions
+    and primitive fallback; **arena themes** (sky/fog/sun/ambient + floor/wall tint)
+    give Default / Ember Crucible / Frost Hollow distinct identities.
+  - **Pooled VFX** (`EffectDirector`): GPU bursts + ground rings for enemy spawn /
+    death, wave start/completion, pickups, boss spawn/slain and status effects.
+  - **Recorded audio registered** (`AudioAssetIntegrator`): the approved SFX variants
+    (pooled randomizers) and the two looping music tracks mapped onto the existing
+    `music_menu/calm/battle/boss/victory` cues, taking precedence over the procedural
+    fallback.
+- **Still pending (not owned here / not yet wired):** weapon *attachment* visuals on
+  the rigged hands, UI skinning, per-arena bespoke art variants, and recorded boss
+  music (the approved library ships only a menu loop and one combat loop).
 - Existing source art remains available; preferred equipment/reward selections
   replace old choices in the catalogue, not by destructive source-file overwrites.
 
@@ -42,10 +56,11 @@ embedded data URIs; they do not require additional network or binary downloads.
 
 ## Equipment and pickups
 
-`gameplay_weapons` maps all six weapon IDs to detailed medieval GLBs. The catalogue
-also retains the compatible KayKit weapon/shield sources, now including skeleton
-staff, crossbow and arrow with local `.bin`/atlas dependencies. Never move a `.gltf`
-without its referenced neighbours.
+`gameplay_weapons` maps all nine weapon IDs to reviewed local GLB/glTF sources. The
+catalogue also retains the compatible KayKit weapon/shield sources, including the
+skeleton staff, crossbow and arrow with local `.bin`/atlas dependencies. New
+content reuses reviewed art where a dedicated model is not needed. Never move a
+`.gltf` without its referenced neighbours.
 
 `gameplay_pickups` maps every pickup ID to its **runtime** source model:
 
@@ -69,7 +84,7 @@ bottle/crystal shapes help identification independently of tint.
 - Shared stone colour/normal/AO maps (1024 × 666) power local materials under
   `assets/materials/`. Floor tiling and world-space wall projection prevent wall
   stretch; no parallax, tessellation, displacement or new physics geometry.
-- `gameplay_arenas` covers all three arenas; `gameplay_skills` covers all five
+- `gameplay_arenas` covers all three arenas; `gameplay_skills` covers all eight
   skills with existing particle texture sources. Skill-specific emitters are pending.
 - Existing 55 UI PNGs, 15 particle PNGs and Rajdhani Regular/Bold remain. Every
   upgrade has an icon assignment. No font version change was available in the

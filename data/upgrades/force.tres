@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"force"
 display_name = "Force"
-description = "+15% knockback strength"
+description = "+15% knockback strength. Control swarms instead of racing their damage."
 rarity = &"common"
+category = &"defense"
 max_stacks = 3
 stat_modifiers = {
 "knockback_multiplier": 0.15,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"defense", &"control", &"knockback"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.95
 disabled = false

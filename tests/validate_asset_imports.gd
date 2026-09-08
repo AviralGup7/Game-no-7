@@ -41,6 +41,7 @@ func _initialize() -> void:
 				elif (imported as AudioStream).get_length() <= 0.0:
 					_failures.append("Empty audio stream: " + path)
 	_check_integrated_materials_and_pickups(catalog)
+	_check_presentation_assets()
 	if _checked == 0:
 		_failures.append("No importable assets found in the manifest")
 	print("Asset imports: %d resources, %d failures" % [_checked, _failures.size()])
@@ -97,3 +98,37 @@ func _check_integrated_materials_and_pickups(catalog: Dictionary) -> void:
 			_failures.append("Cannot fit pickup visual: " + str(id))
 		else:
 			visual.free()
+
+
+## Verifies the Agent-4 presentation integration: every character/role model path
+## mounts, the VFX sprite textures import, and each role exposes its idle clip.
+func _check_presentation_assets() -> void:
+	for role in CharacterVisuals.ROLE_MODELS:
+		var cfg: Dictionary = CharacterVisuals.ROLE_MODELS[role]
+		var path := String(cfg["path"])
+		var scene := load(path)
+		if not scene is PackedScene:
+			_failures.append("Character role %s has no imported model: %s" % [String(role), path])
+			continue
+		var instance := (scene as PackedScene).instantiate()
+		if not instance is Node3D:
+			_failures.append("Character role %s model is not 3D: %s" % [String(role), path])
+			if instance != null:
+				instance.free()
+			continue
+		if (instance as Node3D).find_children("*", "MeshInstance3D", true, false).is_empty():
+			_failures.append("Character role %s model has no meshes: %s" % [String(role), path])
+		var players := (instance as Node3D).find_children("*", "AnimationPlayer", true, false)
+		var idle_clip := String(cfg.get("idle", ""))
+		var idle_found := idle_clip.is_empty()
+		if not idle_found:
+			for p in players:
+				if (p as AnimationPlayer).has_animation(StringName(idle_clip)):
+					idle_found = true
+		if not idle_found:
+			_failures.append("Character role %s missing idle clip '%s'" % [String(role), idle_clip])
+		instance.free()
+	# VFX sprite textures (used by the EffectDirector).
+	for tex in [EffectDirector.RING_TEXTURE, EffectDirector.BURST_TEXTURE]:
+		if not load(tex) is Texture2D:
+			_failures.append("VFX sprite texture missing: " + tex)

@@ -32,6 +32,36 @@ extends Resource
 @export var unlock_wave: int = 1
 @export var elite_eligible: bool = false
 @export var spawn_priority: int = 0
+
+## --- Behaviour / ranged archetype ---------------------------------------
+## "melee" closes to attack_range; "ranged" orbits at preferred_distance and volleys.
+@export var ai_behavior: StringName = &"melee"
+## Maximum distance a ranged archetype will fire from.
+@export var ranged_range: float = 14.0
+## Seconds between volleys.
+@export var ranged_cooldown: float = 2.0
+## Telegraph time before a volley is released.
+@export var ranged_windup: float = 0.5
+@export var projectile_speed: float = 12.0
+@export var projectile_count: int = 1
+## Total spread cone in degrees when projectile_count > 1.
+@export var projectile_spread: float = 8.0
+## Projectile damage as a fraction of attack_damage.
+@export var projectile_damage_scale: float = 0.8
+## Distance a ranged archetype tries to hold from its target.
+@export var preferred_distance: float = 9.0
+## Strafe speed as a fraction of the effective move speed.
+@export var strafe_speed: float = 0.6
+
+## --- Death effects (exploder / splitter) ---------------------------------
+@export var explodes_on_death: bool = false
+@export var death_blast_radius: float = 3.0
+## Blast damage as a multiple of attack_damage.
+@export var death_blast_damage_scale: float = 1.5
+## Archetype id spawned when this enemy dies (empty = no split).
+@export var splits_into: StringName = &""
+@export var split_count: int = 0
+
 @export_multiline var balance_notes: String = ""
 @export var ai_behavior: StringName = &"melee"
 @export var ranged_range: float = 8.0

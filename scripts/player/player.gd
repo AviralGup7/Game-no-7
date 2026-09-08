@@ -282,24 +282,34 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	if _is_dead:
 		result.ignored_reason = DamageResult.IGNORE_DEAD
 		return result
-	if _health.has_method("is_invulnerable") and bool(_health.call("is_invulnerable")):
-		return _health.call("take_damage", payload) as DamageResult
+	# Do not consume a shield for payloads HealthComponent will reject before
+	# intake (malformed, invulnerable, or already-dead). Accepted hits are then
+	# reduced by status mitigation/shields exactly once.
+	if payload == null or not payload.is_valid() or (_health.has_method("is_invulnerable") and bool(_health.call("is_invulnerable"))):
+		var rejected: Variant = _health.call("take_damage", payload)
+		if rejected is DamageResult:
+			return rejected
+		return result
 	var final_payload := _apply_status_intake(payload)
 	var taken: Variant = _health.call("take_damage", final_payload)
 	if taken is DamageResult:
-		if (taken as DamageResult).accepted:
-			_apply_payload_status(payload)
+		if (taken as DamageResult).accepted and (taken as DamageResult).final_amount > 0.0:
+			_apply_payload_status(payload, taken as DamageResult)
 		return taken
 	result.ignored_reason = &"invalid_result"
 	return result
 
 
-## Enemy riders (venom shots, crippling blows): apply the payload's effects.
-func _apply_payload_status(payload: DamagePayload) -> void:
+## Incoming weapon/projectile riders: apply payload effects after an accepted hit.
+func _apply_payload_status(payload: DamagePayload, result: DamageResult = null) -> void:
 	if payload == null or payload.status_effects.is_empty():
 		return
 	if _status != null and _status.has_method("apply_effects"):
-		_status.call("apply_effects", payload.status_effects, payload.source)
+		var applied: Variant = _status.call("apply_effects", payload.status_effects, payload.source)
+		if result != null and applied is Dictionary:
+			for raw_id in applied:
+				if int(applied[raw_id]) > 0:
+					result.status_effects_applied.append(StringName(String(raw_id)))
 
 
 ## Scale + shield an incoming payload through the StatusManager (guard shields,
@@ -375,6 +385,44 @@ func get_status_manager() -> Node:
 	return _status
 
 
+## Serializable build mirror consumed by RunState. Live components remain the
+## source of truth; this method only reads their stable content ids and tags.
+func get_build_snapshot() -> Dictionary:
+	var weapons: Array = []
+	var skills: Array = []
+	if _weapons != null and _weapons.has_method("get_loadout_ids"):
+		weapons = _weapons.call("get_loadout_ids")
+	if _skills != null and _skills.has_method("get_assigned_skill_ids"):
+		skills = _skills.call("get_assigned_skill_ids")
+	var archetypes: Array[StringName] = []
+	if ContentRegistry != null:
+		for id in weapons:
+			var wc := ContentRegistry.get_weapon(StringName(String(id)))
+			if wc != null:
+				for tag in wc.tags:
+					if tag not in archetypes:
+						archetypes.append(tag)
+		for id in skills:
+			var sc := ContentRegistry.get_skill(StringName(String(id)))
+			if sc != null:
+				for tag in sc.tags:
+					if tag not in archetypes:
+						archetypes.append(tag)
+		if _progression != null and _progression.has_method("get_upgrade_stack_snapshot"):
+			var stacks: Dictionary = _progression.call("get_upgrade_stack_snapshot")
+			for id in stacks:
+				if int(stacks[id]) <= 0:
+					continue
+				var uc := ContentRegistry.get_upgrade(StringName(String(id)))
+				if uc != null:
+					if uc.category not in archetypes:
+						archetypes.append(uc.category)
+					for tag in uc.tags:
+						if tag not in archetypes:
+							archetypes.append(tag)
+	return {"equipped_weapons": weapons, "equipped_skills": skills, "build_archetypes": archetypes}
+
+
 func apply_status_effects(effect_ids: Array, source: Node = null) -> Dictionary:
 	if _status != null and _status.has_method("apply_effects"):
 		return _status.call("apply_effects", effect_ids, source)
@@ -390,6 +438,11 @@ func cleanse_status(only_harmful: bool = true) -> int:
 ## Apply an upgrade through the runtime ProgressionComponent (see PlayerBuild).
 func apply_upgrade(upgrade_id: StringName) -> bool:
 	return _build.apply_upgrade(upgrade_id)
+
+
+## Rebuild all runtime facades after an external permanent/meta modifier is applied.
+func rebuild_derived_stats() -> void:
+	_build.rebuild_derived_stats()
 
 
 ## Bloodlust-style heal: valid enemy kills heal while the player is alive.
@@ -410,6 +463,8 @@ func _on_enemy_kill_xp(enemy: Node, _archetype_id: StringName, _score: int, _cur
 	var award := KILL_XP_BASE
 	if enemy != null and enemy.has_method("is_elite") and bool(enemy.call("is_elite")):
 		award += KILL_XP_ELITE_BONUS
+	if _progression != null and _progression.has_method("get_stat"):
+		award *= float(_progression.call("get_stat", &"xp_multiplier_add", 1.0))
 	add_xp(award)
 
 
@@ -477,7 +532,7 @@ func request_weapon_switch() -> bool:
 ## Slot 1 + locked skills are filled by Main from owned meta unlocks after reset.
 func _equip_starter_kit() -> void:
 	if _weapons != null and _weapons.has_method("equip_by_id"):
-		_weapons.call("equip_by_id", _starter_weapon_id(), 0)
+		_weapons.call("equip_by_id", _starter_weapon_id(), 0, true)
 	if _skills != null and _skills.has_method("assign_skill_by_id"):
 		_skills.call("assign_skill_by_id", &"seismic_slam", 0, true)
 		_skills.call("assign_skill_by_id", &"bladestorm", 1, false)
@@ -579,13 +634,16 @@ func get_debug_snapshot() -> Dictionary:
 	var skl: Dictionary = {}
 	if _skills != null and _skills.has_method("get_debug_snapshot"):
 		skl = _skills.call("get_debug_snapshot")
+	var progression_debug: Dictionary = {}
+	if _progression != null and _progression.has_method("get_debug_snapshot"):
+		progression_debug = _progression.call("get_debug_snapshot")
 	return {
 		"position": global_position,
 		"health": hp,
 		"controller": ctl,
 		"alive": is_alive(),
 		"control_enabled": _control_enabled,
-		"progression": get_progression_snapshot(),
+		"progression": progression_debug,
 		"level": get_level(),
 		"stamina": get_stamina_fraction(),
 		"weapons": weap,

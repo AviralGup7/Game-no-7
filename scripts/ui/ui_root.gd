@@ -1,519 +1,292 @@
 extends Control
-## UI root controller. Owns panel switching (only one major screen visible at a time),
-## hosts the touch controls, routes joystick/action intents to the active player, and
-## keeps text behind UiText so localization can be added later. Screen construction is
-## shared with UiFactory; the HUD lives in GameHud, upgrade cards in UpgradePanel,
-## the full settings form in SettingsPanel, and the HUD extras (skill bar, minimap,
-## boss frame, damage numbers, announcement banner) are built here and fed from
-## EventBus. Controllers never mutate global state directly: they call GameRoot's
-## command API.
-
-const VIRTUAL_JOYSTICK := preload("res://scripts/ui/virtual_joystick.gd")
-const TOUCH_ACTION := preload("res://scripts/ui/touch_action_button.gd")
-
-## Emitted when the player clicks an upgrade card. The UI never modifies progression;
-## GameRoot validates and applies it.
+## Composition and navigation only. Panels own their presentation; canonical
+## state changes always come from EventBus and commands go through GameRoot.
 signal upgrade_chosen(upgrade_id: StringName)
-
-const UPGRADE_CHOICE_COUNT := 3
-
-## Screens (mutually exclusive).
-var _main_panel: Control = null
-var _settings_panel: Control = null
-var _armory_panel: Control = null
-var _armory_form: ArmoryPanel = null
-var _pause_panel: Control = null
-var _gameover_panel: Control = null
-var _upgrade_panel: UpgradePanel = null
-var _gameover_stats: Label = null
-
-## HUD (overlay while playing).
-var _hud: GameHud = null
-var _touch_layer: Control = null
-var _joystick: VirtualJoystick = null
-var _attack_btn: Control = null
-var _dodge_btn: Control = null
-var _switch_btn: Control = null
-
-## HUD extras (built once, fed from EventBus).
-var _skill_bar: SkillBar = null
-var _minimap: Minimap = null
-var _boss_bar: BossHealthBar = null
-var _dmg_layer: DamageNumberLayer = null
-var _banner: AnnouncementBanner = null
-
-var _last_joystick_value := Vector2.ZERO
-var _active_screen := &"none"
-
+var _safe: UiSafeArea
+var _backdrop: MenuBackdrop
+var _screens: Dictionary = {}
+var _active_screen: StringName = &"none"
+var _return_screen: StringName = &"main_menu"
+var _menu: MenuPanel
+var _setup: RunSetupPanel
+var _summary: RunSummaryPanel
+var _armory: ArmoryPanel
+var _settings: SettingsPanel
+var _help: HelpPanel
+var _upgrade: UpgradePanel
+var _hud: GameHud
+var _touch: TouchControls
+var _skill_bar: SkillBar
+var _minimap: Minimap
+var _boss_bar: BossHealthBar
+var _boss_gate: Control
+var _banner: AnnouncementBanner
+var _numbers: DamageNumberLayer
+var _confirm: ConfirmationDialog
+var _confirm_command: Callable
+var _text_scale := 1.0
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_build_screens()
+	set_anchors_preset(PRESET_FULL_RECT)
+	mouse_filter = MOUSE_FILTER_IGNORE
+	_backdrop = MenuBackdrop.new()
+	_backdrop.set_anchors_preset(PRESET_FULL_RECT)
+	_backdrop.mouse_filter = MOUSE_FILTER_IGNORE
+	add_child(_backdrop)
+	_safe = UiSafeArea.new()
+	add_child(_safe)
 	_build_hud()
-	_build_hud_extras()
-	_build_touch()
-	_upgrade_panel.choice_pressed.connect(_on_upgrade_panel_choice)
+	_build_screens()
 	EventBus.game_state_changed.connect(_on_state_changed)
-	EventBus.player_health_changed.connect(_on_health_changed)
-	EventBus.score_changed.connect(_on_score_changed)
-	EventBus.wave_started.connect(_on_wave_started)
-	EventBus.combo_changed.connect(_on_combo_changed)
-	EventBus.currency_changed.connect(_on_currency_changed)
-	EventBus.enemy_damaged.connect(_on_enemy_damaged_numbers)
-	EventBus.settings_changed.connect(_on_settings_changed_push)
-	EventBus.run_ended.connect(func(_s: int, _w: int, _b: int) -> void:
-		_refresh_gameover_best()
-		_update_gameover_stats())
-	EventBus.upgrade_choices_presented.connect(_on_upgrade_choices_presented)
+	EventBus.settings_changed.connect(_apply_settings)
+	EventBus.upgrade_choices_presented.connect(_upgrade.present)
 	EventBus.upgrade_selected.connect(_on_upgrade_selected)
-	_push_accessibility_settings()
+	EventBus.enemy_damaged.connect(_on_damage)
+	EventBus.run_started.connect(func(_id: int, _seed: int) -> void:
+		_numbers.clear_all()
+		_apply_settings(SaveManager.get_settings()))
+	_safe.resized.connect(_layout)
+	_apply_settings(SaveManager.get_settings())
+	_layout.call_deferred()
 	_sync_from_state()
 
-
-func _process(_delta: float) -> void:
-	if GameRoot.get_current_state() != GameRoot.State.PLAYING and GameRoot.get_current_state() != GameRoot.State.WAVE_TRANSITION:
-		return
-	var v := _joystick.get_value()
-	if v != _last_joystick_value:
-		_last_joystick_value = v
-		var p := GameRoot.get_active_player()
-		if p != null and is_instance_valid(p) and p.has_method("set_move_input"):
-			p.call("set_move_input", v)
-
-
-## Announcement line for tutorial/coach wiring (Main binds the TutorialManager).
-func get_announcement_banner() -> AnnouncementBanner:
-	return _banner
-
-
-# ---------------------------- Screens ----------------------------
+func _mount(key: StringName, panel: Control) -> void:
+	_screens[key] = panel
+	_safe.add_child(panel)
+	panel.visible = false
 
 func _build_screens() -> void:
-	_main_panel = UiFactory.make_panel(self, "MainMenuPanel")
-	var box := UiFactory.center_box(_main_panel)
-	UiFactory.title(loc(&"app_title"), box, _font(30))
-	UiFactory.title(loc(&"app_subtitle"), box, _font(30))
-	UiFactory.title("", box, _font(30))  # spacer
-	var play_btn := UiFactory.button(loc(&"play"), box, _font(20))
-	play_btn.pressed.connect(func() -> void: GameRoot.request_play())
-	var daily_btn := UiFactory.button(loc(&"daily"), box, _font(20))
-	daily_btn.pressed.connect(func() -> void: GameRoot.start_daily_run())
-	var armory_btn := UiFactory.button(loc(&"armory"), box, _font(20))
-	armory_btn.pressed.connect(_open_armory)
-	var settings_btn := UiFactory.button(loc(&"settings"), box, _font(20))
-	settings_btn.pressed.connect(_open_settings)
-	var quit_btn := UiFactory.button(loc(&"quit"), box, _font(20))
-	quit_btn.pressed.connect(_request_quit)
-	_best_menu_labels(box)
+	_menu = MenuPanel.new()
+	_mount(&"main_menu", _menu)
+	_menu.navigate.connect(_navigate)
+	_menu.quit_requested.connect(_request_quit)
+	_setup = RunSetupPanel.new()
+	_mount(&"run_setup", _setup)
+	_setup.back_requested.connect(func() -> void: _show_screen(&"main_menu"))
+	_summary = RunSummaryPanel.new()
+	_mount(&"game_over", _summary)
+	_summary.page_changed.connect(func(page: StringName) -> void:
+		if GameRoot.get_current_state() == GameRoot.State.GAME_OVER: _active_screen = page)
+	_summary.menu_requested.connect(func() -> void: GameRoot.request_main_menu())
+	_summary.armory_requested.connect(func() -> void: _navigate(&"armory"))
+	_help = HelpPanel.new()
+	_mount(&"help", _help)
+	_help.close_requested.connect(_close_auxiliary)
+	for key in [&"settings", &"armory"]:
+		var panel := Control.new()
+		panel.set_anchors_preset(PRESET_FULL_RECT)
+		_mount(key, panel)
+		var box := UiFactory.center_box(panel)
+		UiFactory.title(String(key).to_upper(), box, 34)
+		if key == &"settings":
+			_settings = SettingsPanel.new()
+			box.add_child(_settings)
+			_settings.close_requested.connect(_close_auxiliary)
+		else:
+			_armory = ArmoryPanel.new()
+			box.add_child(_armory)
+			_armory.close_requested.connect(_close_auxiliary)
+	_upgrade = UpgradePanel.new()
+	_mount(&"upgrade_selection", _upgrade)
+	_upgrade.choice_pressed.connect(_choose_upgrade)
+	_upgrade.exit_requested.connect(func() -> void: _confirm_leave(GameRoot.request_main_menu))
+	_build_pause()
+	var status := Control.new()
+	status.set_anchors_preset(PRESET_FULL_RECT)
+	_mount(&"status", status)
+	var status_box := UiFactory.center_box(status)
+	UiFactory.title("PREPARING THE ARENA", status_box, 34).name = "StatusTitle"
+	UiFactory.label("Please wait. If loading cannot complete, return to the menu.", status_box)
+	UiFactory.button("MAIN MENU", status_box, 22).pressed.connect(func() -> void: GameRoot.request_main_menu())
+	_confirm = ConfirmationDialog.new()
+	_confirm.title = "LEAVE THIS STAND?"
+	_confirm.dialog_text = "Unfinished run progress will be lost. No end-of-run reward is granted."
+	_confirm.ok_button_text = "LEAVE RUN"
+	_confirm.cancel_button_text = "KEEP PLAYING"
+	_confirm.confirmed.connect(func() -> void:
+		if _confirm_command.is_valid(): _confirm_command.call())
+	add_child(_confirm)
 
-	_build_settings_screen()
-	_build_armory_screen()
-	_build_pause_screen()
-	_build_gameover_screen()
-	_build_upgrade_screen()
-
-
-func _font(base: int) -> int:
-	return UiFactory.font_scaled(base)
-
-
-func _best_menu_labels(box: VBoxContainer) -> void:
-	var bs := Label.new()
-	bs.name = "BestScoreLabel"
-	bs.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	bs.add_theme_font_size_override("font_size", _font(16))
-	box.add_child(bs)
-	_refresh_best_label(bs)
-	var ver := Label.new()
-	ver.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ver.text = loc(&"version")
-	ver.add_theme_font_size_override("font_size", _font(12))
-	ver.modulate.a = 0.6
-	box.add_child(ver)
-
-
-func _build_settings_screen() -> void:
-	_settings_panel = UiFactory.make_panel(self, "SettingsPanel")
-	_settings_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var box := UiFactory.center_box(_settings_panel)
-	UiFactory.title(loc(&"settings"), box, _font(30))
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(620, 480)
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(scroll)
-	var form := SettingsPanel.new()
-	form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	form.close_requested.connect(_close_settings)
-	scroll.add_child(form)
-
-
-func _build_armory_screen() -> void:
-	_armory_panel = UiFactory.make_panel(self, "ArmoryPanel")
-	_armory_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var box := UiFactory.center_box(_armory_panel)
-	UiFactory.title(loc(&"armory"), box, _font(30))
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(620, 480)
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	box.add_child(scroll)
-	_armory_form = ArmoryPanel.new()
-	_armory_form.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_armory_form.close_requested.connect(_close_armory)
-	scroll.add_child(_armory_form)
-
-
-func _build_pause_screen() -> void:
-	_pause_panel = UiFactory.make_panel(self, "PausePanel")
-	var box := UiFactory.center_box(_pause_panel)
-	UiFactory.title(loc(&"paused"), box, _font(30))
-	var resume_btn := UiFactory.button(loc(&"resume"), box, _font(20))
-	resume_btn.pressed.connect(func() -> void: GameRoot.request_resume())
-	var restart_btn := UiFactory.button(loc(&"restart"), box, _font(20))
-	restart_btn.pressed.connect(func() -> void: GameRoot.request_restart())
-	var menu_btn := UiFactory.button(loc(&"main_menu"), box, _font(20))
-	menu_btn.pressed.connect(func() -> void: GameRoot.request_main_menu())
-	var armory_btn := UiFactory.button(loc(&"armory"), box, _font(20))
-	armory_btn.pressed.connect(_open_armory)
-	var set_btn := UiFactory.button(loc(&"settings"), box, _font(20))
-	set_btn.pressed.connect(_open_settings)
-
-
-func _build_gameover_screen() -> void:
-	_gameover_panel = UiFactory.make_panel(self, "GameOverPanel")
-	var box := UiFactory.center_box(_gameover_panel)
-	UiFactory.title(loc(&"game_over"), box, _font(30))
-	var stats := Label.new()
-	stats.name = "RunStatsLabel"
-	stats.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stats.add_theme_font_size_override("font_size", _font(18))
-	box.add_child(stats)
-	var retry_btn := UiFactory.button(loc(&"retry"), box, _font(20))
-	retry_btn.pressed.connect(func() -> void: GameRoot.request_play())
-	var menu_btn := UiFactory.button(loc(&"main_menu"), box, _font(20))
-	menu_btn.pressed.connect(func() -> void: GameRoot.request_main_menu())
-	_gameover_stats = stats
-
-
-func _build_upgrade_screen() -> void:
-	_upgrade_panel = UpgradePanel.new()
-	add_child(_upgrade_panel)
-
+func _build_pause() -> void:
+	var panel := Control.new()
+	panel.set_anchors_preset(PRESET_FULL_RECT)
+	_mount(&"paused", panel)
+	var box := UiFactory.center_box(panel)
+	UiFactory.label("TAKE A BREATH", box, 18).modulate = UiTheme.CYAN
+	UiFactory.title("PAUSED", box, 48)
+	UiFactory.label("Your run is frozen. Resume when you're ready.", box, 22)
+	UiFactory.button("RESUME RUN", box, 24).pressed.connect(func() -> void: GameRoot.request_resume())
+	UiFactory.button("HOW TO PLAY", box, 22).pressed.connect(func() -> void: _navigate(&"help"))
+	UiFactory.button("SETTINGS", box, 22).pressed.connect(func() -> void: _navigate(&"settings"))
+	UiFactory.button("RESTART RUN", box, 22).pressed.connect(func() -> void: _confirm_leave(GameRoot.request_restart))
+	UiFactory.button("MAIN MENU", box, 22).pressed.connect(func() -> void: _confirm_leave(GameRoot.request_main_menu))
 
 func _build_hud() -> void:
 	_hud = GameHud.new()
-	add_child(_hud)
-
-
-## Skill bar, minimap, boss frame, damage numbers, announcement banner. The bar and
-## minimap show only while playing; the boss frame manages itself (boss spawn ->
-## death/run end); numbers + banner are always mounted but idle when empty.
-func _build_hud_extras() -> void:
-	_dmg_layer = DamageNumberLayer.new()
-	add_child(_dmg_layer)
-
+	_safe.add_child(_hud)
+	_numbers = DamageNumberLayer.new()
+	# Damage coordinates are viewport-space, not safe-area-space.
+	add_child(_numbers)
 	_banner = AnnouncementBanner.new()
-	_banner.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_banner.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_banner.offset_top = 200
-	_banner.offset_bottom = 260
-	add_child(_banner)
-
+	_safe.add_child(_banner)
+	_boss_gate = Control.new()
+	_boss_gate.set_anchors_preset(PRESET_FULL_RECT)
+	_boss_gate.mouse_filter = MOUSE_FILTER_IGNORE
+	_safe.add_child(_boss_gate)
 	_boss_bar = BossHealthBar.new()
-	_boss_bar.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_boss_bar.offset_left = -210
-	_boss_bar.offset_right = 210
-	_boss_bar.offset_top = 64
-	_boss_bar.offset_bottom = 140
-	add_child(_boss_bar)
-
+	_boss_gate.add_child(_boss_bar)
 	_minimap = Minimap.new()
-	_minimap.anchor_left = 1.0
-	_minimap.anchor_right = 1.0
-	_minimap.offset_left = -172
-	_minimap.offset_right = -12
-	_minimap.offset_top = 64
-	_minimap.offset_bottom = 224
-	add_child(_minimap)
-	_minimap.visible = false
-
+	_safe.add_child(_minimap)
 	_skill_bar = SkillBar.new()
-	_skill_bar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_skill_bar.offset_left = -110
-	_skill_bar.offset_right = 110
-	_skill_bar.offset_top = -250
-	_skill_bar.offset_bottom = -160
-	add_child(_skill_bar)
-	_skill_bar.visible = false
+	_safe.add_child(_skill_bar)
+	_touch = TouchControls.new()
+	_safe.add_child(_touch)
+	_touch.action_declined.connect(_hud.show_toast)
+	_skill_bar.action_declined.connect(_hud.show_toast)
 
+func _layout() -> void:
+	if _banner == null: return
+	var width := _safe.size.x
+	var height := _safe.size.y
+	_hud.layout_for_size(width)
+	_banner.position = Vector2(290, 160)
+	_banner.size = Vector2(maxf(width - 490, 220), 100)
+	_boss_bar.position = Vector2(width * 0.5 - 160, 78)
+	_boss_bar.size = Vector2(320, 70)
+	if width < 850:
+		_boss_bar.position = Vector2(20, 260)
+		_boss_bar.size.x = width - 40
+		_banner.position = Vector2(20, 355)
+		_banner.size.x = width - 40
+	_minimap.position = Vector2(width - 164, 82)
+	_minimap.size = Vector2(140, 140)
+	_skill_bar.position = Vector2(width * 0.32 + 8, height - (210 if _text_scale > 1.3 else 145))
+	_skill_bar.fit_touch_targets(width)
+	# Apply after child minimum-size invalidations (e.g. rotating a wide tablet).
+	_skill_bar.set_deferred("size", Vector2(maxf(width * 0.68 - 270, 210), 190 if _text_scale > 1.3 else 125))
 
-func _build_touch() -> void:
-	_touch_layer = Control.new()
-	_touch_layer.name = "TouchControls"
-	_touch_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_touch_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_touch_layer)
-	_touch_layer.visible = false
-
-	_joystick = VIRTUAL_JOYSTICK.new()
-	_joystick.name = "MovementJoystick"
-	_joystick.anchor_left = 0.0
-	_joystick.anchor_right = 0.0
-	_joystick.anchor_top = 1.0
-	_joystick.anchor_bottom = 1.0
-	_joystick.offset_left = 8
-	_joystick.offset_right = 480
-	_joystick.offset_top = -440
-	_joystick.offset_bottom = 8
-	_joystick.mouse_filter = Control.MOUSE_FILTER_STOP
-	_touch_layer.add_child(_joystick)
-
-	_attack_btn = TOUCH_ACTION.new()
-	_attack_btn.name = "AttackButton"
-	_attack_btn.action_name = "attack"
-	_attack_btn.vibrate_on_press = true
-	_attack_btn.anchor_left = 1.0
-	_attack_btn.anchor_top = 1.0
-	_attack_btn.offset_left = -150
-	_attack_btn.offset_right = -38
-	_attack_btn.offset_top = -180
-	_attack_btn.offset_bottom = -68
-	_attack_btn.pressed.connect(func() -> void:
-		var p := GameRoot.get_active_player()
-		if p != null and is_instance_valid(p) and p.has_method("request_attack"):
-			p.call("request_attack"))
-	_touch_layer.add_child(_attack_btn)
-
-	_dodge_btn = TOUCH_ACTION.new()
-	_dodge_btn.name = "DodgeButton"
-	_dodge_btn.action_name = "dodge"
-	_dodge_btn.radius = 44.0
-	_dodge_btn.anchor_left = 1.0
-	_dodge_btn.anchor_top = 1.0
-	_dodge_btn.offset_left = -270
-	_dodge_btn.offset_right = -182
-	_dodge_btn.offset_top = -110
-	_dodge_btn.offset_bottom = -22
-	_dodge_btn.pressed.connect(func() -> void:
-		var p := GameRoot.get_active_player()
-		if p != null and is_instance_valid(p) and p.has_method("request_dodge"):
-			p.call("request_dodge"))
-	_touch_layer.add_child(_dodge_btn)
-
-	_switch_btn = TOUCH_ACTION.new()
-	_switch_btn.name = "SwitchWeaponButton"
-	_switch_btn.action_name = "switch_weapon"
-	_switch_btn.radius = 30.0
-	_switch_btn.anchor_left = 1.0
-	_switch_btn.anchor_top = 1.0
-	_switch_btn.offset_left = -262
-	_switch_btn.offset_right = -190
-	_switch_btn.offset_top = -206
-	_switch_btn.offset_bottom = -134
-	_switch_btn.pressed.connect(func() -> void:
-		var p := GameRoot.get_active_player()
-		if p != null and is_instance_valid(p) and p.has_method("request_weapon_switch"):
-			p.call("request_weapon_switch"))
-	_touch_layer.add_child(_switch_btn)
-
-
-# ---------------------------- Upgrade cards ----------------------------
-
-func _on_upgrade_choices_presented(choices: Array) -> void:
-	_upgrade_panel.present(choices)
-
-
-## A card was clicked. Route ONLY through the GameRoot command; never touch progression.
-func _on_upgrade_panel_choice(upgrade_id: StringName) -> void:
-	if GameRoot.get_current_state() != GameRoot.State.UPGRADE_SELECTION:
-		return
-	if GameRoot.request_upgrade_selection(upgrade_id):
-		_upgrade_panel.lock_selection()
-		upgrade_chosen.emit(upgrade_id)
-
-
-## After a valid selection, show a short confirmation toast on the HUD while the next
-## wave begins. Respects reduced-motion (no tween when disabled).
-func _on_upgrade_selected(upgrade_id: StringName) -> void:
-	var cfg := ContentRegistry.get_upgrade(upgrade_id)
-	if cfg == null:
-		return
-	_hud.show_toast("%s  •  %s" % [cfg.display_name.to_upper(), cfg.description.to_upper()])
-
-
-# ---------------------------- Screen switching ----------------------------
+static func screen_for_state(state: StringName) -> StringName:
+	if state in [&"starting_run", &"loading", &"error"]: return &"status"
+	if state == &"wave_transition": return &"wave_transition"
+	return state if state in [&"main_menu", &"playing", &"paused", &"upgrade_selection", &"game_over"] else &"status"
 
 func _show_screen(screen: StringName) -> void:
 	_active_screen = screen
-	_main_panel.visible = screen == &"main_menu" or screen == &"main_menu_settings"
-	_settings_panel.visible = screen == &"settings"
-	_armory_panel.visible = screen == &"armory"
-	_pause_panel.visible = screen == &"paused"
-	_gameover_panel.visible = screen == &"game_over"
-	_upgrade_panel.visible = screen == &"upgrade_selection"
-	var playing := screen == &"playing" or screen == &"wave_transition"
+	var panel_key := &"game_over" if screen in [&"run_summary", &"meta_reward"] else screen
+	for key in _screens:
+		_screens[key].visible = key == panel_key
+	var playing := screen in [&"playing", &"wave_transition"]
+	_backdrop.visible = not playing
 	_hud.visible = playing
-	if playing:
-		# Seed widgets from the live run so nothing renders stale/blank before
-		# the first combat event of a fresh run.
-		var run := GameRoot.get_run()
-		if run != null:
-			_hud.set_score(run.score)
-			_hud.set_currency(run.currency)
-			_hud.set_wave(run.current_wave)
-			_hud.set_combo(run.combo)
-	_touch_layer.visible = playing
+	_touch.visible = playing and (DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"))
 	_skill_bar.visible = playing
 	_minimap.visible = playing
-	# Boss frame self-manages (boss spawn -> death/run end); numbers + banner idle
-	# silently when empty, so they stay mounted across all screens.
-
+	_boss_gate.visible = playing
+	_banner.visible = playing
+	_banner.set_process(playing)
+	_numbers.visible = playing
+	_numbers.set_process(playing)
+	if not playing:
+		_touch.cancel()
+		_numbers.clear_all()
+	if screen == &"main_menu":
+		_menu.refresh()
+		_banner.clear_all()
+	if screen == &"upgrade_selection": _upgrade._layout_cards()
+	if _screens.has(panel_key): UiFactory.focus_first.call_deferred(_screens[panel_key])
 
 func _sync_from_state() -> void:
-	var state := GameRoot.get_current_state()
-	match state:
-		GameRoot.State.MAIN_MENU:
-			_show_screen(&"main_menu")
-		GameRoot.State.PLAYING, GameRoot.State.WAVE_TRANSITION:
-			_show_screen(&"playing")
-		GameRoot.State.UPGRADE_SELECTION:
-			_show_screen(&"upgrade_selection")
-		GameRoot.State.PAUSED:
-			_show_screen(&"paused")
-		GameRoot.State.GAME_OVER:
-			_show_screen(&"game_over")
-			_update_gameover_stats()
-		_:
-			_show_screen(&"main_menu")
+	_show_screen(screen_for_state(GameRoot.get_current_state()))
+	var title := _screens[&"status"].find_child("StatusTitle", true, false) as Label
+	title.text = "ARENA UNAVAILABLE" if GameRoot.get_current_state() == GameRoot.State.ERROR else "PREPARING THE ARENA"
 
-
-func _on_state_changed(_p: StringName, _c: StringName) -> void:
-	# Reflect every canonical state change onto the panel stack.
+func _on_state_changed(_previous: StringName, _current: StringName) -> void:
+	if _confirm != null: _confirm.hide()
 	_sync_from_state()
 
+func _navigate(screen: StringName) -> void:
+	if screen in [&"run_setup", &"daily"]:
+		_setup.present(screen == &"daily")
+		_show_screen(&"run_setup")
+		return
+	_return_screen = _active_screen
+	if screen == &"armory": _armory.refresh()
+	if screen == &"settings": _settings.refresh()
+	if screen == &"help": _help.refresh()
+	_apply_settings(SaveManager.get_settings())
+	_show_screen(screen)
 
-func _open_settings() -> void:
-	_show_screen(&"settings")
+func _close_auxiliary() -> void:
+	if _active_screen == &"settings": _settings.cancel_edit()
+	_show_screen(_return_screen)
 
-
-func _close_settings() -> void:
-	if GameRoot.get_current_state() == GameRoot.State.MAIN_MENU:
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"): return
+	if _confirm != null and _confirm.visible: return
+	if _active_screen in [&"settings", &"armory", &"help"]:
+		if _active_screen == &"settings" and _settings.is_rebinding(): return
+		_close_auxiliary()
+		get_viewport().set_input_as_handled()
+	elif _active_screen == &"run_setup":
 		_show_screen(&"main_menu")
-	elif GameRoot.get_current_state() == GameRoot.State.PAUSED:
-		_show_screen(&"paused")
+		get_viewport().set_input_as_handled()
 
+func _confirm_leave(command: Callable) -> void:
+	_confirm_command = command
+	_confirm.title = "LEAVE THIS STAND?"
+	_confirm.dialog_text = "Unfinished run progress will be lost. No end-of-run reward is granted."
+	_confirm.ok_button_text = "LEAVE RUN"
+	_confirm.popup_centered(Vector2i(500, 220))
 
-func _open_armory() -> void:
-	if _armory_form != null:
-		_armory_form.refresh()
-	_show_screen(&"armory")
+func _choose_upgrade(id: StringName) -> void:
+	if GameRoot.get_current_state() != GameRoot.State.UPGRADE_SELECTION: return
+	if GameRoot.request_upgrade_selection(id):
+		_upgrade.lock_selection()
+		upgrade_chosen.emit(id)
+	else:
+		_upgrade.show_feedback("That choice is no longer available. Select another card.")
 
+func _on_upgrade_selected(id: StringName) -> void:
+	var cfg := ContentRegistry.get_upgrade(id)
+	if cfg != null:
+		_banner.clear_pending()
+		_banner.announce("UPGRADE APPLIED / " + cfg.display_name, &"victory")
 
-func _close_armory() -> void:
-	if GameRoot.get_current_state() == GameRoot.State.MAIN_MENU:
-		_show_screen(&"main_menu")
-	elif GameRoot.get_current_state() == GameRoot.State.PAUSED:
-		_show_screen(&"paused")
+func _on_damage(enemy: Node, result: DamageResult) -> void:
+	if result != null and result.accepted and is_instance_valid(enemy) and enemy is Node3D:
+		_numbers.spawn_damage_number(enemy.global_position + Vector3.UP * 1.2, result.final_amount, result.was_critical)
+
+func _apply_settings(settings: SettingsData) -> void:
+	_text_scale = settings.text_scale
+	theme = UiTheme.create(settings)
+	UiTheme.apply_text_scale(self, settings.text_scale)
+	_banner.set_reduced_motion(settings.reduced_motion)
+	_numbers.set_reduced_motion(settings.reduced_motion)
+	_boss_bar.set_reduced_motion(settings.reduced_motion)
+	_touch.set_high_contrast(settings.high_contrast)
+	for node in get_tree().get_nodes_in_group("hitstop_manager"):
+		if node.has_method("set_reduced_motion"): node.call("set_reduced_motion", settings.reduced_motion)
+	for node in get_tree().get_nodes_in_group("performance_monitor"):
+		if node.has_method("set_tier"): node.call("set_tier", [&"low", &"medium", &"high"].find(settings.graphics_quality))
+		if node.has_method("max_damage_numbers"):
+			_numbers.set_max_live(int(node.call("max_damage_numbers")))
+	_layout.call_deferred()
+
+func get_announcement_banner() -> AnnouncementBanner: return _banner
+func loc(key: StringName) -> String: return UiText.lookup(key)
+func get_debug_snapshot() -> Dictionary:
+	var result := _touch.get_debug_snapshot()
+	result["active_screen"] = String(_active_screen)
+	return result
 
 
 func _request_quit() -> void:
-	get_tree().quit()
-
-
-# ---------------------------- HUD updates ----------------------------
-
-func _on_health_changed(current: float, maximum: float) -> void:
-	_hud.set_health(current, maximum)
-
-
-func _on_score_changed(score: int, _delta: int) -> void:
-	_hud.set_score(score)
-
-
-func _on_wave_started(wave_number: int, _planned: int) -> void:
-	_hud.set_wave(wave_number)
-
-
-func _on_combo_changed(combo: int, best: int) -> void:
-	_hud.set_combo(combo)
-
-
-func _on_currency_changed(currency: int, _delta: int) -> void:
-	_hud.set_currency(currency)
-
-
-## Damage-number glue: every accepted enemy hit pops a floating number (gold crits).
-func _on_enemy_damaged_numbers(enemy: Node, result: DamageResult) -> void:
-	if _dmg_layer == null or result == null or not result.accepted:
+	if SaveManager.save_now():
+		get_tree().quit()
 		return
-	if not (enemy is Node3D):
-		return
-	var pos := (enemy as Node3D).global_position + Vector3(0, 1.2, 0)
-	_dmg_layer.spawn_damage_number(pos, result.final_amount, result.was_critical)
-
-
-## Push reduced-motion + number budget from settings (live on settings_changed).
-func _on_settings_changed_push(_settings: SettingsData) -> void:
-	_push_accessibility_settings()
-
-
-func _push_accessibility_settings() -> void:
-	var reduced := false
-	if SaveManager != null and SaveManager.has_method("get_settings"):
-		var s: SettingsData = SaveManager.call("get_settings")
-		if s != null and s.has_method("get_reduced_motion"):
-			reduced = bool(s.call("get_reduced_motion"))
-	if _banner != null:
-		_banner.set_reduced_motion(reduced)
-	if _dmg_layer != null:
-		_dmg_layer.set_reduced_motion(reduced)
-		_dmg_layer.set_max_live(_perf_number_budget())
-
-
-func _perf_number_budget() -> int:
-	if is_inside_tree():
-		for node in get_tree().get_nodes_in_group("performance_monitor"):
-			if node != null and node.has_method("max_damage_numbers"):
-				return int(node.call("max_damage_numbers"))
-	return 32
-
-
-func _refresh_best_label(label: Label) -> void:
-	label.text = "%s %d    %s %d" % [
-		loc(&"best_score"), GameRoot.get_best_score(),
-		loc(&"best_wave"), GameRoot.get_best_wave(),
-	]
-
-
-func _refresh_gameover_best() -> void:
-	for child in _main_panel.find_children("*", "Label", true, false):
-		if child.name == "BestScoreLabel":
-			_refresh_best_label(child)
-
-
-func _update_gameover_stats() -> void:
-	if _gameover_stats == null:
-		return
-	var run := GameRoot.get_run()
-	var secs := int(run.elapsed_seconds)
-	var summary := run.summary()
-	_gameover_stats.text = "%s: %d\n%s: %d\n%s: %d\n%s: %ds\n%s: %d" % [
-		loc(&"score"), summary.score,
-		loc(&"wave_reached"), summary.current_wave,
-		loc(&"kills"), summary.kills,
-		loc(&"time_survived"), secs,
-		loc(&"best_score"), GameRoot.get_best_score(),
-	]
-
-
-# ---------------------------- Localization ----------------------------
-
-func loc(key: StringName) -> String:
-	return UiText.get(key)
-
-
-func get_debug_snapshot() -> Dictionary:
-	return {
-		"active_screen": String(_active_screen),
-		"joystick_active": _joystick.is_active(),
-		"joystick_value": _joystick.get_value(),
-	}
+	_confirm.title = "SAVE INCOMPLETE"
+	_confirm.dialog_text = "Progress could not be saved. Quit anyway, or cancel and retry?"
+	_confirm.ok_button_text = "QUIT ANYWAY"
+	_confirm.cancel_button_text = "CANCEL"
+	_confirm_command = func() -> void: get_tree().quit()
+	_confirm.popup_centered(Vector2i(500, 220))

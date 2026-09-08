@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"hunter"
 display_name = "Hunter"
-description = "+10% score multiplier"
+description = "+10% score multiplier. Riskier kill streaks pay out more."
 rarity = &"common"
+category = &"economy"
 max_stacks = 3
 stat_modifiers = {
 "score_multiplier_add": 0.1,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"economy", &"score", &"combo"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.75
 disabled = false

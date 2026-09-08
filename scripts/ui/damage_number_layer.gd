@@ -38,11 +38,13 @@ func _make_label() -> Label:
 
 
 func set_max_live(count: int) -> void:
-	_max_live = maxi(count, 4)
+	_max_live = clampi(count, 4, DEFAULT_POOL)
 
 
 func set_reduced_motion(reduced: bool) -> void:
 	_reduced_motion = reduced
+	if reduced:
+		for label in _pool: label.scale = Vector2.ONE
 
 
 func bind_camera(camera: Camera3D) -> void:
@@ -77,10 +79,10 @@ func spawn_damage_number(world_pos: Vector3, amount: float, was_crit: bool = fal
 	label.text = str(CriticalSystem.display_value(amount, was_crit))
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2) if was_crit else color)
 	label.add_theme_font_size_override("font_size", int(22 * CRIT_SCALE) if was_crit else 22)
-	label.position = (screen as Vector2) + Vector2(randf_range(-12, 12), -8)
+	label.position = (screen as Vector2) + Vector2(0 if _reduced_motion else randf_range(-12, 12), -8)
 	label.visible = true
 	label.modulate.a = 1.0
-	label.scale = Vector2.ONE * (1.3 if was_crit else 1.0)
+	label.scale = Vector2.ONE * (1.3 if was_crit and not _reduced_motion else 1.0)
 	_live.append({"label": label, "timer": LIFE_SECONDS, "crit": was_crit})
 
 
@@ -95,6 +97,7 @@ func spawn_text(world_pos: Vector3, text: String, color: Color = Color.WHITE, bi
 	if screen == null:
 		return
 	var label := _obtain()
+	label.scale = Vector2.ONE
 	label.text = text
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", 30 if big else 20)
@@ -110,7 +113,6 @@ func _obtain() -> Label:
 			return label
 	# Pool exhausted: reuse the oldest live label.
 	var oldest: Dictionary = _live.pop_front()
-	_live.append(oldest)
 	return oldest["label"]
 
 

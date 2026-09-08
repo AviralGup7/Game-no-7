@@ -46,7 +46,7 @@ const TEXT := {
 
 
 ## Look up a UI string; unknown keys echo back so missing entries stay visible.
-static func get(key: StringName) -> String:
+static func lookup(key: StringName) -> String:
 	var k := String(key)
 	if TEXT.has(k):
 		return TEXT[k]

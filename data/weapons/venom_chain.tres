@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="WeaponConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+weapon_id = &"venom_chain"
+display_name = "Venom Chain"
+description = "A hooked chain that reaches around the wielder and layers poison on every quick link."
+kind = &"melee"
+rarity = &"epic"
+attack_pattern = &"flurry"
+damage_type = &"poison"
+base_damage = 8.0
+swing_cooldown = 0.46
+windup = 0.1
+range = 3.3
+arc_degrees = 150.0
+max_targets = 5
+knockback = 4.0
+combo_damage_steps = PackedFloat32Array(1, 1.1, 1.25, 1.55)
+combo_window = 0.42
+crit_chance = 0.09
+crit_multiplier = 1.75
+on_hit_effects = Array[StringName]([&"poison", &"bleed"])
+on_hit_effect_chance = 0.65
+unlock_wave = 6
+unlock_cost = 320
+weight = 0.45
+disabled = false
+tags = Array[StringName]([&"status", &"poison", &"flurry", &"cleave"])

@@ -19,7 +19,11 @@ var _debounce: Timer = null
 
 
 func _ready() -> void:
+	# Persistence must keep working while the tree is paused (the pause menu is
+	# exactly where players change settings / buy armory ranks).
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_debounce = Timer.new()
+	_debounce.process_mode = Node.PROCESS_MODE_ALWAYS
 	_debounce.one_shot = true
 	_debounce.wait_time = SAVE_DEBOUNCE_MSEC / 1000.0
 	_debounce.timeout.connect(_flush_save)
@@ -28,9 +32,14 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	# Never lose a debounced write (best scores, armory, achievements) to a quit.
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_flush_save()
+	# Never lose a debounced write (best scores, armory, achievements). On Android
+	# the app is normally backgrounded/killed without a CLOSE_REQUEST, so also flush
+	# on focus loss and on the engine's predelete/exit paths.
+	match what:
+		NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_GO_BACK_REQUEST, \
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_EXIT_TREE:
+			_flush_save()
 
 
 ## Pure validator/migrator entry point (delegates to SaveSchema; kept here so
@@ -82,7 +91,17 @@ func record_run_completed(summary: Dictionary) -> void:
 	ls.total_kills = int(ls.total_kills) + int(summary.get("kills", 0))
 	ls.total_time_seconds = float(ls.total_time_seconds) + float(summary.get("elapsed_seconds", 0.0))
 	ls.highest_combo = maxi(int(ls.highest_combo), int(summary.get("best_combo", 0)))
+	# Persist only the normalized, id-based build mirror. ProgressionComponent,
+	# WeaponManager and SkillController remain the live runtime authorities.
+	var build_value: Variant = summary.get("build", {})
+	var normalized_build := SaveSchema.normalize_save({"last_run_build": build_value})
+	_save.last_run_build = normalized_build.get("last_run_build", SaveSchema.default_run_build())
 	mark_dirty()
+
+
+## Read the last normalized build summary without exposing live runtime objects.
+func get_last_run_build() -> Dictionary:
+	return (_save.get("last_run_build", SaveSchema.default_run_build()) as Dictionary).duplicate(true)
 
 
 ## Apply runtime settings back into the store and mark dirty.
@@ -243,5 +262,9 @@ func _write_raw(path: String, contents: String) -> bool:
 
 func _apply_validated(data: Dictionary) -> void:
 	_save = data
+	# Older saves normalized by SaveSchema always have this field, but keep the
+	# instance resilient if a caller supplied a hand-built dictionary.
+	if not _save.has("last_run_build"):
+		_save.last_run_build = SaveSchema.default_run_build()
 	_settings.from_dict(_save.settings)
 	_save.settings = _settings.to_dict()

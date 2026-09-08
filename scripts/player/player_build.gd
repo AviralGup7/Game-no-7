@@ -70,8 +70,17 @@ func rebuild_derived_stats() -> void:
 		_stamina.call("refresh_from_stats")
 	if _weapons != null and _weapons.has_method("refresh_derived_stats"):
 		_weapons.call("refresh_derived_stats")
-	if _skills != null and _skills.has_method("set_cooldown_multiplier") and _progression.has_method("get_stat"):
-		_skills.call("set_cooldown_multiplier", float(_progression.call("get_stat", &"skill_cooldown_multiplier", 1.0)))
+	if _skills != null and _progression.has_method("get_stat"):
+		if _skills.has_method("set_cooldown_multiplier"):
+			_skills.call("set_cooldown_multiplier", float(_progression.call("get_stat", &"skill_cooldown_multiplier", 1.0)))
+		if _skills.has_method("set_combat_modifiers"):
+			_skills.call(
+				"set_combat_modifiers",
+				float(_progression.call("get_stat", &"skill_damage_multiplier", 1.0)),
+				float(_progression.call("get_stat", &"area_radius_multiplier", 1.0)),
+				float(_progression.call("get_stat", &"area_damage_multiplier", 1.0)),
+				float(_progression.call("get_stat", &"status_chance_add", 0.0))
+			)
 
 
 func derived_max_health() -> float:

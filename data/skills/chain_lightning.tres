@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"chain_lightning"
+display_name = "Chain Lightning"
+description = "Shock the nearest foe, then jump through a tightly packed group with decaying damage."
+behavior = &"chain_lightning"
+input_action = &"skill_1"
+cooldown = 20.0
+stamina_cost = 32.0
+damage_multiplier = 2.2
+damage_type = &"shock"
+radius = 4.5
+chain_radius = 4.0
+chain_jumps = 5
+chain_decay = 0.72
+knockback = 3.0
+victim_effects = Array[StringName]([&"shock", &"exposed"])
+victim_effect_chance = 0.8
+unlock_level = 6
+unlock_wave = 6
+weight = 0.55
+disabled = false
+tags = Array[StringName]([&"chain", &"shock", &"status", &"aoe"])

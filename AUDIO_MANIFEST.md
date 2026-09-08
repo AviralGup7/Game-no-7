@@ -46,16 +46,24 @@ drops always take precedence — procedural fill never overwrites a registered c
 
 See `THIRD_PARTY_ASSETS.md` for shared asset policy and restore/verification commands.
 
-## Cue map (player cues now registered)
+## Registered cue map
+
+Since the environment/presentation pass these cues are **live**: `AudioAssetIntegrator`
+(`scripts/audio/audio_asset_integrator.gd`) reads the authoritative
+`assets/catalog.json` cue map at startup and registers every approved SFX variant
+(one `AudioStreamRandomizer` pool per cue) plus the two looping music tracks onto
+the existing state cues, taking precedence over `ProceduralSfx` fallback. State
+mapping: `music_menu` → `arena_menu.ogg`; `music_calm` / `music_battle` /
+`music_boss` / `music_victory` → `arena_gameplay.ogg` (the approved library ships one
+menu loop and one combat loop, so combat-adjacent states share the combat track).
 
 Paths below are relative to `assets/audio/`. Every file is in the checksum lock.
 The full variant lists, intended buses, loop flags, and suggested gains are in
-`assets/catalog.json`. Those JSON fields are **planning metadata**, not Godot
-import settings or a new audio registry. Player-only `AudioStreamRandomizer` resources
-in `data/audio/` now bind the four core player cues and five additional cues
-through the existing ContentLoader/ContentRegistry path. Each uses one recorded
-clip with fixed pitch/selection; no new source audio was added. Other cue mappings
-remain planned unless registered by their owning systems.
+`assets/catalog.json`. Those JSON fields are metadata (not a new audio registry);
+`data/audio/` also contains nine player-only cue resources loaded through the existing
+ContentLoader/ContentRegistry path. The integrator subsequently registers catalogue
+variants, taking precedence over those initial mappings, and can force Ogg looping
+at runtime. No source audio bytes are duplicated or changed.
 
 | Cue | Downloaded file(s) | Intended use |
 |---|---|---|

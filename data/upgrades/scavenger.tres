@@ -6,15 +6,16 @@
 script = ExtResource("1_script")
 upgrade_id = &"scavenger"
 display_name = "Scavenger"
-description = "+15% currency gain"
+description = "+15% currency gain. A long-run economy pick that gives up immediate damage."
 rarity = &"rare"
+category = &"economy"
 max_stacks = 3
 stat_modifiers = {
 "currency_multiplier_add": 0.15,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"economy", &"currency"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
-weight = 1.0
+weight = 0.75
 disabled = false

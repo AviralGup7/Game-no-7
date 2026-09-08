@@ -6,13 +6,14 @@
 script = ExtResource("1_script")
 upgrade_id = &"swift"
 display_name = "Swift"
-description = "+15% movement speed"
+description = "+15% movement speed. Outrun danger, but it does not make you tougher."
 rarity = &"common"
+category = &"mobility"
 max_stacks = 3
 stat_modifiers = {
 "move_speed_multiplier": 0.15,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"mobility", &"positioning"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1
