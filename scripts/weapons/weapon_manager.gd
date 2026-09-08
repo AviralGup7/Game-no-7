@@ -249,7 +249,11 @@ func tick(delta: float) -> void:
 
 
 func _resolve_active_attack(inst: WeaponInstance) -> void:
-	if _owner_body == null:
+	if _owner_body == null or not is_instance_valid(_owner_body):
+		return
+	if inst == null or inst.config == null or not is_instance_valid(inst):
+		return
+	if not is_inside_tree():
 		return
 	var cfg := inst.config
 	var was_crit := inst.roll_crit()
@@ -350,3 +354,12 @@ func get_debug_snapshot() -> Dictionary:
 		"active_weapon": String(active_weapon_id()),
 		"weapon": inst.get_debug_snapshot() if inst != null else {},
 	}
+
+## Hardened: validate weapon switch to prevent null config.
+func _validated_weapon_id(id: StringName) -> bool:
+    if id == &"":
+        return false
+    if ContentRegistry == null or not ContentRegistry.has_method("get_weapon"):
+        return false
+    return ContentRegistry.get_weapon(id) != null
+

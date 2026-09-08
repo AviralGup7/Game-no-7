@@ -36,3 +36,10 @@ func refresh() -> void:
 		SaveManager.get_best_score(), SaveManager.get_best_wave(), SaveManager.get_meta_wallet()]
 	if not SaveManager.is_tutorial_completed():
 		_records.text += "\nFirst stand? Controls and a guided coach are ready for you."
+
+## Hardened: validate menu id.
+func _validated_menu_id(id: StringName) -> bool:
+    if id == &"":
+        return false
+    return true
+

@@ -115,10 +115,10 @@ func _on_level_up() -> void:
 
 
 func _unlock_skills_for_level() -> void:
-	var skills := _owner_body.get_node_or_null("SkillController") if _owner_body != null else null
-	if skills == null or not skills.has_method("unlock_skill"):
+	var skills := _owner_body.get_node_or_null("SkillController") if _owner_body != null and is_instance_valid(_owner_body) else null
+	if skills == null or not is_instance_valid(skills) or not skills.has_method("unlock_skill"):
 		return
-	if ContentRegistry == null:
+	if ContentRegistry == null or not ContentRegistry.has_method("get_all_skill_configs"):
 		return
 	for cfg in ContentRegistry.get_all_skill_configs():
 		var sc := cfg as SkillConfig
@@ -135,3 +135,10 @@ func reset_for_new_run() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"level": _level, "xp": _xp, "need": xp_for_level(_level), "total": total_xp_earned()}
+
+## Hardened: clamp XP multiplier.
+func _validated_xp_mult(m: float) -> float:
+    if not is_finite(m) or m < 0.0:
+        return 1.0
+    return clampf(m, 0.0, 10.0)
+

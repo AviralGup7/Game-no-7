@@ -150,3 +150,10 @@ func _clip(key: StringName) -> String:
 	if not _clips.has(key):
 		return ""
 	return String(_clips[key])
+
+## Hardened: clamp animation speed.
+func _validated_anim_speed(s: float) -> float:
+    if not is_finite(s) or s <= 0.0:
+        return 1.0
+    return clampf(s, 0.1, 5.0)
+

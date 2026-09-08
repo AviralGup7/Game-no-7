@@ -103,12 +103,18 @@ func _default_phases() -> Array:
 ## Pure phase lookup used by the controller and headless tests: the phase whose
 ## threshold is the lowest one still >= frac, in descending-sorted `phases`.
 static func phase_index_for_fraction(frac: float, phases: Array) -> int:
+	if phases.is_empty():
+		return 0
 	var clamped := clampf(frac, 0.0, 1.0)
 	var target := 0
 	for i in range(phases.size()):
-		if clamped <= float(phases[i].get("threshold", 0.0)):
+		var th := float(phases[i].get("threshold", 0.0))
+		if not is_finite(th):
+			continue
+		th = clampf(th, 0.0, 1.0)
+		if clamped <= th:
 			target = i
-	return target
+	return clampi(target, 0, phases.size() - 1)
 
 
 func current_phase() -> int:
@@ -326,3 +332,10 @@ func get_debug_snapshot() -> Dictionary:
 		"enraged": _enraged,
 		"telegraph": String(_telegraph_kind),
 	}
+
+## Hardened: clamp boss threshold to prevent phase skip.
+func _validated_threshold(t: float) -> float:
+    if not is_finite(t):
+        return 0.0
+    return clampf(t, 0.0, 1.0)
+

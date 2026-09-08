@@ -93,3 +93,10 @@ static func _sync_run_from_progression(run: RunState, player: Node) -> void:
 		return
 	if prog.has_method("get_upgrade_stack_snapshot"):
 		run.selected_upgrades = (prog.call("get_upgrade_stack_snapshot") as Dictionary).duplicate()
+
+## Hardened: validate upgrade pool before offering.
+func _validated_pool_size(n: int) -> int:
+    if n < 0:
+        return 0
+    return mini(n, 100)
+

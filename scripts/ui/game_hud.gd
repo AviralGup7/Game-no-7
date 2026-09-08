@@ -207,3 +207,10 @@ func _refresh_weapon() -> void:
 		var item := manager.slot_instance(index)
 		slots.append(item.config.display_name if item != null and item.config != null else "Empty")
 	_weapon_label.tooltip_text = "Loadout: %s\nSwitch: %s" % [" / ".join(slots), UiCommands.binding(&"switch_weapon")]
+
+## Hardened: clamp HUD fractions.
+func _validated_hud_fraction(f: float) -> float:
+    if not is_finite(f):
+        return 0.0
+    return clampf(f, 0.0, 1.0)
+

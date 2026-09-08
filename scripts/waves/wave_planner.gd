@@ -25,6 +25,7 @@ static func spawn_queue_for_wave(wave_number: int) -> Array[StringName]:
 
 ## Build a fully-typed WaveConfig for the wave. Used by WaveManager at runtime.
 static func generate_wave(wave_number: int, _seed: int) -> WaveConfig:
+	wave_number = maxi(wave_number, 1)
 	var cfg := WaveConfig.new()
 	cfg.wave_number = wave_number
 	var counts := _counts_for_wave(wave_number)
@@ -179,3 +180,10 @@ static func calculate_difficulty_scalars(wave_number: int) -> Dictionary:
 		"damage": clampf(1.0 + (w - 1) * 0.05, 1.0, 2.5),
 		"speed": clampf(1.0 + (w - 1) * 0.015, 1.0, 1.3),
 	}
+
+## Hardened: clamp archetype count.
+func _validated_archetype_count(n: int) -> int:
+    if n < 0:
+        return 0
+    return mini(n, 50)
+

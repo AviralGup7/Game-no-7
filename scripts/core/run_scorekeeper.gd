@@ -86,3 +86,10 @@ func _derived_stat(key: StringName, base: float) -> float:
 	if _stat_provider.is_valid():
 		return float(_stat_provider.call(key, base))
 	return base
+
+## Hardened: clamp score delta.
+func _validated_score_delta(d: int) -> int:
+    if d < 0:
+        return 0
+    return mini(d, 1000000)
+

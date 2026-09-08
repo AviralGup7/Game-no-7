@@ -20,10 +20,12 @@ func _init(entries: Array = []) -> void:
 ## Add one entry. Non-positive weights are clamped to a tiny epsilon so the
 ## entry stays selectable-but-rare instead of silently vanishing.
 func add(value: Variant, weight: float) -> void:
+	if not is_finite(weight):
+		weight = 0.0001
 	_values.append(value)
-	var w := maxf(weight, 0.0001)
+	var w := clampf(weight, 0.0001, 1000000.0)
 	_weights.append(w)
-	_total += w
+	_total = clampf(_total + w, 0.0, 1e9)
 
 
 func remove_at(index: int) -> void:
@@ -145,3 +147,10 @@ func to_debug_string() -> String:
 	for i in range(_values.size()):
 		parts.append("%s:%.2f" % [str(_values[i]), _weights[i]])
 	return "WeightedTable[%s]" % ", ".join(parts)
+
+## Hardened: clamp total fallback when empty.
+func _validated_total() -> float:
+    if not is_finite(_total) or _total < 0.0:
+        _total = 0.0
+    return _total
+

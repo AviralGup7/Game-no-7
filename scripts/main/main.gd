@@ -67,11 +67,36 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 			_stop_run_waves()
 
 
+func _safe_run() -> Variant:
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return null
+	return GameRoot.call("get_run")
+
+func _safe_seed(default: int = 0) -> int:
+	var run: Variant = _safe_run()
+	if run == null:
+		return default
+	if run is Dictionary:
+		return int((run as Dictionary).get("seed", default))
+	if "seed" in run:
+		return int((run as Object).get("seed"))
+	return default
+
+func _safe_arena_id(default: StringName = &"default_arena") -> StringName:
+	var run: Variant = _safe_run()
+	if run == null:
+		return default
+	if run is Dictionary:
+		return StringName(String((run as Dictionary).get("arena_id", default)))
+	if "arena_id" in run:
+		return StringName(String((run as Object).get("arena_id")))
+	return default
+
 func _start_run_waves() -> void:
 	if _wave_manager == null or _spawn_manager == null:
 		return
 	_run_started = true
-	_wave_manager.start_run(GameRoot.get_run().seed)
+	_wave_manager.start_run(_safe_seed())
 
 
 func _stop_run_waves() -> void:
@@ -127,7 +152,7 @@ func _setup_camera(player: Node) -> void:
 	_world_root.add_child(cam)
 	# Arenas declare their lens; fall back to the rig default when absent.
 	if cam.has_method("set_camera_profile") and ContentRegistry != null:
-		var cfg: ArenaConfig = ContentRegistry.get_arena(GameRoot.get_run().arena_id)
+		var cfg: ArenaConfig = ContentRegistry.get_arena(_safe_arena_id())
 		if cfg != null:
 			var prof: CameraProfile = ContentRegistry.get_camera_profile(cfg.default_camera_profile)
 			if prof != null:
@@ -146,7 +171,7 @@ func _create_systems(arena: Node, player: Node) -> void:
 	spawn.name = "SpawnManager"
 	_world_root.add_child(spawn)
 	_spawn_manager = spawn as SpawnManager
-	_spawn_manager.configure(arena, player, container, GameRoot.get_run().seed)
+	_spawn_manager.configure(arena, player, container, _safe_seed())
 
 	var wave := WAVE_MANAGER_SCRIPT.new()
 	wave.name = "WaveManager"
@@ -161,8 +186,8 @@ func _create_systems(arena: Node, player: Node) -> void:
 ## Per-run support systems: projectiles, pickups, juice, perf scaling, arena
 ## dressing + hazards. All passive until used; freed with the world on rebuild.
 func _create_run_systems(arena: Node, player: Node) -> void:
-	var seed := GameRoot.get_run().seed
-	var arena_id := GameRoot.get_run().arena_id
+	var seed := _safe_seed()
+	var arena_id := _safe_arena_id()
 	var half := 12.0
 	if arena.has_method("get_interior_half"):
 		half = float(arena.call("get_interior_half"))

@@ -60,15 +60,15 @@ func reset() -> void:
 
 ## Add a score delta and update state. Guards against negative drift.
 func add_score(delta: int) -> void:
-	score += delta
-	if score < 0:
-		score = 0
+	if not is_finite(float(delta)):
+		delta = 0
+	score = clampi(score + delta, 0, 999999999)
 
 
 func add_currency(delta: int) -> void:
-	currency += delta
-	if currency < 0:
-		currency = 0
+	if not is_finite(float(delta)):
+		delta = 0
+	currency = clampi(currency + delta, 0, 999999999)
 
 
 func add_kill() -> void:
@@ -141,3 +141,16 @@ func summary() -> Dictionary:
 		"equipped_skills": equipped_skills.duplicate(),
 		"build_archetypes": build_archetypes.duplicate(),
 	}
+
+## Hardened: validate serialized run dict before restore.
+func _validated_restore_dict(d: Dictionary) -> Dictionary:
+    if d == null or d.is_empty():
+        return {}
+    var out: Dictionary = {}
+    for k in d.keys():
+        var v:Variant = d[k]
+        if v is float and not is_finite(float(v)):
+            continue
+        out[k] = v
+    return out
+

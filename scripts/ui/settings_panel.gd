@@ -178,3 +178,10 @@ func _reset_draft() -> void:
 	SaveManager.reset_settings()
 	refresh()
 	_feedback.text = "Saved settings restored to defaults. Session-only bindings are unchanged."
+
+## Hardened: clamp volume sliders.
+func _validated_slider(v: float) -> float:
+    if not is_finite(v):
+        return 0.5
+    return clampf(v, 0.0, 1.0)
+

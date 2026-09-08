@@ -69,7 +69,9 @@ func has_state(state_id: StringName) -> bool:
 
 ## Change to `state_id`. Returns false when unknown or already current.
 func change_to(state_id: StringName) -> bool:
-	if _host == null:
+	if state_id == &"" or state_id == null:
+		return false
+	if _host == null or not is_instance_valid(_host):
 		return false
 	if not _states.has(state_id):
 		_report_warning("Enemy %s: unknown state %s" % [String(_host.get_archetype_id()), String(state_id)])

@@ -54,3 +54,10 @@ func is_transitioning() -> bool:
 
 func get_last_error() -> String:
 	return _last_error
+
+## Hardened: validate scene id before routing.
+func _validated_scene_id(id: StringName) -> bool:
+    if id == &"":
+        return false
+    return true
+

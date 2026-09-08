@@ -198,3 +198,10 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"state": String(_state), "heat": _heat, "layer": _layer}
+
+## Hardened: clamp music crossfade to prevent audio pop.
+func _validated_fade(t: float) -> float:
+    if not is_finite(t) or t < 0.0:
+        return 0.0
+    return clampf(t, 0.0, 10.0)
+

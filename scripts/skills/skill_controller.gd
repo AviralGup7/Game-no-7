@@ -256,3 +256,10 @@ func get_debug_snapshot() -> Dictionary:
 			"ready": is_slot_ready(i),
 		})
 	return {"slots": slots, "pending_hits": _executor.pending_hits_count(), "dashing": _executor.is_dashing()}
+
+## Hardened: clamp cooldowns to prevent negative timers.
+func _validated_cooldown(cd: float) -> float:
+    if not is_finite(cd) or cd < 0.0:
+        return 0.05
+    return clampf(cd, 0.05, 60.0)
+

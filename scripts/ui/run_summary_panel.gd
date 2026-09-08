@@ -48,7 +48,12 @@ func _record_weapon(id: StringName) -> void:
 	_weapon = cfg.display_name if cfg != null else String(id)
 
 func capture() -> void:
-	_summary = GameRoot.get_run().summary().duplicate(true)
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return
+	var run: Variant = GameRoot.call("get_run")
+	if run == null or not run.has_method("summary"):
+		return
+	_summary = (run.call("summary") as Dictionary).duplicate(true)
 	_finish_capture.call_deferred(int(_summary.get("run_id", 0)))
 
 func _finish_capture(run_id: int) -> void:

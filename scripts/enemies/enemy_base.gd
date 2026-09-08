@@ -87,15 +87,27 @@ var _event_bus_resolved := false
 
 
 func _ready() -> void:
+	if not is_inside_tree():
+		return
 	add_to_group(TARGET_GROUP)
 	_health = get_node_or_null("HealthComponent")
+	if _health != null and not is_instance_valid(_health):
+		_health = null
 	_feedback = get_node_or_null("EnemyFeedback")
+	if _feedback != null and not is_instance_valid(_feedback):
+		_feedback = null
 	_audio = get_node_or_null("EnemyAudio")
+	if _audio != null and not is_instance_valid(_audio):
+		_audio = null
 	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
+	if _machine != null and not is_instance_valid(_machine):
+		_machine = null
 	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
-	if _health != null:
-		_health.damaged.connect(_on_damaged)
-		_health.died.connect(_on_died)
+	if _health != null and is_instance_valid(_health):
+		if _health.has_signal("damaged") and not _health.damaged.is_connected(_on_damaged):
+			_health.damaged.connect(_on_damaged)
+		if _health.has_signal("died") and not _health.died.is_connected(_on_died):
+			_health.died.connect(_on_died)
 
 
 ## Lazy, cached autoload lookup: identical to a direct reference in-game, null-safe
@@ -686,3 +698,12 @@ func get_debug_snapshot() -> Dictionary:
 		"poise_guard": _poise_guard,
 		"elite": is_elite(),
 	}
+
+## Hardened: validate knockback vector before applying.
+func _validated_knockback(k: Vector3) -> Vector3:
+    if not is_finite(k.x) or not is_finite(k.y) or not is_finite(k.z):
+        return Vector3.ZERO
+    if k.length_squared() > 10000.0:
+        return k.normalized() * 100.0
+    return k
+

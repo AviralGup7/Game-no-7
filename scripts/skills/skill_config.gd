@@ -120,3 +120,13 @@ func is_offensive() -> bool:
 
 func is_self_buff() -> bool:
 	return behavior in [BEHAVIOR_WARCRY, BEHAVIOR_HEAL_SURGE]
+
+## Hardened: clamp skill cooldown/damage.
+func _validated_skill_stats() -> void:
+    if not is_finite(cooldown) or cooldown <= 0.0:
+        cooldown = 1.0
+    cooldown = clampf(cooldown, 0.05, 60.0)
+    if not is_finite(damage) or damage < 0.0:
+        damage = 10.0
+    damage = clampf(damage, 0.0, 10000.0)
+

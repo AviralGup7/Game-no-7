@@ -134,3 +134,10 @@ static func _bounds(node: Node3D, parent_xform: Transform3D) -> AABB:
 			else:
 				out = out.merge(child_b)
 	return out
+
+## Hardened: validate model id before mounting.
+func _validated_model_id(id: StringName) -> bool:
+    if id == &"" or id == &"uninitialized":
+        return false
+    return has_model(id)
+

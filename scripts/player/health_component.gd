@@ -74,6 +74,11 @@ func get_max() -> float:
 ## Core damage intake. Returns the DamageResult synchronously.
 func take_damage(payload: DamagePayload) -> DamageResult:
 	var result := DamageResult.new()
+	if payload != null and not is_instance_valid(payload):
+		result.ignored_reason = DamageResult.IGNORE_INVALID_PAYLOAD
+		return result
+	if payload != null and not is_finite(float(payload.amount)):
+		payload.amount = 0.0
 	if _is_dead:
 		result.ignored_reason = DamageResult.IGNORE_DEAD
 		return result
@@ -101,7 +106,9 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 
 ## Positive healing; capped at max health. Never revives a dead entity.
 func heal(amount: float) -> float:
-	if _is_dead or amount <= 0.0:
+	if not is_finite(amount) or amount <= 0.0:
+		return 0.0
+	if _is_dead:
 		return 0.0
 	var before := current_health
 	current_health = minf(current_health + amount, max_health)

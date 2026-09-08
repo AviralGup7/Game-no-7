@@ -83,3 +83,12 @@ func with_amount(new_amount: float) -> DamagePayload:
 	# Preserve original timestamp for audit trails; clone is same event, different amount.
 	copy.timestamp_msec = timestamp_msec
 	return copy
+
+## Hardened: validate payload before applying.
+func _validated_amount(a: float) -> float:
+    if not is_finite(a) or a < 0.0:
+        return 0.0
+    return clampf(a, 0.0, 999999.0)
+func is_safely_valid() -> bool:
+    return is_valid() and is_finite(amount) and amount >= 0.0
+

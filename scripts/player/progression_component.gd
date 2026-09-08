@@ -106,13 +106,20 @@ func _is_excluded(config: UpgradeConfig) -> bool:
 func _accumulate(config: UpgradeConfig) -> void:
 	for key in config.stat_modifiers:
 		var k: StringName = StringName(String(key))
-		var v: float = float(config.stat_modifiers[key])
-		_modifiers[k] = float(_modifiers.get(k, 0.0)) + v
+		var raw: Variant = config.stat_modifiers[key]
+		var v: float = float(raw) if is_finite(float(raw)) else 0.0
+		if not is_finite(float(_modifiers.get(k, 0.0))):
+			_modifiers[k] = 0.0
+		_modifiers[k] = clampf(float(_modifiers[k]) + v, -1e6, 1e6)
 
 
 ## Read an effective derived stat. `base` is the unmodified, pre-upgrade value.
 func get_stat(key: StringName, base: float) -> float:
+	if not is_finite(base):
+		base = 0.0
 	if not _modifiers.has(key):
+		return base
+	if not is_finite(float(_modifiers[key])):
 		return base
 	var total := float(_modifiers[key])
 	if key in MULTIPLICATIVE:

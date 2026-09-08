@@ -204,13 +204,30 @@ func _on_wave_completed(wave_number: int, _bonus: int) -> void:
 		unlock(&"flawless")
 
 
+func _safe_run() -> Variant:
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return null
+	return GameRoot.call("get_run")
+
+func _selected_upgrade_count() -> int:
+	var run: Variant = _safe_run()
+	if run == null:
+		return 0
+	var upgrades: Variant = null
+	if run is Dictionary:
+		upgrades = (run as Dictionary).get("selected_upgrades", {})
+	elif "selected_upgrades" in run:
+		upgrades = (run as Object).get("selected_upgrades")
+	if not upgrades is Dictionary:
+		return 0
+	var count := 0
+	for id in (upgrades as Dictionary):
+		count += int((upgrades as Dictionary)[id])
+	return count
+
 func _on_upgrade_selected(_upgrade_id: StringName) -> void:
-	if GameRoot != null:
-		var count := 0
-		for id in GameRoot.get_run().selected_upgrades:
-			count += int(GameRoot.get_run().selected_upgrades[id])
-		if count >= 5:
-			unlock(&"upgrader")
+	if _selected_upgrade_count() >= 5:
+		unlock(&"upgrader")
 
 
 func _on_skill_cast(_skill_id: StringName, _caster: Node) -> void:
@@ -239,3 +256,13 @@ func get_debug_snapshot() -> Dictionary:
 		"run_kills": _run_kills,
 		"run_max_combo": _run_max_combo,
 	}
+
+## Hardened: validate achievement unlock guard.
+func _validated_unlock(id: StringName) -> bool:
+    if id == &"":
+        return false
+    if SaveManager != null and SaveManager.has_method("has_achievement"):
+        if bool(SaveManager.call("has_achievement", id)):
+            return false
+    return true
+

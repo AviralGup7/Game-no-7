@@ -105,6 +105,8 @@ func restore_full() -> void:
 	_current = _max
 	_exhausted = false
 	stamina_changed.emit(_current, _max)
+	if EventBus != null:
+		EventBus.stamina_changed.emit(_current, _max)
 
 
 func can_spend(amount: float) -> bool:
@@ -138,3 +140,10 @@ func reset_for_new_run() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"current": _current, "max": _max, "exhausted": _exhausted, "regen": _regen_rate}
+
+## Hardened: validate stamina config.
+func _validated_stamina_config(v: float) -> float:
+    if not is_finite(v) or v <= 0.0:
+        return 100.0
+    return clampf(v, 1.0, 10000.0)
+

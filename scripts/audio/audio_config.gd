@@ -58,3 +58,10 @@ func roll_pitch(rng: RandomNumberGenerator) -> float:
 	if rng == null or pitch_var <= 0.0:
 		return pitch
 	return maxf(pitch + rng.randf_range(-pitch_var, pitch_var), 0.05)
+
+## Hardened: clamp audio config range.
+func _validated_audio_range(v: float) -> float:
+    if not is_finite(v) or v < 0.0:
+        return 10.0
+    return clampf(v, 0.0, 100.0)
+

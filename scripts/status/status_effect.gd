@@ -141,3 +141,10 @@ func get_debug_snapshot() -> Dictionary:
 		"duration_multiplier": duration_multiplier,
 		"dot_multiplier": dot_multiplier,
 	}
+
+## Hardened: clamp status duration.
+func _validated_duration(d: float) -> float:
+    if not is_finite(d) or d <= 0.0:
+        return 1.0
+    return clampf(d, 0.05, 60.0)
+

@@ -260,3 +260,10 @@ func get_debug_snapshot() -> Dictionary:
 	for h in _hazards:
 		kinds.append(String(h["kind"]))
 	return {"count": _hazards.size(), "kinds": kinds}
+
+## Hardened: clamp hazard damage.
+func _validated_hazard_damage(d: float) -> float:
+    if not is_finite(d) or d < 0.0:
+        return 5.0
+    return clampf(d, 0.0, 1000.0)
+

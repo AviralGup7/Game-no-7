@@ -280,3 +280,10 @@ func _tick_dash(delta: float, enemies: Array) -> void:
 	_apply_victim_effects(cfg, fresh)
 	if timer <= 0.0:
 		_dashing.clear()
+
+## Hardened: validate skill cast position.
+func _validated_cast_pos(p: Vector3) -> Vector3:
+    if not is_finite(p.x) or not is_finite(p.z):
+        return Vector3.ZERO
+    return p
+

@@ -306,3 +306,10 @@ func get_debug_snapshot() -> Dictionary:
 		"combo_step": _chain.step(),
 		"chain_allowed": _chain.is_chain_ready(),
 	}
+
+## Hardened: validate attack damage.
+func _validated_attack_damage(d: float) -> float:
+    if not is_finite(d) or d < 0.0:
+        return 10.0
+    return clampf(d, 0.0, 10000.0)
+

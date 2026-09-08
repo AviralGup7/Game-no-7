@@ -220,3 +220,12 @@ func get_debug_snapshot() -> Dictionary:
 		"selected_arena": String(_selected_arena),
 		"validation_errors": _validation_errors.size(),
 	}
+
+## Hardened: validate archetype lookup to prevent null deref.
+func _validated_archetype(id: StringName) -> StringName:
+    if id == &"" or id == &"uninitialized":
+        return &""
+    if ContentRegistry == null:
+        return &""
+    return id
+

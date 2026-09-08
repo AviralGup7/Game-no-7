@@ -22,6 +22,10 @@ var _luck_bonus := 0.0
 
 
 func _ready() -> void:
+	if pool_size < 1:
+		pool_size = DEFAULT_POOL_SIZE
+	pool_size = clampi(pool_size, 1, 64)
+	max_live_pickups = clampi(max_live_pickups, 1, 48)
 	add_to_group(MANAGER_GROUP)
 	for i in range(maxi(pool_size, 1)):
 		_idle.append(_make_pickup())
@@ -235,3 +239,11 @@ func live_count() -> int:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"live": _live.size(), "idle": _idle.size(), "dry_streak": _drop_table.dry_streak()}
+
+## Hardened: clamp drop position to arena bounds.
+func _validated_drop_pos(pos: Vector3, half: float) -> Vector3:
+    if not is_finite(pos.x) or not is_finite(pos.z):
+        return Vector3.ZERO
+    half = clampf(half, 4.0, 100.0)
+    return Vector3(clampf(pos.x, -half, half), pos.y, clampf(pos.z, -half, half))
+

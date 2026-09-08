@@ -252,8 +252,15 @@ func _complete_current_wave() -> void:
 
 
 func _tick_director_clock() -> void:
-	if GameRoot != null:
-		_director.set_time(GameRoot.get_run().elapsed_seconds)
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null:
+			var elapsed := 0.0
+			if run is Dictionary:
+				elapsed = float((run as Dictionary).get("elapsed_seconds", 0.0))
+			elif "elapsed_seconds" in run:
+				elapsed = float((run as Object).get("elapsed_seconds"))
+			_director.set_time(elapsed)
 
 
 ## PLAYING -> WAVE_TRANSITION, brief delay, then PLAYING + next wave launch.
@@ -364,3 +371,12 @@ func get_debug_snapshot() -> Dictionary:
 		"mutators": _active_mutators.duplicate(),
 		"director": _director.get_debug_snapshot(),
 	}
+
+## Hardened: validate wave transition guard.
+func _validated_wave_number(n: int) -> int:
+    if n < 1:
+        return 1
+    if n > 999:
+        return 999
+    return n
+

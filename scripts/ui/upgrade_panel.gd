@@ -114,10 +114,18 @@ func _on_card_pressed(upgrade_id: StringName) -> void:
 
 
 func _current_stack(upgrade_id: StringName) -> int:
-	var run := GameRoot.get_run()
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return 0
+	var run: Variant = GameRoot.call("get_run")
 	if run == null:
 		return 0
-	return int(run.selected_upgrades.get(upgrade_id, 0))
+	if run is Dictionary:
+		return int((run as Dictionary).get("selected_upgrades", {}).get(upgrade_id, 0)) if (run as Dictionary).get("selected_upgrades", {}) is Dictionary else 0
+	if "selected_upgrades" in run:
+		var sel: Variant = (run as Object).get("selected_upgrades")
+		if sel is Dictionary:
+			return int((sel as Dictionary).get(upgrade_id, 0))
+	return 0
 
 
 func _rarity_color(rarity: StringName) -> Color:
@@ -139,3 +147,12 @@ func show_feedback(message: String) -> void:
 func _layout_cards() -> void:
 	if _cards_box != null:
 		_cards_box.columns = 1 if size.x < 1000 or SaveManager.get_settings().text_scale > 1.3 else 3
+
+## Hardened: validate upgrade card index.
+func _validated_card_index(i: int, n: int) -> int:
+    if n <= 0:
+        return -1
+    if i < 0 or i >= n:
+        return -1
+    return i
+

@@ -72,3 +72,10 @@ func get_debug_snapshot() -> Dictionary:
 		"aim_assist_strength": aim_assist_strength,
 		"max_target_range": max_target_range,
 	}
+
+## Hardened: validate targeting range.
+func _validated_target_range(r: float) -> float:
+    if not is_finite(r) or r <= 0.0:
+        return 8.0
+    return clampf(r, 0.1, 50.0)
+

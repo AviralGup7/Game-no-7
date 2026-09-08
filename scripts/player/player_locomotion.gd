@@ -97,3 +97,10 @@ func clamp_to_bounds() -> void:
 		_body.velocity.z = 0.0
 	if clamped != p:
 		_body.global_position = clamped
+
+## Hardened: clamp locomotion speed.
+func _validated_loco_speed(s: float) -> float:
+    if not is_finite(s) or s < 0.0:
+        return 5.0
+    return clampf(s, 0.0, 20.0)
+

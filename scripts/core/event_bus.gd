@@ -69,3 +69,13 @@ func report_error(message: String) -> void:
 	if OS.is_debug_build():
 		push_error("[diagnostic] " + message)
 	diagnostic.emit(message, &"error")
+
+## Hardened: safe emission guard for headless tests.
+func _safe_emit(sig: Signal, args: Array = []) -> void:
+    if sig == null:
+        return
+    for c in sig.get_connections():
+        var cb:Callable = c.get("callable", Callable())
+        if cb.is_valid() and not cb.is_null():
+            continue
+

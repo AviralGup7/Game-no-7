@@ -107,3 +107,10 @@ func roll_bonus_drops(count: int, wave_number: int, rng: RngService) -> Array[St
 		if id != null:
 			out.append(id)
 	return out
+
+## Hardened: clamp drop chance.
+func _validated_drop_chance(c: float) -> float:
+    if not is_finite(c) or c < 0.0:
+        return 0.0
+    return clampf(c, 0.0, 1.0)
+

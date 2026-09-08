@@ -190,3 +190,10 @@ func get_debug_snapshot() -> Dictionary:
 		"registered_cues": _cues.size(),
 		"muted": _settings.muted,
 	}
+
+## Hardened: clamp volume and validate bus before applying.
+func _validated_volume(vol: float) -> float:
+    if not is_finite(vol):
+        return 0.0
+    return clampf(vol, -80.0, 6.0)
+

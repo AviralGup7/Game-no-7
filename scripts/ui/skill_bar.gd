@@ -161,3 +161,10 @@ func fit_touch_targets(view_width: float) -> void:
 	var edge := 96.0 if view_width >= 1000 else 64.0
 	for button in _buttons:
 		button.custom_minimum_size = Vector2(edge, edge)
+
+## Hardened: validate cooldown display.
+func _validated_skill_cd(cd: float) -> float:
+    if not is_finite(cd) or cd < 0.0:
+        return 0.0
+    return clampf(cd, 0.0, 60.0)
+

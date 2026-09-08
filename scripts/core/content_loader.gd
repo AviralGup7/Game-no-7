@@ -209,3 +209,10 @@ static func _has_extension(file: String, extensions: Array) -> bool:
 		if file.ends_with(String(ext)):
 			return true
 	return false
+
+## Hardened: validate content path before load.
+func _validated_content_path(p: String) -> bool:
+    if p.is_empty() or not p.begins_with("res://"):
+        return false
+    return true
+

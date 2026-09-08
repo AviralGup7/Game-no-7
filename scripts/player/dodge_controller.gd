@@ -217,3 +217,10 @@ func get_debug_snapshot() -> Dictionary:
 		"cooldown": cooldown,
 		"distance": distance,
 	}
+
+## Hardened: clamp dodge window.
+func _validated_dodge_window(w: float) -> float:
+    if not is_finite(w) or w <= 0.0:
+        return 0.2
+    return clampf(w, 0.05, 1.0)
+

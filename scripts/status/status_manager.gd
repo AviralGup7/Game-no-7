@@ -135,9 +135,18 @@ func clear_all() -> void:
 func _physics_process(delta: float) -> void:
 	if _effects.is_empty():
 		return
+	if not is_inside_tree():
+		return
+	if delta <= 0.0 or not is_finite(delta):
+		return
 	var expired: Array = []
-	for id in _effects:
+	for id in _effects.keys().duplicate():
+		if not _effects.has(id):
+			continue
 		var fx := _effects[id] as StatusEffect
+		if fx == null or not is_instance_valid(fx):
+			expired.append(id)
+			continue
 		var ticks := fx.tick(delta)
 		if ticks > 0:
 			_apply_ticks(fx, ticks)
@@ -264,3 +273,19 @@ func get_debug_snapshot() -> Dictionary:
 	for id in _effects:
 		list.append((_effects[id] as StatusEffect).get_debug_snapshot())
 	return {"effects": list, "shield": _shield_pool}
+
+## Hardened: validate incoming status effects batch.
+func _validated_effects(effects: Array) -> Array:
+    var out: Array = []
+    for e in effects:
+        if e == null or not is_instance_valid(e as Object):
+            continue
+        if e is Dictionary and e.has("id"):
+            var dur:float = float(e.get("duration", 0.0))
+            if not is_finite(dur) or dur <= 0.0:
+                continue
+            out.append(e)
+        elif e is StatusEffect and is_finite(e.duration):
+            out.append(e)
+    return out
+

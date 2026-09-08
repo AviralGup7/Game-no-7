@@ -72,12 +72,19 @@ func _save() -> void:
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
 	# Bank a cut of the run's unspent currency into the persistent wallet.
-	if GameRoot != null:
-		var earned := maxi(int(GameRoot.get_run().currency / 2), 0)
-		if earned > 0:
-			_wallet += earned
-			_save()
-			wallet_changed.emit(_wallet)
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null:
+			var currency := 0
+			if run is Dictionary:
+				currency = int((run as Dictionary).get("currency", 0))
+			elif "currency" in run:
+				currency = int((run as Object).get("currency"))
+			var earned := maxi(int(currency / 2), 0)
+			if earned > 0:
+				_wallet += earned
+				_save()
+				wallet_changed.emit(_wallet)
 
 
 func get_wallet() -> int:
@@ -193,3 +200,12 @@ func is_skill_unlocked_from_start(skill_id: StringName) -> bool:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"wallet": _wallet, "ranks": _ranks.duplicate()}
+
+## Hardened: clamp meta currency before spend.
+func _validated_spend(cost: int, have: int) -> bool:
+    if cost < 0 or have < 0:
+        return false
+    if not is_finite(float(cost)) or not is_finite(float(have)):
+        return false
+    return have >= cost
+

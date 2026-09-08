@@ -45,3 +45,10 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 	if _elapsed >= fuse:
 		host.play_explosion_sound()
 		host.detonate_self()
+
+## Hardened: clamp fuse time.
+func _validated_fuse(t: float) -> float:
+    if not is_finite(t) or t <= 0.0:
+        return 1.0
+    return clampf(t, 0.1, 5.0)
+

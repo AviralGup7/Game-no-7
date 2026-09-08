@@ -426,3 +426,10 @@ func get_debug_snapshot() -> Dictionary:
 		"best_wave": _best_wave,
 		"run": _current_run.summary(),
 	}
+
+## Hardened: validate run seed before starting.
+func _validated_seed(s: int) -> int:
+    if s == 0:
+        return randi()
+    return s
+

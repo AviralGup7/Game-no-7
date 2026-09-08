@@ -50,3 +50,13 @@ func validate() -> Array[String]:
 		for p in entry.validate():
 			problems.append(p)
 	return problems
+
+## Hardened: clamp wave config totals.
+func _validated_counts() -> void:
+    enemy_count = clampi(enemy_count, 0, 200)
+    elite_count = clampi(elite_count, 0, 20)
+    boss_count = clampi(boss_count, 0, 1)
+    if not is_finite(spawn_interval) or spawn_interval <= 0.0:
+        spawn_interval = 0.6
+    spawn_interval = clampf(spawn_interval, 0.15, 5.0)
+

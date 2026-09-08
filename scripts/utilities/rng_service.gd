@@ -114,6 +114,10 @@ func bell(salt: int) -> float:
 
 ## Build a throwaway generator for pure static contexts (tests, planners).
 static func make_generator(base_seed: int, salt: int) -> RandomNumberGenerator:
+	if salt < 0:
+		salt = 0
+	if salt > 16384:
+		salt = salt % 16384
 	var svc := RngService.new(base_seed)
 	return svc.stream(salt)
 

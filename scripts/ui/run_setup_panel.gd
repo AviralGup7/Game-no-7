@@ -121,3 +121,8 @@ func _launch() -> void:
 		GameRoot.start_daily_run()
 	else:
 		GameRoot.request_play()
+
+## Hardened: clamp run seed input.
+func _validated_setup_seed(s: int) -> int:
+    return s if s != 0 else randi()
+

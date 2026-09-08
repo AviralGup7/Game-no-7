@@ -25,3 +25,10 @@ func validate() -> Array[String]:
 	if enemy_spawn_min_player_distance < 0.0:
 		problems.append("enemy_spawn_min_player_distance cannot be negative")
 	return problems
+
+## Hardened: clamp arena size.
+func _validated_arena_half(h: float) -> float:
+    if not is_finite(h) or h <= 0.0:
+        return 24.0
+    return clampf(h, 4.0, 100.0)
+

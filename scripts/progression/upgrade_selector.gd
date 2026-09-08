@@ -90,10 +90,13 @@ static func is_eligible(cfg: UpgradeConfig, wave_number: int, stack_counts: Dict
 
 ## Weighted deterministic pick. Candidates with non-positive weight are skipped.
 static func _weighted_pick(candidates: Array[UpgradeConfig], rng: RandomNumberGenerator) -> UpgradeConfig:
+	if candidates.is_empty():
+		return null
 	var total := 0.0
 	for c in candidates:
-		total += maxf(c.weight, 0.0)
-	if total <= 0.0:
+		var w := c.weight if c != null and is_finite(c.weight) else 0.0
+		total += maxf(w, 0.0)
+	if total <= 0.0 or not is_finite(total):
 		return candidates[0]
 	var roll := rng.randf_range(0.0, total)
 	var acc := 0.0
@@ -117,3 +120,10 @@ static func to_id_list(choices: Array) -> Array[StringName]:
 		if cfg != null:
 			out.append(cfg.upgrade_id)
 	return out
+
+## Hardened: validate candidate count before pick.
+func _validated_pick_count(n: int) -> int:
+    if n <= 0:
+        return 0
+    return mini(n, 3)
+
