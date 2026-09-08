@@ -26,7 +26,7 @@ func _ready() -> void:
 	_ui_root = get_node_or_null("UIRoot/UI")
 	if _ui_root == null:
 		_ui_root = get_node_or_null("UIRoot")
-	GameRoot.game_state_changed.connect(_on_state_changed)
+	EventBus.game_state_changed.connect(_on_state_changed)
 	_create_persistent_directors()
 
 

@@ -109,8 +109,8 @@ func advance(delta: float) -> void:
 			# Timing window elapsed without a chained input -> combo can no longer chain;
 			# the recovery still has to wind down before the next swing is READY.
 			_chain.expire()
-			if _elapsed >= _effective_cooldown():
-				_finish_attack()
+		if _elapsed >= _effective_cooldown():
+			_finish_attack()
 
 
 ## Request an attack. Returns true when a swing begins:

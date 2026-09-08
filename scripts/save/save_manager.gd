@@ -19,7 +19,11 @@ var _debounce: Timer = null
 
 
 func _ready() -> void:
+	# Persistence must keep working while the tree is paused (the pause menu is
+	# exactly where players change settings / buy armory ranks).
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_debounce = Timer.new()
+	_debounce.process_mode = Node.PROCESS_MODE_ALWAYS
 	_debounce.one_shot = true
 	_debounce.wait_time = SAVE_DEBOUNCE_MSEC / 1000.0
 	_debounce.timeout.connect(_flush_save)
@@ -28,9 +32,14 @@ func _ready() -> void:
 
 
 func _notification(what: int) -> void:
-	# Never lose a debounced write (best scores, armory, achievements) to a quit.
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_flush_save()
+	# Never lose a debounced write (best scores, armory, achievements). On Android
+	# the app is normally backgrounded/killed without a CLOSE_REQUEST, so also flush
+	# on focus loss and on the engine's predelete/exit paths.
+	match what:
+		NOTIFICATION_WM_CLOSE_REQUEST, NOTIFICATION_WM_GO_BACK_REQUEST, \
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_EXIT_TREE:
+			_flush_save()
 
 
 ## Pure validator/migrator entry point (delegates to SaveSchema; kept here so

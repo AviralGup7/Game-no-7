@@ -45,6 +45,10 @@ var _weapons: Node = null
 var _status: Node = null
 var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
+var _attack_buffer := AttackBuffer.new()
+var _gameplay_time := 0.0
+
+@export var attack_buffer_seconds: float = 0.18
 
 @export var walk_speed: float = 6.0
 @export var max_health: float = 100.0
@@ -71,6 +75,8 @@ func _ready() -> void:
 	_locomotion.move_stopped.connect(move_stopped.emit)
 	_build.upgrade_applied.connect(upgrade_applied.emit)
 	if _health != null:
+		if _health.has_method("set_time_source"):
+			_health.call("set_time_source", _health_now)
 		_health.health_changed.connect(_on_health_changed)
 		_health.damaged.connect(_on_damaged)
 		_health.died.connect(_on_died)
@@ -112,7 +118,18 @@ func _mitigation_provider(amount: float, _payload: DamagePayload) -> float:
 func _physics_process(delta: float) -> void:
 	if not _control_enabled or _is_dead:
 		return
+	_gameplay_time += maxf(delta, 0.0)
 	if _is_stunned():
+		_cancel_combat()
+		velocity.x = 0.0
+		velocity.z = 0.0
+		var dodge_moving := _dodge != null and bool(_dodge.call("is_dodging"))
+		if _dodge != null:
+			_dodge.call("tick", delta)
+		if not dodge_moving and _controller != null:
+			_controller.call("tick", Vector2.ZERO, delta)
+		_locomotion.track(Vector2.ZERO)
+		_locomotion.clamp_to_bounds()
 		# Stunned: timers still advance so the stun itself can expire, but no input.
 		if _attack != null and _attack.has_method("advance"):
 			_attack.call("advance", delta)
@@ -131,14 +148,16 @@ func _physics_process(delta: float) -> void:
 		_attack.call("advance", delta)
 	if _weapons != null and _weapons.has_method("tick"):
 		_weapons.call("tick", delta)
+	_attack_buffer.tick(delta, _try_attack)
 	var move := _locomotion.gather()
 	move *= _move_speed_factor()
 	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
 	# only ran mid-dodge would lock the player out forever).
+	var dodge_owned_motion := _dodge != null and bool(_dodge.call("is_dodging"))
 	if _dodge != null:
 		_dodge.call("tick", delta)
 	# Normal locomotion is owned by the CharacterController unless a dodge is mid-flight.
-	if _dodge != null and bool(_dodge.call("is_dodging")):
+	if dodge_owned_motion:
 		pass  # DodgeController owns motion (burst + recovery) this step
 	elif _controller != null:
 		_controller.call("tick", move, delta)
@@ -162,7 +181,10 @@ func set_control_enabled(enabled: bool) -> void:
 		_skills.call("set_enabled", enabled)
 	if _weapons != null and _weapons.has_method("set_attacks_enabled"):
 		_weapons.call("set_attacks_enabled", enabled)
+	if _attack != null:
+		_attack.call("set_attacks_enabled", enabled)
 	if not enabled:
+		velocity = Vector3.ZERO
 		_clear_input()
 
 
@@ -173,6 +195,9 @@ func enable_action_input(enabled: bool) -> void:
 ## ---------- Command interface ----------
 
 func set_move_input(input_vector: Vector2) -> void:
+	if not is_control_enabled():
+		_locomotion.clear()
+		return
 	_locomotion.set_move_input(input_vector)
 
 
@@ -181,28 +206,57 @@ func clear_move_input() -> void:
 
 
 func request_attack() -> void:
-	if _is_dead or not _control_enabled:
+	if not _can_combat():
 		return
-	# WeaponManager is the primary path when a weapon is equipped; the legacy
-	# AttackController stays as the fallback so older scenes keep working.
+	_attack_buffer.clear()
+	if not _try_attack():
+		_attack_buffer.push(attack_buffer_seconds)
+
+
+func _can_combat() -> bool:
+	return not _is_dead and _control_enabled and not _is_stunned()
+
+
+func _try_attack() -> bool:
+	if not _can_combat() or (_dodge != null and bool(_dodge.call("is_dodging"))):
+		return false
 	if _weapons != null and _weapons.has_method("active_instance") and _weapons.call("active_instance") != null:
-		if _weapons.has_method("request_attack"):
-			_weapons.call("request_attack")
+		if int(_weapons.call("request_attack")) <= 0:
+			return false
+		_aim_attack()
+		_on_attack_started()
+		return true
+	if _attack != null:
+		var started := bool(_attack.call("request_attack"))
+		if started:
+			_aim_attack()
+		return started
+	return false
+
+
+func _aim_attack() -> void:
+	if _targeting == null or _controller == null or not _controller.has_method("face_direction"):
 		return
-	if _attack != null and _attack.has_method("request_attack"):
-		_attack.call("request_attack")
+	var target: Node = _targeting.call("pick_best_target", get_tree().get_nodes_in_group("enemies"))
+	if target is Node3D:
+		_controller.call("face_direction", (target as Node3D).global_position - global_position)
 
 
 func request_dodge() -> bool:
-	if _is_dead or not _control_enabled:
+	if not _can_combat():
 		return false
 	if _dodge == null or not _dodge.has_method("request"):
 		return false
-	if not try_spend_stamina(DODGE_STAMINA_COST):
+	if not bool(_dodge.call("is_ready")):
+		return false
+	if not bool(_dodge.get("can_interrupt_attack")) and _combat_busy():
+		return false
+	var cost := maxf(float(_dodge.get("stamina_cost")), 0.0)
+	if not try_spend_stamina(cost):
 		return false
 	# Direction: prefer the current movement input (camera-relative); fall back to the
 	# body's facing (world -Z) so a standing dodge always goes somewhere.
-	var dir := Vector3.FORWARD
+	var dir := -global_basis.z
 	if _controller != null and _controller.has_method("screen_to_world_dir"):
 		var move := _locomotion.gather()
 		var world := _controller.call("screen_to_world_dir", move) as Vector3
@@ -210,10 +264,13 @@ func request_dodge() -> bool:
 			dir = world
 	var started := bool(_dodge.call("request", dir))
 	if started:
+		_cancel_combat()
+		if _controller != null:
+			_controller.call("face_direction", dir)
 		dodged.emit()
 	else:
 		# Refund the stamina when the dodge itself refused (cooldown, mid-air...).
-		restore_stamina(DODGE_STAMINA_COST)
+		restore_stamina(cost)
 	return started
 
 
@@ -423,7 +480,8 @@ func _on_leveled_up(new_level: int) -> void:
 
 func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
 	attack_finished.emit()
-	EventBus.report_info("Weapon %s resolved %d hits%s" % [String(weapon_id), hit_count, " CRIT" if was_crit else ""])
+	if hit_count > 0 and _feedback != null:
+		_feedback.call("play_impact_feedback", was_crit)
 
 
 func reset_for_new_run(spawn_transform: Transform3D) -> void:
@@ -459,11 +517,14 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 ## Cycle the weapon loadout (Tab / Y / touch button). Returns false when there is
 ## no second weapon to switch to.
 func request_weapon_switch() -> bool:
-	if _is_dead or not _control_enabled:
+	if not _can_combat() or (_dodge != null and bool(_dodge.call("is_dodging"))):
 		return false
 	if _weapons == null or not _weapons.has_method("cycle_weapon"):
 		return false
-	return bool(_weapons.call("cycle_weapon"))
+	var switched := bool(_weapons.call("cycle_weapon"))
+	if switched:
+		_attack_buffer.clear()
+	return switched
 
 
 ## Starter kit: daily loadout (or Gladius) in slot 0 + the first skill unlocked
@@ -496,6 +557,7 @@ func is_alive() -> bool:
 ## ---------- Internal ----------
 
 func _clear_input() -> void:
+	_attack_buffer.clear()
 	_locomotion.clear()
 
 
@@ -504,10 +566,11 @@ func _on_health_changed(current: float, maximum: float) -> void:
 
 
 func _on_damaged(result: DamageResult) -> void:
+	_cancel_combat()
 	damaged.emit(result)
 	if _feedback != null and _feedback.has_method("play_hit_feedback"):
 		_feedback.call("play_hit_feedback")
-	if _player_audio != null and _player_audio.has_method("play_hurt"):
+	if not result.target_died and _player_audio != null and _player_audio.has_method("play_hurt"):
 		_player_audio.call("play_hurt")
 
 
@@ -515,8 +578,10 @@ func _on_died() -> void:
 	if _is_dead:
 		return
 	_is_dead = true
-	_control_enabled = false
-	_clear_input()
+	set_control_enabled(false)
+	_cancel_combat()
+	if _dodge != null:
+		_dodge.call("reset")
 	died.emit()
 	EventBus.player_died.emit()
 	if _player_audio != null and _player_audio.has_method("play_death"):
@@ -527,7 +592,6 @@ func _on_died() -> void:
 
 func _on_attack_started() -> void:
 	attack_started.emit()
-	EventBus.report_info("Player attack started")
 	if _feedback != null and _feedback.has_method("play_attack_feedback"):
 		_feedback.call("play_attack_feedback")
 	if _player_audio != null and _player_audio.has_method("play_attack"):
@@ -539,13 +603,16 @@ func _on_attack_finished() -> void:
 
 
 func _on_dodge_started() -> void:
-	AudioManager.play_sfx(&"player_dodge")
+	if _player_audio != null:
+		_player_audio.call("play_dodge")
 	if _feedback != null and _feedback.has_method("play_dodge_feedback"):
 		_feedback.call("play_dodge_feedback")
 
 
 func _on_attack_hit(target: Node, result: DamageResult) -> void:
 	attack_hit.emit(target, result)
+	if result.accepted and _feedback != null:
+		_feedback.call("play_impact_feedback", result.was_critical)
 
 
 func get_progression_snapshot() -> Dictionary:
@@ -582,3 +649,27 @@ func get_debug_snapshot() -> Dictionary:
 		"weapons": weap,
 		"skills": skl,
 	}
+
+
+func _combat_busy() -> bool:
+	if _weapons != null:
+		var inst: WeaponInstance = _weapons.call("active_instance")
+		if inst != null:
+			return inst.phase == WeaponInstance.PHASE_WINDUP or inst.phase == WeaponInstance.PHASE_RECOVERY
+	return _attack != null and bool(_attack.call("is_attacking"))
+
+
+func _cancel_combat() -> void:
+	_attack_buffer.clear()
+	if _weapons != null:
+		_weapons.call("cancel_in_progress")
+	if _attack != null:
+		_attack.call("reset_attack_state")
+
+
+func is_control_enabled() -> bool:
+	return _control_enabled and not _is_dead
+
+
+func _health_now() -> float:
+	return _gameplay_time

@@ -12,6 +12,8 @@ var _ghost: ProgressBar = null
 var _boss: Node = null
 var _health: Node = null
 var _ghost_value := 1.0
+var _reduced_motion := false
+var _health_label: Label
 
 
 func _ready() -> void:
@@ -25,13 +27,15 @@ func _ready() -> void:
 	_phase_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_phase_label.add_theme_font_size_override("font_size", 13)
 	add_child(_phase_label)
+	_health_label = UiFactory.label("", self, 18)
 	var stack := Control.new()
-	stack.custom_minimum_size = Vector2(420, 18)
+	stack.custom_minimum_size = Vector2(0, 16)
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(stack)
 	_ghost = _make_bar(Color(1.0, 0.85, 0.3))
 	stack.add_child(_ghost)
 	_bar = _make_bar(Color(0.85, 0.15, 0.3))
+	_bar.add_theme_stylebox_override("background", StyleBoxEmpty.new())
 	stack.add_child(_bar)
 	if EventBus != null:
 		if not EventBus.boss_spawned.is_connected(_on_boss_spawned):
@@ -65,7 +69,7 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	_unbind()
 	_boss = boss
 	_name_label.text = _boss_name(boss)
-	_phase_label.text = ""
+	_phase_label.text = "BOSS ENCOUNTER"
 	_ghost_value = 1.0
 	_bar.value = 1.0
 	_ghost.value = 1.0
@@ -73,6 +77,7 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 		_health = (boss as Node).get_node_or_null("HealthComponent")
 		if _health != null and _health.has_signal("health_changed"):
 			_health.health_changed.connect(_on_health_changed)
+			_on_health_changed(_health.current_health, _health.max_health)
 		if boss.has_signal("died"):
 			boss.died.connect(_on_boss_died)
 	visible = true
@@ -90,6 +95,7 @@ func _on_health_changed(current: float, maximum: float) -> void:
 	if maximum <= 0.0:
 		return
 	_bar.value = clampf(current / maximum, 0.0, 1.0)
+	_health_label.text = "%d / %d HP" % [ceili(current), ceili(maximum)]
 
 
 func _on_phase_changed(boss: Node, phase: int, max_phases: int) -> void:
@@ -122,10 +128,17 @@ func _unbind() -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible or _bar == null:
+	if not is_visible_in_tree() or _bar == null:
 		return
 	# Ghost bar eases toward the real value (recent-damage readability).
+	if _reduced_motion: _ghost_value = float(_bar.value)
 	_ghost_value = lerpf(_ghost_value, float(_bar.value), minf(delta * 2.5, 1.0))
 	if _ghost_value < float(_bar.value):
 		_ghost_value = float(_bar.value)
 	_ghost.value = _ghost_value
+
+
+func set_reduced_motion(value: bool) -> void:
+	_reduced_motion = value
+	if value and _bar != null:
+		_ghost_value = float(_bar.value)

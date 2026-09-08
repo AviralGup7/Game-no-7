@@ -11,6 +11,9 @@ signal close_requested()
 
 var _wallet_label: Label = null
 var _rows: VBoxContainer = null
+var _feedback: Label
+var _gallery: AchievementGallery
+var _persistence: Label
 
 
 func _ready() -> void:
@@ -19,12 +22,22 @@ func _ready() -> void:
 	_wallet_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_wallet_label.add_theme_font_size_override("font_size", 20)
 	add_child(_wallet_label)
+	UiFactory.label("Permanent ranks carry into every stand. Purchases are applied and saved by the Armory system.", self, 20)
+	_feedback = UiFactory.label("", self, 20)
+	_feedback.modulate = UiTheme.GOLD
+	_persistence = UiFactory.label("", self, 20)
+	_persistence.modulate = UiTheme.GOLD
+	EventBus.save_failed.connect(func(_reason: StringName) -> void:
+		_persistence.text = "Saving failed. Purchases may not survive closing the game.")
+	EventBus.save_completed.connect(func() -> void: _persistence.text = "")
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 8)
 	add_child(_rows)
+	_gallery = AchievementGallery.new()
+	add_child(_gallery)
 	var close := Button.new()
 	close.text = "Close"
-	close.custom_minimum_size = Vector2(200, 0)
+	close.custom_minimum_size = Vector2(200, 56)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	close.pressed.connect(func() -> void: close_requested.emit())
 	add_child(close)
@@ -44,7 +57,9 @@ func _meta() -> MetaProgression:
 func refresh() -> void:
 	if _rows == null:
 		return
+	_gallery.refresh()
 	for child in _rows.get_children():
+		_rows.remove_child(child)
 		child.queue_free()
 	var meta := _meta()
 	if meta == null:
@@ -53,6 +68,7 @@ func refresh() -> void:
 	_wallet_label.text = "Banked coins: %d" % meta.get_wallet()
 	for item_id in MetaProgression.ARMORY:
 		_rows.add_child(_make_row(meta, StringName(String(item_id))))
+	UiTheme.apply_text_scale(_rows, SaveManager.get_settings().text_scale)
 
 
 func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
@@ -60,18 +76,19 @@ func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	var info := VBoxContainer.new()
-	info.custom_minimum_size = Vector2(330, 0)
+	info.custom_minimum_size = Vector2(0, 0)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var rank := meta.get_rank(item_id)
 	var max_rank := int(def["max_rank"])
 	var name := Label.new()
 	name.text = "%s  %d/%d" % [String(def["name"]), rank, max_rank]
-	name.add_theme_font_size_override("font_size", 17)
+	name.add_theme_font_size_override("font_size", 22)
+	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(name)
 	var blurb := Label.new()
 	blurb.text = String(def["blurb"])
-	blurb.add_theme_font_size_override("font_size", 13)
-	blurb.modulate.a = 0.75
+	blurb.add_theme_font_size_override("font_size", 20)
+	blurb.modulate = UiTheme.MUTED
 	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.add_child(blurb)
 	row.add_child(info)
@@ -90,10 +107,12 @@ func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 			buy.text = "LOCKED"
 			buy.disabled = true
 			buy.tooltip_text = "Requires: %s" % _prereq_names(def)
+			blurb.text += "\nLOCKED — " + buy.tooltip_text
 		_:
 			buy.text = "%d" % meta.price_of(item_id)
 			buy.disabled = true
 			buy.tooltip_text = "Not enough banked coins"
+			blurb.text += "\nNeed %d more banked coins." % maxi(meta.price_of(item_id) - meta.get_wallet(), 0)
 	row.add_child(buy)
 	return row
 
@@ -107,6 +126,9 @@ func _prereq_names(def: Dictionary) -> String:
 
 
 func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
-	if meta.purchase(item_id):
+	if UiCommands.purchase(get_tree(), item_id):
+		_feedback.text = "%s purchased. Rank %d." % [MetaProgression.ARMORY[item_id]["name"], meta.get_rank(item_id)]
 		AudioManager.play_sfx(&"upgrade_select")
+	else:
+		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()

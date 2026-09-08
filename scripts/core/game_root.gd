@@ -25,7 +25,7 @@ const LEGAL_TRANSITIONS := {
 	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
 	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.GAME_OVER: [State.STARTING_RUN, State.MAIN_MENU],
 	State.LOADING: [State.STARTING_RUN, State.MAIN_MENU, State.PLAYING, State.ERROR],
 	State.ERROR: [State.MAIN_MENU],
@@ -92,14 +92,15 @@ func is_paused() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause"):
-		if _current_state == State.PLAYING or _current_state == State.WAVE_TRANSITION:
-			request_pause()
-		elif _current_state == State.PAUSED:
-			request_resume()
-	if event.is_action_pressed("ui_cancel"):
-		if _current_state == State.PAUSED:
-			request_resume()
+	# "pause" and "ui_cancel" both default to Escape, so they must be handled as one
+	# toggle: two independent `if`s would pause and immediately resume on one press.
+	if not (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
+		return
+	if _current_state == State.PAUSED:
+		request_resume()
+	elif _can_pause_from(_current_state):
+		request_pause()
+	get_viewport().set_input_as_handled()
 
 
 ## ---------- Command interface (called by UI controllers / inputs) ----------

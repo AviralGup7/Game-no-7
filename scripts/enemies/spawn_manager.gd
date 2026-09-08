@@ -291,16 +291,16 @@ func _dispatch_death_effects(enemy: Node) -> void:
 		if child_cfg != null:
 			for i in range(config.split_count):
 				_ledger.extend_one(config.splits_into)
-				EventBus.report_info("%s split into %d x %s" % [String(base.get_archetype_id()), config.split_count, String(config.splits_into)])
+			EventBus.report_info("%s split into %d x %s" % [String(base.get_archetype_id()), config.split_count, String(config.splits_into)])
 
 
 func _detonate(source: EnemyBase, at: Vector3, config: EnemyConfig) -> void:
 	var radius := 3.0
-	var scale := 1.5
+	var damage_scale := 1.5
 	if config != null:
 		radius = config.death_blast_radius
-		scale = config.death_blast_damage_scale
-	var damage := source.get_effective_attack_damage() * scale
+		damage_scale = config.death_blast_damage_scale
+	var damage := source.get_effective_attack_damage() * damage_scale
 	var victims: Array = []
 	if _player != null and is_instance_valid(_player):
 		victims = [_player]

@@ -21,11 +21,12 @@ const PHASE_ACTIVE := &"active"
 const PHASE_RECOVER := &"recover"
 const PHASE_COOLDOWN := &"cooldown"
 
+@export var stamina_cost: float = 25.0
 @export var duration: float = 0.18          # active burst length (fast, snappy)
 @export var distance: float = 5.5           # total burst travel in metres
 @export var cooldown: float = 0.8           # seconds before a new dodge is allowed
 @export var invulnerability_duration: float = 0.3   # i-frames (can exceed active window)
-@export var recovery_duration: float = 0.12 # no-control glide after the burst
+@export var recovery_duration: float = 0.12 # stationary settle after the burst
 @export var can_interrupt_attack: bool = true
 @export var arena_bounds_half: float = -1.0 # -1 => no clamp (set by the scene owner)
 
@@ -47,7 +48,7 @@ func _ready() -> void:
 
 ## Called by the owning player each physics step while control is enabled.
 func tick(delta: float) -> void:
-	if _body == null:
+	if _body == null or delta <= 0.0:
 		return
 	if _cooldown_remaining > 0.0:
 		_cooldown_remaining = maxf(_cooldown_remaining - delta, 0.0)
@@ -56,8 +57,9 @@ func tick(delta: float) -> void:
 
 	match _phase:
 		PHASE_ACTIVE:
+			var fraction := clampf((duration - _elapsed) / delta, 0.0, 1.0)
+			_move_burst(delta, fraction)
 			_elapsed += delta
-			_move_burst(delta)
 			if _elapsed >= duration:
 				_enter_recover()
 		PHASE_RECOVER:
@@ -135,12 +137,13 @@ func _burst_speed() -> float:
 	return maxf(distance / maxf(duration, 0.001), 0.0)
 
 
-func _move_burst(delta: float) -> void:
+func _move_burst(delta: float, fraction: float = 1.0) -> void:
 	var vel := _body.velocity
 	if not _body.is_on_floor():
 		vel.y -= GRAVITY * delta
-	vel.x = _dir.x * _speed
-	vel.z = _dir.z * _speed
+	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
+	vel.x = _dir.x * speed
+	vel.z = _dir.z * speed
 	_body.velocity = vel
 	_body.move_and_slide()
 	_clamp_to_bounds()
@@ -148,12 +151,16 @@ func _move_burst(delta: float) -> void:
 
 func _enter_recover() -> void:
 	_phase = PHASE_RECOVER
-	_elapsed = 0.0
+	_elapsed = maxf(_elapsed - maxf(duration, 0.0), 0.0)
+	if _elapsed >= recovery_duration:
+		_enter_cooldown()
 
 
 func _enter_cooldown() -> void:
 	_phase = PHASE_COOLDOWN
-	_cooldown_remaining = maxf(_effective_cooldown(), 0.0)
+	_cooldown_remaining = maxf(_effective_cooldown() - maxf(_elapsed - recovery_duration, 0.0), 0.0)
+	if _cooldown_remaining <= 0.0:
+		_finish_cycle()
 
 
 func _finish_cycle() -> void:
@@ -175,27 +182,16 @@ func _effective_cooldown() -> float:
 func _clamp_to_bounds() -> void:
 	if _body == null or arena_bounds_half < 0.0:
 		return
-	var limit := arena_bounds_half - 0.5
+	var limit := maxf(arena_bounds_half - 0.5, 0.0)
 	var p := _body.global_position
-	var changed := false
-	if p.x < -limit:
-		p.x = -limit
-		changed = true
-	elif p.x > limit:
-		p.x = limit
-		changed = true
-	if p.z < -limit:
-		p.z = -limit
-		changed = true
-	elif p.z > limit:
-		p.z = limit
-		changed = true
-	if changed:
-		_body.global_position = p
-		var vel := _body.velocity
-		vel.x = 0.0
-		vel.z = 0.0
-		_body.velocity = vel
+	var clamped := Vector3(clampf(p.x, -limit, limit), p.y, clampf(p.z, -limit, limit))
+	if clamped.x != p.x and _body.velocity.x * p.x > 0.0:
+		_body.velocity.x = 0.0
+	if clamped.z != p.z and _body.velocity.z * p.z > 0.0:
+		_body.velocity.z = 0.0
+	if clamped != p:
+		_body.global_position = clamped
+
 
 
 ## Bind the owner's HealthComponent so i-frames are real.
