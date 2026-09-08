@@ -44,9 +44,9 @@ func roll_drops(_archetype_id: StringName, wave_number: int, is_elite: bool, is_
 	var eligible := _eligible(wave_number)
 	if eligible.is_empty():
 		return out
-	var chance := BASE_DROP_CHANCE + maxf(luck_bonus, 0.0)
+	var chance := clampf(BASE_DROP_CHANCE + maxf(luck_bonus, 0.0), 0.0, 1.0)
 	if is_elite:
-		chance += ELITE_BONUS_CHANCE
+		chance = clampf(chance + ELITE_BONUS_CHANCE, 0.0, 1.0)
 	var guaranteed := 0
 	if is_boss:
 		guaranteed = BOSS_GUARANTEED_DROPS

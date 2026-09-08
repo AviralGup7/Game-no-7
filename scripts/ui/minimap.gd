@@ -63,7 +63,7 @@ func _refresh_targets() -> void:
 
 func _draw() -> void:
 	var center := size * 0.5
-	var radius := minf(size.x, size.y) * 0.5 - 4.0
+	var radius := maxf(minf(size.x, size.y) * 0.5 - 4.0, 8.0)
 	# Frame: dark disc + rim.
 	draw_circle(center, radius + 2.0, Color(0.05, 0.06, 0.08, 0.75))
 	draw_arc(center, radius + 2.0, 0, TAU, 48, Color(1, 1, 1, 0.25), 2.0)
