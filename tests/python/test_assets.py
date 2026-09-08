@@ -279,6 +279,11 @@ class FormatTests(AssetTestCase):
 
 
 class CoverageTests(AssetTestCase):
+    def test_fresh_godot_import_keeps_embedded_textures_in_cache(self):
+        settings = (ROOT / "project.godot").read_text()
+        self.assertIn('[importer_defaults]', settings)
+        self.assertIn('"gltf/embedded_image_handling": 2', settings)
+
     def test_untracked_download_is_detected(self):
         self.write_existing(self.payload)
         with patch.object(validator, "ROOT", self.root), self.assertRaisesRegex(ValueError, "untracked"):

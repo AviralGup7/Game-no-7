@@ -142,3 +142,11 @@ environment/defaults/default_clear_color=Color(0.09, 0.1, 0.12, 1)
 [gui]
 
 theme/default_font_multichannel_signed_distance_field=true
+
+[importer_defaults]
+
+; Keep embedded glTF images in Godot's imported scene cache. Extracting them next
+; to the source model creates duplicate, untracked PNGs and inflates the asset tree.
+scene={
+"gltf/embedded_image_handling": 2
+}

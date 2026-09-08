@@ -181,3 +181,14 @@ building a second, independently validated binary. The release targets the workf
 commit and includes `LastStandArena-debug.apk` plus `SHA256SUMS.txt`. These are
 **debug-signed sideload/testing milestones**, not Google Play production releases.
 Use a new version tag for each release.
+
+### Embedded model textures
+
+`project.godot` sets the scene importer default `gltf/embedded_image_handling` to
+**2 (Embed as Basis Universal)**. A fresh import keeps glTF/GLB embedded textures
+inside Godot's imported scene cache instead of extracting duplicate PNGs next to
+the source model. The source asset inventory therefore remains checksum-locked.
+On an existing developer checkout, change the model's Import setting to Embed as
+Basis Universal and reimport if its old `.import` sidecar still selects Extract
+Textures. Only remove obsolete generated PNGs after confirming they are not in
+`assets/manifest.json`; never delete the approved editable texture atlases.
