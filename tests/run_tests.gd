@@ -9,8 +9,8 @@ extends SceneTree
 ## inside the live tree (global transforms return identity there), which would make
 ## positional/spatial assertions invalid.
 
+## Pure suites: no Node3D, no tree access. Safe to run synchronously.
 const UNIT_SUITES := [
-	"res://tests/unit/test_model_visual.gd",
 	"res://tests/unit/test_save.gd",
 	"res://tests/unit/test_combat.gd",
 	"res://tests/unit/test_configs.gd",
@@ -21,9 +21,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_upgrade_selection.gd",
 	"res://tests/unit/test_progression.gd",
 	"res://tests/unit/test_rng_tables.gd",
-	"res://tests/unit/test_weapons.gd",
 	"res://tests/unit/test_status_skills.gd",
-	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_drops_elites.gd",
 	"res://tests/unit/test_director_mutators.gd",
 	"res://tests/unit/test_meta_misc.gd",
@@ -31,9 +29,21 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_extracted_modules.gd",
 	"res://tests/unit/test_procedural_sfx.gd",
 	"res://tests/unit/test_enemy_behaviors.gd",
-	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_content_progression.gd",
 	"res://tests/unit/test_presentation_scripts.gd",
+]
+
+## Node3D-based suites: these build Node3D fixtures and assert on positions.
+## They MUST run in the deferred phase. Nodes created during _initialize() are not
+## inside the live tree yet, so global_position returns identity — the fixtures set
+## .position but production code (AreaDamage, MeleeResolver, ...) reads
+## .global_position, so every target collapses onto the origin and spatial
+## assertions fail for reasons that have nothing to do with the code under test.
+const NODE_SUITES := [
+	"res://tests/unit/test_model_visual.gd",
+	"res://tests/unit/test_weapons.gd",
+	"res://tests/unit/test_area_combat.gd",
+	"res://tests/unit/test_character_visuals.gd",
 ]
 
 var _failures: Array[String] = []
@@ -43,7 +53,12 @@ var _integration_run := false
 
 func _initialize() -> void:
 	# Unit suites are pure (no nodes) -> safe to run immediately.
-	for path in UNIT_SUITES:
+	_run_suites(UNIT_SUITES)
+
+
+## Load each suite and fold its cases into the totals/failures.
+func _run_suites(paths: Array) -> void:
+	for path in paths:
 		var script: GDScript = load(path)
 		if script == null:
 			_failures.append("Could not load suite: %s" % path)
@@ -62,6 +77,9 @@ func _process(_delta: float) -> bool:
 		return false
 	_integration_run = true
 	# Deferred to the first live frame so Node3D children are truly inside the tree.
+	# Node3D-based unit suites must run here for the same reason as the integration
+	# stages below: global_position is only meaningful once the tree is live.
+	_run_suites(NODE_SUITES)
 	var combat := _run_combat_integration()
 	_total += combat.size()
 	for c in combat:
@@ -445,8 +463,14 @@ func _run_enemy_encounter_integration() -> Array:
 		_step_enemy(melee, 0.05)  # through the 0.2s windup
 	var one_hit := target.hits.size() == 1 and is_equal_approx(float(target.hits[0]), 6.0)
 	var still_attack := melee.get_state() == &"attack"
-	for i in range(14):
+	# Step only until the cooldown releases back to chase. The target never leaves
+	# range, so chase immediately re-enters attack and swings again — running a
+	# fixed 14 extra frames would observe that *second* swing and wrongly report
+	# hits=2/signals=2. Stop on the first frame the cooldown hands control back.
+	for i in range(20):
 		_step_enemy(melee, 0.05)  # through the 0.5s cooldown
+		if melee.get_state() != &"attack":
+			break
 	results.append({
 		"name": "melee cycle: chase->attack, exactly one hit at windup end, cooldown->chase",
 		"passed": entered_attack and one_hit and still_attack

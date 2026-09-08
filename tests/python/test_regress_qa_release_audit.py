@@ -307,3 +307,125 @@ class WavePlannerCountCapTests(unittest.TestCase):
                 b, f, h = min(8 + extra, 18), min(2 + extra, 10), min(1 + extra // 2, heavy_cap)
             worst = max(worst, b + f + h)
         self.assertLessEqual(worst, 40, "max planned_count over waves 1..40 is %d" % worst)
+
+
+class CriticalSystemZeroChanceTests(unittest.TestCase):
+    """A build with no crit chance must never crit, however much pity accrued.
+
+    CriticalSystem.roll added the pity bonus to the base chance unconditionally,
+    so a weapon at 0% crit still landed crits once enough non-crits stacked up.
+    Pity escalates an existing chance; it must not manufacture one.
+    """
+
+    def test_zero_base_and_bonus_short_circuits_before_pity(self):
+        body = func_body(read("scripts/combat/critical_system.gd"), "roll")
+        self.assertRegex(
+            body,
+            r"if base_chance \+ bonus <= 0\.0:",
+            "roll() must short-circuit to no-crit when there is no chance to escalate",
+        )
+        guard = body.split("if base_chance + bonus <= 0.0:")[1]
+        pity_at = body.find("pity_bonus :=")
+        guard_at = body.find("if base_chance + bonus <= 0.0:")
+        self.assertLess(
+            guard_at, pity_at, "the zero-chance guard must precede the pity bonus"
+        )
+        self.assertIn(
+            '"crit": false', guard, "the zero-chance path must report crit == false"
+        )
+
+    def test_zero_chance_still_advances_the_pity_counter(self):
+        body = func_body(read("scripts/combat/critical_system.gd"), "roll")
+        guard = body.split("if base_chance + bonus <= 0.0:")[1].split("var pity_bonus")[0]
+        self.assertRegex(
+            guard,
+            r"maxi\(pity_stacks, 0\) \+ 1",
+            "a non-crit must still increment pity even on the zero-chance path",
+        )
+
+
+class Node3DSuiteSchedulingTests(unittest.TestCase):
+    """Node3D-based suites must run on a live frame with in-tree fixtures.
+
+    Node3D.get_global_transform() fails to the identity transform outside the
+    tree, so parentless dummies all report global_position == ORIGIN. Production
+    code (AreaDamage, MeleeResolver) reads .global_position, so spatial
+    assertions silently degenerate: every target lands on the blast centre and
+    arc/range filtering stops filtering.
+    """
+
+    NODE_SUITES = (
+        "test_model_visual.gd",
+        "test_weapons.gd",
+        "test_area_combat.gd",
+        "test_character_visuals.gd",
+    )
+
+    def test_runner_separates_pure_from_node_suites(self):
+        txt = read("tests/run_tests.gd")
+        self.assertIn("const NODE_SUITES", txt, "runner must declare NODE_SUITES")
+        unit_block = txt.split("const UNIT_SUITES")[1].split("]")[0]
+        node_block = txt.split("const NODE_SUITES")[1].split("]")[0]
+        for suite in self.NODE_SUITES:
+            self.assertIn(suite, node_block, "%s must be a deferred node suite" % suite)
+            self.assertNotIn(
+                suite, unit_block, "%s must not run in the synchronous phase" % suite
+            )
+
+    def test_node_suites_run_in_the_deferred_phase(self):
+        body = func_body(read("tests/run_tests.gd"), "_process")
+        self.assertIn(
+            "_run_suites(NODE_SUITES)",
+            body,
+            "NODE_SUITES must be executed from _process, not _initialize",
+        )
+        init = func_body(read("tests/run_tests.gd"), "_initialize")
+        self.assertNotIn(
+            "NODE_SUITES", init, "NODE_SUITES must not run during _initialize"
+        )
+
+    def test_every_registered_suite_exists_exactly_once(self):
+        txt = read("tests/run_tests.gd")
+        listed = re.findall(r'"res://(tests/unit/[^"]+)"', txt)
+        self.assertEqual(
+            len(listed), len(set(listed)), "a suite is registered more than once"
+        )
+        on_disk = {
+            "tests/unit/%s" % p.name
+            for p in (ROOT / "tests" / "unit").iterdir()
+            if p.suffix == ".gd"
+        }
+        self.assertEqual(
+            set(listed), on_disk, "registered suites and tests/unit/*.gd disagree"
+        )
+
+    def test_spatial_fixtures_are_attached_before_positioning(self):
+        """Dummies must be added to the tree, then positioned via global_position."""
+        for path in ("tests/unit/test_area_combat.gd", "tests/unit/test_weapons.gd"):
+            txt = read(path)
+            self.assertIn(
+                "root.add_child(d)", txt, "%s must attach its Node3D dummies" % path
+            )
+            add_at = txt.find("root.add_child(d)")
+            pos_at = txt.find("d.global_position =")
+            self.assertLess(
+                add_at, pos_at, "%s must attach before setting global_position" % path
+            )
+
+
+class CombatLogCapacityFloorTests(unittest.TestCase):
+    """CombatLog._init clamps capacity up to 8; tests must honour that floor."""
+
+    def test_capacity_floor_is_documented_and_enforced(self):
+        body = func_body(read("scripts/combat/combat_log.gd"), "_init")
+        self.assertRegex(body, r"maxi\(capacity, 8\)", "capacity floor of 8 expected")
+
+    def test_suite_does_not_request_a_capacity_below_the_floor(self):
+        txt = read("tests/unit/test_area_combat.gd")
+        for requested in re.findall(r"CombatLog\.new\((\d+)\)", txt):
+            self.assertGreaterEqual(
+                int(requested),
+                8,
+                "CombatLog.new(%s) is silently raised to 8; the test would assert "
+                "against a capacity the class never honours" % requested,
+            )
