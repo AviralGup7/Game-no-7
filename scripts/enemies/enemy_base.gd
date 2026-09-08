@@ -87,15 +87,27 @@ var _event_bus_resolved := false
 
 
 func _ready() -> void:
+	if not is_inside_tree():
+		return
 	add_to_group(TARGET_GROUP)
 	_health = get_node_or_null("HealthComponent")
+	if _health != null and not is_instance_valid(_health):
+		_health = null
 	_feedback = get_node_or_null("EnemyFeedback")
+	if _feedback != null and not is_instance_valid(_feedback):
+		_feedback = null
 	_audio = get_node_or_null("EnemyAudio")
+	if _audio != null and not is_instance_valid(_audio):
+		_audio = null
 	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
+	if _machine != null and not is_instance_valid(_machine):
+		_machine = null
 	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
-	if _health != null:
-		_health.damaged.connect(_on_damaged)
-		_health.died.connect(_on_died)
+	if _health != null and is_instance_valid(_health):
+		if _health.has_signal("damaged") and not _health.damaged.is_connected(_on_damaged):
+			_health.damaged.connect(_on_damaged)
+		if _health.has_signal("died") and not _health.died.is_connected(_on_died):
+			_health.died.connect(_on_died)
 
 
 ## Lazy, cached autoload lookup: identical to a direct reference in-game, null-safe
@@ -175,7 +187,9 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_apply_visual_scale(config.visual_scale)
 	# Presentation hook (Agent 4): mount the archetype's approved model under
 	# VisualRoot/CharacterModel. No gameplay effect; primitives remain if absent.
-	if CharacterVisuals.has_model(config.archetype_id):
+	# Skip when a dedicated EnemyAnimator node is present — it already mounts
+	# the same model via its own PackedScene (avoids double-model overlap).
+	if get_node_or_null("EnemyAnimator") == null and CharacterVisuals.has_model(config.archetype_id):
 		CharacterVisuals.mount(self, config.archetype_id)
 	if _machine != null:
 		_machine.force_state(&"idle")
@@ -532,12 +546,14 @@ func _on_damaged(result: DamageResult) -> void:
 	var bus := _eb()
 	if bus != null:
 		bus.enemy_damaged.emit(self, result)
-	if _feedback != null and _feedback.has_method("play_damaged"):
+	if result.was_critical and _feedback != null and _feedback.has_method("play_crit"):
+		_feedback.call("play_crit")
+	elif _feedback != null and _feedback.has_method("play_damaged"):
 		_feedback.call("play_damaged")
 	if _audio != null and _audio.has_method("play_hit"):
 		_audio.call("play_hit")
 	if result.was_critical:
-		_juice_hitstop(0.03, 0.12)
+		_juice_hitstop(0.04, 0.16)
 	if not _alive:
 		return
 	# Poise: while a windup is guarded, chip damage accumulates instead of
@@ -591,6 +607,7 @@ func _juice_hitstop(duration: float, trauma: float) -> void:
 			node.call("request_hitstop", duration)
 		if node.has_method("add_trauma"):
 			node.call("add_trauma", trauma)
+		break  # Only one manager owns the global time_scale; avoid stacking the freeze
 
 
 func _fade_and_free() -> void:
@@ -685,3 +702,12 @@ func get_debug_snapshot() -> Dictionary:
 		"poise_guard": _poise_guard,
 		"elite": is_elite(),
 	}
+
+## Hardened: validate knockback vector before applying.
+func _validated_knockback(k: Vector3) -> Vector3:
+	if not is_finite(k.x) or not is_finite(k.y) or not is_finite(k.z):
+		return Vector3.ZERO
+	if k.length_squared() > 10000.0:
+		return k.normalized() * 100.0
+	return k
+

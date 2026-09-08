@@ -134,10 +134,29 @@ func clear_all() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _effects.is_empty():
+		# Safety: shield pool cannot outlive its effects.
+		if _shield_pool != 0.0 or not _shield_layers.is_empty():
+			_shield_layers.clear()
+			_sync_shield_pool()
 		return
+	if not is_inside_tree():
+		return
+	if delta <= 0.0 or not is_finite(delta):
+		return
+	delta = clampf(delta, 0.0, 0.5)
 	var expired: Array = []
-	for id in _effects:
+	for id in _effects.keys().duplicate():
+		if not _effects.has(id):
+			continue
 		var fx := _effects[id] as StatusEffect
+		if fx == null or not is_instance_valid(fx):
+			expired.append(id)
+			continue
+		if fx.config != null and not fx.config.validate().is_empty():
+			# Authoring invariant broken by an old save — expire it rather
+			# than letting a NaN/negative tick stall the loop.
+			expired.append(id)
+			continue
 		var ticks := fx.tick(delta)
 		if ticks > 0:
 			_apply_ticks(fx, ticks)
@@ -205,35 +224,62 @@ func _power_for(source: Node) -> Dictionary:
 func move_speed_factor() -> float:
 	var f := 1.0
 	for id in _effects:
-		f *= (_effects[id] as StatusEffect).move_speed_factor()
-	return maxf(f, 0.0)
+		var m := (_effects[id] as StatusEffect).move_speed_factor()
+		if is_finite(m):
+			f *= m
+	# Never NaN-propagate: finite factor is required so the game keeps running.
+	if not is_finite(f):
+		return 1.0
+	# Clamp to a sane play range; 0 is reserved for true stun only
+	# (tick still advances so the lock is always bounded).
+	return clampf(f, 0.0, 2.0)
 
 
 func outgoing_damage_factor() -> float:
 	var f := 1.0
 	for id in _effects:
-		f *= (_effects[id] as StatusEffect).damage_factor()
-	return maxf(f, 0.0)
+		var m := (_effects[id] as StatusEffect).damage_factor()
+		if is_finite(m):
+			f *= m
+	if not is_finite(f):
+		return 1.0
+	return clampf(f, 0.0, 10.0)
 
 
 func incoming_damage_factor() -> float:
 	var f := 1.0
 	for id in _effects:
-		f *= (_effects[id] as StatusEffect).received_damage_factor()
-	return maxf(f, 0.0)
+		var m := (_effects[id] as StatusEffect).received_damage_factor()
+		if is_finite(m):
+			f *= m
+	if not is_finite(f):
+		return 1.0
+	return clampf(f, 0.0, 10.0)
 
 
 func is_stunned() -> bool:
+	if _effects.is_empty():
+		return false
 	for id in _effects:
 		var fx := _effects[id] as StatusEffect
+		if fx == null or not is_instance_valid(fx):
+			continue
+		if fx.is_expired():
+			continue
 		if fx.config != null and fx.config.stuns:
 			return true
 	return false
 
 
 func is_rooted() -> bool:
+	if _effects.is_empty():
+		return false
 	for id in _effects:
 		var fx := _effects[id] as StatusEffect
+		if fx == null or not is_instance_valid(fx):
+			continue
+		if fx.is_expired():
+			continue
 		if fx.config != null and fx.config.roots:
 			return true
 	return false
@@ -247,16 +293,20 @@ func shield_remaining() -> float:
 ## consumed in stable effect insertion order so expiring one shield cannot erase
 ## another effect's unspent capacity.
 func absorb_direct(amount: float) -> float:
-	var remaining := maxf(amount, 0.0)
+	if not is_finite(amount) or amount <= 0.0:
+		return 0.0
+	var remaining := clampf(amount, 0.0, 10000.0)
 	for id in _shield_layers.keys().duplicate():
 		if remaining <= 0.0:
 			break
 		var layer := maxf(float(_shield_layers[id]), 0.0)
+		if not is_finite(layer) or layer <= 0.0:
+			continue
 		var absorbed := minf(layer, remaining)
-		_shield_layers[id] = layer - absorbed
-		remaining -= absorbed
+		_shield_layers[id] = maxf(layer - absorbed, 0.0)
+		remaining = maxf(remaining - absorbed, 0.0)
 	_sync_shield_pool()
-	return remaining
+	return maxf(remaining, 0.0)
 
 
 func get_debug_snapshot() -> Dictionary:
@@ -264,3 +314,19 @@ func get_debug_snapshot() -> Dictionary:
 	for id in _effects:
 		list.append((_effects[id] as StatusEffect).get_debug_snapshot())
 	return {"effects": list, "shield": _shield_pool}
+
+## Hardened: validate incoming status effects batch.
+func _validated_effects(effects: Array) -> Array:
+	var out: Array = []
+	for e in effects:
+		if e == null or not is_instance_valid(e as Object):
+			continue
+		if e is Dictionary and e.has("id"):
+			var dur:float = float(e.get("duration", 0.0))
+			if not is_finite(dur) or dur <= 0.0:
+				continue
+			out.append(e)
+		elif e is StatusEffect and is_finite(e.duration):
+			out.append(e)
+	return out
+

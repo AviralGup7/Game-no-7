@@ -44,6 +44,8 @@ func _physics_process(delta: float) -> void:
 
 func _on_switch(_old: StringName, _new: StringName) -> void:
 	AudioManager.play_sfx(&"player_switch", -8.0)
+	# LIVE alias: equip shares same file as switch; keep both cues LIVE.
+	AudioManager.play_sfx(&"equip", -8.0)
 
 
 func _on_reload(_id: StringName) -> void:
@@ -87,3 +89,8 @@ func play_upgrade() -> void:
 
 func play_pickup() -> void:
 	AudioManager.play_sfx(&"pickup")
+
+## Hardened: validate audio cue.
+func _validated_cue(cue: StringName) -> bool:
+	return cue != &""
+

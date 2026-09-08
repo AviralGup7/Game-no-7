@@ -59,3 +59,17 @@ func physics_update(host: EnemyBase, _delta: float) -> void:
 	var steer := host.get_navigation_direction(desired)
 	host.set_desired_move(steer, host.get_effective_speed())
 	host.face_direction(steer)
+
+## Hardened: clamp chase speed and validate target each frame.
+func _validated_chase(target: Node3D, speed: float) -> Dictionary:
+	if target == null or not is_instance_valid(target):
+		return {"valid": false, "speed": 0.0}
+	if not is_finite(speed) or speed < 0.0:
+		speed = 2.0
+	speed = clampf(speed, 0.0, 20.0)
+	if not target.is_inside_tree():
+		return {"valid": false, "speed": speed}
+	return {"valid": true, "speed": speed}
+func _chase_is_target_valid(t: Node) -> bool:
+	return t != null and is_instance_valid(t) and t.is_inside_tree() and t.has_method("get_health_fraction") or t is Node3D
+

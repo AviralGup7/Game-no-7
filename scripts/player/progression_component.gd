@@ -106,17 +106,30 @@ func _is_excluded(config: UpgradeConfig) -> bool:
 func _accumulate(config: UpgradeConfig) -> void:
 	for key in config.stat_modifiers:
 		var k: StringName = StringName(String(key))
-		var v: float = float(config.stat_modifiers[key])
-		_modifiers[k] = float(_modifiers.get(k, 0.0)) + v
+		var raw: Variant = config.stat_modifiers[key]
+		var v: float = float(raw) if is_finite(float(raw)) else 0.0
+		if not is_finite(float(_modifiers.get(k, 0.0))):
+			_modifiers[k] = 0.0
+		_modifiers[k] = clampf(float(_modifiers[k]) + v, -1e6, 1e6)
 
 
 ## Read an effective derived stat. `base` is the unmodified, pre-upgrade value.
 func get_stat(key: StringName, base: float) -> float:
+	if not is_finite(base):
+		base = 0.0
 	if not _modifiers.has(key):
+		return base
+	if not is_finite(float(_modifiers[key])):
 		return base
 	var total := float(_modifiers[key])
 	if key in MULTIPLICATIVE:
-		return base * (1.0 + total)
+		# Never stall gameplay with a zero/negative speed or damage multiplier:
+		# even a 100% penalty leaves 10% base so the run stays playable.
+		var factor := 1.0 + total
+		if not is_finite(factor):
+			factor = 1.0
+		factor = maxf(factor, 0.1)
+		return base * factor
 	if key in COOLDOWN:
 		# Cooldown reduction is expressed as a NEGATIVE total; clamp so we never go
 		# below a small floor (i.e. -10% cooldown cannot become +10% cooldown).
@@ -127,6 +140,12 @@ func get_stat(key: StringName, base: float) -> float:
 	# score/currency/xp multipliers, crit values, projectile counts/pierce and
 	# stamina/pickup bonuses. Percentage-like additive values are authored in
 	# decimal form and consumers choose the neutral base they need.
+	# Hard stop: health never drops below 1, damage stays playable.
+	if key == &"max_health_add":
+		return maxf(base + total, 1.0)
+	if key == &"attack_damage_multiplier":
+		# Already covered as MULTIPLICATIVE, but keep for future additive overrides.
+		return base + total
 	return base + total
 
 
@@ -217,3 +236,14 @@ func add_permanent_bonus(key: StringName, delta: float) -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"upgrade_stacks": _stacks.duplicate(), "modifiers": _modifiers.duplicate()}
+
+## Hardened: additional progression validators.
+func _validated_wave_for_unlock(w: int) -> int:
+	if w < 1:
+		return 1
+	return mini(w, 999)
+func _validated_stack(n: int) -> int:
+	if n < 0:
+		return 0
+	return mini(n, 99)
+

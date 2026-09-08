@@ -115,6 +115,13 @@ func reset_effects() -> void:
 	Engine.time_scale = 1.0
 
 
+func _exit_tree() -> void:
+	# Always restore global time_scale when the manager leaves the tree so a
+	# stale hitstop/slowmo never freezes the game after a run teardown.
+	if Engine.time_scale != 1.0:
+		Engine.time_scale = 1.0
+
+
 func get_debug_snapshot() -> Dictionary:
 	return {
 		"trauma": _trauma,
@@ -122,3 +129,14 @@ func get_debug_snapshot() -> Dictionary:
 		"slowmo_left": _slowmo_left,
 		"time_scale": Engine.time_scale,
 	}
+
+## Hardened: clamp hitstop/trauma to prevent time_scale corruption.
+func _validated_hitstop(duration: float, trauma: float) -> Dictionary:
+	if not is_finite(duration) or duration < 0.0:
+		duration = 0.0
+	if not is_finite(trauma) or trauma < 0.0:
+		trauma = 0.0
+	duration = clampf(duration, 0.0, 1.0)
+	trauma = clampf(trauma, 0.0, 1.0)
+	return {"duration": duration, "trauma": trauma}
+

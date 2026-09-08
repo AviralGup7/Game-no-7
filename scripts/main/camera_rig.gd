@@ -27,6 +27,7 @@ func _ready() -> void:
 	if _profile == null:
 		_profile = CameraProfile.new()
 	_refresh_settings()
+	_wire_combat_feedback()
 
 
 func _find_camera() -> Camera3D:
@@ -122,6 +123,7 @@ func _update_shake(delta: float) -> void:
 		return
 	_shake_remaining = maxf(_shake_remaining - delta, 0.0)
 	var strength := _shake_amplitude * (_shake_remaining / maxf(_shake_remaining + 0.1, 0.001))
+	# Cosmetic-only RNG: camera shake is visual jitter, never affects gameplay/damage.
 	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * strength
 	_camera.position = _base_cam_pos + offset
 
@@ -132,6 +134,48 @@ func _refresh_settings() -> void:
 
 func set_reduced_motion(enabled: bool) -> void:
 	_reduced_motion = enabled
+
+
+func _wire_combat_feedback() -> void:
+	if EventBus == null:
+		return
+	if not EventBus.skill_cast.is_connected(_on_skill_shake):
+		EventBus.skill_cast.connect(_on_skill_shake)
+	if not EventBus.enemy_killed.is_connected(_on_kill_shake):
+		EventBus.enemy_killed.connect(_on_kill_shake)
+	if not EventBus.wave_completed.is_connected(_on_wave_shake):
+		EventBus.wave_completed.connect(_on_wave_shake)
+	if not EventBus.boss_spawned.is_connected(_on_boss_shake):
+		EventBus.boss_spawned.connect(_on_boss_shake)
+	if not EventBus.boss_slain.is_connected(_on_boss_slain_shake):
+		EventBus.boss_slain.connect(_on_boss_slain_shake)
+	if not EventBus.player_died.is_connected(_on_player_death_shake):
+		EventBus.player_died.connect(_on_player_death_shake)
+
+
+func _on_skill_shake(_skill_id: StringName, _caster: Node) -> void:
+	add_shake(0.22, 0.18)
+
+
+func _on_kill_shake(_enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
+	# Crits already hitstop; keep kill shake subtle to avoid nausea at 50+ kills.
+	add_shake(0.10, 0.12)
+
+
+func _on_wave_shake(_wave: int, _bonus: int) -> void:
+	add_shake(0.35, 0.4)
+
+
+func _on_boss_shake(_boss: Node, _id: StringName) -> void:
+	add_shake(0.6, 0.5)
+
+
+func _on_boss_slain_shake(_boss_id: StringName) -> void:
+	add_shake(0.8, 0.6)
+
+
+func _on_player_death_shake() -> void:
+	add_shake(0.9, 0.7)
 
 
 func get_debug_snapshot() -> Dictionary:
@@ -149,3 +193,12 @@ func get_debug_snapshot() -> Dictionary:
 		"shake_remaining": _shake_remaining,
 		"position": global_position,
 	}
+
+## Hardened: validate camera rig lerp.
+func _validated_lerp_weight(w: float, delta: float) -> float:
+	if not is_finite(w) or w < 0.0:
+		w = 0.1
+	if not is_finite(delta) or delta <= 0.0:
+		delta = 0.016
+	return clampf(w * delta * 60.0, 0.0, 1.0)
+

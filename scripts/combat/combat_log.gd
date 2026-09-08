@@ -55,7 +55,7 @@ func log_damage(source_id: StringName, target_name: String, amount: float, was_c
 		String(source_id), target_name, int(round(amount)),
 		" CRIT" if was_crit else "",
 		" (killed)" if target_died else "",
-	], {"amount": amount, "crit": was_crit, "killed": target_died})
+	], {"source": String(source_id), "amount": amount, "crit": was_crit, "killed": target_died})
 
 
 func log_heal(target_name: String, amount: float) -> int:
@@ -90,10 +90,19 @@ func damage_by_source() -> Dictionary:
 		if e["kind"] != KIND_DAMAGE:
 			continue
 		var data: Dictionary = e["data"]
-		var key := String(e["text"].split(" ")[0])
+		var key: String = String(data.get("source", String(e["text"].split(" ")[0])))
 		totals[key] = float(totals.get(key, 0.0)) + float(data.get("amount", 0.0))
 	return totals
 
 
 func latest_seq() -> int:
 	return _seq
+
+## Hardened: validate log entry before recording.
+func _validated_log_entry(entry: Dictionary) -> bool:
+	if entry == null or entry.is_empty():
+		return false
+	if not entry.has("type") or str(entry["type"]).is_empty():
+		return false
+	return true
+

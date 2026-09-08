@@ -39,6 +39,7 @@ var _active_mutators: Array[StringName] = []
 var _forced_mutators: Array[StringName] = []
 var _director := DifficultyDirector.new()
 var _director_wired := false
+var _wired_health: Node = null
 
 
 func _ready() -> void:
@@ -78,6 +79,9 @@ func stop() -> void:
 	_active_mutators.clear()
 	if _transition_timer != null:
 		_transition_timer.stop()
+	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
+		_wired_health.damaged.disconnect(_on_player_damaged)
+	_wired_health = null
 
 
 func get_current_wave() -> int:
@@ -158,6 +162,8 @@ func _launch_wave(wave_number: int) -> void:
 	EventBus.report_info("Wave %d started (%d planned)%s" % [wave_number, _planned_count,
 		(" [" + WaveMutators.banner_text(_active_mutators) + "]") if not _active_mutators.is_empty() else ""])
 	_announce_wave(wave_number)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"wave_started", -8.0, 1.0 + 0.02 * (wave_number % 5))
 
 
 ## Banner line for the wave: mutator names ride along so players can adapt.
@@ -235,6 +241,8 @@ func _complete_current_wave() -> void:
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
 	if cfg.upgrade_after_completion:
 		# Open a deterministic upgrade selection; GameRoot routes PLAYING -> UPGRADE_SELECTION.
@@ -248,8 +256,15 @@ func _complete_current_wave() -> void:
 
 
 func _tick_director_clock() -> void:
-	if GameRoot != null:
-		_director.set_time(GameRoot.get_run().elapsed_seconds)
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null:
+			var elapsed := 0.0
+			if run is Dictionary:
+				elapsed = float((run as Dictionary).get("elapsed_seconds", 0.0))
+			elif "elapsed_seconds" in run:
+				elapsed = float((run as Object).get("elapsed_seconds"))
+			_director.set_time(elapsed)
 
 
 ## PLAYING -> WAVE_TRANSITION, brief delay, then PLAYING + next wave launch.
@@ -271,28 +286,53 @@ func _on_transition_done() -> void:
 
 
 func _wire_director() -> void:
+	# Always re-bind per-run state so a new run's player damage feeds the director.
 	if _director_wired:
 		_director.reset(_player_max_hp())
+		_rebind_player_damage()
 		return
 	_director_wired = true
 	_director.reset(_player_max_hp())
 	if not EventBus.enemy_killed.is_connected(_on_director_kill):
 		EventBus.enemy_killed.connect(_on_director_kill)
-	# Feed player damage into the director so it can ease off after heavy hits.
-	if GameRoot != null and GameRoot.get_active_player() != null:
-		var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
-		if hp != null and hp.has_signal("damaged") and not hp.damaged.is_connected(_on_player_damaged):
-			hp.damaged.connect(_on_player_damaged)
+	_rebind_player_damage()
+
+
+func _rebind_player_damage() -> void:
+	# Disconnect any previous player's signal so damage is never double-counted
+	# across run rebuilds (old player is queue_free'd but lingers until end of frame).
+	if _wired_health != null and is_instance_valid(_wired_health):
+		if _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
+			_wired_health.damaged.disconnect(_on_player_damaged)
+	_wired_health = null
+	if GameRoot == null or GameRoot.get_active_player() == null:
+		return
+	var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
+	if hp == null or not hp.has_signal("damaged"):
+		return
+	if hp.damaged.is_connected(_on_player_damaged):
+		_wired_health = hp
+		return
+	hp.damaged.connect(_on_player_damaged)
+	_wired_health = hp
 
 
 func _on_player_damaged(result: DamageResult) -> void:
-	if result != null:
+	if result != null and result.accepted:
 		record_player_damage(result.final_amount)
 
 
+func _exit_tree() -> void:
+	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
+		_wired_health.damaged.disconnect(_on_player_damaged)
+
+
 func _player_max_hp() -> float:
-	if GameRoot != null and GameRoot.get_active_player() != null:
-		var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
+	if GameRoot != null and GameRoot.has_method("get_active_player"):
+		var _pl: Variant = GameRoot.get_active_player()
+		if _pl == null or not is_instance_valid(_pl as Object):
+			return 100.0
+		var hp := (_pl as Node).get_node_or_null("HealthComponent")
 		if hp != null and hp.has_method("get_max"):
 			return maxf(float(hp.call("get_max")), 1.0)
 	return 100.0
@@ -338,3 +378,12 @@ func get_debug_snapshot() -> Dictionary:
 		"mutators": _active_mutators.duplicate(),
 		"director": _director.get_debug_snapshot(),
 	}
+
+## Hardened: validate wave transition guard.
+func _validated_wave_number(n: int) -> int:
+	if n < 1:
+		return 1
+	if n > 999:
+		return 999
+	return n
+

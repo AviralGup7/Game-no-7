@@ -63,7 +63,7 @@ func integrate(body: CharacterBody3D, desired_dir: Vector3, desired_speed: float
 func _clamp_to_bounds(body: CharacterBody3D) -> void:
 	if _bounds_half < 0.0:
 		return
-	var limit := _bounds_half - _bounds_margin
+	var limit := maxf(_bounds_half - _bounds_margin, 0.0)
 	var p := body.global_position
 	var changed := false
 	if p.x < -limit:
@@ -100,3 +100,22 @@ func _detect_stall(body: CharacterBody3D, desired_dir: Vector3, desired_speed: f
 		# Nudge perpendicular to the current intent to slide off obstacles/walls.
 		var perp := Vector3(-desired_dir.z, 0.0, desired_dir.x)
 		_knockback += perp * maxf(desired_speed * 0.6, 1.0)
+
+## Hardened: clamp locomotion physics.
+func _validated_integration(dir: Vector3, speed: float, delta: float) -> Dictionary:
+	if not is_finite(delta) or delta <= 0.0:
+		delta = 0.016
+	delta = clampf(delta, 0.0, 0.2)
+	if not is_finite(speed) or speed < 0.0:
+		speed = 0.0
+	speed = clampf(speed, 0.0, 30.0)
+	if not is_finite(dir.x) or not is_finite(dir.z):
+		dir = Vector3.ZERO
+	if dir.length_squared() > 1.5:
+		dir = dir.normalized()
+	return {"dir": dir, "speed": speed, "delta": delta}
+func _validated_bounds(half: float) -> float:
+	if not is_finite(half):
+		return 24.0
+	return clampf(half, 4.0, 100.0)
+

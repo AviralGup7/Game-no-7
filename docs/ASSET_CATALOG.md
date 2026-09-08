@@ -28,9 +28,7 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
     (pooled randomizers) and the two looping music tracks mapped onto the existing
     `music_menu/calm/battle/boss/victory` cues, taking precedence over the procedural
     fallback.
-- **Still pending (not owned here / not yet wired):** weapon *attachment* visuals on
-  the rigged hands, UI skinning, per-arena bespoke art variants, and recorded boss
-  music (the approved library ships only a menu loop and one combat loop).
+- **Integrated since review:** weapon *attachment* visuals (9 weapons handslot.r/l + ModelVisual extent + PlayerEquipment equip), UI skinning (Kenney HUD/status), and skill VFX (EffectDirector distinct tints/textures/radii + PlayerAnimation). **Still pending:** per-arena bespoke art variants (themes + decorator cover; no unique arena meshes) and recorded boss music (library ships only menu+combat loops; boss uses procedural fallback).
 - Existing source art remains available; preferred equipment/reward selections
   replace old choices in the catalogue, not by destructive source-file overwrites.
 
@@ -84,8 +82,7 @@ bottle/crystal shapes help identification independently of tint.
 - Shared stone colour/normal/AO maps (1024 × 666) power local materials under
   `assets/materials/`. Floor tiling and world-space wall projection prevent wall
   stretch; no parallax, tessellation, displacement or new physics geometry.
-- `gameplay_arenas` covers all three arenas; `gameplay_skills` covers all eight
-  skills with existing particle texture sources. Skill-specific emitters are pending.
+- `gameplay_arenas` covers all three arenas (themes + decorator); `gameplay_skills` covers all eight skills integrated (EffectDirector distinct tint+texture+radius+burst + SkillExecutor behaviour + audio/camera).
 - Existing 55 UI PNGs, 15 particle PNGs and Rajdhani Regular/Bold remain. Every
   upgrade has an icon assignment. No font version change was available in the
   pinned source repository.

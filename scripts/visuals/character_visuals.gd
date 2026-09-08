@@ -84,7 +84,11 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	)
 
 	_hide_primitive(mount)
+	_add_ground_shadow(wrapper)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
+	# Subtle breathing bob keeps the hero alive even when idle (pure visual, no gameplay).
+	if role == &"player":
+		_add_breathing(wrapper)
 	return wrapper
 
 
@@ -96,6 +100,34 @@ static func _play_idle(root: Node3D, clip: String) -> void:
 		if (player as AnimationPlayer).has_animation(StringName(clip)):
 			(player as AnimationPlayer).play(StringName(clip))
 			return
+
+
+static func _add_ground_shadow(wrapper: Node3D) -> void:
+	# Soft dark disc under feet — grounds the model without a real shadow map (mobile-safe).
+	var decal := MeshInstance3D.new()
+	decal.name = "GroundShadow"
+	var disc := CylinderMesh.new()
+	disc.top_radius = 0.45
+	disc.bottom_radius = 0.45
+	disc.height = 0.02
+	disc.radial_segments = 12
+	decal.mesh = disc
+	decal.position = Vector3(0, 0.015, 0)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0, 0, 0, 0.28)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	decal.material_override = mat
+	wrapper.add_child(decal)
+
+
+static func _add_breathing(wrapper: Node3D) -> void:
+	# Tiny scripted bob via a lightweight tween (no bones) — keeps idle from feeling frozen.
+	var tween := wrapper.create_tween()
+	tween.set_loops()
+	tween.tween_property(wrapper, "position:y", 0.04, 1.1).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(wrapper, "position:y", -0.04, 1.1).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
 ## Hide the primitive body mesh that the model replaces (visible=false keeps the node).
@@ -134,3 +166,10 @@ static func _bounds(node: Node3D, parent_xform: Transform3D) -> AABB:
 			else:
 				out = out.merge(child_b)
 	return out
+
+## Hardened: validate model id before mounting.
+func _validated_model_id(id: StringName) -> bool:
+	if id == &"" or id == &"uninitialized":
+		return false
+	return has_model(id)
+

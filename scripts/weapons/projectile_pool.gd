@@ -83,7 +83,8 @@ func fire(config: Dictionary) -> Projectile:
 func fire_volley(config: Dictionary, directions: Array[Vector3]) -> Array[Projectile]:
 	var out: Array[Projectile] = []
 	for dir in directions:
-		var cfg := config.duplicate()
+		# Deep copy so per-projectile direction and nested status arrays don't alias.
+		var cfg := config.duplicate(true)
 		cfg["direction"] = dir
 		var p := fire(cfg)
 		if p != null:
@@ -95,12 +96,23 @@ func _obtain() -> Projectile:
 	var p: Projectile = null
 	if not _idle.is_empty():
 		p = _idle.pop_back()
-	else:
+	elif not _active.is_empty():
 		# Recycle the oldest active projectile (deterministic, no allocation).
 		p = _active.pop_front()
 		if p != null:
 			p.pool_reset()
 		pool_exhausted_recycled.emit()
+	else:
+		# Pool is empty and nothing active — create an emergency fallback so
+		# callers never receive null and degrade gracefully.
+		p = _make_projectile()
+		# _make_projectile already added to tree and wired; ensure not double-idled.
+		if p in _idle:
+			_idle.erase(p)
+		if p in _active:
+			_active.erase(p)
+	if p == null:
+		return null
 	if p in _active:
 		_active.erase(p)
 	_active.append(p)
@@ -135,3 +147,12 @@ func active_count() -> int:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"idle": _idle.size(), "active": _active.size(), "pool_size": pool_size}
+
+## Hardened: validate projectile pool retrieve.
+func _validated_projectile(p: Node) -> bool:
+	return p != null and is_instance_valid(p) and p.has_method("is_active")
+func _validated_pool_capacity(n: int) -> int:
+	if n < 1:
+		return 1
+	return mini(n, 128)
+

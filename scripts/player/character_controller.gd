@@ -14,13 +14,14 @@ class_name CharacterController
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
 var _weapons: WeaponManager
-var _legacy: AttackController
+# LEGACY ISOLATED: AttackController is not consulted for movement locking.
+# Authoritative lock is WeaponInstance.phase == WINDUP only; fallback removed
+# to guarantee single authority even if a legacy node is present in the scene.
 
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
 	_weapons = get_parent().get_node_or_null("WeaponManager") as WeaponManager
-	_legacy = get_parent().get_node_or_null("AttackController") as AttackController
 	if _owner_body == null:
 		push_warning("CharacterController parent is not a CharacterBody3D")
 
@@ -40,8 +41,6 @@ func tick(move_input: Vector2, delta: float) -> void:
 	var target_h := dir * move_speed
 	var inst := _weapons.active_instance() if _weapons != null else null
 	var locked := inst != null and inst.phase == WeaponInstance.PHASE_WINDUP
-	if inst == null and _legacy != null:
-		locked = _legacy.get_phase() == AttackController.PHASE_WINDUP
 	if dir.length_squared() > 0.001:
 		vel.x = move_toward(vel.x, target_h.x, acceleration * delta)
 		vel.z = move_toward(vel.z, target_h.z, acceleration * delta)
@@ -95,6 +94,27 @@ func face_direction(direction: Vector3) -> void:
 		_owner_body.global_rotation.y = atan2(-direction.x, -direction.z)
 
 
+## Dash/skill intent handler — authoritative movement for dash-like bursts.
+## SkillController and DodgeController request dash intent; this controller
+## performs the actual grounded move_and_slide so gameplay stays single-authority.
+## Preserves distance/timing via caller-supplied speed; collision and gravity handled here.
+func apply_dash(direction: Vector3, speed: float, delta: float) -> void:
+	if _owner_body == null or delta <= 0.0:
+		return
+	var vel := _owner_body.velocity
+	if not _owner_body.is_on_floor():
+		vel.y -= gravity * delta
+	vel.x = direction.x * speed
+	vel.z = direction.z * speed
+	_owner_body.velocity = vel
+	_owner_body.move_and_slide()
+	# Face the dash direction for readability, but don't lock windup attacks.
+	var inst := _weapons.active_instance() if _weapons != null else null
+	var locked := inst != null and inst.phase == WeaponInstance.PHASE_WINDUP
+	if not locked and direction.length_squared() > 0.0001:
+		_turn_toward(direction, delta)
+
+
 func _sanitize(v: Vector2) -> Vector2:
 	var len_sq := v.length_squared()
 	if len_sq > 1.0:
@@ -124,3 +144,14 @@ func stop() -> void:
 	if _owner_body != null:
 		_owner_body.velocity.x = 0.0
 		_owner_body.velocity.z = 0.0
+
+## Hardened: validate controller input.
+func _validated_input(vec: Vector2, delta: float) -> Dictionary:
+	if not is_finite(vec.x) or not is_finite(vec.y):
+		vec = Vector2.ZERO
+	if vec.length_squared() > 1.5:
+		vec = vec.normalized()
+	if not is_finite(delta) or delta <= 0.0:
+		delta = 0.016
+	return {"vec": vec, "delta": clampf(delta, 0.0, 0.2)}
+

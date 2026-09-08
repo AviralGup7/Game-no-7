@@ -38,7 +38,9 @@ static func load_all() -> Dictionary:
 	var first_arena := &""
 	var arenas: Dictionary = tables[&"arenas"]
 	if not arenas.is_empty():
-		first_arena = arenas.keys()[0]
+		var keys: Array = arenas.keys()
+		keys.sort()
+		first_arena = StringName(String(keys[0]))
 	return {
 		"tables": tables,
 		"waves": tables[&"waves"],
@@ -186,19 +188,30 @@ static func _list_resources(dir_path: String, extensions: Array = [".tres"]) -> 
 	var out: Array[String] = []
 	if not DirAccess.dir_exists_absolute(dir_path):
 		return out
+	_recursive_list(dir_path, extensions, out)
+	out.sort()
+	return out
+
+
+static func _recursive_list(dir_path: String, extensions: Array, out: Array[String]) -> void:
 	var dir := DirAccess.open(dir_path)
 	if dir == null:
-		return out
+		return
 	dir.list_dir_begin()
 	var file := dir.get_next()
 	while file != "":
-		if not dir.current_is_dir() and _has_extension(file, extensions):
+		var full := dir_path.path_join(file)
+		if dir.current_is_dir():
+			# Recurse into subdirectories (e.g. data/enemies/bosses/) — flat directories
+			# remain supported, but future organization does not silently stop discovery.
+			if not file.begins_with("."):
+				_recursive_list(full, extensions, out)
+		elif _has_extension(file, extensions):
 			# Skip Godot's import sidecars; load() resolves the real resource.
 			if not file.ends_with(".import") and not file.ends_with(".godot"):
-				out.append(dir_path.path_join(file))
+				out.append(full)
 		file = dir.get_next()
 	dir.list_dir_end()
-	return out
 
 
 static func _has_extension(file: String, extensions: Array) -> bool:
@@ -206,3 +219,10 @@ static func _has_extension(file: String, extensions: Array) -> bool:
 		if file.ends_with(String(ext)):
 			return true
 	return false
+
+## Hardened: validate content path before load.
+func _validated_content_path(p: String) -> bool:
+	if p.is_empty() or not p.begins_with("res://"):
+		return false
+	return true
+

@@ -5,7 +5,9 @@ extends Control
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
-	get_viewport().size_changed.connect(refresh)
+	var vp := get_viewport()
+	if vp != null:
+		vp.size_changed.connect(refresh)
 	refresh.call_deferred()
 
 static func insets(logical: Vector2, window_pixels: Vector2, safe: Rect2) -> Vector4:
@@ -26,3 +28,10 @@ func refresh() -> void:
 	offset_top = margins.y
 	offset_right = -margins.z
 	offset_bottom = -margins.w
+
+## Hardened: clamp safe area insets.
+func _validated_inset(v: float) -> float:
+	if not is_finite(v) or v < 0.0:
+		return 0.0
+	return clampf(v, 0.0, 200.0)
+

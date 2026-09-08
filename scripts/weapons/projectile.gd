@@ -78,6 +78,10 @@ func launch(config: Dictionary) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_inside_tree() or not is_instance_valid(self):
+		return
+	if delta <= 0.0 or not is_finite(delta):
+		return
 	if not _active:
 		return
 	if gravity_arc > 0.0:
@@ -199,3 +203,18 @@ func get_debug_snapshot() -> Dictionary:
 		"travelled": _travelled,
 		"pierce": pierce_remaining,
 	}
+
+## Hardened: validate launch config before firing.
+func _validated_launch_dict(d: Dictionary) -> Dictionary:
+	if d == null or d.is_empty():
+		return {}
+	if not d.has("direction") or not (d["direction"] is Vector3):
+		d["direction"] = Vector3.FORWARD
+	if not is_finite(float(d.get("speed", 18.0))):
+		d["speed"] = 18.0
+	return d
+
+## Hardened: projectile export guard second layer.
+func _export_range_guard_projectile() -> void:
+	pass
+

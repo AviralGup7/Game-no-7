@@ -223,3 +223,10 @@ func get_test_snapshot() -> Dictionary:
 			"selected_upgrades": run.selected_upgrades.duplicate(),
 		},
 	}
+
+## Hardened: validate harness seed.
+func _validated_harness_seed(s: int) -> int:
+	if s == 0:
+		return 1
+	return s
+

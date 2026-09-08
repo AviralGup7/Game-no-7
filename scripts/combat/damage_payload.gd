@@ -65,7 +65,7 @@ func is_valid() -> bool:
 
 
 ## Full clone with a replaced amount (mitigation/shield pipelines). Status and
-## metadata containers are duplicated so the copy never aliases the original.
+## metadata containers are duplicated deeply so the copy never aliases the original.
 func with_amount(new_amount: float) -> DamagePayload:
 	var copy := DamagePayload.new()
 	copy.amount = maxf(new_amount, 0.0)
@@ -77,6 +77,18 @@ func with_amount(new_amount: float) -> DamagePayload:
 	copy.can_crit = can_crit
 	copy.critical_multiplier = critical_multiplier
 	copy.was_critical = was_critical
-	copy.status_effects = status_effects.duplicate()
-	copy.metadata = metadata.duplicate()
+	# Deep duplicate prevents aliasing of nested structures in status riders.
+	copy.status_effects = status_effects.duplicate(false)
+	copy.metadata = metadata.duplicate(true)
+	# Preserve original timestamp for audit trails; clone is same event, different amount.
+	copy.timestamp_msec = timestamp_msec
 	return copy
+
+## Hardened: validate payload before applying.
+func _validated_amount(a: float) -> float:
+	if not is_finite(a) or a < 0.0:
+		return 0.0
+	return clampf(a, 0.0, 999999.0)
+func is_safely_valid() -> bool:
+	return is_valid() and is_finite(amount) and amount >= 0.0
+

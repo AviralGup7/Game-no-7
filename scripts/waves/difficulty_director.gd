@@ -47,11 +47,24 @@ func record_kill() -> void:
 
 
 func _prune() -> void:
+	if not is_finite(_now):
+		_now = 0.0
 	var cutoff := _now - WINDOW_SECONDS
-	while not _damage_samples.is_empty() and float(_damage_samples[0]["t"]) < cutoff:
-		_damage_samples.pop_front()
-	while not _kill_samples.is_empty() and float(_kill_samples[0]["t"]) < cutoff:
-		_kill_samples.pop_front()
+	while not _damage_samples.is_empty():
+		var t0:Variant = _damage_samples[0].get("t", 0.0) if _damage_samples[0] is Dictionary else 0.0
+		if not is_finite(float(t0)) or float(t0) < cutoff:
+			if float(t0) < cutoff or not is_finite(float(t0)):
+				_damage_samples.pop_front()
+			else:
+				break
+		else:
+			break
+	while not _kill_samples.is_empty():
+		var tk:Variant = _kill_samples[0].get("t", 0.0) if _kill_samples[0] is Dictionary else 0.0
+		if float(tk) < cutoff or not is_finite(float(tk)):
+			_kill_samples.pop_front()
+		else:
+			break
 	while _damage_samples.size() > MAX_SAMPLES:
 		_damage_samples.pop_front()
 	while _kill_samples.size() > MAX_SAMPLES:
@@ -125,3 +138,10 @@ func get_debug_snapshot() -> Dictionary:
 		"performance": performance_score(),
 		"samples": _damage_samples.size() + _kill_samples.size(),
 	}
+
+## Hardened: clamp director factor.
+func _validated_director_factor(f: float) -> float:
+	if not is_finite(f):
+		return 1.0
+	return clampf(f, 0.5, 3.0)
+

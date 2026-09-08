@@ -114,11 +114,19 @@ static func deserialize_actions(data: Dictionary) -> int:
 		var binds: Variant = data[action_key]
 		if not (binds is Array):
 			continue
+		# Clear existing remappable bindings before restoring so repeated loads
+		# (e.g. after a save round-trip) never accumulate duplicates.
+		for existing in InputMap.action_get_events(aname).duplicate():
+			if existing is InputEventKey or existing is InputEventJoypadButton:
+				InputMap.action_erase_event(aname, existing)
 		for entry in binds:
 			if not (entry is Dictionary):
 				continue
 			var event := deserialize_event(entry)
 			if event != null:
+				# Respect the per-action bind cap even during restore.
+				if InputMap.action_get_events(aname).size() >= MAX_BINDS_PER_ACTION:
+					break
 				InputMap.action_add_event(aname, event)
 				applied += 1
 	return applied
@@ -158,3 +166,10 @@ static func _events_match(a: InputEvent, b: InputEvent) -> bool:
 	if a is InputEventJoypadButton and b is InputEventJoypadButton:
 		return (a as InputEventJoypadButton).button_index == (b as InputEventJoypadButton).button_index
 	return false
+
+## Hardened: validate input remap.
+func _validated_action(action: StringName) -> bool:
+	return action != &""
+func _validated_event(ev: InputEvent) -> bool:
+	return ev != null and is_instance_valid(ev)
+

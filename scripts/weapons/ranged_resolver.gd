@@ -18,11 +18,12 @@ static func spread_directions(facing: Vector3, projectile_count: int, spread_deg
 	if flat.length_squared() < 0.0001:
 		flat = Vector3.FORWARD
 	flat = flat.normalized()
-	if n == 1 or spread_degrees <= 0.0:
+	var clamped_spread := maxf(spread_degrees, 0.0)
+	if n == 1 or clamped_spread <= 0.0:
 		for i in range(n):
 			out.append(flat)
 		return out
-	var half := deg_to_rad(spread_degrees) * 0.5
+	var half := deg_to_rad(clamped_spread) * 0.5
 	for i in range(n):
 		var t := 0.0
 		if n > 1:
@@ -102,3 +103,14 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 			hits.append({"target": c, "distance": along})
 	hits.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
 	return hits
+
+## Hardened: validate ranged launch.
+func _validated_ranged_launch(speed: float, damage: float) -> Dictionary:
+	if not is_finite(speed) or speed <= 0.0:
+		speed = 18.0
+	if not is_finite(damage) or damage < 0.0:
+		damage = 10.0
+	speed = clampf(speed, 0.1, 100.0)
+	damage = clampf(damage, 0.0, 999999.0)
+	return {"speed": speed, "damage": damage}
+

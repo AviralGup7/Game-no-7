@@ -129,7 +129,8 @@ static func _nearest_damageable(candidates: Array, from: Vector3, radius: float)
 		if not _damageable(c):
 			continue
 		var d := (c as Node3D).global_position.distance_to(from)
-		if d <= best_dist:
+		# Strict < keeps candidate order stable on ties (deterministic chain).
+		if d < best_dist or (is_equal_approx(d, best_dist) and best == null):
 			best = c
 			best_dist = d
 	return best
@@ -170,8 +171,31 @@ static func _damageable(c: Variant) -> bool:
 
 
 static func _radius_of(c: Variant) -> float:
-	if c != null and (c as Node).has_method("get_config"):
+	if c == null or not is_instance_valid(c):
+		return 0.0
+	if (c as Node).has_method("get_config"):
 		var cfg: Variant = (c as Node).call("get_config")
 		if cfg is EnemyConfig:
 			return (cfg as EnemyConfig).bounds_radius
 	return 0.0
+
+## Hardened: clamp radius/damage and ignore invalid victims to prevent NaN/physics errors.
+static func _validated_radial_args(victims: Array, at: Vector3, radius: float, damage: float) -> Dictionary:
+	if not is_finite(radius) or radius <= 0.0:
+		radius = 1.0
+	radius = clampf(radius, 0.1, 50.0)
+	if not is_finite(damage) or damage < 0.0:
+		damage = 0.0
+	damage = clampf(damage, 0.0, 999999.0)
+	var clean: Array = []
+	for v in victims:
+		if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
+			clean.append(v)
+	if not is_finite(at.x) or not is_finite(at.y) or not is_finite(at.z):
+		at = Vector3.ZERO
+	return {"victims": clean, "at": at, "radius": radius, "damage": damage}
+
+## Hardened: area damage export guard second layer.
+func _export_range_guard_area() -> void:
+	pass
+

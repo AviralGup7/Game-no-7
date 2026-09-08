@@ -11,13 +11,31 @@ extends Node
 ##  - GPU particles only; no scripted per-frame emitter work beyond returning a ring.
 ##
 ## All methods are no-ops when particles are unsupported or the event node is invalid.
+## Priority & saturation: CRITICAL/BOSS/PLAYER effects are preserved when the pool
+## saturates — low-priority hits are dropped rather than evicting a boss burst,
+## and a high-priority request will steal the oldest low-priority ring/burst.
 
-const MAX_BURSTS := 6
-const MAX_RINGS := 10
+const MAX_BURSTS := 10
+const MAX_RINGS := 14
+const MAX_MUZZLE := 4
 const RING_TEXTURE := "res://assets/effects/kenney/circle_05.png"
 const BURST_TEXTURE := "res://assets/effects/kenney/spark_01.png"
 
+# Pool priorities — higher wins when saturated.
+const PRIORITY_CRITICAL := 100
+const PRIORITY_BOSS := 90
+const PRIORITY_PLAYER := 80
+const PRIORITY_SKILL := 60
+const PRIORITY_ENEMY_DEATH := 50
+const PRIORITY_SPAWN := 45
+const PRIORITY_PICKUP := 35
+const PRIORITY_ENEMY_HIT := 30
+const PRIORITY_HIT := 30
+const PRIORITY_STATUS := 25
+const PRIORITY_AMBIENT := 10
+
 ## Status effect visual accent -> colour (matches ART_STYLE readability accents).
+## Covers all 13 status ids (8 required +5 extra) so every effect has a distinct tint.
 const STATUS_COLORS := {
 	&"burn": Color(1.0, 0.45, 0.12),
 	&"bleed": Color(0.9, 0.15, 0.15),
@@ -27,11 +45,60 @@ const STATUS_COLORS := {
 	&"guard": Color(0.55, 0.7, 1.0),
 	&"regen": Color(0.45, 1.0, 0.55),
 	&"warcry": Color(1.0, 0.6, 0.25),
+	&"exposed": Color(1.0, 0.65, 0.22),
+	&"frenzy": Color(1.0, 0.22, 0.22),
+	&"haste": Color(0.62, 0.88, 1.0),
+	&"overguard": Color(0.68, 0.78, 1.0),
+	&"poison": Color(0.38, 0.78, 0.22),
 }
 
+## Distinct per-skill colours — all 8 skills have a unique tint so the player
+## reads the cast without text. Legacy aliases frost_nova/warcry kept for
+## backward compat with older configs that used the short id.
+const SKILL_COLORS := {
+	&"bladestorm": Color(0.88, 0.62, 0.18),
+	&"frost_nova": Color(0.42, 0.76, 1.0),
+	&"frost_nova_skill": Color(0.42, 0.76, 1.0),
+	&"phantom_rush": Color(0.64, 0.42, 1.0),
+	&"seismic_slam": Color(0.82, 0.48, 0.18),
+	&"warcry": Color(1.0, 0.42, 0.22),
+	&"warcry_skill": Color(1.0, 0.42, 0.22),
+	&"chain_lightning": Color(0.52, 0.74, 1.0),
+	&"mending_light": Color(0.48, 1.0, 0.58),
+	&"shatterwave": Color(0.78, 0.68, 1.0),
+}
+
+## Per-skill ring/burst textures from the shared kenney library — gives each skill
+## a shape identity beyond colour/radius (trace for whirl, smoke for dash, dirt for slam, etc).
+const SKILL_RING_TEXTURES := {
+	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
+	&"frost_nova": "res://assets/effects/kenney/circle_05.png",
+	&"frost_nova_skill": "res://assets/effects/kenney/circle_05.png",
+	&"phantom_rush": "res://assets/effects/kenney/smoke_03.png",
+	&"seismic_slam": "res://assets/effects/kenney/dirt_01.png",
+	&"warcry": "res://assets/effects/kenney/magic_01.png",
+	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
+	&"chain_lightning": "res://assets/effects/kenney/magic_03.png",
+	&"mending_light": "res://assets/effects/kenney/flare_01.png",
+	&"shatterwave": "res://assets/effects/kenney/circle_01.png",
+}
+const SKILL_BURST_TEXTURES := {
+	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
+	&"frost_nova": "res://assets/effects/kenney/star_04.png",
+	&"frost_nova_skill": "res://assets/effects/kenney/star_04.png",
+	&"phantom_rush": "res://assets/effects/kenney/smoke_01.png",
+	&"seismic_slam": "res://assets/effects/kenney/spark_04.png",
+	&"warcry": "res://assets/effects/kenney/magic_01.png",
+	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
+	&"chain_lightning": "res://assets/effects/kenney/star_01.png",
+	&"mending_light": "res://assets/effects/kenney/light_01.png",
+	&"shatterwave": "res://assets/effects/kenney/circle_05.png",
+}
 var _bursts: Array[GPUParticles3D] = []
 var _burst_template: GPUParticles3D = null
 var _ring_pool: Array[Node3D] = []
+var _burst_prios: Dictionary = {} # GPUParticles3D -> int
+var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
 
 
@@ -40,8 +107,8 @@ func _ready() -> void:
 
 
 ## Death / impact explosion at a world position (pooled, no autoload dependency).
-func burst_at(at: Vector3, color: Color, scale: float = 1.0) -> void:
-	var p := _claim_burst()
+func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	var p := _claim_burst(priority)
 	if p == null:
 		return
 	p.global_position = at
@@ -50,12 +117,15 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0) -> void:
 		mat.color = color
 	p.scale = Vector3.ONE * scale
 	p.restart()
-	EventBus.report_info("EffectDirector burst at %s" % str(at))
+	_burst_prios[p] = priority
+	# Gate noisy diagnostics: only high-value telegraphs (SKILL/BOSS/CRITICAL/SPAWN/PICKUP) log; per-hit HITS are silent.
+	if priority >= PRIORITY_PICKUP:
+		EventBus.report_info("EffectDirector burst at %s" % str(at))
 
 
 ## Expanding telegraph/collect ring (flat translucent disc on the ground plane).
-func ring_at(at: Vector3, color: Color, radius: float = 1.0) -> void:
-	var ring := _claim_ring()
+func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	var ring := _claim_ring(priority)
 	if ring == null:
 		return
 	ring.global_position = at + Vector3(0.02, 0, 0.02)
@@ -66,7 +136,9 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0) -> void:
 			mat.albedo_color = Color(color, 0.45)
 	ring.scale = Vector3(radius, radius, radius)
 	_show_ring(ring, 0.6)
-	EventBus.report_info("EffectDirector ring at %s" % str(at))
+	_ring_prios[ring] = priority
+	if priority >= PRIORITY_PICKUP:
+		EventBus.report_info("EffectDirector ring at %s" % str(at))
 
 
 # ---------------------- event wiring ----------------------
@@ -75,65 +147,232 @@ func _wire_events() -> void:
 	if _wired or EventBus == null:
 		return
 	_wired = true
-	EventBus.enemy_spawned.connect(_on_enemy_spawned)
-	EventBus.enemy_killed.connect(_on_enemy_killed)
-	EventBus.wave_started.connect(_on_wave_started)
-	EventBus.wave_completed.connect(_on_wave_completed)
-	EventBus.pickup_collected.connect(_on_pickup_collected)
-	EventBus.status_applied.connect(_on_status_applied)
-	EventBus.boss_spawned.connect(_on_boss_spawned)
-	EventBus.boss_slain.connect(_on_boss_slain)
+	if not EventBus.enemy_spawned.is_connected(_on_enemy_spawned):
+		EventBus.enemy_spawned.connect(_on_enemy_spawned)
+	if not EventBus.enemy_killed.is_connected(_on_enemy_killed):
+		EventBus.enemy_killed.connect(_on_enemy_killed)
+	if not EventBus.enemy_damaged.is_connected(_on_enemy_damaged):
+		EventBus.enemy_damaged.connect(_on_enemy_damaged)
+	if not EventBus.wave_started.is_connected(_on_wave_started):
+		EventBus.wave_started.connect(_on_wave_started)
+	if not EventBus.wave_completed.is_connected(_on_wave_completed):
+		EventBus.wave_completed.connect(_on_wave_completed)
+	if not EventBus.pickup_collected.is_connected(_on_pickup_collected):
+		EventBus.pickup_collected.connect(_on_pickup_collected)
+	if not EventBus.pickup_spawned.is_connected(_on_pickup_spawned):
+		EventBus.pickup_spawned.connect(_on_pickup_spawned)
+	if not EventBus.status_applied.is_connected(_on_status_applied):
+		EventBus.status_applied.connect(_on_status_applied)
+	if not EventBus.boss_spawned.is_connected(_on_boss_spawned):
+		EventBus.boss_spawned.connect(_on_boss_spawned)
+	if not EventBus.boss_slain.is_connected(_on_boss_slain):
+		EventBus.boss_slain.connect(_on_boss_slain)
+	if not EventBus.projectile_fired.is_connected(_on_projectile_fired):
+		EventBus.projectile_fired.connect(_on_projectile_fired)
+	if not EventBus.skill_cast.is_connected(_on_skill_cast):
+		EventBus.skill_cast.connect(_on_skill_cast)
+	if not EventBus.player_leveled_up.is_connected(_on_player_leveled_up):
+		EventBus.player_leveled_up.connect(_on_player_leveled_up)
+	if not EventBus.weapon_equipped.is_connected(_on_weapon_equipped):
+		EventBus.weapon_equipped.connect(_on_weapon_equipped)
 
 
 func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
-		ring_at((enemy as Node3D).global_position, Color(0.9, 0.5, 0.3), 1.1)
+		ring_at((enemy as Node3D).global_position, Color(0.9, 0.55, 0.3), 1.25, PRIORITY_SPAWN)
 
 
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
-		burst_at((enemy as Node3D).global_position, Color(0.7, 0.5, 0.35), 0.9)
+		var at := (enemy as Node3D).global_position + Vector3(0, 0.35, 0)
+		burst_at(at, Color(0.95, 0.55, 0.25), 1.15, PRIORITY_ENEMY_DEATH)
+		ring_at((enemy as Node3D).global_position, Color(1.0, 0.62, 0.35), 1.85, PRIORITY_ENEMY_DEATH)
+
+
+func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
+	if not is_instance_valid(enemy) or not enemy is Node3D or result == null or not result.accepted:
+		return
+	var at := (enemy as Node3D).global_position + Vector3(0, 1.1, 0)
+	if result.was_critical:
+		# Gold crit: larger, brighter, with shock ring for readability — CRITICAL so it never drops.
+		burst_at(at, Color(1.0, 0.88, 0.22), 0.82, PRIORITY_CRITICAL)
+		ring_at((enemy as Node3D).global_position, Color(1.0, 0.92, 0.45), 1.05, PRIORITY_CRITICAL)
+	else:
+		burst_at(at, Color(0.9, 0.72, 0.55), 0.42, PRIORITY_ENEMY_HIT)
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
-	ring_at(Vector3.ZERO, Color(0.8, 0.5, 0.25), 6.0)
+	ring_at(Vector3.ZERO, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
+	burst_at(Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
 
 
 func _on_wave_completed(_wave_number: int, _bonus: int) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.35), 7.0)
+	ring_at(Vector3.ZERO, Color(1.0, 0.88, 0.38), 8.0, PRIORITY_SPAWN)
+	burst_at(Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45, PRIORITY_SPAWN)
 
 
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(boss) and boss is Node3D:
 		at = (boss as Node3D).global_position
-	ring_at(at, Color(0.9, 0.2, 0.15), 4.5)
-	burst_at(at, Color(0.9, 0.3, 0.2), 1.6)
+	ring_at(at, Color(0.95, 0.18, 0.12), 5.2, PRIORITY_BOSS)
+	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.32, 0.18), 2.0, PRIORITY_BOSS)
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.8, 0.3), 8.0)
+	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32), 9.5, PRIORITY_BOSS)
+	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
 
 
 func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(collector) and collector is Node3D:
 		at = (collector as Node3D).global_position
-	ring_at(at, Color(1.0, 0.85, 0.35), 0.8)
+	ring_at(at, Color(1.0, 0.88, 0.38), 1.0, PRIORITY_PICKUP)
+	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.92, 0.55), 0.55, PRIORITY_PICKUP)
+
+
+func _on_pickup_spawned(pickup: Node, _pickup_id: StringName) -> void:
+	if not is_instance_valid(pickup) or not pickup is Node3D:
+		return
+	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 1.15, PRIORITY_PICKUP)
 
 
 func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> void:
 	if not is_instance_valid(target) or not target is Node3D:
 		return
 	var color: Color = STATUS_COLORS.get(effect_id, Color(0.7, 0.7, 0.7))
-	# Telegraph up to ~2 m above the target's feet so it reads over the body.
 	var at := (target as Node3D).global_position + Vector3(0, 1.6, 0)
-	ring_at(at, color, 0.7)
+	ring_at(at, color, 0.85, PRIORITY_STATUS)
+	if effect_id == &"burn" or effect_id == &"shock" or effect_id == &"poison" or effect_id == &"bleed":
+		burst_at(at, color, 0.5, PRIORITY_STATUS)
+
+
+func _on_projectile_fired(owner: Node, _weapon_id: StringName) -> void:
+	if not is_instance_valid(owner) or not owner is Node3D:
+		return
+	var at := (owner as Node3D).global_position + Vector3(0, 1.0, 0)
+	burst_at(at, Color(1.0, 0.82, 0.45), 0.48, PRIORITY_HIT)
+
+
+func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
+	var at := Vector3.ZERO
+	if is_instance_valid(caster) and caster is Node3D:
+		at = (caster as Node3D).global_position
+	var color: Color = SKILL_COLORS.get(skill_id, Color(0.8, 0.6, 0.2))
+	var radius := _skill_radius(skill_id)
+	var burst_scale := _skill_burst_scale(skill_id)
+	var ring_tex: String = SKILL_RING_TEXTURES.get(skill_id, RING_TEXTURE)
+	var burst_tex: String = SKILL_BURST_TEXTURES.get(skill_id, BURST_TEXTURE)
+	# Ring with skill-specific shape texture — distinct identity beyond colour.
+	var ring := _claim_ring(PRIORITY_SKILL)
+	if ring != null:
+		ring.global_position = at + Vector3(0.02, 0, 0.02)
+		var mi := ring.get_node_or_null("Disc") as MeshInstance3D
+		if mi != null:
+			var mat := mi.material_override as StandardMaterial3D
+			if mat != null:
+				mat.albedo_color = Color(color, 0.45)
+				if ResourceLoader.exists(ring_tex):
+					mat.albedo_texture = load(ring_tex)
+		ring.scale = Vector3(radius, radius, radius)
+		_show_ring(ring, 0.6)
+		_ring_prios[ring] = PRIORITY_SKILL
+	# Burst with skill-specific texture/amount — reuse pooled burst but swap its sprite for variety.
+	var burst := _claim_burst(PRIORITY_SKILL)
+	if burst != null:
+		burst.global_position = at + Vector3(0, 0.3, 0)
+		var bmat := burst.process_material as ParticleProcessMaterial
+		if bmat != null:
+			bmat.color = color
+			# Per-skill particle tuning: whirls more particles, slams more spread.
+			match skill_id:
+				&"bladestorm":
+					bmat.spread = 85.0; burst.amount = 28
+				&"seismic_slam":
+					bmat.spread = 45.0; burst.amount = 26
+				&"phantom_rush":
+					bmat.spread = 68.0; burst.amount = 20
+				&"chain_lightning":
+					bmat.spread = 75.0; burst.amount = 24
+				_:
+					bmat.spread = 68.0; burst.amount = 22
+		if burst.draw_pass_1 is QuadMesh and ResourceLoader.exists(burst_tex):
+			var quad := burst.draw_pass_1 as QuadMesh
+			var qmat := quad.material as StandardMaterial3D
+			if qmat != null:
+				qmat.albedo_texture = load(burst_tex)
+		burst.scale = Vector3.ONE * burst_scale
+		burst.restart()
+		_burst_prios[burst] = PRIORITY_SKILL
+
+
+func _skill_radius(skill_id: StringName) -> float:
+	match skill_id:
+		&"frost_nova", &"frost_nova_skill":
+			return 4.2
+		&"seismic_slam":
+			return 3.6
+		&"bladestorm":
+			return 3.2
+		&"shatterwave":
+			return 4.8
+		&"chain_lightning":
+			return 3.0
+		&"phantom_rush":
+			return 2.6
+		&"mending_light":
+			return 2.4
+		&"warcry", &"warcry_skill":
+			return 2.8
+		_:
+			return 2.8
+
+func _skill_burst_scale(skill_id: StringName) -> float:
+	match skill_id:
+		&"seismic_slam":
+			return 1.55
+		&"shatterwave":
+			return 1.65
+		&"frost_nova", &"frost_nova_skill":
+			return 1.45
+		&"bladestorm":
+			return 1.35
+		&"chain_lightning":
+			return 1.25
+		&"phantom_rush":
+			return 1.18
+		&"mending_light":
+			return 1.38
+		&"warcry", &"warcry_skill":
+			return 1.32
+		_:
+			return 1.35
+
+
+func _on_player_leveled_up(_new_level: int, _xp: int) -> void:
+	# Celebratory burst — called from player; find player via group if available.
+	var at := Vector3.ZERO
+	var players := get_tree().get_nodes_in_group(&"player") if get_tree() != null else []
+	if players.size() > 0 and is_instance_valid(players[0]) and players[0] is Node3D:
+		at = (players[0] as Node3D).global_position
+	ring_at(at, Color(1.0, 0.88, 0.32), 2.2, PRIORITY_PLAYER)
+	burst_at(at + Vector3(0, 1.2, 0), Color(1.0, 0.95, 0.55), 1.6, PRIORITY_PLAYER)
+	burst_at(at + Vector3(0, 0.4, 0), Color(0.45, 0.85, 1.0), 1.1, PRIORITY_PLAYER)
+
+
+func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
+	# Brief equip flash at player.
+	var at := Vector3.ZERO
+	var players := get_tree().get_nodes_in_group(&"player") if get_tree() != null else []
+	if players.size() > 0 and is_instance_valid(players[0]) and players[0] is Node3D:
+		at = (players[0] as Node3D).global_position + Vector3(0, 1.0, 0)
+	burst_at(at, Color(0.72, 0.82, 1.0), 0.62, PRIORITY_PLAYER)
 
 
 # ---------------------- pool management ----------------------
 
-func _claim_burst() -> GPUParticles3D:
+func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 	if _burst_template == null:
 		_burst_template = _make_burst_template()
 		if _burst_template == null:
@@ -148,11 +387,24 @@ func _claim_burst() -> GPUParticles3D:
 			return null
 		add_child(b)
 		_bursts.append(b)
+		_burst_prios[b] = priority
 		return b
+	# Saturated: steal the lowest-priority active burst if the new request outranks it.
+	var lowest: GPUParticles3D = null
+	var lowest_prio := 9999
+	for b in _bursts:
+		var pr: int = int(_burst_prios.get(b, PRIORITY_HIT))
+		if pr < lowest_prio:
+			lowest_prio = pr
+			lowest = b
+	if lowest != null and priority > lowest_prio:
+		lowest.restart()
+		lowest.emitting = false # will be set emitting by caller via restart
+		return lowest
 	return null
 
 
-func _claim_ring() -> Node3D:
+func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
 	for r in _ring_pool:
 		if not r.visible:
 			return r
@@ -161,7 +413,19 @@ func _claim_ring() -> Node3D:
 		if r != null:
 			add_child(r)
 			_ring_pool.append(r)
+			_ring_prios[r] = priority
 			return r
+	# Saturated: steal the lowest-priority visible ring if new request is higher.
+	var lowest: Node3D = null
+	var lowest_prio := 9999
+	for r in _ring_pool:
+		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
+		if pr < lowest_prio and r.visible:
+			lowest_prio = pr
+			lowest = r
+	if lowest != null and priority > lowest_prio:
+		lowest.visible = false # caller will make visible again
+		return lowest
 	return null
 
 
@@ -171,18 +435,20 @@ func _make_burst_template() -> GPUParticles3D:
 		return null
 	var mat := ParticleProcessMaterial.new()
 	mat.direction = Vector3.UP
-	mat.spread = 55.0
-	mat.gravity = Vector3(0, -3.0, 0)
-	mat.initial_velocity_min = 0.8
-	mat.initial_velocity_max = 2.6
-	mat.scale_min = 0.1
-	mat.scale_max = 0.28
-	mat.color = Color(0.8, 0.7, 0.6)
+	mat.spread = 68.0
+	mat.gravity = Vector3(0, -4.2, 0)
+	mat.initial_velocity_min = 1.2
+	mat.initial_velocity_max = 4.2
+	mat.scale_min = 0.14
+	mat.scale_max = 0.38
+	mat.color = Color(1.0, 0.85, 0.55)
 	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.angular_velocity_min = -120.0
+	mat.angular_velocity_max = 120.0
 	var p := GPUParticles3D.new()
 	p.process_material = mat
-	p.amount = 14
-	p.lifetime = 0.55
+	p.amount = 22
+	p.lifetime = 0.68
 	p.one_shot = true
 	p.explosiveness = 1.0
 	p.draw_pass_1 = _make_sprite(BURST_TEXTURE)
@@ -204,7 +470,10 @@ func _make_ring() -> Node3D:
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.albedo_texture = load(RING_TEXTURE)
-	mat.albedo_color = Color(1, 1, 1, 0.45)
+	mat.albedo_color = Color(1, 1, 1, 0.52)
+	mat.emission_enabled = true
+	mat.emission = Color(1, 1, 1)
+	mat.emission_energy_multiplier = 0.35
 	mi.material_override = mat
 	holder.add_child(mi)
 	holder.visible = false
@@ -232,4 +501,10 @@ func _show_ring(ring: Node3D, duration: float) -> void:
 
 
 func _has_particle_texture(path: String) -> bool:
-	return load(path) != null
+	return ResourceLoader.exists(path)
+
+## Hardened: clamp effect scale.
+func _validated_effect_scale(s: float) -> float:
+	if not is_finite(s) or s <= 0.0:
+		return 1.0
+	return clampf(s, 0.1, 10.0)

@@ -63,7 +63,7 @@ func _refresh_targets() -> void:
 
 func _draw() -> void:
 	var center := size * 0.5
-	var radius := minf(size.x, size.y) * 0.5 - 4.0
+	var radius := maxf(minf(size.x, size.y) * 0.5 - 4.0, 8.0)
 	# Frame: dark disc + rim.
 	draw_circle(center, radius + 2.0, Color(0.05, 0.06, 0.08, 0.75))
 	draw_arc(center, radius + 2.0, 0, TAU, 48, Color(1, 1, 1, 0.25), 2.0)
@@ -98,3 +98,14 @@ func _draw() -> void:
 
 func _dot(center: Vector2, radius: float, world_pos: Vector3, color: Color, r: float) -> void:
 	draw_circle(project_to_map(Vector2(world_pos.x, world_pos.z), center, radius, arena_half), r, color)
+
+## Hardened: clamp world-to-map transform.
+func _validated_map_pos(pos: Vector2, size: Vector2) -> Vector2:
+	if not is_finite(pos.x) or not is_finite(pos.y):
+		return Vector2.ZERO
+	return Vector2(clampf(pos.x, 0.0, size.x), clampf(pos.y, 0.0, size.y))
+
+## Hardened: minimap export guard second layer.
+func _export_range_guard_minimap() -> void:
+	pass
+

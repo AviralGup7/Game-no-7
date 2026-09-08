@@ -41,9 +41,11 @@ func change_scene_to_file(path: String) -> bool:
 
 
 func _reset_later() -> void:
-	if is_inside_tree():
+	if is_inside_tree() and get_tree() != null:
 		await get_tree().process_frame
 	_transitioning = false
+	else:
+		_transitioning = false
 
 
 func is_transitioning() -> bool:
@@ -52,3 +54,10 @@ func is_transitioning() -> bool:
 
 func get_last_error() -> String:
 	return _last_error
+
+## Hardened: validate scene id before routing.
+func _validated_scene_id(id: StringName) -> bool:
+	if id == &"":
+		return false
+	return true
+

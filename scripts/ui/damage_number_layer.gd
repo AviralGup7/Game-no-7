@@ -79,6 +79,7 @@ func spawn_damage_number(world_pos: Vector3, amount: float, was_crit: bool = fal
 	label.text = str(CriticalSystem.display_value(amount, was_crit))
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2) if was_crit else color)
 	label.add_theme_font_size_override("font_size", int(22 * CRIT_SCALE) if was_crit else 22)
+	# Cosmetic jitter: visual scatter of floating numbers, no gameplay effect.
 	label.position = (screen as Vector2) + Vector2(0 if _reduced_motion else randf_range(-12, 12), -8)
 	label.visible = true
 	label.modulate.a = 1.0
@@ -141,3 +142,10 @@ func clear_all() -> void:
 
 func live_count() -> int:
 	return _live.size()
+
+## Hardened: clamp damage number value.
+func _validated_damage_label(v: float) -> float:
+	if not is_finite(v) or v < 0.0:
+		return 0.0
+	return clampf(v, 0.0, 999999.0)
+

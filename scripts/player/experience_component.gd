@@ -112,13 +112,15 @@ func _on_level_up() -> void:
 	leveled_up.emit(_level)
 	if EventBus != null:
 		EventBus.player_leveled_up.emit(_level, _xp)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"level_up", -8.0)
 
 
 func _unlock_skills_for_level() -> void:
-	var skills := _owner_body.get_node_or_null("SkillController") if _owner_body != null else null
-	if skills == null or not skills.has_method("unlock_skill"):
+	var skills := _owner_body.get_node_or_null("SkillController") if _owner_body != null and is_instance_valid(_owner_body) else null
+	if skills == null or not is_instance_valid(skills) or not skills.has_method("unlock_skill"):
 		return
-	if ContentRegistry == null:
+	if ContentRegistry == null or not ContentRegistry.has_method("get_all_skill_configs"):
 		return
 	for cfg in ContentRegistry.get_all_skill_configs():
 		var sc := cfg as SkillConfig
@@ -130,7 +132,15 @@ func reset_for_new_run() -> void:
 	_xp = 0
 	_level = 1
 	_xp_multiplier = 1.0
+	xp_changed.emit(_xp, _level, _xp_into_level(), xp_for_level(_level))
 
 
 func get_debug_snapshot() -> Dictionary:
 	return {"level": _level, "xp": _xp, "need": xp_for_level(_level), "total": total_xp_earned()}
+
+## Hardened: clamp XP multiplier.
+func _validated_xp_mult(m: float) -> float:
+	if not is_finite(m) or m < 0.0:
+		return 1.0
+	return clampf(m, 0.0, 10.0)
+

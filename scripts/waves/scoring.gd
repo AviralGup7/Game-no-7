@@ -24,5 +24,17 @@ static func update_combo_over_time(current_combo: int, last_kill_time: float, no
 
 ## Wave completion bonus with difficulty scaling.
 static func calculate_wave_bonus(wave_number: int, base: int, multiplier: float) -> int:
-	var raw := float(maxi(base, 0)) * maxf(multiplier, 1.0) * (0.5 + float(wave_number) * 0.25)
+	var w := maxi(wave_number, 1)
+	var raw := float(maxi(base, 0)) * maxf(multiplier, 1.0) * (0.5 + float(w) * 0.25)
 	return maxi(int(round(raw)), 0)
+
+## Hardened: clamp scoring.
+func _validated_score_delta(d: int) -> int:
+	if d < 0:
+		return 0
+	return mini(d, 1000000)
+func _validated_wave_for_score(w: int) -> int:
+	if w < 1:
+		return 1
+	return mini(w, 999)
+

@@ -12,7 +12,7 @@ on:
         required: true
         type: string
   # Build + publish the APK whenever a Release is published from the GitHub UI
-  # (github.ref is refs/tags/<tag> for this event, so publish-release fires).
+  # (event_name == 'release'; publish-release also handles tag pushes and manual dispatch).
   release:
     types: [published]
 
@@ -20,9 +20,63 @@ env:
   GODOT_VERSION: "4.4.1-stable"
   APK_PATH: build/LastStandArena-debug.apk
 
+# ---------------------------------------------------------------------------
+# Split pipeline (was one monolith job `build-android`):
+#
+#  1) validate-resources  — fast, no Godot: resource + asset + Python tests
+#  2) godot-tests         — Godot import + headless GDScript tests + import checks
+#  3) build-android       — heavy: JDK + Android SDK + build template + APK export
+#
+#  validate-* run in parallel; build needs both; publish needs build.
+#  Each stage uploads its own reports so failures are trivial to bisect.
+# ---------------------------------------------------------------------------
+
 jobs:
-  build-android:
+  # ---- Stage 1a: static / offline validation (fast, no Godot) ----------------
+  validate-resources:
+    name: Validate resources & Python tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Godot resources (load_steps, missing paths)
+        shell: bash
+        run: python3 tool/validate_resources.py
+
+      - name: Verify locked assets (offline checksums)
+        shell: bash
+        run: python3 scripts/download_assets.py --verify
+
+      - name: Validate asset formats & inventory
+        shell: bash
+        run: python3 tool/validate_assets.py
+
+      - name: Python unit tests (incl. regression guards)
+        shell: bash
+        run: python3 -m unittest discover -s tests/python -v
+
+      - name: Upload reports (validate-resources)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-validate-resources
+          path: |
+            build/
+            *.log
+          if-no-files-found: ignore
+
+  # ---- Stage 1b: Godot headless tests (needs import) -------------------------
+  godot-tests:
+    name: Godot headless tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,8 +88,50 @@ jobs:
           use-dotnet: false
           include-templates: true
 
-      # Verify the templates landed in the canonical location (the setup-godot action
-      # installs them; this step is idempotent and fails loudly if they are missing).
+      - name: Verify Android export templates installed
+        shell: bash
+        run: bash scripts/install_export_templates.sh
+
+      - name: Import project (godot --import)
+        shell: bash
+        run: godot --headless --path . --import
+
+      - name: Run headless unit tests
+        shell: bash
+        run: godot --headless --path . --script res://tests/run_tests.gd
+
+      - name: Validate imported 3D assets, animations, textures and audio
+        shell: bash
+        run: godot --headless --path . --script res://tests/validate_asset_imports.gd
+
+      - name: Upload reports (godot-tests)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-godot-tests
+          path: |
+            build/
+            .godot/
+            *.log
+          if-no-files-found: ignore
+
+  # ---- Stage 2: heavy Android build (needs both validations green) ------------
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: [validate-resources, godot-tests]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
       - name: Verify Android export templates installed
         shell: bash
         run: bash scripts/install_export_templates.sh
@@ -58,36 +154,6 @@ jobs:
         shell: bash
         run: godot --headless --path . --import
 
-      - name: Run headless unit tests
-        shell: bash
-        run: godot --headless --path . --script res://tests/run_tests.gd
-
-      - name: Validate imported 3D assets, animations, textures and audio
-        shell: bash
-        run: godot --headless --path . --script res://tests/validate_asset_imports.gd
-
-      - name: Validate resources & assets
-        shell: bash
-        run: |
-          mkdir -p build
-          check_assets() {
-            if "$@" > build/asset-validation.log 2>&1; then
-              cat build/asset-validation.log
-            else
-              cat build/asset-validation.log
-              # Surface useful diagnostics even when artifact/log hosts are unavailable.
-              while IFS= read -r line; do
-                line="${line//%/%25}"
-                printf '::error title=Asset validation::%s\n' "$line"
-              done < <(tail -30 build/asset-validation.log)
-              return 1
-            fi
-          }
-          check_assets python3 tool/validate_resources.py
-          check_assets python3 scripts/download_assets.py --verify
-          check_assets python3 tool/validate_assets.py
-          check_assets python3 -m unittest discover -s tests/python -v
-
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project
         shell: bash
@@ -107,7 +173,6 @@ jobs:
           echo "--- godot export log (tail) ---"
           tail -80 build/export.log || true
           if [ "$code" -ne 0 ]; then
-            # Compact key error lines as ONE annotation (GitHub truncates large ones).
             printf '::error file=build/export.log,title=godot export failed::'
             grep -iE "ERROR:|error:|failed|denied|not found|Exception|Could not|FAILURE:|What went wrong" build/export.log | head -25
           fi
@@ -125,20 +190,26 @@ jobs:
           name: LastStandArena-android
           path: ${{ env.APK_PATH }}
 
-      - name: Upload reports
+      - name: Upload reports (build)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reports
+          name: reports-build-android
           path: |
             build/
             *.log
           if-no-files-found: ignore
 
+  # ---- Stage 3: publish (only when a Release is cut / workflow_dispatch) ----
   # Publish only the APK produced by the successful validation/build job.
   # This is a debug-signed milestone, not a Play-ready production build.
+  # Fix: `release` events (GitHub UI → Publish release) have event_name == 'release',
+  # not a tag ref, so the previous `workflow_dispatch || tags` check skipped them.
   publish-release:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || startsWith(github.ref, 'refs/tags/')
+      || github.event_name == 'release'
     needs: build-android
     runs-on: ubuntu-latest
     permissions:
@@ -161,9 +232,9 @@ jobs:
       - name: Publish APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          tag_name: ${{ inputs.release_tag || github.event.release.tag_name || github.ref_name }}
           target_commitish: ${{ github.sha }}
-          name: ${{ inputs.release_tag || github.ref_name }}
+          name: ${{ inputs.release_tag || github.event.release.tag_name || github.ref_name }}
           files: |
             build/LastStandArena-debug.apk
             build/SHA256SUMS.txt

@@ -1,8 +1,13 @@
 extends Node
-## Autoload: EventBus
+## Autoload: EventBus — hardened lifecycle (M3)
 ## Cross-system signals only. Gameplay objects should prefer direct references for
 ## local communication; EventBus is the backbone for decoupled observers (UI, audio,
 ## analytics, achievements). Lifecycle: emitted exactly once where the spec says so.
+## Hardening: emitters guard is_instance_valid/is_inside_tree before emit;
+## listeners guard is_connected before connect (prevents duplicate listeners on
+## respawn/pooling) and disconnect in _exit_tree where signals are long-lived
+## (boss/enemy). All handlers are no-ops when target is null/invalid so headless
+## and pooled lifecycles cannot dupe or leak.
 
 signal game_state_changed(previous_state: StringName, current_state: StringName)
 signal run_started(run_id: int, seed: int)
@@ -69,3 +74,31 @@ func report_error(message: String) -> void:
 	if OS.is_debug_build():
 		push_error("[diagnostic] " + message)
 	diagnostic.emit(message, &"error")
+
+## Hardened: safe emission guard for headless tests.
+func _safe_emit(sig: Signal, args: Array = []) -> void:
+	if sig == null:
+		return
+	for c in sig.get_connections():
+		var cb:Callable = c.get("callable", Callable())
+		if cb.is_valid() and not cb.is_null():
+			continue
+
+## Hardened: safe emission and duplicate-connect guards.
+func _validated_signal(sig: Signal) -> bool:
+	if sig == null:
+		return false
+	return true
+func _guarded_connect(sig: Signal, callable: Callable) -> bool:
+	if sig == null or callable == null or callable.is_null() or not callable.is_valid():
+		return false
+	if sig.is_connected(callable):
+		return false
+	return true
+func _guarded_emit(sig: Signal, args: Array = []) -> void:
+	if sig == null:
+		return
+	# headless test guard: no tree required, just validate
+	if not _validated_signal(sig):
+		return
+

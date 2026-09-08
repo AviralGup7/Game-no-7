@@ -96,18 +96,28 @@ func _meter(parent: Control, color: Color) -> ProgressBar:
 	return meter
 
 func seed_from_run() -> void:
-	var run := GameRoot.get_run()
-	set_score(run.score)
-	set_currency(run.currency)
-	set_wave(run.current_wave)
-	set_combo(run.combo)
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return
+	var run: Variant = GameRoot.call("get_run")
+	if run == null:
+		return
+	if run is Dictionary:
+		set_score(int((run as Dictionary).get("score", 0)))
+		set_currency(int((run as Dictionary).get("currency", 0)))
+		set_wave(int((run as Dictionary).get("current_wave", 1)))
+		set_combo(int((run as Dictionary).get("combo", 0)))
+	else:
+		if "score" in run: set_score(int((run as Object).get("score")))
+		if "currency" in run: set_currency(int((run as Object).get("currency")))
+		if "current_wave" in run: set_wave(int((run as Object).get("current_wave")))
+		if "combo" in run: set_combo(int((run as Object).get("combo")))
 	_toast_label.visible = false
-	var player := GameRoot.get_active_player()
+	var player: Node = GameRoot.call("get_active_player") as Node if GameRoot.has_method("get_active_player") else null
 	if is_instance_valid(_experience) and _experience.xp_changed.is_connected(_on_xp):
 		_experience.xp_changed.disconnect(_on_xp)
 	_experience = null
 	if not is_instance_valid(player): return
-	var hp := player.get_node_or_null("HealthComponent")
+	var hp := (player as Node).get_node_or_null("HealthComponent")
 	if hp != null: set_health(hp.current_health, hp.max_health)
 	var stamina := player.get_node_or_null("StaminaComponent")
 	if stamina != null: set_stamina(stamina.get_current(), stamina.get_max())
@@ -119,13 +129,19 @@ func seed_from_run() -> void:
 	if weapons != null: set_weapon(weapons.active_weapon_id())
 
 func set_health(current: float, maximum: float) -> void:
-	_hp_bar.value = clampf(current / maximum, 0, 1) if maximum > 0 else 0
+	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
+		_hp_bar.value = 0.0
+	else:
+		_hp_bar.value = clampf(current / maximum, 0, 1)
 	var low := _hp_bar.value <= 0.25
 	_hp_label.text = "%s %d/%d" % [("LOW HP" if low else "HP") if _compact else ("LOW HEALTH" if low else "HEALTH"), ceili(current), ceili(maximum)]
 	_hp_label.modulate = UiTheme.GOLD if low else Color.WHITE
 
 func set_stamina(current: float, maximum: float) -> void:
-	_stamina_bar.value = clampf(current / maximum, 0, 1) if maximum > 0 else 0
+	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
+		_stamina_bar.value = 0.0
+	else:
+		_stamina_bar.value = clampf(current / maximum, 0, 1)
 	_stamina_label.text = ("ST  %d / %d" if _compact else "STAMINA  %d / %d") % [ceili(current), ceili(maximum)]
 
 func _on_xp(_total: int, level: int, into: int, required: int) -> void:
@@ -197,3 +213,10 @@ func _refresh_weapon() -> void:
 		var item := manager.slot_instance(index)
 		slots.append(item.config.display_name if item != null and item.config != null else "Empty")
 	_weapon_label.tooltip_text = "Loadout: %s\nSwitch: %s" % [" / ".join(slots), UiCommands.binding(&"switch_weapon")]
+
+## Hardened: clamp HUD fractions.
+func _validated_hud_fraction(f: float) -> float:
+	if not is_finite(f):
+		return 0.0
+	return clampf(f, 0.0, 1.0)
+

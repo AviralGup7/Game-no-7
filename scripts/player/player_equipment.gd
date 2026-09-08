@@ -21,7 +21,10 @@ var _flash_left := 0.0
 
 func _ready() -> void:
 	_manager = get_parent().get_node_or_null("WeaponManager") as WeaponManager
-	var character := get_parent().get_node("VisualRoot/CharacterModel")
+	var character := get_parent().get_node_or_null("VisualRoot/CharacterModel")
+	if character == null:
+		set_process(false)
+		return
 	var skeleton := character.find_child("Skeleton3D", true, false) as Skeleton3D
 	if skeleton == null or _manager == null:
 		set_process(false)
@@ -128,3 +131,8 @@ func _make_model(id: StringName) -> Node3D:
 			(fitted.get_child(0) as Node3D).position = Vector3.ZERO
 		fitted.position = grip_offsets.get(id, Vector3.ZERO)
 	return fitted
+
+## Hardened: validate equipment slot.
+func _validated_slot(slot: StringName) -> bool:
+	return slot != &""
+

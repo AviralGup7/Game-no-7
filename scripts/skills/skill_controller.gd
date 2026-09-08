@@ -83,7 +83,10 @@ func unlock_skill(skill_id: StringName) -> bool:
 	if cfg == null or not cfg.validate().is_empty() or cfg.disabled or _current_wave < cfg.unlock_wave:
 		return false
 	var level := _current_level()
-	if level >= 0 and level < cfg.unlock_level:
+	# _current_level returns -1 when no ExperienceComponent is present (headless
+	# tests). Treat unknown level as blocked for any non-trivial level gate so
+	# skills do not unlock for free outside the intended progression.
+	if level < cfg.unlock_level:
 		return false
 	_unlocked[skill_id] = true
 	skill_unlock_changed.emit(skill_id, true)
@@ -190,6 +193,8 @@ func _tick_cooldowns(delta: float) -> void:
 					skill_became_ready.emit(cfg.skill_id)
 					if EventBus != null:
 						EventBus.skill_ready.emit(cfg.skill_id)
+					if AudioManager != null and AudioManager.has_method("play_sfx"):
+						AudioManager.play_sfx(&"skill_ready", -12.0)
 
 
 ## Attempt to cast the skill in `slot`. Returns false with no side effects when
@@ -212,6 +217,8 @@ func try_cast_slot(slot: int) -> bool:
 	skill_cast_local.emit(cfg.skill_id, slot)
 	if EventBus != null:
 		EventBus.skill_cast.emit(cfg.skill_id, _owner_body)
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(&"skill_cast", -8.0, 1.0 + 0.05 * slot)
 	return true
 
 
@@ -253,3 +260,10 @@ func get_debug_snapshot() -> Dictionary:
 			"ready": is_slot_ready(i),
 		})
 	return {"slots": slots, "pending_hits": _executor.pending_hits_count(), "dashing": _executor.is_dashing()}
+
+## Hardened: clamp cooldowns to prevent negative timers.
+func _validated_cooldown(cd: float) -> float:
+	if not is_finite(cd) or cd < 0.0:
+		return 0.05
+	return clampf(cd, 0.05, 60.0)
+

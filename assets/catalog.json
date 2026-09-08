@@ -2,7 +2,7 @@
   "schema_version": 1,
   "game": "Last Stand: Arena",
   "target": "Godot 4.4.1 / Android / 3D third-person",
-  "integration_status": "Detailed stone surfaces and pickup models integrated; complete character/equipment catalogue downloaded, rig/animation/attachment wiring remains pending.",
+  "integration_status": "All 9 weapons (PlayerEquipment socket), 8 skills (EffectDirector distinct VFX + animation + audio), 8 enemies/3 arenas/6 pickups integrated; verified bounds/grounding/pools/audio; device perf NOT YET DEVICE-VERIFIED.",
   "characters": {
     "player": {
       "model": "assets/characters/adventurers/Knight.glb",
@@ -928,6 +928,62 @@
       ],
       "suggested_volume_db": -8.0
     },
+    "skill_cast": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/knife_slice.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "skill_ready": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/interface/confirmation_001.wav"
+      ],
+      "suggested_volume_db": -10.0
+    },
+    "level_up": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/handle_coins.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "wave_completed": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/interface/confirmation_002.wav"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_spawned": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_phase_changed": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_slain": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_wood_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
     "arena_menu": {
       "bus": "Music",
       "loop": true,
@@ -994,39 +1050,39 @@
   "gameplay_weapons": {
     "gladius": {
       "model": "assets/weapons/medieval/Sword_Golden.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "sentinel_spear": {
       "model": "assets/weapons/medieval/Spear.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "stormhammer": {
       "model": "assets/weapons/medieval/Hammer_Double.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "sunbow": {
       "model": "assets/weapons/medieval/Bow_Golden.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "twinfangs": {
       "model": "assets/weapons/medieval/Dagger.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "warreaxe": {
       "model": "assets/weapons/medieval/Axe_Double.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "ember_scepter": {
       "model": "assets/weapons/skeletons/Skeleton_Staff.gltf",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "moonlance": {
       "model": "assets/weapons/medieval/Spear.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     },
     "venom_chain": {
       "model": "assets/weapons/medieval/Dagger.glb",
-      "status": "downloaded; attachment integration pending"
+      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
     }
   },
   "gameplay_pickups": {
@@ -1058,35 +1114,35 @@
   "gameplay_skills": {
     "bladestorm": {
       "texture": "assets/effects/kenney/trace_01.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "phantom_rush": {
       "texture": "assets/effects/kenney/smoke_03.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "seismic_slam": {
       "texture": "assets/effects/kenney/dirt_01.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "frost_nova_skill": {
       "texture": "assets/effects/kenney/circle_05.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "warcry_skill": {
       "texture": "assets/effects/kenney/magic_01.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "chain_lightning": {
       "texture": "assets/effects/kenney/magic_03.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "mending_light": {
       "texture": "assets/effects/kenney/flare_01.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     },
     "shatterwave": {
       "texture": "assets/effects/kenney/circle_01.png",
-      "status": "source texture ready; skill VFX integration pending"
+      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
     }
   },
   "gameplay_arenas": {
@@ -1094,19 +1150,19 @@
       "floor_albedo": "assets/textures/stone/stone_albedo.png",
       "floor_normal": "assets/textures/stone/stone_normal.png",
       "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
     },
     "ember_crucible": {
       "floor_albedo": "assets/textures/stone/stone_albedo.png",
       "floor_normal": "assets/textures/stone/stone_normal.png",
       "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
     },
     "frost_hollow": {
       "floor_albedo": "assets/textures/stone/stone_albedo.png",
       "floor_normal": "assets/textures/stone/stone_normal.png",
       "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
     }
   }
 }

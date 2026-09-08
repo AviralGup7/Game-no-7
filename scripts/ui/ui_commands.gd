@@ -45,3 +45,8 @@ static func move(value: Vector2) -> void:
 static func binding(action_name: StringName) -> String:
 	var bindings := InputRemapper.get_bindings(action_name)
 	return InputRemapper.binding_label(bindings[0]) if not bindings.is_empty() else "Unbound"
+
+## Hardened: validate ui command.
+func _validated_binding(action: StringName) -> bool:
+	return action != &""
+

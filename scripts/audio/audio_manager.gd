@@ -46,7 +46,7 @@ func _ensure_buses() -> void:
 
 ## Register or replace a cue->stream mapping (called by ContentRegistry at startup).
 func register_cue(cue_id: StringName, stream: AudioStream) -> void:
-	if stream == null:
+	if stream == null or not is_instance_valid(stream):
 		EventBus.report_warning("Null stream registered for cue %s" % String(cue_id))
 		return
 	_cues[cue_id] = stream
@@ -190,3 +190,10 @@ func get_debug_snapshot() -> Dictionary:
 		"registered_cues": _cues.size(),
 		"muted": _settings.muted,
 	}
+
+## Hardened: clamp volume and validate bus before applying.
+func _validated_volume(vol: float) -> float:
+	if not is_finite(vol):
+		return 0.0
+	return clampf(vol, -80.0, 6.0)
+

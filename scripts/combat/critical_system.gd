@@ -12,9 +12,12 @@ const MAX_PITY_BONUS := 0.25
 ## Roll one crit. `pity_stacks` escalates the effective chance; returns
 ## {crit: bool, new_pity: int} so callers can persist the pity counter.
 static func roll(base_chance: float, bonus: float, pity_stacks: int, rng: RngService, salt: int = RngService.STREAM_CRITS) -> Dictionary:
+	if not is_finite(base_chance) or not is_finite(bonus):
+		base_chance = clampf(base_chance if is_finite(base_chance) else 0.0, 0.0, 1.0)
+		bonus = clampf(bonus if is_finite(bonus) else 0.0, -1.0, 1.0)
 	var pity_bonus := minf(float(maxi(pity_stacks, 0)) * DEFAULT_PITY_STEP, MAX_PITY_BONUS)
 	var effective := clampf(base_chance + bonus + pity_bonus, 0.0, 1.0)
-	var crit := rng != null and rng.chance(salt, effective)
+	var crit := rng != null and is_instance_valid(rng) and rng.chance(salt, effective)
 	return {"crit": crit, "new_pity": 0 if crit else maxi(pity_stacks, 0) + 1}
 
 
@@ -43,3 +46,10 @@ static func overkill_bonus(dealt: float, remaining_hp: float) -> int:
 static func display_value(damage: float, was_crit: bool) -> int:
 	var v := int(round(damage))
 	return maxi(v, 2) if was_crit else maxi(v, 1)
+
+## Hardened: clamp crit chance inputs.
+func _validated_crit_chance(c: float) -> float:
+	if not is_finite(c):
+		return 0.0
+	return clampf(c, 0.0, 1.0)
+

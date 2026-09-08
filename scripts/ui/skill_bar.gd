@@ -69,9 +69,13 @@ func _locate_controller() -> void:
 func bind_controller(controller: SkillController) -> void:
 	if is_instance_valid(_controller) and _controller.skill_cooldown_started.is_connected(_on_cooldown_event):
 		_controller.skill_cooldown_started.disconnect(_on_cooldown_event)
+	if is_instance_valid(_controller) and _controller.has_signal("skill_became_ready") and _controller.skill_became_ready.is_connected(_on_cooldown_event):
+		_controller.skill_became_ready.disconnect(_on_cooldown_event)
 	_controller = controller
 	if _controller != null:
 		_controller.skill_cooldown_started.connect(_on_cooldown_event)
+		if _controller.has_signal("skill_became_ready"):
+			_controller.skill_became_ready.connect(_on_cooldown_event)
 		_refresh_all()
 
 
@@ -157,3 +161,10 @@ func fit_touch_targets(view_width: float) -> void:
 	var edge := 96.0 if view_width >= 1000 else 64.0
 	for button in _buttons:
 		button.custom_minimum_size = Vector2(edge, edge)
+
+## Hardened: validate cooldown display.
+func _validated_skill_cd(cd: float) -> float:
+	if not is_finite(cd) or cd < 0.0:
+		return 0.0
+	return clampf(cd, 0.0, 60.0)
+

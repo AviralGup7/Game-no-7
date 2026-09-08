@@ -1,6 +1,13 @@
 extends Node
 class_name AttackController
 
+## LEGACY ISOLATED — authoritative combat is Player → WeaponManager → WeaponInstance
+## → MeleeResolver/RangedResolver → DamagePayload. This controller remains only as
+## a headless fallback and for backward-compat with minimal test scenes that do not
+## wire WeaponManager; production Player._try_attack prefers WeaponManager and only
+## falls back here when no WeaponInstance is equipped. Do not add new gameplay to
+## this path — keep it isolated, deterministic, and removable (see M3).
+##
 ## Owns attack timing and hit resolution for the player's melee weapon. Uses an
 ## explicit phase machine advanced by `advance(delta)` (called from the owner's physics
 ## loop) instead of scene Tweens, so a paused/disabled owner freezes the attack exactly
@@ -100,9 +107,14 @@ func advance(delta: float) -> void:
 		_elapsed += delta
 		if _elapsed >= maxf(attack_windup, 0.0):
 			_elapsed = 0.0
-			_resolve_hit()
+			var hits := _resolve_hit()
 			_phase = PHASE_RECOVERY
-			_chain.open_chain()
+			# Only open the chain window when the swing actually landed; whiffs
+			# must not escalate into a combo.
+			if hits > 0:
+				_chain.open_chain()
+			else:
+				_chain.expire()
 	elif _phase == PHASE_RECOVERY:
 		_elapsed += delta
 		if _elapsed > combo_chain_window:
@@ -153,18 +165,20 @@ func _finish_attack() -> void:
 
 
 ## Build + apply the melee damage to everything in range (exactly once per swing).
-func _resolve_hit() -> void:
+## Returns the number of targets that were successfully hit.
+func _resolve_hit() -> int:
 	var owner := _owner_body
 	if owner == null or not is_instance_valid(owner) or not owner.is_inside_tree():
-		return
+		return 0
 	if owner.has_method("is_alive") and not bool(owner.call("is_alive")):
-		return
+		return 0
 
 	var origin := owner.global_position
 	var forward := _facing_forward(owner)
 	var candidates := owner.get_tree().get_nodes_in_group(TARGET_GROUP)
 	var range_val := _effective_range()
 	var targets := CombatQuery.find_targets_in_arc(origin, forward, candidates, range_val, arc_degrees * 0.5)
+	var hits := 0
 
 	for candidate in targets:
 		var t: Node3D = candidate as Node3D
@@ -178,7 +192,10 @@ func _resolve_hit() -> void:
 		var result: Variant = t.call("apply_damage", payload)
 		if result is DamageResult:
 			attack_hit.emit(t, result)
+			if (result as DamageResult).accepted:
+				hits += 1
 	# All targets resolved exactly once per swing (CombatQuery dedupes by list order).
+	return hits
 
 
 func _facing_forward(owner: CharacterBody3D) -> Vector3:
@@ -225,6 +242,20 @@ func _roll_crit() -> bool:
 		return false
 	if _crit_roll_source.is_valid():
 		return float(_crit_roll_source.call()) < chance
+	# Deterministic fallback: seed from run + global tick so crits are replay-stable
+	# when no injected source is wired (headless/gameplay). Pure cosmetic randf() is
+	# avoided for gameplay-affecting rolls per project determinism rule.
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		var seed_val := 0
+		if run != null:
+			if run is Dictionary:
+				seed_val = int((run as Dictionary).get("seed", 0))
+			elif "seed" in run:
+				seed_val = int((run as Object).get("seed"))
+		if seed_val != 0:
+			var svc := RngService.new(seed_val)
+			return svc.chance(RngService.STREAM_CRITS, chance)
 	return randf() < chance
 
 
@@ -296,3 +327,10 @@ func get_debug_snapshot() -> Dictionary:
 		"combo_step": _chain.step(),
 		"chain_allowed": _chain.is_chain_ready(),
 	}
+
+## Hardened: validate attack damage.
+func _validated_attack_damage(d: float) -> float:
+	if not is_finite(d) or d < 0.0:
+		return 10.0
+	return clampf(d, 0.0, 10000.0)
+

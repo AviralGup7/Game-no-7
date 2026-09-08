@@ -12,12 +12,28 @@ extends Node
 	&"stormhammer": &"2H_Melee_Attack_Chop",
 	&"warreaxe": &"2H_Melee_Attack_Slice",
 	&"twinfangs": &"Dualwield_Melee_Attack_Slice",
+	&"ember_scepter": &"Spellcast_Shoot",
+	&"moonlance": &"2H_Melee_Attack_Stab",
+	&"venom_chain": &"Dualwield_Melee_Attack_Slice",
 }
 @export var ranged_clip: StringName = &"2H_Ranged_Shoot"
 @export var dodge_clip: StringName = &"Dodge_Forward"
 @export var hurt_clip: StringName = &"Hit_A"
 @export var death_clip: StringName = &"Death_A"
 @export var reload_clip: StringName = &"2H_Ranged_Reload"
+@export var victory_clip: StringName = &"Cheer"
+@export var skill_cast_clips: Dictionary[StringName, StringName] = {
+	&"bladestorm": &"2H_Melee_Attack_Spin",
+	&"phantom_rush": &"Dodge_Forward",
+	&"seismic_slam": &"2H_Melee_Attack_Chop",
+	&"frost_nova": &"Spellcast_Shoot",
+	&"frost_nova_skill": &"Spellcast_Shoot",
+	&"warcry": &"Spellcast_Raise",
+	&"warcry_skill": &"Spellcast_Raise",
+	&"mending_light": &"Spellcast_Raise",
+	&"chain_lightning": &"Spellcast_Shoot",
+	&"shatterwave": &"Spellcast_Shoot",
+}
 @export_range(0.05, 0.9) var contact_fraction: float = 0.32
 @export var blend_seconds: float = 0.07
 @export var walk_cycle_distance: float = 1.8
@@ -32,14 +48,15 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
-var _legacy: AttackController
+# LEGACY ISOLATED: AttackController not used for animation timing.
+# Authoritative timing is WeaponInstance (windup/cooldown/reload) only.
 
 
 func _ready() -> void:
 	_player = get_parent() as Player
-	_legacy = _player.get_node_or_null("AttackController") as AttackController
 	_weapons = _player.get_node_or_null("WeaponManager") as WeaponManager
-	_animation = _player.get_node("VisualRoot/CharacterModel").find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var char_root := _player.get_node_or_null("VisualRoot/CharacterModel")
+	_animation = (char_root.find_child("AnimationPlayer", true, false) as AnimationPlayer) if char_root != null else null
 	if _animation == null:
 		set_physics_process(false)
 		return
@@ -63,6 +80,13 @@ func _ready() -> void:
 	if _weapons != null:
 		_weapons.attack_resolved.connect(_on_contact)
 		_weapons.weapon_switched_local.connect(_on_switch)
+	if EventBus != null:
+		if not EventBus.skill_cast.is_connected(_on_skill_cast):
+			EventBus.skill_cast.connect(_on_skill_cast)
+		if not EventBus.player_leveled_up.is_connected(_on_level_up):
+			EventBus.player_leveled_up.connect(_on_level_up)
+		if not EventBus.boss_slain.is_connected(_on_victory):
+			EventBus.boss_slain.connect(_on_boss_victory)
 	_play(idle_clip)
 
 
@@ -78,8 +102,6 @@ func _physics_process(_delta: float) -> void:
 		_paused_for_control = false
 		_animation.play()
 	var inst := _weapons.active_instance() if _weapons != null else null
-	if inst == null and _legacy != null and _legacy.is_on_cooldown():
-		_align_contact(_legacy.attack_cooldown)
 	var reloading := inst != null and inst.is_reloading()
 	if reloading and not _reloading:
 		_locked = true
@@ -106,14 +128,11 @@ func _on_attack() -> void:
 	if inst != null:
 		step = inst.combo_step
 		windup = inst.config.windup
-	elif _legacy != null:
-		windup = _legacy.attack_windup
-		step = _legacy.get_combo_step()
 	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"1H_Melee_Attack_Chop"
-	if inst != null and weapon_attack_clips.has(inst.config.weapon_id):
-		_attack_clip = weapon_attack_clips[inst.config.weapon_id]
 	if inst != null and inst.config.is_ranged() and not inst.config.is_melee():
 		_attack_clip = ranged_clip
+	if inst != null and weapon_attack_clips.has(inst.config.weapon_id):
+		_attack_clip = weapon_attack_clips[inst.config.weapon_id]
 	_locked = true
 	_play(_attack_clip, true, _length(_attack_clip) * contact_fraction / maxf(windup, 0.01))
 
@@ -136,9 +155,34 @@ func _align_contact(recovery: float) -> void:
 func _on_dodge() -> void:
 	if _dead:
 		return
-	var dodge := _player.get_node("DodgeController") as DodgeController
+	var dodge := _player.get_node_or_null("DodgeController") as DodgeController
+	if dodge == null:
+		return
 	_locked = true
-	_play(dodge_clip, true, _length(dodge_clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
+	# Directional dodge: pick Forward/Backward/Left/Right based on dodge vector vs facing.
+	var clip := dodge_clip
+	if _animation != null and dodge.has_method("get_dodge_direction"):
+		var dir: Vector3 = dodge.call("get_dodge_direction")
+		if dir.length_squared() > 0.0001 and _player != null:
+			var facing := -_player.global_transform.basis.z
+			facing.y = 0.0
+			if facing.length_squared() < 0.0001:
+				facing = Vector3.FORWARD
+			else:
+				facing = facing.normalized()
+			dir.y = 0.0
+			dir = dir.normalized()
+			var fwd := facing.dot(dir)
+			var right := facing.cross(dir).y  # +right = dodge is to the right of facing
+			# Prefer cardinal direction with largest component
+			if absf(fwd) > absf(right):
+				clip = &"Dodge_Forward" if fwd > 0 else &"Dodge_Backward"
+			else:
+				clip = &"Dodge_Right" if right > 0 else &"Dodge_Left"
+			# Fallback if clip missing in this rig
+			if not _animation.has_animation(clip):
+				clip = dodge_clip
+	_play(clip, true, _length(clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
 
 
 func _on_hurt(result: DamageResult) -> void:
@@ -146,6 +190,33 @@ func _on_hurt(result: DamageResult) -> void:
 		return
 	_locked = true
 	_play(hurt_clip, true, 2.0)
+
+
+func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
+	if _dead or caster != _player:
+		return
+	var clip := skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
+	if String(clip).is_empty() or not _animation.has_animation(clip):
+		clip = &"Spellcast_Shoot"
+		if not _animation.has_animation(clip):
+			clip = idle_clip
+	_locked = true
+	# Skill cast is brief: align to ~0.4s so it reads but doesn't freeze combat.
+	_play(clip, true, _length(clip) / 0.45)
+
+
+func _on_level_up(_new_level: int, _xp: int) -> void:
+	if _dead:
+		return
+	_locked = true
+	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 1.1)
+
+
+func _on_boss_victory(_boss_id: StringName) -> void:
+	if _dead:
+		return
+	_locked = true
+	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 0.9)
 
 
 func _on_death() -> void:
@@ -190,3 +261,10 @@ func _play(clip: StringName, restart: bool = false, speed: float = 1.0) -> void:
 	_animation.play(clip, blend_seconds)
 	if restart:
 		_animation.seek(0.0, true)
+
+## Hardened: validate animation speed.
+func _validated_anim_speed(s: float) -> float:
+	if not is_finite(s) or s <= 0.0:
+		return 1.0
+	return clampf(s, 0.1, 4.0)
+

@@ -48,7 +48,12 @@ func _record_weapon(id: StringName) -> void:
 	_weapon = cfg.display_name if cfg != null else String(id)
 
 func capture() -> void:
-	_summary = GameRoot.get_run().summary().duplicate(true)
+	if GameRoot == null or not GameRoot.has_method("get_run"):
+		return
+	var run: Variant = GameRoot.call("get_run")
+	if run == null or not run.has_method("summary"):
+		return
+	_summary = (run.call("summary") as Dictionary).duplicate(true)
 	_finish_capture.call_deferred(int(_summary.get("run_id", 0)))
 
 func _finish_capture(run_id: int) -> void:
@@ -59,7 +64,7 @@ func _finish_capture(run_id: int) -> void:
 	show_page(&"game_over")
 
 static func duration(seconds: float) -> String:
-	var total := maxi(int(seconds), 0)
+	var total := maxi(int(round(maxf(seconds, 0.0))), 0)
 	return "%02d:%02d" % [total / 60, total % 60]
 
 static func performance(summary: Dictionary) -> String:
@@ -129,3 +134,14 @@ func _build_rewards() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"page": _page, "summary": _summary.duplicate(true), "reward": _reward, "wallet": _bank_after}
+
+## Hardened: additional run summary validators.
+func _validated_duration(d: float) -> float:
+	if not is_finite(d) or d < 0.0:
+		return 0.0
+	return clampf(d, 0.0, 9999.0)
+func _validated_score(s: int) -> int:
+	if s < 0:
+		return 0
+	return mini(s, 999999999)
+

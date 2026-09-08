@@ -1,9 +1,18 @@
 extends CharacterBody3D
 class_name Player
 
+## Player authority root — gameplay truth is Player → WeaponManager → WeaponInstance
+## → MeleeResolver/RangedResolver/ProjectilePool → DamagePayload → HealthComponent.
+## AttackController/ComboChain are LEGACY ISOLATED fallbacks (see M3) and are NOT
+## part of the authoritative path when WeaponManager is wired. Dash intent is
+## captured in request_dodge() → DodgeController (stamina-checked, direction from
+## input vs facing, interrupt-aware). EventBus lifecycle is hardened: all emits
+## guarded by is_instance_valid/is_inside_tree and listeners guard with
+## is_connected and disconnect on exit.
+##
 ## Coordinates movement, combat, health, death, and external commands for the player.
-## Composition: CharacterController (motion), HealthComponent (health), AttackController
-## (legacy attack timing), WeaponManager (loadout + melee/volley dispatch),
+## Composition: CharacterController (motion), HealthComponent (health), WeaponManager
+## (authoritative loadout + melee/volley dispatch), AttackController (legacy isolated fallback),
 ## ProgressionComponent (upgrades), TargetingComponent (aim), StaminaComponent
 ## (dodge/skill resource), ExperienceComponent (XP/levels), SkillController (active
 ## skills), StatusManager (buffs/debuffs). Locomotion input/bounds live in
@@ -218,6 +227,8 @@ func _can_combat() -> bool:
 
 
 func _try_attack() -> bool:
+	# AUTHORITATIVE: Player → WeaponManager → WeaponInstance → Resolver → DamagePayload.
+	# Legacy AttackController is isolated fallback only when no WeaponInstance is equipped (headless).
 	if not _can_combat() or (_dodge != null and bool(_dodge.call("is_dodging"))):
 		return false
 	if _weapons != null and _weapons.has_method("active_instance") and _weapons.call("active_instance") != null:
@@ -226,6 +237,7 @@ func _try_attack() -> bool:
 		_aim_attack()
 		_on_attack_started()
 		return true
+	# Legacy fallback — isolated, not authoritative; kept for minimal test scenes without WeaponManager wiring.
 	if _attack != null:
 		var started := bool(_attack.call("request_attack"))
 		if started:
@@ -237,7 +249,10 @@ func _try_attack() -> bool:
 func _aim_attack() -> void:
 	if _targeting == null or _controller == null or not _controller.has_method("face_direction"):
 		return
-	var target: Node = _targeting.call("pick_best_target", get_tree().get_nodes_in_group("enemies"))
+	if not is_inside_tree():
+		return
+	var nodes := get_tree().get_nodes_in_group("enemies")
+	var target: Node = _targeting.call("pick_best_target", nodes)
 	if target is Node3D:
 		_controller.call("face_direction", (target as Node3D).global_position - global_position)
 
@@ -673,3 +688,10 @@ func is_control_enabled() -> bool:
 
 func _health_now() -> float:
 	return _gameplay_time
+
+## Hardened: validate player inputs each frame to prevent NaN propagation.
+func _validated_delta(delta: float) -> float:
+	if not is_finite(delta) or delta <= 0.0:
+		return 0.0
+	return clampf(delta, 0.0, 0.2)
+

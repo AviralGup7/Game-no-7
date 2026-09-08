@@ -21,7 +21,8 @@ static func seed_for_stamp(stamp: int) -> int:
 	h = ((h >> 16) ^ h) * 0x45d9f3b
 	h = ((h >> 16) ^ h) * 0x45d9f3b
 	h = (h >> 16) ^ h
-	return abs(h)
+	var s := abs(h)
+	return s if s != 0 else 1
 
 
 static func seed_for_today() -> int:
@@ -82,3 +83,14 @@ static func compare_submissions(a: Dictionary, b: Dictionary) -> int:
 
 static func signi(v: int) -> int:
 	return 1 if v > 0 else (-1 if v < 0 else 0)
+
+## Hardened: validate daily seed and clamp wave.
+func _validated_daily_seed(s: int) -> int:
+	if s == 0:
+		return 1
+	return s
+func _validated_wave(w: int) -> int:
+	if w < 1:
+		return 1
+	return mini(w, 99)
+

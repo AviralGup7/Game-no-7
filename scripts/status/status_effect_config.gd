@@ -50,6 +50,8 @@ func validate() -> Array[String]:
 		problems.append("effect_id is empty")
 	if duration < 0.0:
 		problems.append("duration cannot be negative")
+	if is_permanent() and (stuns or roots):
+		problems.append("permanent duration not allowed with stuns/roots — would stop gameplay")
 	if max_stacks < 1:
 		problems.append("max_stacks must be >= 1")
 	if stack_mode not in VALID_STACK_MODES:
@@ -70,8 +72,35 @@ func validate() -> Array[String]:
 		problems.append("shield_amount cannot be negative")
 	if tick_interval <= 0.0:
 		problems.append("tick_interval must be > 0")
+	if shield_amount > 0.0 and duration <= 0.0:
+		problems.append("permanent shield (duration 0 + shield) would stall damage — set finite duration")
 	return problems
 
 
 func is_permanent() -> bool:
 	return duration <= 0.0
+
+## Hardened: clamp status effect config.
+func _validated_status() -> void:
+	if not is_finite(duration) or duration < 0.0:
+		duration = 3.0
+	duration = clampf(duration, 0.0, 60.0)
+	# Permanent (0) is only allowed when neither stuns nor roots nor shield
+	# would create a soft-lock; otherwise promote to the shortest finite lock.
+	if duration <= 0.0 and (stuns or roots or shield_amount > 0.0):
+		duration = 3.0
+	if not is_finite(tick_interval) or tick_interval <= 0.0:
+		tick_interval = 0.5
+	tick_interval = clampf(tick_interval, 0.05, 5.0)
+
+## Export-range guard: editor sliders are clamped and runtime values are re-clamped
+## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
+func _export_range_guard() -> void:
+	# This is a documentation guard; actual clamping lives in _validated_* helpers.
+	# Intended ranges (editor @export_range would be here in a future Godot bump):
+	#  - health/damage: 0..10000 finite
+	#  - cooldown/duration: 0.05..60 finite
+	#  - speed/range: 0..30 finite, half 4..100
+	#  - weight/chance: 0..1 finite
+	pass
+

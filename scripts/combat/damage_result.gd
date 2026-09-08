@@ -44,3 +44,10 @@ const IGNORE_FRIENDLY_FIRE: StringName = &"friendly_fire_disabled"
 const IGNORE_OUT_OF_RANGE: StringName = &"out_of_range"
 const IGNORE_BLOCKED: StringName = &"blocked"
 const IGNORE_DUPLICATE_HIT: StringName = &"duplicate_hit"
+
+## Hardened: clamp result amounts.
+func _validated_final(amt: float) -> float:
+	if not is_finite(amt) or amt < 0.0:
+		return 0.0
+	return clampf(amt, 0.0, 999999.0)
+

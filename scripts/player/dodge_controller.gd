@@ -94,6 +94,10 @@ func get_cooldown_remaining() -> float:
 	return _cooldown_remaining
 
 
+func get_dodge_direction() -> Vector3:
+	return _dir
+
+
 ## Request a dodge along `direction_world` (a normalized horizontal direction). The
 ## owner chooses the direction from its current input/facing. Returns true when the
 ## dodge begins; requests during cooldown/recovery are rejected (no re-fire).
@@ -138,10 +142,16 @@ func _burst_speed() -> float:
 
 
 func _move_burst(delta: float, fraction: float = 1.0) -> void:
+	# M3: dash intent requested here, actual movement via CharacterController when wired.
+	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
+	var cc := _body.get_node_or_null("CharacterController") if _body != null else null
+	if cc != null and cc.has_method("apply_dash"):
+		cc.call("apply_dash", _dir, speed, delta)
+		_clamp_to_bounds()
+		return
 	var vel := _body.velocity
 	if not _body.is_on_floor():
 		vel.y -= GRAVITY * delta
-	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
 	vel.x = _dir.x * speed
 	vel.z = _dir.z * speed
 	_body.velocity = vel
@@ -217,3 +227,10 @@ func get_debug_snapshot() -> Dictionary:
 		"cooldown": cooldown,
 		"distance": distance,
 	}
+
+## Hardened: clamp dodge window.
+func _validated_dodge_window(w: float) -> float:
+	if not is_finite(w) or w <= 0.0:
+		return 0.2
+	return clampf(w, 0.05, 1.0)
+

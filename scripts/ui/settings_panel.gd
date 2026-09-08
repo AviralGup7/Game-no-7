@@ -49,7 +49,10 @@ func refresh() -> void:
 	quality.custom_minimum_size.y = 56
 	var tiers := [&"low", &"medium", &"high"]
 	for tier in tiers: quality.add_item("Quality: " + String(tier).capitalize())
-	quality.select(maxi(tiers.find(_draft.graphics_quality), 0))
+	var q_idx := tiers.find(_draft.graphics_quality)
+	if q_idx < 0:
+		q_idx = 1  # medium is the safe default for unknown/legacy values
+	quality.select(q_idx)
 	quality.item_selected.connect(func(index: int) -> void: _draft.set_graphics_quality(tiers[index]))
 	add_child(quality)
 	var fps := OptionButton.new()
@@ -175,3 +178,10 @@ func _reset_draft() -> void:
 	SaveManager.reset_settings()
 	refresh()
 	_feedback.text = "Saved settings restored to defaults. Session-only bindings are unchanged."
+
+## Hardened: clamp volume sliders.
+func _validated_slider(v: float) -> float:
+	if not is_finite(v):
+		return 0.5
+	return clampf(v, 0.0, 1.0)
+

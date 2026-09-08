@@ -14,7 +14,7 @@ extends RefCounted
 ## next wave without touching state).
 static func choose_for_wave(run: RunState, player: Node, wave_number: int) -> Array[StringName]:
 	var empty: Array[StringName] = []
-	if run == null:
+	if run == null or ContentRegistry == null:
 		return empty
 	var prog := _progression_node_of(player)
 	if prog == null:
@@ -83,6 +83,8 @@ static func _progression_node_of(player: Node) -> Node:
 
 ## Mirror the runtime ProgressionComponent (source of truth) into the serializable
 ## RunState snapshot so game-over summaries/analytics see exactly what is applied.
+## `active_modifiers` is owned by the mutator/director path — do not overwrite it
+## with stat-modifier keys here; that would erase the wave-mutator record.
 static func _sync_run_from_progression(run: RunState, player: Node) -> void:
 	if run == null:
 		return
@@ -91,9 +93,10 @@ static func _sync_run_from_progression(run: RunState, player: Node) -> void:
 		return
 	if prog.has_method("get_upgrade_stack_snapshot"):
 		run.selected_upgrades = (prog.call("get_upgrade_stack_snapshot") as Dictionary).duplicate()
-	if prog.has_method("get_modifier_snapshot"):
-		var mods: Dictionary = prog.call("get_modifier_snapshot")
-		var keys: Array[StringName] = []
-		for k in mods:
-			keys.append(StringName(String(k)))
-		run.active_modifiers = keys
+
+## Hardened: validate upgrade pool before offering.
+func _validated_pool_size(n: int) -> int:
+	if n < 0:
+		return 0
+	return mini(n, 100)
+

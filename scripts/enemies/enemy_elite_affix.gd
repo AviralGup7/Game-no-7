@@ -133,3 +133,10 @@ static func elite_chance(wave: int) -> float:
 	if wave < 3:
 		return 0.0
 	return minf(0.05 + float(wave - 3) * 0.02, 0.25)
+
+## Hardened: clamp elite multiplier.
+func _validated_elite_mult(m: float) -> float:
+	if not is_finite(m) or m < 0.0:
+		return 1.0
+	return clampf(m, 0.1, 10.0)
+

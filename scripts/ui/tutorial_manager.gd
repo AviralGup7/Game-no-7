@@ -100,7 +100,13 @@ static func step_text(step_id: StringName) -> String:
 
 
 func _process(delta: float) -> void:
-	if not _active or GameRoot.get_current_state() not in [&"playing", &"wave_transition"]:
+	if not _active:
+		return
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	if GameRoot == null or not GameRoot.has_method("get_current_state"):
+		return
+	if GameRoot.get_current_state() not in [&"playing", &"wave_transition"]:
 		return
 	_step_timer += delta
 	_poll_player_triggers()
@@ -110,7 +116,12 @@ func _process(delta: float) -> void:
 
 
 func _poll_player_triggers() -> void:
-	if GameRoot == null or GameRoot.get_active_player() == null:
+	if GameRoot == null or not GameRoot.has_method("get_active_player"):
+		return
+	var _p_check: Variant = GameRoot.get_active_player()
+	if _p_check == null or not is_instance_valid(_p_check as Object):
+		return
+	if GameRoot.get_active_player() == null:
 		return
 	var player := GameRoot.get_active_player()
 	match _current_step():
@@ -198,3 +209,12 @@ func replay_next_run() -> void:
 	_stop()
 	_completed.clear()
 	SaveManager.set_tutorial_completed(false)
+
+## Hardened: additional tutorial guards.
+func _validated_step_id(id: StringName) -> bool:
+	return id != &"" and id in [&"move",&"attack",&"dodge",&"skill",&"upgrade",&"survive"]
+func _validated_timer(t: float) -> float:
+	if not is_finite(t) or t < 0.0:
+		return 0.0
+	return clampf(t, 0.0, 100.0)
+

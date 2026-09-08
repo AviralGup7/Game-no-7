@@ -249,7 +249,11 @@ func tick(delta: float) -> void:
 
 
 func _resolve_active_attack(inst: WeaponInstance) -> void:
-	if _owner_body == null:
+	if _owner_body == null or not is_instance_valid(_owner_body):
+		return
+	if inst == null or inst.config == null or not is_instance_valid(inst):
+		return
+	if not is_inside_tree():
 		return
 	var cfg := inst.config
 	var was_crit := inst.roll_crit()
@@ -283,11 +287,11 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 			continue
 		var sm := (target as Node).get_node_or_null("StatusManager") if target is Node else null
 		if sm != null and sm.has_method("apply_effects"):
-			var applied: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
+			var status_result: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
 			var result: Variant = entry.get("result")
-			if result is DamageResult and applied is Dictionary:
-				for raw_id in applied:
-					if int(applied[raw_id]) > 0:
+			if result is DamageResult and status_result is Dictionary:
+				for raw_id in status_result:
+					if int((status_result as Dictionary)[raw_id]) > 0:
 						(result as DamageResult).status_effects_applied.append(StringName(String(raw_id)))
 
 
@@ -350,3 +354,12 @@ func get_debug_snapshot() -> Dictionary:
 		"active_weapon": String(active_weapon_id()),
 		"weapon": inst.get_debug_snapshot() if inst != null else {},
 	}
+
+## Hardened: validate weapon switch to prevent null config.
+func _validated_weapon_id(id: StringName) -> bool:
+	if id == &"":
+		return false
+	if ContentRegistry == null or not ContentRegistry.has_method("get_weapon"):
+		return false
+	return ContentRegistry.get_weapon(id) != null
+

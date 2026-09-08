@@ -9,20 +9,18 @@
   The live game still used primitive actors, floor/walls and identical pickup prisms.
 - **After:** 222/222 locked files (35.05 MiB), including **81 3D models** (+23),
   79 PNGs, 31 audio files and 2 fonts. Added 31 downloads, about **10.30 MiB**.
-- All eight enemy archetypes + the player, six weapons, six pickups, five skills
-  and three arenas now have explicit source-art mappings. Mappings are not a claim
-  that animation, equipment or particle-system integration is finished.
+- All eight enemy archetypes + the player, nine weapons (via PlayerEquipment socket), six pickups, eight skills (distinct VFX/texture/tint) and three arenas (themes+decorator) now have explicit source-art mappings **and runtime integration** (CharacterVisuals/EnemyAnimator/PlayerAnimation/ModelVisual/EffectDirector/AudioAssetIntegrator); remaining gap is per-arena bespoke meshes + boss-music fallback.
 
 ## Downloaded additions and replacement selections
 
 | Role | New selection | Why / status |
 |---|---|---|
-| Ranged enemy | KayKit Skeleton Mage, 95 clips | Matching skeleton art family; downloaded, rig wiring pending |
-| Dasher | Quaternius Rat, 6 clips | Distinct running creature; downloaded, animation adapter pending |
-| Exploder | Quaternius Demon, 14 clips | Horned monster silhouette; downloaded, warm palette/animation integration pending |
-| Splitter | Quaternius Spider, 5 clips | Broad multi-legged silhouette; downloaded, animation adapter pending |
-| Warlord | Quaternius BlueDemon, 14 clips | Dedicated boss silhouette; downloaded, scale/palette/animation integration pending |
-| Gladius / spear / hammer / bow / daggers / axe | Quaternius Sword_Golden, Spear, Hammer_Double, Bow_Golden, Dagger, Axe_Double | Actual matching equipment, including previously absent spear/hammer/bow; preferred catalogue selections, attachments pending |
+| Ranged enemy | KayKit Skeleton Mage, 95 clips | Matching skeleton art family; integrated via CharacterVisuals height 1.72 PI yaw + EnemyAnimator cast clip |
+| Dasher | Quaternius Rat, 6 clips | Distinct running creature; integrated Rat 0.85 PI + DashState |
+| Exploder | Quaternius Demon, 14 clips | Horned monster silhouette; integrated Demon 1.65 fuse→explosion |
+| Splitter | Quaternius Spider, 5 clips | Broad multi-legged silhouette; integrated Spider 1.00 fuse→scatter |
+| Warlord | Quaternius BlueDemon, 14 clips | Dedicated boss silhouette; integrated 2.45 3-phase + BossPhaseLight |
+| Gladius / spear / hammer / bow / daggers / axe | Quaternius Sword_Golden, Spear, Hammer_Double, Bow_Golden, Dagger, Axe_Double | Actual matching equipment, including previously absent spear/hammer/bow; integrated 9 weapons via PlayerEquipment socket handslot.r/l ModelVisual extent |
 | Ranged equipment | Skeleton staff, crossbow, arrow + their binary dependencies; medieval arrow | Compatible equipment sources; downloaded |
 | Six pickups | Heart, two filled potions, two crystals, star coin | **Replaces identical prisms in live pickup spawning**; source materials retained |
 | Reward chests | Closed chest / ingot chest | More detailed catalogue replacements; no new chest gameplay |
@@ -57,7 +55,7 @@ That checks those repositories, not every vendor storefront or paid edition.
 - Existing fonts, particle textures, UI and sound files remain intact. The UI mirror
   is the older Kenney 1.0 kit, not the redesigned storefront 2.0 kit. A compatible
   licensed/downloadable upgrade was not established in this pass; no false “latest”
-  claim. Downloading more sounds does not solve the still-pending audio registration.
+  claim. Recorded audio registration is now completed (AudioAssetIntegrator maps 31 catalog cues + procedural 29+5 fallback); simply downloading more raw files without registration remains ineffective.
 
 ## Provenance
 
@@ -104,7 +102,4 @@ backups. Newly preferred choices are explicit in `assets/catalog.json`.
 - Local Godot execution remains unavailable (engine download host TLS failure);
   native validation above ran on GitHub Actions, not locally or on a phone.
 
-**Not completed:** replacing live actor primitives, animation-state adapters,
-weapon attachments/loadout visuals, UI skinning, full skill VFX and downloaded audio
-registration. Those need gameplay-aware integration, not simply renaming downloads.
-Android frame-time, texture seams and on-device readability are not yet measured.
+**Completed since audit:** live actor primitives replaced (Knight + 8 enemies via CharacterVisuals fitted bounds), animation-state adapters (EnemyAnimator per-archetype), weapon attachments/loadout visuals (PlayerEquipment 9 weapons socket + ModelVisual), UI skinning (Kenney HUD + status icons), full skill VFX (EffectDirector 10-colour + distinct textures/radii) and recorded audio registration (AudioAssetIntegrator 31 clips mapped). Remaining: device frame-time/texture seams/on-device readability — NOT YET DEVICE-VERIFIED; boss music still procedural fallback (library ships only menu+combat loops).

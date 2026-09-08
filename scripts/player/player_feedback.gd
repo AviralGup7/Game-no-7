@@ -112,3 +112,10 @@ func _reduced_motion() -> bool:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"visual_found": _visual != null, "reduced_motion": _reduced_motion()}
+
+## Hardened: validate feedback intensity.
+func _validated_intensity(v: float) -> float:
+	if not is_finite(v) or v < 0.0:
+		return 0.0
+	return clampf(v, 0.0, 1.0)
+

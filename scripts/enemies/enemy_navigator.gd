@@ -46,3 +46,18 @@ func _nav_usable() -> bool:
 	if map == null or not map.is_valid():
 		return false
 	return NavigationServer3D.map_get_iteration_id(map) > 0
+
+## Hardened: validate navigation targets.
+func _validated_target(target: Node3D) -> bool:
+	if target == null or not is_instance_valid(target):
+		return false
+	if not target.is_inside_tree():
+		return false
+	return true
+func _validated_direction(dir: Vector3) -> Vector3:
+	if not is_finite(dir.x) or not is_finite(dir.z):
+		return Vector3.ZERO
+	if dir.length_squared() < 0.0001:
+		return Vector3.ZERO
+	return dir.normalized()
+

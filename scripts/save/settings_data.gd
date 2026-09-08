@@ -159,3 +159,14 @@ func _d(data: Dictionary, key: String, typed_default: Variant, type_hint: String
 				return float(raw)
 			return typed_default
 	return typed_default
+
+## Hardened: clamp settings fields.
+func _validated_volume(v: float) -> float:
+	if not is_finite(v):
+		return 0.8
+	return clampf(v, 0.0, 1.0)
+func _validated_sensitivity(s: float) -> float:
+	if not is_finite(s) or s <= 0.0:
+		return 1.0
+	return clampf(s, 0.1, 5.0)
+

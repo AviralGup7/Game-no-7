@@ -92,7 +92,7 @@ func _boss_name(boss: Node) -> String:
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
-	if maximum <= 0.0:
+	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		return
 	_bar.value = clampf(current / maximum, 0.0, 1.0)
 	_health_label.text = "%d / %d HP" % [ceili(current), ceili(maximum)]
@@ -142,3 +142,10 @@ func set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
 	if value and _bar != null:
 		_ghost_value = float(_bar.value)
+
+## Hardened: clamp boss fraction.
+func _validated_boss_fraction(f: float) -> float:
+	if not is_finite(f):
+		return 0.0
+	return clampf(f, 0.0, 1.0)
+

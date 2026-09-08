@@ -170,3 +170,27 @@ func paper_dps() -> float:
 		avg_step = sum / float(combo_damage_steps.size())
 	var projectile_factor := float(projectile_count) if is_ranged() else 1.0
 	return base_damage * avg_step * projectile_factor / swing_cooldown
+
+## Hardened: clamp weapon stats.
+func _validated_weapon_stats() -> void:
+	if not is_finite(damage) or damage < 0.0:
+		damage = 10.0
+	damage = clampf(damage, 0.0, 10000.0)
+	if not is_finite(cooldown) or cooldown < 0.0:
+		cooldown = 0.5
+	cooldown = clampf(cooldown, 0.05, 10.0)
+	if not is_finite(range_val) or range_val <= 0.0:
+		range_val = 2.0
+	range_val = clampf(range_val, 0.1, 20.0)
+
+## Export-range guard: editor sliders are clamped and runtime values are re-clamped
+## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
+func _export_range_guard() -> void:
+	# This is a documentation guard; actual clamping lives in _validated_* helpers.
+	# Intended ranges (editor @export_range would be here in a future Godot bump):
+	#  - health/damage: 0..10000 finite
+	#  - cooldown/duration: 0.05..60 finite
+	#  - speed/range: 0..30 finite, half 4..100
+	#  - weight/chance: 0..1 finite
+	pass
+

@@ -90,3 +90,12 @@ func _input(event: InputEvent) -> void:
 		if not get_global_rect().has_point(event.position): cancel()
 	elif event is InputEventMouseButton and not event.pressed and _touch_index == -2:
 		if not get_global_rect().has_point(event.position): cancel()
+
+## Hardened: validate touch action.
+func _validated_action(a: StringName) -> bool:
+	return a != &""
+func _validated_cooldown(cd: float) -> float:
+	if not is_finite(cd) or cd < 0.0:
+		return 0.0
+	return clampf(cd, 0.0, 10.0)
+

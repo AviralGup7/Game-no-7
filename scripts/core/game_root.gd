@@ -22,9 +22,9 @@ const State := {
 const LEGAL_TRANSITIONS := {
 	State.MAIN_MENU: [State.STARTING_RUN, State.LOADING],
 	State.STARTING_RUN: [State.PLAYING, State.ERROR, State.MAIN_MENU],
-	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
-	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.MAIN_MENU, State.ERROR],
+	State.PLAYING: [State.WAVE_TRANSITION, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.WAVE_TRANSITION: [State.PLAYING, State.UPGRADE_SELECTION, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
+	State.UPGRADE_SELECTION: [State.PLAYING, State.GAME_OVER, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.PAUSED: [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION, State.STARTING_RUN, State.MAIN_MENU, State.ERROR],
 	State.GAME_OVER: [State.STARTING_RUN, State.MAIN_MENU],
 	State.LOADING: [State.STARTING_RUN, State.MAIN_MENU, State.PLAYING, State.ERROR],
@@ -100,7 +100,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		request_resume()
 	elif _can_pause_from(_current_state):
 		request_pause()
-	get_viewport().set_input_as_handled()
+	var vp := get_viewport()
+	if vp != null:
+		vp.set_input_as_handled()
 
 
 ## ---------- Command interface (called by UI controllers / inputs) ----------
@@ -115,6 +117,8 @@ func request_play() -> void:
 ## Start today's seeded daily challenge (shared seed, fixed mutators + weapon).
 func start_daily_run() -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
+		return
+	if DailyChallenge == null or not DailyChallenge.has_method("challenge_for_today"):
 		return
 	_daily = DailyChallenge.challenge_for_today()
 	transition_to(State.STARTING_RUN)
@@ -136,7 +140,18 @@ func get_daily_weapon() -> StringName:
 
 
 func request_restart() -> void:
-	transition_to(State.STARTING_RUN)
+	# Restart must succeed from any gameplay state. If direct transition is illegal
+	# (e.g. future states), fall back through MAIN_MENU so the canonical path still runs.
+	if not transition_to(State.STARTING_RUN):
+		# Ensure pause does not survive the restart.
+		_paused = false
+		if get_tree() != null:
+			get_tree().paused = false
+		_current_run.paused = false
+		# Force reset via MAIN_MENU when direct edge is missing.
+		if _current_state != State.MAIN_MENU:
+			_apply_state(State.MAIN_MENU)
+		transition_to(State.STARTING_RUN)
 
 
 func request_main_menu() -> void:
@@ -222,7 +237,9 @@ func _set_paused(value: bool) -> void:
 		return
 	_paused = value
 	_current_run.paused = value
-	get_tree().paused = value
+	var tree := get_tree()
+	if tree != null:
+		tree.paused = value
 	EventBus.pause_changed.emit(value)
 
 
@@ -233,8 +250,11 @@ func _start_new_run() -> void:
 	_current_run.reset()
 	_current_run.run_id = _next_run_id()
 	_current_run.seed = randi()
+	if _current_run.seed == 0:
+		_current_run.seed = 1
 	if not _daily.is_empty():
-		_current_run.seed = int(_daily.get("seed", _current_run.seed))
+		var ds := int(_daily.get("seed", _current_run.seed))
+		_current_run.seed = ds if ds != 0 else 1
 	_current_run.arena_id = arena_id
 	_current_run.elapsed_seconds = 0.0
 	_score.reset_run(_current_run)
@@ -415,3 +435,11 @@ func get_debug_snapshot() -> Dictionary:
 		"best_wave": _best_wave,
 		"run": _current_run.summary(),
 	}
+
+## Hardened: validate run seed before starting.
+func _validated_seed(s: int) -> int:
+	if s == 0:
+		var r := randi()
+		return r if r != 0 else 1
+	return s
+

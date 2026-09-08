@@ -44,3 +44,10 @@ static func _collect_bounds(node: Node, parent_transform: Transform3D, out: Arra
 			out.append(local * mesh.mesh.get_aabb())
 	for child in node.get_children():
 		_collect_bounds(child, local, out)
+
+## Hardened: validate model path.
+func _validated_model_path(p: String) -> bool:
+	if p.is_empty():
+		return false
+	return p.begins_with("res://")
+
