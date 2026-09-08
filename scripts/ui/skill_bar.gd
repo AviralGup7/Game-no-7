@@ -69,9 +69,13 @@ func _locate_controller() -> void:
 func bind_controller(controller: SkillController) -> void:
 	if is_instance_valid(_controller) and _controller.skill_cooldown_started.is_connected(_on_cooldown_event):
 		_controller.skill_cooldown_started.disconnect(_on_cooldown_event)
+	if is_instance_valid(_controller) and _controller.has_signal("skill_became_ready") and _controller.skill_became_ready.is_connected(_on_cooldown_event):
+		_controller.skill_became_ready.disconnect(_on_cooldown_event)
 	_controller = controller
 	if _controller != null:
 		_controller.skill_cooldown_started.connect(_on_cooldown_event)
+		if _controller.has_signal("skill_became_ready"):
+			_controller.skill_became_ready.connect(_on_cooldown_event)
 		_refresh_all()
 
 
