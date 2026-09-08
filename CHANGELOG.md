@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.6.0-dev] — In Development
+
+- **Version bump**: `0.5.0→0.6.0` (version code `2→3`).
+- Initiated development cycle for `v0.6.0`.
+
 ## [0.5.0] — Polished presentation & release fix (2026-09-08)
 
 - **Arena identities**: per-arena themes (ember 0.12/0.85 fog 0.028 sun1.85, frost 0.18/0.82 fog0.024, default) plus central `Landmark` (forge lava 4.5+light2.2, crystal prisms 1.8, obelisk+cap) via `arena.gd:THEMES`+`_spawn_landmark`; `arena_decorator` distinct clutter (ember 18+5 braziers, frost columns+ice shards, default stone circle).
