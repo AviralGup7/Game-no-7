@@ -102,7 +102,13 @@ func _process(_delta: float) -> bool:
 	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
 	for f in _failures:
 		print("  FAIL  " + f)
-		print("::error title=GDScript test failure::%s" % f)
+	# GitHub caps ::error annotations at 10 per step, which silently hides the
+	# tail of a long failure list and makes it look like fixes "revealed" new
+	# breakage. Emit the full list as ONE annotation (newlines escaped per the
+	# workflow-command spec) so every failure is always visible.
+	if not _failures.is_empty():
+		var joined := "\n".join(_failures).replace("\n", "%0A")
+		print("::error title=GDScript test failures (%d)::%s" % [_failures.size(), joined])
 	print("========================================")
 	quit(0 if _failures.is_empty() else 1)
 	return false

@@ -170,6 +170,8 @@ static func suite() -> Array:
 			"seed": -9,
 			"current_wave": 4,
 			"selected_upgrades": {"power": 2, "broken": -4},
+			# 4 is not a content id: it must be dropped, not stringified to "4",
+			# and it must not take the rest of the list down with it.
 			"equipped_weapons": ["gladius", "gladius", 4],
 			"equipped_skills": ["seismic_slam"],
 		},
@@ -184,7 +186,8 @@ static func suite() -> Array:
 		"passed": got_version == expected_version
 			and int(build.get("seed", 1)) == 0
 			and build.get("selected_upgrades", {}).get("broken", 1) == 0
-			and (build.get("equipped_weapons", []) as Array).size() == 2,
+			and (build.get("equipped_weapons", []) as Array) == ["gladius"]
+			and (build.get("equipped_skills", []) as Array) == ["seismic_slam"],
 		"why": "version=%d/%d build=%s" % [got_version, expected_version, str(build)],
 	})
 

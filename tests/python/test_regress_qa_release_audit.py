@@ -429,3 +429,82 @@ class CombatLogCapacityFloorTests(unittest.TestCase):
                 "CombatLog.new(%s) is silently raised to 8; the test would assert "
                 "against a capacity the class never honours" % requested,
             )
+
+
+class SaveIdListSanitationTests(unittest.TestCase):
+    """A malformed entry must be dropped, not stringified — and must not wipe the list.
+
+    _string_list used String(item) unconditionally. On a non-string element that
+    both coerces silently where it can (4 -> "4", smuggling a corrupt content id
+    that resolves to no weapon/skill) and, in Godot, raises on the conversion,
+    aborting the typed function so the WHOLE list comes back empty. A single bad
+    element in a save file therefore erased every equipped weapon.
+    """
+
+    def test_non_string_entries_are_skipped_not_coerced(self):
+        body = func_body(read("scripts/save/save_schema.gd"), "_string_list")
+        self.assertRegex(
+            body,
+            r"if not \(item is String or item is StringName\):",
+            "_string_list must reject non-text entries before String(item)",
+        )
+        guard_at = body.find("item is String or item is StringName")
+        cast_at = body.find("String(item)")
+        self.assertLess(
+            guard_at, cast_at, "the type guard must precede the String() conversion"
+        )
+        self.assertIn("continue", body, "rejected entries must be skipped")
+
+
+class TestRunnerAnnotationCapTests(unittest.TestCase):
+    """GitHub caps ::error annotations at 10 per step.
+
+    Emitting one annotation per failure silently truncates the tail of a long
+    list, which makes an unchanged suite look like it grew new failures every
+    time earlier ones are fixed. The runner must emit a single aggregated
+    annotation so the whole list is always visible.
+    """
+
+    def test_failures_are_reported_as_one_aggregated_annotation(self):
+        body = func_body(read("tests/run_tests.gd"), "_process")
+        self.assertIn(
+            '"\\n".join(_failures)',
+            body,
+            "all failures must be aggregated into one annotation",
+        )
+        self.assertIn(
+            "%0A", body, "newlines must be escaped as %0A inside a workflow command"
+        )
+        # The per-failure loop must print plainly, without its own ::error.
+        loop = body.split("for f in _failures:")[1].split("if not _failures")[0]
+        code = "\n".join(
+            ln for ln in loop.splitlines() if not ln.strip().startswith("#")
+        )
+        self.assertNotIn(
+            "::error",
+            code,
+            "the per-failure loop must not emit one annotation each (cap is 10)",
+        )
+
+
+class MeleeArcFixtureTests(unittest.TestCase):
+    """Arc fixtures must not sit exactly on the boundary.
+
+    (1.5, 0, -1.5) is exactly 45.0 deg off-axis against a 90 deg arc, so whether
+    it counts as a hit is decided by float rounding inside angle_to() rather than
+    by the behaviour under test.
+    """
+
+    def test_near_side_fixture_is_strictly_inside_the_arc(self):
+        import math
+
+        txt = read("tests/unit/test_weapons.gd")
+        m = re.search(r"var near_side := _melee_dummy\(Vector3\(([-\d.]+), 0, ([-\d.]+)\)\)", txt)
+        self.assertIsNotNone(m, "could not locate the near_side melee fixture")
+        x, z = float(m.group(1)), float(m.group(2))
+        angle = math.degrees(math.acos(-z / math.hypot(x, z)))
+        self.assertLess(
+            angle,
+            44.0,
+            "near_side sits at %.2f deg, too close to the 45 deg arc edge" % angle,
+        )

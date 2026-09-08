@@ -122,7 +122,10 @@ static func suite() -> Array:
 
 	# --- MeleeResolver: arc selection nearest-first ---
 	var front := _melee_dummy(Vector3(0, 0, -2))
-	var near_side := _melee_dummy(Vector3(1.5, 0, -1.5))
+	# Clearly inside the 90-degree arc (~43 deg off-axis). The old (1.5, 0, -1.5)
+	# sat at exactly 45.0 deg — the arc boundary — so whether it counted came down
+	# to float rounding in angle_to() rather than the behaviour under test.
+	var near_side := _melee_dummy(Vector3(1.4, 0, -1.5))
 	var behind := _melee_dummy(Vector3(0, 0, 2))
 	var far := _melee_dummy(Vector3(0, 0, -9))
 	var swing := WeaponInstance.new(good, 1)
