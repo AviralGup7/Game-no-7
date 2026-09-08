@@ -19,6 +19,7 @@ extends Node3D
 ## placement stay deterministic in (run_seed, wave_number).
 
 signal spawn_plan_created(wave_number: int, total_count: int)
+signal enemy_spawned(enemy: EnemyBase, archetype_id: StringName)
 signal enemy_spawn_failed(archetype_id: StringName, reason: StringName)
 signal enemy_defeated(archetype_id: StringName)
 signal elite_spawned(enemy: EnemyBase, affixes: Array)
@@ -227,6 +228,7 @@ func _activate_enemy(instance: EnemyBase, archetype: StringName) -> void:
 	instance.play_spawn_sound()
 	instance.despawn_requested.connect(_on_enemy_despawn_requested)
 	_active.append(instance)
+	enemy_spawned.emit(instance, archetype)
 	var bus := _eb()
 	if bus != null:
 		bus.enemy_spawned.emit(instance, archetype)
