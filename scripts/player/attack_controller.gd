@@ -1,6 +1,13 @@
 extends Node
 class_name AttackController
 
+## LEGACY ISOLATED — authoritative combat is Player → WeaponManager → WeaponInstance
+## → MeleeResolver/RangedResolver → DamagePayload. This controller remains only as
+## a headless fallback and for backward-compat with minimal test scenes that do not
+## wire WeaponManager; production Player._try_attack prefers WeaponManager and only
+## falls back here when no WeaponInstance is equipped. Do not add new gameplay to
+## this path — keep it isolated, deterministic, and removable (see M3).
+##
 ## Owns attack timing and hit resolution for the player's melee weapon. Uses an
 ## explicit phase machine advanced by `advance(delta)` (called from the owner's physics
 ## loop) instead of scene Tweens, so a paused/disabled owner freezes the attack exactly

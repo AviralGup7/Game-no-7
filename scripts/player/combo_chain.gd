@@ -1,6 +1,10 @@
 class_name ComboChain
 extends RefCounted
 
+## LEGACY ISOLATED — combo for AttackController fallback only. Authoritative combo
+## lives in WeaponConfig.combo_damage_steps + WeaponInstance.step logic (see
+## WeaponManager). Kept isolated for headless tests; do not wire into new systems.
+##
 ## Light-melee combo state, extracted from AttackController. Tracks the current
 ## combo step plus the chain window (a press during a landed hit's recovery, while
 ## the window is open and steps remain, chains into the next escalating swing and

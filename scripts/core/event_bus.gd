@@ -1,8 +1,13 @@
 extends Node
-## Autoload: EventBus
+## Autoload: EventBus — hardened lifecycle (M3)
 ## Cross-system signals only. Gameplay objects should prefer direct references for
 ## local communication; EventBus is the backbone for decoupled observers (UI, audio,
 ## analytics, achievements). Lifecycle: emitted exactly once where the spec says so.
+## Hardening: emitters guard is_instance_valid/is_inside_tree before emit;
+## listeners guard is_connected before connect (prevents duplicate listeners on
+## respawn/pooling) and disconnect in _exit_tree where signals are long-lived
+## (boss/enemy). All handlers are no-ops when target is null/invalid so headless
+## and pooled lifecycles cannot dupe or leak.
 
 signal game_state_changed(previous_state: StringName, current_state: StringName)
 signal run_started(run_id: int, seed: int)
