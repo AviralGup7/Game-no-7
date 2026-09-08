@@ -93,10 +93,10 @@ static func extended_queue_for_wave(wave_number: int, seed: int) -> Array[String
 		return out
 	var rng := RngService.make_generator(seed, RngService.STREAM_WAVES + w * 13)
 	var extra := w - 5
-	var ranged := mini(1 + extra / 2, 5)
-	var dasher := mini(extra / 2, 4)
-	var exploder := mini(maxi(extra - 2, 0) / 2, 3)
-	var splitter := mini(maxi(extra - 3, 0) / 3, 2)
+	var ranged := mini(1 + extra // 2, 5)
+	var dasher := mini(extra // 2, 4)
+	var exploder := mini(maxi(extra - 2, 0) // 2, 3)
+	var splitter := mini(maxi(extra - 3, 0) // 3, 2)
 	var adds: Array[StringName] = []
 	for i in range(ranged):
 		adds.append(&"ranged")

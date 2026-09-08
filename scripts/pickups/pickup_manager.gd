@@ -115,8 +115,13 @@ func _player() -> Node3D:
 
 func _on_enemy_killed(enemy: Node, archetype_id: StringName, _score: int, _currency: int) -> void:
 	var wave := 1
-	if GameRoot != null:
-		wave = GameRoot.get_run().current_wave
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null:
+			if run is Dictionary:
+				wave = maxi(int((run as Dictionary).get("current_wave", 1)), 1)
+			elif "current_wave" in run:
+				wave = maxi(int((run as Variant).current_wave), 1)
 	var is_elite := enemy != null and enemy.has_method("is_elite") and bool(enemy.call("is_elite"))
 	var is_boss := enemy != null and enemy.is_in_group("boss")
 	var ids := _drop_table.roll_drops(archetype_id, wave, is_elite, is_boss, _luck_bonus, _rng)
@@ -168,15 +173,29 @@ func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
 			if hp != null and hp.has_method("heal"):
 				hp.call("heal", amount)
 		PickupConfig.EFFECT_CURRENCY:
-			if GameRoot != null:
-				GameRoot.get_run().add_currency(int(round(amount)))
-				if EventBus != null:
-					EventBus.currency_changed.emit(GameRoot.get_run().currency, int(round(amount)))
+			if GameRoot != null and GameRoot.has_method("get_run"):
+				var run_c: Variant = GameRoot.call("get_run")
+				if run_c != null:
+					if run_c is Dictionary:
+						(run_c as Dictionary)["currency"] = maxi(int((run_c as Dictionary).get("currency", 0)) + int(round(amount)), 0)
+						if EventBus != null:
+							EventBus.currency_changed.emit(int((run_c as Dictionary).get("currency", 0)), int(round(amount)))
+					elif run_c is Object and (run_c as Object).has_method("add_currency"):
+						run_c.call("add_currency", int(round(amount)))
+						if EventBus != null and "currency" in run_c:
+							EventBus.currency_changed.emit(int((run_c as Object).get("currency")), int(round(amount)))
 		PickupConfig.EFFECT_SCORE:
-			if GameRoot != null:
-				GameRoot.get_run().add_score(int(round(amount)))
-				if EventBus != null:
-					EventBus.score_changed.emit(GameRoot.get_run().score, int(round(amount)))
+			if GameRoot != null and GameRoot.has_method("get_run"):
+				var run_s: Variant = GameRoot.call("get_run")
+				if run_s != null:
+					if run_s is Dictionary:
+						(run_s as Dictionary)["score"] = maxi(int((run_s as Dictionary).get("score", 0)) + int(round(amount)), 0)
+						if EventBus != null:
+							EventBus.score_changed.emit(int((run_s as Dictionary).get("score", 0)), int(round(amount)))
+					elif run_s is Object and (run_s as Object).has_method("add_score"):
+						run_s.call("add_score", int(round(amount)))
+						if EventBus != null and "score" in run_s:
+							EventBus.score_changed.emit(int((run_s as Object).get("score")), int(round(amount)))
 		PickupConfig.EFFECT_STAMINA:
 			if collector != null and collector.has_method("restore_stamina"):
 				collector.call("restore_stamina", amount)
