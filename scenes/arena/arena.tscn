@@ -73,13 +73,6 @@ material = ExtResource("2_floor")
 size = Vector3(0.2, 0.55, 0.4)
 material = ExtResource("6_metal")
 
-[sub_resource type="SphereMesh" id="Mesh_flame"]
-radius = 0.22
-height = 0.6
-radial_segments = 12
-rings = 8
-material = SubResource("Mat_flame")
-
 [sub_resource type="StandardMaterial3D" id="Mat_flame"]
 albedo_color = Color(1, 0.55, 0.15, 1)
 emission_enabled = true
@@ -87,6 +80,13 @@ emission = Color(1, 0.55, 0.15, 1)
 emission_energy_multiplier = 5.0
 roughness = 0.4
 shading_mode = 0
+
+[sub_resource type="SphereMesh" id="Mesh_flame"]
+radius = 0.22
+height = 0.6
+radial_segments = 12
+rings = 8
+material = SubResource("Mat_flame")
 
 [sub_resource type="CylinderMesh" id="Mesh_dais"]
 top_radius = 2.7
