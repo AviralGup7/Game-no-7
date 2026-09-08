@@ -12,6 +12,9 @@ extends Node
 	&"stormhammer": &"2H_Melee_Attack_Chop",
 	&"warreaxe": &"2H_Melee_Attack_Slice",
 	&"twinfangs": &"Dualwield_Melee_Attack_Slice",
+	&"ember_scepter": &"Spellcast_Shoot",
+	&"moonlance": &"2H_Melee_Attack_Stab",
+	&"venom_chain": &"Dualwield_Melee_Attack_Slice",
 }
 @export var ranged_clip: StringName = &"2H_Ranged_Shoot"
 @export var dodge_clip: StringName = &"Dodge_Forward"
@@ -131,10 +134,10 @@ func _on_attack() -> void:
 		windup = _legacy.attack_windup
 		step = _legacy.get_combo_step()
 	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"1H_Melee_Attack_Chop"
-	if inst != null and weapon_attack_clips.has(inst.config.weapon_id):
-		_attack_clip = weapon_attack_clips[inst.config.weapon_id]
 	if inst != null and inst.config.is_ranged() and not inst.config.is_melee():
 		_attack_clip = ranged_clip
+	if inst != null and weapon_attack_clips.has(inst.config.weapon_id):
+		_attack_clip = weapon_attack_clips[inst.config.weapon_id]
 	_locked = true
 	_play(_attack_clip, true, _length(_attack_clip) * contact_fraction / maxf(windup, 0.01))
 
