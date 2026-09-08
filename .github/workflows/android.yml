@@ -11,6 +11,10 @@ on:
         description: "Release version (for example v0.4.0)"
         required: true
         type: string
+  # Build + publish the APK whenever a Release is published from the GitHub UI
+  # (github.ref is refs/tags/<tag> for this event, so publish-release fires).
+  release:
+    types: [published]
 
 env:
   GODOT_VERSION: "4.4.1-stable"
