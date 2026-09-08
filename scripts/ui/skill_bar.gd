@@ -31,7 +31,8 @@ func _make_slot(index: int) -> Button:
 	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrapper.add_theme_constant_override("separation", 0)
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(64, 58)
+	button.custom_minimum_size = Vector2(UiLayout.MIN_TOUCH, UiLayout.MIN_TOUCH)
+	button.clip_text = true
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	button.add_theme_font_size_override("font_size", 18)
 	button.text = "—"
@@ -43,6 +44,9 @@ func _make_slot(index: int) -> Button:
 	cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	cd.add_theme_font_size_override("font_size", 16)
+	cd.add_theme_color_override("font_outline_color", Color.BLACK)
+	cd.add_theme_constant_override("outline_size", 4)
+	cd.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	cd.text = ""
 	wrapper.add_child(cd)
 	_cooldown_labels.append(cd)
@@ -120,25 +124,31 @@ func _refresh_slot(i: int) -> void:
 		cd.text = "EMPTY"
 		button.icon = null
 		return
-	button.text = cfg.display_name
-	button.tooltip_text = cfg.description
+	# Long skill names clip inside a square touch target; abbreviate when narrow.
+	button.text = cfg.display_name if button.custom_minimum_size.x >= 150.0 else _short_name(cfg)
+	button.tooltip_text = "%s\n%s" % [cfg.display_name, cfg.description]
 	button.icon = cfg.icon
 	button.expand_icon = true
 	button.add_theme_constant_override("icon_max_width", 24)
 	var unlocked := _controller.is_unlocked(cfg.skill_id)
 	var remaining := _controller.slot_cooldown(i)
+	# Visual feedback: locked slots read as inert, cooling slots read as pending,
+	# ready slots read at full strength with a cyan caption.
 	if not unlocked:
 		button.disabled = true
-		button.modulate = Color.WHITE
+		button.modulate = Color(1, 1, 1, 0.45)
 		cd.text = "LOCKED Lv%d" % cfg.unlock_level
+		cd.modulate = UiTheme.MUTED
 	elif remaining > 0.0:
 		button.disabled = true
-		button.modulate = Color.WHITE
+		button.modulate = Color(1, 1, 1, 0.7)
 		cd.text = "%.1fs" % remaining
+		cd.modulate = UiTheme.GOLD
 	else:
 		button.disabled = false
 		button.modulate = Color.WHITE
 		cd.text = _key_hint(i)
+		cd.modulate = UiTheme.CYAN
 
 
 func _short_name(cfg: SkillConfig) -> String:
@@ -157,10 +167,18 @@ func _key_hint(index: int) -> String:
 	return UiCommands.binding(cfg.input_action) + " / READY"
 
 
-func fit_touch_targets(view_width: float) -> void:
-	var edge := 96.0 if view_width >= 1000 else 64.0
+## Size the three slots to fill the allocated bar while never dropping below the
+## Android touch-target floor. Takes the bar rect (not the viewport width) so it
+## stays correct in portrait, on tablets and at large text scales.
+func fit_touch_targets(bar_size: Vector2) -> void:
+	var separation := 8.0
+	var available := maxf(bar_size.x - separation * float(SLOT_COUNT - 1), UiLayout.MIN_TOUCH)
+	var width := maxf(available / float(SLOT_COUNT), UiLayout.MIN_TOUCH)
+	# Reserve room for the cooldown/hint caption beneath each button.
+	var height := clampf(bar_size.y - 26.0, UiLayout.MIN_TOUCH, 132.0)
 	for button in _buttons:
-		button.custom_minimum_size = Vector2(edge, edge)
+		button.custom_minimum_size = Vector2(width, height)
+
 
 ## Hardened: validate cooldown display.
 func _validated_skill_cd(cd: float) -> float:

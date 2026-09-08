@@ -14,7 +14,8 @@ func _ready() -> void:
 	joystick.name = "MovementJoystick"
 	joystick.opacity = 0.78
 	add_child(joystick)
-	# Larger attack target (thumb-friendly) per mobile guidelines; others balanced.
+	# Larger attack target (thumb-friendly) per mobile guidelines; others balanced:
+	# attack 64.0 base radius, dodge/swap 52.0. UiLayout scales these per screen.
 	for entry in [["attack", "request_attack", 64.0], ["dodge", "request_dodge", 52.0], ["switch_weapon", "request_weapon_switch", 52.0]]:
 		var button := TouchActionButton.new()
 		button.action_name = entry[0]
@@ -32,16 +33,28 @@ func _ready() -> void:
 	_layout.call_deferred()
 
 func _layout() -> void:
+	# Fallback when no plan has been pushed yet (first frame / desktop preview).
+	apply_layout(UiLayout.compute(size, SaveManager.get_settings().text_scale), size)
+
+
+## Place the stick and the action cluster from the shared layout solution so the
+## thumb zones never overlap the skill bar, the HUD, or each other.
+func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	if joystick == null:
 		return
-	joystick.position = Vector2(12, maxf(160, size.y - 280))
-	joystick.size = Vector2(minf(size.x * 0.30, 340), minf(264, size.y - 172))
-	joystick.radius = clampf(size.y * 0.12, 64, 90)
-	var positions := [Vector2(-136, -148), Vector2(-252, -110), Vector2(-244, -222)]
+	var stick: Rect2 = UiLayout.sanitize(plan["stick"], view)
+	joystick.position = stick.position
+	joystick.size = stick.size
+	joystick.radius = clampf(minf(stick.size.x, stick.size.y) * 0.42, 64.0, 96.0)
+	var keys := ["attack", "dodge", "swap"]
 	for i in range(_buttons.size()):
-		var b := _buttons[i]
-		b.position = size + positions[i]
-		b.size = Vector2.ONE * b.radius * 2
+		var rect: Rect2 = UiLayout.sanitize(plan[keys[i]], view)
+		var button := _buttons[i]
+		button.radius = minf(rect.size.x, rect.size.y) * 0.5
+		button.position = rect.position
+		button.size = rect.size
+		button.queue_redraw()
+
 
 func _process(_delta: float) -> void:
 	if not is_visible_in_tree():

@@ -31,8 +31,13 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/window_width_override=1280
 window/size/window_height_override=720
+; canvas_items + expand: UI keeps its logical 1280x720 design size while extra
+; width/height on tall Android panels (18:9, 19.5:9, 20:9) becomes real layout
+; space instead of letterboxing. UiLayout solves overlay geometry per aspect.
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+; 4 = sensor_landscape. The game is designed landscape (see docs/ART_STYLE.md);
+; both landscape orientations are honoured so the device can flip either way.
 window/handheld/orientation=4
 window/handheld/emulate_touchscreen_mouse=false
 window/energy_saving/keep_screen_on=true

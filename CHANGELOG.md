@@ -1,5 +1,94 @@
 # Changelog
 
+## [Unreleased] — UI/UX polish pass (2026-09-08)
+
+Presentation-only pass over the existing screens. **No new gameplay systems, no
+new screens, no changes to run/combat/meta logic** — every fix is layout,
+hierarchy, spacing, colour, feedback or Android fitness.
+
+### New: one shared layout solver (`scripts/ui/ui_layout.gd`)
+
+`UiLayout` is a pure, static solver that returns every gameplay-overlay rect
+(top strip, vitals, minimap, boss frame, banner, toast, virtual stick, attack /
+dodge / swap cluster, skill bar) from just the safe-area size and the
+accessibility text scale. `ui_root._layout()` now feeds that single solution to
+`GameHud.apply_layout()`, `TouchControls.apply_layout()` and the remaining
+overlays, replacing the scattered magic offsets (`Vector2(290, 160)`,
+`width * 0.5 - 160`, `width < 850`, `height - 210`, …) that produced the
+overlaps.
+
+Guaranteed and asserted at runtime by `_test_layout_solver` in
+`tests/ui/ui_test_runner.gd`, over 12 resolutions (16:9, 18:9, 19.5:9, 20:9,
+4:3, 1600x720 ultrawide, 720x1280 / 1080x2340 portrait, 640x360 floor) × text
+scales 1.0 / 1.4 / 2.0:
+
+- every rect lies inside the safe area;
+- no two overlay elements overlap;
+- attack / dodge / swap are never below the 88px touch floor;
+- when a short screen genuinely has no room, the message band collapses to zero
+  height and the element is hidden, instead of stacking onto the controls.
+
+### Fixed
+
+- **Overlapping overlays**: banner over the minimap and vitals, boss frame over
+  the vitals column in portrait, toast under the skill bar, and (at 200% text)
+  the skill bar landing on the action buttons.
+- **Wrong anchors**: the HUD toast and the banner's coach line used fixed
+  `PRESET_BOTTOM_WIDE` / `PRESET_TOP_WIDE` offsets that drifted off-screen on
+  non-16:9 panels; both now follow the solved rect.
+- **Joystick drew in the wrong space**: the active base/knob were drawn using
+  screen coordinates inside a `_draw()` that is control-local, so the stick
+  rendered offset from the thumb. Resting hint is now centred in its capture
+  area, active base/knob draw correctly.
+- **Text clipping**: HUD labels wrapped mid-word inside a fixed-width strip;
+  they now use `OVERRUN_TRIM_ELLIPSIS`, the scrims clip, and compact wording
+  refreshes on rotation (`_relabel`). Skill names abbreviate on narrow slots.
+- **Confirmation dialog** was hardcoded to 500x220 and clipped its message at
+  large text; `_popup_confirm()` sizes it from the viewport and text scale,
+  wraps the label and gives both buttons full touch targets.
+- **Upgrade grid** flipped 3→1 columns at a hard 1000px cutoff; it now fits
+  2 columns where they fit and grows card height at large text.
+- **Main menu** secondary row (Armory / Settings / How to play) clipped its
+  labels on narrow portrait; it stacks vertically below 560px.
+
+### Touch & feedback
+
+- Touch-target floor unified at 88px (`UiTheme.TOUCH_MIN` / `UiLayout.MIN_TOUCH`)
+  and enforced in `UiFactory.button/check` — sliders, option buttons, rebind
+  buttons, armory Buy/Close and the HUD Pause button were all below it.
+- Action buttons gained a real press state (brighter disc, thicker gold ring,
+  outer halo) so a tap is confirmed even when the thumb covers the label.
+- Skill slots now read locked / cooling / ready visually (opacity + caption
+  colour), not by text alone.
+- Theme `pressed` state is deliberately louder than `hover`, since touch has no
+  hover; added `font_pressed_color` / `font_focus_color`.
+
+### Visual coherence
+
+- `UiTheme` gained a shared spacing scale (`SPACE_S/M/L`, `RADIUS`) used by the
+  factory, cards, grids, menus and panels, replacing ad-hoc 8/10/12/16/24 gaps.
+- Rajdhani is now bound for `Label`, `RichTextLabel` and `PopupMenu` too, so no
+  control silently falls back to the engine default font.
+- HUD top strip and vitals sit on translucent scrims, so score/health stay
+  legible over the Ember and Frost arena themes without hiding gameplay.
+- Boss frame, banner, toast and touch labels carry text outlines.
+- Clearer hierarchy: dominant primary CTAs (Start Run, Resume Run), muted
+  supporting copy, destructive pause actions grouped in a secondary row, and a
+  subtitle on the Settings/Armory shells.
+
+### Notes
+
+- Orientation stays `sensor_landscape` per `docs/ART_STYLE.md`; the stretch
+  settings are now commented to explain the tall-panel behaviour. Portrait
+  geometry is still solved and tested because the safe area can be portrait-ish
+  mid-rotation and on foldables.
+- Verified: `tool/validate_resources.py`, `tool/validate_assets.py`,
+  522 Python regression tests (new suite:
+  `tests/python/test_regress_ui_layout_polish.py`) and `gdparse` on all UI
+  scripts. The Godot headless UI suite could not be executed in this sandbox
+  (no network access to a Godot binary); it runs in CI via
+  `scripts/ui/run_ui_validation.sh`.
+
 ## [0.6.0-dev] — In Development
 
 - **Version bump**: `0.5.0→0.6.0` (version code `2→3`).

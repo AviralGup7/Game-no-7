@@ -23,10 +23,15 @@ func _ready() -> void:
 	add_theme_constant_override("outline_size", 8)
 	self_modulate.a = 0.0
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	clip_text = false
+	# The coach line hangs off the bottom of the banner rect and follows it on
+	# every resize, so it can never land on top of the announcement text.
 	_coach = UiFactory.label("", self, 20)
-	_coach.set_anchors_preset(PRESET_TOP_WIDE)
-	_coach.offset_top = 110
-	_coach.offset_bottom = 185
+	_coach.set_anchors_preset(PRESET_BOTTOM_WIDE)
+	_coach.offset_top = -46
+	_coach.offset_bottom = 0
+	_coach.modulate = UiTheme.CYAN
 	_coach.add_theme_color_override("font_outline_color", Color.BLACK)
 	_coach.add_theme_constant_override("outline_size", 6)
 	if EventBus != null and not EventBus.announcement.is_connected(_on_announcement):

@@ -24,7 +24,7 @@ static func center_box(panel: Control) -> VBoxContainer:
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 24)
+		margin.add_theme_constant_override("margin_" + side, UiTheme.SPACE_L)
 	scroll.add_child(margin)
 	var center := CenterContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -32,10 +32,14 @@ static func center_box(panel: Control) -> VBoxContainer:
 	margin.add_child(center)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_theme_constant_override("separation", 12)
+	box.add_theme_constant_override("separation", UiTheme.SPACE_M)
 	center.add_child(box)
 	var fit := func() -> void:
-		box.custom_minimum_size.x = clampf(panel.size.x - 64, 240, 820)
+		# Narrow (portrait) screens use the full width minus gutters; wide screens
+		# cap the measure so lines stay readable instead of stretching.
+		box.custom_minimum_size.x = clampf(
+			panel.size.x - UiTheme.SPACE_L * 2, 240, maxf(panel.size.x * 0.62, 560)
+		)
 	panel.resized.connect(fit)
 	fit.call_deferred()
 	return box
@@ -45,10 +49,11 @@ static func title(text: String, parent: Node, font_size: int) -> Label:
 	result.add_theme_font_override("font", UiTheme.BOLD)
 	return result
 
-static func button(text: String, parent: Node, font_size: int, min_size: Vector2 = Vector2(220, 56)) -> Button:
+static func button(text: String, parent: Node, font_size: int, min_size: Vector2 = Vector2(220, UiTheme.TOUCH_MIN)) -> Button:
 	var b := Button.new()
 	b.text = text
-	b.custom_minimum_size = min_size
+	# Never emit a control below the Android touch-target floor.
+	b.custom_minimum_size = Vector2(min_size.x, maxf(min_size.y, UiTheme.TOUCH_MIN))
 	b.add_theme_font_size_override("font_size", font_size)
 	b.mouse_filter = Control.MOUSE_FILTER_STOP
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -84,7 +89,7 @@ static func check(text: String, parent: Node, initial: bool, on_toggle: Callable
 	var c := CheckButton.new()
 	c.text = text
 	c.button_pressed = initial
-	c.custom_minimum_size.y = 56
+	c.custom_minimum_size.y = UiTheme.TOUCH_MIN
 	c.add_theme_font_size_override("font_size", font_size)
 	c.toggled.connect(on_toggle)
 	parent.add_child(c)
@@ -105,6 +110,7 @@ static func card(parent: Node) -> VBoxContainer:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(panel)
 	var body := VBoxContainer.new()
+	body.add_theme_constant_override("separation", UiTheme.SPACE_S)
 	panel.add_child(body)
 	return body
 
