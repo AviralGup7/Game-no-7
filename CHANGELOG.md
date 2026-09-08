@@ -117,6 +117,21 @@ day one. Each should be fixed and de-listed:
 
 - **Version bump**: `0.5.0→0.6.0` (version code `2→3`).
 - Initiated development cycle for `v0.6.0`.
+- **Character integrity**: `PlayerStart` moved off the central landmark so the hero
+  is visible at run start; `player.tscn` gains a fallback `Body` capsule
+  (load_steps `26→28`) mirroring the enemy pattern; `character_visuals.gd` fixes
+  double-counted fit scale in grounding, hides Knight equipment before measuring,
+  skips hidden/mesh-less nodes in bounds, warns (with `ResourceLoader.exists`
+  pre-check) on mount failure, plants the ground shadow on the mount, and exposes
+  start/stop breathing; `PlayerAnimation`/`PlayerEquipment` re-bind late mounts,
+  stop before animation-library surgery, and rest the death pose; `PlayerFeedback`
+  re-collects late-mounted weapon meshes.
+- **Enemy facing**: all 8 `EnemyAnimator` nodes set `yaw_offset_degrees = 180.0` —
+  every model authors forward as +Z (verified from bind-pose joints) while
+  `face_direction` aims VisualRoot −Z at the player, so enemies faced backwards.
+- **Spawn safety**: `ArenaDecorator._open_spot` keeps props/pillars 2.5 m clear of
+  `PlayerStart` so runs can't begin inside decoration collision.
+- **Lint**: repo-wide `gdlint` clean (renamed `_p_check`/`_pl` locals).
 
 ## [Unreleased] — Audio & feedback polish (2026-09-08)
 

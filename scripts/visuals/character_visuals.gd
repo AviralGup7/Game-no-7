@@ -51,8 +51,13 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	if existing != null and existing.get_child_count() > 0:
 		return existing as Node3D
 
-	var scene := load(String(cfg["path"]))
+	var path := String(cfg["path"])
+	if not ResourceLoader.exists(path):
+		push_warning("CharacterVisuals: model missing for role %s: %s (primitive kept)" % [String(role), path])
+		return null
+	var scene := load(path)
 	if scene == null or not scene is PackedScene:
+		push_warning("CharacterVisuals: model failed to import for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 	var instance := (scene as PackedScene).instantiate()
 	if not instance is Node3D:
@@ -65,6 +70,11 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	wrapper.add_child(instance)
 	mount.add_child(wrapper)
 
+	# Hide the source's alternate-loadout equipment BEFORE measuring: swords and
+	# shields extend sideways/forward and would otherwise shrink the fit and drag
+	# the visible body off the capsule axis. (PlayerEquipment repeats this rule.)
+	_hide_equipment(instance as Node3D)
+
 	var factor := _fit_factor(instance, float(cfg["height"]))
 	if factor <= 0.0:
 		# No usable geometry -> keep the primitive and tear down the mount.
@@ -76,19 +86,27 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	# gameplay-facing rotation/scale. Ground the feet and centre the footprint on XZ.
 	(instance as Node3D).rotation.y = float(cfg["yaw"])
 	(instance as Node3D).scale = Vector3.ONE * factor
-	var bounds := _bounds(instance as Node3D, Transform3D.IDENTITY)
+	# Bounds are measured AFTER scale/rotation, so they are already in final
+	# wrapper-space units: centre/ground them directly (a second `* factor` here
+	# would double-count the scale and offset the body off the capsule).
+	var measured: Variant = _bounds(instance as Node3D, Transform3D.IDENTITY)
+	if measured == null:
+		mount.remove_child(wrapper)
+		wrapper.free()
+		return null
+	var bounds := measured as AABB
 	(instance as Node3D).position = Vector3(
-		-bounds.get_center().x * factor,
-		-bounds.position.y * factor,
-		-bounds.get_center().z * factor
+		-bounds.get_center().x,
+		-bounds.position.y,
+		-bounds.get_center().z
 	)
 
 	_hide_primitive(mount)
-	_add_ground_shadow(wrapper)
+	_add_ground_shadow(mount)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
 	# Subtle breathing bob keeps the hero alive even when idle (pure visual, no gameplay).
 	if role == &"player":
-		_add_breathing(wrapper)
+		start_breathing(wrapper)
 	return wrapper
 
 
@@ -108,8 +126,21 @@ static func _play_idle(root: Node3D, clip: String) -> void:
 			return
 
 
-static func _add_ground_shadow(wrapper: Node3D) -> void:
+## Hide alternate-loadout equipment meshes (KayKit adventurers ship swords and
+## shields as part of the character model). Runs before fit/ground math so hidden
+## steel cannot shrink the fit or offset the visible body off the capsule axis.
+static func _hide_equipment(root: Node3D) -> void:
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_name := String((node as Node).name)
+		if "Sword" in mesh_name or "Shield" in mesh_name:
+			(node as MeshInstance3D).hide()
+
+
+static func _add_ground_shadow(parent: Node3D) -> void:
+	if parent == null or parent.get_node_or_null("GroundShadow") != null:
+		return
 	# Soft dark disc under feet — grounds the model without a real shadow map (mobile-safe).
+	# Parented to the mount (not the bobbing wrapper) so the shadow stays planted.
 	var decal := MeshInstance3D.new()
 	decal.name = "GroundShadow"
 	var disc := CylinderMesh.new()
@@ -125,15 +156,38 @@ static func _add_ground_shadow(wrapper: Node3D) -> void:
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	decal.material_override = mat
-	wrapper.add_child(decal)
+	parent.add_child(decal)
 
 
-static func _add_breathing(wrapper: Node3D) -> void:
+const BREATHING_TWEEN_META := &"breathing_tween"
+
+
+## Idle breathing bob (looping tween, no bones). Idempotent; safe off-tree.
+static func start_breathing(wrapper: Node3D) -> void:
+	if wrapper == null or not is_instance_valid(wrapper):
+		return
+	if wrapper.has_meta(BREATHING_TWEEN_META):
+		return
+	if not wrapper.is_inside_tree():
+		return
 	# Tiny scripted bob via a lightweight tween (no bones) — keeps idle from feeling frozen.
 	var tween := wrapper.create_tween()
 	tween.set_loops()
 	tween.tween_property(wrapper, "position:y", 0.04, 1.1).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.tween_property(wrapper, "position:y", -0.04, 1.1).as_relative().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	wrapper.set_meta(BREATHING_TWEEN_META, tween)
+
+
+## Freeze the idle bob and replant the wrapper (death poses must rest).
+static func stop_breathing(wrapper: Node3D) -> void:
+	if wrapper == null or not is_instance_valid(wrapper):
+		return
+	if wrapper.has_meta(BREATHING_TWEEN_META):
+		var tween: Variant = wrapper.get_meta(BREATHING_TWEEN_META)
+		if tween is Tween and (tween as Tween).is_valid():
+			(tween as Tween).kill()
+		wrapper.remove_meta(BREATHING_TWEEN_META)
+	wrapper.position.y = 0.0
 
 
 ## Hide the primitive body mesh that the model replaces (visible=false keeps the node).
@@ -148,29 +202,36 @@ static func _hide_primitive(mount: Node3D) -> void:
 
 
 static func _fit_factor(instance: Node3D, target_height: float) -> float:
-	var bounds := _bounds(instance, Transform3D.IDENTITY)
-	if bounds.size.y <= 0.0001 or target_height <= 0.01:
+	var bounds: Variant = _bounds(instance, Transform3D.IDENTITY)
+	if bounds == null:
 		return 0.0
-	return target_height / bounds.size.y
+	var box := bounds as AABB
+	if box.size.y <= 0.0001 or target_height <= 0.01:
+		return 0.0
+	return target_height / box.size.y
 
 
-static func _bounds(node: Node3D, parent_xform: Transform3D) -> AABB:
+## Union of the VISIBLE mesh bounds under `node`, or null when nothing renders.
+## Hidden equipment and mesh-less placeholders never pollute the fit/ground math.
+## Imported rigs also contain non-spatial Nodes (e.g. AnimationPlayer): traverse
+## those safely; only Node3D contributes a transform.
+static func _bounds(node: Node, parent_xform: Transform3D) -> Variant:
 	var local := parent_xform
 	if node is Node3D:
 		local = parent_xform * (node as Node3D).transform
-	var out: AABB = AABB()
-	var have := false
-	if node is MeshInstance3D and node.mesh != null:
-		out = local * (node as MeshInstance3D).mesh.get_aabb()
-		have = true
+	var out: Variant = null
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		if mesh_instance.mesh != null and mesh_instance.visible:
+			out = local * mesh_instance.mesh.get_aabb()
 	for child in node.get_children():
-		var child_b := _bounds(child, local)
-		if child_b.size != Vector3.ZERO or child is MeshInstance3D:
-			if not have:
-				out = child_b
-				have = true
-			else:
-				out = out.merge(child_b)
+		var child_bounds: Variant = _bounds(child, local)
+		if child_bounds == null:
+			continue
+		if out == null:
+			out = child_bounds
+		else:
+			out = (out as AABB).merge(child_bounds as AABB)
 	return out
 
 ## Hardened: validate model id before mounting.
