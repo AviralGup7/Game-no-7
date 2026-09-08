@@ -54,8 +54,11 @@ func refresh_all() -> void:
 	if _selected_arena == &"" and first_arena != &"":
 		_selected_arena = first_arena
 	_register_audio_cues(loaded["audio"])
-	# Procedural fallback: synthesize any cue still missing so the game is
-	# never silent (real audio drops in data/audio/ always take precedence).
+	# Preserve precedence (approved library > data/audio > procedural), but load
+	# the shipped streams BEFORE synthesizing fallback. In particular, do not
+	# generate five six-second music loops only to immediately discard them.
+	AudioAssetIntegrator.new().register()
+	# Missing/invalid optional files still get the same deterministic fallback.
 	ProceduralSfx.ensure_registered()
 	_validation_dirty = true
 

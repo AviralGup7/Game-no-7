@@ -55,11 +55,32 @@ var _paused_for_control := false
 func _ready() -> void:
 	_player = get_parent() as Player
 	_weapons = _player.get_node_or_null("WeaponManager") as WeaponManager
+	_connect_combat_signals()
+	if not _bind_animation():
+		# The model mount (VisualMount) normally runs first, but never depend on
+		# sibling order: retry once after every _ready has run.
+		set_physics_process(false)
+		call_deferred("_bind_animation_deferred")
+
+
+func _bind_animation_deferred() -> void:
+	if _bind_animation():
+		set_physics_process(true)
+
+
+## Locate the mounted rig's AnimationPlayer and prepare private loop clips.
+## Returns false when no rig is mounted yet (the fallback capsule stays visible).
+func _bind_animation() -> bool:
+	if _animation != null:
+		return true
+	if _player == null:
+		return false
 	var char_root := _player.get_node_or_null("VisualRoot/CharacterModel")
 	_animation = (char_root.find_child("AnimationPlayer", true, false) as AnimationPlayer) if char_root != null else null
 	if _animation == null:
-		set_physics_process(false)
-		return
+		return false
+	# The mount auto-plays its idle clip; stop it before swapping libraries.
+	_animation.stop()
 	# Only the three loop clips need private resources; other imported clips stay shared.
 	for library_name in _animation.get_animation_library_list():
 		var library := _animation.get_animation_library(library_name).duplicate() as AnimationLibrary
@@ -72,6 +93,16 @@ func _ready() -> void:
 		_animation.remove_animation_library(library_name)
 		_animation.add_animation_library(library_name, library)
 	_animation.animation_finished.connect(_on_finished)
+	_locked = false
+	_play(idle_clip)
+	return true
+
+
+## Gameplay signals stay connected even when no rig is mounted, so a late mount
+## (or the fallback capsule) never leaves animation permanently unwired.
+func _connect_combat_signals() -> void:
+	if _player == null:
+		return
 	_player.attack_started.connect(_on_attack)
 	_player.dodged.connect(_on_dodge)
 	_player.damaged.connect(_on_hurt)
@@ -87,10 +118,11 @@ func _ready() -> void:
 			EventBus.player_leveled_up.connect(_on_level_up)
 		if not EventBus.boss_slain.is_connected(_on_boss_victory):
 			EventBus.boss_slain.connect(_on_boss_victory)
-	_play(idle_clip)
 
 
 func _physics_process(_delta: float) -> void:
+	if _animation == null:
+		return
 	if _dead:
 		return
 	if not _player.is_control_enabled():
@@ -144,7 +176,7 @@ func _on_contact(_id: StringName, _hits: int, _crit: bool) -> void:
 
 
 func _align_contact(recovery: float) -> void:
-	if _dead or _contact_aligned or _attack_clip == &"" or _animation.current_animation != String(_attack_clip):
+	if _animation == null or _dead or _contact_aligned or _attack_clip == &"" or _animation.current_animation != String(_attack_clip):
 		return
 	_contact_aligned = true
 	var length := _length(_attack_clip)
@@ -193,7 +225,7 @@ func _on_hurt(result: DamageResult) -> void:
 
 
 func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
-	if _dead or caster != _player:
+	if _animation == null or _dead or caster != _player:
 		return
 	var clip: StringName = skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
 	if String(clip).is_empty() or not _animation.has_animation(clip):
@@ -206,14 +238,14 @@ func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 
 
 func _on_level_up(_new_level: int, _xp: int) -> void:
-	if _dead:
+	if _animation == null or _dead:
 		return
 	_locked = true
 	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 1.1)
 
 
 func _on_boss_victory(_boss_id: StringName) -> void:
-	if _dead:
+	if _animation == null or _dead:
 		return
 	_locked = true
 	_play(victory_clip if _animation.has_animation(victory_clip) else idle_clip, true, 0.9)
@@ -222,6 +254,7 @@ func _on_boss_victory(_boss_id: StringName) -> void:
 func _on_death() -> void:
 	_dead = true
 	_locked = true
+	CharacterVisuals.stop_breathing(_character_visual())
 	_play(death_clip, true)
 
 
@@ -238,7 +271,14 @@ func reset() -> void:
 	_locked = false
 	_reloading = false
 	_attack_clip = &""
+	CharacterVisuals.start_breathing(_character_visual())
 	_play(idle_clip, true)
+
+
+func _character_visual() -> Node3D:
+	if _player == null:
+		return null
+	return _player.get_node_or_null("VisualRoot/CharacterModel/CharacterVisual") as Node3D
 
 
 func _on_finished(_clip: StringName) -> void:
@@ -247,10 +287,15 @@ func _on_finished(_clip: StringName) -> void:
 
 
 func _length(clip: StringName) -> float:
+	if _animation == null:
+		return 0.3
 	return _animation.get_animation(clip).length if _animation.has_animation(clip) else 0.3
 
 
 func _play(clip: StringName, restart: bool = false, speed: float = 1.0) -> void:
+	if _animation == null:
+		_locked = _dead
+		return
 	if not _animation.has_animation(clip):
 		_locked = _dead
 		return

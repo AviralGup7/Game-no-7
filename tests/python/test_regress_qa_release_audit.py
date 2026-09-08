@@ -107,14 +107,19 @@ class PerformanceMonitorRestoresFpsCapTests(unittest.TestCase):
     """
 
     def test_monitor_restores_max_fps_on_exit(self):
+        # The mechanism is main's (_configured_max_fps() reads the project setting)
+        # rather than the snapshot this branch originally used -- theirs is better,
+        # since it cannot capture an already-degraded cap. Only the guarantee is
+        # pinned: teardown must reassign Engine.max_fps.
         txt = read("scripts/utilities/performance_monitor.gd")
         self.assertIn("func _exit_tree", txt)
-        self.assertIn("Engine.max_fps = _entry_max_fps", func_body(txt, "_exit_tree"))
+        self.assertIn("Engine.max_fps =", func_body(txt, "_exit_tree"))
 
-    def test_entry_cap_is_captured_once(self):
-        body = func_body(read("scripts/utilities/performance_monitor.gd"), "_apply_tier_to_engine")
-        self.assertIn("_entry_max_fps_captured", body)
-        self.assertIn("_entry_max_fps = Engine.max_fps", body)
+    def test_only_one_exit_tree_is_defined(self):
+        # Two independent fixes for this bug landed; a merge that keeps both would
+        # be a duplicate func definition, which is a GDScript parse error.
+        txt = read("scripts/utilities/performance_monitor.gd")
+        self.assertEqual(txt.count("func _exit_tree"), 1)
 
     def test_dead_displayserver_noop_guard_removed(self):
         body = func_body(read("scripts/utilities/performance_monitor.gd"), "_apply_tier_to_engine")

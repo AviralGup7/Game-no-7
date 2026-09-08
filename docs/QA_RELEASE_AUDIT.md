@@ -91,7 +91,7 @@ no runner (`test_character_visuals`, `test_content_progression`, `test_presentat
 
 | # | Area | Issue | Fix |
 |---|------|-------|-----|
-| 5 | `utilities/performance_monitor.gd` | `Engine.max_fps` is **global**, but the monitor is a **per-run** node. A run that auto-degraded to the LOW tier capped the whole app — menus included — at 30 fps for the rest of the session; nothing restored it on teardown. | Capture the entry cap once; restore it in `_exit_tree()`. |
+| 5 | `utilities/performance_monitor.gd` | `Engine.max_fps` is **global**, but the monitor is a **per-run** node. A run that auto-degraded to the LOW tier capped the whole app — menus included — at 30 fps for the rest of the session; nothing restored it on teardown. | **Superseded on merge.** `main` fixed this independently while this branch was in review, restoring the cap from `ProjectSettings` in `_exit_tree()`. That is the better mechanism — it cannot capture an already-degraded cap — so this branch's snapshot version was dropped during the merge and `main`'s kept. The regression guard here now pins the *guarantee* (teardown reassigns `Engine.max_fps`) plus a check that only one `_exit_tree` exists, since keeping both would be a duplicate-definition parse error. |
 | 6 | `ui/run_setup_panel.gd` | `OptionButton.selected` is `-1` until the user picks (and after any list rebuild). `_arena_ids[_arenas.selected]` / `_weapon_ids[_weapons.selected]` then index **out of bounds** on the arena-select and launch paths. | Clamped accessors `_selected_arena_index()` / `_selected_weapon_index()`. |
 | 7 | `ui/ui_root.gd` | `find_child("StatusTitle", …) as Label` is dereferenced unchecked in `_sync_from_state()`, which runs on **every** state change — a null yields a hard crash rather than a missing caption. | Null-check before assigning `.text`. |
 
@@ -108,8 +108,10 @@ no runner (`test_character_visuals`, `test_content_progression`, `test_presentat
 - **`gdlint` failed on the repo** (exit 1, two `function-variable-name` violations:
   `_p_check`, `_pl` — a *used* local must not start with `_`), while `docs/BUILD.md`,
   `docs/PLAYER_IMPLEMENTATION.md` and `docs/AGENT5_UI_HANDOFF.md` all state the lint passes.
-  Fixed both; `tutorial_manager._poll_player_triggers` also called `get_active_player()`
-  three times in a row, collapsed to one local.
+  **Superseded on merge:** `main` fixed the same two violations independently, with
+  different names (`player_check`, `live_player`). Those conflicted on merge and were
+  resolved in `main`'s favour, so this branch's rename commit is now a no-op. `gdlint`
+  is clean either way.
 - **`docs/ANDROID_PERMISSIONS.md`** claimed the game "does not call
   `vibrate_handheld`/haptics" as evidence for the no-permission posture. It does, in
   `touch_action_button.gd` and `player_feedback.gd` (both gated on the user's
@@ -202,17 +204,22 @@ gameplay-adjacent tuning.*
 
 ## Recommended merge order
 
-Two sibling branches exist. I verified both against this branch with `git merge-tree`:
+> **Update.** Since this section was first written, `arena/01a08130-game-no-7` has been
+> merged to `main` (PR #17), along with an Android performance pass. This branch has been
+> merged **up to date with the new `main`** — three conflicts (`tutorial_manager.gd`,
+> `wave_manager.gd`, `test_regress_sweep_fixes.py`) were all resolved in `main`'s favour,
+> plus a duplicate `_exit_tree` in `performance_monitor.gd` removed. See the two
+> *Superseded on merge* notes above. Full gate re-run green on the merged tree.
 
 | Order | Branch | Overlap with this branch | Result |
 |-------|--------|--------------------------|--------|
-| 1 | **`arena/01a08132-game-no-7`** (this one) | — | Merge first |
-| 2 | `arena/01a08130-game-no-7` — character integrity, mount math | **none** (player/visuals only) | Clean |
-| 3 | `arena/01a08131-game-no-7` — UI/audio polish | 5 files | Clean, auto-merges |
+| — | `arena/01a08130-game-no-7` — character integrity, mount math | none | **Already merged** (PR #17) |
+| 1 | **`arena/01a08132-game-no-7`** (this one) | merged up to date with `main` | Merge next |
+| 2 | `arena/01a08131-game-no-7` — UI/audio polish | 5 files | Clean, auto-merges |
 
-**Merge this branch first.** It is the only one touching the run lifecycle
-(`game_root`/`main`), its changes are small and localized, and the other two are broad
-cosmetic passes — rebasing a 5-line pause fix onto a large UI diff is far easier than the
+**Merge this branch before `...131`.** It is the only one touching the run lifecycle
+(`game_root`/`main`), its changes are small and localized, and `...131` is a broad
+cosmetic pass — rebasing a 5-line pause fix onto a large UI diff is far easier than the
 reverse.
 
 `...131` overlaps on `game_root.gd`, `main.gd`, `run_setup_panel.gd`, `skill_bar.gd`,

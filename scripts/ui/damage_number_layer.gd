@@ -135,7 +135,10 @@ func _process(delta: float) -> void:
 	if _live.is_empty():
 		return
 	var rise := 0.0 if _reduced_motion else RISE_PIXELS
-	for entry in _live.duplicate():
+	# Iterate backwards: safe removal without a per-frame Array copy or a
+	# linear Dictionary search for each expired label. Survivor order is kept.
+	for index in range(_live.size() - 1, -1, -1):
+		var entry: Dictionary = _live[index]
 		entry["timer"] = float(entry["timer"]) - delta
 		var label: Label = entry["label"]
 		var frac: float = clampf(float(entry["timer"]) / LIFE_SECONDS, 0.0, 1.0)
@@ -145,7 +148,7 @@ func _process(delta: float) -> void:
 			label.scale = label.scale.lerp(Vector2.ONE, delta * 6.0)
 		if float(entry["timer"]) <= 0.0:
 			label.visible = false
-			_live.erase(entry)
+			_live.remove_at(index)
 
 
 func clear_all() -> void:

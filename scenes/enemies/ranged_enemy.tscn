@@ -66,6 +66,7 @@ script = ExtResource("6_status")
 script = ExtResource("7_animator")
 model_scene = ExtResource("8_model")
 model_extent = 1.7
+yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
 "run": "Walking_A",
