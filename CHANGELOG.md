@@ -664,3 +664,11 @@ Working title: **Last Stand: Arena**.
   Godot/Android toolchain available); wired into `.github/workflows/android.yml` and
   `scripts/build_android.sh` for execution on a real runner / locally. See the
   "known limitation" note in the Phase 1 commit message.
+
+### Post-merge fix (UI/UX polish branch)
+
+- `scripts/audio/audio_asset_integrator.gd`: `random_volume_db` is not a Godot 4
+  property on `AudioStreamRandomizer`; the assignment raised a runtime
+  `SCRIPT ERROR` on every SFX pool build. Renamed to the real property
+  `random_volume_offset_db` (same intent: +/-3 dB per-playback variation).
+  Caught by the headless UI validation gate added on this branch.

@@ -97,7 +97,9 @@ static func _build_variant_stream(files: Array, _volume_db: float) -> AudioStrea
 			EventBus.report_warning("AudioAssetIntegrator: unimported source " + f)
 	if not any:
 		return null
-	rand.random_volume_db = 3.0
+	# Godot 4 names this `random_volume_offset_db` (there is no `random_volume_db`);
+	# 3.0 randomises each playback between -3 dB and +3 dB.
+	rand.random_volume_offset_db = 3.0
 	return rand
 
 
