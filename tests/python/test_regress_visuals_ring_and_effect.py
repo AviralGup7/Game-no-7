@@ -13,8 +13,17 @@ class VisualsTests(unittest.TestCase):
         txt=read("scripts/visuals/effect_director.gd")
         self.assertIn("RING_TEXTURE",txt)
         self.assertIn("BURST_TEXTURE",txt)
-        self.assertIn("MAX_BURSTS := 6",txt)
-        self.assertIn("MAX_RINGS := 10",txt)
+        # Caps are mobile-safe and bounded — major visuals raised to 10/14 from 6/10.
+        self.assertRegex(txt, r"MAX_BURSTS\s*:=\s*(6|10)")
+        self.assertRegex(txt, r"MAX_RINGS\s*:=\s*(10|14)")
+        # Enforce upper bound: keep memory predictable.
+        import re
+        m=re.search(r"MAX_BURSTS\s*:=\s*(\d+)",txt)
+        self.assertIsNotNone(m)
+        self.assertLessEqual(int(m.group(1)), 12)
+        m=re.search(r"MAX_RINGS\s*:=\s*(\d+)",txt)
+        self.assertIsNotNone(m)
+        self.assertLessEqual(int(m.group(1)), 16)
     def test_arena_decorator_uses_local_position(self):
         txt=read("scripts/arena/arena_decorator.gd")
         self.assertIn("(n as Node3D).position",txt)

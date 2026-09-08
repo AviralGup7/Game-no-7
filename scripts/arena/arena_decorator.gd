@@ -60,28 +60,61 @@ func spawned_count() -> int:
 	return _spawned.size()
 
 
-# ---------------------- per-arena compositions ----------------------
+# ---------------------- per-arena compositions — distinct silhouettes ----------------------
 
 func _compose_default(half: float) -> void:
-	_place_structural(4, half, SC_PILLAR)
-	_scatter(14, half, [SC_RUBBLE, SC_BOX, SC_BARREL, SC_CRATES])
+	# Ancient coliseum: balanced, readable — landmarks + scattered ruins.
+	_place_structural(5, half, SC_PILLAR)
+	_scatter(16, half, [SC_RUBBLE, SC_BOX, SC_BARREL, SC_CRATES])
 	_wall_props(half, &"red", false)
+	# Weathered stone circle around the obelisk (4 small shards).
+	for i in range(4):
+		var angle := i * TAU / 4.0 + 0.3
+		var at := Vector3(cos(angle) * 2.8, 0, sin(angle) * 2.8)
+		_mount_prop(SC_RUBBLE, at, 0.9 + float(i) * 0.12)
 
 
 func _compose_ember(half: float) -> void:
+	# Forge crucible: dense, hot, vertical — decorated pillars + many barrels/crates as fuel.
 	_place_structural(6, half, SC_PILLAR_DECOR)
-	_scatter(16, half, [SC_BARREL, SC_BOX, SC_CRATES, SC_RUBBLE])
+	_scatter(18, half, [SC_BARREL, SC_CRATES, SC_BOX, SC_RUBBLE])
 	_wall_props(half, &"yellow", true)
-	# Central fire braziers for the crucible identity (kept few for mobile).
-	for _i in range(2):
-		var at := _centerish(half, 3.5)
-		_mount_prop(SC_TORCH, at, 1.6)
+	# Ring of braziers around the central forge — strong emissive read from distance.
+	for i in range(5):
+		var angle := i * TAU / 5.0
+		var at := Vector3(cos(angle) * 3.0, 0, sin(angle) * 3.0)
+		_mount_prop(SC_TORCH, at, 1.35)
+	# Extra fuel stacks near walls.
+	_scatter(4, half, [SC_BARREL, SC_CRATES])
 
 
 func _compose_frost(half: float) -> void:
-	_place_structural(8, half, SC_COLUMN)
-	_scatter(10, half, [SC_RUBBLE, SC_BOX])
+	# Frost hollow: sparse, cold, tall columns — open sightlines for ranged.
+	_place_structural(7, half, SC_COLUMN)
+	_scatter(12, half, [SC_RUBBLE, SC_BOX, SC_RUBBLE])
 	_wall_props(half, &"blue", false)
+	# Ice shard ring around the crystal cluster (blue banners already on walls).
+	for i in range(3):
+		var angle := i * TAU / 3.0 + PI / 6.0
+		var at := Vector3(cos(angle) * 2.2, 0, sin(angle) * 2.2)
+		var holder := Node3D.new()
+		holder.position = at
+		var prism := MeshInstance3D.new()
+		var pm := PrismMesh.new()
+		pm.size = Vector3(0.45, 1.1, 0.45)
+		prism.mesh = pm
+		prism.rotation.y = angle
+		var cmat := StandardMaterial3D.new()
+		cmat.albedo_color = Color(0.68, 0.82, 1.0, 0.85)
+		cmat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		cmat.roughness = 0.12
+		cmat.emission_enabled = true
+		cmat.emission = Color(0.35, 0.65, 1.0)
+		cmat.emission_energy_multiplier = 1.2
+		prism.material_override = cmat
+		holder.add_child(prism)
+		add_child(holder)
+		_spawned.append(holder)
 
 
 # ---------------------- builders ----------------------

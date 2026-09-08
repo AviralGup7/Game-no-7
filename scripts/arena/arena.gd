@@ -30,6 +30,7 @@ func apply_theme(theme_arena_id: StringName) -> void:
 		return
 	_apply_sky_and_light(preset)
 	_tint_surfaces(preset)
+	_spawn_landmark(preset)
 
 
 func _resolve_arena_id() -> StringName:
@@ -48,31 +49,50 @@ func _resolve_arena_id() -> StringName:
 	return arena_id
 
 
-## Per-arena mood presets. Keep dynamic lights minimal (one sun) for Android.
+## Per-arena mood presets — dramatically distinct for instant readability on mobile.
+## Each now has a unique central landmark + emissive accents + strong fog identity.
 const THEMES := {
 	"ember_crucible": {
-		"sky_top": Color(0.16, 0.06, 0.05),
-		"sky_horizon": Color(0.6, 0.22, 0.1),
-		"ground_horizon": Color(0.2, 0.07, 0.04),
-		"fog_color": Color(0.5, 0.2, 0.09),
-		"fog_density": 0.02,
-		"sun_color": Color(1.0, 0.58, 0.3),
-		"sun_energy": 1.55,
-		"ambient_color": Color(0.75, 0.42, 0.3),
-		"floor_tint": Color(0.62, 0.4, 0.3),
-		"wall_tint": Color(0.5, 0.28, 0.22),
+		"sky_top": Color(0.12, 0.03, 0.02),
+		"sky_horizon": Color(0.85, 0.28, 0.08),
+		"ground_horizon": Color(0.35, 0.12, 0.05),
+		"fog_color": Color(0.65, 0.25, 0.08),
+		"fog_density": 0.028,
+		"sun_color": Color(1.0, 0.45, 0.15),
+		"sun_energy": 1.85,
+		"ambient_color": Color(0.85, 0.38, 0.22),
+		"floor_tint": Color(0.72, 0.42, 0.32),
+		"wall_tint": Color(0.55, 0.24, 0.18),
+		"landmark": "forge",
+		"emissive_accent": Color(1.0, 0.42, 0.1),
 	},
 	"frost_hollow": {
-		"sky_top": Color(0.25, 0.34, 0.5),
-		"sky_horizon": Color(0.75, 0.82, 0.92),
-		"ground_horizon": Color(0.45, 0.52, 0.62),
-		"fog_color": Color(0.75, 0.83, 0.92),
-		"fog_density": 0.018,
-		"sun_color": Color(0.75, 0.85, 1.0),
-		"sun_energy": 1.35,
-		"ambient_color": Color(0.7, 0.78, 0.9),
-		"floor_tint": Color(0.66, 0.72, 0.82),
-		"wall_tint": Color(0.5, 0.56, 0.68),
+		"sky_top": Color(0.18, 0.28, 0.48),
+		"sky_horizon": Color(0.82, 0.90, 1.0),
+		"ground_horizon": Color(0.42, 0.58, 0.78),
+		"fog_color": Color(0.78, 0.88, 1.0),
+		"fog_density": 0.024,
+		"sun_color": Color(0.65, 0.78, 1.0),
+		"sun_energy": 1.45,
+		"ambient_color": Color(0.68, 0.80, 1.0),
+		"floor_tint": Color(0.70, 0.78, 0.88),
+		"wall_tint": Color(0.52, 0.62, 0.78),
+		"landmark": "crystal",
+		"emissive_accent": Color(0.45, 0.75, 1.0),
+	},
+	"default_arena": {
+		"sky_top": Color(0.22, 0.42, 0.68),
+		"sky_horizon": Color(0.72, 0.82, 0.92),
+		"ground_horizon": Color(0.38, 0.42, 0.48),
+		"fog_color": Color(0.68, 0.72, 0.78),
+		"fog_density": 0.015,
+		"sun_color": Color(1.0, 0.95, 0.85),
+		"sun_energy": 1.25,
+		"ambient_color": Color(0.72, 0.75, 0.82),
+		"floor_tint": Color(0.58, 0.55, 0.52),
+		"wall_tint": Color(0.45, 0.42, 0.40),
+		"landmark": "obelisk",
+		"emissive_accent": Color(0.85, 0.75, 0.45),
 	},
 }
 
@@ -131,6 +151,111 @@ func _tint_geometry(root_path: String, floor_tint: Color, wall_tint: Color) -> v
 		var dup: StandardMaterial3D = (base.duplicate(true) if base != null else StandardMaterial3D.new())
 		dup.albedo_color = tint
 		mi.material_override = dup
+
+
+func _spawn_landmark(preset: Dictionary) -> void:
+	# Remove any previous landmark (idempotent for theme switches / headless re-entry).
+	var old := get_node_or_null("Landmark")
+	if old != null:
+		old.queue_free()
+	var kind := String(preset.get("landmark", ""))
+	var accent: Color = preset.get("emissive_accent", Color(1, 0.8, 0.4))
+	var holder := Node3D.new()
+	holder.name = "Landmark"
+	add_child(holder)
+	match kind:
+		"forge":
+			# Central forge: dark stone base + emissive lava basin + point light
+			var base := MeshInstance3D.new()
+			var bm := CylinderMesh.new()
+			bm.top_radius = 1.8
+			bm.bottom_radius = 2.1
+			bm.height = 0.6
+			base.mesh = bm
+			base.position.y = 0.3
+			var bmat := StandardMaterial3D.new()
+			bmat.albedo_color = Color(0.22, 0.16, 0.14)
+			bmat.roughness = 0.9
+			base.material_override = bmat
+			holder.add_child(base)
+			var lava := MeshInstance3D.new()
+			var lm := CylinderMesh.new()
+			lm.top_radius = 1.25
+			lm.bottom_radius = 1.25
+			lm.height = 0.12
+			lava.mesh = lm
+			lava.position.y = 0.66
+			var lmat := StandardMaterial3D.new()
+			lmat.albedo_color = accent
+			lmat.emission_enabled = true
+			lmat.emission = accent
+			lmat.emission_energy_multiplier = 4.5
+			lmat.roughness = 0.35
+			lava.material_override = lmat
+			holder.add_child(lava)
+			var light := OmniLight3D.new()
+			light.light_color = accent
+			light.light_energy = 2.2
+			light.omni_range = 8.0
+			light.position.y = 1.2
+			holder.add_child(light)
+		"crystal":
+			# Frost crystal cluster: three prisms + cool point light
+			for i in range(3):
+				var prism := MeshInstance3D.new()
+				var pm := PrismMesh.new()
+				pm.size = Vector3(0.7, 2.2 + i * 0.6, 0.7)
+				prism.mesh = pm
+				prism.position = Vector3(cos(i * TAU / 3.0) * 0.5, 1.1, sin(i * TAU / 3.0) * 0.5)
+				prism.rotation.y = i * 0.9
+				var cmat := StandardMaterial3D.new()
+				cmat.albedo_color = Color(0.75, 0.85, 1.0, 0.9)
+				cmat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				cmat.roughness = 0.15
+				cmat.metallic = 0.1
+				cmat.emission_enabled = true
+				cmat.emission = accent
+				cmat.emission_energy_multiplier = 1.8
+				prism.material_override = cmat
+				holder.add_child(prism)
+			var light := OmniLight3D.new()
+			light.light_color = accent
+			light.light_energy = 1.8
+			light.omni_range = 7.0
+			light.position.y = 1.5
+			holder.add_child(light)
+		_:
+			# Default ancient obelisk: tall stone with gold cap + warm fill light
+			var pillar := MeshInstance3D.new()
+			var col := BoxMesh.new()
+			col.size = Vector3(1.0, 4.2, 1.0)
+			pillar.mesh = col
+			pillar.position.y = 2.1
+			var pmat := StandardMaterial3D.new()
+			pmat.albedo_color = Color(0.52, 0.48, 0.42)
+			pmat.roughness = 0.75
+			pillar.material_override = pmat
+			holder.add_child(pillar)
+			var cap := MeshInstance3D.new()
+			var cm := BoxMesh.new()
+			cm.size = Vector3(1.25, 0.35, 1.25)
+			cap.mesh = cm
+			cap.position.y = 4.4
+			var cmat2 := StandardMaterial3D.new()
+			cmat2.albedo_color = accent
+			cmat2.metallic = 0.6
+			cmat2.roughness = 0.25
+			cmat2.emission_enabled = true
+			cmat2.emission = accent
+			cmat2.emission_energy_multiplier = 1.2
+			cap.material_override = cmat2
+			holder.add_child(cap)
+			var light := OmniLight3D.new()
+			light.light_color = accent
+			light.light_energy = 1.1
+			light.omni_range = 6.0
+			light.position.y = 2.0
+			holder.add_child(light)
 
 
 ## Deterministic, precomputed navigation floor (no runtime baking). Builds a flat

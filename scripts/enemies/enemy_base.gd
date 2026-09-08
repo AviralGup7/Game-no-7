@@ -546,12 +546,14 @@ func _on_damaged(result: DamageResult) -> void:
 	var bus := _eb()
 	if bus != null:
 		bus.enemy_damaged.emit(self, result)
-	if _feedback != null and _feedback.has_method("play_damaged"):
+	if result.was_critical and _feedback != null and _feedback.has_method("play_crit"):
+		_feedback.call("play_crit")
+	elif _feedback != null and _feedback.has_method("play_damaged"):
 		_feedback.call("play_damaged")
 	if _audio != null and _audio.has_method("play_hit"):
 		_audio.call("play_hit")
 	if result.was_critical:
-		_juice_hitstop(0.03, 0.12)
+		_juice_hitstop(0.04, 0.16)
 	if not _alive:
 		return
 	# Poise: while a windup is guarded, chip damage accumulates instead of

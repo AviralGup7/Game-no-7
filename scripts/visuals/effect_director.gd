@@ -12,8 +12,9 @@ extends Node
 ##
 ## All methods are no-ops when particles are unsupported or the event node is invalid.
 
-const MAX_BURSTS := 6
-const MAX_RINGS := 10
+const MAX_BURSTS := 10
+const MAX_RINGS := 14
+const MAX_MUZZLE := 4
 const RING_TEXTURE := "res://assets/effects/kenney/circle_05.png"
 const BURST_TEXTURE := "res://assets/effects/kenney/spark_01.png"
 
@@ -29,6 +30,13 @@ const STATUS_COLORS := {
 	&"warcry": Color(1.0, 0.6, 0.25),
 }
 
+const SKILL_COLORS := {
+	&"bladestorm": Color(0.88, 0.62, 0.18),
+	&"frost_nova": Color(0.42, 0.76, 1.0),
+	&"phantom_rush": Color(0.64, 0.42, 1.0),
+	&"seismic_slam": Color(0.82, 0.48, 0.18),
+	&"warcry": Color(1.0, 0.42, 0.22),
+}
 var _bursts: Array[GPUParticles3D] = []
 var _burst_template: GPUParticles3D = null
 var _ring_pool: Array[Node3D] = []
@@ -81,69 +89,127 @@ func _wire_events() -> void:
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.wave_completed.connect(_on_wave_completed)
 	EventBus.pickup_collected.connect(_on_pickup_collected)
+	EventBus.pickup_spawned.connect(_on_pickup_spawned)
 	EventBus.status_applied.connect(_on_status_applied)
 	EventBus.boss_spawned.connect(_on_boss_spawned)
 	EventBus.boss_slain.connect(_on_boss_slain)
+	EventBus.projectile_fired.connect(_on_projectile_fired)
+	EventBus.skill_cast.connect(_on_skill_cast)
+	EventBus.player_leveled_up.connect(_on_player_leveled_up)
+	EventBus.weapon_equipped.connect(_on_weapon_equipped)
 
 
 func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
-		ring_at((enemy as Node3D).global_position, Color(0.9, 0.5, 0.3), 1.1)
+		ring_at((enemy as Node3D).global_position, Color(0.9, 0.55, 0.3), 1.25)
 
 
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
-		burst_at((enemy as Node3D).global_position, Color(0.7, 0.5, 0.35), 0.9)
-		ring_at((enemy as Node3D).global_position, Color(0.85, 0.55, 0.35), 1.4)
+		var at := (enemy as Node3D).global_position + Vector3(0, 0.35, 0)
+		burst_at(at, Color(0.95, 0.55, 0.25), 1.15)
+		ring_at((enemy as Node3D).global_position, Color(1.0, 0.62, 0.35), 1.85)
 
 
 func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
 	if not is_instance_valid(enemy) or not enemy is Node3D or result == null or not result.accepted:
 		return
-	# Small hit burst — crit gets a gold flash + larger scale for hierarchy.
 	var at := (enemy as Node3D).global_position + Vector3(0, 1.1, 0)
 	if result.was_critical:
-		burst_at(at, Color(1.0, 0.85, 0.2), 0.65)
-		ring_at((enemy as Node3D).global_position, Color(1.0, 0.9, 0.4), 0.9)
+		# Gold crit: larger, brighter, with shock ring for readability.
+		burst_at(at, Color(1.0, 0.88, 0.22), 0.82)
+		ring_at((enemy as Node3D).global_position, Color(1.0, 0.92, 0.45), 1.05)
 	else:
-		burst_at(at, Color(0.85, 0.75, 0.65), 0.38)
+		burst_at(at, Color(0.9, 0.72, 0.55), 0.42)
 
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
-	ring_at(Vector3.ZERO, Color(0.8, 0.5, 0.25), 6.0)
+	ring_at(Vector3.ZERO, Color(0.85, 0.45, 0.22), 6.5)
+	burst_at(Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2)
 
 
 func _on_wave_completed(_wave_number: int, _bonus: int) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.35), 7.0)
+	ring_at(Vector3.ZERO, Color(1.0, 0.88, 0.38), 8.0)
+	burst_at(Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45)
 
 
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(boss) and boss is Node3D:
 		at = (boss as Node3D).global_position
-	ring_at(at, Color(0.9, 0.2, 0.15), 4.5)
-	burst_at(at, Color(0.9, 0.3, 0.2), 1.6)
+	ring_at(at, Color(0.95, 0.18, 0.12), 5.2)
+	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.32, 0.18), 2.0)
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.8, 0.3), 8.0)
+	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32), 9.5)
+	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2)
 
 
 func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(collector) and collector is Node3D:
 		at = (collector as Node3D).global_position
-	ring_at(at, Color(1.0, 0.85, 0.35), 0.8)
+	ring_at(at, Color(1.0, 0.88, 0.38), 1.0)
+	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.92, 0.55), 0.55)
+
+
+func _on_pickup_spawned(pickup: Node, _pickup_id: StringName) -> void:
+	if not is_instance_valid(pickup) or not pickup is Node3D:
+		return
+	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 1.15)
 
 
 func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> void:
 	if not is_instance_valid(target) or not target is Node3D:
 		return
 	var color: Color = STATUS_COLORS.get(effect_id, Color(0.7, 0.7, 0.7))
-	# Telegraph up to ~2 m above the target's feet so it reads over the body.
 	var at := (target as Node3D).global_position + Vector3(0, 1.6, 0)
-	ring_at(at, color, 0.7)
+	ring_at(at, color, 0.85)
+	if effect_id == &"burn" or effect_id == &"shock":
+		burst_at(at, color, 0.5)
+
+
+func _on_projectile_fired(owner: Node, _weapon_id: StringName) -> void:
+	if not is_instance_valid(owner) or not owner is Node3D:
+		return
+	var at := (owner as Node3D).global_position + Vector3(0, 1.0, 0)
+	burst_at(at, Color(1.0, 0.82, 0.45), 0.48)
+
+
+func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
+	var at := Vector3.ZERO
+	if is_instance_valid(caster) and caster is Node3D:
+		at = (caster as Node3D).global_position
+	var color: Color = SKILL_COLORS.get(skill_id, Color(0.8, 0.6, 0.2))
+	var radius := 2.8
+	if skill_id == &"frost_nova":
+		radius = 4.2
+	elif skill_id == &"seismic_slam":
+		radius = 3.6
+	ring_at(at, color, radius)
+	burst_at(at + Vector3(0, 0.3, 0), color, 1.35)
+
+
+func _on_player_leveled_up(_new_level: int, _xp: int) -> void:
+	# Celebratory burst — called from player; find player via group if available.
+	var at := Vector3.ZERO
+	var players := get_tree().get_nodes_in_group(&"player") if get_tree() != null else []
+	if players.size() > 0 and is_instance_valid(players[0]) and players[0] is Node3D:
+		at = (players[0] as Node3D).global_position
+	ring_at(at, Color(1.0, 0.88, 0.32), 2.2)
+	burst_at(at + Vector3(0, 1.2, 0), Color(1.0, 0.95, 0.55), 1.6)
+	burst_at(at + Vector3(0, 0.4, 0), Color(0.45, 0.85, 1.0), 1.1)
+
+
+func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
+	# Brief equip flash at player.
+	var at := Vector3.ZERO
+	var players := get_tree().get_nodes_in_group(&"player") if get_tree() != null else []
+	if players.size() > 0 and is_instance_valid(players[0]) and players[0] is Node3D:
+		at = (players[0] as Node3D).global_position + Vector3(0, 1.0, 0)
+	burst_at(at, Color(0.72, 0.82, 1.0), 0.62)
 
 
 # ---------------------- pool management ----------------------
@@ -186,18 +252,20 @@ func _make_burst_template() -> GPUParticles3D:
 		return null
 	var mat := ParticleProcessMaterial.new()
 	mat.direction = Vector3.UP
-	mat.spread = 55.0
-	mat.gravity = Vector3(0, -3.0, 0)
-	mat.initial_velocity_min = 0.8
-	mat.initial_velocity_max = 2.6
-	mat.scale_min = 0.1
-	mat.scale_max = 0.28
-	mat.color = Color(0.8, 0.7, 0.6)
+	mat.spread = 68.0
+	mat.gravity = Vector3(0, -4.2, 0)
+	mat.initial_velocity_min = 1.2
+	mat.initial_velocity_max = 4.2
+	mat.scale_min = 0.14
+	mat.scale_max = 0.38
+	mat.color = Color(1.0, 0.85, 0.55)
 	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.angular_velocity_min = -120.0
+	mat.angular_velocity_max = 120.0
 	var p := GPUParticles3D.new()
 	p.process_material = mat
-	p.amount = 14
-	p.lifetime = 0.55
+	p.amount = 22
+	p.lifetime = 0.68
 	p.one_shot = true
 	p.explosiveness = 1.0
 	p.draw_pass_1 = _make_sprite(BURST_TEXTURE)
@@ -219,7 +287,10 @@ func _make_ring() -> Node3D:
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.albedo_texture = load(RING_TEXTURE)
-	mat.albedo_color = Color(1, 1, 1, 0.45)
+	mat.albedo_color = Color(1, 1, 1, 0.52)
+	mat.emission_enabled = true
+	mat.emission = Color(1, 1, 1)
+	mat.emission_energy_multiplier = 0.35
 	mi.material_override = mat
 	holder.add_child(mi)
 	holder.visible = false
