@@ -33,7 +33,7 @@ func reset_run(run: RunState) -> void:
 	_run = run
 	_last_kill_time = 0.0
 	_combat_log.clear()
-	_combat_log.log(CombatLog.KIND_SYSTEM, "Run started")
+	_combat_log.record(CombatLog.KIND_SYSTEM, "Run started")
 
 
 ## Exactly-once per enemy_killed: bump combo, award multiplied score + currency.

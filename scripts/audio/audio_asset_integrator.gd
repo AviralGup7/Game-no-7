@@ -98,7 +98,7 @@ static func _build_variant_stream(files: Array, _volume_db: float) -> AudioStrea
 			EventBus.report_warning("AudioAssetIntegrator: unimported source " + f)
 	if not any:
 		return null
-	rand.random_volume_db = 3.0
+	rand.random_volume_offset_db = 3.0
 	return rand
 
 

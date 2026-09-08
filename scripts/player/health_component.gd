@@ -139,8 +139,10 @@ func _die() -> void:
 func reset(max_hp: float) -> void:
 	_is_dead = false
 	_invulnerable_until = 0.0
-	set_max_health(max_hp)
+	# Restore current HP BEFORE set_max_health emits, so listeners (boss phase
+	# tracking) never observe a transient 0/max state mid-reset.
 	current_health = max_hp
+	set_max_health(max_hp)
 	health_changed.emit(current_health, max_hp)
 
 

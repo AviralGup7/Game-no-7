@@ -154,7 +154,7 @@ static func _fit_factor(instance: Node3D, target_height: float) -> float:
 	return target_height / bounds.size.y
 
 
-static func _bounds(node: Node3D, parent_xform: Transform3D) -> AABB:
+static func _bounds(node: Node, parent_xform: Transform3D) -> AABB:
 	var local := parent_xform
 	if node is Node3D:
 		local = parent_xform * (node as Node3D).transform
