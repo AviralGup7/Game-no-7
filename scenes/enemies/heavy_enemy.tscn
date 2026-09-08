@@ -1,5 +1,19 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
+[ext_resource type="PackedScene" path="res://assets/characters/skeletons/Skeleton_Warrior.glb" id="3_model"]
 
 [node name="HeavyEnemy" instance=ExtResource("1_base")]
+
+[node name="EnemyAnimator" type="Node" parent="."]
+script = ExtResource("2_animator")
+model_scene = ExtResource("3_model")
+model_extent = 1.85
+animation_map = {
+"idle": "Idle",
+"run": "Walking_A",
+"attack": "1H_Melee_Attack_Chop",
+"hurt": "Hit_A",
+"death": "Death_A"
+}

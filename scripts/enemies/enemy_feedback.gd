@@ -1,14 +1,16 @@
 extends Node
 class_name EnemyFeedback
 
-## Enemy damage/death feedback: hit flash, death handling, and optional effects.
+## Enemy damage/telegraph/death feedback: hit flash, telegraph flash, death handling.
 ## Purely presentational; never mutates health/state. Disabled details are gated by
 ## the shared settings (reduced motion / low graphics) where relevant.
 
 var _visual: Node3D = null
 var _base_modulate := Color.WHITE
 var _flash_color := Color(1.0, 0.9, 0.9)
+var _telegraph_color := Color(1.0, 0.55, 0.2)
 var _hit_flash_duration := 0.1
+var _telegraph_flash_duration := 0.18
 
 
 func _ready() -> void:
@@ -24,6 +26,16 @@ func play_damaged() -> void:
 	var tween := create_tween()
 	tween.tween_property(_visual, "modulate", _flash_color, 0.03)
 	tween.tween_property(_visual, "modulate", _base_modulate, _hit_flash_duration)
+
+
+## Attack/dash/fuse telegraph: warm warning flash, slower return than the hit flash
+## so the windup reads at a distance.
+func play_telegraph() -> void:
+	if _visual == null or not is_inside_tree():
+		return
+	var tween := create_tween()
+	tween.tween_property(_visual, "modulate", _telegraph_color, 0.05)
+	tween.tween_property(_visual, "modulate", _base_modulate, _telegraph_flash_duration)
 
 
 func play_died() -> void:

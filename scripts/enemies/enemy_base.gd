@@ -2,12 +2,22 @@ extends CharacterBody3D
 class_name EnemyBase
 
 ## Reusable enemy base. Owns lifecycle, damage intake, idempotent death + exactly-once
-## score payload (Phase 2 guarantees preserved), and — since Phase 3 — AI behaviour:
-## a state machine (Idle/Chase/Attack/Hurt/Dead) driving movement intent, integrated by
-## EnemyLocomotion (gravity/knockback/clamp/stall), steered by EnemyNavigator (navmesh),
-## and striking through EnemyStriker (guarded melee). Resistance-aware knockback and
-## arena-bound clamping included; attacks damage the player through the existing
-## HealthComponent/apply_damage interface.
+## score payload (Phase 2 guarantees preserved), and the AI behaviour: a state machine
+## (Idle/Chase/Attack/Hurt/Dead/Ranged/Dash/Fuse) driving movement intent, integrated
+## by EnemyLocomotion (gravity/knockback/clamp/stall), steered by EnemyNavigator
+## (navmesh), and striking through EnemyStriker (guarded melee + dash strikes).
+## Resistance-aware knockback and arena-bound clamping included; attacks damage the
+## player through the existing HealthComponent/apply_damage interface.
+##
+## Command surface for states/controllers (states NEVER reach into internals):
+##   set_desired_move / face_target / face_direction / get_navigation_direction
+##   set_move_override / clear_move_override   (telegraphs, charges, recoveries)
+##   set_poise_guard                            (windup interruption budget)
+##   perform_enemy_attack / perform_dash_strike / detonate_self
+##   try_begin_dash                             (cooldown-gated dash entry)
+##   state_machine_change_to / force_state / get_state
+## EventBus/AudioManager are resolved lazily through the tree so the same code
+## runs in-game and in the autoload-free headless test harness.
 
 signal initialized(archetype_id: StringName)
 signal state_changed(previous_state: StringName, current_state: StringName)
@@ -18,6 +28,8 @@ signal attack_hit(target: Node, result: DamageResult)
 signal despawn_requested(enemy: Node)
 
 const TARGET_GROUP := "enemies"
+## Poise damage decays per second while the guard is up.
+const POISE_DECAY_PER_SECOND := 25.0
 
 var _archetype_id: StringName = &"uninitialized"
 var _config: EnemyConfig = null
@@ -47,6 +59,32 @@ var _hp_scale := 1.0
 var _damage_scale := 1.0
 var _speed_scale := 1.0
 
+## Movement override: while > 0 the override wins over whatever the AI states ask
+## for. Used by dash charges, boss telegraphs/charges/recovery windows.
+var _move_override_dir := Vector3.ZERO
+var _move_override_speed := 0.0
+var _move_override_time := 0.0
+
+## Poise guard: while armed (windups), accepted damage accumulates instead of
+## forcing Hurt until the config's poise budget breaks.
+var _poise_guard := false
+var _poise_damage := 0.0
+
+## Dash cooldown owned by the host so the Chase state can gate entry without
+## reaching into the dash state instance.
+var _dash_cooldown_left := 0.0
+
+## Deterministic per-enemy personality: approach offset keeps packs from stacking
+## on the exact same spot behind the player.
+var _spawn_serial := 0
+var _approach_offset := Vector3.ZERO
+
+## Elite affix cache (set via set_elite; queried by cadence/vampiric hooks).
+var _elite_affixes: Array[StringName] = []
+
+var _event_bus: Node = null
+var _event_bus_resolved := false
+
 
 func _ready() -> void:
 	add_to_group(TARGET_GROUP)
@@ -58,6 +96,16 @@ func _ready() -> void:
 	if _health != null:
 		_health.damaged.connect(_on_damaged)
 		_health.died.connect(_on_died)
+
+
+## Lazy, cached autoload lookup: identical to a direct reference in-game, null-safe
+## under the bare headless test SceneTree.
+func _eb() -> Node:
+	if not _event_bus_resolved:
+		_event_bus_resolved = true
+		if is_inside_tree():
+			_event_bus = get_node_or_null("/root/EventBus")
+	return _event_bus
 
 
 func set_ai_enabled(enabled: bool) -> void:
@@ -72,6 +120,7 @@ func set_ai_enabled(enabled: bool) -> void:
 func _physics_process(delta: float) -> void:
 	if _config == null or not _alive or not _ai_enabled:
 		return
+	_decay_timers(delta)
 	if _is_status_stunned():
 		# Stunned: no AI, no intent; gravity + knockback decay still run.
 		desired_dir = Vector3.ZERO
@@ -80,7 +129,21 @@ func _physics_process(delta: float) -> void:
 		return
 	if _machine != null:
 		_machine.physics_update(delta)
-	_locomotion.integrate(self, desired_dir, desired_speed, _status_speed_factor(), delta)
+	var dir := desired_dir
+	var speed := desired_speed
+	if _move_override_time > 0.0:
+		dir = _move_override_dir
+		speed = _move_override_speed
+	_locomotion.integrate(self, dir, speed, _status_speed_factor(), delta)
+
+
+func _decay_timers(delta: float) -> void:
+	if _move_override_time > 0.0:
+		_move_override_time = maxf(_move_override_time - delta, 0.0)
+	if _dash_cooldown_left > 0.0:
+		_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
+	if _poise_guard and _poise_damage > 0.0:
+		_poise_damage = maxf(_poise_damage - POISE_DECAY_PER_SECOND * delta, 0.0)
 
 
 ## ---------- Stable command interface (Phase 2 preserved) ----------
@@ -101,6 +164,10 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_locomotion.configure(config.acceleration, _locomotion_bounds(), config.bounds_radius)
 	desired_dir = Vector3.ZERO
 	desired_speed = 0.0
+	_move_override_time = 0.0
+	_poise_guard = false
+	_poise_damage = 0.0
+	_dash_cooldown_left = 0.0
 	if _health != null and _health.has_method("reset"):
 		_health.call("reset", config.max_health)
 	if _feedback != null and _feedback.has_method("recolor"):
@@ -205,6 +272,16 @@ func get_effective_attack_damage() -> float:
 	return base * _damage_scale
 
 
+## Attack cadence: base cooldown, sped up for wounded FRENZIED elites. Never
+## mutates the shared config.
+func get_effective_attack_cooldown() -> float:
+	var cfg := _config
+	var base := cfg.attack_cooldown if cfg != null else 1.2
+	if EliteAffix.FRENZIED in _elite_affixes and get_health_fraction() < EliteAffix.FRENZIED_HP_TRIGGER:
+		base *= EliteAffix.FRENZIED_COOLDOWN_MULT
+	return base
+
+
 func get_move_target() -> Node3D:
 	if _target == null or not is_instance_valid(_target):
 		return null
@@ -217,6 +294,83 @@ func set_desired_move(dir: Vector3, speed: float) -> void:
 	desired_dir = dir
 	desired_speed = maxf(speed, 0.0)
 
+
+## ---------- Movement override (telegraphs / charges / recoveries) ----------
+
+## While active, the override replaces whatever the AI states request. Pass a
+## zero dir + zero speed to root the enemy in place (boss telegraph/recovery).
+func set_move_override(dir: Vector3, speed: float, duration: float) -> void:
+	_move_override_dir = dir
+	_move_override_speed = maxf(speed, 0.0)
+	_move_override_time = maxf(duration, 0.0)
+
+
+func clear_move_override() -> void:
+	_move_override_time = 0.0
+
+
+func is_move_overridden() -> bool:
+	return _move_override_time > 0.0
+
+
+## ---------- Poise (heavy/boss windups are not interrupted by chip damage) ----
+
+func set_poise_guard(active: bool) -> void:
+	_poise_guard = active
+	if not active:
+		_poise_damage = 0.0
+
+
+func is_poise_guarding() -> bool:
+	return _poise_guard
+
+
+## ---------- Dash command (cooldown-gated entry from Chase) ----------
+
+func try_begin_dash() -> bool:
+	var cfg := _config
+	if cfg == null or cfg.dash_trigger_range <= 0.0:
+		return false
+	if _dash_cooldown_left > 0.0 or not _alive:
+		return false
+	_dash_cooldown_left = cfg.dash_cooldown
+	return true
+
+
+func is_dash_ready() -> bool:
+	return _dash_cooldown_left <= 0.0
+
+
+## Charge speed honoring wave/mutator speed scaling (config never mutated).
+func get_effective_dash_speed() -> float:
+	var cfg := _config
+	var base := cfg.dash_speed if cfg != null else 12.0
+	return base * _speed_scale
+
+
+## ---------- Spawn personality (deterministic per run) ----------
+
+func set_spawn_serial(serial: int) -> void:
+	_spawn_serial = maxi(serial, 0)
+	_roll_approach_offset()
+
+
+func _roll_approach_offset() -> void:
+	if _config == null:
+		return
+	var rng := RngService.make_generator(_run_seed, RngService.STREAM_AI + _spawn_serial * 7 + 3)
+	var angle := rng.randf_range(-PI, PI)
+	var radius := rng.randf_range(0.0, 1.6)
+	_approach_offset = Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+
+
+## The point this enemy actually tries to stand at: the target position nudged by
+## its personal offset, so packs fan out instead of stacking on one pixel.
+func get_approach_point(point: Vector3) -> Vector3:
+	return point + _approach_offset
+
+
+## ---------- Navigation / facing ----------
 
 func target_in_attack_range(target: Node3D) -> bool:
 	if target == null:
@@ -249,13 +403,41 @@ func get_navigation_direction(fallback: Vector3) -> Vector3:
 	return _navigator.direction(global_position, get_move_target(), fallback, interval)
 
 
+## ---------- Attacks ----------
+
 ## Controlled melee attack against the current target (see EnemyStriker). Returns
 ## true when a hit lands; damage is applied exactly once per call.
 func perform_enemy_attack() -> bool:
 	return _striker.execute(self)
 
 
-## Attack audio hook for the striker (tolerant when no EnemyAudio child exists).
+## Dash-charge contact hit (see EnemyStriker.execute_dash): larger radius, scaled
+## damage, exactly one hit per charge (the dash state calls this once).
+func perform_dash_strike(contact_radius: float) -> bool:
+	return _striker.execute_dash(self, contact_radius)
+
+
+## Lethal self-damage routed through the HealthComponent so the normal exactly-once
+## death path fires (score payload, despawn, death-blast dispatch in SpawnManager).
+func detonate_self() -> void:
+	if not _alive or _health == null or not _health.has_method("take_damage"):
+		return
+	var payload := DamagePayload.new()
+	payload.amount = _current_health() + 999.0
+	payload.source = self
+	payload.source_id = _archetype_id
+	payload.damage_type = &"explosion"
+	_health.call("take_damage", payload)
+
+
+func _current_health() -> float:
+	if _health != null and _health.has_method("get_current"):
+		return maxf(float(_health.call("get_current")), 0.0)
+	return 0.0
+
+
+## ---------- Feedback / audio hooks (tolerant when children are absent) ----------
+
 func play_attack_sound() -> void:
 	if _audio != null and _audio.has_method("play_attack"):
 		_audio.call("play_attack")
@@ -264,6 +446,27 @@ func play_attack_sound() -> void:
 func play_spawn_sound() -> void:
 	if _audio != null and _audio.has_method("play_spawn"):
 		_audio.call("play_spawn")
+
+
+func play_windup_sound() -> void:
+	if _audio != null and _audio.has_method("play_windup"):
+		_audio.call("play_windup")
+
+
+func play_dash_sound() -> void:
+	if _audio != null and _audio.has_method("play_dash"):
+		_audio.call("play_dash")
+
+
+func play_explosion_sound() -> void:
+	if _audio != null and _audio.has_method("play_explosion"):
+		_audio.call("play_explosion")
+
+
+## Telegraph flash (melee windups, dash windups, fuses, boss tells).
+func play_telegraph_feedback() -> void:
+	if _feedback != null and _feedback.has_method("play_telegraph"):
+		_feedback.call("play_telegraph")
 
 
 func _locomotion_bounds() -> float:
@@ -295,13 +498,27 @@ func _on_damaged(result: DamageResult) -> void:
 	damaged.emit(result)
 	# EventBus contract: exactly one enemy_damaged per ACCEPTED damage event. HealthComponent
 	# emits its local `damaged` signal only on the accepted path, so this is exactly-once.
-	EventBus.enemy_damaged.emit(self, result)
+	var bus := _eb()
+	if bus != null:
+		bus.enemy_damaged.emit(self, result)
 	if _feedback != null and _feedback.has_method("play_damaged"):
 		_feedback.call("play_damaged")
 	if _audio != null and _audio.has_method("play_hit"):
 		_audio.call("play_hit")
 	if result.was_critical:
 		_juice_hitstop(0.03, 0.12)
+	if not _alive:
+		return
+	# Poise: while a windup is guarded, chip damage accumulates instead of
+	# interrupting; only breaking the budget (or an over-budget hit) staggers.
+	if _poise_guard:
+		var cfg := _config
+		var budget := cfg.poise if cfg != null else 0.0
+		if budget > 0.0:
+			_poise_damage += result.final_amount
+			if _poise_damage < budget:
+				return
+			_poise_damage = 0.0
 	if _machine != null:
 		_machine.force_state(&"hurt")
 
@@ -313,12 +530,16 @@ func _on_died() -> void:
 	_alive = false
 	desired_dir = Vector3.ZERO
 	desired_speed = 0.0
+	clear_move_override()
+	set_poise_guard(false)
 	if _machine != null:
 		_machine.force_state(&"dead")
 	died.emit()
-	EventBus.report_info("Enemy %s died" % String(_archetype_id))
-	# Exactly-once score payload.
-	EventBus.enemy_killed.emit(self, _archetype_id, _score_value, _currency_value)
+	var bus := _eb()
+	if bus != null:
+		bus.report_info("Enemy %s died" % String(_archetype_id))
+		# Exactly-once score payload.
+		bus.enemy_killed.emit(self, _archetype_id, _score_value, _currency_value)
 	despawn_requested.emit(self)
 	if _feedback != null and _feedback.has_method("play_died"):
 		_feedback.call("play_died")
@@ -345,33 +566,45 @@ func _fade_and_free() -> void:
 	if not is_inside_tree():
 		queue_free()
 		return
+	# Slightly longer than the feedback sink so death animations get to land.
 	var tween := create_tween()
-	tween.tween_interval(0.5)
+	tween.tween_interval(0.8)
 	tween.tween_callback(queue_free)
 
 
 ## ---------- Elite + boss-phase API (SpawnManager / BossController) ----------
 
-## Mark this enemy elite with the given affix ids (see EliteAffix). Visual tint
+## Mark this enemy elite with the given affixes (see EliteAffix). Visual tint
 ## blends the affixes; scale bumps slightly so elites read at a glance.
 func set_elite(affixes: Array) -> void:
-	set_meta("elite_affixes", affixes.duplicate())
-	var tint := Color.WHITE
+	_elite_affixes.clear()
 	for raw in affixes:
-		tint = tint.blend(EliteAffix.affix_tint(StringName(String(raw))))
+		_elite_affixes.append(StringName(String(raw)))
+	set_meta("elite_affixes", _elite_affixes.duplicate())
+	var tint := Color.WHITE
+	for affix in _elite_affixes:
+		tint = tint.blend(EliteAffix.affix_tint(affix))
 	if _feedback != null and _feedback.has_method("recolor"):
 		_feedback.call("recolor", tint)
 	_apply_visual_scale((_config.visual_scale if _config != null else 1.0) * 1.12)
+	# Behavior affix hooks: VAMPIRIC elites sustain off the damage they deal.
+	if EliteAffix.VAMPIRIC in _elite_affixes and not attack_hit.is_connected(_on_vampiric_hit):
+		attack_hit.connect(_on_vampiric_hit)
+
+
+func _on_vampiric_hit(_target: Node, result: DamageResult) -> void:
+	if result == null or not result.accepted or not _alive:
+		return
+	if _health != null and _health.has_method("heal"):
+		_health.call("heal", result.final_amount * EliteAffix.VAMPIRIC_HEAL_RATIO)
 
 
 func is_elite() -> bool:
-	return has_meta("elite_affixes") and not (get_meta("elite_affixes") as Array).is_empty()
+	return not _elite_affixes.is_empty()
 
 
 func get_elite_affixes() -> Array:
-	if not has_meta("elite_affixes"):
-		return []
-	return (get_meta("elite_affixes") as Array).duplicate()
+	return _elite_affixes.duplicate()
 
 
 ## Boss phase bumps: multiply the CURRENT effective scales (stacks with wave
@@ -417,4 +650,7 @@ func get_debug_snapshot() -> Dictionary:
 		"health": hp,
 		"desired_dir": desired_dir,
 		"desired_speed": desired_speed,
+		"move_override": _move_override_time > 0.0,
+		"poise_guard": _poise_guard,
+		"elite": is_elite(),
 	}

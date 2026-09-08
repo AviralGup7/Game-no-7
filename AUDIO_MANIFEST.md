@@ -24,6 +24,16 @@ dates, sizes, and per-file SHA-256 checksums are in `assets/manifest.json`. Sour
 notices are saved under `ASSET_LICENSES/`. GitHub's public content API is used
 because direct creator-download hosts are not reachable from this workspace.
 
+## Enemy telegraph cues (encounter pass, 2026-09-08)
+
+`data/audio/enemy_windup.wav`, `data/audio/enemy_dash.wav` and
+`data/audio/enemy_explosion.wav` are **original synthesized works** generated for
+the enemy telegraph/charge/detonation feedback (rising swell, falling swoosh, low
+boom). They are project-generated content dedicated to the public domain (CC0);
+no third-party recordings were used. They register automatically by file base
+name and are played through the existing optional-cue path in `EnemyAudio`
+(a missing cue is still a logged no-op).
+
 ## Runtime fallback (procedural audio)
 
 Until staged packs are wired into `res://data/audio/`, the game is never silent:

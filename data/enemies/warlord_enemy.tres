@@ -28,4 +28,5 @@ tags = Array[StringName]([&"boss"])
 unlock_wave = 10
 elite_eligible = false
 spawn_priority = 10
-balance_notes = "Wave-10 boss: 3 phases via BossController, slam/charge/summon."
+poise = 80.0
+balance_notes = "Wave-10 boss: 3 authored phases on the BossController node (Awakening/Fury/Enrage), telegraphed slam/charge/summon with recovery windows. High poise keeps the fight boss-like."

@@ -1,11 +1,12 @@
 class_name EnemyStriker
 extends RefCounted
 
-## Controlled melee attack, extracted from EnemyBase. Resolves one guarded swing
+## Controlled melee attacks, extracted from EnemyBase. Resolves one guarded swing
 ## against the host's current target (alive/range/line-of-sight/config checks),
 ## builds the damage payload, and reports the hit through the host's signals.
-## Duplicate protection comes from the state machine (windup phase) plus the
-## alive guards here and in the target.
+## `attack_started` is emitted by the owning state (once per attack); the striker
+## only reports contact via `attack_hit`. Duplicate protection comes from the state
+## machine (windup phase gating) plus the alive guards here and in the target.
 
 
 ## Perform the melee attack against the current target. Returns true when a hit
@@ -22,18 +23,41 @@ func execute(host: EnemyBase) -> bool:
 		return false
 	if host.get_config() == null:
 		return false
-	host.attack_started.emit()
+	return _strike(host, target, host.get_effective_attack_damage(), _knockback_strength(host))
+
+
+## Dash-charge contact hit: wider radius than the melee swing, damage scaled by the
+## config's dash_damage_scale, stronger shove. Called at most once per charge by
+## the dash state.
+func execute_dash(host: EnemyBase, contact_radius: float) -> bool:
+	if host == null or not host.is_alive():
+		return false
+	var cfg := host.get_config()
+	if cfg == null:
+		return false
+	var target := host.get_move_target()
+	if target == null:
+		return false
+	if host.global_position.distance_to(target.global_position) > maxf(contact_radius, 0.1):
+		return false
+	if _wall_between(host, target):
+		return false
+	var damage := host.get_effective_attack_damage() * maxf(cfg.dash_damage_scale, 0.0)
+	return _strike(host, target, damage, _knockback_strength(host) * 1.5)
+
+
+func _strike(host: EnemyBase, target: Node3D, damage: float, knockback: float) -> bool:
 	var to_t := target.global_position - host.global_position
 	to_t.y = 0.0
 	var dir := Vector3.FORWARD
 	if to_t.length_squared() > 0.0001:
 		dir = to_t.normalized()
 	var payload := DamagePayload.new()
-	payload.amount = host.get_effective_attack_damage()
+	payload.amount = damage
 	payload.source = host
 	payload.source_id = host.get_archetype_id()
 	payload.damage_type = &"physical"
-	payload.knockback = dir * _knockback_strength(host)
+	payload.knockback = dir * knockback
 	payload.hit_position = host.global_position
 	if not target.has_method("apply_damage"):
 		return false
@@ -41,7 +65,6 @@ func execute(host: EnemyBase) -> bool:
 	if result is DamageResult:
 		var res := result as DamageResult
 		host.attack_hit.emit(target, res)
-		host.play_attack_sound()
 		return res.accepted
 	return false
 

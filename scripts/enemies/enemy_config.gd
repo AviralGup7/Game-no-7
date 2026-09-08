@@ -53,6 +53,40 @@ extends Resource
 ## Strafe speed as a fraction of the effective move speed.
 @export var strafe_speed: float = 0.6
 
+## --- Melee identity -------------------------------------------------------
+## Damage absorbed during an attack windup before the hit interrupts into Hurt.
+## 0 = every accepted hit interrupts (grunts); heavies/bosses set high poise so
+## their slow swings stay threatening instead of being stun-locked.
+@export var poise: float = 0.0
+## Seconds spent back-pedaling after a melee hit lands (hit-and-run identity,
+## used by fast skirmishers). 0 = stay planted for the cooldown.
+@export var attack_retreat_time: float = 0.0
+
+## --- Dasher archetype -------------------------------------------------------
+## 0 = this archetype never dashes. > 0: within this distance the enemy prefers
+## a telegraphed charge over walking in (see EnemyDashState).
+@export var dash_trigger_range: float = 0.0
+## Telegraph before the charge releases (feedback flash + crouch).
+@export var dash_windup: float = 0.45
+@export var dash_speed: float = 13.0
+## How long the charge travels before recovery.
+@export var dash_duration: float = 0.45
+## Contact radius for the one hit a charge may land.
+@export var dash_contact_radius: float = 1.2
+## Damage of the charge hit as a multiple of attack_damage.
+@export var dash_damage_scale: float = 1.0
+## Vulnerable stagger after the charge ends.
+@export var dash_recovery: float = 0.7
+## Seconds between dashes (also gates melee fallback).
+@export var dash_cooldown: float = 3.0
+
+## --- Exploder archetype -----------------------------------------------------
+## 0 = never self-detonates. > 0: inside this radius the enemy plants, flashes
+## and detonates after fuse_time (see EnemyFuseState); the blast itself still
+## comes from the explodes_on_death/death_blast fields below.
+@export var fuse_range: float = 0.0
+@export var fuse_time: float = 0.8
+
 ## --- Death effects (exploder / splitter) ---------------------------------
 @export var explodes_on_death: bool = false
 @export var death_blast_radius: float = 3.0
@@ -61,21 +95,12 @@ extends Resource
 ## Archetype id spawned when this enemy dies (empty = no split).
 @export var splits_into: StringName = &""
 @export var split_count: int = 0
+## When true the SplitManager burst-spawns children around the parent's death
+## position; when false (or when spawning is impossible) children join the
+## pending queue like any other spawn.
+@export var split_burst: bool = true
 
 @export_multiline var balance_notes: String = ""
-@export var ai_behavior: StringName = &"melee"
-@export var ranged_range: float = 8.0
-@export var ranged_cooldown: float = 2.0
-@export var ranged_windup: float = 0.5
-@export var projectile_speed: float = 10.0
-@export var projectile_count: int = 1
-@export var projectile_damage_scale: float = 1.0
-@export var preferred_distance: float = 4.0
-@export var strafe_speed: float = 1.5
-@export var death_blast_radius: float = 0.0
-@export var death_blast_damage_scale: float = 0.0
-@export var split_count: int = 0
-@export var splits_into: StringName = &""
 
 const MIN_HEALTH: float = 1.0
 const MIN_MOVE_SPEED: float = 0.1
@@ -126,6 +151,31 @@ func validate() -> Array[String]:
 		problems.append("preferred_distance cannot be negative")
 	if strafe_speed < 0.0:
 		problems.append("strafe_speed cannot be negative")
+	if poise < 0.0:
+		problems.append("poise cannot be negative")
+	if attack_retreat_time < 0.0:
+		problems.append("attack_retreat_time cannot be negative")
+	if dash_trigger_range < 0.0:
+		problems.append("dash_trigger_range cannot be negative")
+	if dash_trigger_range > 0.0:
+		if dash_speed <= 0.0:
+			problems.append("dash_speed must be > 0 when dashing is enabled")
+		if dash_windup < 0.05:
+			problems.append("dash_windup too short to read as a telegraph")
+		if dash_duration <= 0.0:
+			problems.append("dash_duration must be > 0")
+		if dash_contact_radius <= 0.0:
+			problems.append("dash_contact_radius must be > 0")
+		if dash_damage_scale < 0.0:
+			problems.append("dash_damage_scale cannot be negative")
+		if dash_recovery < 0.0:
+			problems.append("dash_recovery cannot be negative")
+		if dash_cooldown < dash_duration:
+			problems.append("dash_cooldown must cover at least the dash itself")
+	if fuse_range < 0.0:
+		problems.append("fuse_range cannot be negative")
+	if fuse_range > 0.0 and fuse_time < 0.1:
+		problems.append("fuse_time too short to react to")
 	if death_blast_radius < 0.0:
 		problems.append("death_blast_radius cannot be negative")
 	if death_blast_damage_scale < 0.0:

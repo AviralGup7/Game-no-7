@@ -18,6 +18,18 @@ validates them, and caches them. This file shows each common extension.
    add it to the deterministic composition in `wave_planner.gd` (`_counts_for_wave`) and
    give it an `unlock_wave` in its `.tres`; the `SpawnManager` and `WavePlanner` read the
    queue composition, so a new archetype is exercised the moment it is queued.
+6. **Model + animation**: add an `EnemyAnimator` child to the scene with `model_scene`
+   (the role's GLB from `docs/ASSET_CATALOG.md`), `model_extent` (fit height in meters)
+   and an `animation_map` (`idle`/`run`/`attack`/`hurt`/`death` clip names). The
+   animator is a no-op without a model, so primitive scenes keep working.
+7. **Identity hooks (all optional, data-driven on `EnemyConfig`)**: `poise`
+   (uninterruptible windups), `attack_retreat_time` (hit-and-run), `dash_*` fields
+   (telegraphed charge via `EnemyDashState`), `fuse_range`/`fuse_time`
+   (self-detonation via `EnemyFuseState`), `split_burst` (children at death site).
+8. **Boss archetypes**: add a `BossController` child and author its `phase_plan`
+   as `BossPhaseConfig` entries (threshold/damage/speed/abilities/interval) —
+   phases ride `EventBus.boss_spawned` / `boss_phase_changed` / `boss_slain`, which
+   the BossHealthBar already binds. Ability selection is seeded from the run seed.
 
 No core script changes.
 
