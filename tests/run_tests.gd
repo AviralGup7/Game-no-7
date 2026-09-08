@@ -44,6 +44,7 @@ func _initialize() -> void:
 		var script: GDScript = load(path)
 		if script == null:
 			_failures.append("Could not load suite: %s" % path)
+			print("::error title=Suite load failure::%s did not compile/load" % path)
 			_total += 1
 			continue
 		var cases: Array = script.call("suite")
@@ -80,6 +81,7 @@ func _process(_delta: float) -> bool:
 	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
 	for f in _failures:
 		print("  FAIL  " + f)
+		print("::error title=GDScript test failure::%s" % f)
 	print("========================================")
 	quit(0 if _failures.is_empty() else 1)
 	return false
