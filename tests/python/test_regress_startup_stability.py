@@ -65,7 +65,12 @@ class PlayerVisualFallbackTests(unittest.TestCase):
         txt = read("scripts/visuals/character_visuals.gd")
         self.assertIn("static func model_path", txt)
         self.assertIn("_report_mount_issue", txt)
-        self.assertIn("failed to load model", txt)
+        self.assertIn("model failed to import", txt)
+        self.assertIn("primitive kept", txt)
+        # Previously silent abort sites now report:
+        self.assertIn("no VisualRoot/CharacterModel mount point", txt)
+        self.assertIn("no usable geometry", txt)
+        self.assertIn("no visible mesh bounds", txt)
 
 
 class WorldBootstrapValidationTests(unittest.TestCase):
@@ -74,14 +79,17 @@ class WorldBootstrapValidationTests(unittest.TestCase):
     def test_spawn_player_fails_closed(self) -> None:
         txt = read("scripts/main/main.gd")
         self.assertIn("func _validate_player_visual", txt)
-        self.assertIn("Player spawned with NO visual representation", txt)
+        self.assertIn("Player spawned WITHOUT VisualRoot", txt)
         self.assertIn("Player scene failed to instantiate", txt)
-        self.assertIn("World build incomplete: player could not be spawned", txt)
+        self.assertIn("World build incomplete: player failed to spawn", txt)
 
     def test_world_and_wave_failures_report(self) -> None:
         txt = read("scripts/main/main.gd")
         self.assertIn("World build aborted: WorldRoot missing", txt)
         self.assertIn("Waves cannot start", txt)
+        self.assertIn("Arena scene failed to instantiate", txt)
+        self.assertIn("SpawnManager scene missing its script", txt)
+        self.assertIn("WaveManager script failed to instantiate", txt)
 
     def test_finalize_reads_authoritative_bests(self) -> None:
         txt = read("scripts/core/game_root.gd")

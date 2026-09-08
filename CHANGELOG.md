@@ -19,6 +19,28 @@
 - **Spawn safety**: `ArenaDecorator._open_spot` keeps props/pillars 2.5 m clear of
   `PlayerStart` so runs can't begin inside decoration collision.
 - **Lint**: repo-wide `gdlint` clean (renamed `_p_check`/`_pl` locals).
+- **Startup stability follow-up**: deterministic dependency-first autoload order
+  (`project.godot`: EventBus → SaveManager → AudioManager → ContentRegistry →
+  GameRoot → SceneRouter → RunAnalytics → TestHarness) so singleton `_ready` code
+  can rely on its dependencies existing — load-bearing now that
+  `ContentRegistry.refresh_all` drives `AudioAssetIntegrator` registration, which
+  needs `AudioManager`; documented inline in `project.godot`.
+- **Authoritative end-of-run bests**: `game_root.gd:_finalize_run` re-reads
+  `SaveManager.get_best_score`/`get_best_wave` (guarded by `has_method`) and takes
+  `maxi` with the in-memory values, so reported bests can never regress below what
+  is persisted even if a stats signal was dropped mid-run.
+- **Richer mount diagnostics**: `character_visuals.gd` adds `model_path(role)` and
+  `_report_mount_issue` (push_warning always + EventBus diagnostic mirror), and now
+  reports the four previously silent abort sites (missing mount point, non-Node3D
+  model root, no usable geometry, no visible mesh bounds); `visual_mount.gd` names
+  the resolved model path and whether the primitive Body fallback is present
+  ("primitive Body fallback kept" / "NO FALLBACK VISUAL PRESENT").
+- **Bootstrap validation**: `main.gd` reports errors for a missing `WorldRoot`,
+  a null arena config guard, an arena that fails to instantiate (naming
+  `resource_path`), player scene load/instantiate failure, a null player aborting
+  system creation, SpawnManager/WaveManager instantiation failure, and wave start
+  without spawn/wave systems; adds `_validate_player_visual` which verifies
+  VisualRoot/CharacterModel/Body at spawn time.
 
 ## [0.5.0] — Polished presentation & release fix (2026-09-08)
 
