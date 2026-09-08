@@ -204,7 +204,13 @@ func _advance_to(index: int) -> void:
 	# Phase transition stagger: the boss reels, giving a short breathing room.
 	if _host != null:
 		_host.set_move_override(Vector3.ZERO, 0.0, PHASE_STAGGER)
-		_apply_phase_visuals(_phase)
+		# Cosmetics must never gate the phase transition itself. _apply_phase_visuals
+		# creates tweens, which fail on a node that is not inside the tree (and
+		# during teardown); letting that abort _advance_to would apply the stat
+		# bumps but never emit phase_advanced, desyncing every listener (UI, audio,
+		# analytics) from the boss's actual phase.
+		if _host.is_inside_tree():
+			_apply_phase_visuals(_phase)
 	phase_advanced.emit(_phase, _phases.size())
 	var bus := _eb()
 	if bus != null:
@@ -217,7 +223,9 @@ func _advance_to(index: int) -> void:
 
 
 func _apply_phase_visuals(phase: int) -> void:
-	if _host == null:
+	# Guarded: create_tween() requires a node inside the tree. Bail out rather than
+	# let a cosmetic failure propagate back into the phase-transition path.
+	if _host == null or not _host.is_inside_tree():
 		return
 	var feedback := _host.get_node_or_null("EnemyFeedback")
 	var tint := Color.WHITE

@@ -626,6 +626,10 @@ func _run_enemy_encounter_integration() -> Array:
 	dash_cfg.dash_contact_radius = 1.3
 	dash_cfg.dash_recovery = 0.3
 	dash_cfg.dash_cooldown = 3.0
+	# A charge is an explosive lunge: with the 8 m/s^2 default the body only
+	# reaches ~3.6 m/s and covers 0.9m of the 2.7m gap before dash_duration
+	# expires, so it can never make contact. Accelerate like a real dasher.
+	dash_cfg.acceleration = 60.0
 	var dasher := _make_enemy(dash_cfg, Vector3.ZERO, dash_target)
 	_step_enemy(dasher, 1.0 / 60.0)  # idle -> chase
 	_step_enemy(dasher, 1.0 / 60.0)  # chase -> dash (cooldown gate opens)
@@ -908,6 +912,12 @@ func _pack_test_enemy_scene() -> PackedScene:
 	var machine := EnemyStateMachine.new()
 	machine.name = "EnemyStateMachine"
 	proto.add_child(machine)
+	# PackedScene.pack() only serializes children whose owner is the packed root.
+	# Without this the scene contains a bare EnemyBase: spawned enemies have no
+	# HealthComponent, so apply_damage is rejected with no_health_component, they
+	# never die, and every defeat/clear assertion in this stage silently fails.
+	hp.owner = proto
+	machine.owner = proto
 	var ps := PackedScene.new()
 	ps.pack(proto)
 	proto.free()

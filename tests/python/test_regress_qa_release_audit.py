@@ -508,3 +508,79 @@ class MeleeArcFixtureTests(unittest.TestCase):
             44.0,
             "near_side sits at %.2f deg, too close to the 45 deg arc edge" % angle,
         )
+
+
+class BossPhaseSignalTests(unittest.TestCase):
+    """Cosmetics must never gate the boss phase transition.
+
+    _apply_phase_visuals creates tweens, and create_tween() fails on a node that
+    is not inside the tree. _advance_to called it between applying the phase stat
+    bumps and emitting phase_advanced, so a cosmetic failure applied the bumps but
+    never told anyone the phase changed — desyncing UI, audio and analytics from
+    the boss's real phase.
+    """
+
+    def test_visuals_are_guarded_by_an_inside_tree_check(self):
+        body = func_body(read("scripts/enemies/boss_controller.gd"), "_apply_phase_visuals")
+        self.assertRegex(
+            body,
+            r"if _host == null or not _host\.is_inside_tree\(\):",
+            "_apply_phase_visuals must bail out when the host is not in the tree",
+        )
+
+    def test_phase_advanced_is_emitted_after_the_visual_call(self):
+        body = func_body(read("scripts/enemies/boss_controller.gd"), "_advance_to")
+        visuals_at = body.find("_apply_phase_visuals")
+        emit_at = body.find("phase_advanced.emit")
+        self.assertNotEqual(visuals_at, -1)
+        self.assertNotEqual(emit_at, -1)
+        self.assertLess(visuals_at, emit_at)
+        self.assertIn(
+            "if _host.is_inside_tree():",
+            body,
+            "the visual call inside _advance_to must itself be tree-guarded",
+        )
+
+
+class PackedSceneOwnerTests(unittest.TestCase):
+    """PackedScene.pack() only serializes children whose owner is the pack root.
+
+    The spawn-manager fixture packed an EnemyBase with a HealthComponent and a
+    state machine but never set their owner, so the scene held a bare EnemyBase.
+    Spawned enemies had no HealthComponent, apply_damage was rejected with
+    no_health_component, nothing ever died, and every defeat/clear assertion in
+    the stage failed for a reason unrelated to SpawnManager.
+    """
+
+    def test_fixture_children_are_owned_before_packing(self):
+        body = func_body(read("tests/run_tests.gd"), "_pack_test_enemy_scene")
+        owner_at = body.find("hp.owner = proto")
+        machine_at = body.find("machine.owner = proto")
+        pack_at = body.find("ps.pack(proto)")
+        self.assertNotEqual(owner_at, -1, "HealthComponent must be owned by the root")
+        self.assertNotEqual(machine_at, -1, "state machine must be owned by the root")
+        self.assertLess(owner_at, pack_at, "owners must be set before pack()")
+        self.assertLess(machine_at, pack_at, "owners must be set before pack()")
+
+
+class EncounterSteppingTests(unittest.TestCase):
+    """Manual physics stepping must actually move the body.
+
+    move_and_slide() integrates against the engine physics tick, not the dt the
+    test passes, and these fixtures run with set_physics_process(false) and no
+    real physics frames -- so bodies stayed put and any distance-closing
+    assertion observed a stationary enemy.
+    """
+
+    def test_step_enemy_integrates_velocity_with_the_test_delta(self):
+        body = func_body(read("tests/run_tests.gd"), "_step_enemy")
+        self.assertIn("enemy.velocity.x", body)
+        self.assertIn("* dt", body, "position must advance using the test's dt")
+
+    def test_a_condition_driven_stepping_helper_exists(self):
+        txt = read("tests/run_tests.gd")
+        self.assertIn(
+            "func _step_enemy_until(",
+            txt,
+            "fixed frame budgets are fragile; a predicate-driven helper is required",
+        )
