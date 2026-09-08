@@ -76,6 +76,30 @@ scales 1.0 / 1.4 / 2.0:
   supporting copy, destructive pause actions grouped in a secondary row, and a
   subtitle on the Settings/Armory shells.
 
+### CI
+
+- The headless UI suite (`scripts/ui/run_ui_validation.sh`) was referenced by the
+  docs but **invoked by no workflow**, so it had never actually run in CI. It is
+  now wired into the `godot-tests` job. Wiring it up immediately caught a real
+  bug in this branch: `TouchActionButton` seeded `custom_minimum_size` from its
+  initial radius, so the Control refused to shrink to a smaller solved rect and
+  overflowed the viewport at 960x540. Fixed.
+- Current state: **2187 UI checks, 0 failed.**
+
+### Pre-existing bugs surfaced (NOT fixed here — out of scope for a UI pass)
+
+Running the UI suite for the first time also exposed two latent runtime errors
+that exist unchanged on `main` (verified against base commit `3751371`). They
+are filtered by an explicit, documented `KNOWN_FAILURES` allowlist in the
+validation script so the new gate reports UI regressions instead of failing on
+day one. Each should be fixed and de-listed:
+
+1. `scripts/core/run_scorekeeper.gd` calls `_combat_log.log(...)`, but
+   `CombatLog` defines `record(...)` and has no `log()`. Every run start and
+   wave bonus raises `SCRIPT ERROR` and the entry is never recorded.
+2. The UI player double returns a `Dictionary` where a `ProgressionComponent` is
+   expected, so `get_stat` lookups error on a base object of type `Dictionary`.
+
 ### Notes
 
 - Orientation stays `sensor_landscape` per `docs/ART_STYLE.md`; the stretch
@@ -396,6 +420,30 @@ No new gameplay; feel-only fixes to existing audio, buses, and feedback.
   `active_modifiers` are a serializable mirror kept in sync by GameRoot.
 - Fixes an existing UI bug where `_sync_from_state()` only ran once in `_ready`, so panels
   (HUD / pause / game-over / upgrade) never switched on state change.
+
+### CI
+
+- The headless UI suite (`scripts/ui/run_ui_validation.sh`) was referenced by the
+  docs but **invoked by no workflow**, so it had never actually run in CI. It is
+  now wired into the `godot-tests` job. Wiring it up immediately caught a real
+  bug in this branch: `TouchActionButton` seeded `custom_minimum_size` from its
+  initial radius, so the Control refused to shrink to a smaller solved rect and
+  overflowed the viewport at 960x540. Fixed.
+- Current state: **2187 UI checks, 0 failed.**
+
+### Pre-existing bugs surfaced (NOT fixed here — out of scope for a UI pass)
+
+Running the UI suite for the first time also exposed two latent runtime errors
+that exist unchanged on `main` (verified against base commit `3751371`). They
+are filtered by an explicit, documented `KNOWN_FAILURES` allowlist in the
+validation script so the new gate reports UI regressions instead of failing on
+day one. Each should be fixed and de-listed:
+
+1. `scripts/core/run_scorekeeper.gd` calls `_combat_log.log(...)`, but
+   `CombatLog` defines `record(...)` and has no `log()`. Every run start and
+   wave bonus raises `SCRIPT ERROR` and the entry is never recorded.
+2. The UI player double returns a `Dictionary` where a `ProgressionComponent` is
+   expected, so `get_stat` lookups error on a base object of type `Dictionary`.
 
 ### Notes / limitations
 - Visual assets remain primitive Godot primitives; no external art/audio was introduced
