@@ -16,6 +16,8 @@ Asset review date: **2026-09-08**. Target: the existing Godot 4.4.1, Android,
 | Game Icons — Kenney | https://kenney.nl/assets/game-icons | `assets/ui/icons/` | CC0-1.0 |
 | Board Game Icons 1.0 — Kenney | https://kenney.nl/assets/board-game-icons | `assets/ui/upgrades/` | CC0-1.0 |
 | Rajdhani Regular / Bold — Indian Type Foundry | https://github.com/google/fonts/tree/main/ofl/rajdhani | `assets/fonts/rajdhani/` | SIL OFL-1.1 |
+| HDRI panoramas + sample PBR assets (three.js examples) — three.js authors; HDRIs originally Poly Haven | https://github.com/mrdoob/three.js | `assets/textures/panorama/`, `ASSET_LICENSES/threejs-pbr.txt` | MIT (HDRIs: Poly Haven CC0 captures) |
+| Godot Material Testers HD photo PBR texture sets — Godot Engine contributors | https://github.com/godotengine/godot-demo-projects | `assets/textures/rock/`, `assets/textures/brick/`, `assets/textures/stone/`, `assets/textures/wood/`, `assets/textures/metal/`, `ASSET_LICENSES/godot-hd-materials.txt` | MIT |
 
 ## Rights and redistribution
 
@@ -48,7 +50,13 @@ are downloaded, not those projects' code, plugins, examples, or other assets.
 The UI mirror contains the **old 1.0** pack, not the redesigned 2.0 pack currently
 shown on Kenney's site. Source revisions are pinned; there are no floating `main`
 or `master` downloads. GitHub's public content API is used because direct creator
-ZIP/raw-download hosts are not reachable from this workspace.
+ZIP/raw-download hosts are not reachable from this workspace. The HD realism pass
+reuses the same API: the three.js equirectangular HDRIs (original Poly Haven CC0
+captures, redistributed inside the MIT-licensed three.js repository at a pinned
+commit) and the Godot Material Testers photo PBR maps (same pinned
+`godot-demo-projects` revision already used for the stone set). The download lock
+now also accepts `.hdr` and `.jpg` source suffixes — every such file is still
+checksum-locked with immutable provenance like any other asset.
 
 Downloads are byte-for-byte copies except for documented **filename/path changes**;
 .gltf dependencies retain their relative filenames. Authoring tools, FBX duplicates,
@@ -85,6 +93,22 @@ cue-level record in `AUDIO_MANIFEST.md`.
   Local materials are newly authored; downloaded pixels are unmodified.
 - **KayKit Skeletons:** added the missing Mage and ranged equipment from the same
   previously approved, unchanged upstream revision and original CC0 notice.
+
+### HD realism pass (same day)
+
+- **three.js examples HDRI panoramas (MIT repo; HDRIs are Poly Haven CC0 captures):**
+  `spruit_sunrise_1k.hdr`, `venice_sunset_1k.hdr`, `moonless_golf_1k.hdr` power the
+  Default / Ember Crucible / Frost Hollow skies and image-based lighting. The exact
+  MIT notice is bundled; Poly Haven's CC0 origin is credited here and in the
+  catalogue. Direct Poly Haven hosts remained unreachable from this workspace, so
+  the pinned reachable mirror is used instead of placeholder files.
+- **Godot Material Testers photo PBR sets (MIT):** rock (albedo/normal/AO/metallic),
+  aged brick (albedo/normal/AO/metallic), polished marble, wood planks and brushed
+  aluminium (albedo/normal) are locked under `assets/textures/…` and drive the new
+  arena materials. Locally authored `.tres` materials are not downloads; they stay
+  under `assets/materials/` and are validated by `tool/validate_resources.py`.
+- **`.hdr` / `.jpg` suffixes** were added to the downloader's approved extension set
+  so these photo assets can be checksum-locked and restored like every other file.
 
 The shared notice provision does not allow unknown licences, unpinned downloads,
 missing notice files or licence-type mismatches. No paid tiers or application code

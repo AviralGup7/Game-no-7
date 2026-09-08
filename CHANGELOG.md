@@ -1,5 +1,48 @@
 # Changelog
 
+## [Unreleased] — HD realism pass (2026-09-08)
+
+Presentation overhaul across the arena, sky, lighting, renderer settings and actor
+materials. **No gameplay, rig, animation, balance, save or input changes** — the
+same scenes, physics, spawns, navigation and HUD contract are preserved.
+
+### Assets (locked, provenance-kept)
+
+- **17 new checksum-locked downloads (+10.58 MiB, 239 files / 45.63 MiB total):
+  three Poly Haven CC0 HDRI panoramas** (spruit sunrise, venice sunset, moonless
+  golf — via the pinned, MIT-licensed three.js mirror) and **photo PBR sets from
+  Godot's Material Testers** (rock, aged brick, marble, wood, aluminium) at the
+  already-pinned `godot-demo-projects` revision. The downloader/validator now
+  support `.hdr` and `.jpg` with the same hash locks.
+- Five new arena materials under `assets/materials/` (rock floor, brick walls,
+  marble, wood, metal); `ASSET_LICENSES/` gains the three.js MIT and
+  Godot MIT notices.
+
+### Arena map — replaced
+
+- `scenes/arena/arena.tscn` is rebuilt: photo-PBR rock floor, aged-brick walls
+  with stone trims + marble cornices, corner towers with marble caps, an
+  iron-banded wooden gate, marble dais, boulders and 4 flickering torch sconces
+  (`scripts/arena/torch_flicker.gd`, deterministic, 4 omni lights, no shadows).
+- Collision, spawn points, pickup points, navigation floor and arena script
+  contract are unchanged; `Arena` themes still tint floor/walls by arena.
+
+### Sky, lighting and renderer
+
+- `arena.gd`: per-arena `PanoramaSkyMaterial` (IBL) with procedural fallback,
+  exposure/contrast adjustment, tuned fog, glow on emissives; landmarks use the
+  photo-rock/marble materials.
+- `project.godot`: 2× MSAA, 8× anisotropic filtering, 2048px high-quality PCF
+  directional shadows. Mobile renderer retained (SSAO/SSR off on purpose).
+
+### Actor + prop material pass
+
+- `scripts/visuals/hd_materials.gd` (`HdMaterials`) applies anisotropic filtering
+  and role-tuned roughness/metallic/specular to every mounted player/enemy model
+  (`CharacterVisuals`, `EnemyAnimator`) and every arena prop/decorator. Shallow
+  material duplicates; textures, rigs and animations untouched.
+- Rig inventory kept deliberately (combat clip coverage — see
+  `docs/ASSET_AUDIT.md` "Why not a photoreal rig swap").
 ## [Unreleased] — Audit follow-ups: roster smoke, minimap robustness, dead facade (2026-09-08)
 
 Follow-up pass over the remaining small-but-real findings in

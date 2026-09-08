@@ -154,7 +154,12 @@ common/max_physics_steps_per_frame=6
 renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_etc2_astc=true
-anti_aliasing/quality/msaa_3d=0
+; HD graphics pass: 2x MSAA + 8x anisotropic filtering + high-quality PCF shadows.
+; Mobile renderer is kept (SSAO/SSR remain off on purpose to hold frame time).
+anti_aliasing/quality/msaa_3d=2
+textures/default_filters/anisotropic_filtering_level=8
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 environment/defaults/default_clear_color=Color(0.09, 0.1, 0.12, 1)
 
 [gui]
