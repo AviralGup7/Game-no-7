@@ -118,12 +118,9 @@ func _process(delta: float) -> void:
 func _poll_player_triggers() -> void:
 	if GameRoot == null or not GameRoot.has_method("get_active_player"):
 		return
-	var _p_check: Variant = GameRoot.get_active_player()
-	if _p_check == null or not is_instance_valid(_p_check as Object):
+	var player: Variant = GameRoot.get_active_player()
+	if player == null or not is_instance_valid(player as Object):
 		return
-	if GameRoot.get_active_player() == null:
-		return
-	var player := GameRoot.get_active_player()
 	match _current_step():
 		STEP_MOVE:
 			if player is CharacterBody3D and (player as CharacterBody3D).velocity.length() > 1.0:

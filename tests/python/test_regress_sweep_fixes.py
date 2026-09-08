@@ -11,9 +11,12 @@ def read(rel):
 class SweepFixTests(unittest.TestCase):
     def test_wave_manager_player_max_hp_indent(self):
         txt = read("scripts/waves/wave_manager.gd")
-        # Must use _pl variable, not bare double GameRoot.get_active_player() with broken indent
-        self.assertIn("var _pl: Variant = GameRoot.get_active_player()", txt)
-        self.assertIn("var hp := (_pl as Node).get_node_or_null", txt)
+        # Must cache get_active_player() in a local (validity-checked) rather than
+        # calling it twice with broken indent. The local's name is not part of the
+        # contract -- it was renamed from `_pl` to `player` so gdlint passes
+        # (function-variable-name rejects a leading underscore on a used local).
+        self.assertRegex(txt, r"var (\w+): Variant = GameRoot\.get_active_player\(\)")
+        self.assertRegex(txt, r"var hp := \((\w+) as Node\)\.get_node_or_null")
         # Broken indent pattern must be gone
         self.assertNotIn("if GameRoot.get_active_player() != null:\n\t\tvar hp :=", txt)
         self.assertNotIn("\t\tif GameRoot.get_active_player() != null:\n\t\tvar hp", txt)
