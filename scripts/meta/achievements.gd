@@ -23,6 +23,7 @@ var _run_skills_cast := 0
 var _run_pickups := 0
 var _run_elites := 0
 var _wired := false
+var _player_health: Node = null
 
 
 ## Static definition table: id -> {name, description, rarity, hint}.
@@ -87,6 +88,10 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 	_run_skills_cast = 0
 	_run_pickups = 0
 	_run_elites = 0
+	_rebind_player_damage()
+	# Player may not exist yet when run_started fires (world builds after); retry next frame.
+	if _player_health == null:
+		_rebind_player_damage.call_deferred()
 
 
 func is_unlocked(achievement_id: StringName) -> bool:
@@ -153,12 +158,38 @@ func _on_combo_changed(combo: int, _best: int) -> void:
 
 func _on_wave_started(_wave: int, _planned: int) -> void:
 	_run_damage_taken = 0.0
+	_rebind_player_damage()
 
 
 ## UI/debug damage observers forward player damage here (same seam as the
 ## DifficultyDirector) so flawless waves can be detected.
 func record_player_damage(amount: float) -> void:
 	_run_damage_taken += maxf(amount, 0.0)
+
+
+func _rebind_player_damage() -> void:
+	if _player_health != null and is_instance_valid(_player_health):
+		if _player_health.has_signal("damaged") and _player_health.damaged.is_connected(_on_player_damaged):
+			_player_health.damaged.disconnect(_on_player_damaged)
+	_player_health = null
+	if GameRoot == null or GameRoot.get_active_player() == null:
+		return
+	var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
+	if hp == null or not hp.has_signal("damaged"):
+		return
+	if not hp.damaged.is_connected(_on_player_damaged):
+		hp.damaged.connect(_on_player_damaged)
+	_player_health = hp
+
+
+func _on_player_damaged(result: DamageResult) -> void:
+	if result != null and result.accepted:
+		record_player_damage(result.final_amount)
+
+
+func _exit_tree() -> void:
+	if _player_health != null and is_instance_valid(_player_health) and _player_health.has_signal("damaged") and _player_health.damaged.is_connected(_on_player_damaged):
+		_player_health.damaged.disconnect(_on_player_damaged)
 
 
 func _on_wave_completed(wave_number: int, _bonus: int) -> void:

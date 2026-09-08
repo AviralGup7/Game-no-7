@@ -88,7 +88,7 @@ func tick(delta: float) -> int:
 	var active_delta := delta
 	if not is_permanent():
 		active_delta = minf(delta, remaining)
-		remaining -= delta
+		remaining = maxf(remaining - delta, 0.0)
 	_tick_accrual += active_delta
 	var ticks := 0
 	while _tick_accrual >= config.tick_interval:

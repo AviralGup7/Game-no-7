@@ -11,10 +11,10 @@ signal purchase_completed(item_id: StringName)
 signal wallet_changed(balance: int)
 
 const ARMORY := {
-	&"vitality Tome": {"name": "Tome of Vitality", "cost": 100, "requires": [], "stat": &"max_health_add", "per_rank": 10.0, "max_rank": 5, "kind": &"stat", "blurb": "+10 max HP per rank, every run."},
+	&"vitality_tome": {"name": "Tome of Vitality", "cost": 100, "requires": [], "stat": &"max_health_add", "per_rank": 10.0, "max_rank": 5, "kind": &"stat", "blurb": "+10 max HP per rank, every run."},
 	&"swift_boots": {"name": "Swift Boots", "cost": 120, "requires": [], "stat": &"move_speed_multiplier", "per_rank": 0.03, "max_rank": 5, "kind": &"stat", "blurb": "+3% move speed per rank."},
 	&"whetstone": {"name": "Whetstone", "cost": 150, "requires": [], "stat": &"attack_damage_multiplier", "per_rank": 0.04, "max_rank": 5, "kind": &"stat", "blurb": "+4% damage per rank."},
-	&"second_wind": {"name": "Second Wind", "cost": 200, "requires": [&"vitality Tome"], "stat": &"stamina_max_add", "per_rank": 15.0, "max_rank": 3, "kind": &"stat", "blurb": "+15 stamina per rank."},
+	&"second_wind": {"name": "Second Wind", "cost": 200, "requires": [&"vitality_tome"], "stat": &"stamina_max_add", "per_rank": 15.0, "max_rank": 3, "kind": &"stat", "blurb": "+15 stamina per rank."},
 	&"lucky_charm": {"name": "Lucky Charm", "cost": 250, "requires": [], "stat": &"crit_chance_add", "per_rank": 0.02, "max_rank": 3, "kind": &"stat", "blurb": "+2% crit chance per rank."},
 	&"unlock_warreaxe": {"name": "Armory: War Axe", "cost": 300, "requires": [], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"warreaxe", "blurb": "Unlock the War Axe loadout."},
 	&"unlock_sunbow": {"name": "Armory: Sunbow", "cost": 500, "requires": [&"unlock_warreaxe"], "stat": &"", "per_rank": 0.0, "max_rank": 1, "kind": &"weapon", "target": &"sunbow", "blurb": "Unlock the Sunbow loadout."},
@@ -48,6 +48,15 @@ func _load() -> void:
 		var ranks: Variant = SaveManager.call("get_meta_ranks")
 		if ranks is Dictionary:
 			_ranks = (ranks as Dictionary).duplicate()
+			# Migrate legacy key typo: "vitality Tome" -> "vitality_tome".
+			var legacy := StringName("vitality Tome")
+			if _ranks.has(legacy):
+				var v: Variant = _ranks[legacy]
+				_ranks.erase(legacy)
+				if not _ranks.has(&"vitality_tome"):
+					_ranks[&"vitality_tome"] = v
+				else:
+					_ranks[&"vitality_tome"] = maxi(int(_ranks[&"vitality_tome"]), int(v))
 
 
 func _save() -> void:
@@ -142,15 +151,17 @@ func _apply_live(item_id: StringName) -> void:
 
 ## Apply ALL owned ranks at run start (called by Main after world build).
 func apply_all_to_run() -> void:
+	if GameRoot == null or GameRoot.get_active_player() == null:
+		return
+	var player := GameRoot.get_active_player() as Node
+	var prog := player.get_node_or_null("ProgressionComponent") if player != null else null
+	if prog == null or not prog.has_method("add_permanent_bonus"):
+		return
 	for item_id in _ranks:
 		var def: Dictionary = ARMORY.get(item_id, {})
 		if def.is_empty() or String(def["kind"]) != "stat":
 			continue
-		if GameRoot == null or GameRoot.get_active_player() == null:
-			return
-		var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
-		if prog != null and prog.has_method("add_permanent_bonus"):
-			prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
+		prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
 
 
 func unlocked_targets(kind: StringName) -> Array[StringName]:

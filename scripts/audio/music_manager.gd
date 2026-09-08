@@ -94,10 +94,19 @@ func _cue_for_state() -> StringName:
 ## Arena configs may override the calm/battle bed via background_music_cue;
 ## unknown or missing ids fall back to the default cue for the state.
 func _arena_cue(fallback: StringName) -> StringName:
-	if GameRoot != null and ContentRegistry != null and AudioManager != null:
-		var arena: ArenaConfig = ContentRegistry.get_arena(GameRoot.get_run().arena_id)
-		if arena != null and arena.background_music_cue != &"" and AudioManager.has_cue(arena.background_music_cue):
-			return arena.background_music_cue
+	if GameRoot != null and ContentRegistry != null and AudioManager != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null:
+			var arena_id: StringName = &""
+			# Typed Run object is the normal case; dictionary fallback for tests.
+			if run is Dictionary:
+				arena_id = StringName(String((run as Dictionary).get("arena_id", &"")))
+			elif "arena_id" in run:
+				arena_id = (run as Variant).arena_id
+			if arena_id != &"":
+				var arena: ArenaConfig = ContentRegistry.get_arena(arena_id)
+				if arena != null and arena.background_music_cue != &"" and AudioManager.has_cue(arena.background_music_cue):
+					return arena.background_music_cue
 	return fallback
 
 

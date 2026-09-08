@@ -283,11 +283,11 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 			continue
 		var sm := (target as Node).get_node_or_null("StatusManager") if target is Node else null
 		if sm != null and sm.has_method("apply_effects"):
-			var applied: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
+			var status_result: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
 			var result: Variant = entry.get("result")
-			if result is DamageResult and applied is Dictionary:
-				for raw_id in applied:
-					if int(applied[raw_id]) > 0:
+			if result is DamageResult and status_result is Dictionary:
+				for raw_id in status_result:
+					if int((status_result as Dictionary)[raw_id]) > 0:
 						(result as DamageResult).status_effects_applied.append(StringName(String(raw_id)))
 
 
