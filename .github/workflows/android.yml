@@ -110,19 +110,22 @@ jobs:
         shell: bash
         run: bash scripts/ui/run_ui_validation.sh
 
-      # TEMPORARY (diagnostics): surface UI failures in the job summary.
+      # TEMPORARY (diagnostics): emit failing UI assertions as annotations,
+      # which are readable via the API when log/artifact storage is unreachable.
       - name: UI validation failure details
         if: failure()
         shell: bash
         run: |
-          for f in build/ui-tests-*.log; do
+          for f in build/ui-tests-*.log build/ui-import.log; do
             [ -f "$f" ] || continue
-            echo "::group::$f"
-            grep -nE 'UI FAIL:|SCRIPT ERROR:|Parse Error:|UI TESTS:|Failed to load script' "$f" | head -80
-            echo "::endgroup::"
+            grep -hoE '(UI FAIL:|SCRIPT ERROR:|Parse Error:|Failed to load script)[^\r]*' "$f" \
+              | sort -u | head -40 | while IFS= read -r line; do
+                  echo "::error title=UIDIAG::${line}"
+                done
+            grep -hoE 'UI TESTS: [0-9]+ checks, [0-9]+ failed' "$f" | head -2 | while IFS= read -r line; do
+              echo "::error title=UIDIAG::${line}"
+            done
           done
-          echo "---- import log tail ----"
-          tail -30 build/ui-import.log 2>/dev/null || true
 
       - name: Validate imported 3D assets, animations, textures and audio
         shell: bash
