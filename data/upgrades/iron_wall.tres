@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"iron_wall"
+display_name = "Iron Wall"
+description = "+15% resistance and +10 max HP, but -10% movement speed. Hold ground for melee builds."
+rarity = &"epic"
+category = &"defense"
+max_stacks = 2
+stat_modifiers = {
+"damage_resistance_add": 0.15,
+"max_health_add": 10.0,
+"move_speed_multiplier": -0.1,
+}
+tags = Array[StringName]([&"defense", &"tradeoff", &"fortress"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([&"glass_cannon"])
+unlock_wave = 3
+weight = 0.48
+disabled = false

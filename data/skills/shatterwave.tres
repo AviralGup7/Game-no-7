@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"shatterwave"
+display_name = "Shatterwave"
+description = "Launch a piercing frost wave down a lane; exposed and slowed targets become safe picks."
+behavior = &"shockwave"
+input_action = &"skill_3"
+cooldown = 14.0
+stamina_cost = 24.0
+damage_multiplier = 2.0
+damage_type = &"frost"
+radius = 1.1
+length = 10.0
+knockback = 6.0
+victim_effects = Array[StringName]([&"slow", &"exposed"])
+victim_effect_chance = 0.85
+unlock_level = 5
+unlock_wave = 5
+weight = 0.6
+disabled = false
+tags = Array[StringName]([&"line", &"pierce", &"frost", &"control", &"setup"])

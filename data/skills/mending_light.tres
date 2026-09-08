@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+skill_id = &"mending_light"
+display_name = "Mending Light"
+description = "Recover health, then wrap the caster in regeneration and a replenishing ward."
+behavior = &"heal_surge"
+input_action = &"skill_2"
+cooldown = 22.0
+stamina_cost = 18.0
+damage_multiplier = 0.0
+damage_type = &"physical"
+radius = 1.0
+heal_amount = 32.0
+caster_effects = Array[StringName]([&"regen", &"overguard"])
+unlock_level = 4
+unlock_wave = 4
+weight = 0.65
+disabled = false
+tags = Array[StringName]([&"sustain", &"defense", &"heal", &"shield"])

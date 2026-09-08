@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"arcane_surge"
+display_name = "Arcane Surge"
+description = "+18% skill damage, but +8% skill cooldown. Make each cast count."
+rarity = &"rare"
+category = &"skill"
+max_stacks = 3
+stat_modifiers = {
+"skill_damage_multiplier": 0.18,
+"skill_cooldown_multiplier": 0.08,
+}
+tags = Array[StringName]([&"skill", &"damage", &"tradeoff"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([])
+unlock_wave = 2
+weight = 0.64
+disabled = false

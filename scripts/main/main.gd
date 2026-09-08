@@ -216,6 +216,8 @@ func _create_run_systems(arena: Node, player: Node) -> void:
 				(player as Node).dodged.connect(_tutorial.notify_player_dodged)
 	if _meta != null:
 		_meta.apply_all_to_run()
+	if player.has_method("rebuild_derived_stats"):
+		player.call("rebuild_derived_stats")
 
 
 ## Daily runs share one deterministic mutator pair for every wave.
@@ -231,18 +233,28 @@ func _apply_daily_mutators() -> void:
 	_wave_manager.set_forced_mutators(ids)
 
 
-## Owned armory unlocks take effect: Bladestorm starts unlocked, and the best
-## owned weapon unlock rides in loadout slot 1 (reachable via weapon switch).
+## Owned armory unlocks take effect: starter content remains in slot 0 while
+## the first owned weapon/skills fill the optional loadout slots. The meta table
+## supplies targets, so adding a new unlock does not require another id branch.
 func _apply_owned_unlocks(player: Node, skills: Node, weapons: Node) -> void:
 	if _meta == null or player == null:
 		return
-	if skills != null and skills.has_method("assign_skill_by_id") and _meta.is_skill_unlocked_from_start(&"bladestorm"):
-		skills.call("assign_skill_by_id", &"bladestorm", 1, true)
-	if weapons != null and weapons.has_method("equip_by_id"):
-		for weapon_id in [&"sunbow", &"warreaxe"]:
-			if _meta.is_weapon_unlocked(weapon_id):
-				weapons.call("equip_by_id", weapon_id, 1)
+	if skills != null and skills.has_method("assign_skill_by_id"):
+		var skill_slot := 1
+		for skill_id in _meta.unlocked_targets(&"skill"):
+			if skill_slot >= 3:
 				break
+			if ContentRegistry.get_skill(skill_id) != null:
+				skills.call("assign_skill_by_id", skill_id, skill_slot, true)
+				skill_slot += 1
+	if weapons != null and weapons.has_method("equip_by_id"):
+		var weapon_slot := 1
+		for weapon_id in _meta.unlocked_targets(&"weapon"):
+			if weapon_slot >= 2:
+				break
+			if ContentRegistry.get_weapon(weapon_id) != null:
+				weapons.call("equip_by_id", weapon_id, weapon_slot, true)
+				weapon_slot += 1
 
 
 func _clear_world() -> void:

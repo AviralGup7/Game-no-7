@@ -6,13 +6,14 @@
 script = ExtResource("1_script")
 upgrade_id = &"power"
 display_name = "Power"
-description = "+15% attack damage"
+description = "+15% attack damage. The dependable damage path."
 rarity = &"common"
+category = &"damage"
 max_stacks = 3
 stat_modifiers = {
 "attack_damage_multiplier": 0.15,
 }
-tags = Array[StringName]([])
+tags = Array[StringName]([&"damage", &"core"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([])
 unlock_wave = 1

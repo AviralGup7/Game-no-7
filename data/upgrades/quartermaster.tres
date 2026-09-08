@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"quartermaster"
+display_name = "Quartermaster"
+description = "+20% currency gain and +0.75 pickup reach. Invest now for a richer armory later."
+rarity = &"epic"
+category = &"economy"
+max_stacks = 2
+stat_modifiers = {
+"currency_multiplier_add": 0.2,
+"pickup_radius_add": 0.75,
+}
+tags = Array[StringName]([&"economy", &"pickup", &"meta"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([])
+unlock_wave = 3
+weight = 0.45
+disabled = false

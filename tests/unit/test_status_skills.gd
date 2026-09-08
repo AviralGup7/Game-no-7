@@ -77,6 +77,44 @@ static func suite() -> Array:
 		"passed": is_equal_approx(fx4.move_speed_factor(), 0.25) and is_equal_approx(fx4.damage_factor(), 1.0),
 		"why": "",
 	})
+	var shield := StatusEffectConfig.new()
+	shield.effect_id = &"test_guard"
+	shield.duration = 5.0
+	shield.max_stacks = 2
+	shield.stack_mode = StatusEffectConfig.STACK_ADD
+	shield.shield_amount = 20.0
+	var shield_fx := StatusEffect.new(shield, 1)
+	shield_fx.reapply(1)
+	results.append({
+		"name": "StatusEffect shield capacity follows additive stacks",
+		"passed": shield_fx.stacks == 2 and is_equal_approx(shield_fx.shield_total(), 40.0),
+		"why": "",
+	})
+	shield_fx.set_power_modifiers(1.5, 1.0, 1.0)
+	results.append({
+		"name": "StatusEffect duration power refreshes without mutating config",
+		"passed": is_equal_approx(shield.duration, 5.0) and shield_fx.remaining >= 7.49,
+		"why": "remaining=%f" % shield_fx.remaining,
+	})
+
+	# StatusManager keeps shield layers separate from effect lifetime: partial
+	# absorption survives until cleanse, while removing the effect removes the rest.
+	var manager := StatusManager.new()
+	manager.apply_effect(shield, 1)
+	manager.apply_effect(shield, 1)
+	var leftover := manager.absorb_direct(25.0)
+	results.append({
+		"name": "StatusManager additive shield absorbs and reports remainder",
+		"passed": is_equal_approx(leftover, 0.0) and is_equal_approx(manager.shield_remaining(), 15.0),
+		"why": "leftover=%f shield=%f" % [leftover, manager.shield_remaining()],
+	})
+	manager.cleanse(&"test_guard")
+	results.append({
+		"name": "StatusManager cleanse removes remaining shield capacity",
+		"passed": is_equal_approx(manager.shield_remaining(), 0.0) and not manager.has_effect(&"test_guard"),
+		"why": "shield=%f" % manager.shield_remaining(),
+	})
+	manager.free()
 
 	# --- SkillConfig validation ---
 	var slam := SkillConfig.new()

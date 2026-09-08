@@ -82,7 +82,17 @@ func record_run_completed(summary: Dictionary) -> void:
 	ls.total_kills = int(ls.total_kills) + int(summary.get("kills", 0))
 	ls.total_time_seconds = float(ls.total_time_seconds) + float(summary.get("elapsed_seconds", 0.0))
 	ls.highest_combo = maxi(int(ls.highest_combo), int(summary.get("best_combo", 0)))
+	# Persist only the normalized, id-based build mirror. ProgressionComponent,
+	# WeaponManager and SkillController remain the live runtime authorities.
+	var build_value: Variant = summary.get("build", {})
+	var normalized_build := SaveSchema.normalize_save({"last_run_build": build_value})
+	_save.last_run_build = normalized_build.get("last_run_build", SaveSchema.default_run_build())
 	mark_dirty()
+
+
+## Read the last normalized build summary without exposing live runtime objects.
+func get_last_run_build() -> Dictionary:
+	return (_save.get("last_run_build", SaveSchema.default_run_build()) as Dictionary).duplicate(true)
 
 
 ## Apply runtime settings back into the store and mark dirty.
@@ -243,5 +253,9 @@ func _write_raw(path: String, contents: String) -> bool:
 
 func _apply_validated(data: Dictionary) -> void:
 	_save = data
+	# Older saves normalized by SaveSchema always have this field, but keep the
+	# instance resilient if a caller supplied a hand-built dictionary.
+	if not _save.has("last_run_build"):
+		_save.last_run_build = SaveSchema.default_run_build()
 	_settings.from_dict(_save.settings)
 	_save.settings = _settings.to_dict()

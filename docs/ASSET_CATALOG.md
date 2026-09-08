@@ -56,10 +56,11 @@ embedded data URIs; they do not require additional network or binary downloads.
 
 ## Equipment and pickups
 
-`gameplay_weapons` maps all six weapon IDs to detailed medieval GLBs. The catalogue
-also retains the compatible KayKit weapon/shield sources, now including skeleton
-staff, crossbow and arrow with local `.bin`/atlas dependencies. Never move a `.gltf`
-without its referenced neighbours.
+`gameplay_weapons` maps all nine weapon IDs to reviewed local GLB/glTF sources. The
+catalogue also retains the compatible KayKit weapon/shield sources, including the
+skeleton staff, crossbow and arrow with local `.bin`/atlas dependencies. New
+content reuses reviewed art where a dedicated model is not needed. Never move a
+`.gltf` without its referenced neighbours.
 
 `gameplay_pickups` maps every pickup ID to its **runtime** source model:
 
@@ -83,7 +84,7 @@ bottle/crystal shapes help identification independently of tint.
 - Shared stone colour/normal/AO maps (1024 × 666) power local materials under
   `assets/materials/`. Floor tiling and world-space wall projection prevent wall
   stretch; no parallax, tessellation, displacement or new physics geometry.
-- `gameplay_arenas` covers all three arenas; `gameplay_skills` covers all five
+- `gameplay_arenas` covers all three arenas; `gameplay_skills` covers all eight
   skills with existing particle texture sources. Skill-specific emitters are pending.
 - Existing 55 UI PNGs, 15 particle PNGs and Rajdhani Regular/Bold remain. Every
   upgrade has an icon assignment. No font version change was available in the

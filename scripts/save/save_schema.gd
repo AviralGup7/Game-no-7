@@ -6,7 +6,8 @@ extends RefCounted
 ## It never touches disk, timers, or other autoloads; SaveManager keeps the live
 ## store + debounced flush and delegates all schema work here.
 
-const SCHEMA_VERSION := 3
+const SCHEMA_VERSION := 4
+const BUILD_SCHEMA_VERSION := 1
 
 
 static func default_save() -> Dictionary:
@@ -30,6 +31,23 @@ static func default_save() -> Dictionary:
 			"unlocked_arenas": ["default_arena"],
 			"unlocked_cosmetics": [],
 		},
+		# A summary-only build record. It is not used as live runtime authority;
+		# ProgressionComponent/WeaponManager/SkillController are restored by run
+		# orchestration when a future resume feature asks for it.
+		"last_run_build": default_run_build(),
+	}
+
+
+static func default_run_build() -> Dictionary:
+	return {
+		"schema_version": BUILD_SCHEMA_VERSION,
+		"seed": 0,
+		"current_wave": 0,
+		"selected_upgrades": {},
+		"active_modifiers": [],
+		"equipped_weapons": [],
+		"equipped_skills": [],
+		"build_archetypes": [],
 	}
 
 
@@ -77,13 +95,30 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 			"unlocked_arenas": arenas,
 			"unlocked_cosmetics": cosmetics,
 		}
+	out.last_run_build = _normalize_run_build(_dict_get(data, "last_run_build", {}))
+	return out
+
+
+static func _normalize_run_build(value: Variant) -> Dictionary:
+	var out := default_run_build()
+	if not value is Dictionary:
+		return out
+	var data: Dictionary = value
+	out.schema_version = BUILD_SCHEMA_VERSION
+	out.seed = maxi(_int_or(_dict_get(data, "seed", 0), 0), 0)
+	out.current_wave = maxi(_int_or(_dict_get(data, "current_wave", 0), 0), 0)
+	out.selected_upgrades = _string_int_map(_dict_get(data, "selected_upgrades", {}))
+	out.active_modifiers = _string_list(_dict_get(data, "active_modifiers", []))
+	out.equipped_weapons = _string_list(_dict_get(data, "equipped_weapons", []))
+	out.equipped_skills = _string_list(_dict_get(data, "equipped_skills", []))
+	out.build_archetypes = _string_list(_dict_get(data, "build_archetypes", []))
 	return out
 
 
 static func _migrate_static(data: Dictionary, from_version: int) -> Dictionary:
-	if from_version <= 2:
-		# v1/v2 -> v3: new keys (tutorial/achievements/meta) take safe defaults;
-		# no structural rewrite required.
+	if from_version <= 3:
+		# v1-v3 did not carry last_run_build. New fields intentionally default
+		# rather than attempting to infer a build from lifetime statistics.
 		pass
 	return data
 
@@ -108,7 +143,9 @@ static func _string_list(value: Variant) -> Array:
 	var out: Array = []
 	if value is Array:
 		for item in value:
-			out.append(String(item))
+			var id := String(item)
+			if not id.is_empty() and id not in out:
+				out.append(id)
 	return out
 
 

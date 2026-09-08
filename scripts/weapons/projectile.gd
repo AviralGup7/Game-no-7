@@ -161,10 +161,17 @@ func _is_world(body: Node) -> bool:
 
 
 func _expire() -> void:
-	release_requested.emit(self)
+	_release_once()
 
 
 func _release_with_impact(_target: Node) -> void:
+	_release_once()
+
+
+func _release_once() -> void:
+	if not _active:
+		return
+	_active = false
 	release_requested.emit(self)
 
 

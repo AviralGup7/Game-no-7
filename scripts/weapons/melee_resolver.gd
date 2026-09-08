@@ -94,16 +94,16 @@ static func resolve_swing(origin: Vector3, facing: Vector3, candidates: Array, w
 	var base_damage := weapon.effective_damage()
 	var knockback := weapon.effective_knockback()
 	if was_crit and weapon.config != null:
-		base_damage *= weapon.config.crit_multiplier
+		base_damage *= weapon.effective_crit_multiplier()
 	for v in victims:
 		var payload := DamagePayload.new()
 		payload.amount = base_damage
 		payload.source = source
 		payload.source_id = weapon.config.weapon_id if weapon.config != null else &"melee"
-		payload.damage_type = &"physical"
+		payload.damage_type = weapon.config.damage_type if weapon.config != null else &"physical"
 		payload.can_crit = false  # already resolved at swing level
 		payload.was_critical = was_crit
-		payload.critical_multiplier = weapon.config.crit_multiplier if weapon.config != null else 1.0
+		payload.critical_multiplier = weapon.effective_crit_multiplier()
 		var tpos := (v as Node3D).global_position
 		payload.hit_position = Vector3(tpos.x, origin.y + 0.9, tpos.z)
 		payload.knockback = knockback_for(origin, tpos, knockback)
@@ -123,7 +123,7 @@ static func resolve_and_apply(origin: Vector3, facing: Vector3, candidates: Arra
 		if not payload.is_valid():
 			continue
 		var result: Variant = target.call("apply_damage", payload)
-		if result is DamageResult:
+		if result is DamageResult and (result as DamageResult).accepted:
 			applied.append({"target": target, "result": result})
 	return applied
 

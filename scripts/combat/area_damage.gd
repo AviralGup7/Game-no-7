@@ -14,7 +14,7 @@ const MAX_VICTIMS_HARD_CAP := 48
 
 ## Radial blast. `knock_up` adds a small vertical pop (stripped by XZ movers).
 ## Returns the list of damaged nodes.
-static func apply_radial(candidates: Array, origin: Vector3, radius: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, knock_up: bool = false, falloff: StringName = FALLOFF_LINEAR, exclude: Array = []) -> Array:
+static func apply_radial(candidates: Array, origin: Vector3, radius: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, knock_up: bool = false, falloff: StringName = FALLOFF_LINEAR, exclude: Array = [], damage_type: StringName = &"physical") -> Array:
 	var victims: Array = []
 	if radius <= 0.0:
 		return victims
@@ -28,7 +28,7 @@ static func apply_radial(candidates: Array, origin: Vector3, radius: float, dama
 		if dist > radius + _radius_of(c):
 			continue
 		var dealt := _falloff_damage(damage, dist, radius, falloff)
-		var payload := _payload(dealt, source, source_id, &"physical", pos)
+		var payload := _payload(dealt, source, source_id, damage_type, pos)
 		var dir := offset.normalized() if offset.length_squared() > 0.0001 else Vector3.FORWARD
 		var kb := Vector3(dir.x * knockback, 0.0, dir.z * knockback)
 		if knock_up:
@@ -43,7 +43,7 @@ static func apply_radial(candidates: Array, origin: Vector3, radius: float, dama
 
 
 ## Line corridor from `origin` along `direction` (length x half_width).
-static func apply_line(candidates: Array, origin: Vector3, direction: Vector3, length: float, half_width: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, exclude: Array = []) -> Array:
+static func apply_line(candidates: Array, origin: Vector3, direction: Vector3, length: float, half_width: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, exclude: Array = [], damage_type: StringName = &"physical") -> Array:
 	var victims: Array = []
 	var dir := direction
 	dir.y = 0.0
@@ -63,7 +63,7 @@ static func apply_line(candidates: Array, origin: Vector3, direction: Vector3, l
 		var lateral := (rel - dir * along).length()
 		if lateral > half_width + _radius_of(c):
 			continue
-		var payload := _payload(damage, source, source_id, &"physical", (c as Node3D).global_position)
+		var payload := _payload(damage, source, source_id, damage_type, (c as Node3D).global_position)
 		payload.knockback = dir * knockback
 		var result: Variant = c.call("apply_damage", payload)
 		if result is DamageResult and (result as DamageResult).accepted:
@@ -74,7 +74,7 @@ static func apply_line(candidates: Array, origin: Vector3, direction: Vector3, l
 
 
 ## Ring blast: damages only targets between inner and outer radius.
-static func apply_ring(candidates: Array, origin: Vector3, inner_radius: float, outer_radius: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, exclude: Array = []) -> Array:
+static func apply_ring(candidates: Array, origin: Vector3, inner_radius: float, outer_radius: float, damage: float, source: Node, source_id: StringName, knockback: float = 0.0, exclude: Array = [], damage_type: StringName = &"physical") -> Array:
 	var victims: Array = []
 	if outer_radius <= inner_radius or outer_radius <= 0.0:
 		return victims
@@ -87,7 +87,7 @@ static func apply_ring(candidates: Array, origin: Vector3, inner_radius: float, 
 		var dist := offset.length()
 		if dist < inner_radius or dist > outer_radius + _radius_of(c):
 			continue
-		var payload := _payload(damage, source, source_id, &"physical", pos)
+		var payload := _payload(damage, source, source_id, damage_type, pos)
 		var dir := offset.normalized() if offset.length_squared() > 0.0001 else Vector3.FORWARD
 		payload.knockback = Vector3(dir.x * knockback, 0.0, dir.z * knockback)
 		var result: Variant = c.call("apply_damage", payload)
@@ -100,7 +100,7 @@ static func apply_ring(candidates: Array, origin: Vector3, inner_radius: float, 
 
 ## Chain lightning: jumps from the nearest victim to the next-nearest within
 ## `jump_radius`, up to `jumps` targets, with per-jump damage decay.
-static func apply_chain(candidates: Array, origin: Vector3, initial_radius: float, jump_radius: float, jumps: int, damage: float, decay: float, source: Node, source_id: StringName) -> Array:
+static func apply_chain(candidates: Array, origin: Vector3, initial_radius: float, jump_radius: float, jumps: int, damage: float, decay: float, source: Node, source_id: StringName, damage_type: StringName = &"shock") -> Array:
 	var victims: Array = []
 	var remaining := clampi(jumps, 1, MAX_VICTIMS_HARD_CAP)
 	var from := origin
@@ -111,7 +111,7 @@ static func apply_chain(candidates: Array, origin: Vector3, initial_radius: floa
 		var next: Node = _nearest_damageable(pool, from, radius)
 		if next == null:
 			break
-		var payload := _payload(dealt, source, source_id, &"shock", (next as Node3D).global_position)
+		var payload := _payload(dealt, source, source_id, damage_type, (next as Node3D).global_position)
 		var result: Variant = (next as Node).call("apply_damage", payload)
 		if result is DamageResult and (result as DamageResult).accepted:
 			victims.append(next)
