@@ -19,6 +19,8 @@ on:
 env:
   GODOT_VERSION: "4.4.1-stable"
   APK_PATH: build/LastStandArena-debug.apk
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+  ADB_SERVER_SOCKET: "tcp:127.0.0.1:5037"
 
 # ---------------------------------------------------------------------------
 # Split pipeline (was one monolith job `build-android`):
