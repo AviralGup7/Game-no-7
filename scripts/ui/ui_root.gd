@@ -197,8 +197,11 @@ func _show_screen(screen: StringName) -> void:
 
 func _sync_from_state() -> void:
 	_show_screen(screen_for_state(GameRoot.get_current_state()))
+	# find_child returns null if the status screen was rebuilt without the title;
+	# the cast would then crash on the next state change.
 	var title := _screens[&"status"].find_child("StatusTitle", true, false) as Label
-	title.text = "ARENA UNAVAILABLE" if GameRoot.get_current_state() == GameRoot.State.ERROR else "PREPARING THE ARENA"
+	if title != null:
+		title.text = "ARENA UNAVAILABLE" if GameRoot.get_current_state() == GameRoot.State.ERROR else "PREPARING THE ARENA"
 
 func _on_state_changed(_previous: StringName, _current: StringName) -> void:
 	if _confirm != null: _confirm.hide()

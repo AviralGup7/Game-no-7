@@ -30,6 +30,8 @@ var _high_streak := 0
 var _last_step_msec: int = 0
 var _enabled := true
 var _auto_scale := true
+var _entry_max_fps := 0
+var _entry_max_fps_captured := false
 
 
 func _ready() -> void:
@@ -149,8 +151,12 @@ func set_tier(tier: int) -> void:
 ## Push engine-level knobs for the current tier. Everything is best-effort and
 ## guarded so headless/editor runs without a renderer never crash.
 func _apply_tier_to_engine() -> void:
-	if not DisplayServer.get_name() in ["Android", "windows", "X11", "macOS", "iOS", "headless"]:
-		pass
+	# Remember the pre-monitor cap once, so _exit_tree can hand the user's / the
+	# project's own frame-rate setting back when the run tears down. Without this
+	# a LOW-tier run leaves the whole app (menus included) pinned at 30 fps.
+	if not _entry_max_fps_captured:
+		_entry_max_fps = Engine.max_fps
+		_entry_max_fps_captured = true
 	match _tier:
 		TIER_LOW:
 			Engine.max_fps = 30
@@ -183,6 +189,14 @@ func max_damage_numbers() -> int:
 			return 20
 		_:
 			return 10
+
+
+func _exit_tree() -> void:
+	# The monitor is a per-run node, but Engine.max_fps is global. Restore the cap
+	# that was in effect before this run so returning to the menu (or starting a
+	# new run) is not stuck at the previous run's degraded tier.
+	if _entry_max_fps_captured:
+		Engine.max_fps = _entry_max_fps
 
 
 func get_debug_snapshot() -> Dictionary:
