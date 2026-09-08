@@ -640,10 +640,14 @@ func _run_enemy_encounter_integration() -> Array:
 	for i in range(20):
 		_step_enemy(dasher, 0.05)  # ride the charge into the target
 	var dash_hits := dash_target.hits.size()
-	for i in range(10):
-		_step_enemy(dasher, 0.05)  # recovery -> chase
+	# Ride out the recovery and stop the instant it releases to chase. The charge
+	# ends right next to the target, so chase can convert straight into an attack
+	# on the following step and a fixed budget would observe `attack` instead of
+	# the recovery -> chase transition under test.
+	_step_enemy_until(
+		dasher, 0.05, 20, func() -> bool: return dasher.get_state() == &"chase"
+	)
 	var cooled_down := not dasher.is_dash_ready()
-	_step_enemy(dasher, 1.0 / 60.0)  # target still 4m away, dash on cooldown
 	results.append({
 		"name": "dasher: telegraph -> charge (override) -> exactly one contact hit -> recovery",
 		"passed": dashing and charging and dash_hits == 1 and cooled_down
@@ -830,7 +834,9 @@ func _run_boss_integration(target: Node3D) -> Array:
 	})
 
 	# Cross the 0.66 threshold -> phase 1 (Fury).
+	var boss_max := boss_hp.max_health
 	boss.apply_damage(_lethal_payload(null).with_amount(210.0))  # 600 -> 390 (0.65)
+	var frac_after_first := boss.get_health_fraction()
 	var p1 := controller.current_phase() == 1 and controller.phase_name() == "Fury"
 	var fury_damage := is_equal_approx(boss.get_effective_attack_damage(), 18.0 * 1.25)
 	# Cross the 0.33 threshold -> phase 2 (Enrage).
@@ -841,7 +847,9 @@ func _run_boss_integration(target: Node3D) -> Array:
 		"name": "boss: phases advance on health thresholds with stacking stat bumps",
 		"passed": p1 and p2 and fury_damage and enrage_damage
 			and phases_seen.size() == 2 and phases_seen[0] == [1, 3] and phases_seen[1] == [2, 3],
-		"why": "phase=%d dmg=%.2f seen=%s" % [controller.current_phase(), boss.get_effective_attack_damage(), str(phases_seen)],
+		"why": "phase=%d dmg=%.2f seen=%s max=%.1f frac1=%.3f" % [
+			controller.current_phase(), boss.get_effective_attack_damage(),
+			str(phases_seen), boss_max, frac_after_first],
 	})
 
 	# Boss death clears telegraphs and does not double-fire phase events.
