@@ -835,6 +835,8 @@ func _run_boss_integration(target: Node3D) -> Array:
 
 	# Cross the 0.66 threshold -> phase 1 (Fury).
 	var boss_max := boss_hp.max_health
+	var hc_connections := boss_hp.health_changed.get_connections().size()
+	var phase_at_start := controller.current_phase()
 	boss.apply_damage(_lethal_payload(null).with_amount(210.0))  # 600 -> 390 (0.65)
 	var frac_after_first := boss.get_health_fraction()
 	var p1 := controller.current_phase() == 1 and controller.phase_name() == "Fury"
@@ -847,9 +849,10 @@ func _run_boss_integration(target: Node3D) -> Array:
 		"name": "boss: phases advance on health thresholds with stacking stat bumps",
 		"passed": p1 and p2 and fury_damage and enrage_damage
 			and phases_seen.size() == 2 and phases_seen[0] == [1, 3] and phases_seen[1] == [2, 3],
-		"why": "phase=%d dmg=%.2f seen=%s max=%.1f frac1=%.3f" % [
+		"why": "phase=%d dmg=%.2f seen=%s max=%.1f frac1=%.3f conns=%d p0=%d" % [
 			controller.current_phase(), boss.get_effective_attack_damage(),
-			str(phases_seen), boss_max, frac_after_first],
+			str(phases_seen), boss_max, frac_after_first,
+			hc_connections, phase_at_start],
 	})
 
 	# Boss death clears telegraphs and does not double-fire phase events.
