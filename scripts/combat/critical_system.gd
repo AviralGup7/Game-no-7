@@ -15,6 +15,11 @@ static func roll(base_chance: float, bonus: float, pity_stacks: int, rng: RngSer
 	if not is_finite(base_chance) or not is_finite(bonus):
 		base_chance = clampf(base_chance if is_finite(base_chance) else 0.0, 0.0, 1.0)
 		bonus = clampf(bonus if is_finite(bonus) else 0.0, -1.0, 1.0)
+	# A build with no crit chance at all must never crit: pity escalates an
+	# existing chance, it does not manufacture one. Without this guard a weapon
+	# at 0% crit still lands crits purely from accumulated pity stacks.
+	if base_chance + bonus <= 0.0:
+		return {"crit": false, "new_pity": maxi(pity_stacks, 0) + 1}
 	var pity_bonus := minf(float(maxi(pity_stacks, 0)) * DEFAULT_PITY_STEP, MAX_PITY_BONUS)
 	var effective := clampf(base_chance + bonus + pity_bonus, 0.0, 1.0)
 	var crit := rng != null and is_instance_valid(rng) and rng.chance(salt, effective)

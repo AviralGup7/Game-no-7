@@ -73,13 +73,21 @@ func present(daily: bool = false) -> void:
 	_daily_info.text = "%s UTC  •  Fixed starter / shared seed\n%s\nOffline challenge — no online leaderboard." % [challenge.label, "  +  ".join(mutators)]
 	_refresh_details()
 
+## OptionButton.selected is -1 until something is picked (and stays -1 if the
+## list is rebuilt), which would index the id arrays out of bounds.
+func _selected_arena_index() -> int:
+	return clampi(_arenas.selected, 0, maxi(_arena_ids.size() - 1, 0))
+
+func _selected_weapon_index() -> int:
+	return clampi(_weapons.selected, 0, maxi(_weapon_ids.size() - 1, 0))
+
 func _refresh_details() -> void:
 	if _arena_ids.is_empty() or _weapon_ids.is_empty():
 		_start.disabled = true
 		_feedback.text = "Content unavailable. Return to the menu and try again."
 		return
-	var arena := ContentRegistry.get_arena(_arena_ids[_arenas.selected])
-	var weapon := ContentRegistry.get_weapon(_weapon_ids[_weapons.selected])
+	var arena := ContentRegistry.get_arena(_arena_ids[_selected_arena_index()])
+	var weapon := ContentRegistry.get_weapon(_weapon_ids[_selected_weapon_index()])
 	if arena == null or weapon == null:
 		_start.disabled = true
 		_feedback.text = "This content could not be loaded."
@@ -117,7 +125,7 @@ func _launch() -> void:
 		present(true)
 		_feedback.text = "A new UTC challenge is available. Review the updated loadout, then start."
 		return
-	if not UiCommands.select_arena(_arena_ids[_arenas.selected]):
+	if not UiCommands.select_arena(_arena_ids[_selected_arena_index()]):
 		_feedback.text = "Arena selection was declined. Your run has not started."
 		return
 	_start.disabled = true

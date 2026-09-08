@@ -8,6 +8,7 @@ extends Control
 ## UI glue observing EventBus.enemy_damaged / player HealthComponent.
 
 const DEFAULT_POOL := 32
+const MAX_POOL := 64
 const RISE_PIXELS := 64.0
 const LIFE_SECONDS := 0.8
 const CRIT_SCALE := 1.5
@@ -37,8 +38,12 @@ func _make_label() -> Label:
 	return label
 
 
+## Raise/lower the live budget. The pool grows to match, otherwise a tier asking
+## for more numbers than DEFAULT_POOL (ULTRA wants 48) silently stayed at 32.
 func set_max_live(count: int) -> void:
-	_max_live = clampi(count, 4, DEFAULT_POOL)
+	_max_live = clampi(count, 4, MAX_POOL)
+	while _pool.size() < _max_live:
+		_pool.append(_make_label())
 
 
 func set_reduced_motion(reduced: bool) -> void:
@@ -112,9 +117,18 @@ func _obtain() -> Label:
 	for label in _pool:
 		if not label.visible:
 			return label
-	# Pool exhausted: reuse the oldest live label.
+	# Pool exhausted: reuse the oldest live label. Hide it first so the caller
+	# starts from a clean state instead of inheriting the dropped entry's tween.
+	if _live.is_empty():
+		var extra := _make_label()
+		_pool.append(extra)
+		return extra
 	var oldest: Dictionary = _live.pop_front()
-	return oldest["label"]
+	var recycled: Label = oldest["label"]
+	recycled.visible = false
+	recycled.scale = Vector2.ONE
+	recycled.modulate.a = 1.0
+	return recycled
 
 
 func _process(delta: float) -> void:

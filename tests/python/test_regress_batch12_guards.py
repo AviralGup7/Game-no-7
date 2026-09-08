@@ -106,7 +106,11 @@ class ProgressionComponentGuardTests(unittest.TestCase):
         txt = read("scripts/player/progression_component.gd")
         self.assertIn("is_finite(base)", txt)
         self.assertIn("is_finite(float(_modifiers", txt)
-        self.assertIn("clampf(float(_modifiers", txt)
+        # The accumulated total must still be clamped. This used to pin the exact
+        # text "clampf(float(_modifiers[k]) + v", but that spelling WAS the bug:
+        # indexing _modifiers[k] before the key exists dropped the first stack of
+        # every upgrade. Assert the clamp, not the buggy expression.
+        self.assertRegex(txt, r"_modifiers\[k\] = clampf\(")
 
 class HealthComponentGuardTests(unittest.TestCase):
     def test_health_finite_payload(self):

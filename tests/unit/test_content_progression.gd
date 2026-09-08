@@ -170,18 +170,25 @@ static func suite() -> Array:
 			"seed": -9,
 			"current_wave": 4,
 			"selected_upgrades": {"power": 2, "broken": -4},
+			# 4 is not a content id: it must be dropped, not stringified to "4",
+			# and it must not take the rest of the list down with it.
 			"equipped_weapons": ["gladius", "gladius", 4],
 			"equipped_skills": ["seismic_slam"],
 		},
 	})
 	var build: Dictionary = normalized.get("last_run_build", {})
+	# Read the expected version off the same script object the call went through,
+	# so this never compares against a different constant than the one in use.
+	var expected_version: int = int(SaveScript.SCHEMA_VERSION)
+	var got_version: int = int(normalized.get("schema_version", 0))
 	results.append({
 		"name": "save schema preserves and sanitizes last run build",
-		"passed": int(normalized.get("schema_version", 0)) == SaveSchema.SCHEMA_VERSION
+		"passed": got_version == expected_version
 			and int(build.get("seed", 1)) == 0
 			and build.get("selected_upgrades", {}).get("broken", 1) == 0
-			and (build.get("equipped_weapons", []) as Array).size() == 2,
-		"why": str(build),
+			and (build.get("equipped_weapons", []) as Array) == ["gladius"]
+			and (build.get("equipped_skills", []) as Array) == ["seismic_slam"],
+		"why": "version=%d/%d build=%s" % [got_version, expected_version, str(build)],
 	})
 
 	return results

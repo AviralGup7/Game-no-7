@@ -80,7 +80,10 @@ static func _counts_for_wave(wave_number: int) -> Dictionary:
 			var extra := w - 5
 			basic = mini(8 + extra, 18)
 			fast = mini(2 + extra, 10)
-			heavy = 1 + int(floor(extra / 2.0))
+			# heavy was the only tier missing its cap, so total planned count kept
+			# climbing past the documented ceiling (46 by wave 40). 12 keeps the
+			# existing curve untouched until wave 27 and holds the total at <= 40.
+			heavy = mini(1 + int(floor(extra / 2.0)), 12)
 	return {"basic": basic, "fast": fast, "heavy": heavy}
 
 

@@ -1,7 +1,13 @@
 extends RefCounted
 
 ## Headless unit tests for WeaponConfig validation, WeaponInstance timing,
-## MeleeResolver arc selection and RangedResolver math. Pure/static only.
+## MeleeResolver arc selection and RangedResolver math.
+##
+## The MeleeResolver fixtures are Node3D and MUST be inside the scene tree:
+## get_global_transform() falls back to identity outside it, so parentless dummies
+## all report global_position == ORIGIN and the arc/range filtering degenerates
+## (every target sits on the swing origin and passes). MeleeResolver reads
+## .global_position. Registered in run_tests.gd's NODE_SUITES for a live frame.
 
 class DummyTarget extends Node3D:
 	var hp := 100.0
@@ -30,6 +36,15 @@ static func _sword() -> WeaponConfig:
 	w.crit_chance = 0.0
 	w.crit_multiplier = 2.0
 	return w
+
+
+## Attach first, then position: global_position is only meaningful in-tree.
+static func _melee_dummy(pos: Vector3) -> DummyTarget:
+	var d := DummyTarget.new()
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.root.add_child(d)
+	d.global_position = pos
+	return d
 
 
 static func suite() -> Array:
@@ -106,14 +121,13 @@ static func suite() -> Array:
 	})
 
 	# --- MeleeResolver: arc selection nearest-first ---
-	var front := DummyTarget.new()
-	front.position = Vector3(0, 0, -2)
-	var near_side := DummyTarget.new()
-	near_side.position = Vector3(1.5, 0, -1.5)
-	var behind := DummyTarget.new()
-	behind.position = Vector3(0, 0, 2)
-	var far := DummyTarget.new()
-	far.position = Vector3(0, 0, -9)
+	var front := _melee_dummy(Vector3(0, 0, -2))
+	# Clearly inside the 90-degree arc (~43 deg off-axis). The old (1.5, 0, -1.5)
+	# sat at exactly 45.0 deg — the arc boundary — so whether it counted came down
+	# to float rounding in angle_to() rather than the behaviour under test.
+	var near_side := _melee_dummy(Vector3(1.4, 0, -1.5))
+	var behind := _melee_dummy(Vector3(0, 0, 2))
+	var far := _melee_dummy(Vector3(0, 0, -9))
 	var swing := WeaponInstance.new(good, 1)
 	var hits := MeleeResolver.select_targets(Vector3.ZERO, Vector3(0, 0, -1), [front, near_side, behind, far], swing)
 	results.append({
@@ -158,8 +172,7 @@ static func suite() -> Array:
 		"why": "",
 	})
 
-	front.free()
-	near_side.free()
-	behind.free()
-	far.free()
+	for d in [front, near_side, behind, far]:
+		d.get_parent().remove_child(d)
+		d.free()
 	return results

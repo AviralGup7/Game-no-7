@@ -43,7 +43,9 @@ class ProgressionTests(unittest.TestCase):
     def test_accumulate_clamp(self):
         txt=read("scripts/player/progression_component.gd")
         self.assertIn("is_finite(float(raw))",txt)
-        self.assertIn("clampf(float(_modifiers",txt)
+        # See test_regress_batch12_guards: the old literal "clampf(float(_modifiers"
+        # pinned the very expression that dropped every upgrade's first stack.
+        self.assertRegex(txt, r"_modifiers\[k\] = clampf\(")
 
 class ExperienceTests(unittest.TestCase):
     def test_validated_xp_mult(self):

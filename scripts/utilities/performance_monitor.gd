@@ -149,8 +149,6 @@ func set_tier(tier: int) -> void:
 ## Push engine-level knobs for the current tier. Everything is best-effort and
 ## guarded so headless/editor runs without a renderer never crash.
 func _apply_tier_to_engine() -> void:
-	if not DisplayServer.get_name() in ["Android", "windows", "X11", "macOS", "iOS", "headless"]:
-		pass
 	match _tier:
 		TIER_LOW:
 			Engine.max_fps = 30

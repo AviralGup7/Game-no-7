@@ -334,6 +334,12 @@ func _clear_world() -> void:
 	# still in the tree collide with the new names, permanently renaming the new
 	# world children to @-style auto-names and breaking WorldRoot path lookups.
 	for child in _world_root.get_children():
+		# Detach BEFORE freeing: while the old "Arena"/"Player"/... nodes are still
+		# attached they occupy their names, and build_world() re-adds the new ones
+		# in this same call. Godot would then silently rename the new nodes and
+		# hardcoded lookups such as "WorldRoot/Arena" would resolve to the dying
+		# node (or null). free() rather than queue_free() because the replacement
+		# is built synchronously and must not race a deferred deletion.
 		_world_root.remove_child(child)
 		child.free()
 	_spawn_manager = null

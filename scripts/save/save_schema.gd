@@ -143,6 +143,11 @@ static func _string_list(value: Variant) -> Array:
 	var out: Array = []
 	if value is Array:
 		for item in value:
+			# Only genuine text ids survive. String(4) yields "4", which would
+			# smuggle a corrupt numeric entry into a list of content ids and let
+			# a malformed save resolve to a nonexistent weapon/skill later.
+			if not (item is String or item is StringName):
+				continue
 			var id := String(item)
 			if not id.is_empty() and id not in out:
 				out.append(id)

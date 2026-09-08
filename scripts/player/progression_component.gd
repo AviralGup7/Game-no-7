@@ -108,10 +108,18 @@ func _accumulate(config: UpgradeConfig) -> void:
 		var k: StringName = StringName(String(key))
 		var raw: Variant = config.stat_modifiers[key]
 		var v: float = float(raw) if is_finite(float(raw)) else 0.0
-		if not is_finite(float(_modifiers.get(k, 0.0))):
-			_modifiers[k] = 0.0
-		# First stack of a new key must not read a missing entry (script error).
-		_modifiers[k] = clampf(float(_modifiers.get(k, 0.0)) + v, -1e6, 1e6)
+		# Seed the slot before reading it. The previous guard only reset the total
+		# when it was already present AND non-finite, so on the FIRST stack of any
+		# key the next line indexed a missing dictionary entry: Godot pushes an
+		# error and yields null, float(null) == 0.0, and the accumulated value was
+		# silently discarded. Net effect: the first stack of every upgrade did
+		# nothing (+15% damage still read as base).
+		# (origin/main fixed the same bug via .get() on both reads; this keeps a
+		# single lookup and one clearly-named local.)
+		var current: float = float(_modifiers.get(k, 0.0))
+		if not is_finite(current):
+			current = 0.0
+		_modifiers[k] = clampf(current + v, -1e6, 1e6)
 
 
 ## Read an effective derived stat. `base` is the unmodified, pre-upgrade value.
