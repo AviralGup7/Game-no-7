@@ -235,6 +235,20 @@ func _roll_crit() -> bool:
 		return false
 	if _crit_roll_source.is_valid():
 		return float(_crit_roll_source.call()) < chance
+	# Deterministic fallback: seed from run + global tick so crits are replay-stable
+	# when no injected source is wired (headless/gameplay). Pure cosmetic randf() is
+	# avoided for gameplay-affecting rolls per project determinism rule.
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		var seed_val := 0
+		if run != null:
+			if run is Dictionary:
+				seed_val = int((run as Dictionary).get("seed", 0))
+			elif "seed" in run:
+				seed_val = int((run as Object).get("seed"))
+		if seed_val != 0:
+			var svc := RngService.new(seed_val)
+			return svc.chance(RngService.STREAM_CRITS, chance)
 	return randf() < chance
 
 

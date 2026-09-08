@@ -122,6 +122,7 @@ func _update_shake(delta: float) -> void:
 		return
 	_shake_remaining = maxf(_shake_remaining - delta, 0.0)
 	var strength := _shake_amplitude * (_shake_remaining / maxf(_shake_remaining + 0.1, 0.001))
+	# Cosmetic-only RNG: camera shake is visual jitter, never affects gameplay/damage.
 	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * strength
 	_camera.position = _base_cam_pos + offset
 

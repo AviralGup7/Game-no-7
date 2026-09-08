@@ -282,11 +282,12 @@ func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
 	var boss := instance.get_node_or_null("BossController")
 	if boss == null:
 		return
-	if boss.has_method("begin_fight"):
-		boss.call("begin_fight", _run_seed)
-	# Boss summons join the plan like splitter children (accounting stays exact).
+	# Connect summons BEFORE begin_fight so an immediate emit during initialization
+	# is not lost; boss summons participate in authoritative SpawnLedger accounting.
 	if boss.has_signal("summon_requested") and not boss.summon_requested.is_connected(_on_boss_summon_requested):
 		boss.summon_requested.connect(_on_boss_summon_requested)
+	if boss.has_method("begin_fight"):
+		boss.call("begin_fight", _run_seed)
 
 
 func _on_boss_summon_requested(archetype_id: StringName, count: int) -> void:

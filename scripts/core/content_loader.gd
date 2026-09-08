@@ -188,20 +188,30 @@ static func _list_resources(dir_path: String, extensions: Array = [".tres"]) -> 
 	var out: Array[String] = []
 	if not DirAccess.dir_exists_absolute(dir_path):
 		return out
+	_recursive_list(dir_path, extensions, out)
+	out.sort()
+	return out
+
+
+static func _recursive_list(dir_path: String, extensions: Array, out: Array[String]) -> void:
 	var dir := DirAccess.open(dir_path)
 	if dir == null:
-		return out
+		return
 	dir.list_dir_begin()
 	var file := dir.get_next()
 	while file != "":
-		if not dir.current_is_dir() and _has_extension(file, extensions):
+		var full := dir_path.path_join(file)
+		if dir.current_is_dir():
+			# Recurse into subdirectories (e.g. data/enemies/bosses/) — flat directories
+			# remain supported, but future organization does not silently stop discovery.
+			if not file.begins_with("."):
+				_recursive_list(full, extensions, out)
+		elif _has_extension(file, extensions):
 			# Skip Godot's import sidecars; load() resolves the real resource.
 			if not file.ends_with(".import") and not file.ends_with(".godot"):
-				out.append(dir_path.path_join(file))
+				out.append(full)
 		file = dir.get_next()
 	dir.list_dir_end()
-	out.sort()
-	return out
 
 
 static func _has_extension(file: String, extensions: Array) -> bool:
