@@ -155,7 +155,11 @@ func request_restart() -> void:
 
 
 func request_main_menu() -> void:
-	_paused = false
+	# Must go through _set_paused so SceneTree.paused / RunState.paused are cleared
+	# too. Writing _paused directly leaves the tree paused forever, and the guard in
+	# _set_paused ("if _paused == value: return") would then swallow every later
+	# unpause, so the next run starts frozen with a live UI.
+	_set_paused(false)
 	transition_to(State.MAIN_MENU)
 
 

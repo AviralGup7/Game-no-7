@@ -296,6 +296,12 @@ func _clear_world() -> void:
 	if _world_root == null:
 		return
 	for child in _world_root.get_children():
+		# Detach BEFORE queue_free: queue_free only frees at the end of the frame, so
+		# the old "Arena"/"Player"/… nodes would still occupy their names while
+		# build_world() re-adds the new ones. Godot would then silently rename the new
+		# nodes ("Arena2", …) and hardcoded lookups such as "WorldRoot/Arena" would
+		# resolve to the dying node (or null) for the rest of the frame.
+		_world_root.remove_child(child)
 		child.queue_free()
 	_spawn_manager = null
 	_wave_manager = null

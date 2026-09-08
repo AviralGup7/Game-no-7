@@ -69,17 +69,25 @@ func _locate_controller() -> void:
 func bind_controller(controller: SkillController) -> void:
 	if is_instance_valid(_controller) and _controller.skill_cooldown_started.is_connected(_on_cooldown_event):
 		_controller.skill_cooldown_started.disconnect(_on_cooldown_event)
-	if is_instance_valid(_controller) and _controller.has_signal("skill_became_ready") and _controller.skill_became_ready.is_connected(_on_cooldown_event):
-		_controller.skill_became_ready.disconnect(_on_cooldown_event)
+	if is_instance_valid(_controller) and _controller.has_signal("skill_became_ready") and _controller.skill_became_ready.is_connected(_on_skill_ready):
+		_controller.skill_became_ready.disconnect(_on_skill_ready)
 	_controller = controller
 	if _controller != null:
 		_controller.skill_cooldown_started.connect(_on_cooldown_event)
 		if _controller.has_signal("skill_became_ready"):
-			_controller.skill_became_ready.connect(_on_cooldown_event)
+			_controller.skill_became_ready.connect(_on_skill_ready)
 		_refresh_all()
 
 
+## SkillController.skill_cooldown_started(skill_id, duration) — 2 args.
 func _on_cooldown_event(_skill_id: StringName, _duration: float) -> void:
+	_refresh_all()
+
+
+## SkillController.skill_became_ready(skill_id) — 1 arg. Must stay a separate
+## handler: connecting the 2-arg callable above to this signal raises a runtime
+## "too few arguments" error every time a skill comes off cooldown.
+func _on_skill_ready(_skill_id: StringName) -> void:
 	_refresh_all()
 
 
