@@ -928,6 +928,62 @@
       ],
       "suggested_volume_db": -8.0
     },
+    "skill_cast": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/knife_slice.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "skill_ready": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/interface/confirmation_001.wav"
+      ],
+      "suggested_volume_db": -10.0
+    },
+    "level_up": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/handle_coins.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "wave_completed": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/interface/confirmation_002.wav"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_spawned": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_phase_changed": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "boss_slain": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_wood_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
     "arena_menu": {
       "bus": "Music",
       "loop": true,
