@@ -5,6 +5,8 @@ extends HBoxContainer
 ## buttons. Binds to a SkillController (player child) and refreshes at 10 Hz.
 ## Builds its slots in code so it works without extra scene assets.
 
+signal action_declined(message: String)
+
 const SLOT_COUNT := 3
 const REFRESH_INTERVAL := 0.1
 
@@ -19,14 +21,19 @@ func _ready() -> void:
 	for i in range(SLOT_COUNT):
 		_buttons.append(_make_slot(i))
 	_locate_controller()
+	EventBus.run_started.connect(func(_id: int, _seed: int) -> void:
+		bind_controller(null)
+		_locate_controller())
 
 
 func _make_slot(index: int) -> Button:
 	var wrapper := VBoxContainer.new()
+	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrapper.add_theme_constant_override("separation", 0)
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(64, 64)
-	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(64, 58)
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.add_theme_font_size_override("font_size", 18)
 	button.text = "—"
 	button.disabled = true
 	var slot := index
@@ -34,7 +41,8 @@ func _make_slot(index: int) -> Button:
 	wrapper.add_child(button)
 	var cd := Label.new()
 	cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cd.add_theme_font_size_override("font_size", 13)
+	cd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cd.add_theme_font_size_override("font_size", 16)
 	cd.text = ""
 	wrapper.add_child(cd)
 	_cooldown_labels.append(cd)
@@ -59,7 +67,7 @@ func _locate_controller() -> void:
 
 
 func bind_controller(controller: SkillController) -> void:
-	if _controller != null and _controller.skill_cooldown_started.is_connected(_on_cooldown_event):
+	if is_instance_valid(_controller) and _controller.skill_cooldown_started.is_connected(_on_cooldown_event):
 		_controller.skill_cooldown_started.disconnect(_on_cooldown_event)
 	_controller = controller
 	if _controller != null:
@@ -72,11 +80,12 @@ func _on_cooldown_event(_skill_id: StringName, _duration: float) -> void:
 
 
 func _on_slot_pressed(slot: int) -> void:
-	if _controller != null:
-		_controller.try_cast_slot(slot)
+	if not UiCommands.action(&"request_skill", [slot]):
+		action_declined.emit("Skill unavailable — check stamina, cooldown and unlock level.")
 
 
 func _process(delta: float) -> void:
+	if not is_visible_in_tree(): return
 	_accum += delta
 	if _accum < REFRESH_INTERVAL:
 		return
@@ -94,28 +103,34 @@ func _refresh_all() -> void:
 func _refresh_slot(i: int) -> void:
 	var button := _buttons[i]
 	var cd := _cooldown_labels[i]
-	if _controller == null:
+	if not is_instance_valid(_controller):
 		button.text = "—"
 		button.disabled = true
-		cd.text = ""
+		cd.text = "EMPTY"
+		button.icon = null
 		return
 	var cfg := _controller.slot_skill(i)
 	if cfg == null:
 		button.text = "—"
 		button.disabled = true
-		cd.text = ""
+		cd.text = "EMPTY"
+		button.icon = null
 		return
-	button.text = _short_name(cfg)
+	button.text = cfg.display_name
+	button.tooltip_text = cfg.description
+	button.icon = cfg.icon
+	button.expand_icon = true
+	button.add_theme_constant_override("icon_max_width", 24)
 	var unlocked := _controller.is_unlocked(cfg.skill_id)
 	var remaining := _controller.slot_cooldown(i)
 	if not unlocked:
 		button.disabled = true
-		button.modulate = Color(0.45, 0.45, 0.45)
-		cd.text = "Lv%d" % cfg.unlock_level
+		button.modulate = Color.WHITE
+		cd.text = "LOCKED Lv%d" % cfg.unlock_level
 	elif remaining > 0.0:
 		button.disabled = true
-		button.modulate = Color(0.7, 0.7, 0.8)
-		cd.text = "%.1f" % remaining
+		button.modulate = Color.WHITE
+		cd.text = "%.1fs" % remaining
 	else:
 		button.disabled = false
 		button.modulate = Color.WHITE
@@ -135,11 +150,10 @@ func _key_hint(index: int) -> String:
 	var cfg := _controller.slot_skill(index) if _controller != null else null
 	if cfg == null:
 		return ""
-	match String(cfg.input_action):
-		"skill_1":
-			return "Q"
-		"skill_2":
-			return "E"
-		"skill_3":
-			return "R"
-	return ""
+	return UiCommands.binding(cfg.input_action) + " / READY"
+
+
+func fit_touch_targets(view_width: float) -> void:
+	var edge := 96.0 if view_width >= 1000 else 64.0
+	for button in _buttons:
+		button.custom_minimum_size = Vector2(edge, edge)

@@ -7,11 +7,13 @@ extends Control
 ## GameRoot and then locks the panel through lock_selection().
 
 signal choice_pressed(upgrade_id: StringName)
+signal exit_requested()
 
-var _cards_box: HBoxContainer = null
+var _cards_box: GridContainer = null
 var _note: Label = null
 var _card_buttons: Array[Button] = []
 var _selection_locked := false
+var _empty_back: Button
 
 
 func _ready() -> void:
@@ -19,20 +21,27 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP  # block clicks through to HUD
 	var box := UiFactory.center_box(self)
-	UiFactory.title(UiText.get(&"upgrades_title"), box, UiFactory.font_scaled(30))
+	UiFactory.title(UiText.lookup(&"upgrades_title"), box, UiFactory.font_scaled(30))
 	var sub := Label.new()
-	sub.text = UiText.get(&"upgrade_choose_hint")
+	sub.text = UiText.lookup(&"upgrade_choose_hint")
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", UiFactory.font_scaled(15))
+	sub.add_theme_font_size_override("font_size", UiFactory.font_scaled(20))
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(sub)
-	_cards_box = HBoxContainer.new()
-	_cards_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	_cards_box.add_theme_constant_override("separation", 18)
+	_cards_box = GridContainer.new()
+	_cards_box.columns = 3
+	resized.connect(_layout_cards)
+	_cards_box.add_theme_constant_override("h_separation", 16)
+	_cards_box.add_theme_constant_override("v_separation", 16)
 	box.add_child(_cards_box)
 	_note = Label.new()
 	_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_note.add_theme_font_size_override("font_size", UiFactory.font_scaled(16))
+	_note.add_theme_font_size_override("font_size", UiFactory.font_scaled(20))
+	_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_note)
+	_empty_back = UiFactory.button("RETURN TO MENU", box, 20)
+	_empty_back.pressed.connect(func() -> void: exit_requested.emit())
+	_empty_back.visible = false
 	visible = false
 
 
@@ -47,7 +56,11 @@ func present(choices: Array) -> void:
 		_add_card(cfg)
 	if _note == null:
 		return
-	_note.text = UiText.get(&"upgrade_none") if _card_buttons.is_empty() else ""
+	_note.text = UiText.lookup(&"upgrade_none") if _card_buttons.is_empty() else "Choose carefully. Only one card can be kept."
+	_empty_back.visible = _card_buttons.is_empty()
+	_layout_cards()
+	UiTheme.apply_text_scale(_cards_box, SaveManager.get_settings().text_scale)
+	UiFactory.focus_first.call_deferred(self)
 
 
 ## Lock the panel after GameRoot accepted a pick (cards go non-interactive).
@@ -74,15 +87,19 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	if _cards_box == null:
 		return
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(170, 200)
+	btn.custom_minimum_size = Vector2(0, 220)
+	btn.size_flags_horizontal = SIZE_EXPAND_FILL
+	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	var stack := _current_stack(cfg.upgrade_id)
 	var rarity := String(cfg.rarity).to_upper()
-	var body := "%s\n[%s]\n\n%s" % [cfg.display_name, rarity, cfg.description]
-	if stack > 0:
-		body += "\nstack %d/%d" % [stack, cfg.max_stacks]
+	var body := "%s\n%s\n\n%s" % [cfg.display_name, rarity, cfg.description]
+	body += "\n\nRANK %d → %d / %d" % [stack, stack + 1, cfg.max_stacks]
 	btn.text = body
-	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(13))
+	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/ui/upgrades/award.png")
+	btn.expand_icon = true
+	btn.add_theme_constant_override("icon_max_width", 28)
+	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(22))
 	btn.add_theme_color_override("font_color", _rarity_color(cfg.rarity))
 	var id := cfg.upgrade_id
 	btn.pressed.connect(func() -> void: _on_card_pressed(id))
@@ -114,3 +131,11 @@ func _rarity_color(rarity: StringName) -> Color:
 		&"legendary":
 			return Color(0.98, 0.75, 0.35)
 	return Color.WHITE
+
+
+func show_feedback(message: String) -> void:
+	_note.text = message
+
+func _layout_cards() -> void:
+	if _cards_box != null:
+		_cards_box.columns = 1 if size.x < 1000 or SaveManager.get_settings().text_scale > 1.3 else 3
