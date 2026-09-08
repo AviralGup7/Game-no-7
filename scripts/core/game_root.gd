@@ -246,8 +246,11 @@ func _start_new_run() -> void:
 	_current_run.reset()
 	_current_run.run_id = _next_run_id()
 	_current_run.seed = randi()
+	if _current_run.seed == 0:
+		_current_run.seed = 1
 	if not _daily.is_empty():
-		_current_run.seed = int(_daily.get("seed", _current_run.seed))
+		var ds := int(_daily.get("seed", _current_run.seed))
+		_current_run.seed = ds if ds != 0 else 1
 	_current_run.arena_id = arena_id
 	_current_run.elapsed_seconds = 0.0
 	_score.reset_run(_current_run)
@@ -432,6 +435,7 @@ func get_debug_snapshot() -> Dictionary:
 ## Hardened: validate run seed before starting.
 func _validated_seed(s: int) -> int:
 	if s == 0:
-		return randi()
+		var r := randi()
+		return r if r != 0 else 1
 	return s
 

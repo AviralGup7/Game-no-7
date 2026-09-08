@@ -124,5 +124,8 @@ func _launch() -> void:
 
 ## Hardened: clamp run seed input.
 func _validated_setup_seed(s: int) -> int:
-	return s if s != 0 else randi()
+	if s != 0:
+		return s
+	var r := randi()
+	return r if r != 0 else 1
 

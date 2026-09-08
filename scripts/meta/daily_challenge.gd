@@ -21,7 +21,8 @@ static func seed_for_stamp(stamp: int) -> int:
 	h = ((h >> 16) ^ h) * 0x45d9f3b
 	h = ((h >> 16) ^ h) * 0x45d9f3b
 	h = (h >> 16) ^ h
-	return abs(h)
+	var s := abs(h)
+	return s if s != 0 else 1
 
 
 static func seed_for_today() -> int:
