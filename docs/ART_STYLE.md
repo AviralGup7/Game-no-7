@@ -1,6 +1,6 @@
 # ART_STYLE.md — Visual style guide
 
-A cohesive, **stylized low-poly** look: colourful but not childish, readable
+A cohesive, **stylized medium-detail** look: colourful but not childish, readable
 silhouettes, clean geometry, good contrast, attractive on mobile, and lightweight.
 
 ## Core principles
@@ -9,8 +9,9 @@ silhouettes, clean geometry, good contrast, attractive on mobile, and lightweigh
    distinguishable at a glance and against the ground.
 2. **Cohesion.** All assets share one palette, scale, lighting and material language.
    Do not mix visually incompatible packs.
-3. **Lightweight.** Low polygon counts, minimal shaders, small textures (ETC2/ASTC),
-   few dynamic lights/shadows.
+3. **Measured budgets, not ultra-low-poly at all costs.** Readable bevels, shaped
+   silhouettes and roughly 1K surface detail are welcome. Use shared materials,
+   texture compression and few dynamic lights; measure full-wave performance.
 
 ## Palette
 
@@ -46,13 +47,15 @@ Use high-contrast variant (settings toggle) for accessibility.
 - Distinct **colour** and optional emissive accent.
 - Clear **attack telegraph** (pose/colour/flash before a hit).
 
-## Downloaded art family (not yet integrated)
+## Downloaded art families (partially integrated)
 
 The reviewed kit in `assets/` uses **KayKit Adventurers + Skeletons + Dungeon
 Remastered** for matching characters, weapons, props and texture language, with
 Kenney particle/UI assets and Rajdhani fonts. See `docs/ASSET_CATALOG.md` for exact
-files, animation names and per-role mappings. These downloads do not replace the
-live primitive models or change combat/camera behaviour yet.
+files, animation names and per-role mappings. Detailed stone surfaces and pickup models are now integrated. The Quaternius
+creature/equipment additions are mapped for the expanded roster, but live actor
+primitives and equipment/animation wiring remain pending. Combat/camera behaviour
+is unchanged. See `ASSET_AUDIT.md` for decisions and outstanding review.
 
 Keep the original textured materials when applying the role palette; tint accents
 or duplicate materials rather than flattening every surface to a single colour.

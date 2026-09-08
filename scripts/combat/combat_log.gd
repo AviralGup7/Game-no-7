@@ -36,7 +36,7 @@ func clear() -> void:
 
 
 ## Append one entry. Returns its sequence number.
-func log(kind: StringName, text: String, data: Dictionary = {}) -> int:
+func record(kind: StringName, text: String, data: Dictionary = {}) -> int:
 	_seq += 1
 	_entries.append({
 		"seq": _seq,
@@ -51,7 +51,7 @@ func log(kind: StringName, text: String, data: Dictionary = {}) -> int:
 
 
 func log_damage(source_id: StringName, target_name: String, amount: float, was_crit: bool, target_died: bool) -> int:
-	return log(KIND_DAMAGE, "%s hit %s for %d%s%s" % [
+	return record(KIND_DAMAGE, "%s hit %s for %d%s%s" % [
 		String(source_id), target_name, int(round(amount)),
 		" CRIT" if was_crit else "",
 		" (killed)" if target_died else "",
@@ -59,11 +59,11 @@ func log_damage(source_id: StringName, target_name: String, amount: float, was_c
 
 
 func log_heal(target_name: String, amount: float) -> int:
-	return log(KIND_HEAL, "%s healed %d" % [target_name, int(round(amount))], {"amount": amount})
+	return record(KIND_HEAL, "%s healed %d" % [target_name, int(round(amount))], {"amount": amount})
 
 
 func log_kill(archetype_id: StringName, score: int) -> int:
-	return log(KIND_KILL, "%s slain (+%d)" % [String(archetype_id), score], {"score": score})
+	return record(KIND_KILL, "%s slain (+%d)" % [String(archetype_id), score], {"score": score})
 
 
 ## Newest-first slice of the last `count` entries.
@@ -71,7 +71,7 @@ func recent(count: int) -> Array:
 	var n := mini(maxi(count, 0), _entries.size())
 	if n <= 0:
 		return []
-	return _entries.slice(_entries.size() - n).reversed()
+	return _entries.slice(_entries.size() - n).duplicate().reverse()
 
 
 ## All entries of one kind, oldest-first.

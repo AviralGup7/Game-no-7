@@ -166,3 +166,29 @@ godot --headless --path . --export-release "Android" build/LastStandArena.apk
 - **"preset not found"** → confirm `export_presets.cfg` lists a preset named `Android`.
 - **Import errors on fresh clone** → run `--import` once (needed for class registry).
 - **Play rejects debug-signed APK** → provide a release keystore + CI secrets.
+
+## Publish a GitHub milestone release
+
+Dispatch `Android build` on the intended branch with an explicit version tag:
+
+```bash
+gh workflow run android.yml --ref <branch> -f release_tag=v0.4.0
+```
+
+Tag-push runs also use the tag that triggered them. Publication waits for all checks
+and the Android build to succeed, then downloads that job's exact APK rather than
+building a second, independently validated binary. The release targets the workflow
+commit and includes `LastStandArena-debug.apk` plus `SHA256SUMS.txt`. These are
+**debug-signed sideload/testing milestones**, not Google Play production releases.
+Use a new version tag for each release.
+
+### Embedded model textures
+
+`project.godot` sets the scene importer default `gltf/embedded_image_handling` to
+**2 (Embed as Basis Universal)**. A fresh import keeps glTF/GLB embedded textures
+inside Godot's imported scene cache instead of extracting duplicate PNGs next to
+the source model. The source asset inventory therefore remains checksum-locked.
+On an existing developer checkout, change the model's Import setting to Embed as
+Basis Universal and reimport if its old `.import` sidecar still selects Extract
+Textures. Only remove obsolete generated PNGs after confirming they are not in
+`assets/manifest.json`; never delete the approved editable texture atlases.

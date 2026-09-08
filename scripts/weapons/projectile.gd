@@ -17,7 +17,7 @@ const TEAM_ENEMY := &"enemy"
 var team: StringName = TEAM_PLAYER
 var direction: Vector3 = Vector3.FORWARD
 var speed: float = 18.0
-var gravity: float = 0.0
+var gravity_arc: float = 0.0
 var damage: float = 10.0
 var knockback_strength: float = 4.0
 var pierce_remaining: int = 0
@@ -52,7 +52,7 @@ func launch(config: Dictionary) -> void:
 	team = config.get("team", TEAM_PLAYER)
 	direction = (config.get("direction", Vector3.FORWARD) as Vector3).normalized()
 	speed = maxf(float(config.get("speed", 18.0)), 0.1)
-	gravity = maxf(float(config.get("gravity", 0.0)), 0.0)
+	gravity_arc = maxf(float(config.get("gravity", 0.0)), 0.0)
 	damage = maxf(float(config.get("damage", 10.0)), 0.0)
 	knockback_strength = maxf(float(config.get("knockback", 4.0)), 0.0)
 	pierce_remaining = maxi(int(config.get("pierce", 0)), 0)
@@ -80,8 +80,8 @@ func launch(config: Dictionary) -> void:
 func _physics_process(delta: float) -> void:
 	if not _active:
 		return
-	if gravity > 0.0:
-		direction = (direction + Vector3.DOWN * gravity * delta).normalized()
+	if gravity_arc > 0.0:
+		direction = (direction + Vector3.DOWN * gravity_arc * delta).normalized()
 	var step := speed * delta
 	global_position += direction * step
 	_travelled += step

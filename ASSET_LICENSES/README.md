@@ -36,3 +36,12 @@ The Android export presets explicitly include this folder's `.txt` / `.md` notic
 and both provenance manifests. Asset authors are credited voluntarily for CC0;
 font licence/copyright retention is mandatory. No third-party game code or plugins
 were taken from the asset redistribution repositories.
+
+## Additions — 8 September 2026
+
+- `quaternius.txt`: original Quaternius CC0 notice from the reviewed redistribution,
+  shared explicitly by the Quaternius model sources. Pack-specific original website
+  evidence is listed in `docs/ASSET_AUDIT.md`; mirror application licences are not
+  treated as asset provenance.
+- `godot-stone.txt`: **MIT** copyright and permission notice from Godot's official
+  demo repository. Mandatory retention for the three downloaded stone textures.

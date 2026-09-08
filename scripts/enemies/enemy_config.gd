@@ -33,6 +33,19 @@ extends Resource
 @export var elite_eligible: bool = false
 @export var spawn_priority: int = 0
 @export_multiline var balance_notes: String = ""
+@export var ai_behavior: StringName = &"melee"
+@export var ranged_range: float = 8.0
+@export var ranged_cooldown: float = 2.0
+@export var ranged_windup: float = 0.5
+@export var projectile_speed: float = 10.0
+@export var projectile_count: int = 1
+@export var projectile_damage_scale: float = 1.0
+@export var preferred_distance: float = 4.0
+@export var strafe_speed: float = 1.5
+@export var death_blast_radius: float = 0.0
+@export var death_blast_damage_scale: float = 0.0
+@export var split_count: int = 0
+@export var splits_into: StringName = &""
 
 const MIN_HEALTH: float = 1.0
 const MIN_MOVE_SPEED: float = 0.1

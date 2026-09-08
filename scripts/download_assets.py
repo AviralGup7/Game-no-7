@@ -62,7 +62,7 @@ def load_manifest(path: Path = MANIFEST_PATH, root: Path = REPO_ROOT) -> dict:
     for pack, source in sources.items():
         if not isinstance(source, dict):
             raise ValueError(f"Invalid source: {pack}")
-        if source.get("license") not in {"CC0-1.0", "OFL-1.1"}:
+        if source.get("license") not in {"CC0-1.0", "OFL-1.1", "MIT"}:
             raise ValueError(f"Unreviewed licence for {pack}")
         if not REPOSITORY.fullmatch(source.get("download_repository", "")):
             raise ValueError(f"Invalid download repository for {pack}")
@@ -105,8 +105,11 @@ def load_manifest(path: Path = MANIFEST_PATH, root: Path = REPO_ROOT) -> dict:
             if not isinstance(entry.get(field), str) or not entry[field]:
                 raise ValueError(f"File {relative} missing {field}")
     for pack, source in sources.items():
-        if seen.get(source["license_file"]) != pack:
-            raise ValueError(f"Source {pack} must include its own checksum-locked licence notice")
+        license_pack = source.get("license_pack", pack)
+        if (not isinstance(license_pack, str) or license_pack not in sources
+                or sources[license_pack]["license"] != source["license"]
+                or seen.get(source["license_file"]) != license_pack):
+            raise ValueError(f"Source {pack} must include a matching checksum-locked licence notice")
     return manifest
 
 
