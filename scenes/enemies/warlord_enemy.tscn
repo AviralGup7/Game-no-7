@@ -100,6 +100,7 @@ phase_plan = Array[BossPhaseConfig]([SubResource("BossPhase_1"), SubResource("Bo
 script = ExtResource("9_animator")
 model_scene = ExtResource("10_model")
 model_extent = 2.6
+yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
 "run": "Run",
