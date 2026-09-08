@@ -13,8 +13,13 @@ Verified across the codebase (autoloads, gameplay, UI, save, meta, audio, VFX):
   progression, lifetime stats) writes to Godot's `user://`, which is the app's own
   internal storage. This requires no `READ`/`WRITE_EXTERNAL_STORAGE` permission.
 - **No device hardware is accessed.** The game does not use the microphone, camera,
-  GPS/location, sensors (gyro/accelerometer), Bluetooth, contacts, or notifications,
-  and does not call `vibrate_handheld`/haptics.
+  GPS/location, sensors (gyro/accelerometer), Bluetooth, contacts, or notifications.
+- **Haptics are opt-in and permission-free by design.** The game does call
+  `Input.vibrate_handheld()` (attack button feedback in `touch_action_button.gd`, hit
+  feedback in `player_feedback.gd`), gated behind the user's `vibration_enabled`
+  setting. On Android, `VIBRATE` is a *normal* (non-dangerous) permission that Godot
+  adds automatically when the feature is used — it is never prompted for at runtime and
+  does not change the "no runtime permissions" posture above. Do not add it manually.
 - **Rendering/output only.** Camera is virtual; audio is output-only.
 
 Declaring unneeded permissions (especially `INTERNET`, storage, or vibration) is
