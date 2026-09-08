@@ -18,6 +18,8 @@ extends Resource
 @export var max_stacks: int = 99
 @export var stat_modifiers: Dictionary = {}
 @export var tags: Array[StringName] = []
+## Transformative gameplay effects (see BuildEffects). Empty for pure stat sticks.
+@export var effect_tags: Array[StringName] = []
 @export var prerequisites: Array[StringName] = []
 @export var exclusions: Array[StringName] = []
 @export var unlock_wave: int = 1
@@ -27,7 +29,14 @@ extends Resource
 const VALID_RARITIES := [&"common", &"rare", &"epic", &"legendary"]
 const VALID_CATEGORIES := [
 	&"damage", &"defense", &"mobility", &"crit", &"status", &"aoe",
-	&"sustain", &"economy", &"projectile", &"skill", &"hybrid",
+	&"sustain", &"economy", &"projectile", &"skill", &"hybrid", &"transform",
+]
+
+## Known BuildEffects keys. Unknown tags still register (forward-compat) but
+## are flagged during validation so typos surface in content audits.
+const KNOWN_EFFECT_TAGS := [
+	&"chain_melee", &"fire_trail", &"kill_summon", &"thorn_nova",
+	&"frost_dodge", &"execute_threshold", &"lifesteal_burst", &"static_field",
 ]
 
 ## Stable modifier keys consumed by ProgressionComponent and combat facades. Keeping
@@ -94,11 +103,19 @@ func validate() -> Array[String]:
 	for exclusion in exclusions:
 		if String(exclusion).is_empty():
 			problems.append("exclusions cannot contain empty ids")
+	for effect in effect_tags:
+		if String(effect).is_empty():
+			problems.append("effect_tags cannot contain empty ids")
 	if upgrade_id in prerequisites:
 		problems.append("upgrade cannot require itself")
 	if upgrade_id in exclusions:
 		problems.append("upgrade cannot exclude itself")
 	return problems
+
+
+## True when this upgrade changes gameplay beyond flat stats.
+func is_transformative() -> bool:
+	return not effect_tags.is_empty()
 
 
 func modifier_value(key: StringName, fallback: float) -> float:

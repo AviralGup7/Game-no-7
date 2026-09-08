@@ -1,5 +1,66 @@
 # Changelog
 
+## [Unreleased] — Gameplay loop overhaul (2026-09-08)
+
+Structural content/design pass that breaks the single-mode grind loop. Code stays
+data-driven; modes, transforms, narrative and prestige are additive systems.
+
+### Game modes (`scripts/meta/game_mode.gd`)
+
+Five playable modes selectable from Run Setup:
+
+| Mode | Objective | Notes |
+|---|---|---|
+| **Standard** | Endless waves | Original loop, unchanged defaults |
+| **Boss Rush** | Slay 5 Warlords | No filler packs; elite-surge mutator; upgrade every wave |
+| **Survival** | Endure 5:00 | Dense packs; time-based victory; score ticks with life |
+| **Challenge** | Clear 12 waves | Fixed Gladius + glass/ember mutators; 1.5× score |
+| **Campaign** | Clear 15 scripted waves | Authored encounter beats + narrator lore; final dual Warlord |
+
+Victory ends the run cleanly (`RunState.victory`), banks a larger wallet cut, and
+shows a distinct summary banner. Retry preserves the mode.
+
+### Transformative upgrades (8 new cards + `BuildEffects`)
+
+Stat sticks remain, but new **transform** rarity cards change how you play:
+
+- **Storm Edge** — melee hits chain lightning
+- **Cinder Step / Glacial Step** — dodge leaves fire trail or frost nova
+- **Grave Pact** — kills summon temporary ally auras
+- **Thorn Mantle** — taking a hit detonates a thorn nova
+- **Reaper's Mark** — execute foes below 18% HP
+- **Blood Rite** — every 5th kill heals a burst
+- **Static Halo** — shocking aura pulses around you
+
+`UpgradeConfig.effect_tags` + `ProgressionComponent` effect tracking +
+`scripts/progression/build_effects.gd` runtime owner. Wired by Main on world build.
+
+### Arena differentiation
+
+Hazards now include **pressure plates** (player-triggered enemy blasts) and
+**orbiting movers**, with denser per-arena layouts. Mode pressure adds extra
+hazards for Boss Rush / Challenge / Survival / Campaign. Arena tags updated.
+
+### Narrative layer (`scripts/meta/narrator.gd`)
+
+Arena lore intros, mode intros, campaign beat sheet (15 scripted lines), enemy
+blurbs. Delivered through the existing announcement banner — no new UI chrome.
+
+### Prestige endgame (`scripts/meta/prestige.gd` + Armory UI)
+
+After ~60% armory completion, spend banked coins to prestige: permanent score/
+currency multipliers, titles (Unproven → Last Stand), unlockable cosmetics,
+challenge-tier ladder. Save schema v5 carries `prestige_rank` + victory/boss
+lifetime counters.
+
+### Tests
+
+`tests/unit/test_game_modes.gd` covers mode catalogue, victory conditions, spawn
+queues, narrator, prestige gates, effect tracking, RunState summary fields, and
+save migration.
+
+---
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no

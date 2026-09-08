@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"thorn_mantle"
+display_name = "Thorn Mantle"
+description = "Taking a hit detonates a thorn nova. Pain becomes punishment."
+rarity = &"epic"
+category = &"transform"
+max_stacks = 2
+stat_modifiers = {
+"damage_resistance_add": 0.05,
+}
+tags = Array[StringName]([&"transform", &"defense", &"aoe"])
+effect_tags = Array[StringName]([&"thorn_nova"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([&"glass_cannon"])
+unlock_wave = 3
+weight = 0.48
+disabled = false

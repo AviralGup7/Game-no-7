@@ -6,7 +6,7 @@ extends RefCounted
 ## It never touches disk, timers, or other autoloads; SaveManager keeps the live
 ## store + debounced flush and delegates all schema work here.
 
-const SCHEMA_VERSION := 4
+const SCHEMA_VERSION := 5
 const BUILD_SCHEMA_VERSION := 1
 
 
@@ -19,11 +19,14 @@ static func default_save() -> Dictionary:
 		"achievements": [],
 		"meta_wallet": 0,
 		"meta_ranks": {},
+		"prestige_rank": 0,
 		"lifetime_statistics": {
 			"total_runs": 0,
 			"total_kills": 0,
 			"total_time_seconds": 0.0,
 			"highest_combo": 0,
+			"victories": 0,
+			"bosses_slain": 0,
 		},
 		"settings": SettingsData.new().to_dict(),
 		"progression": {
@@ -71,6 +74,7 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 	out.achievements = _string_list(_dict_get(data, "achievements", []))
 	out.meta_wallet = maxi(0, _int_or(_dict_get(data, "meta_wallet", 0), 0))
 	out.meta_ranks = _string_int_map(_dict_get(data, "meta_ranks", {}))
+	out.prestige_rank = clampi(_int_or(_dict_get(data, "prestige_rank", 0), 0), 0, Prestige.MAX_PRESTIGE)
 	if data.has("lifetime_statistics") and data.lifetime_statistics is Dictionary:
 		var src: Dictionary = data.lifetime_statistics
 		var ls: Dictionary = out.lifetime_statistics
@@ -78,6 +82,8 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 		ls.total_kills = maxi(0, _int_or(_dict_get(src, "total_kills", 0), 0))
 		ls.total_time_seconds = maxf(0.0, _float_or(_dict_get(src, "total_time_seconds", 0.0), 0.0))
 		ls.highest_combo = maxi(0, _int_or(_dict_get(src, "highest_combo", 0), 0))
+		ls.victories = maxi(0, _int_or(_dict_get(src, "victories", 0), 0))
+		ls.bosses_slain = maxi(0, _int_or(_dict_get(src, "bosses_slain", 0), 0))
 		out.lifetime_statistics = ls
 	if data.has("settings") and data.settings is Dictionary:
 		var sd := SettingsData.new()
@@ -120,6 +126,10 @@ static func _migrate_static(data: Dictionary, from_version: int) -> Dictionary:
 		# v1-v3 did not carry last_run_build. New fields intentionally default
 		# rather than attempting to infer a build from lifetime statistics.
 		pass
+	if from_version <= 4:
+		# v5 adds prestige_rank + extended lifetime counters.
+		if not data.has("prestige_rank"):
+			data["prestige_rank"] = 0
 	return data
 
 

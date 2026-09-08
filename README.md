@@ -6,18 +6,19 @@ rendering).
 
 You fight waves of enemies in a compact arena. Enemies pursue and attack; you move
 with a virtual joystick, attack with a melee weapon, dodge, pick upgrades between
-waves, and chase a high score. When you fall, you see your run summary and can
-instantly restart.
+waves, and chase a high score. When you fall — or win — you see your run summary
+and can instantly restart.
 
-> **Project status — arena build-out + meta game (see `CHANGELOG.md`).** Beyond the
-> Phase 1–4 foundation (project config, combat, integrated run loop, deterministic
-> upgrade selection), the game now ships: 8 enemy archetypes (incl. splitter mites and
-> a 3-phase Warlord boss) with elites, 6 weapons in a 2-slot switchable loadout,
-> 5 active skills + 8 status effects, 7 wave mutators + adaptive difficulty director,
-> 3 arena configs with hazards, a meta game (banked-currency armory, 19 achievements,
-> playable daily challenge), full settings (volumes, remapping, accessibility), and
-> procedural audio fallback so the game is never silent. All content stays data-driven
-> (`.tres` under `res://data/`) and headless-tested.
+> **Project status — gameplay loop overhaul (see `CHANGELOG.md`).** Beyond the
+> Phase 1–4 foundation and meta game, the loop now includes: **5 game modes**
+> (Standard, Boss Rush, Survival, Challenge, Campaign) with distinct objectives and
+> wave scripts; **8 transformative upgrades** (chain lightning melee, fire/frost
+> dodge trails, kill summons, thorn nova, execute, lifesteal burst, static aura);
+> **differentiated arenas** (pressure plates, orbiting movers, denser hazard grids);
+> a **narrator + campaign beat sheet**; and a **prestige endgame** (permanent score/
+> currency mults, titles, cosmetics). Still ships 8 enemy archetypes, switchable
+> weapons, skills, mutators, armory, achievements, and daily challenge. All content
+> stays data-driven (`.tres` under `res://data/`) and headless-tested.
 
 ---
 
