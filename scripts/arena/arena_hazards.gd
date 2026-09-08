@@ -203,7 +203,10 @@ func _tick_spikes(h: Dictionary, victims: Array) -> void:
 	# Use a stable identifier per hazard (index in _hazards + position hash)
 	# instead of dictionary hash which may include volatile timer/node identity.
 	var hazard_index := _hazards.find(h)
-	var stable_id := "%d_%.1f_%.1f" % [hazard_index, center.x, center.z] if hazard_index >= 0 else str(center)
+	# Meta identifiers allow [A-Za-z0-9_] only: quantize coords to ints (dots in
+	# "%f" keys made set_meta fail, silently disabling the spike cooldown).
+	var cell := "%d_%d" % [int(round(center.x * 10.0)), int(round(center.z * 10.0))]
+	var stable_id := "%d_%s" % [hazard_index, cell] if hazard_index >= 0 else "pos_%s" % cell
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, SPIKE_HALF_WIDTH):
 			# Throttled by a per-victim cooldown stored in metadata.

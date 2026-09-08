@@ -159,7 +159,10 @@ func request_restart() -> void:
 
 
 func request_main_menu() -> void:
-	_paused = false
+	# Route through _set_paused (not a direct flag write): a direct write makes
+	# the PAUSED-exit branch's _set_paused(false) early-out, leaving the tree
+	# paused so the next run starts frozen.
+	_set_paused(false)
 	transition_to(State.MAIN_MENU)
 
 

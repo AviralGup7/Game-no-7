@@ -155,6 +155,26 @@ day one. Each should be fixed and de-listed:
   without spawn/wave systems; adds `_validate_player_visual` which verifies
   VisualRoot/CharacterModel/Body at spawn time.
 
+## [Unreleased] — Runtime verification fixes (2026-09-08)
+
+Found by the headless E2E harness (`tests/verify_flow.gd`, 193 checks over two
+full menu→run→game-over loops, all passing with zero script errors). Each fix is
+a one-line correction of existing intent; no gameplay or architecture changes.
+- **SFX variant volume restored**: `AudioStreamRandomizer.random_volume_db` does
+  not exist (Godot 4.4 uses `random_volume_offset_db`); every pooled cue errored
+  at registration and lost its ±3 dB humanization.
+- **Run-start log error removed**: `RunScorekeeper` called the nonexistent
+  `CombatLog.log`; the API is `record`, so the "Run started" entry now lands.
+- **Player model mounts again**: `CharacterVisuals._bounds` took `Node3D`, so any
+  imported rig (AnimationPlayer child) failed the mount and the hero stayed a
+  primitive with no animation. The parameter is now `Node`, matching the body.
+- **Boss phases work**: `HealthComponent.reset` emitted a transient 0/max state
+  (current HP restored after the emit), so every boss spawned in Enrage with a
+  phantom phase event + sting and phases never advanced afterwards.
+- **Post-run music bed restored**: `run_ended` always lands after the game-over
+  state hook, so requesting SILENT there stomped the explicit game_over→VICTORY
+  bed with dead silence; it now restates VICTORY (same-state is a no-op).
+
 ## [Unreleased] — Audio & feedback polish (2026-09-08)
 
 No new gameplay; feel-only fixes to existing audio, buses, and feedback.

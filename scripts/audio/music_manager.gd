@@ -180,7 +180,10 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
-	request_state(STATE_SILENT)
+	# run_ended always lands after the game_over state hook (it is emitted from
+	# _finalize_run), so restating VICTORY here keeps the post-run bed instead of
+	# stomping it with silence. Same-state requests are a no-op.
+	request_state(STATE_VICTORY)
 
 
 func _on_kill(_enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
