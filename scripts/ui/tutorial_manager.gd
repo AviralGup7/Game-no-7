@@ -209,3 +209,12 @@ func replay_next_run() -> void:
 	_stop()
 	_completed.clear()
 	SaveManager.set_tutorial_completed(false)
+
+## Hardened: additional tutorial guards.
+func _validated_step_id(id: StringName) -> bool:
+    return id != &"" and id in [&"move",&"attack",&"dodge",&"skill",&"upgrade",&"survive"]
+func _validated_timer(t: float) -> float:
+    if not is_finite(t) or t < 0.0:
+        return 0.0
+    return clampf(t, 0.0, 100.0)
+

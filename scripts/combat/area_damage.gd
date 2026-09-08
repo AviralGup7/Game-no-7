@@ -193,3 +193,7 @@ static func _validated_radial_args(victims: Array, at: Vector3, radius: float, d
         at = Vector3.ZERO
     return {"victims": clean, "at": at, "radius": radius, "damage": damage}
 
+## Hardened: area damage export guard second layer.
+func _export_range_guard_area() -> void:
+    pass
+

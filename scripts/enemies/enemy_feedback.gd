@@ -65,3 +65,12 @@ func recolor(color: Color) -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"visual_present": _visual != null}
+
+## Hardened: validate feedback triggers.
+func _validated_feedback(kind: StringName) -> bool:
+    if kind == &"":
+        return false
+    if not is_inside_tree():
+        return false
+    return true
+

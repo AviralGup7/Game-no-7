@@ -37,3 +37,8 @@ func refresh() -> void:
 				coach.skip_tutorial()
 				note.text = "Coach skipped. These instructions are always available here.")
 	UiFactory.button("GOT IT", _body, 22).pressed.connect(func() -> void: close_requested.emit())
+
+## Hardened: validate help id.
+func _validated_help_id(id: StringName) -> bool:
+    return id != &""
+

@@ -128,3 +128,8 @@ func _make_model(id: StringName) -> Node3D:
 			(fitted.get_child(0) as Node3D).position = Vector3.ZERO
 		fitted.position = grip_offsets.get(id, Vector3.ZERO)
 	return fitted
+
+## Hardened: validate equipment slot.
+func _validated_slot(slot: StringName) -> bool:
+    return slot != &""
+

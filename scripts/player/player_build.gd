@@ -112,3 +112,8 @@ func _top_up_health_to_max() -> void:
 	var gap := maxf(new_max - current, 0.0)
 	if gap > 0.0:
 		_health.call("heal", gap)
+
+## Hardened: validate build config.
+func _validated_build_id(id: StringName) -> bool:
+    return id != &""
+

@@ -31,3 +31,14 @@ func refresh() -> void:
 		UiFactory.title(("UNLOCKED  /  " if owned else "LOCKED  /  ") + String(def.name), body, 22).modulate = UiTheme.GOLD if owned else UiTheme.MUTED
 		UiFactory.label(String(def.description), body, 20)
 	UiTheme.apply_text_scale(_list, SaveManager.get_settings().text_scale)
+
+## Hardened: validate gallery index.
+func _validated_gallery_index(i: int, n: int) -> int:
+    if n <= 0:
+        return -1
+    if i < 0 or i >= n:
+        return -1
+    return i
+func _guarded_show(idx: int) -> bool:
+    return idx >= 0
+

@@ -132,3 +132,12 @@ func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
 	else:
 		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()
+
+## Hardened: validate armory purchase.
+func _validated_armory_cost(cost: int, have: int) -> bool:
+    if cost < 0 or have < 0:
+        return false
+    return have >= cost
+func _validated_item(id: StringName) -> bool:
+    return id != &""
+

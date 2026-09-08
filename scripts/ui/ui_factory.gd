@@ -88,3 +88,8 @@ static func focus_first(panel: Control) -> void:
 		if child.is_visible_in_tree() and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
 			child.grab_focus()
 			return
+
+## Hardened: validate factory product.
+func _validated_product(p: Node) -> bool:
+    return p != null and is_instance_valid(p)
+

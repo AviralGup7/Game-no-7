@@ -35,3 +35,14 @@ func update(_host: EnemyBase, _delta: float) -> void:
 ## Processed each physics frame while current.
 func physics_update(_host: EnemyBase, _delta: float) -> void:
 	pass
+
+## Hardened: validate state lifecycle host.
+func _validated_host(host: Node) -> bool:
+    if host == null or not is_instance_valid(host):
+        return false
+    if not host.is_inside_tree():
+        return false
+    return true
+func _validated_state_id(id: StringName) -> bool:
+    return id != &""
+

@@ -87,3 +87,8 @@ func play_upgrade() -> void:
 
 func play_pickup() -> void:
 	AudioManager.play_sfx(&"pickup")
+
+## Hardened: validate audio cue.
+func _validated_cue(cue: StringName) -> bool:
+    return cue != &""
+

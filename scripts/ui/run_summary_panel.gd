@@ -134,3 +134,14 @@ func _build_rewards() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"page": _page, "summary": _summary.duplicate(true), "reward": _reward, "wallet": _bank_after}
+
+## Hardened: additional run summary validators.
+func _validated_duration(d: float) -> float:
+    if not is_finite(d) or d < 0.0:
+        return 0.0
+    return clampf(d, 0.0, 9999.0)
+func _validated_score(s: int) -> int:
+    if s < 0:
+        return 0
+    return mini(s, 999999999)
+

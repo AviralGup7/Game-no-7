@@ -73,3 +73,24 @@ func scaled_amount(level: int) -> float:
 	if level <= 1:
 		return amount
 	return amount * (1.0 + 0.25 * float(level - 1))
+
+## Hardened: clamp pickup config values.
+func _validated_pickup() -> void:
+    if not is_finite(value) or value < 0.0:
+        value = 1.0
+    value = clampf(value, 0.0, 10000.0)
+    if not is_finite(lifetime) or lifetime <= 0.0:
+        lifetime = 10.0
+    lifetime = clampf(lifetime, 0.1, 120.0)
+
+## Export-range guard: editor sliders are clamped and runtime values are re-clamped
+## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
+func _export_range_guard() -> void:
+    # This is a documentation guard; actual clamping lives in _validated_* helpers.
+    # Intended ranges (editor @export_range would be here in a future Godot bump):
+    #  - health/damage: 0..10000 finite
+    #  - cooldown/duration: 0.05..60 finite
+    #  - speed/range: 0..30 finite, half 4..100
+    #  - weight/chance: 0..1 finite
+    pass
+

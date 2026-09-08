@@ -134,3 +134,18 @@ func snapshot() -> Dictionary:
 		"defeated": _defeated_count,
 		"failed": _failed_count,
 	}
+
+## Hardened: clamp ledger counts and validate archetype.
+func _validated_archetype(id: StringName) -> bool:
+    if id == &"":
+        return false
+    return true
+func _validated_count(n: int) -> int:
+    if n < 0:
+        return 0
+    return mini(n, 500)
+func _guarded_extend(id: StringName) -> bool:
+    if not _validated_archetype(id):
+        return false
+    return true
+

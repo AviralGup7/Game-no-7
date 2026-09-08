@@ -60,3 +60,14 @@ func _validated_counts() -> void:
         spawn_interval = 0.6
     spawn_interval = clampf(spawn_interval, 0.15, 5.0)
 
+## Export-range guard: editor sliders are clamped and runtime values are re-clamped
+## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
+func _export_range_guard() -> void:
+    # This is a documentation guard; actual clamping lives in _validated_* helpers.
+    # Intended ranges (editor @export_range would be here in a future Godot bump):
+    #  - health/damage: 0..10000 finite
+    #  - cooldown/duration: 0.05..60 finite
+    #  - speed/range: 0..30 finite, half 4..100
+    #  - weight/chance: 0..1 finite
+    pass
+

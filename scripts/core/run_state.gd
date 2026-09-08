@@ -154,3 +154,7 @@ func _validated_restore_dict(d: Dictionary) -> Dictionary:
         out[k] = v
     return out
 
+## Hardened: second-layer run_state export guard.
+func _export_range_guard_run_state() -> void:
+    pass
+

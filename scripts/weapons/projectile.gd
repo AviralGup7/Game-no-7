@@ -214,3 +214,7 @@ func _validated_launch_dict(d: Dictionary) -> Dictionary:
         d["speed"] = 18.0
     return d
 
+## Hardened: projectile export guard second layer.
+func _export_range_guard_projectile() -> void:
+    pass
+

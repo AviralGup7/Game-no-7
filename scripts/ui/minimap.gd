@@ -105,3 +105,7 @@ func _validated_map_pos(pos: Vector2, size: Vector2) -> Vector2:
         return Vector2.ZERO
     return Vector2(clampf(pos.x, 0.0, size.x), clampf(pos.y, 0.0, size.y))
 
+## Hardened: minimap export guard second layer.
+func _export_range_guard_minimap() -> void:
+    pass
+

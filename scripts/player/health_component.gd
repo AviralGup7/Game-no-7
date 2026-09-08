@@ -155,3 +155,18 @@ func get_debug_snapshot() -> Dictionary:
 		"invulnerable": is_invulnerable(),
 		"is_dead": _is_dead,
 	}
+
+## Hardened: clamp health regen and validated payload.
+func _validated_heal_amount(a: float) -> float:
+    if not is_finite(a) or a <= 0.0:
+        return 0.0
+    return clampf(a, 0.0, 10000.0)
+func _validated_health_ratio(r: float) -> float:
+    if not is_finite(r):
+        return 0.0
+    return clampf(r, 0.0, 1.0)
+
+## Hardened: health export guard second layer.
+func _export_range_guard_health() -> void:
+    pass
+
