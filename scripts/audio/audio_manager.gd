@@ -46,7 +46,7 @@ func _ensure_buses() -> void:
 
 ## Register or replace a cue->stream mapping (called by ContentRegistry at startup).
 func register_cue(cue_id: StringName, stream: AudioStream) -> void:
-	if stream == null:
+	if stream == null or not is_instance_valid(stream):
 		EventBus.report_warning("Null stream registered for cue %s" % String(cue_id))
 		return
 	_cues[cue_id] = stream

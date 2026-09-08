@@ -116,6 +116,8 @@ func request_play() -> void:
 func start_daily_run() -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
 		return
+	if DailyChallenge == null or not DailyChallenge.has_method("challenge_for_today"):
+		return
 	_daily = DailyChallenge.challenge_for_today()
 	transition_to(State.STARTING_RUN)
 

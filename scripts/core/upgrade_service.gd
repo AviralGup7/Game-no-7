@@ -14,7 +14,7 @@ extends RefCounted
 ## next wave without touching state).
 static func choose_for_wave(run: RunState, player: Node, wave_number: int) -> Array[StringName]:
 	var empty: Array[StringName] = []
-	if run == null:
+	if run == null or ContentRegistry == null:
 		return empty
 	var prog := _progression_node_of(player)
 	if prog == null:

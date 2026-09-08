@@ -133,9 +133,13 @@ func _ignite_all_vents() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not _enabled or _hazards.is_empty():
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	if not _enabled or _hazards.is_empty() or not is_inside_tree():
 		return
 	var victims := _gather_victims()
+	# Filter stale victims that left the tree mid-frame
+	victims = victims.filter(func(v): return v != null and is_instance_valid(v) and v.is_inside_tree())
 	for h in _hazards:
 		match h["kind"]:
 			KIND_VENT:
@@ -182,7 +186,7 @@ func _tick_vent(h: Dictionary, victims: Array, delta: float) -> void:
 
 
 func _apply_burn(victims: Array, center: Vector3) -> void:
-	if ContentRegistry == null:
+	if ContentRegistry == null or not ContentRegistry.has_method("get_status_effect"):
 		return
 	var burn: StatusEffectConfig = ContentRegistry.get_status_effect(&"burn")
 	if burn == null:

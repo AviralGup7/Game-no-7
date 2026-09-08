@@ -324,7 +324,11 @@ func _exit_tree() -> void:
 
 
 func _player_max_hp() -> float:
-	if GameRoot != null and GameRoot.get_active_player() != null:
+	if GameRoot != null and GameRoot.has_method("get_active_player"):
+		var _pl:Variant = GameRoot.get_active_player()
+		if _pl == null or not is_instance_valid(_pl as Object):
+			return 100.0
+		if GameRoot.get_active_player() != null:
 		var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
 		if hp != null and hp.has_method("get_max"):
 			return maxf(float(hp.call("get_max")), 1.0)
