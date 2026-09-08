@@ -2,6 +2,17 @@
 
 ## [Unreleased] — Arena build-out · weapons, skills, arenas, enemies, meta
 
+### Release engineering
+- **v0.4.0 published** (2026-09-08) — first release via the tag-push path; CI run
+  #34171607635 built, tested and attached `LastStandArena-debug.apk` (ARM64,
+  debug-signed) + `SHA256SUMS.txt` to the Release.
+- Workflow now also triggers on **`release: published`**, so creating a Release in
+  the GitHub UI runs the full build + publish pipeline (previously only tag pushes
+  or manual dispatch did — and manual dispatch needs elevated token permissions).
+- New `scripts/release.sh vX.Y.Z`: one-command, guardrailed release (refuses dirty
+  trees, duplicate tags, and version drift between the tag, `export_presets.cfg`
+  `version/name`, and the CHANGELOG; then pushes the tag for CI to publish).
+
 ### Added
 - **Data-driven weapon loadout** — `WeaponConfig` resources (`data/weapons/`, 6 shipped:
   gladius, sentinel_spear, stormhammer, sunbow, twinfangs, warreaxe) auto-discovered by
