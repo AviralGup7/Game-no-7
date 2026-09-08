@@ -166,9 +166,13 @@ gameplay-adjacent tuning.*
   `get_best_wave()` (`game_root.gd:74/78`) have **zero callers** — `menu_panel`,
   `run_summary_panel`, `test_harness` and the UI test runner all read `SaveManager` directly.
   Dead facade; either route everything through it or delete it.
+  **RESOLVED (2026-09-08 follow-up):** accessors deleted; SaveManager is the single public
+  read path, GameRoot's `_best_*` mirrors are internal (run_ended + debug snapshot).
 - **Fragile hardcoded path.** `minimap.gd:55` hardcodes `"WorldRoot/Arena"` off
   `get_tree().current_scene`; breaks if the minimap is used outside `main.tscn` or the arena
   node is renamed. (Fix #3 removes the *stale-node* failure mode, not the fragility.)
+  **RESOLVED (2026-09-08 follow-up):** the minimap resolves the arena through
+  `Arena.ARENA_GROUP` first, with the legacy path kept only as fallback.
 - **~187 uncalled private functions**, mostly tail `_validated_*` / `_export_range_guard*`
   helpers under `## Hardened:` comments. Many are *asserted to exist* by
   `tool/validate_guards.py` and the Python suite, so they cannot be removed piecemeal —
@@ -204,6 +208,7 @@ gameplay-adjacent tuning.*
    collision behaviour. Worth revisiting if enemy movement ever gains terrain interaction.
 4. **`scripts/audio/audio_config.gd`** references `res://data/audio_config/` in a comment;
    no such directory exists (streams live in `res://data/audio/`). Comment-only, left alone.
+   **RESOLVED (2026-09-08 follow-up):** comment corrected — configs live beside the streams.
 5. **Enemy scene duplication** (above) — deliberately not restructured: it is a scene-file
    change that would conflict with any branch touching enemies. **RESOLVED (2026-09-08):**
    all five hand-copied archetypes refactored onto `enemy_base.tscn` inheritance with

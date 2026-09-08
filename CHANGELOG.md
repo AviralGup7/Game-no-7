@@ -1,5 +1,35 @@
 # Changelog
 
+## [Unreleased] — Audit follow-ups: roster smoke, minimap robustness, dead facade (2026-09-08)
+
+Follow-up pass over the remaining small-but-real findings in
+`docs/QA_RELEASE_AUDIT.md`, plus hardening of the enemy-inheritance work:
+
+- **TestHarness startup smoke now covers all 8 enemy archetypes** (`_enemy_archetypes_ok`,
+  `_spawn_resources_ok`, `_kill_and_wave_scoring_configured` iterate a shared
+  `ENEMY_ARCHETYPE_IDS` const). They validated only basic/fast/heavy — the exact
+  "works for some enemies" blind spot the scene refactor closed on the scene side.
+- **`tests/unit/test_enemy_scene_inheritance.gd` upgraded to full-roster goldens**: every
+  archetype (not just the five refactored) now pins collision shape, body mesh, material
+  colour, nav distances, marker offsets and animator config against shipped values;
+  `path_height_tolerance` and the no-BossController-leak check included.
+- **Minimap arena lookup is layout-independent** (audit "fragile hardcoded path"):
+  `Arena` joins the `arena` group in `_ready`; `minimap._find_arena()` resolves through
+  `get_first_node_in_group` first and keeps the legacy `WorldRoot/Arena` path only as a
+  fallback. No behaviour change in main.tscn; the lookup now also survives renames and
+  hosts other than the current scene.
+- **GameRoot dead facade deleted** (audit "two sources of truth for best score/wave"):
+  zero-caller `get_best_score()`/`get_best_wave()` accessors removed; SaveManager remains
+  the single public read path (as pinned by the startup-stability guards) and GameRoot's
+  `_best_*` mirrors stay internal (run_ended fan-out + debug snapshot only).
+- **`tool/validate_resources.py` gained a file-local `SubResource` guard**: scenes that
+  `instance=` another scene must not reference the parent's sub-resource ids (the classic
+  hand-edit mistake on child scenes like the enemy archetypes); the editor's `[editable]`
+  cross-file pointer remains sanctioned. Behaviour-tested in
+  `test_regress_tooling_and_ci.py`; verified to flag and to clear real scenes.
+- **`audio_config.gd` comment fixed** (audit known-issue #4): AudioConfig instances live in
+  `res://data/audio/`; the referenced `res://data/audio_config/` directory does not exist.
+
 ## [Unreleased] — Enemy scene inheritance overhaul (2026-09-08)
 
 Closes the audit's "highest-value structural cleanup left": **5 of 8 enemy archetype

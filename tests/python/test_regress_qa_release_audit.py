@@ -391,6 +391,7 @@ class Node3DSuiteSchedulingTests(unittest.TestCase):
         "test_weapons.gd",
         "test_area_combat.gd",
         "test_character_visuals.gd",
+        "test_enemy_scene_inheritance.gd",
     )
 
     def test_runner_separates_pure_from_node_suites(self):
@@ -678,3 +679,61 @@ class BossPhaseGatingTests(unittest.TestCase):
             body,
             "phases must only ever advance, never regress on healing",
         )
+
+
+class AuditFollowUpHardeningTests(unittest.TestCase):
+    """Audit findings closed in the post-merge follow-up pass (2026-09-08).
+
+    - "Fragile hardcoded path": the minimap resolves the arena through the
+      `Arena.ARENA_GROUP` group first (scene-layout independent), keeping the old
+      "WorldRoot/Arena" lookup only as a fallback.
+    - "Two sources of truth for best score/wave": GameRoot's zero-caller
+      get_best_score()/get_best_wave() accessors were deleted; SaveManager stays
+      the public read path (pinned by the startup-stability guards) and GameRoot's
+      mirrors remain internal (run_ended fan-out + debug snapshot).
+    - Roster coverage: the TestHarness smoke checks validate all EIGHT enemy
+      archetypes — the same "works for some enemies" class the scene-inheritance
+      refactor closed on the scene side.
+    """
+
+    def test_minimap_resolves_arena_via_group_first(self):
+        body = func_body(read("scripts/ui/minimap.gd"), "_find_arena")
+        group_at = body.find("get_first_node_in_group(Arena.ARENA_GROUP)")
+        legacy_at = body.find("WorldRoot/Arena")
+        self.assertGreaterEqual(group_at, 0, "minimap must look up the arena by group")
+        self.assertGreaterEqual(legacy_at, 0, "the legacy path lookup must remain as fallback")
+        self.assertLess(group_at, legacy_at, "group lookup first, hardcoded path fallback")
+
+    def test_arena_registers_the_lookup_group(self):
+        txt = read("scripts/arena/arena.gd")
+        self.assertIn('const ARENA_GROUP := &"arena"', txt)
+        body = func_body(txt, "_ready")
+        self.assertIn("add_to_group(ARENA_GROUP)", body,
+                      "Arena must join its group in _ready or the lookup never resolves")
+
+    def test_minimap_refresh_has_no_bare_path_lookup(self):
+        body = func_body(read("scripts/ui/minimap.gd"), "_refresh_targets")
+        # Assert against code, not the explanatory comment that trails the function.
+        code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("#"))
+        self.assertIn("_find_arena()", code)
+        self.assertNotIn('"WorldRoot/Arena"', code,
+                         "path lookup belongs in _find_arena only")
+
+    def test_game_root_exposes_no_best_record_facade(self):
+        txt = read("scripts/core/game_root.gd")
+        self.assertNotIn("func get_best_score", txt)
+        self.assertNotIn("func get_best_wave", txt)
+        # The internal mirrors stay wired to the authoritative store:
+        self.assertIn("SaveManager.get_best_score()", txt)
+        self.assertIn("SaveManager.get_best_wave()", txt)
+        self.assertIn("EventBus.run_ended.emit(_current_run.score, _current_run.current_wave, _best_score)", txt)
+
+    def test_startup_smoke_covers_full_enemy_roster(self):
+        txt = read("scripts/core/test_harness.gd")
+        for archetype in ("basic", "fast", "heavy", "dasher", "exploder",
+                          "ranged", "splitter", "warlord"):
+            self.assertIn('&"%s"' % archetype, txt,
+                          "harness smoke must cover the %s archetype" % archetype)
+        body = func_body(txt, "_spawn_resources_ok")
+        self.assertIn("ENEMY_ARCHETYPE_IDS", body,
+                      "spawn resources check must iterate the full roster const")
