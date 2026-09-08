@@ -142,10 +142,16 @@ func _burst_speed() -> float:
 
 
 func _move_burst(delta: float, fraction: float = 1.0) -> void:
+	# M3: dash intent requested here, actual movement via CharacterController when wired.
+	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
+	var cc := _body.get_node_or_null("CharacterController") if _body != null else null
+	if cc != null and cc.has_method("apply_dash"):
+		cc.call("apply_dash", _dir, speed, delta)
+		_clamp_to_bounds()
+		return
 	var vel := _body.velocity
 	if not _body.is_on_floor():
 		vel.y -= GRAVITY * delta
-	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
 	vel.x = _dir.x * speed
 	vel.z = _dir.z * speed
 	_body.velocity = vel

@@ -27,6 +27,9 @@ const PRIORITY_BOSS := 90
 const PRIORITY_PLAYER := 80
 const PRIORITY_SKILL := 60
 const PRIORITY_ENEMY_DEATH := 50
+const PRIORITY_SPAWN := 45
+const PRIORITY_PICKUP := 35
+const PRIORITY_ENEMY_HIT := 30
 const PRIORITY_HIT := 30
 const PRIORITY_STATUS := 25
 const PRIORITY_AMBIENT := 10
@@ -146,7 +149,7 @@ func _wire_events() -> void:
 
 func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
-		ring_at((enemy as Node3D).global_position, Color(0.9, 0.55, 0.3), 1.25, PRIORITY_AMBIENT)
+		ring_at((enemy as Node3D).global_position, Color(0.9, 0.55, 0.3), 1.25, PRIORITY_SPAWN)
 
 
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
@@ -165,7 +168,7 @@ func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
 		burst_at(at, Color(1.0, 0.88, 0.22), 0.82, PRIORITY_CRITICAL)
 		ring_at((enemy as Node3D).global_position, Color(1.0, 0.92, 0.45), 1.05, PRIORITY_CRITICAL)
 	else:
-		burst_at(at, Color(0.9, 0.72, 0.55), 0.42, PRIORITY_HIT)
+		burst_at(at, Color(0.9, 0.72, 0.55), 0.42, PRIORITY_ENEMY_HIT)
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
@@ -195,14 +198,14 @@ func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) 
 	var at := Vector3.ZERO
 	if is_instance_valid(collector) and collector is Node3D:
 		at = (collector as Node3D).global_position
-	ring_at(at, Color(1.0, 0.88, 0.38), 1.0, PRIORITY_AMBIENT)
-	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.92, 0.55), 0.55, PRIORITY_AMBIENT)
+	ring_at(at, Color(1.0, 0.88, 0.38), 1.0, PRIORITY_PICKUP)
+	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.92, 0.55), 0.55, PRIORITY_PICKUP)
 
 
 func _on_pickup_spawned(pickup: Node, _pickup_id: StringName) -> void:
 	if not is_instance_valid(pickup) or not pickup is Node3D:
 		return
-	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 1.15, PRIORITY_AMBIENT)
+	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 1.15, PRIORITY_PICKUP)
 
 
 func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> void:

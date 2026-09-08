@@ -269,7 +269,11 @@ func _tick_dash(delta: float, enemies: Array) -> void:
 	var timer: float = float(_dashing["timer"]) - delta
 	_dashing["timer"] = timer
 	var step_speed := _length(cfg) / maxf(total, 0.01)
-	if _owner_body is CharacterBody3D:
+	# Dash intent -> CharacterController performs movement (M3). Fallback to direct for headless.
+	var cc := _owner_body.get_node_or_null("CharacterController")
+	if cc != null and cc.has_method("apply_dash"):
+		cc.call("apply_dash", dir, step_speed, delta)
+	elif _owner_body is CharacterBody3D:
 		(_owner_body as CharacterBody3D).velocity = Vector3(dir.x * step_speed, (_owner_body as CharacterBody3D).velocity.y, dir.z * step_speed)
 		(_owner_body as CharacterBody3D).move_and_slide()
 	# Strike enemies passed through (each once per dash).
