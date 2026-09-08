@@ -413,6 +413,11 @@ func _lethal_payload(source: Node) -> DamagePayload:
 	return payload
 
 
+func _run_enemy_encounter_integration() -> Array:
+	var results: Array = []
+	var target := _FakeTarget.new()
+	root.add_child(target)
+	target.global_position = Vector3(1.0, 0.0, 0.0)
 
 	# --- Dasher: telegraph -> charge -> one contact hit -> recovery ---------
 	var dash_target := _FakeTarget.new()
@@ -570,8 +575,11 @@ func _lethal_payload(source: Node) -> DamagePayload:
 	off_a.queue_free()
 	off_b.queue_free()
 	off_c.queue_free()
-
-	# --- Boss: phase thresholds, stat bumps, enrage, deterministic abilities -
-	# --- SpawnManager wave cycle ----------------------------------------------
+	target.queue_free()
+	dash_target.queue_free()
+	fuse_target.queue_free()
+	fuse_target2.queue_free()
+	kite_target.queue_free()
+	vamp_target.queue_free()
 	return results
 

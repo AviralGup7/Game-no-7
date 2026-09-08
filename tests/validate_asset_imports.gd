@@ -129,6 +129,6 @@ func _check_presentation_assets() -> void:
 			_failures.append("Character role %s missing idle clip '%s'" % [String(role), idle_clip])
 		instance.free()
 	# VFX sprite textures (used by the EffectDirector).
-	for tex in [EffectDirector.RING_TEXTURE, EffectDirector.BURST_TEXTURE]:
+	for tex in ["res://assets/effects/kenney/circle_05.png", "res://assets/effects/kenney/spark_01.png"]:
 		if not load(tex) is Texture2D:
 			_failures.append("VFX sprite texture missing: " + tex)

@@ -73,11 +73,14 @@ func _process(_delta: float) -> bool:
 		if not bool(c.get("passed", false)):
 			_failures.append("attack :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
-	var encounter := _run_enemy_encounter_integration()
+	var target := _FakeTarget.new()
+	root.add_child(target)
+	var encounter := _run_boss_integration(target)
 	_total += encounter.size()
 	for c in encounter:
 		if not bool(c.get("passed", false)):
-			_failures.append("encounter :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
+			_failures.append("boss :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
+	target.queue_free()
 
 	print("========================================")
 	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])

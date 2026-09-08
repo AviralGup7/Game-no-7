@@ -87,10 +87,10 @@ static func suite() -> Array:
 	}
 	for id in tres:
 		var res := load(tres[id])
-		var ok := res != null and res is EnemyConfig
+		var ok: bool = res != null and res is EnemyConfig
 		var cfg := res as EnemyConfig
-		var name_ok := ok and cfg != null and cfg.archetype_id == id and cfg.scene != null
-		var valid_ok := ok and cfg != null and cfg.validate().is_empty()
+		var name_ok: bool = ok and cfg != null and cfg.archetype_id == id and cfg.scene != null
+		var valid_ok: bool = ok and cfg != null and cfg.validate().is_empty()
 		results.append({
 			"name": "%s archetype .tres loads with scene and validates" % String(id),
 			"passed": name_ok and valid_ok,

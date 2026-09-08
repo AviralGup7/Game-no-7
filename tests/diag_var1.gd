@@ -550,5 +550,10 @@ func _run_enemy_encounter_integration() -> Array:
 		"why": "retreat=%s state=%s" % [str(retreating), String(skirmisher.get_state())],
 	})
 	skirmisher.queue_free()
-
-
+	target.queue_free()
+	whiff_target.queue_free()
+	poise_target.queue_free()
+	hurt_target.queue_free()
+	corpse_target.queue_free()
+	skirm_target.queue_free()
+	return results

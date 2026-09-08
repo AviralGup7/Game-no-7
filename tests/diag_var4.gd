@@ -73,11 +73,11 @@ func _process(_delta: float) -> bool:
 		if not bool(c.get("passed", false)):
 			_failures.append("attack :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
-	var encounter := _run_enemy_encounter_integration()
+	var encounter := _run_spawn_manager_integration()
 	_total += encounter.size()
 	for c in encounter:
 		if not bool(c.get("passed", false)):
-			_failures.append("encounter :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
+			_failures.append("spawn :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
 	print("========================================")
 	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
@@ -486,7 +486,7 @@ func _run_spawn_manager_integration() -> Array:
 	var full_wave := sm.get_active_count() == 4 and sm.get_pending_count() == 0
 	for enemy in spawned_nodes:
 		(enemy as EnemyBase).apply_damage(_lethal_payload(enemy))
-	var wave1_done := sm.get_defeated_count() == 4 and sm.get_active_count() == 0 and cleared[0] == 1
+	var wave1_done: bool = sm.get_defeated_count() == 4 and sm.get_active_count() == 0 and cleared[0] == 1
 	results.append({
 		"name": "spawn manager: opening burst, full wave clear, exactly-once defeat accounting",
 		"passed": burst_ok and full_wave and wave1_done and spawned_nodes.size() == 4,
@@ -535,7 +535,7 @@ func _run_spawn_manager_integration() -> Array:
 	for enemy in spawned_nodes:
 		if enemy is EnemyBase and (enemy as EnemyBase).is_alive():
 			(enemy as EnemyBase).apply_damage(_lethal_payload(enemy))
-	var cleared_again := sm.get_defeated_count() == 3 and sm.get_active_count() == 0 and cleared[0] == 3
+	var cleared_again: bool = sm.get_defeated_count() == 3 and sm.get_active_count() == 0 and cleared[0] == 3
 	results.append({
 		"name": "splitter burst: children spawn at the death site, extend the plan, no false clear",
 		"passed": planned_ok and children == 2 and near_parent and cleared_again,
