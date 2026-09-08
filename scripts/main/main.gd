@@ -297,8 +297,13 @@ func _clear_world() -> void:
 	_stop_run_waves()
 	if _world_root == null:
 		return
+	# Immediate (not deferred) teardown: build_world adds the replacement Arena /
+	# Player / managers synchronously in the same call, and queue_free'd nodes
+	# still in the tree collide with the new names, permanently renaming the new
+	# world children to @-style auto-names and breaking WorldRoot path lookups.
 	for child in _world_root.get_children():
-		child.queue_free()
+		_world_root.remove_child(child)
+		child.free()
 	_spawn_manager = null
 	_wave_manager = null
 	# Release the player reference in GameRoot.

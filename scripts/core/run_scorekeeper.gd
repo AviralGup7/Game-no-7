@@ -70,7 +70,7 @@ func award_bonus(bonus: int) -> void:
 	if _run == null or not _run.player_alive or bonus <= 0:
 		return
 	_run.add_score(bonus)
-	_combat_log.log(CombatLog.KIND_SYSTEM, "Wave bonus +%d" % bonus)
+	_combat_log.record(CombatLog.KIND_SYSTEM, "Wave bonus +%d" % bonus)
 	EventBus.score_changed.emit(_run.score, bonus)
 
 

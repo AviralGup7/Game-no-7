@@ -110,7 +110,8 @@ func _accumulate(config: UpgradeConfig) -> void:
 		var v: float = float(raw) if is_finite(float(raw)) else 0.0
 		if not is_finite(float(_modifiers.get(k, 0.0))):
 			_modifiers[k] = 0.0
-		_modifiers[k] = clampf(float(_modifiers[k]) + v, -1e6, 1e6)
+		# First stack of a new key must not read a missing entry (script error).
+		_modifiers[k] = clampf(float(_modifiers.get(k, 0.0)) + v, -1e6, 1e6)
 
 
 ## Read an effective derived stat. `base` is the unmodified, pre-upgrade value.

@@ -15,7 +15,7 @@ func _process(_delta: float) -> bool:
 	if not _launched:
 		_launched = true
 		var inner: GDScript = load("res://tests/verify_flow_inner.gd")
-		if inner == null:
+		if inner == null or not inner.can_instantiate():
 			push_error("VERIFY FLOW: could not load inner harness")
 			quit(2)
 		else:
