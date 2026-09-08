@@ -187,7 +187,9 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_apply_visual_scale(config.visual_scale)
 	# Presentation hook (Agent 4): mount the archetype's approved model under
 	# VisualRoot/CharacterModel. No gameplay effect; primitives remain if absent.
-	if CharacterVisuals.has_model(config.archetype_id):
+	# Skip when a dedicated EnemyAnimator node is present — it already mounts
+	# the same model via its own PackedScene (avoids double-model overlap).
+	if get_node_or_null("EnemyAnimator") == null and CharacterVisuals.has_model(config.archetype_id):
 		CharacterVisuals.mount(self, config.archetype_id)
 	if _machine != null:
 		_machine.force_state(&"idle")

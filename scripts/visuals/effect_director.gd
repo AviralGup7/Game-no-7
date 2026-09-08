@@ -77,6 +77,7 @@ func _wire_events() -> void:
 	_wired = true
 	EventBus.enemy_spawned.connect(_on_enemy_spawned)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
+	EventBus.enemy_damaged.connect(_on_enemy_damaged)
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.wave_completed.connect(_on_wave_completed)
 	EventBus.pickup_collected.connect(_on_pickup_collected)
@@ -93,6 +94,20 @@ func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
 		burst_at((enemy as Node3D).global_position, Color(0.7, 0.5, 0.35), 0.9)
+		ring_at((enemy as Node3D).global_position, Color(0.85, 0.55, 0.35), 1.4)
+
+
+func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
+	if not is_instance_valid(enemy) or not enemy is Node3D or result == null or not result.accepted:
+		return
+	# Small hit burst — crit gets a gold flash + larger scale for hierarchy.
+	var at := (enemy as Node3D).global_position + Vector3(0, 1.1, 0)
+	if result.was_critical:
+		burst_at(at, Color(1.0, 0.85, 0.2), 0.65)
+		ring_at((enemy as Node3D).global_position, Color(1.0, 0.9, 0.4), 0.9)
+	else:
+		burst_at(at, Color(0.85, 0.75, 0.65), 0.38)
+
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:

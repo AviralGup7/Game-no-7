@@ -141,7 +141,30 @@ func _on_dodge() -> void:
 	if dodge == null:
 		return
 	_locked = true
-	_play(dodge_clip, true, _length(dodge_clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
+	# Directional dodge: pick Forward/Backward/Left/Right based on dodge vector vs facing.
+	var clip := dodge_clip
+	if _animation != null and dodge.has_method("get_dodge_direction"):
+		var dir: Vector3 = dodge.call("get_dodge_direction")
+		if dir.length_squared() > 0.0001 and _player != null:
+			var facing := -_player.global_transform.basis.z
+			facing.y = 0.0
+			if facing.length_squared() < 0.0001:
+				facing = Vector3.FORWARD
+			else:
+				facing = facing.normalized()
+			dir.y = 0.0
+			dir = dir.normalized()
+			var fwd := facing.dot(dir)
+			var right := facing.cross(dir).y  # +right = dodge is to the right of facing
+			# Prefer cardinal direction with largest component
+			if absf(fwd) > absf(right):
+				clip = &"Dodge_Forward" if fwd > 0 else &"Dodge_Backward"
+			else:
+				clip = &"Dodge_Right" if right > 0 else &"Dodge_Left"
+			# Fallback if clip missing in this rig
+			if not _animation.has_animation(clip):
+				clip = dodge_clip
+	_play(clip, true, _length(clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
 
 
 func _on_hurt(result: DamageResult) -> void:

@@ -94,6 +94,10 @@ func get_cooldown_remaining() -> float:
 	return _cooldown_remaining
 
 
+func get_dodge_direction() -> Vector3:
+	return _dir
+
+
 ## Request a dodge along `direction_world` (a normalized horizontal direction). The
 ## owner chooses the direction from its current input/facing. Returns true when the
 ## dodge begins; requests during cooldown/recovery are rejected (no re-fire).
