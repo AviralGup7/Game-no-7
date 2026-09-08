@@ -297,7 +297,7 @@ func _request_quit() -> void:
 
 ## Hardened: validate ui root state before transition.
 func _validated_state(s: StringName) -> bool:
-    if s == &"":
-        return false
-    return true
+	if s == &"":
+		return false
+	return true
 

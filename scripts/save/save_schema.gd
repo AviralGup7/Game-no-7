@@ -160,13 +160,13 @@ static func _string_int_map(value: Variant) -> Dictionary:
 
 ## Hardened: validate save schema version migration.
 func _validated_schema_version(v: int) -> int:
-    if v < 1:
-        return 1
-    return mini(v, 99)
+	if v < 1:
+		return 1
+	return mini(v, 99)
 func _validated_int_field(v: int, lo: int, hi: int) -> int:
-    if v < lo:
-        return lo
-    if v > hi:
-        return hi
-    return v
+	if v < lo:
+		return lo
+	if v > hi:
+		return hi
+	return v
 

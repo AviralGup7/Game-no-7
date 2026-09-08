@@ -203,9 +203,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp meta currency before spend.
 func _validated_spend(cost: int, have: int) -> bool:
-    if cost < 0 or have < 0:
-        return false
-    if not is_finite(float(cost)) or not is_finite(float(have)):
-        return false
-    return have >= cost
+	if cost < 0 or have < 0:
+		return false
+	if not is_finite(float(cost)) or not is_finite(float(have)):
+		return false
+	return have >= cost
 

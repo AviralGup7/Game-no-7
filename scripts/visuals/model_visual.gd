@@ -47,7 +47,7 @@ static func _collect_bounds(node: Node, parent_transform: Transform3D, out: Arra
 
 ## Hardened: validate model path.
 func _validated_model_path(p: String) -> bool:
-    if p.is_empty():
-        return false
-    return p.begins_with("res://")
+	if p.is_empty():
+		return false
+	return p.begins_with("res://")
 

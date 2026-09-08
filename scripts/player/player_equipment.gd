@@ -131,5 +131,5 @@ func _make_model(id: StringName) -> Node3D:
 
 ## Hardened: validate equipment slot.
 func _validated_slot(slot: StringName) -> bool:
-    return slot != &""
+	return slot != &""
 

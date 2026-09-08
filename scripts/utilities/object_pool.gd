@@ -115,9 +115,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate pool size and instance.
 func _validated_pool_size(n: int) -> int:
-    if n < 1:
-        return 1
-    return mini(n, 128)
+	if n < 1:
+		return 1
+	return mini(n, 128)
 func _validated_instance(inst: Node) -> bool:
-    return inst != null and is_instance_valid(inst)
+	return inst != null and is_instance_valid(inst)
 

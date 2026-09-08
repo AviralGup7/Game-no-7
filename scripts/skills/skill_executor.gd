@@ -283,7 +283,7 @@ func _tick_dash(delta: float, enemies: Array) -> void:
 
 ## Hardened: validate skill cast position.
 func _validated_cast_pos(p: Vector3) -> Vector3:
-    if not is_finite(p.x) or not is_finite(p.z):
-        return Vector3.ZERO
-    return p
+	if not is_finite(p.x) or not is_finite(p.z):
+		return Vector3.ZERO
+	return p
 

@@ -196,7 +196,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp perf sample.
 func _validated_sample(v: float) -> float:
-    if not is_finite(v) or v < 0.0:
-        return 0.0
-    return clampf(v, 0.0, 1000.0)
+	if not is_finite(v) or v < 0.0:
+		return 0.0
+	return clampf(v, 0.0, 1000.0)
 

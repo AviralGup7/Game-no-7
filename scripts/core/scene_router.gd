@@ -57,7 +57,7 @@ func get_last_error() -> String:
 
 ## Hardened: validate scene id before routing.
 func _validated_scene_id(id: StringName) -> bool:
-    if id == &"":
-        return false
-    return true
+	if id == &"":
+		return false
+	return true
 

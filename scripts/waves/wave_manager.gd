@@ -378,9 +378,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate wave transition guard.
 func _validated_wave_number(n: int) -> int:
-    if n < 1:
-        return 1
-    if n > 999:
-        return 999
-    return n
+	if n < 1:
+		return 1
+	if n > 999:
+		return 999
+	return n
 

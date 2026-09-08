@@ -49,7 +49,7 @@ static func display_value(damage: float, was_crit: bool) -> int:
 
 ## Hardened: clamp crit chance inputs.
 func _validated_crit_chance(c: float) -> float:
-    if not is_finite(c):
-        return 0.0
-    return clampf(c, 0.0, 1.0)
+	if not is_finite(c):
+		return 0.0
+	return clampf(c, 0.0, 1.0)
 

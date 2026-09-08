@@ -48,7 +48,7 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 
 ## Hardened: clamp fuse time.
 func _validated_fuse(t: float) -> float:
-    if not is_finite(t) or t <= 0.0:
-        return 1.0
-    return clampf(t, 0.1, 5.0)
+	if not is_finite(t) or t <= 0.0:
+		return 1.0
+	return clampf(t, 0.1, 5.0)
 

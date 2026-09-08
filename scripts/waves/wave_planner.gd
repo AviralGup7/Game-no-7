@@ -183,7 +183,7 @@ static func calculate_difficulty_scalars(wave_number: int) -> Dictionary:
 
 ## Hardened: clamp archetype count.
 func _validated_archetype_count(n: int) -> int:
-    if n < 0:
-        return 0
-    return mini(n, 50)
+	if n < 0:
+		return 0
+	return mini(n, 50)
 

@@ -132,11 +132,11 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp hitstop/trauma to prevent time_scale corruption.
 func _validated_hitstop(duration: float, trauma: float) -> Dictionary:
-    if not is_finite(duration) or duration < 0.0:
-        duration = 0.0
-    if not is_finite(trauma) or trauma < 0.0:
-        trauma = 0.0
-    duration = clampf(duration, 0.0, 1.0)
-    trauma = clampf(trauma, 0.0, 1.0)
-    return {"duration": duration, "trauma": trauma}
+	if not is_finite(duration) or duration < 0.0:
+		duration = 0.0
+	if not is_finite(trauma) or trauma < 0.0:
+		trauma = 0.0
+	duration = clampf(duration, 0.0, 1.0)
+	trauma = clampf(trauma, 0.0, 1.0)
+	return {"duration": duration, "trauma": trauma}
 

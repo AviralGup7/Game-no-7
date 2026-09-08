@@ -150,9 +150,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate projectile pool retrieve.
 func _validated_projectile(p: Node) -> bool:
-    return p != null and is_instance_valid(p) and p.has_method("is_active")
+	return p != null and is_instance_valid(p) and p.has_method("is_active")
 func _validated_pool_capacity(n: int) -> int:
-    if n < 1:
-        return 1
-    return mini(n, 128)
+	if n < 1:
+		return 1
+	return mini(n, 128)
 

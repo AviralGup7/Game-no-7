@@ -259,10 +259,10 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate achievement unlock guard.
 func _validated_unlock(id: StringName) -> bool:
-    if id == &"":
-        return false
-    if SaveManager != null and SaveManager.has_method("has_achievement"):
-        if bool(SaveManager.call("has_achievement", id)):
-            return false
-    return true
+	if id == &"":
+		return false
+	if SaveManager != null and SaveManager.has_method("has_achievement"):
+		if bool(SaveManager.call("has_achievement", id)):
+			return false
+	return true
 

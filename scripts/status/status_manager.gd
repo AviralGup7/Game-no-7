@@ -276,16 +276,16 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate incoming status effects batch.
 func _validated_effects(effects: Array) -> Array:
-    var out: Array = []
-    for e in effects:
-        if e == null or not is_instance_valid(e as Object):
-            continue
-        if e is Dictionary and e.has("id"):
-            var dur:float = float(e.get("duration", 0.0))
-            if not is_finite(dur) or dur <= 0.0:
-                continue
-            out.append(e)
-        elif e is StatusEffect and is_finite(e.duration):
-            out.append(e)
-    return out
+	var out: Array = []
+	for e in effects:
+		if e == null or not is_instance_valid(e as Object):
+			continue
+		if e is Dictionary and e.has("id"):
+			var dur:float = float(e.get("duration", 0.0))
+			if not is_finite(dur) or dur <= 0.0:
+				continue
+			out.append(e)
+		elif e is StatusEffect and is_finite(e.duration):
+			out.append(e)
+	return out
 

@@ -85,11 +85,11 @@ static func signi(v: int) -> int:
 
 ## Hardened: validate daily seed and clamp wave.
 func _validated_daily_seed(s: int) -> int:
-    if s == 0:
-        return 1
-    return s
+	if s == 0:
+		return 1
+	return s
 func _validated_wave(w: int) -> int:
-    if w < 1:
-        return 1
-    return mini(w, 99)
+	if w < 1:
+		return 1
+	return mini(w, 99)
 

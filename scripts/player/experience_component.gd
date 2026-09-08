@@ -138,7 +138,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp XP multiplier.
 func _validated_xp_mult(m: float) -> float:
-    if not is_finite(m) or m < 0.0:
-        return 1.0
-    return clampf(m, 0.0, 10.0)
+	if not is_finite(m) or m < 0.0:
+		return 1.0
+	return clampf(m, 0.0, 10.0)
 

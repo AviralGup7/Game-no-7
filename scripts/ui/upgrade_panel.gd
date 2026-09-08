@@ -150,9 +150,9 @@ func _layout_cards() -> void:
 
 ## Hardened: validate upgrade card index.
 func _validated_card_index(i: int, n: int) -> int:
-    if n <= 0:
-        return -1
-    if i < 0 or i >= n:
-        return -1
-    return i
+	if n <= 0:
+		return -1
+	if i < 0 or i >= n:
+		return -1
+	return i
 

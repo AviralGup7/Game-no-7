@@ -701,9 +701,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate knockback vector before applying.
 func _validated_knockback(k: Vector3) -> Vector3:
-    if not is_finite(k.x) or not is_finite(k.y) or not is_finite(k.z):
-        return Vector3.ZERO
-    if k.length_squared() > 10000.0:
-        return k.normalized() * 100.0
-    return k
+	if not is_finite(k.x) or not is_finite(k.y) or not is_finite(k.z):
+		return Vector3.ZERO
+	if k.length_squared() > 10000.0:
+		return k.normalized() * 100.0
+	return k
 

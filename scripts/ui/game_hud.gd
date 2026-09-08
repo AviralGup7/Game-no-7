@@ -210,7 +210,7 @@ func _refresh_weapon() -> void:
 
 ## Hardened: clamp HUD fractions.
 func _validated_hud_fraction(f: float) -> float:
-    if not is_finite(f):
-        return 0.0
-    return clampf(f, 0.0, 1.0)
+	if not is_finite(f):
+		return 0.0
+	return clampf(f, 0.0, 1.0)
 

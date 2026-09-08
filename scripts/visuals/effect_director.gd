@@ -236,7 +236,7 @@ func _has_particle_texture(path: String) -> bool:
 
 ## Hardened: clamp effect scale.
 func _validated_effect_scale(s: float) -> float:
-    if not is_finite(s) or s <= 0.0:
-        return 1.0
-    return clampf(s, 0.1, 10.0)
+	if not is_finite(s) or s <= 0.0:
+		return 1.0
+	return clampf(s, 0.1, 10.0)
 

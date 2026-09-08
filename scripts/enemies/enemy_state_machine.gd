@@ -118,11 +118,11 @@ func stop() -> void:
 
 ## Hardened: additional state machine guards.
 func _validated_state_for_transition(id: StringName) -> bool:
-    if id == &"":
-        return false
-    return has_state(id)
+	if id == &"":
+		return false
+	return has_state(id)
 func _guarded_transition(id: StringName) -> bool:
-    if not _validated_state_for_transition(id):
-        return false
-    return true
+	if not _validated_state_for_transition(id):
+		return false
+	return true
 

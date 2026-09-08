@@ -179,21 +179,21 @@ static func _radius_of(c: Variant) -> float:
 
 ## Hardened: clamp radius/damage and ignore invalid victims to prevent NaN/physics errors.
 static func _validated_radial_args(victims: Array, at: Vector3, radius: float, damage: float) -> Dictionary:
-    if not is_finite(radius) or radius <= 0.0:
-        radius = 1.0
-    radius = clampf(radius, 0.1, 50.0)
-    if not is_finite(damage) or damage < 0.0:
-        damage = 0.0
-    damage = clampf(damage, 0.0, 999999.0)
-    var clean: Array = []
-    for v in victims:
-        if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
-            clean.append(v)
-    if not is_finite(at.x) or not is_finite(at.y) or not is_finite(at.z):
-        at = Vector3.ZERO
-    return {"victims": clean, "at": at, "radius": radius, "damage": damage}
+	if not is_finite(radius) or radius <= 0.0:
+		radius = 1.0
+	radius = clampf(radius, 0.1, 50.0)
+	if not is_finite(damage) or damage < 0.0:
+		damage = 0.0
+	damage = clampf(damage, 0.0, 999999.0)
+	var clean: Array = []
+	for v in victims:
+		if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
+			clean.append(v)
+	if not is_finite(at.x) or not is_finite(at.y) or not is_finite(at.z):
+		at = Vector3.ZERO
+	return {"victims": clean, "at": at, "radius": radius, "damage": damage}
 
 ## Hardened: area damage export guard second layer.
 func _export_range_guard_area() -> void:
-    pass
+	pass
 

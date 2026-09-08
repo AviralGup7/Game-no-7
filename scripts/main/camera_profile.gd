@@ -40,10 +40,10 @@ func validate() -> Array[String]:
 
 ## Hardened: clamp camera profile values.
 func _validated_profile() -> void:
-    if not is_finite(fov) or fov <= 0.0:
-        fov = 75.0
-    fov = clampf(fov, 10.0, 120.0)
-    if not is_finite(distance) or distance <= 0.0:
-        distance = 10.0
-    distance = clampf(distance, 1.0, 50.0)
+	if not is_finite(fov) or fov <= 0.0:
+		fov = 75.0
+	fov = clampf(fov, 10.0, 120.0)
+	if not is_finite(distance) or distance <= 0.0:
+		distance = 10.0
+	distance = clampf(distance, 1.0, 50.0)
 

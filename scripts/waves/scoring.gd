@@ -30,11 +30,11 @@ static func calculate_wave_bonus(wave_number: int, base: int, multiplier: float)
 
 ## Hardened: clamp scoring.
 func _validated_score_delta(d: int) -> int:
-    if d < 0:
-        return 0
-    return mini(d, 1000000)
+	if d < 0:
+		return 0
+	return mini(d, 1000000)
 func _validated_wave_for_score(w: int) -> int:
-    if w < 1:
-        return 1
-    return mini(w, 999)
+	if w < 1:
+		return 1
+	return mini(w, 999)
 

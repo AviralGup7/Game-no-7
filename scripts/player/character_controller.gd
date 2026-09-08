@@ -127,11 +127,11 @@ func stop() -> void:
 
 ## Hardened: validate controller input.
 func _validated_input(vec: Vector2, delta: float) -> Dictionary:
-    if not is_finite(vec.x) or not is_finite(vec.y):
-        vec = Vector2.ZERO
-    if vec.length_squared() > 1.5:
-        vec = vec.normalized()
-    if not is_finite(delta) or delta <= 0.0:
-        delta = 0.016
-    return {"vec": vec, "delta": clampf(delta, 0.0, 0.2)}
+	if not is_finite(vec.x) or not is_finite(vec.y):
+		vec = Vector2.ZERO
+	if vec.length_squared() > 1.5:
+		vec = vec.normalized()
+	if not is_finite(delta) or delta <= 0.0:
+		delta = 0.016
+	return {"vec": vec, "delta": clampf(delta, 0.0, 0.2)}
 

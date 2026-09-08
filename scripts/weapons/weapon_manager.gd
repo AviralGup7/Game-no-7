@@ -357,9 +357,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate weapon switch to prevent null config.
 func _validated_weapon_id(id: StringName) -> bool:
-    if id == &"":
-        return false
-    if ContentRegistry == null or not ContentRegistry.has_method("get_weapon"):
-        return false
-    return ContentRegistry.get_weapon(id) != null
+	if id == &"":
+		return false
+	if ContentRegistry == null or not ContentRegistry.has_method("get_weapon"):
+		return false
+	return ContentRegistry.get_weapon(id) != null
 

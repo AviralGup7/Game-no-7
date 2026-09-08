@@ -242,8 +242,8 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp drop position to arena bounds.
 func _validated_drop_pos(pos: Vector3, half: float) -> Vector3:
-    if not is_finite(pos.x) or not is_finite(pos.z):
-        return Vector3.ZERO
-    half = clampf(half, 4.0, 100.0)
-    return Vector3(clampf(pos.x, -half, half), pos.y, clampf(pos.z, -half, half))
+	if not is_finite(pos.x) or not is_finite(pos.z):
+		return Vector3.ZERO
+	half = clampf(half, 4.0, 100.0)
+	return Vector3(clampf(pos.x, -half, half), pos.y, clampf(pos.z, -half, half))
 

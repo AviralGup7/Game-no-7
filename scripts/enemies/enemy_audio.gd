@@ -53,12 +53,12 @@ func play_explosion() -> void:
 
 ## Hardened: validate audio playback guards.
 func _validated_play(cue: StringName) -> bool:
-    if cue == &"":
-        return false
-    if not is_inside_tree() or not is_instance_valid(self):
-        return false
-    return true
+	if cue == &"":
+		return false
+	if not is_inside_tree() or not is_instance_valid(self):
+		return false
+	return true
 func _guarded_play(cue: StringName) -> void:
-    if not _validated_play(cue):
-        return
+	if not _validated_play(cue):
+		return
 

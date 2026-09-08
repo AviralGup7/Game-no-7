@@ -48,5 +48,5 @@ static func binding(action_name: StringName) -> String:
 
 ## Hardened: validate ui command.
 func _validated_binding(action: StringName) -> bool:
-    return action != &""
+	return action != &""
 

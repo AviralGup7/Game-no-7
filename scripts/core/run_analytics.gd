@@ -47,7 +47,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp analytics window.
 func _validated_analytics_window(w: float) -> float:
-    if not is_finite(w) or w <= 0.0:
-        return 60.0
-    return clampf(w, 1.0, 3600.0)
+	if not is_finite(w) or w <= 0.0:
+		return 60.0
+	return clampf(w, 1.0, 3600.0)
 

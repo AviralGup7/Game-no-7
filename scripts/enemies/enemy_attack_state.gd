@@ -95,13 +95,13 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 
 ## Hardened: validate attack cooldown before entering.
 func _validated_attack_cd(cd: float) -> float:
-    if not is_finite(cd) or cd <= 0.0:
-        return 0.8
-    return clampf(cd, 0.05, 10.0)
+	if not is_finite(cd) or cd <= 0.0:
+		return 0.8
+	return clampf(cd, 0.05, 10.0)
 func _attack_can_enter(host: Node) -> bool:
-    if host == null or not is_instance_valid(host):
-        return false
-    if not host.is_inside_tree():
-        return false
-    return true
+	if host == null or not is_instance_valid(host):
+		return false
+	if not host.is_inside_tree():
+		return false
+	return true
 

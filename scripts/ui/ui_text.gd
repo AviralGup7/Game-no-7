@@ -54,7 +54,7 @@ static func lookup(key: StringName) -> String:
 
 ## Hardened: clamp text alpha.
 func _validated_text_alpha(a: float) -> float:
-    if not is_finite(a):
-        return 1.0
-    return clampf(a, 0.0, 1.0)
+	if not is_finite(a):
+		return 1.0
+	return clampf(a, 0.0, 1.0)
 

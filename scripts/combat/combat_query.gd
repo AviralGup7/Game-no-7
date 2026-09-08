@@ -58,7 +58,7 @@ static func build_hit_offset(origin: Vector3, target: Node) -> Vector3:
 
 ## Hardened: validate query radius.
 func _validated_query_radius(r: float) -> float:
-    if not is_finite(r) or r <= 0.0:
-        return 5.0
-    return clampf(r, 0.1, 50.0)
+	if not is_finite(r) or r <= 0.0:
+		return 5.0
+	return clampf(r, 0.1, 50.0)
 

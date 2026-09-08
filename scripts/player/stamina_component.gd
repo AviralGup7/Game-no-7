@@ -143,7 +143,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate stamina config.
 func _validated_stamina_config(v: float) -> float:
-    if not is_finite(v) or v <= 0.0:
-        return 100.0
-    return clampf(v, 1.0, 10000.0)
+	if not is_finite(v) or v <= 0.0:
+		return 100.0
+	return clampf(v, 1.0, 10000.0)
 

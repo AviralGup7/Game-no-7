@@ -128,13 +128,13 @@ static func roll_range(base_seed: int, salt: int, low: int, high: int) -> int:
 
 ## Hardened: additional rng guards.
 func _validated_chance(c: float) -> float:
-    if not is_finite(c):
-        return 0.0
-    return clampf(c, 0.0, 1.0)
+	if not is_finite(c):
+		return 0.0
+	return clampf(c, 0.0, 1.0)
 func _validated_range(lo: float, hi: float) -> Dictionary:
-    if not is_finite(lo) or not is_finite(hi):
-        return {"lo": 0.0, "hi": 1.0}
-    if lo > hi:
-        var tmp:=lo; lo=hi; hi=tmp
-    return {"lo": lo, "hi": hi}
+	if not is_finite(lo) or not is_finite(hi):
+		return {"lo": 0.0, "hi": 1.0}
+	if lo > hi:
+		var tmp:=lo; lo=hi; hi=tmp
+	return {"lo": lo, "hi": hi}
 

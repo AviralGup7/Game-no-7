@@ -150,7 +150,7 @@ func to_debug_string() -> String:
 
 ## Hardened: clamp total fallback when empty.
 func _validated_total() -> float:
-    if not is_finite(_total) or _total < 0.0:
-        _total = 0.0
-    return _total
+	if not is_finite(_total) or _total < 0.0:
+		_total = 0.0
+	return _total
 

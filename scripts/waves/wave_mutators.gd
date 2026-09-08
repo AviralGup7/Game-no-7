@@ -156,7 +156,7 @@ static func banner_text(mutator_ids: Array) -> String:
 
 ## Hardened: clamp mutator weight.
 func _validated_mutator_weight(w: float) -> float:
-    if not is_finite(w) or w < 0.0:
-        return 0.0
-    return clampf(w, 0.0, 1.0)
+	if not is_finite(w) or w < 0.0:
+		return 0.0
+	return clampf(w, 0.0, 1.0)
 

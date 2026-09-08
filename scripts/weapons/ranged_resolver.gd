@@ -106,11 +106,11 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 
 ## Hardened: validate ranged launch.
 func _validated_ranged_launch(speed: float, damage: float) -> Dictionary:
-    if not is_finite(speed) or speed <= 0.0:
-        speed = 18.0
-    if not is_finite(damage) or damage < 0.0:
-        damage = 10.0
-    speed = clampf(speed, 0.1, 100.0)
-    damage = clampf(damage, 0.0, 999999.0)
-    return {"speed": speed, "damage": damage}
+	if not is_finite(speed) or speed <= 0.0:
+		speed = 18.0
+	if not is_finite(damage) or damage < 0.0:
+		damage = 10.0
+	speed = clampf(speed, 0.1, 100.0)
+	damage = clampf(damage, 0.0, 999999.0)
+	return {"speed": speed, "damage": damage}
 

@@ -100,7 +100,7 @@ func clamp_to_bounds() -> void:
 
 ## Hardened: clamp locomotion speed.
 func _validated_loco_speed(s: float) -> float:
-    if not is_finite(s) or s < 0.0:
-        return 5.0
-    return clampf(s, 0.0, 20.0)
+	if not is_finite(s) or s < 0.0:
+		return 5.0
+	return clampf(s, 0.0, 20.0)
 

@@ -88,15 +88,15 @@ func _wall_between(host: EnemyBase, target: Node3D) -> bool:
 
 ## Hardened: validate striker execution.
 func _validated_striker(host: Node) -> bool:
-    if host == null or not is_instance_valid(host):
-        return false
-    if not host.is_inside_tree():
-        return false
-    if not host.has_method("get_effective_attack_damage"):
-        return false
-    return true
+	if host == null or not is_instance_valid(host):
+		return false
+	if not host.is_inside_tree():
+		return false
+	if not host.has_method("get_effective_attack_damage"):
+		return false
+	return true
 func _validated_damage(d: float) -> float:
-    if not is_finite(d) or d < 0.0:
-        return 5.0
-    return clampf(d, 0.0, 10000.0)
+	if not is_finite(d) or d < 0.0:
+		return 5.0
+	return clampf(d, 0.0, 10000.0)
 

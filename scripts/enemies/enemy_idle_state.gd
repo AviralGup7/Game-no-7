@@ -39,7 +39,7 @@ static func host_set_still(host: EnemyBase) -> void:
 
 ## Hardened: clamp idle dwell.
 func _validated_idle_dwell(d: float) -> float:
-    if not is_finite(d) or d < 0.0:
-        return 0.5
-    return clampf(d, 0.1, 5.0)
+	if not is_finite(d) or d < 0.0:
+		return 0.5
+	return clampf(d, 0.1, 5.0)
 

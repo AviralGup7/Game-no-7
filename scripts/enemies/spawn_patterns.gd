@@ -172,7 +172,7 @@ static func pattern_for_wave(wave: int, seed: int, previous: StringName) -> Stri
 
 ## Hardened: validate spawn count.
 func _validated_spawn_count(n: int) -> int:
-    if n < 0:
-        return 0
-    return mini(n, 100)
+	if n < 0:
+		return 0
+	return mini(n, 100)
 

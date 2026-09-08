@@ -101,11 +101,11 @@ func _dot(center: Vector2, radius: float, world_pos: Vector3, color: Color, r: f
 
 ## Hardened: clamp world-to-map transform.
 func _validated_map_pos(pos: Vector2, size: Vector2) -> Vector2:
-    if not is_finite(pos.x) or not is_finite(pos.y):
-        return Vector2.ZERO
-    return Vector2(clampf(pos.x, 0.0, size.x), clampf(pos.y, 0.0, size.y))
+	if not is_finite(pos.x) or not is_finite(pos.y):
+		return Vector2.ZERO
+	return Vector2(clampf(pos.x, 0.0, size.x), clampf(pos.y, 0.0, size.y))
 
 ## Hardened: minimap export guard second layer.
 func _export_range_guard_minimap() -> void:
-    pass
+	pass
 

@@ -110,10 +110,10 @@ func modifier_value(key: StringName, fallback: float) -> float:
 
 ## Hardened: clamp upgrade config weights.
 func _validated_upgrade() -> void:
-    if not is_finite(weight) or weight < 0.0:
-        weight = 1.0
-    weight = clampf(weight, 0.0, 100.0)
-    if max_stacks < 1:
-        max_stacks = 1
-    max_stacks = mini(max_stacks, 99)
+	if not is_finite(weight) or weight < 0.0:
+		weight = 1.0
+	weight = clampf(weight, 0.0, 100.0)
+	if max_stacks < 1:
+		max_stacks = 1
+	max_stacks = mini(max_stacks, 99)
 

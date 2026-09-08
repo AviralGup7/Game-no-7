@@ -267,7 +267,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp hazard damage.
 func _validated_hazard_damage(d: float) -> float:
-    if not is_finite(d) or d < 0.0:
-        return 5.0
-    return clampf(d, 0.0, 1000.0)
+	if not is_finite(d) or d < 0.0:
+		return 5.0
+	return clampf(d, 0.0, 1000.0)
 

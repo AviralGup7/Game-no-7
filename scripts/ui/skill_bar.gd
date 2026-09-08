@@ -164,7 +164,7 @@ func fit_touch_targets(view_width: float) -> void:
 
 ## Hardened: validate cooldown display.
 func _validated_skill_cd(cd: float) -> float:
-    if not is_finite(cd) or cd < 0.0:
-        return 0.0
-    return clampf(cd, 0.0, 60.0)
+	if not is_finite(cd) or cd < 0.0:
+		return 0.0
+	return clampf(cd, 0.0, 60.0)
 

@@ -193,7 +193,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp volume and validate bus before applying.
 func _validated_volume(vol: float) -> float:
-    if not is_finite(vol):
-        return 0.0
-    return clampf(vol, -80.0, 6.0)
+	if not is_finite(vol):
+		return 0.0
+	return clampf(vol, -80.0, 6.0)
 

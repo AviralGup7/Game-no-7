@@ -68,9 +68,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate feedback triggers.
 func _validated_feedback(kind: StringName) -> bool:
-    if kind == &"":
-        return false
-    if not is_inside_tree():
-        return false
-    return true
+	if kind == &"":
+		return false
+	if not is_inside_tree():
+		return false
+	return true
 

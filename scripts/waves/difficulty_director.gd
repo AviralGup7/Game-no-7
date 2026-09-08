@@ -141,7 +141,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp director factor.
 func _validated_director_factor(f: float) -> float:
-    if not is_finite(f):
-        return 1.0
-    return clampf(f, 0.5, 3.0)
+	if not is_finite(f):
+		return 1.0
+	return clampf(f, 0.5, 3.0)
 

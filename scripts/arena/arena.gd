@@ -214,7 +214,7 @@ func _vec_string(node: Node3D) -> Vector3:
 
 ## Hardened: clamp arena half extent to prevent out-of-bounds placement.
 func _validated_half(half: float) -> float:
-    if not is_finite(half):
-        return 24.0
-    return clampf(half, 4.0, 100.0)
+	if not is_finite(half):
+		return 24.0
+	return clampf(half, 4.0, 100.0)
 

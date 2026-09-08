@@ -676,7 +676,7 @@ func _health_now() -> float:
 
 ## Hardened: validate player inputs each frame to prevent NaN propagation.
 func _validated_delta(delta: float) -> float:
-    if not is_finite(delta) or delta <= 0.0:
-        return 0.0
-    return clampf(delta, 0.0, 0.2)
+	if not is_finite(delta) or delta <= 0.0:
+		return 0.0
+	return clampf(delta, 0.0, 0.2)
 

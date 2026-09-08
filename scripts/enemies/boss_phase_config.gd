@@ -50,28 +50,28 @@ func to_dict() -> Dictionary:
 
 ## Hardened: clamp boss phase exports.
 func _validated_phase() -> void:
-    if not is_finite(threshold) or threshold < 0.0:
-        threshold = 1.0
-    threshold = clampf(threshold, 0.0, 1.0)
-    if not is_finite(damage_mult) or damage_mult <= 0.0:
-        damage_mult = 1.0
-    damage_mult = clampf(damage_mult, 0.1, 10.0)
-    if not is_finite(speed_mult) or speed_mult <= 0.0:
-        speed_mult = 1.0
-    speed_mult = clampf(speed_mult, 0.1, 10.0)
-    if phase_name.is_empty():
-        phase_name = "Phase"
+	if not is_finite(threshold) or threshold < 0.0:
+		threshold = 1.0
+	threshold = clampf(threshold, 0.0, 1.0)
+	if not is_finite(damage_mult) or damage_mult <= 0.0:
+		damage_mult = 1.0
+	damage_mult = clampf(damage_mult, 0.1, 10.0)
+	if not is_finite(speed_mult) or speed_mult <= 0.0:
+		speed_mult = 1.0
+	speed_mult = clampf(speed_mult, 0.1, 10.0)
+	if phase_name.is_empty():
+		phase_name = "Phase"
 func is_valid_phase() -> bool:
-    return is_finite(threshold) and is_finite(damage_mult) and is_finite(speed_mult)
+	return is_finite(threshold) and is_finite(damage_mult) and is_finite(speed_mult)
 
 ## Export-range guard: editor sliders are clamped and runtime values are re-clamped
 ## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
 func _export_range_guard() -> void:
-    # This is a documentation guard; actual clamping lives in _validated_* helpers.
-    # Intended ranges (editor @export_range would be here in a future Godot bump):
-    #  - health/damage: 0..10000 finite
-    #  - cooldown/duration: 0.05..60 finite
-    #  - speed/range: 0..30 finite, half 4..100
-    #  - weight/chance: 0..1 finite
-    pass
+	# This is a documentation guard; actual clamping lives in _validated_* helpers.
+	# Intended ranges (editor @export_range would be here in a future Godot bump):
+	#  - health/damage: 0..10000 finite
+	#  - cooldown/duration: 0.05..60 finite
+	#  - speed/range: 0..30 finite, half 4..100
+	#  - weight/chance: 0..1 finite
+	pass
 

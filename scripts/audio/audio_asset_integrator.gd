@@ -117,17 +117,17 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate audio registration guards.
 func _validated_cue(cue: StringName) -> bool:
-    if cue == &"":
-        return false
-    return true
+	if cue == &"":
+		return false
+	return true
 func _validated_stream(stream: AudioStream) -> bool:
-    if stream == null or not is_instance_valid(stream):
-        return false
-    return true
+	if stream == null or not is_instance_valid(stream):
+		return false
+	return true
 func _guarded_register(cue: StringName, stream: AudioStream) -> bool:
-    if not _validated_cue(cue) or not _validated_stream(stream):
-        if EventBus != null:
-            EventBus.report_warning("AudioAssetIntegrator drop invalid %s" % String(cue))
-        return false
-    return true
+	if not _validated_cue(cue) or not _validated_stream(stream):
+		if EventBus != null:
+			EventBus.report_warning("AudioAssetIntegrator drop invalid %s" % String(cue))
+		return false
+	return true
 

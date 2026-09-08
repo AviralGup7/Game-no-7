@@ -335,7 +335,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp boss threshold to prevent phase skip.
 func _validated_threshold(t: float) -> float:
-    if not is_finite(t):
-        return 0.0
-    return clampf(t, 0.0, 1.0)
+	if not is_finite(t):
+		return 0.0
+	return clampf(t, 0.0, 1.0)
 

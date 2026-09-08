@@ -115,5 +115,5 @@ func _top_up_health_to_max() -> void:
 
 ## Hardened: validate build config.
 func _validated_build_id(id: StringName) -> bool:
-    return id != &""
+	return id != &""
 

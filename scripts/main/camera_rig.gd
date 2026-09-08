@@ -152,9 +152,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate camera rig lerp.
 func _validated_lerp_weight(w: float, delta: float) -> float:
-    if not is_finite(w) or w < 0.0:
-        w = 0.1
-    if not is_finite(delta) or delta <= 0.0:
-        delta = 0.016
-    return clampf(w * delta * 60.0, 0.0, 1.0)
+	if not is_finite(w) or w < 0.0:
+		w = 0.1
+	if not is_finite(delta) or delta <= 0.0:
+		delta = 0.016
+	return clampf(w * delta * 60.0, 0.0, 1.0)
 

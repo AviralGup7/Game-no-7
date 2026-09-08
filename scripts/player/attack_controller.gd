@@ -309,7 +309,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate attack damage.
 func _validated_attack_damage(d: float) -> float:
-    if not is_finite(d) or d < 0.0:
-        return 10.0
-    return clampf(d, 0.0, 10000.0)
+	if not is_finite(d) or d < 0.0:
+		return 10.0
+	return clampf(d, 0.0, 10000.0)
 

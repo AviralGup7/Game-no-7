@@ -96,7 +96,7 @@ static func _sync_run_from_progression(run: RunState, player: Node) -> void:
 
 ## Hardened: validate upgrade pool before offering.
 func _validated_pool_size(n: int) -> int:
-    if n < 0:
-        return 0
-    return mini(n, 100)
+	if n < 0:
+		return 0
+	return mini(n, 100)
 

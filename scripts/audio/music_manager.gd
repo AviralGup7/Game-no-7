@@ -201,7 +201,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp music crossfade to prevent audio pop.
 func _validated_fade(t: float) -> float:
-    if not is_finite(t) or t < 0.0:
-        return 0.0
-    return clampf(t, 0.0, 10.0)
+	if not is_finite(t) or t < 0.0:
+		return 0.0
+	return clampf(t, 0.0, 10.0)
 

@@ -29,7 +29,7 @@ func refresh() -> void:
 
 ## Hardened: clamp safe area insets.
 func _validated_inset(v: float) -> float:
-    if not is_finite(v) or v < 0.0:
-        return 0.0
-    return clampf(v, 0.0, 200.0)
+	if not is_finite(v) or v < 0.0:
+		return 0.0
+	return clampf(v, 0.0, 200.0)
 

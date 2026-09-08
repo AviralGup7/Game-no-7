@@ -39,7 +39,7 @@ func refresh() -> void:
 
 ## Hardened: validate menu id.
 func _validated_menu_id(id: StringName) -> bool:
-    if id == &"":
-        return false
-    return true
+	if id == &"":
+		return false
+	return true
 

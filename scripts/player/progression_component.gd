@@ -227,11 +227,11 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: additional progression validators.
 func _validated_wave_for_unlock(w: int) -> int:
-    if w < 1:
-        return 1
-    return mini(w, 999)
+	if w < 1:
+		return 1
+	return mini(w, 999)
 func _validated_stack(n: int) -> int:
-    if n < 0:
-        return 0
-    return mini(n, 99)
+	if n < 0:
+		return 0
+	return mini(n, 99)
 

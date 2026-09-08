@@ -40,5 +40,5 @@ func refresh() -> void:
 
 ## Hardened: validate help id.
 func _validated_help_id(id: StringName) -> bool:
-    return id != &""
+	return id != &""
 

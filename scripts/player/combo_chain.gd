@@ -75,7 +75,7 @@ func _step_multiplier(multipliers: Array[float], step: int) -> float:
 
 ## Hardened: clamp combo window.
 func _validated_combo_window(w: float) -> float:
-    if not is_finite(w) or w <= 0.0:
-        return 0.4
-    return clampf(w, 0.05, 2.0)
+	if not is_finite(w) or w <= 0.0:
+		return 0.4
+	return clampf(w, 0.05, 2.0)
 

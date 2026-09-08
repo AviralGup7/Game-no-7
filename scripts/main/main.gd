@@ -304,11 +304,11 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: additional main guards beyond _safe_run.
 func _validated_wave_number(n: int) -> int:
-    if n < 1:
-        return 1
-    return mini(n, 999)
+	if n < 1:
+		return 1
+	return mini(n, 999)
 func _validated_delta(delta: float) -> float:
-    if not is_finite(delta) or delta <= 0.0:
-        return 0.016
-    return clampf(delta, 0.0, 0.2)
+	if not is_finite(delta) or delta <= 0.0:
+		return 0.016
+	return clampf(delta, 0.0, 0.2)
 

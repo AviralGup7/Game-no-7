@@ -431,7 +431,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate run seed before starting.
 func _validated_seed(s: int) -> int:
-    if s == 0:
-        return randi()
-    return s
+	if s == 0:
+		return randi()
+	return s
 

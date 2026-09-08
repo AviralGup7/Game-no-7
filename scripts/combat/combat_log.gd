@@ -100,9 +100,9 @@ func latest_seq() -> int:
 
 ## Hardened: validate log entry before recording.
 func _validated_log_entry(entry: Dictionary) -> bool:
-    if entry == null or entry.is_empty():
-        return false
-    if not entry.has("type") or str(entry["type"]).is_empty():
-        return false
-    return true
+	if entry == null or entry.is_empty():
+		return false
+	if not entry.has("type") or str(entry["type"]).is_empty():
+		return false
+	return true
 

@@ -134,20 +134,20 @@ static func count_threatened(origin: Vector3, facing: Vector3, candidates: Array
 
 ## Hardened: validate melee hit before applying.
 func _validated_melee(victims: Array, damage: float, range_val: float) -> Dictionary:
-    if not is_finite(damage) or damage < 0.0:
-        damage = 5.0
-    damage = clampf(damage, 0.0, 999999.0)
-    if not is_finite(range_val) or range_val <= 0.0:
-        range_val = 1.5
-    range_val = clampf(range_val, 0.1, 10.0)
-    var clean: Array = []
-    for v in victims:
-        if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
-            clean.append(v)
-    return {"victims": clean, "damage": damage, "range_val": range_val}
+	if not is_finite(damage) or damage < 0.0:
+		damage = 5.0
+	damage = clampf(damage, 0.0, 999999.0)
+	if not is_finite(range_val) or range_val <= 0.0:
+		range_val = 1.5
+	range_val = clampf(range_val, 0.1, 10.0)
+	var clean: Array = []
+	for v in victims:
+		if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
+			clean.append(v)
+	return {"victims": clean, "damage": damage, "range_val": range_val}
 func _melee_has_valid_target(victims: Array) -> bool:
-    for v in victims:
-        if v != null and is_instance_valid(v):
-            return true
-    return false
+	for v in victims:
+		if v != null and is_instance_valid(v):
+			return true
+	return false
 

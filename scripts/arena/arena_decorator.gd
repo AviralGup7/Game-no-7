@@ -271,7 +271,7 @@ func _primitive_banner(holder: Node) -> void:
 
 ## Hardened: validate decoration seed.
 func _validated_decor_seed(s: int) -> int:
-    if s == 0:
-        return 1
-    return s
+	if s == 0:
+		return 1
+	return s
 

@@ -72,28 +72,28 @@ func report_error(message: String) -> void:
 
 ## Hardened: safe emission guard for headless tests.
 func _safe_emit(sig: Signal, args: Array = []) -> void:
-    if sig == null:
-        return
-    for c in sig.get_connections():
-        var cb:Callable = c.get("callable", Callable())
-        if cb.is_valid() and not cb.is_null():
-            continue
+	if sig == null:
+		return
+	for c in sig.get_connections():
+		var cb:Callable = c.get("callable", Callable())
+		if cb.is_valid() and not cb.is_null():
+			continue
 
 ## Hardened: safe emission and duplicate-connect guards.
 func _validated_signal(sig: Signal) -> bool:
-    if sig == null:
-        return false
-    return true
+	if sig == null:
+		return false
+	return true
 func _guarded_connect(sig: Signal, callable: Callable) -> bool:
-    if sig == null or callable == null or callable.is_null() or not callable.is_valid():
-        return false
-    if sig.is_connected(callable):
-        return false
-    return true
+	if sig == null or callable == null or callable.is_null() or not callable.is_valid():
+		return false
+	if sig.is_connected(callable):
+		return false
+	return true
 func _guarded_emit(sig: Signal, args: Array = []) -> void:
-    if sig == null:
-        return
-    # headless test guard: no tree required, just validate
-    if not _validated_signal(sig):
-        return
+	if sig == null:
+		return
+	# headless test guard: no tree required, just validate
+	if not _validated_signal(sig):
+		return
 

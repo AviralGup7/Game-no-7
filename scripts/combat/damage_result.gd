@@ -47,7 +47,7 @@ const IGNORE_DUPLICATE_HIT: StringName = &"duplicate_hit"
 
 ## Hardened: clamp result amounts.
 func _validated_final(amt: float) -> float:
-    if not is_finite(amt) or amt < 0.0:
-        return 0.0
-    return clampf(amt, 0.0, 999999.0)
+	if not is_finite(amt) or amt < 0.0:
+		return 0.0
+	return clampf(amt, 0.0, 999999.0)
 

@@ -93,9 +93,9 @@ func _input(event: InputEvent) -> void:
 
 ## Hardened: validate touch action.
 func _validated_action(a: StringName) -> bool:
-    return a != &""
+	return a != &""
 func _validated_cooldown(cd: float) -> float:
-    if not is_finite(cd) or cd < 0.0:
-        return 0.0
-    return clampf(cd, 0.0, 10.0)
+	if not is_finite(cd) or cd < 0.0:
+		return 0.0
+	return clampf(cd, 0.0, 10.0)
 

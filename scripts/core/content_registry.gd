@@ -223,9 +223,9 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: validate archetype lookup to prevent null deref.
 func _validated_archetype(id: StringName) -> StringName:
-    if id == &"" or id == &"uninitialized":
-        return &""
-    if ContentRegistry == null:
-        return &""
-    return id
+	if id == &"" or id == &"uninitialized":
+		return &""
+	if ContentRegistry == null:
+		return &""
+	return id
 

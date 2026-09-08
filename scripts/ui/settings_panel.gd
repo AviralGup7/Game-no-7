@@ -181,7 +181,7 @@ func _reset_draft() -> void:
 
 ## Hardened: clamp volume sliders.
 func _validated_slider(v: float) -> float:
-    if not is_finite(v):
-        return 0.5
-    return clampf(v, 0.0, 1.0)
+	if not is_finite(v):
+		return 0.5
+	return clampf(v, 0.0, 1.0)
 

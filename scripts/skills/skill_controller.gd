@@ -259,7 +259,7 @@ func get_debug_snapshot() -> Dictionary:
 
 ## Hardened: clamp cooldowns to prevent negative timers.
 func _validated_cooldown(cd: float) -> float:
-    if not is_finite(cd) or cd < 0.0:
-        return 0.05
-    return clampf(cd, 0.05, 60.0)
+	if not is_finite(cd) or cd < 0.0:
+		return 0.05
+	return clampf(cd, 0.05, 60.0)
 

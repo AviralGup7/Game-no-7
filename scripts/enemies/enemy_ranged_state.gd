@@ -158,9 +158,9 @@ func _cfg(host: EnemyBase, key: StringName, fallback: float) -> float:
 
 ## Hardened: validate ranged target and cooldown.
 func _validated_ranged(cd: float, target: Node) -> Dictionary:
-    if not is_finite(cd) or cd < 0.0:
-        cd = 1.0
-    cd = clampf(cd, 0.05, 10.0)
-    var valid := target != null and is_instance_valid(target) and target.is_inside_tree()
-    return {"cd": cd, "valid": valid}
+	if not is_finite(cd) or cd < 0.0:
+		cd = 1.0
+	cd = clampf(cd, 0.05, 10.0)
+	var valid := target != null and is_instance_valid(target) and target.is_inside_tree()
+	return {"cd": cd, "valid": valid}
 

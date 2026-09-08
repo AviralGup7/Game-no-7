@@ -250,9 +250,9 @@ func cancel_attack() -> void:
 
 ## Hardened: validate weapon instance config.
 func _validated_config(cfg: Resource) -> bool:
-    return cfg != null and is_instance_valid(cfg)
+	return cfg != null and is_instance_valid(cfg)
 func _validated_level(lv: int) -> int:
-    if lv < 1:
-        return 1
-    return mini(lv, 99)
+	if lv < 1:
+		return 1
+	return mini(lv, 99)
 

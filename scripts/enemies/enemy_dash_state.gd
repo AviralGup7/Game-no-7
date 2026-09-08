@@ -81,11 +81,11 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 
 ## Hardened: clamp dash speed/time.
 func _validated_dash(speed: float, time: float) -> Dictionary:
-    if not is_finite(speed) or speed <= 0.0:
-        speed = 12.0
-    if not is_finite(time) or time <= 0.0:
-        time = 0.3
-    speed = clampf(speed, 1.0, 40.0)
-    time = clampf(time, 0.05, 2.0)
-    return {"speed": speed, "time": time}
+	if not is_finite(speed) or speed <= 0.0:
+		speed = 12.0
+	if not is_finite(time) or time <= 0.0:
+		time = 0.3
+	speed = clampf(speed, 1.0, 40.0)
+	time = clampf(time, 0.05, 2.0)
+	return {"speed": speed, "time": time}
 

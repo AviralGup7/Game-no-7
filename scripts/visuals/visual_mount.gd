@@ -18,7 +18,7 @@ func _ready() -> void:
 
 ## Hardened: validate visual mount.
 func _validated_mount(host: Node, id: StringName) -> bool:
-    if host == null or not is_instance_valid(host):
-        return false
-    return id != &""
+	if host == null or not is_instance_valid(host):
+		return false
+	return id != &""
 

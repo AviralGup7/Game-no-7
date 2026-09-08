@@ -169,7 +169,7 @@ static func _events_match(a: InputEvent, b: InputEvent) -> bool:
 
 ## Hardened: validate input remap.
 func _validated_action(action: StringName) -> bool:
-    return action != &""
+	return action != &""
 func _validated_event(ev: InputEvent) -> bool:
-    return ev != null and is_instance_valid(ev)
+	return ev != null and is_instance_valid(ev)
 

@@ -498,13 +498,13 @@ func _hash_seed(run_seed: int, wave_number: int) -> int:
 
 ## Hardened: validate spawn manager config and active prune.
 func _validated_configure(arena: Node3D, player: Node, container: Node3D) -> bool:
-    if arena == null or not is_instance_valid(arena):
-        return false
-    if player == null or not is_instance_valid(player):
-        return false
-    return true
+	if arena == null or not is_instance_valid(arena):
+		return false
+	if player == null or not is_instance_valid(player):
+		return false
+	return true
 func _validated_rng_seed(s: int) -> int:
-    if s == 0:
-        return 1
-    return s
+	if s == 0:
+		return 1
+	return s
 

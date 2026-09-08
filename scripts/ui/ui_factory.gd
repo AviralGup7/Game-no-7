@@ -91,5 +91,5 @@ static func focus_first(panel: Control) -> void:
 
 ## Hardened: validate factory product.
 func _validated_product(p: Node) -> bool:
-    return p != null and is_instance_valid(p)
+	return p != null and is_instance_valid(p)
 

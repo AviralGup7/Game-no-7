@@ -34,11 +34,11 @@ func refresh() -> void:
 
 ## Hardened: validate gallery index.
 func _validated_gallery_index(i: int, n: int) -> int:
-    if n <= 0:
-        return -1
-    if i < 0 or i >= n:
-        return -1
-    return i
+	if n <= 0:
+		return -1
+	if i < 0 or i >= n:
+		return -1
+	return i
 func _guarded_show(idx: int) -> bool:
-    return idx >= 0
+	return idx >= 0
 

@@ -212,7 +212,7 @@ static func _has_extension(file: String, extensions: Array) -> bool:
 
 ## Hardened: validate content path before load.
 func _validated_content_path(p: String) -> bool:
-    if p.is_empty() or not p.begins_with("res://"):
-        return false
-    return true
+	if p.is_empty() or not p.begins_with("res://"):
+		return false
+	return true
 

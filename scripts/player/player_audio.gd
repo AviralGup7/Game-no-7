@@ -90,5 +90,5 @@ func play_pickup() -> void:
 
 ## Hardened: validate audio cue.
 func _validated_cue(cue: StringName) -> bool:
-    return cue != &""
+	return cue != &""
 

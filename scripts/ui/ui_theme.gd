@@ -74,5 +74,5 @@ static func apply_text_scale(node: Node, scale: float) -> void:
 
 ## Hardened: validate theme id.
 func _validated_theme(id: StringName) -> bool:
-    return id != &""
+	return id != &""
 
