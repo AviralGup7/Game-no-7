@@ -120,12 +120,3 @@ func clear_pending() -> void:
 func clear_all() -> void:
 	clear_pending()
 	set_coach("")
-
-## Hardened: validate banner text.
-func _validated_banner_text(t: String) -> bool:
-	if t.is_empty():
-		return false
-	if t.length() > 200:
-		return false
-	return true
-

@@ -155,20 +155,3 @@ func summary() -> Dictionary:
 		"equipped_skills": equipped_skills.duplicate(),
 		"build_archetypes": build_archetypes.duplicate(),
 	}
-
-## Hardened: validate serialized run dict before restore.
-func _validated_restore_dict(d: Dictionary) -> Dictionary:
-	if d == null or d.is_empty():
-		return {}
-	var out: Dictionary = {}
-	for k in d.keys():
-		var v:Variant = d[k]
-		if v is float and not is_finite(float(v)):
-			continue
-		out[k] = v
-	return out
-
-## Hardened: second-layer run_state export guard.
-func _export_range_guard_run_state() -> void:
-	pass
-

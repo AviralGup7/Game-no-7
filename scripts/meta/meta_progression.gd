@@ -46,61 +46,44 @@ func _load() -> void:
 	_prestige_rank = 0
 	if SaveManager == null:
 		return
-	if SaveManager.has_method("get_meta_wallet"):
-		_wallet = maxi(int(SaveManager.call("get_meta_wallet")), 0)
-	if SaveManager.has_method("get_prestige_rank"):
-		_prestige_rank = int(SaveManager.call("get_prestige_rank"))
-	if GameRoot != null and GameRoot.has_method("set_prestige_rank"):
-		GameRoot.call("set_prestige_rank", _prestige_rank)
-	if SaveManager.has_method("get_meta_ranks"):
-		var ranks: Variant = SaveManager.call("get_meta_ranks")
-		if ranks is Dictionary:
-			_ranks = (ranks as Dictionary).duplicate()
-			# Migrate legacy key typo: "vitality Tome" -> "vitality_tome".
-			var legacy := StringName("vitality Tome")
-			if _ranks.has(legacy):
-				var v: Variant = _ranks[legacy]
-				_ranks.erase(legacy)
-				if not _ranks.has(&"vitality_tome"):
-					_ranks[&"vitality_tome"] = v
-				else:
-					_ranks[&"vitality_tome"] = maxi(int(_ranks[&"vitality_tome"]), int(v))
+	_wallet = maxi(SaveManager.get_meta_wallet(), 0)
+	_prestige_rank = SaveManager.get_prestige_rank()
+	if GameRoot != null:
+		GameRoot.set_prestige_rank(_prestige_rank)
+	var ranks := SaveManager.get_meta_ranks()
+	if ranks is Dictionary:
+		_ranks = ranks.duplicate()
+		# Migrate legacy key typo: "vitality Tome" -> "vitality_tome".
+		var legacy := StringName("vitality Tome")
+		if _ranks.has(legacy):
+			var v: Variant = _ranks[legacy]
+			_ranks.erase(legacy)
+			if not _ranks.has(&"vitality_tome"):
+				_ranks[&"vitality_tome"] = v
+			else:
+				_ranks[&"vitality_tome"] = maxi(int(_ranks[&"vitality_tome"]), int(v))
 
 
 func _save() -> void:
 	if SaveManager == null:
 		return
-	if SaveManager.has_method("set_meta_wallet"):
-		SaveManager.call("set_meta_wallet", _wallet)
-	if SaveManager.has_method("set_meta_ranks"):
-		SaveManager.call("set_meta_ranks", _ranks.duplicate())
-	if SaveManager.has_method("set_prestige_rank"):
-		SaveManager.call("set_prestige_rank", _prestige_rank)
-	if SaveManager.has_method("save_now"):
-		SaveManager.call("save_now")
+	SaveManager.set_meta_wallet(_wallet)
+	SaveManager.set_meta_ranks(_ranks.duplicate())
+	SaveManager.set_prestige_rank(_prestige_rank)
+	SaveManager.save_now()
 
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
 	# Bank a cut of the run's unspent currency into the persistent wallet.
 	# Prestige multiplies the banked cut; victory runs bank a slightly larger share.
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null:
-			var currency := 0
-			var victory := false
-			if run is Dictionary:
-				currency = int((run as Dictionary).get("currency", 0))
-				victory = bool((run as Dictionary).get("victory", false))
-			elif "currency" in run:
-				currency = int((run as Object).get("currency"))
-				if "victory" in run:
-					victory = bool((run as Object).get("victory"))
-			var share := 0.55 if victory else 0.5
-			var earned := maxi(int(round(float(currency) * share * Prestige.currency_multiplier(_prestige_rank))), 0)
-			if earned > 0:
-				_wallet += earned
-				_save()
-				wallet_changed.emit(_wallet)
+	var run := GameRoot.get_run()
+	if run != null:
+		var share := 0.55 if run.victory else 0.5
+		var earned := maxi(int(round(float(run.currency) * share * Prestige.currency_multiplier(_prestige_rank))), 0)
+		if earned > 0:
+			_wallet += earned
+			_save()
+			wallet_changed.emit(_wallet)
 
 
 func get_wallet() -> int:
@@ -164,27 +147,25 @@ func _apply_live(item_id: StringName) -> void:
 		return
 	if GameRoot == null or GameRoot.get_active_player() == null:
 		return
-	var prog := (GameRoot.get_active_player() as Node).get_node_or_null("ProgressionComponent")
-	if prog != null and prog.has_method("add_permanent_bonus"):
-		prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]))
 	var player := GameRoot.get_active_player()
-	if player != null and player.has_method("rebuild_derived_stats"):
-		player.call("rebuild_derived_stats")
+	if player != null:
+		player.get_progression_component().add_permanent_bonus(StringName(String(def["stat"])), float(def["per_rank"]))
+		player.rebuild_derived_stats()
 
 
 ## Apply ALL owned ranks at run start (called by Main after world build).
 func apply_all_to_run() -> void:
 	if GameRoot == null or GameRoot.get_active_player() == null:
 		return
-	var player := GameRoot.get_active_player() as Node
-	var prog := player.get_node_or_null("ProgressionComponent") if player != null else null
-	if prog == null or not prog.has_method("add_permanent_bonus"):
+	var player := GameRoot.get_active_player()
+	var prog := player.get_progression_component() if player != null else null
+	if prog == null:
 		return
 	for item_id in _ranks:
 		var def: Dictionary = ARMORY.get(item_id, {})
 		if def.is_empty() or String(def["kind"]) != "stat":
 			continue
-		prog.call("add_permanent_bonus", StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
+		prog.add_permanent_bonus(StringName(String(def["stat"])), float(def["per_rank"]) * float(get_rank(item_id)))
 
 
 func unlocked_targets(kind: StringName) -> Array[StringName]:
@@ -260,11 +241,10 @@ func perform_prestige() -> bool:
 	_prestige_rank = mini(_prestige_rank + 1, Prestige.MAX_PRESTIGE)
 	# Unlock cosmetics for the new rank.
 	for c in Prestige.cosmetics_for_rank(_prestige_rank):
-		if SaveManager != null and SaveManager.has_method("unlock_cosmetic"):
-			SaveManager.call("unlock_cosmetic", String(c))
+		SaveManager.unlock_cosmetic(String(c))
 	_save()
-	if GameRoot != null and GameRoot.has_method("set_prestige_rank"):
-		GameRoot.call("set_prestige_rank", _prestige_rank)
+	if GameRoot != null:
+		GameRoot.set_prestige_rank(_prestige_rank)
 	prestige_completed.emit(_prestige_rank)
 	wallet_changed.emit(_wallet)
 	if EventBus != null:
@@ -283,12 +263,4 @@ func get_debug_snapshot() -> Dictionary:
 		"prestige_rank": _prestige_rank,
 		"title": Prestige.title_for(_prestige_rank),
 	}
-
-## Hardened: clamp meta currency before spend.
-func _validated_spend(cost: int, have: int) -> bool:
-	if cost < 0 or have < 0:
-		return false
-	if not is_finite(float(cost)) or not is_finite(float(have)):
-		return false
-	return have >= cost
 

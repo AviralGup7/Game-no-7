@@ -96,8 +96,3 @@ static func apply_text_scale(node: Node, scale: float) -> void:
 			control.add_theme_font_size_override("font_size", int(float(control.get_meta("ui_base_font")) * scale))
 	for child in node.get_children():
 		apply_text_scale(child, scale)
-
-## Hardened: validate theme id.
-func _validated_theme(id: StringName) -> bool:
-	return id != &""
-

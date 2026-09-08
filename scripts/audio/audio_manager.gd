@@ -189,8 +189,10 @@ func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1
 		EventBus.report_warning("SFX voice limit reached; dropping: %s" % String(cue_id))
 		return false
 	player.stream = stream
-	player.volume_db = _validated_volume(volume_db)
-	player.pitch_scale = _validated_pitch(pitch_scale)
+	# Defensive sanity clamps: authored values are trusted, but a bad tween or
+	# lerp must never blast the mix or produce a negative-pitch voice.
+	player.volume_db = clampf(volume_db, -80.0, 6.0) if is_finite(volume_db) else 0.0
+	player.pitch_scale = clampf(pitch_scale, 0.1, 4.0) if (is_finite(pitch_scale) and pitch_scale > 0.0) else 1.0
 	player.play()
 	return true
 
@@ -236,15 +238,4 @@ func get_debug_snapshot() -> Dictionary:
 		"background_muted": _background_muted,
 	}
 
-## Hardened: clamp volume and validate bus before applying.
-func _validated_volume(vol: float) -> float:
-	if not is_finite(vol):
-		return 0.0
-	return clampf(vol, -80.0, 6.0)
-
-
-func _validated_pitch(pitch: float) -> float:
-	if not is_finite(pitch) or pitch <= 0.0:
-		return 1.0
-	return clampf(pitch, 0.1, 4.0)
 

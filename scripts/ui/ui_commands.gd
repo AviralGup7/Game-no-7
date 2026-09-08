@@ -1,52 +1,64 @@
 class_name UiCommands
 extends RefCounted
 ## Thin intent adapter, NEVER an alternate game/progression controller.
-## GameRoot has no input, arena/loadout or shop commands in the initial baseline.
-## Prefer those facades if supplied by the system-owning branch; otherwise retain
-## the existing validated player input / MetaProgression APIs. Selection fails
-## closed instead of writing ContentRegistry or RunState from presentation.
+## Selection fails closed instead of writing ContentRegistry or RunState from
+## presentation.
+##
+## The old generic `action(method, args)` forwarded ARBITRARY method names to
+## GameRoot/player via callv() string dispatch — zero compile-time safety, and it
+## probed GameRoot for methods that do not exist (request_move_input etc.), so
+## the "GameRoot branch" was silently dead. The command surface is small and
+## closed (touch buttons + skill bar), so it is now an explicit typed dispatch:
+## adding a command means adding a case here, and a typo becomes a parse error
+## instead of a silent runtime no-op.
 
 static func meta(tree: SceneTree) -> MetaProgression:
 	return tree.get_first_node_in_group("meta_progression") as MetaProgression
 
+
+## Armory purchases route through the MetaProgression service (wallet + ranks).
 static func purchase(tree: SceneTree, id: StringName) -> bool:
-	if GameRoot.has_method("request_armory_purchase"):
-		return bool(GameRoot.call("request_armory_purchase", id))
 	var service := meta(tree)
 	return service.purchase(id) if service != null else false
 
-static func select_arena(id: StringName) -> bool:
-	if id == ContentRegistry.get_selected_arena_id():
-		return true
-	if GameRoot.has_method("request_arena_selection"):
-		return bool(GameRoot.call("request_arena_selection", id))
-	return false
 
+## Arena selection is a not-yet-wired feature: launching only succeeds for the
+## currently selected arena (ContentRegistry owns selection). The old
+## GameRoot.has_method("request_arena_selection") probe suggested a runtime
+## capability check; no such method exists, so the probe was always false.
+static func select_arena(id: StringName) -> bool:
+	return id == ContentRegistry.get_selected_arena_id()
+
+
+## Typed player-command dispatch for the touch buttons and skill bar. Returns
+## false when the command is unknown or declined (stamina/cooldown/state gates).
 static func action(method: StringName, args: Array = []) -> bool:
 	if GameRoot.get_current_state() not in [GameRoot.State.PLAYING, GameRoot.State.WAVE_TRANSITION]:
 		return false
-	if GameRoot.has_method(method):
-		var accepted: Variant = GameRoot.callv(method, args)
-		return accepted != false
 	var player := GameRoot.get_active_player()
-	if not is_instance_valid(player) or not player.has_method(method):
+	if player == null or not is_instance_valid(player):
 		return false
-	var result: Variant = player.callv(method, args)
-	return result != false
+	match method:
+		&"request_attack":
+			player.request_attack()
+			return true
+		&"request_dodge":
+			return player.request_dodge()
+		&"request_weapon_switch":
+			return player.request_weapon_switch()
+		&"request_skill":
+			return player.request_skill(int(args[0]) if not args.is_empty() else 0)
+		_:
+			push_warning("UiCommands.action: unknown player command %s" % String(method))
+			return false
+
 
 static func move(value: Vector2) -> void:
-	if GameRoot.has_method("request_move_input"):
-		GameRoot.call("request_move_input", value)
-		return
 	var player := GameRoot.get_active_player()
-	if is_instance_valid(player) and player.has_method("set_move_input"):
-		player.call("set_move_input", value)
+	if player != null and is_instance_valid(player):
+		player.set_move_input(value)
+
 
 static func binding(action_name: StringName) -> String:
 	var bindings := InputRemapper.get_bindings(action_name)
 	return InputRemapper.binding_label(bindings[0]) if not bindings.is_empty() else "Unbound"
-
-## Hardened: validate ui command.
-func _validated_binding(action: StringName) -> bool:
-	return action != &""
-

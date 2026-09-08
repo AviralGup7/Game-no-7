@@ -253,16 +253,14 @@ func _tick_vent(h: Dictionary, victims: Array, delta: float) -> void:
 
 
 func _apply_burn(victims: Array, center: Vector3) -> void:
-	if ContentRegistry == null or not ContentRegistry.has_method("get_status_effect"):
-		return
 	var burn: StatusEffectConfig = ContentRegistry.get_status_effect(&"burn")
 	if burn == null:
 		return
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, VENT_RADIUS):
-			var sm := (v as Node).get_node_or_null("StatusManager")
-			if sm != null and sm.has_method("apply_effect"):
-				sm.call("apply_effect", burn, 1, self)
+			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			if sm != null:
+				sm.apply_effect(burn, 1, self)
 
 
 func _tick_spikes(h: Dictionary, victims: Array) -> void:
@@ -282,14 +280,16 @@ func _tick_spikes(h: Dictionary, victims: Array) -> void:
 			if float((v as Node).get_meta(key, 0.0)) > now:
 				continue
 			(v as Node).set_meta(key, now + 1.0)
-			if (v as Node).has_method("apply_damage"):
+			# Damageable protocol: only combat entities take spike damage.
+			var damageable := v as Damageable
+			if damageable != null:
 				var payload := DamagePayload.new()
 				payload.amount = SPIKE_DAMAGE
 				payload.source = self
 				payload.source_id = &"spike_strip"
 				payload.hit_position = (v as Node3D).global_position
 				if payload.is_valid():
-					(v as Node).call("apply_damage", payload)
+					damageable.apply_damage(payload)
 
 
 func _tick_heal(h: Dictionary, victims: Array, delta: float) -> void:
@@ -298,9 +298,9 @@ func _tick_heal(h: Dictionary, victims: Array, delta: float) -> void:
 		if not (v is Node) or not (v as Node).is_in_group("player"):
 			continue
 		if _inside((v as Node3D).global_position, center, HEAL_RADIUS):
-			var hp := (v as Node).get_node_or_null("HealthComponent")
-			if hp != null and hp.has_method("heal"):
-				hp.call("heal", HEAL_PER_SECOND * delta)
+			var hp := (v as Node).get_node_or_null("HealthComponent") as HealthComponent
+			if hp != null:
+				hp.heal(HEAL_PER_SECOND * delta)
 
 
 func _tick_ichor(h: Dictionary, victims: Array) -> void:
@@ -312,9 +312,9 @@ func _tick_ichor(h: Dictionary, victims: Array) -> void:
 		return
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, 2.8):
-			var sm := (v as Node).get_node_or_null("StatusManager")
-			if sm != null and sm.has_method("apply_effect"):
-				sm.call("apply_effect", slow, 1, self)
+			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			if sm != null:
+				sm.apply_effect(slow, 1, self)
 
 
 ## Pressure plate: when the player stands on it, detonate a blast that hurts enemies only.
@@ -366,15 +366,15 @@ func _tick_mover(h: Dictionary, victims: Array, delta: float) -> void:
 		return
 	h["tick"] = 0.0
 	for v in victims:
-		if v is Node3D and _inside((v as Node3D).global_position, pos, MOVER_RADIUS):
-			if (v as Node).has_method("apply_damage"):
-				var payload := DamagePayload.new()
-				payload.amount = MOVER_DAMAGE
-				payload.source = self
-				payload.source_id = &"moving_hazard"
-				payload.hit_position = (v as Node3D).global_position
-				if payload.is_valid():
-					(v as Node).call("apply_damage", payload)
+		var body := v as Damageable
+		if body != null and _inside(body.global_position, pos, MOVER_RADIUS):
+			var payload := DamagePayload.new()
+			payload.amount = MOVER_DAMAGE
+			payload.source = self
+			payload.source_id = &"moving_hazard"
+			payload.hit_position = body.global_position
+			if payload.is_valid():
+				body.apply_damage(payload)
 
 
 func _clear() -> void:
@@ -394,10 +394,4 @@ func get_debug_snapshot() -> Dictionary:
 	for h in _hazards:
 		kinds.append(String(h["kind"]))
 	return {"count": _hazards.size(), "kinds": kinds}
-
-## Hardened: clamp hazard damage.
-func _validated_hazard_damage(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 5.0
-	return clampf(d, 0.0, 1000.0)
 

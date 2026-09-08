@@ -39,7 +39,7 @@ var _active_mutators: Array[StringName] = []
 var _forced_mutators: Array[StringName] = []
 var _director := DifficultyDirector.new()
 var _director_wired := false
-var _wired_health: Node = null
+var _wired_health: HealthComponent = null
 
 
 func _ready() -> void:
@@ -145,12 +145,8 @@ func _wave_queue(wave_number: int, cfg: WaveConfig) -> Array[StringName]:
 
 
 func _run_mode() -> StringName:
-	if GameRoot != null and GameRoot.has_method("get_run_mode"):
-		return StringName(GameRoot.call("get_run_mode"))
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null and "mode_id" in run:
-			return StringName(String(run.mode_id))
+	if GameRoot != null:
+		return GameRoot.get_run_mode()
 	return GameMode.MODE_STANDARD
 
 
@@ -177,8 +173,7 @@ func _launch_wave(wave_number: int) -> void:
 	EventBus.report_info("Wave %d started (%d planned)%s" % [wave_number, _planned_count,
 		(" [" + WaveMutators.banner_text(_active_mutators) + "]") if not _active_mutators.is_empty() else ""])
 	_announce_wave(wave_number)
-	if AudioManager != null and AudioManager.has_method("play_sfx"):
-		AudioManager.play_sfx(&"wave_started", -8.0, 1.0 + 0.02 * (wave_number % 5))
+	AudioManager.play_sfx(&"wave_started", -8.0, 1.0 + 0.02 * (wave_number % 5))
 
 
 ## Banner line for the wave: mutator names ride along so players can adapt.
@@ -197,10 +192,9 @@ func _announce_wave(wave_number: int) -> void:
 	EventBus.announcement.emit(&"wave_started", text, severity)
 	# Narrative layer: campaign beats + arena lore on milestones.
 	var arena_id := &"default_arena"
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null and "arena_id" in run:
-			arena_id = StringName(String(run.arena_id))
+	var run := GameRoot.get_run() if GameRoot != null else null
+	if run != null and run.arena_id != &"":
+		arena_id = run.arena_id
 	Narrator.announce_wave(mode_id, arena_id, wave_number)
 
 
@@ -236,13 +230,11 @@ func _push_scaling_to_spawner(wave_number: int, _cfg: WaveConfig) -> void:
 	scalars["hp"] = float(scalars["hp"]) * float(director_mods["hp_mult"])
 	scalars["damage"] = float(scalars["damage"]) * float(director_mods["damage_mult"])
 	scalars["speed"] = float(scalars["speed"]) * float(director_mods["speed_mult"])
-	if _spawn.has_method("set_difficulty_scalars"):
-		_spawn.call("set_difficulty_scalars", scalars)
+	_spawn.set_difficulty_scalars(scalars)
 	# Mutators ride the dedicated wave-modifier channel (plus director elites).
 	var mods := WaveMutators.combine(_active_mutators)
 	mods["elite_bonus"] = float(mods.get("elite_bonus", 0.0)) + float(director_mods.get("elite_bonus", 0.0))
-	if _spawn.has_method("set_wave_modifiers"):
-		_spawn.call("set_wave_modifiers", mods)
+	_spawn.set_wave_modifiers(mods)
 
 
 func _apply_director_count_nudge(queue: Array[StringName]) -> void:
@@ -276,13 +268,12 @@ func _complete_current_wave() -> void:
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
-	if AudioManager != null and AudioManager.has_method("play_sfx"):
-		AudioManager.play_sfx(&"wave_completed", -7.0)
+	AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
 	# Mode win condition: finishing the cap wave ends the run in victory.
 	if GameMode.is_victory_wave(_run_mode(), _current_wave):
-		if GameRoot != null and GameRoot.has_method("declare_victory"):
-			GameRoot.call("declare_victory")
+		if GameRoot != null:
+			GameRoot.declare_victory()
 		stop()
 		return
 	var wants_upgrade := cfg.upgrade_after_completion or GameMode.wants_upgrade(_run_mode(), _current_wave)
@@ -298,15 +289,9 @@ func _complete_current_wave() -> void:
 
 
 func _tick_director_clock() -> void:
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null:
-			var elapsed := 0.0
-			if run is Dictionary:
-				elapsed = float((run as Dictionary).get("elapsed_seconds", 0.0))
-			elif "elapsed_seconds" in run:
-				elapsed = float((run as Object).get("elapsed_seconds"))
-			_director.set_time(elapsed)
+	var run := GameRoot.get_run()
+	if run != null:
+		_director.set_time(run.elapsed_seconds)
 
 
 ## PLAYING -> WAVE_TRANSITION, brief delay, then PLAYING + next wave launch.
@@ -343,19 +328,19 @@ func _wire_director() -> void:
 func _rebind_player_damage() -> void:
 	# Disconnect any previous player's signal so damage is never double-counted
 	# across run rebuilds (old player is queue_free'd but lingers until end of frame).
+	# HealthComponent is a typed ref, so the `damaged` signal is known at compile
+	# time — no has_signal probing.
 	if _wired_health != null and is_instance_valid(_wired_health):
-		if _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
+		if _wired_health.damaged.is_connected(_on_player_damaged):
 			_wired_health.damaged.disconnect(_on_player_damaged)
 	_wired_health = null
 	if GameRoot == null or GameRoot.get_active_player() == null:
 		return
-	var hp := (GameRoot.get_active_player() as Node).get_node_or_null("HealthComponent")
-	if hp == null or not hp.has_signal("damaged"):
+	var hp := GameRoot.get_active_player().get_health_component()
+	if hp == null:
 		return
-	if hp.damaged.is_connected(_on_player_damaged):
-		_wired_health = hp
-		return
-	hp.damaged.connect(_on_player_damaged)
+	if not hp.damaged.is_connected(_on_player_damaged):
+		hp.damaged.connect(_on_player_damaged)
 	_wired_health = hp
 
 
@@ -365,18 +350,17 @@ func _on_player_damaged(result: DamageResult) -> void:
 
 
 func _exit_tree() -> void:
-	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
+	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.damaged.is_connected(_on_player_damaged):
 		_wired_health.damaged.disconnect(_on_player_damaged)
 
 
 func _player_max_hp() -> float:
-	if GameRoot != null and GameRoot.has_method("get_active_player"):
-		var live_player: Variant = GameRoot.get_active_player()
-		if live_player == null or not is_instance_valid(live_player as Object):
-			return 100.0
-		var hp := (live_player as Node).get_node_or_null("HealthComponent")
-		if hp != null and hp.has_method("get_max"):
-			return maxf(float(hp.call("get_max")), 1.0)
+	var player := GameRoot.get_active_player()
+	if player == null or not is_instance_valid(player):
+		return 100.0
+	var hp := player.get_health_component()
+	if hp != null:
+		return maxf(hp.get_max(), 1.0)
 	return 100.0
 
 
@@ -420,12 +404,3 @@ func get_debug_snapshot() -> Dictionary:
 		"mutators": _active_mutators.duplicate(),
 		"director": _director.get_debug_snapshot(),
 	}
-
-## Hardened: validate wave transition guard.
-func _validated_wave_number(n: int) -> int:
-	if n < 1:
-		return 1
-	if n > 999:
-		return 999
-	return n
-

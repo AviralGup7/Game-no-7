@@ -31,7 +31,7 @@ const PHASE_COOLDOWN := &"cooldown"
 @export var arena_bounds_half: float = -1.0 # -1 => no clamp (set by the scene owner)
 
 var _body: CharacterBody3D = null
-var _health: Node = null
+var _health: HealthComponent = null
 var _phase: StringName = PHASE_READY
 var _dir := Vector3.ZERO
 var _speed := 0.0
@@ -130,8 +130,8 @@ func set_bounds(half: float) -> void:
 ## Grants temporary invulnerability through the generic HealthComponent. Granting is
 ## done once at burst start so the whole i-frame window can outlive the burst.
 func _grant_invulnerability() -> void:
-	if _health != null and _health.has_method("set_invulnerable"):
-		_health.call("set_invulnerable", maxf(invulnerability_duration, 0.0))
+	if _health != null:
+		_health.set_invulnerable(maxf(invulnerability_duration, 0.0))
 		_invuln_granted = true
 
 
@@ -144,9 +144,9 @@ func _burst_speed() -> float:
 func _move_burst(delta: float, fraction: float = 1.0) -> void:
 	# M3: dash intent requested here, actual movement via CharacterController when wired.
 	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
-	var cc := _body.get_node_or_null("CharacterController") if _body != null else null
-	if cc != null and cc.has_method("apply_dash"):
-		cc.call("apply_dash", _dir, speed, delta)
+	var cc := _body.get_node_or_null("CharacterController") as CharacterController if _body != null else null
+	if cc != null:
+		cc.apply_dash(_dir, speed, delta)
 		_clamp_to_bounds()
 		return
 	var vel := _body.velocity
@@ -183,9 +183,9 @@ func _effective_cooldown() -> float:
 	var owner := _body
 	if owner == null or not is_instance_valid(owner):
 		return base
-	var prog := owner.get_node_or_null("ProgressionComponent")
-	if prog != null and prog.has_method("get_stat"):
-		return maxf(float(prog.call("get_stat", &"dodge_cooldown_multiplier", base)), 0.05)
+	var prog := owner.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	if prog != null:
+		return maxf(prog.get_stat(&"dodge_cooldown_multiplier", base), 0.05)
 	return base
 
 
@@ -203,9 +203,8 @@ func _clamp_to_bounds() -> void:
 		_body.global_position = clamped
 
 
-
 ## Bind the owner's HealthComponent so i-frames are real.
-func bind_health(health: Node) -> void:
+func bind_health(health: HealthComponent) -> void:
 	_health = health
 
 
@@ -227,10 +226,4 @@ func get_debug_snapshot() -> Dictionary:
 		"cooldown": cooldown,
 		"distance": distance,
 	}
-
-## Hardened: clamp dodge window.
-func _validated_dodge_window(w: float) -> float:
-	if not is_finite(w) or w <= 0.0:
-		return 0.2
-	return clampf(w, 0.05, 1.0)
 

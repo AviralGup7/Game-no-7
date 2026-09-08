@@ -85,8 +85,8 @@ func present(daily: bool = false) -> void:
 	if not _weapon_ids.is_empty(): _weapons.select(maxi(_weapon_ids.find(weapon), 0))
 	if not _mode_ids.is_empty():
 		var pending := GameMode.MODE_STANDARD
-		if GameRoot != null and GameRoot.has_method("get_pending_mode"):
-			pending = StringName(GameRoot.call("get_pending_mode"))
+		if GameRoot != null:
+			pending = GameRoot.get_pending_mode()
 		_modes.select(maxi(_mode_ids.find(pending), 0))
 	_modes.disabled = daily
 	_daily_info.visible = daily
@@ -153,7 +153,9 @@ func _refresh_details() -> void:
 		return
 	var supported := weapon.weapon_id == starter and not weapon.disabled
 	var current := arena.arena_id == ContentRegistry.get_selected_arena_id()
-	var selectable := current or GameRoot.has_method("request_arena_selection")
+	# Arena selection is not wired in this build (UiCommands.select_arena only
+	# accepts the already-selected arena); previews stay read-only.
+	var selectable := current
 	_start.disabled = not supported or not selectable
 	_feedback.text = "Starter: %s. Transform upgrades change how you fight — pick boldly." % starter_config.display_name
 	if not current and not selectable:
@@ -181,15 +183,4 @@ func _launch() -> void:
 	if _daily:
 		GameRoot.start_daily_run()
 	else:
-		var mode_id := _selected_mode()
-		if GameRoot.has_method("request_play_mode"):
-			GameRoot.request_play_mode(mode_id)
-		else:
-			GameRoot.request_play()
-
-## Hardened: clamp run seed input.
-func _validated_setup_seed(s: int) -> int:
-	if s != 0:
-		return s
-	var r := randi()
-	return r if r != 0 else 1
+		GameRoot.request_play_mode(_selected_mode())

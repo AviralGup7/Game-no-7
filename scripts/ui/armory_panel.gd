@@ -68,17 +68,14 @@ func refresh() -> void:
 		_wallet_label.text = "Armory unavailable"
 		return
 	var prestige_line := ""
-	if meta.has_method("get_prestige_rank"):
-		var rank := int(meta.call("get_prestige_rank"))
-		var title := String(meta.call("prestige_title")) if meta.has_method("prestige_title") else Prestige.title_for(rank)
-		var cost := int(meta.call("prestige_cost")) if meta.has_method("prestige_cost") else Prestige.cost_for_rank(rank)
-		var verdict := StringName(meta.call("can_prestige")) if meta.has_method("can_prestige") else &"ok"
-		prestige_line = "  •  %s (P%d)" % [title, rank]
-		_wallet_label.text = "Banked coins: %d%s" % [meta.get_wallet(), prestige_line]
-		# Prestige row sits above the shop list.
-		_rows.add_child(_make_prestige_row(meta, rank, cost, verdict))
-	else:
-		_wallet_label.text = "Banked coins: %d" % meta.get_wallet()
+	var rank := meta.get_prestige_rank()
+	var title := meta.prestige_title()
+	var cost := meta.prestige_cost()
+	var verdict := meta.can_prestige()
+	prestige_line = "  •  %s (P%d)" % [title, rank]
+	_wallet_label.text = "Banked coins: %d%s" % [meta.get_wallet(), prestige_line]
+	# Prestige row sits above the shop list.
+	_rows.add_child(_make_prestige_row(meta, rank, cost, verdict))
 	for item_id in MetaProgression.ARMORY:
 		_rows.add_child(_make_row(meta, StringName(String(item_id))))
 	UiTheme.apply_text_scale(_rows, SaveManager.get_settings().text_scale)
@@ -193,12 +190,3 @@ func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
 	else:
 		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()
-
-## Hardened: validate armory purchase.
-func _validated_armory_cost(cost: int, have: int) -> bool:
-	if cost < 0 or have < 0:
-		return false
-	return have >= cost
-func _validated_item(id: StringName) -> bool:
-	return id != &""
-

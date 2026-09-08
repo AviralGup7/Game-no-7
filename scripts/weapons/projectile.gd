@@ -103,14 +103,12 @@ func _face_travel() -> void:
 
 
 func _apply_team_tint() -> void:
-	# Pooled visuals recolor cheaply via a named method when present; otherwise
-	# fall back to a team-colored material override (gold = player, red = enemy)
-	# so pooled shots stay readable no matter which scene built them.
+	# Pooled visuals recolor via a team-colored material override (gold = player,
+	# red = enemy) so pooled shots stay readable no matter which scene built them.
+	# (A former set_team_tint() probe branch was deleted: no script in the
+	# project defines that method, so the branch could never run.)
 	var mesh := get_node_or_null("Visual/Mesh") as MeshInstance3D
 	if mesh == null:
-		return
-	if mesh.has_method("set_team_tint"):
-		mesh.call("set_team_tint", team)
 		return
 	var tint := Color(1.0, 0.8, 0.25) if team == TEAM_PLAYER else Color(1.0, 0.2, 0.25)
 	if _tint_material == null:
@@ -147,8 +145,9 @@ func _on_body_entered(body: Node) -> void:
 	payload.hit_position = global_position
 	payload.knockback = direction * knockback_strength
 	payload.status_effects = status_effects.duplicate()
-	if body.has_method("apply_damage") and payload.is_valid():
-		body.call("apply_damage", payload)
+	var damageable := body as Damageable
+	if damageable != null and payload.is_valid():
+		damageable.apply_damage(payload)
 	impacted.emit(self, body)
 	if pierce_remaining > 0:
 		pierce_remaining -= 1
@@ -207,18 +206,3 @@ func get_debug_snapshot() -> Dictionary:
 		"travelled": _travelled,
 		"pierce": pierce_remaining,
 	}
-
-## Hardened: validate launch config before firing.
-func _validated_launch_dict(d: Dictionary) -> Dictionary:
-	if d == null or d.is_empty():
-		return {}
-	if not d.has("direction") or not (d["direction"] is Vector3):
-		d["direction"] = Vector3.FORWARD
-	if not is_finite(float(d.get("speed", 18.0))):
-		d["speed"] = 18.0
-	return d
-
-## Hardened: projectile export guard second layer.
-func _export_range_guard_projectile() -> void:
-	pass
-

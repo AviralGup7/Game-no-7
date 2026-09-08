@@ -9,15 +9,15 @@ extends Resource
 @export var cue_id: StringName = &""
 @export var display_name: String = ""
 @export var bus: StringName = &"SFX"
-@export var volume_db: float = 0.0
-@export var volume_var_db: float = 0.0
-@export var pitch: float = 1.0
-@export var pitch_var: float = 0.0
-@export var max_voices: int = 4
+@export_range(-80.0, 6.0, 0.1) var volume_db: float = 0.0
+@export_range(0.0, 24.0, 0.1) var volume_var_db: float = 0.0
+@export_range(0.1, 4.0, 0.01) var pitch: float = 1.0
+@export_range(0.0, 2.0, 0.01) var pitch_var: float = 0.0
+@export_range(1, 32) var max_voices: int = 4
 ## Minimum seconds between plays of this cue (spam guard).
-@export var cooldown: float = 0.0
+@export_range(0.0, 60.0, 0.05) var cooldown: float = 0.0
 ## Music-only: intensity layer (0 calm .. 3 climax) for adaptive mixing.
-@export var music_layer: int = 0
+@export_range(0, 8) var music_layer: int = 0
 @export var loop: bool = false
 @export var tags: Array[StringName] = []
 
@@ -58,21 +58,3 @@ func roll_pitch(rng: RandomNumberGenerator) -> float:
 	if rng == null or pitch_var <= 0.0:
 		return pitch
 	return maxf(pitch + rng.randf_range(-pitch_var, pitch_var), 0.05)
-
-## Hardened: clamp audio config range.
-func _validated_audio_range(v: float) -> float:
-	if not is_finite(v) or v < 0.0:
-		return 10.0
-	return clampf(v, 0.0, 100.0)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

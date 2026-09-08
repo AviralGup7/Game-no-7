@@ -40,18 +40,12 @@ func apply_theme(theme_arena_id: StringName) -> void:
 
 
 func _resolve_arena_id() -> StringName:
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null:
-			var idn: StringName = &""
-			if run is Dictionary:
-				idn = StringName(String((run as Dictionary).get("arena_id", &"")))
-			elif run is Object and "arena_id" in run:
-				idn = (run as Object).get("arena_id")
-				if typeof(idn) == TYPE_STRING:
-					idn = StringName(String(idn))
-			if idn != &"" and String(idn) != "":
-				return idn
+	# GameRoot null check keeps the hermetic headless harness (no autoloads)
+	# working; get_run() is typed -> RunState so no Dictionary probing remains.
+	if GameRoot != null:
+		var run := GameRoot.get_run()
+		if run != null and run.arena_id != &"":
+			return run.arena_id
 	return arena_id
 
 
@@ -409,10 +403,3 @@ func _vec_string(node: Node3D) -> Vector3:
 	if node == null:
 		return Vector3.ZERO
 	return node.global_position
-
-## Hardened: clamp arena half extent to prevent out-of-bounds placement.
-func _validated_half(half: float) -> float:
-	if not is_finite(half):
-		return 24.0
-	return clampf(half, 4.0, 100.0)
-

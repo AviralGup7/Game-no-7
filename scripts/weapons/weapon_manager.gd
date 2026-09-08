@@ -192,9 +192,9 @@ func _apply_derived_stats(inst: WeaponInstance) -> void:
 	var prog := _progression()
 	var status_damage := 1.0
 	if _owner_body != null:
-		var status := _owner_body.get_node_or_null("StatusManager")
-		if status != null and status.has_method("outgoing_damage_factor"):
-			status_damage = maxf(float(status.call("outgoing_damage_factor")), 0.0)
+		var status := _owner_body.get_node_or_null("StatusManager") as StatusManager
+		if status != null:
+			status_damage = maxf(status.outgoing_damage_factor(), 0.0)
 	inst.damage_multiplier = _stat(prog, &"attack_damage_multiplier", 1.0) * status_damage
 	inst.cooldown_multiplier = _stat(prog, &"attack_cooldown_multiplier", 1.0)
 	inst.range_bonus = _stat(prog, &"attack_range_add", 0.0)
@@ -206,15 +206,15 @@ func _apply_derived_stats(inst: WeaponInstance) -> void:
 	inst.projectile_pierce_bonus = maxi(int(round(_stat(prog, &"projectile_pierce_add", 0.0))), 0)
 
 
-func _progression() -> Node:
+func _progression() -> ProgressionComponent:
 	if _owner_body == null:
 		return null
-	return _owner_body.get_node_or_null("ProgressionComponent")
+	return _owner_body.get_node_or_null("ProgressionComponent") as ProgressionComponent
 
 
-func _stat(prog: Node, key: StringName, fallback: float) -> float:
-	if prog != null and prog.has_method("get_stat"):
-		return float(prog.call("get_stat", key, fallback))
+func _stat(prog: ProgressionComponent, key: StringName, fallback: float) -> float:
+	if prog != null:
+		return prog.get_stat(key, fallback)
 	return fallback
 
 
@@ -285,13 +285,13 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 		var target: Variant = entry["target"]
 		if target == null or not is_instance_valid(target):
 			continue
-		var sm := (target as Node).get_node_or_null("StatusManager") if target is Node else null
-		if sm != null and sm.has_method("apply_effects"):
-			var status_result: Variant = sm.call("apply_effects", inst.config.on_hit_effects, _owner_body)
+		var sm := (target as Node).get_node_or_null("StatusManager") as StatusManager if target is Node else null
+		if sm != null:
+			var status_result := sm.apply_effects(inst.config.on_hit_effects, _owner_body)
 			var result: Variant = entry.get("result")
-			if result is DamageResult and status_result is Dictionary:
+			if result is DamageResult:
 				for raw_id in status_result:
-					if int((status_result as Dictionary)[raw_id]) > 0:
+					if int(status_result[raw_id]) > 0:
 						(result as DamageResult).status_effects_applied.append(StringName(String(raw_id)))
 
 
@@ -354,12 +354,3 @@ func get_debug_snapshot() -> Dictionary:
 		"active_weapon": String(active_weapon_id()),
 		"weapon": inst.get_debug_snapshot() if inst != null else {},
 	}
-
-## Hardened: validate weapon switch to prevent null config.
-func _validated_weapon_id(id: StringName) -> bool:
-	if id == &"":
-		return false
-	if ContentRegistry == null or not ContentRegistry.has_method("get_weapon"):
-		return false
-	return ContentRegistry.get_weapon(id) != null
-

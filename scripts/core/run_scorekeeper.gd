@@ -81,8 +81,8 @@ func _score_multiplier() -> float:
 	# Mode + prestige multipliers stack multiplicatively on top of upgrade bonuses.
 	if _run != null:
 		base *= GameMode.score_multiplier(_run.mode_id)
-		if GameRoot != null and GameRoot.has_method("get_prestige_rank"):
-			base *= Prestige.score_multiplier(int(GameRoot.call("get_prestige_rank")))
+		if GameRoot != null:
+			base *= Prestige.score_multiplier(GameRoot.get_prestige_rank())
 	return base
 
 
@@ -90,8 +90,8 @@ func _currency_multiplier() -> float:
 	var base := 1.0 + _derived_stat(&"currency_multiplier_add", 0.0)
 	if _run != null:
 		base *= GameMode.currency_multiplier(_run.mode_id)
-		if GameRoot != null and GameRoot.has_method("get_prestige_rank"):
-			base *= Prestige.currency_multiplier(int(GameRoot.call("get_prestige_rank")))
+		if GameRoot != null:
+			base *= Prestige.currency_multiplier(GameRoot.get_prestige_rank())
 	return base
 
 
@@ -99,10 +99,3 @@ func _derived_stat(key: StringName, base: float) -> float:
 	if _stat_provider.is_valid():
 		return float(_stat_provider.call(key, base))
 	return base
-
-## Hardened: clamp score delta.
-func _validated_score_delta(d: int) -> int:
-	if d < 0:
-		return 0
-	return mini(d, 1000000)
-

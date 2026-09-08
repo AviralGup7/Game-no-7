@@ -68,9 +68,8 @@ func begin_tracking() -> void:
 	EventBus.game_state_changed.connect(_on_state_changed)
 	# Fresh launch boots straight into the menu with no transition firing, so
 	# seed the menu bed here; every later state arrives via game_state_changed.
-	if GameRoot != null and GameRoot.has_method("get_current_state"):
-		if GameRoot.call("get_current_state") == &"main_menu" and _players.size() == 2:
-			request_state(STATE_MENU)
+	if GameRoot.get_current_state() == &"main_menu" and _players.size() == 2:
+		request_state(STATE_MENU)
 
 
 func request_state(state: StringName) -> void:
@@ -104,34 +103,25 @@ func _cue_for_state() -> StringName:
 ## Arena configs may override the calm/battle bed via background_music_cue;
 ## unknown or missing ids fall back to the default cue for the state.
 func _arena_cue(fallback: StringName) -> StringName:
-	if GameRoot != null and ContentRegistry != null and AudioManager != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null:
-			var arena_id: StringName = &""
-			# Typed Run object is the normal case; dictionary fallback for tests.
-			if run is Dictionary:
-				arena_id = StringName(String((run as Dictionary).get("arena_id", &"")))
-			elif "arena_id" in run:
-				arena_id = (run as Variant).arena_id
-			if arena_id != &"":
-				var arena: ArenaConfig = ContentRegistry.get_arena(arena_id)
-				if arena != null and arena.background_music_cue != &"" and AudioManager.has_cue(arena.background_music_cue):
-					return arena.background_music_cue
+	var run := GameRoot.get_run()
+	if run != null and run.arena_id != &"":
+		var arena: ArenaConfig = ContentRegistry.get_arena(run.arena_id)
+		if arena != null and arena.background_music_cue != &"" and AudioManager.has_cue(arena.background_music_cue):
+			return arena.background_music_cue
 	return fallback
 
 
 func _play_cue_on_active() -> void:
 	var cue := _cue_for_state()
 	var player := _players[_active_index]
-	if cue == &"" or AudioManager == null or not AudioManager.has_method("has_cue") or not bool(AudioManager.call("has_cue", cue)):
+	if cue == &"" or not AudioManager.has_cue(cue):
 		player.stop()
 		player.stream = null
-		if EventBus != null and cue != &"":
+		if cue != &"":
 			EventBus.report_info("Music cue missing, staying silent: %s" % String(cue))
 		return
-	if AudioManager.has_method("get_cue_stream"):
-		player.stream = AudioManager.call("get_cue_stream", cue)
-		player.play()
+	player.stream = AudioManager.get_cue_stream(cue)
+	player.play()
 
 
 func _process(delta: float) -> void:
@@ -213,10 +203,4 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"state": String(_state), "heat": _heat, "layer": _layer}
-
-## Hardened: clamp music crossfade to prevent audio pop.
-func _validated_fade(t: float) -> float:
-	if not is_finite(t) or t < 0.0:
-		return 0.0
-	return clampf(t, 0.0, 10.0)
 

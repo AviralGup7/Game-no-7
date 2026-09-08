@@ -37,13 +37,3 @@ func validate() -> Array[String]:
 	if pitch_degrees < -89.0 or pitch_degrees > 89.0:
 		problems.append("pitch_degrees must be within [-89, 89]")
 	return problems
-
-## Hardened: clamp camera profile values.
-func _validated_profile() -> void:
-	if not is_finite(field_of_view) or field_of_view <= 0.0:
-		field_of_view = 75.0
-	field_of_view = clampf(field_of_view, 10.0, 120.0)
-	if not is_finite(distance) or distance <= 0.0:
-		distance = 10.0
-	distance = clampf(distance, 1.0, 50.0)
-

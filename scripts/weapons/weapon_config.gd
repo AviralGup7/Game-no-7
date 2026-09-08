@@ -31,29 +31,29 @@ const VALID_KINDS := [KIND_MELEE, KIND_RANGED, KIND_HYBRID]
 @export var damage_type: StringName = &"physical"
 
 ## Base damage per hit before upgrades / difficulty scaling.
-@export var base_damage: float = 10.0
+@export_range(0.0, 10000.0, 0.5) var base_damage: float = 10.0
 ## Seconds between swing starts (before cooldown multipliers).
-@export var swing_cooldown: float = 0.55
+@export_range(0.05, 60.0, 0.05) var swing_cooldown: float = 0.55
 ## Windup before the hit resolves (telegraph + feel).
-@export var windup: float = 0.12
+@export_range(0.0, 10.0, 0.01) var windup: float = 0.12
 ## Melee reach in metres from the wielder.
-@export var range: float = 2.6
+@export_range(0.1, 30.0, 0.1) var range: float = 2.6
 ## Full arc width in degrees for melee sweeps (360 = radial whirl).
-@export var arc_degrees: float = 110.0
+@export_range(10.0, 360.0, 1.0) var arc_degrees: float = 110.0
 ## Max targets per swing (0 = unlimited).
-@export var max_targets: int = 0
+@export_range(0, 50) var max_targets: int = 0
 ## Knockback impulse applied along the hit direction.
-@export var knockback: float = 6.0
+@export_range(0.0, 200.0, 0.5) var knockback: float = 6.0
 ## Combo steps (damage multipliers per step); empty = single hit, no chain.
 @export var combo_damage_steps: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.35])
 ## Seconds after a swing during which the next press chains the combo.
-@export var combo_window: float = 0.45
+@export_range(0.05, 5.0, 0.01) var combo_window: float = 0.45
 ## Critical-hit support.
-@export var crit_chance: float = 0.05
-@export var crit_multiplier: float = 1.6
+@export_range(0.0, 1.0, 0.01) var crit_chance: float = 0.05
+@export_range(0.1, 100.0, 0.1) var crit_multiplier: float = 1.6
 ## Status effect tags applied on hit (see StatusEffectConfig ids).
 @export var on_hit_effects: Array[StringName] = []
-@export var on_hit_effect_chance: float = 1.0
+@export_range(0.0, 1.0, 0.01) var on_hit_effect_chance: float = 1.0
 
 ## --- Ranged parameters (kind RANGED / HYBRID) ---
 @export var projectile_speed: float = 18.0
@@ -170,36 +170,3 @@ func paper_dps() -> float:
 		avg_step = sum / float(combo_damage_steps.size())
 	var projectile_factor := float(projectile_count) if is_ranged() else 1.0
 	return base_damage * avg_step * projectile_factor / swing_cooldown
-
-## Hardened: clamp weapon stats.
-func _validated_weapon_stats(damage: float = -1.0, cooldown: float = -1.0, range_val: float = -1.0) -> void:
-	if damage < 0.0:
-		damage = base_damage
-	if cooldown < 0.0:
-		cooldown = swing_cooldown
-	if range_val < 0.0:
-		range_val = range
-	if not is_finite(damage) or damage < 0.0:
-		damage = 10.0
-	damage = clampf(damage, 0.0, 10000.0)
-	base_damage = damage
-	if not is_finite(cooldown) or cooldown < 0.0:
-		cooldown = 0.5
-	cooldown = clampf(cooldown, 0.05, 10.0)
-	swing_cooldown = cooldown
-	if not is_finite(range_val) or range_val <= 0.0:
-		range_val = 2.0
-	range_val = clampf(range_val, 0.1, 20.0)
-	range = range_val
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

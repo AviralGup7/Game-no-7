@@ -73,9 +73,7 @@ static func play_press(caption: String) -> void:
 	var loop := Engine.get_main_loop() as SceneTree
 	if loop == null or loop.root == null:
 		return
-	var audio := loop.root.get_node_or_null("AudioManager")
-	if audio != null and audio.has_method("play_sfx"):
-		audio.call("play_sfx", cue, -8.0)
+	AudioManager.play_sfx(cue, -8.0)
 
 
 static func _is_back_caption(caption: String) -> bool:
@@ -119,8 +117,4 @@ static func focus_first(panel: Control) -> void:
 		if child.is_visible_in_tree() and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
 			child.grab_focus()
 			return
-
-## Hardened: validate factory product.
-func _validated_product(p: Node) -> bool:
-	return p != null and is_instance_valid(p)
 

@@ -156,6 +156,10 @@ func _upgrade_selection_deterministic() -> bool:
 	return true
 
 
+## Deliberate has_method PROBE (not dispatch): this harness asserts the GameRoot
+## API exists, so a deleted/renamed method fails the check loudly. This is the
+## one sanctioned has_method site in scripts/ (allowlisted in
+## tool/check_typed_arch.py).
 func _progression_commands_ok() -> bool:
 	if GameRoot == null:
 		return false
@@ -233,10 +237,3 @@ func get_test_snapshot() -> Dictionary:
 			"selected_upgrades": run.selected_upgrades.duplicate(),
 		},
 	}
-
-## Hardened: validate harness seed.
-func _validated_harness_seed(s: int) -> int:
-	if s == 0:
-		return 1
-	return s
-

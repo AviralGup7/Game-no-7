@@ -102,30 +102,27 @@ func is_max_level() -> bool:
 func _on_level_up() -> void:
 	# Small automatic boon: heal a slice + refill stamina.
 	if _owner_body != null:
-		var hp := _owner_body.get_node_or_null("HealthComponent")
-		if hp != null and hp.has_method("get_max") and hp.has_method("heal"):
-			hp.call("heal", float(hp.call("get_max")) * LEVEL_HEAL_FRACTION)
-		var st := _owner_body.get_node_or_null("StaminaComponent")
-		if st != null and st.has_method("restore_full"):
-			st.call("restore_full")
+		var hp := _owner_body.get_node_or_null("HealthComponent") as HealthComponent
+		if hp != null:
+			hp.heal(hp.get_max() * LEVEL_HEAL_FRACTION)
+		var st := _owner_body.get_node_or_null("StaminaComponent") as StaminaComponent
+		if st != null:
+			st.restore_full()
 		_unlock_skills_for_level()
 	leveled_up.emit(_level)
 	if EventBus != null:
 		EventBus.player_leveled_up.emit(_level, _xp)
-	if AudioManager != null and AudioManager.has_method("play_sfx"):
-		AudioManager.play_sfx(&"level_up", -8.0)
+	AudioManager.play_sfx(&"level_up", -8.0)
 
 
 func _unlock_skills_for_level() -> void:
-	var skills := _owner_body.get_node_or_null("SkillController") if _owner_body != null and is_instance_valid(_owner_body) else null
-	if skills == null or not is_instance_valid(skills) or not skills.has_method("unlock_skill"):
-		return
-	if ContentRegistry == null or not ContentRegistry.has_method("get_all_skill_configs"):
+	var skills := _owner_body.get_node_or_null("SkillController") as SkillController if _owner_body != null and is_instance_valid(_owner_body) else null
+	if skills == null:
 		return
 	for cfg in ContentRegistry.get_all_skill_configs():
 		var sc := cfg as SkillConfig
 		if sc != null and _level >= sc.unlock_level and not sc.disabled:
-			skills.call("unlock_skill", sc.skill_id)
+			skills.unlock_skill(sc.skill_id)
 
 
 func reset_for_new_run() -> void:
@@ -137,10 +134,4 @@ func reset_for_new_run() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"level": _level, "xp": _xp, "need": xp_for_level(_level), "total": total_xp_earned()}
-
-## Hardened: clamp XP multiplier.
-func _validated_xp_mult(m: float) -> float:
-	if not is_finite(m) or m < 0.0:
-		return 1.0
-	return clampf(m, 0.0, 10.0)
 

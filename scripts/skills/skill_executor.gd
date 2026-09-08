@@ -77,9 +77,9 @@ func tick(delta: float, enemies: Array) -> void:
 func _caster_damage() -> float:
 	# Skills scale off the active weapon so weapon progression feeds them.
 	if _owner_body != null:
-		var wm := _owner_body.get_node_or_null("WeaponManager")
-		if wm != null and wm.has_method("active_instance"):
-			var inst: WeaponInstance = wm.call("active_instance")
+		var wm := _owner_body.get_node_or_null("WeaponManager") as WeaponManager
+		if wm != null:
+			var inst := wm.active_instance()
 			if inst != null:
 				return inst.effective_damage()
 	return 10.0
@@ -116,9 +116,9 @@ func _apply_victim_effects(cfg: SkillConfig, victims: Array) -> void:
 		return
 	for v in victims:
 		if v is Node:
-			var sm := (v as Node).get_node_or_null("StatusManager")
-			if sm != null and sm.has_method("apply_effects"):
-				sm.call("apply_effects", cfg.victim_effects, _owner_body)
+			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			if sm != null:
+				sm.apply_effects(cfg.victim_effects, _owner_body)
 
 
 func _roll_victim_effects(cfg: SkillConfig) -> bool:
@@ -133,7 +133,6 @@ func _projectile_victim_effects(cfg: SkillConfig) -> Array[StringName]:
 	for effect_id in cfg.victim_effects:
 		out.append(effect_id)
 	return out
-
 
 
 func _do_slam(cfg: SkillConfig, enemies: Array) -> void:
@@ -154,9 +153,9 @@ func _do_frost_nova(cfg: SkillConfig, enemies: Array) -> void:
 		var slow_ids: Array[StringName] = [&"slow"]
 		for v in hits:
 			if v is Node:
-				var sm := (v as Node).get_node_or_null("StatusManager")
-				if sm != null and sm.has_method("apply_effects"):
-					sm.call("apply_effects", slow_ids, _owner_body)
+				var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+				if sm != null:
+					sm.apply_effects(slow_ids, _owner_body)
 
 
 func _do_whirl(cfg: SkillConfig, enemies: Array) -> void:
@@ -218,20 +217,20 @@ func _do_chain_lightning(cfg: SkillConfig, enemies: Array) -> void:
 func _do_self_effects(cfg: SkillConfig) -> void:
 	if _owner_body == null:
 		return
-	var sm := _owner_body.get_node_or_null("StatusManager")
-	if sm != null and sm.has_method("apply_effects") and not cfg.caster_effects.is_empty():
-		sm.call("apply_effects", cfg.caster_effects, _owner_body)
-	var wm := _owner_body.get_node_or_null("WeaponManager")
-	if wm != null and wm.has_method("refresh_derived_stats"):
-		wm.call("refresh_derived_stats")
+	var sm := _owner_body.get_node_or_null("StatusManager") as StatusManager
+	if sm != null and not cfg.caster_effects.is_empty():
+		sm.apply_effects(cfg.caster_effects, _owner_body)
+	var wm := _owner_body.get_node_or_null("WeaponManager") as WeaponManager
+	if wm != null:
+		wm.refresh_derived_stats()
 
 
 func _do_heal_surge(cfg: SkillConfig) -> void:
 	if _owner_body == null:
 		return
-	var hp := _owner_body.get_node_or_null("HealthComponent")
-	if hp != null and hp.has_method("heal") and cfg.heal_amount > 0.0:
-		hp.call("heal", cfg.heal_amount)
+	var hp := _owner_body.get_node_or_null("HealthComponent") as HealthComponent
+	if hp != null and cfg.heal_amount > 0.0:
+		hp.heal(cfg.heal_amount)
 	_do_self_effects(cfg)
 
 
@@ -270,9 +269,9 @@ func _tick_dash(delta: float, enemies: Array) -> void:
 	_dashing["timer"] = timer
 	var step_speed := _length(cfg) / maxf(total, 0.01)
 	# Dash intent -> CharacterController performs movement (M3). Fallback to direct for headless.
-	var cc := _owner_body.get_node_or_null("CharacterController")
-	if cc != null and cc.has_method("apply_dash"):
-		cc.call("apply_dash", dir, step_speed, delta)
+	var cc := _owner_body.get_node_or_null("CharacterController") as CharacterController
+	if cc != null:
+		cc.apply_dash(dir, step_speed, delta)
 	elif _owner_body is CharacterBody3D:
 		(_owner_body as CharacterBody3D).velocity = Vector3(dir.x * step_speed, (_owner_body as CharacterBody3D).velocity.y, dir.z * step_speed)
 		(_owner_body as CharacterBody3D).move_and_slide()
@@ -284,10 +283,4 @@ func _tick_dash(delta: float, enemies: Array) -> void:
 	_apply_victim_effects(cfg, fresh)
 	if timer <= 0.0:
 		_dashing.clear()
-
-## Hardened: validate skill cast position.
-func _validated_cast_pos(p: Vector3) -> Vector3:
-	if not is_finite(p.x) or not is_finite(p.z):
-		return Vector3.ZERO
-	return p
 

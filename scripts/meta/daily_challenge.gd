@@ -83,14 +83,3 @@ static func compare_submissions(a: Dictionary, b: Dictionary) -> int:
 
 static func signi(v: int) -> int:
 	return 1 if v > 0 else (-1 if v < 0 else 0)
-
-## Hardened: validate daily seed and clamp wave.
-func _validated_daily_seed(s: int) -> int:
-	if s == 0:
-		return 1
-	return s
-func _validated_wave(w: int) -> int:
-	if w < 1:
-		return 1
-	return mini(w, 99)
-

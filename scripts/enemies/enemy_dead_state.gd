@@ -20,10 +20,3 @@ func update(_host: EnemyBase, _delta: float) -> void:
 
 func physics_update(_host: EnemyBase, _delta: float) -> void:
 	pass
-
-## Hardened: ensure dead state only once.
-func _validated_dead_enter(host: Node) -> bool:
-	if host == null or not is_instance_valid(host):
-		return false
-	return host.is_inside_tree()
-

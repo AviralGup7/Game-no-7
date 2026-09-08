@@ -35,8 +35,8 @@ const EXECUTE_THRESHOLD := 0.18  # % max HP
 const STATIC_FIELD_RADIUS := 3.5
 const STATIC_FIELD_DAMAGE := 6.0
 
-var _player: Node = null
-var _progression: Node = null
+var _player: Player = null
+var _progression: ProgressionComponent = null
 var _trails: Array = []  # [{pos, ttl, kind}]
 var _summons: Array = []  # [{node, ttl}]
 var _seed := 1
@@ -45,7 +45,7 @@ var _enabled := true
 var _handling_hit := false  # re-entry guard for chain/execute cascades
 
 
-func bind(player: Node, progression: Node, run_seed: int = 1) -> void:
+func bind(player: Player, progression: ProgressionComponent, run_seed: int = 1) -> void:
 	_player = player
 	_progression = progression
 	_seed = run_seed if run_seed != 0 else 1
@@ -113,18 +113,12 @@ func _has(effect_id: StringName) -> bool:
 	if _progression == null or not is_instance_valid(_progression):
 		return false
 	# Prefer dedicated effect query; fall back to upgrade id == effect id.
-	if _progression.has_method("has_effect") and bool(_progression.call("has_effect", effect_id)):
-		return true
-	if _progression.has_method("has_upgrade") and bool(_progression.call("has_upgrade", effect_id)):
-		return true
-	return false
+	return _progression.has_effect(effect_id) or _progression.has_upgrade(effect_id)
 
 
 func _stacks(effect_id: StringName) -> int:
-	if _progression != null and _progression.has_method("get_effect_stacks"):
-		return maxi(int(_progression.call("get_effect_stacks", effect_id)), 1)
-	if _progression != null and _progression.has_method("get_stack_count"):
-		return maxi(int(_progression.call("get_stack_count", effect_id)), 1)
+	if _progression != null and is_instance_valid(_progression):
+		return maxi(_progression.get_effect_stacks(effect_id), 1)
 	return 1
 
 
@@ -157,16 +151,17 @@ func _handle_offensive_hit(target: Node, result: DamageResult) -> void:
 	_handling_hit = true
 	if _has(EFFECT_CHAIN_MELEE) and target is Node3D:
 		_chain_from(target as Node3D, float(result.final_amount))
-	if _has(EFFECT_EXECUTE) and target != null and target.has_method("get_health_fraction"):
-		var frac := float(target.call("get_health_fraction"))
-		if frac > 0.0 and frac <= EXECUTE_THRESHOLD and target.has_method("apply_damage"):
+	var victim := target as Damageable
+	if _has(EFFECT_EXECUTE) and victim != null:
+		var frac := victim.get_health_fraction()
+		if frac > 0.0 and frac <= EXECUTE_THRESHOLD:
 			var payload := DamagePayload.new()
 			payload.amount = 9999.0
 			payload.source = _player
 			payload.source_id = &"execute"
 			payload.damage_type = &"true"
 			if payload.is_valid():
-				target.call("apply_damage", payload)
+				victim.apply_damage(payload)
 	_handling_hit = false
 
 
@@ -180,7 +175,7 @@ func _on_player_damaged(result: DamageResult) -> void:
 func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currency: int) -> void:
 	if not _enabled or _player == null or not is_instance_valid(_player):
 		return
-	if _player.has_method("is_alive") and not bool(_player.call("is_alive")):
+	if not _player.is_alive():
 		return
 	_kill_counter += 1
 	if _has(EFFECT_KILL_SUMMON):
@@ -189,9 +184,9 @@ func _on_enemy_killed(enemy: Node, _archetype: StringName, _score: int, _currenc
 		if _kill_counter % every == 0 and enemy is Node3D:
 			_spawn_summon((enemy as Node3D).global_position)
 	if _has(EFFECT_LIFESTEAL_BURST) and _kill_counter % 5 == 0:
-		var hp := _player.get_node_or_null("HealthComponent")
-		if hp != null and hp.has_method("heal"):
-			hp.call("heal", 12.0 * float(_stacks(EFFECT_LIFESTEAL_BURST)))
+		var hp := _player.get_health_component()
+		if hp != null:
+			hp.heal(12.0 * float(_stacks(EFFECT_LIFESTEAL_BURST)))
 
 
 # ---------------------- Effect implementations ----------------------
@@ -257,9 +252,9 @@ func _try_burn_near(victims: Array, center: Vector3, radius: float) -> void:
 			var d: Vector3 = (v as Node3D).global_position - center
 			d.y = 0.0
 			if d.length_squared() <= r2:
-				var sm := (v as Node).get_node_or_null("StatusManager")
-				if sm != null and sm.has_method("apply_effect"):
-					sm.call("apply_effect", burn, 1, _player)
+				var enemy := v as EnemyBase
+				if enemy != null:
+					enemy.get_status_manager().apply_effect(burn, 1, _player)
 
 
 func _apply_frost_nova(pos: Vector3) -> void:
@@ -280,9 +275,9 @@ func _apply_frost_nova(pos: Vector3) -> void:
 			var d: Vector3 = (v as Node3D).global_position - pos
 			d.y = 0.0
 			if d.length_squared() <= 9.0:
-				var sm := (v as Node).get_node_or_null("StatusManager")
-				if sm != null and sm.has_method("apply_effect"):
-					sm.call("apply_effect", slow, 1, _player)
+				var enemy := v as EnemyBase
+				if enemy != null:
+					enemy.get_status_manager().apply_effect(slow, 1, _player)
 
 
 func _thorn_nova(pos: Vector3) -> void:

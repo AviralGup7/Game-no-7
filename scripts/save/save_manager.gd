@@ -291,34 +291,3 @@ func _apply_validated(data: Dictionary) -> void:
 		_save.last_run_build = SaveSchema.default_run_build()
 	_settings.from_dict(_save.settings)
 	_save.settings = _settings.to_dict()
-
-## Hardened: validate currency before persisting.
-func _validated_currency(v: int) -> int:
-	if v < 0:
-		return 0
-	if v > 999999999:
-		return 999999999
-	return v
-
-## Hardened: validate save dict.
-func _validated_save_dict(d: Dictionary) -> Dictionary:
-	if d == null or d.is_empty():
-		return {}
-	var out: Dictionary = {}
-	for k in d.keys():
-		var v:Variant = d[k]
-		if v is float and not is_finite(float(v)):
-			continue
-		if k is String and str(k).is_empty():
-			continue
-		out[k] = v
-	return out
-
-## Hardened: clamp save version.
-func _validated_save_version(v: int) -> int:
-	if v < 1:
-		return 1
-	if v > 100:
-		return 100
-	return v
-
