@@ -176,7 +176,7 @@ static func _growl(dur: float, vol: float) -> PackedFloat32Array:
 	return out
 
 
-static func _blip(dur: float, freqs: Array, vol: float) -> PackedFloat32Array:
+static func _blip(dur: float, freqs: Array[float], vol: float) -> PackedFloat32Array:
 	var n := int(dur * MIX_RATE)
 	var out := PackedFloat32Array()
 	out.resize(n)
@@ -190,7 +190,7 @@ static func _blip(dur: float, freqs: Array, vol: float) -> PackedFloat32Array:
 
 
 ## Seamless looping pad: partials at integer cycles/loop + integer-cycle tremolo.
-static func _pad(freqs: Array, pulses: int, vol: float) -> PackedFloat32Array:
+static func _pad(freqs: Array[float], pulses: int, vol: float) -> PackedFloat32Array:
 	var dur := MUSIC_LOOP_SECONDS
 	var n := int(dur * MIX_RATE)
 	var out := PackedFloat32Array()
@@ -199,8 +199,8 @@ static func _pad(freqs: Array, pulses: int, vol: float) -> PackedFloat32Array:
 		var t := float(i) / MIX_RATE
 		var s := 0.0
 		for f in freqs:
-			var c := float(f) * dur
-			var whole := round(c)
+			var c: float = float(f) * dur
+			var whole: float = round(c)
 			# Snap to an integer cycle count so the loop wraps seamlessly.
 			s += sin(TAU * whole * t / dur) / float(freqs.size())
 			s += sin(TAU * (whole + 1.0) * t / dur) * 0.15 / float(freqs.size())
@@ -210,7 +210,7 @@ static func _pad(freqs: Array, pulses: int, vol: float) -> PackedFloat32Array:
 
 
 ## Seamless looping arpeggio: eighth-note steps dividing the loop evenly.
-static func _arpeggio(freqs: Array, vol: float) -> PackedFloat32Array:
+static func _arpeggio(freqs: Array[float], vol: float) -> PackedFloat32Array:
 	var dur := MUSIC_LOOP_SECONDS
 	var steps := 12
 	var step := dur / float(steps)
@@ -221,7 +221,7 @@ static func _arpeggio(freqs: Array, vol: float) -> PackedFloat32Array:
 		var t := float(i) / MIX_RATE
 		var idx := int(t / step) % freqs.size()
 		var local := fmod(t, step)
-		var c := round(float(freqs[idx]) * dur)
+		var c: float = round(float(freqs[idx]) * dur)
 		var tone := sin(TAU * c * t / dur) * _env(local, step, 0.005)
 		var root := sin(TAU * round(108.0 * dur) * t / dur) * 0.25
 		out[i] = (tone * 0.7 + root) * vol
