@@ -6,8 +6,14 @@ validates them, and caches them. This file shows each common extension.
 
 ## 1. Add a new enemy archetype
 
-1. Create `res://scenes/enemies/<name>_enemy.tscn` instancing/deriving the enemy base
-   contract (added in the enemy phase) with its own stats/model/animation.
+1. Create `res://scenes/enemies/<name>_enemy.tscn` as a **child scene that instances
+   `res://scenes/enemies/enemy_base.tscn`** — like all eight shipped archetypes — and
+   override only what is archetype-specific (collision shape / `Body` mesh + material /
+   `TargetingOrigin` + `AttackOrigin` offsets, and for the boss, `NavigationAgent3D`
+   distances). **Never copy the base tree**: a copy re-declares the shared wiring and
+   silently diverges from it (the pre-2026-09-08 state the QA audit flagged). The
+   contract is enforced by `tests/python/test_regress_enemy_scene_inheritance.py` and
+   `tests/unit/test_enemy_scene_inheritance.gd`.
 2. Create `res://data/enemies/<name>_enemy.tres` with `class EnemyConfig`:
    `archetype_id`, `display_name`, `scene`, stats, `color_tint`, `tags`, `unlock_wave`.
 3. Restart/refresh — the registry validates it (missing scene, bad values, duplicates)

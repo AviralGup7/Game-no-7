@@ -155,6 +155,9 @@ gameplay-adjacent tuning.*
   16–17-node trees differing only by an added `EnemyAnimator`. **Any future edit to
   `enemy_base.tscn` silently misses 5 of the 8 enemies.** This is the highest-value structural
   cleanup left, and the most likely source of a subtle "works for some enemies" bug.
+  **RESOLVED (2026-09-08 follow-up):** all 8 archetypes are now true child scenes of
+  `enemy_base.tscn` overriding only archetype-specific properties; enforced by
+  `tests/python/test_regress_enemy_scene_inheritance.py` + `tests/unit/test_enemy_scene_inheritance.gd`.
 - **EventBus subscriptions are never released.** 26 files connect to EventBus signals;
   **zero** disconnect. Per-run nodes are freed on teardown so Godot drops those connections
   automatically — this is not currently a leak — but it is load-bearing on that assumption
@@ -202,7 +205,9 @@ gameplay-adjacent tuning.*
 4. **`scripts/audio/audio_config.gd`** references `res://data/audio_config/` in a comment;
    no such directory exists (streams live in `res://data/audio/`). Comment-only, left alone.
 5. **Enemy scene duplication** (above) — deliberately not restructured: it is a scene-file
-   change that would conflict with any branch touching enemies.
+   change that would conflict with any branch touching enemies. **RESOLVED (2026-09-08):**
+   all five hand-copied archetypes refactored onto `enemy_base.tscn` inheritance with
+   verified tree parity; regression guards added on both sides of the toolchain.
 6. **Dead `_validated_*` helpers** (above) — deliberately retained, guarded by the validator.
 7. **`ContentRegistry` never halts on validation failure** — changing that is a behavioural
    decision about whether bad content should be fatal; flagged, not changed.

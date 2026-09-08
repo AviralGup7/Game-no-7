@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased] — Enemy scene inheritance overhaul (2026-09-08)
+
+Closes the audit's "highest-value structural cleanup left": **5 of 8 enemy archetype
+scenes were hand-copied full trees** of `enemy_base.tscn`, so any edit to the base
+(collision layers, shared child wiring) silently missed dasher/exploder/ranged/
+splitter/warlord — the exact mechanism behind audit bug P6-style "works for some
+enemies" divergence.
+
+- `dasher/exploder/ranged/splitter/warlord_enemy.tscn` are now true **child scenes** that
+  `instance=ExtResource("…/enemy_base.tscn")` and override only their archetype-specific
+  bits (collision shape/mesh/material, marker offsets, warlord nav distances) plus their
+  unique nodes (`EnemyAnimator` on all five, `BossController` + `BossPhaseConfig` plan on
+  warlord). 69–117-line copies → 38–85-line diffs; resolved trees verified byte-parity with
+  the pre-refactor scenes (values pinned in `test_archetype_overrides_pinned`).
+- Root nodes renamed `EnemyBase` → `<Archetype>Enemy`, matching basic/fast/heavy.
+- New guards keep it fixed: `tests/python/test_regress_enemy_scene_inheritance.py`
+  (static: inheritance contract, no re-declared shared nodes, per-archetype override
+  goldens) and `tests/unit/test_enemy_scene_inheritance.gd` (engine-side: instantiates all
+  8 scenes and asserts shared nodes are present, typed and script-wired identically).
+- `enemy_base.tscn` is now the single source of truth for all 8 archetypes: one edit lands
+  on the whole roster.
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no
