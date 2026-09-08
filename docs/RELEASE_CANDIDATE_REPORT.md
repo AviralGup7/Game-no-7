@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `fd7825c` **Base:** `origin/main@70ada0d` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at HEAD **Base:** `origin/main@70ada0d` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.
@@ -108,7 +108,7 @@
 - `f8ae1e5` `hardening: game cannot be stopped by stats — status soft-lock guards` (status_effect/config/manager 116 ins, progression 0.1 floor, 491 OK)
 - `58e0bf1` `audit: authority isolation + weapon balance + guards — full-scope hardening` (character_controller/player_animation legacy removal, weapon DPS 1.64×, guards, 498 OK)
 - `694aca7` `tests: arena/camera/minimap guards — lifecycle and accessibility throttling` (arena spawn + player aim guards, camera reduced_motion, minimap 15Hz, 502 OK)
-- Remote `origin/arena/01a07f1a-game-no-7` at `fd7825c`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `45 ahead / 3 behind` `origin/main@70ada0d`.
+- Remote `origin/arena/01a07f1a-game-no-7` at HEAD; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `46 ahead / 3 behind` `origin/main@70ada0d`.
 
 ## 19. Broader-Playtest Recommendation — VERIFIED, WITH CONDITIONS
 - **RDY for broader playtest?** **Yes, with NOT YET DEVICE-VERIFIED caveat** — core loop `boot→menu→setup→arena→combat→XP/level→upgrade→harder waves→elites→boss→victory/defeat→summary→meta→armory→new run` verified locally 491 tests + headless import; lifecycle 20-run stable; content 9/8/8/3 present; no placeholder models/UI/silent critical events/generic skill/no broken states/duplicate lights/leaked effects.
