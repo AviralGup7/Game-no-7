@@ -61,6 +61,101 @@ save migration.
 
 ---
 
+## [Unreleased] — HD realism pass (2026-09-08)
+
+Presentation overhaul across the arena, sky, lighting, renderer settings and actor
+materials. **No gameplay, rig, animation, balance, save or input changes** — the
+same scenes, physics, spawns, navigation and HUD contract are preserved.
+
+### Assets (locked, provenance-kept)
+
+- **17 new checksum-locked downloads (+10.58 MiB, 239 files / 45.63 MiB total):
+  three Poly Haven CC0 HDRI panoramas** (spruit sunrise, venice sunset, moonless
+  golf — via the pinned, MIT-licensed three.js mirror) and **photo PBR sets from
+  Godot's Material Testers** (rock, aged brick, marble, wood, aluminium) at the
+  already-pinned `godot-demo-projects` revision. The downloader/validator now
+  support `.hdr` and `.jpg` with the same hash locks.
+- Five new arena materials under `assets/materials/` (rock floor, brick walls,
+  marble, wood, metal); `ASSET_LICENSES/` gains the three.js MIT and
+  Godot MIT notices.
+
+### Arena map — replaced
+
+- `scenes/arena/arena.tscn` is rebuilt: photo-PBR rock floor, aged-brick walls
+  with stone trims + marble cornices, corner towers with marble caps, an
+  iron-banded wooden gate, marble dais, boulders and 4 flickering torch sconces
+  (`scripts/arena/torch_flicker.gd`, deterministic, 4 omni lights, no shadows).
+- Collision, spawn points, pickup points, navigation floor and arena script
+  contract are unchanged; `Arena` themes still tint floor/walls by arena.
+
+### Sky, lighting and renderer
+
+- `arena.gd`: per-arena `PanoramaSkyMaterial` (IBL) with procedural fallback,
+  exposure/contrast adjustment, tuned fog, glow on emissives; landmarks use the
+  photo-rock/marble materials.
+- `project.godot`: 2× MSAA, 8× anisotropic filtering, 2048px high-quality PCF
+  directional shadows. Mobile renderer retained (SSAO/SSR off on purpose).
+
+### Actor + prop material pass
+
+- `scripts/visuals/hd_materials.gd` (`HdMaterials`) applies anisotropic filtering
+  and role-tuned roughness/metallic/specular to every mounted player/enemy model
+  (`CharacterVisuals`, `EnemyAnimator`) and every arena prop/decorator. Shallow
+  material duplicates; textures, rigs and animations untouched.
+- Rig inventory kept deliberately (combat clip coverage — see
+  `docs/ASSET_AUDIT.md` "Why not a photoreal rig swap").
+## [Unreleased] — Audit follow-ups: roster smoke, minimap robustness, dead facade (2026-09-08)
+
+Follow-up pass over the remaining small-but-real findings in
+`docs/QA_RELEASE_AUDIT.md`, plus hardening of the enemy-inheritance work:
+
+- **TestHarness startup smoke now covers all 8 enemy archetypes** (`_enemy_archetypes_ok`,
+  `_spawn_resources_ok`, `_kill_and_wave_scoring_configured` iterate a shared
+  `ENEMY_ARCHETYPE_IDS` const). They validated only basic/fast/heavy — the exact
+  "works for some enemies" blind spot the scene refactor closed on the scene side.
+- **`tests/unit/test_enemy_scene_inheritance.gd` upgraded to full-roster goldens**: every
+  archetype (not just the five refactored) now pins collision shape, body mesh, material
+  colour, nav distances, marker offsets and animator config against shipped values;
+  `path_height_tolerance` and the no-BossController-leak check included.
+- **Minimap arena lookup is layout-independent** (audit "fragile hardcoded path"):
+  `Arena` joins the `arena` group in `_ready`; `minimap._find_arena()` resolves through
+  `get_first_node_in_group` first and keeps the legacy `WorldRoot/Arena` path only as a
+  fallback. No behaviour change in main.tscn; the lookup now also survives renames and
+  hosts other than the current scene.
+- **GameRoot dead facade deleted** (audit "two sources of truth for best score/wave"):
+  zero-caller `get_best_score()`/`get_best_wave()` accessors removed; SaveManager remains
+  the single public read path (as pinned by the startup-stability guards) and GameRoot's
+  `_best_*` mirrors stay internal (run_ended fan-out + debug snapshot only).
+- **`tool/validate_resources.py` gained a file-local `SubResource` guard**: scenes that
+  `instance=` another scene must not reference the parent's sub-resource ids (the classic
+  hand-edit mistake on child scenes like the enemy archetypes); the editor's `[editable]`
+  cross-file pointer remains sanctioned. Behaviour-tested in
+  `test_regress_tooling_and_ci.py`; verified to flag and to clear real scenes.
+- **`audio_config.gd` comment fixed** (audit known-issue #4): AudioConfig instances live in
+  `res://data/audio/`; the referenced `res://data/audio_config/` directory does not exist.
+
+## [Unreleased] — Enemy scene inheritance overhaul (2026-09-08)
+
+Closes the audit's "highest-value structural cleanup left": **5 of 8 enemy archetype
+scenes were hand-copied full trees** of `enemy_base.tscn`, so any edit to the base
+(collision layers, shared child wiring) silently missed dasher/exploder/ranged/
+splitter/warlord — the exact mechanism behind audit bug P6-style "works for some
+enemies" divergence.
+
+- `dasher/exploder/ranged/splitter/warlord_enemy.tscn` are now true **child scenes** that
+  `instance=ExtResource("…/enemy_base.tscn")` and override only their archetype-specific
+  bits (collision shape/mesh/material, marker offsets, warlord nav distances) plus their
+  unique nodes (`EnemyAnimator` on all five, `BossController` + `BossPhaseConfig` plan on
+  warlord). 69–117-line copies → 38–85-line diffs; resolved trees verified byte-parity with
+  the pre-refactor scenes (values pinned in `test_archetype_overrides_pinned`).
+- Root nodes renamed `EnemyBase` → `<Archetype>Enemy`, matching basic/fast/heavy.
+- New guards keep it fixed: `tests/python/test_regress_enemy_scene_inheritance.py`
+  (static: inheritance contract, no re-declared shared nodes, per-archetype override
+  goldens) and `tests/unit/test_enemy_scene_inheritance.gd` (engine-side: instantiates all
+  8 scenes and asserts shared nodes are present, typed and script-wired identically).
+- `enemy_base.tscn` is now the single source of truth for all 8 archetypes: one edit lands
+  on the whole roster.
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no

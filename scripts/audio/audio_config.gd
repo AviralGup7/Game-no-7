@@ -2,9 +2,9 @@ class_name AudioConfig
 extends Resource
 
 ## Data-driven audio cue definition: bus routing, volume/pitch ranges (randomized
-## per play for variety), voice limits and music-layer tags. Instances live under
-## res://data/audio_config/ — actual streams stay in res://data/audio/ and bind by
-## matching cue id. The AudioManager + MusicManager consume these.
+## per play for variety), voice limits and music-layer tags. Instances live beside
+## the streams in res://data/audio/ (there is no data/audio_config/ directory) and
+## AudioManager + MusicManager consume them, binding a cue to its stream by id.
 
 @export var cue_id: StringName = &""
 @export var display_name: String = ""

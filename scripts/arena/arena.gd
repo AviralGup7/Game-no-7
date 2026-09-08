@@ -7,6 +7,11 @@ class_name Arena
 ## following this contract + an ArenaConfig resource.
 
 const SPAWN_POINT_GROUP := &"enemy_spawn_point"
+## Lookup group for the live arena. UI (minimap) and any layout-agnostic consumer
+## resolve the arena through this instead of scene paths — main.gd rebuilds the
+## world synchronously and nodes may be renamed by the engine mid-frame, so path
+## lookups against `WorldRoot/Arena` are the fragile pattern this group replaces.
+const ARENA_GROUP := &"arena"
 
 @export var arena_id: StringName = &"default_arena"
 @export var config_path: String = &"res://data/arenas/default_arena.tres"
@@ -16,6 +21,7 @@ const SPAWN_POINT_GROUP := &"enemy_spawn_point"
 
 
 func _ready() -> void:
+	add_to_group(ARENA_GROUP)
 	_build_navigation_floor()
 	# Presentation (Agent 4): give the active arena a distinct lighting/sky/mood.
 	apply_theme(_resolve_arena_id())
@@ -49,48 +55,73 @@ func _resolve_arena_id() -> StringName:
 	return arena_id
 
 
+## Photorealistic panorama skies (Poly Haven CC0 HDRIs locked through the reviewed
+## three.js mirror; see THIRD_PARTY_ASSETS.md). Each arena gets its own real sky and
+## image-based lighting; the procedural colours below are only the graceful fallback
+## used when the .hdr has not been imported on the device.
+const PANORAMA_BASE := "res://assets/textures/panorama/"
+const PANORAMA_SKIES := {
+	"default_arena": PANORAMA_BASE + "spruit_sunrise_1k.hdr",
+	"ember_crucible": PANORAMA_BASE + "venice_sunset_1k.hdr",
+	"frost_hollow": PANORAMA_BASE + "moonless_golf_1k.hdr",
+}
+const HD_ROCK_ALBEDO := "res://assets/textures/rock/rock_albedo.png"
+const HD_ROCK_NORMAL := "res://assets/textures/rock/rock_normal.png"
+const HD_ROCK_AO := "res://assets/textures/rock/rock_ao.png"
+const HD_MARBLE_ALBEDO := "res://assets/textures/stone/marble_albedo.png"
+
 ## Per-arena mood presets — dramatically distinct for instant readability on mobile.
-## Each now has a unique central landmark + emissive accents + strong fog identity.
+## Each now has a unique central landmark + emissive accents + strong fog identity,
+## driven by a real HDRI panorama (with the procedural fallback preserved below).
 const THEMES := {
 	"ember_crucible": {
+		"panorama": PANORAMA_SKIES["ember_crucible"],
 		"sky_top": Color(0.12, 0.03, 0.02),
 		"sky_horizon": Color(0.85, 0.28, 0.08),
 		"ground_horizon": Color(0.35, 0.12, 0.05),
-		"fog_color": Color(0.65, 0.25, 0.08),
-		"fog_density": 0.028,
-		"sun_color": Color(1.0, 0.45, 0.15),
-		"sun_energy": 1.85,
-		"ambient_color": Color(0.85, 0.38, 0.22),
-		"floor_tint": Color(0.72, 0.42, 0.32),
-		"wall_tint": Color(0.55, 0.24, 0.18),
+		"fog_color": Color(0.62, 0.26, 0.1),
+		"fog_density": 0.02,
+		"sun_color": Color(1.0, 0.5, 0.2),
+		"sun_energy": 1.7,
+		"ambient_color": Color(0.85, 0.45, 0.28),
+		"brightness": 1.0,
+		"contrast": 1.1,
+		"floor_tint": Color(0.88, 0.6, 0.46),
+		"wall_tint": Color(0.78, 0.5, 0.38),
 		"landmark": "forge",
 		"emissive_accent": Color(1.0, 0.42, 0.1),
 	},
 	"frost_hollow": {
+		"panorama": PANORAMA_SKIES["frost_hollow"],
 		"sky_top": Color(0.18, 0.28, 0.48),
 		"sky_horizon": Color(0.82, 0.90, 1.0),
 		"ground_horizon": Color(0.42, 0.58, 0.78),
-		"fog_color": Color(0.78, 0.88, 1.0),
-		"fog_density": 0.024,
-		"sun_color": Color(0.65, 0.78, 1.0),
-		"sun_energy": 1.45,
-		"ambient_color": Color(0.68, 0.80, 1.0),
-		"floor_tint": Color(0.70, 0.78, 0.88),
-		"wall_tint": Color(0.52, 0.62, 0.78),
+		"fog_color": Color(0.62, 0.72, 0.9),
+		"fog_density": 0.017,
+		"sun_color": Color(0.7, 0.8, 1.0),
+		"sun_energy": 1.35,
+		"ambient_color": Color(0.68, 0.8, 1.0),
+		"brightness": 0.98,
+		"contrast": 1.08,
+		"floor_tint": Color(0.72, 0.8, 0.9),
+		"wall_tint": Color(0.6, 0.7, 0.84),
 		"landmark": "crystal",
 		"emissive_accent": Color(0.45, 0.75, 1.0),
 	},
 	"default_arena": {
+		"panorama": PANORAMA_SKIES["default_arena"],
 		"sky_top": Color(0.22, 0.42, 0.68),
 		"sky_horizon": Color(0.72, 0.82, 0.92),
 		"ground_horizon": Color(0.38, 0.42, 0.48),
-		"fog_color": Color(0.68, 0.72, 0.78),
-		"fog_density": 0.015,
-		"sun_color": Color(1.0, 0.95, 0.85),
-		"sun_energy": 1.25,
-		"ambient_color": Color(0.72, 0.75, 0.82),
-		"floor_tint": Color(0.58, 0.55, 0.52),
-		"wall_tint": Color(0.45, 0.42, 0.40),
+		"fog_color": Color(0.66, 0.68, 0.72),
+		"fog_density": 0.011,
+		"sun_color": Color(1.0, 0.92, 0.78),
+		"sun_energy": 1.2,
+		"ambient_color": Color(0.7, 0.73, 0.8),
+		"brightness": 1.02,
+		"contrast": 1.06,
+		"floor_tint": Color(0.66, 0.64, 0.6),
+		"wall_tint": Color(0.72, 0.7, 0.68),
 		"landmark": "obelisk",
 		"emissive_accent": Color(0.85, 0.75, 0.45),
 	},
@@ -103,25 +134,45 @@ func _apply_sky_and_light(preset: Dictionary) -> void:
 	if sun != null:
 		sun.light_color = preset.get("sun_color", sun.light_color)
 		sun.light_energy = float(preset.get("sun_energy", sun.light_energy))
-	# Fresh sky + fog environment (never mutate the scene's shared default resource).
-	var pm := ProceduralSkyMaterial.new()
-	pm.sky_top_color = preset.get("sky_top", Color(0.36, 0.6, 0.85))
-	pm.sky_horizon_color = preset.get("sky_horizon", Color(0.72, 0.8, 0.9))
-	pm.ground_horizon_color = preset.get("ground_horizon", Color(0.55, 0.6, 0.66))
-	pm.ground_bottom_color = pm.sky_horizon_color.darkened(0.6)
+	# Real HDRI panorama sky (photorealistic IBL) with procedural fallback.
 	var sky := Sky.new()
-	sky.sky_material = pm
+	sky.radiance_size = Sky.RADIANCE_SIZE_2048
+	var pano_path := String(preset.get("panorama", ""))
+	var pano: Texture2D = load(pano_path) if not pano_path.is_empty() else null
+	if pano != null:
+		var pm := PanoramaSkyMaterial.new()
+		pm.panorama = pano
+		pm.energy = 0.85
+		sky.sky_material = pm
+	else:
+		# Fallback: procedural daylight (never mutate the scene's shared default).
+		var pm := ProceduralSkyMaterial.new()
+		pm.sky_top_color = preset.get("sky_top", Color(0.36, 0.6, 0.85))
+		pm.sky_horizon_color = preset.get("sky_horizon", Color(0.72, 0.8, 0.9))
+		pm.ground_horizon_color = preset.get("ground_horizon", Color(0.55, 0.6, 0.66))
+		pm.ground_bottom_color = pm.sky_horizon_color.darkened(0.6)
+		sky.sky_material = pm
+	# Fresh environment (never mutate the scene's shared default resource).
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
 	env.background_sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_color = preset.get("ambient_color", Color(0.62, 0.68, 0.75))
-	env.ambient_light_energy = 1.0
+	env.ambient_light_energy = 0.85
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	# Cinematic look: exposure/contrast + subtle bloom on emissives (torches, lava,
+	# crystals). Mobile-renderer-safe: no SSAO/SSR/volumetrics are requested.
+	env.adjustment_enabled = true
+	env.adjustment_brightness = float(preset.get("brightness", 1.02))
+	env.adjustment_contrast = float(preset.get("contrast", 1.06))
+	env.glow_enabled = true
+	env.glow_intensity = 0.55
+	env.glow_bloom = 0.05
+	env.glow_hdr_threshold = 1.1
 	env.fog_enabled = true
 	env.fog_light_color = preset.get("fog_color", Color(0.7, 0.7, 0.7))
 	env.fog_density = float(preset.get("fog_density", 0.012))
-	env.fog_sky_affect = 0.35
+	env.fog_sky_affect = 0.25
 	var wenv := get_node_or_null("Environment") as WorldEnvironment
 	if wenv != null:
 		wenv.environment = env
@@ -165,7 +216,7 @@ func _spawn_landmark(preset: Dictionary) -> void:
 	add_child(holder)
 	match kind:
 		"forge":
-			# Central forge: dark stone base + emissive lava basin + point light
+			# Central forge: photo-stone base + emissive lava basin + point light
 			var base := MeshInstance3D.new()
 			var bm := CylinderMesh.new()
 			bm.top_radius = 1.8
@@ -173,10 +224,7 @@ func _spawn_landmark(preset: Dictionary) -> void:
 			bm.height = 0.6
 			base.mesh = bm
 			base.position.y = 0.3
-			var bmat := StandardMaterial3D.new()
-			bmat.albedo_color = Color(0.22, 0.16, 0.14)
-			bmat.roughness = 0.9
-			base.material_override = bmat
+			base.material_override = _hd_rock_mat(Color(0.32, 0.26, 0.24), 0.8)
 			holder.add_child(base)
 			var lava := MeshInstance3D.new()
 			var lm := CylinderMesh.new()
@@ -225,16 +273,13 @@ func _spawn_landmark(preset: Dictionary) -> void:
 			light.position.y = 1.5
 			holder.add_child(light)
 		_:
-			# Default ancient obelisk: tall stone with gold cap + warm fill light
+			# Default ancient obelisk: photo-stone pillar with gold cap + warm fill light
 			var pillar := MeshInstance3D.new()
 			var col := BoxMesh.new()
 			col.size = Vector3(1.0, 4.2, 1.0)
 			pillar.mesh = col
 			pillar.position.y = 2.1
-			var pmat := StandardMaterial3D.new()
-			pmat.albedo_color = Color(0.52, 0.48, 0.42)
-			pmat.roughness = 0.75
-			pillar.material_override = pmat
+			pillar.material_override = _hd_rock_mat(Color(0.6, 0.56, 0.5), 0.78)
 			holder.add_child(pillar)
 			var cap := MeshInstance3D.new()
 			var cm := BoxMesh.new()
@@ -256,6 +301,33 @@ func _spawn_landmark(preset: Dictionary) -> void:
 			light.omni_range = 6.0
 			light.position.y = 2.0
 			holder.add_child(light)
+
+
+## Photo-rock StandardMaterial3D for landmark geometry (tint multiplies the photo
+## albedo). Textures load lazily; before import or on missing files the tint alone
+## still shades the mesh, so landmarks never disappear.
+func _hd_rock_mat(tint: Color, rough := 0.85) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tint
+	mat.albedo_texture = load(HD_ROCK_ALBEDO)
+	mat.normal_enabled = true
+	mat.normal_texture = load(HD_ROCK_NORMAL)
+	mat.ao_enabled = true
+	mat.ao_texture = load(HD_ROCK_AO)
+	mat.roughness = rough
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return mat
+
+
+## Photo-marble material for landmark trim/caps.
+func _hd_marble_mat(tint: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tint
+	mat.albedo_texture = load(HD_MARBLE_ALBEDO)
+	mat.roughness = 0.22
+	mat.metallic = 0.05
+	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return mat
 
 
 ## Deterministic, precomputed navigation floor (no runtime baking). Builds a flat

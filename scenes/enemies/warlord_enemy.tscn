@@ -1,31 +1,26 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=12 format=3]
 
-[ext_resource type="Script" path="res://scripts/enemies/enemy_base.gd" id="1_base"]
-[ext_resource type="Script" path="res://scripts/player/health_component.gd" id="2_hp"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_feedback.gd" id="3_fb"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_audio.gd" id="4_aud"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_state_machine.gd" id="5_machine"]
-[ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="6_status"]
-[ext_resource type="Script" path="res://scripts/enemies/boss_controller.gd" id="7_boss"]
-[ext_resource type="Script" path="res://scripts/enemies/boss_phase_config.gd" id="8_phase"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="9_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/monsters/BlueDemon.gltf" id="10_model"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_controller.gd" id="2_boss"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_phase_config.gd" id="3_phase"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="4_animator"]
+[ext_resource type="PackedScene" path="res://assets/characters/monsters/BlueDemon.gltf" id="5_model"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_warlord"]
 radius = 0.9
 height = 2.6
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_warlord"]
 radius = 0.85
 height = 2.4
 
-[sub_resource type="StandardMaterial3D" id="Mat_enemy"]
+[sub_resource type="StandardMaterial3D" id="Mat_warlord"]
 albedo_color = Color(0.6, 0.12, 0.35, 1)
 roughness = 0.45
 metallic = 0.3
 
-[sub_resource type="Resource" id="BossPhase_1"]
-script = ExtResource("8_phase")
+[sub_resource type="Resource" id="BossPhase_warlord_1"]
+script = ExtResource("3_phase")
 phase_name = "Awakening"
 threshold = 1.0
 damage_mult = 1.0
@@ -33,8 +28,8 @@ speed_mult = 1.0
 abilities = Array[StringName]([&"slam"])
 ability_interval = 4.2
 
-[sub_resource type="Resource" id="BossPhase_2"]
-script = ExtResource("8_phase")
+[sub_resource type="Resource" id="BossPhase_warlord_2"]
+script = ExtResource("3_phase")
 phase_name = "Fury"
 threshold = 0.66
 damage_mult = 1.25
@@ -42,8 +37,8 @@ speed_mult = 1.1
 abilities = Array[StringName]([&"slam", &"summon"])
 ability_interval = 3.8
 
-[sub_resource type="Resource" id="BossPhase_3"]
-script = ExtResource("8_phase")
+[sub_resource type="Resource" id="BossPhase_warlord_3"]
+script = ExtResource("3_phase")
 phase_name = "Enrage"
 threshold = 0.33
 damage_mult = 1.5
@@ -51,54 +46,34 @@ speed_mult = 1.25
 abilities = Array[StringName]([&"slam", &"summon", &"charge"])
 ability_interval = 3.0
 
-[node name="EnemyBase" type="CharacterBody3D"]
-collision_layer = 4
-collision_mask = 5
-script = ExtResource("1_base")
+[node name="WarlordEnemy" instance=ExtResource("1_base")]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
-shape = SubResource("CapsuleShape_body")
+shape = SubResource("CapsuleShape_warlord")
 
-[node name="VisualRoot" type="Node3D" parent="."]
-
-[node name="CharacterModel" type="Node3D" parent="VisualRoot"]
-
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/CharacterModel"]
+[node name="Body" parent="VisualRoot/CharacterModel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-mesh = SubResource("CapsuleMesh_body")
-surface_material_override/0 = SubResource("Mat_enemy")
+mesh = SubResource("CapsuleMesh_warlord")
+surface_material_override/0 = SubResource("Mat_warlord")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualRoot"]
-
-[node name="TargetingOrigin" type="Marker3D" parent="."]
+[node name="TargetingOrigin" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 
-[node name="AttackOrigin" type="Marker3D" parent="."]
+[node name="AttackOrigin" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -0.8)
 
-[node name="HealthComponent" type="Node" parent="."]
-script = ExtResource("2_hp")
-
-[node name="EnemyFeedback" type="Node" parent="."]
-script = ExtResource("3_fb")
-
-[node name="EnemyAudio" type="Node" parent="."]
-script = ExtResource("4_aud")
-
-[node name="EnemyStateMachine" type="Node" parent="."]
-script = ExtResource("5_machine")
-
-[node name="StatusManager" type="Node" parent="."]
-script = ExtResource("6_status")
+[node name="NavigationAgent3D" parent="."]
+path_desired_distance = 2.0
+target_desired_distance = 1.8
 
 [node name="BossController" type="Node" parent="."]
-script = ExtResource("7_boss")
-phase_plan = Array[BossPhaseConfig]([SubResource("BossPhase_1"), SubResource("BossPhase_2"), SubResource("BossPhase_3")])
+script = ExtResource("2_boss")
+phase_plan = Array[BossPhaseConfig]([SubResource("BossPhase_warlord_1"), SubResource("BossPhase_warlord_2"), SubResource("BossPhase_warlord_3")])
 
 [node name="EnemyAnimator" type="Node" parent="."]
-script = ExtResource("9_animator")
-model_scene = ExtResource("10_model")
+script = ExtResource("4_animator")
+model_scene = ExtResource("5_model")
 model_extent = 2.6
 yaw_offset_degrees = 180.0
 animation_map = {
@@ -108,10 +83,3 @@ animation_map = {
 "hurt": "HitReact",
 "death": "Death"
 }
-
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
-path_desired_distance = 2.0
-target_desired_distance = 1.8
-path_height_tolerance = 0.6
-
-[node name="ModifierReceiver" type="Node" parent="."]

@@ -78,12 +78,13 @@ func get_run() -> RunState:
 	return _current_run
 
 
-func get_best_score() -> int:
-	return _best_score
-
-
-func get_best_wave() -> int:
-	return _best_wave
+# NOTE: no get_best_score()/get_best_wave() accessors here on purpose. The save
+# store (SaveManager) is the single source of truth for persisted bests — the
+# startup-stability fix routed menu_panel, run_summary_panel and the UI test
+# runner directly at it because GameRoot only mirrored them at _ready. The
+# _best_score/_best_wave mirrors below stay internal: they exist to report the
+# run's best through the run_ended fan-out and the debug snapshot, not as a
+# public read path.
 
 
 func get_active_player() -> Node:

@@ -45,6 +45,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_weapons.gd",
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_character_visuals.gd",
+	"res://tests/unit/test_enemy_scene_inheritance.gd",
 ]
 
 var _failures: Array[String] = []

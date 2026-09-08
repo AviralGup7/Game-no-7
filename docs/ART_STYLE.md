@@ -1,7 +1,8 @@
 # ART_STYLE.md — Visual style guide
 
-A cohesive, **stylized medium-detail** look: colourful but not childish, readable
-silhouettes, clean geometry, good contrast, attractive on mobile, and lightweight.
+A cohesive **stylized characters + photoreal environment** look: colourful but not
+childish, readable silhouettes, photo-PBR arena shells and real HDRI skies behind
+the approved low-poly rigs, good contrast, attractive on mobile, and lightweight.
 
 ## Core principles
 
@@ -57,8 +58,12 @@ Use high-contrast variant (settings toggle) for accessibility.
 
 ## Lighting
 
-- One directional sun (soft, warm) + sky/ambient from the `Environment` node.
-- Minimal dynamic lights; baked/cheap lighting preferred. Shadows only where cheap.
+- One directional sun (soft, warm) + a real **HDRI panorama** sky/IBL per arena
+  (`PanoramaSkyMaterial`; procedural fallback if the `.hdr` is unimported).
+- A handful of flickering torch sconces (4 omni lights, no shadows on them) plus
+  the landmark light — never more than ~6 dynamic lights.
+- 2× MSAA, 8× anisotropic filtering, high-quality PCF shadows, glow on emissives
+  and exposure/contrast are the standard post set; SSAO/SSR stay off (mobile).
 
 ## Enemy readability rules
 
@@ -66,18 +71,25 @@ Use high-contrast variant (settings toggle) for accessibility.
 - Distinct **colour** and optional emissive accent.
 - Clear **attack telegraph** (pose/colour/flash before a hit).
 
-## Downloaded art families (partially integrated)
+## Downloaded art families (HD realism pass)
 
 The reviewed kit in `assets/` uses **KayKit Adventurers + Skeletons + Dungeon
-Remastered** for matching characters, weapons, props and texture language, with
-Kenney particle/UI assets and Rajdhani fonts. See `docs/ASSET_CATALOG.md` for exact
-files, animation names and per-role mappings. Detailed stone surfaces, pickup models (Heart/Crystal/Star), Quaternius creature/equipment additions (Rat/Spider/Demon/BlueDemon + 9 weapons via PlayerEquipment socket `handslot.r/l`), and all 8 character/9 enemy models (Knight + Skeletons + creatures via CharacterVisuals fitted bounds + EnemyAnimator/PlayerAnimation) are now integrated. Combat/camera behaviour preserved. See `ASSET_AUDIT.md` / `ASSET_CATALOG.md` for exact mappings; remaining art gap is per-arena bespoke meshes (themes+decorator suffice) and boss-music procedural fallback.
+Remastered** for characters, weapons and props, **Quaternius** creatures/equipment,
+**photo PBR textures** (rock, brick, marble, wood, aluminium — Godot Material
+Testers) for the arena shell, and **Poly Haven CC0 HDRIs** (via the pinned
+three.js mirror) for real skies, with Kenney particle/UI assets and Rajdhani fonts.
+See `docs/ASSET_CATALOG.md` for exact files and per-role mappings; `ASSET_AUDIT.md`
+explains why the rig inventory was kept (its combat clip coverage) while the
+presentation (arena, sky, lighting, post, per-actor material tuning via
+`HdMaterials`) went photoreal.
 
 Keep the original textured materials when applying the role palette; tint accents
 or duplicate materials rather than flattening every surface to a single colour.
 The character rigs have multiple mesh parts and 1024px gradient atlases: share
 materials/textures where possible, select appropriate import LODs/texture sizes,
-and profile full enemy waves on the target phone. "Low poly" is not an FPS guarantee.
+and profile full enemy waves on the target phone. "Low poly" is not an FPS
+guarantee — the HD shell adds roughly 10.6 MiB of checked-in photo textures and
+four omni lights, so keep an eye on device frame time.
 
 ## Future content rules
 
