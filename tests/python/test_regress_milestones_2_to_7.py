@@ -111,7 +111,10 @@ class Milestone6_AndroidPerf(unittest.TestCase):
     def test_mobile_renderer_and_perf(self):
         txt = read("project.godot")
         self.assertIn('renderer/rendering_method="mobile"', txt)
-        self.assertIn("msaa_3d=0", txt)
+        # HD graphics pass: 2x MSAA + anisotropy + high-quality PCF shadows; the
+        # mobile renderer is kept (no SSAO/SSR) to protect frame time on devices.
+        self.assertIn("anti_aliasing/quality/msaa_3d=2", txt)
+        self.assertIn("anisotropic_filtering_level=8", txt)
         self.assertIn("Mobile", txt)
         txt2 = read("export_presets.cfg")
         self.assertIn("arm64-v8a=true", txt2)

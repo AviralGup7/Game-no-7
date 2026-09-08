@@ -14,16 +14,19 @@ const BUILD_SCHEMA_VERSION := 1
 var run_id: int = 0
 var seed: int = 0
 var arena_id: StringName = &"default_arena"
+var mode_id: StringName = &"standard"
 var current_wave: int = 0
 var score: int = 0
 var currency: int = 0
 var kills: int = 0
 var combo: int = 0
 var best_combo: int = 0
+var bosses_slain: int = 0
 var damage_taken: float = 0.0
 var elapsed_seconds: float = 0.0
 var player_alive: bool = true
 var paused: bool = false
+var victory: bool = false
 var upgrade_choices: Array[StringName] = []
 var selected_upgrades: Dictionary = {}          # upgrade_id -> stack count
 var active_modifiers: Array[StringName] = []
@@ -38,16 +41,19 @@ func reset() -> void:
 	run_id = 0
 	seed = 0
 	arena_id = &"default_arena"
+	mode_id = &"standard"
 	current_wave = 0
 	score = 0
 	currency = 0
 	kills = 0
 	combo = 0
 	best_combo = 0
+	bosses_slain = 0
 	damage_taken = 0.0
 	elapsed_seconds = 0.0
 	player_alive = true
 	paused = false
+	victory = false
 	upgrade_choices.clear()
 	selected_upgrades.clear()
 	active_modifiers.clear()
@@ -73,6 +79,10 @@ func add_currency(delta: int) -> void:
 
 func add_kill() -> void:
 	kills += 1
+
+
+func add_boss_kill() -> void:
+	bosses_slain += 1
 
 
 func set_combo(value: int) -> void:
@@ -125,17 +135,21 @@ func summary() -> Dictionary:
 		"run_id": run_id,
 		"seed": seed,
 		"arena_id": String(arena_id),
+		"mode_id": String(mode_id),
 		"current_wave": current_wave,
 		"score": score,
 		"currency": currency,
 		"kills": kills,
 		"combo": combo,
 		"best_combo": best_combo,
+		"bosses_slain": bosses_slain,
 		"damage_taken": damage_taken,
 		"elapsed_seconds": elapsed_seconds,
 		"player_alive": player_alive,
+		"victory": victory,
 		"selected_upgrades": selected_upgrades.duplicate(),
 		"active_modifiers": active_modifiers.duplicate(),
+		"completed_objectives": completed_objectives.duplicate(),
 		"build": build_snapshot(),
 		"equipped_weapons": equipped_weapons.duplicate(),
 		"equipped_skills": equipped_skills.duplicate(),

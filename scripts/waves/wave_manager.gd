@@ -131,12 +131,27 @@ func _wave_config(wave_number: int) -> WaveConfig:
 	return WavePlanner.generate_wave(wave_number, _seed)
 
 
-## Resolve the flat spawn queue: authored entries expanded (weighted shuffle), else
-## the planner queue (extended with new archetypes from wave 6).
+## Resolve the flat spawn queue: mode override > authored entries > planner.
 func _wave_queue(wave_number: int, cfg: WaveConfig) -> Array[StringName]:
+	var mode_id := _run_mode()
+	var mode_queue := GameMode.spawn_queue(mode_id, wave_number, _seed)
+	if not mode_queue.is_empty():
+		return mode_queue
 	if ContentRegistry != null and ContentRegistry.has_authored_wave(wave_number):
-		return WavePlanner.expand_authored_entries(cfg, _seed)
+		# Boss-rush / campaign still prefer mode queues; authored waves apply to standard.
+		if mode_id == GameMode.MODE_STANDARD or mode_id == GameMode.MODE_CHALLENGE:
+			return WavePlanner.expand_authored_entries(cfg, _seed)
 	return WavePlanner.extended_queue_for_wave(wave_number, _seed)
+
+
+func _run_mode() -> StringName:
+	if GameRoot != null and GameRoot.has_method("get_run_mode"):
+		return StringName(GameRoot.call("get_run_mode"))
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null and "mode_id" in run:
+			return StringName(String(run.mode_id))
+	return GameMode.MODE_STANDARD
 
 
 func _launch_wave(wave_number: int) -> void:
@@ -167,19 +182,37 @@ func _launch_wave(wave_number: int) -> void:
 
 ## Banner line for the wave: mutator names ride along so players can adapt.
 func _announce_wave(wave_number: int) -> void:
+	var mode_id := _run_mode()
 	var text := "Wave %d" % wave_number
+	var cap := GameMode.max_waves(mode_id)
+	if cap > 0:
+		text = "Wave %d / %d" % [wave_number, cap]
 	var severity := &"info"
 	if not _active_mutators.is_empty():
 		text += " — " + WaveMutators.banner_text(_active_mutators)
 		severity = &"warning"
-	if wave_number % 10 == 0:
+	if wave_number % 10 == 0 or (cap > 0 and wave_number >= cap):
 		severity = &"danger"
 	EventBus.announcement.emit(&"wave_started", text, severity)
+	# Narrative layer: campaign beats + arena lore on milestones.
+	var arena_id := &"default_arena"
+	if GameRoot != null and GameRoot.has_method("get_run"):
+		var run: Variant = GameRoot.call("get_run")
+		if run != null and "arena_id" in run:
+			arena_id = StringName(String(run.arena_id))
+	Narrator.announce_wave(mode_id, arena_id, wave_number)
 
 
 func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
 	if not _forced_mutators.is_empty():
 		_active_mutators = _forced_mutators.duplicate()
+		for id in _active_mutators:
+			EventBus.wave_mutator_applied.emit(id, wave_number)
+		return
+	# Mode-forced mutators (challenge / boss rush) apply for the whole run.
+	var mode_forced := GameMode.forced_mutators(_run_mode())
+	if not mode_forced.is_empty():
+		_active_mutators = mode_forced.duplicate()
 		for id in _active_mutators:
 			EventBus.wave_mutator_applied.emit(id, wave_number)
 		return
@@ -235,12 +268,21 @@ func _complete_current_wave() -> void:
 	_phase = PHASE_COMPLETED
 	var cfg := _wave_config(_current_wave)
 	var bonus := cfg.completion_bonus
+	# Mode score multiplier folds into the wave completion bonus.
+	bonus = int(round(float(bonus) * GameMode.score_multiplier(_run_mode())))
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
 	AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
-	if cfg.upgrade_after_completion:
+	# Mode win condition: finishing the cap wave ends the run in victory.
+	if GameMode.is_victory_wave(_run_mode(), _current_wave):
+		if GameRoot != null and GameRoot.has_method("declare_victory"):
+			GameRoot.call("declare_victory")
+		stop()
+		return
+	var wants_upgrade := cfg.upgrade_after_completion or GameMode.wants_upgrade(_run_mode(), _current_wave)
+	if wants_upgrade:
 		# Open a deterministic upgrade selection; GameRoot routes PLAYING -> UPGRADE_SELECTION.
 		if GameRoot.present_upgrade_selection_for_wave(_current_wave):
 			_awaiting_upgrade = true

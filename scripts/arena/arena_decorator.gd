@@ -253,6 +253,9 @@ func _mount_model(host: Node, path: String, y_offset: float, scale_factor: float
 	(inst as Node3D).position = Vector3(0, y_offset, 0)
 	(inst as Node3D).scale = Vector3.ONE * scale_factor
 	host.add_child(inst)
+	# HD material pass so KayKit dungeon props share the same anisotropic, physically
+	# tuned shading as the arena shell and actors.
+	HdMaterials.polish(inst as Node3D)
 	return true
 
 

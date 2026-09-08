@@ -3,6 +3,18 @@
 Date: 2026-09-08. Baseline: `375137151fc3cf63a9034c1ff3f4c29b7a566a37`.
 Engine target: Godot **4.4.1**, Android ARM64, Mobile renderer.
 
+## HD realism pass delta (same date)
+
+The presentation overhaul below keeps the Mobile renderer but raises quality:
+**2× MSAA, 8× anisotropic filtering, 2048px high-quality PCF directional
+shadows, glow, exposure/contrast, per-arena 1K HDRI panoramas (IBL) and four
+flickering torch omni lights (no shadows).** No SSAO/SSR/volumetrics are enabled.
+Assets grew 222 → 239 locked files (35.05 → 45.63 MiB): 8 photo-PBR PNGs, 4
+JPGs, 3 HDRIs and 2 licence notices. `HdMaterials` duplicates one shallow
+material per mesh surface at mount time (bounded, no per-frame allocation).
+Frame-time impact is unmeasured — the pending device matrix below still applies
+(Mobile renderer + MSAA + HDRI at high native resolution are the costs to watch).
+
 ## Verification status — not an Android certification
 
 **Runtime and device measurements are blocked in this workspace.** No Godot,
@@ -142,9 +154,11 @@ named `_validated_*` as an active safeguard.
 - Music uses compressed Ogg, with four combat states sharing the same imported
   stream. AudioManager pools 16 SFX voices; MusicManager owns two crossfade players.
   The discarded synthesis was the clear startup CPU/memory issue.
-- Mobile renderer, MSAA off, directional shadows on. Static arena meshes, triplanar
-  stone materials, animated/skinned enemies, translucent rings, per-elite lights,
-  boss lights and GPU particles are the likely GPU costs. No custom shader files
+- Mobile renderer, **MSAA 2× (was off)**, high-quality PCF directional shadows,
+  per-arena HDRI panorama IBL, four torch omni lights and the HD arena shell
+  (triplanar photo-PBR rock/brick/marble/wood/metal + ~90 additional mesh nodes)
+  are the likely GPU costs; animated/skinned enemies, translucent rings,
+  per-elite lights, boss lights and GPU particles remain. No custom shader files
   were found. No draw-call or GPU-frame-time measurements were available.
 - `canvas_items` stretch may render 3D at high native phone resolution; do not assume
   the 1280×720 viewport setting is a fixed 720p 3D budget. Resolution scaling, shadow

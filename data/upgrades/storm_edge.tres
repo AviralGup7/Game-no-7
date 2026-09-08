@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"storm_edge"
+display_name = "Storm Edge"
+description = "Melee hits chain lightning to nearby foes. Build-defining crowd clear."
+rarity = &"legendary"
+category = &"transform"
+max_stacks = 2
+stat_modifiers = {
+"attack_damage_multiplier": 0.05,
+}
+tags = Array[StringName]([&"transform", &"melee", &"shock", &"aoe"])
+effect_tags = Array[StringName]([&"chain_melee"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([&"cinder_step"])
+unlock_wave = 2
+weight = 0.55
+disabled = false

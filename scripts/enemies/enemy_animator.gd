@@ -76,6 +76,9 @@ func _mount_model() -> void:
 	if primitive != null:
 		primitive.visible = false
 	mount.add_child(wrapper)
+	# HD material pass (anisotropic filtering + tuned roughness/metallic) keeps the
+	# approved enemy art crisp and grounded under the new HD arena lighting.
+	HdMaterials.polish(wrapper)
 	var players := wrapper.find_children("*", "AnimationPlayer", true, false)
 	if players.is_empty():
 		return

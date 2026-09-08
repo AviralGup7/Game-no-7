@@ -120,6 +120,8 @@ func _apply_model() -> void:
 			if model != null:
 				_visual.add_child(model)
 				model.position.y = 0.2
+				# Same HD material pass as actors/props: anisotropic + tuned PBR.
+				HdMaterials.polish(model)
 				_models[key] = model
 		selected = _models.get(key) as Node3D
 	if selected != null:

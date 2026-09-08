@@ -41,6 +41,8 @@ func record_kill(score_value: int, currency_value: int, archetype_id: StringName
 	if _run == null or not _run.player_alive:
 		return
 	_run.add_kill()
+	if archetype_id == &"warlord":
+		_run.add_boss_kill()
 	var multiplier := _score_multiplier()
 	# Raise combo by one then award score including the streak bonus; record the kill
 	# time so the combo can expire after the window.
@@ -75,11 +77,22 @@ func award_bonus(bonus: int) -> void:
 
 
 func _score_multiplier() -> float:
-	return 1.0 + _derived_stat(&"score_multiplier_add", 0.0)
+	var base := 1.0 + _derived_stat(&"score_multiplier_add", 0.0)
+	# Mode + prestige multipliers stack multiplicatively on top of upgrade bonuses.
+	if _run != null:
+		base *= GameMode.score_multiplier(_run.mode_id)
+		if GameRoot != null and GameRoot.has_method("get_prestige_rank"):
+			base *= Prestige.score_multiplier(int(GameRoot.call("get_prestige_rank")))
+	return base
 
 
 func _currency_multiplier() -> float:
-	return 1.0 + _derived_stat(&"currency_multiplier_add", 0.0)
+	var base := 1.0 + _derived_stat(&"currency_multiplier_add", 0.0)
+	if _run != null:
+		base *= GameMode.currency_multiplier(_run.mode_id)
+		if GameRoot != null and GameRoot.has_method("get_prestige_rank"):
+			base *= Prestige.currency_multiplier(int(GameRoot.call("get_prestige_rank")))
+	return base
 
 
 func _derived_stat(key: StringName, base: float) -> float:

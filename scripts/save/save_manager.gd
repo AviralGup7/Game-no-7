@@ -91,6 +91,9 @@ func record_run_completed(summary: Dictionary) -> void:
 	ls.total_kills = int(ls.total_kills) + int(summary.get("kills", 0))
 	ls.total_time_seconds = float(ls.total_time_seconds) + float(summary.get("elapsed_seconds", 0.0))
 	ls.highest_combo = maxi(int(ls.highest_combo), int(summary.get("best_combo", 0)))
+	if bool(summary.get("victory", false)):
+		ls.victories = int(ls.get("victories", 0)) + 1
+	ls.bosses_slain = int(ls.get("bosses_slain", 0)) + int(summary.get("bosses_slain", 0))
 	# Persist only the normalized, id-based build mirror. ProgressionComponent,
 	# WeaponManager and SkillController remain the live runtime authorities.
 	var build_value: Variant = summary.get("build", {})
@@ -183,6 +186,26 @@ func set_meta_ranks(ranks: Dictionary) -> void:
 		clean[String(key)] = maxi(int(ranks[key]), 0)
 	_save.meta_ranks = clean
 	mark_dirty()
+
+
+func get_prestige_rank() -> int:
+	return clampi(int(_save.get("prestige_rank", 0)), 0, Prestige.MAX_PRESTIGE)
+
+
+func set_prestige_rank(rank: int) -> void:
+	_save.prestige_rank = clampi(rank, 0, Prestige.MAX_PRESTIGE)
+	mark_dirty()
+
+
+func unlock_cosmetic(cosmetic_id: String) -> void:
+	var list: Array = _save.progression.unlocked_cosmetics
+	if cosmetic_id not in list:
+		list.append(cosmetic_id)
+		mark_dirty()
+
+
+func get_unlocked_cosmetics() -> Array:
+	return (_save.progression.get("unlocked_cosmetics", []) as Array).duplicate()
 
 
 func mark_dirty() -> void:

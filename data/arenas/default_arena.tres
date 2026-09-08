@@ -12,5 +12,5 @@ enemy_spawn_min_player_distance = 6.0
 default_camera_profile = &"default"
 background_music_cue = &"music_calm"
 allowed_archetypes = Array[StringName]([])
-tags = Array[StringName]([])
+tags = Array[StringName]([&"classic", &"spikes", &"plates", &"movers"])
 unlock_wave = 1

@@ -32,6 +32,8 @@ const MIN_COOLDOWN := 0.05
 var _stacks: Dictionary = {}
 # accumulated effective modifier totals (modifier key -> total across stacks).
 var _modifiers: Dictionary = {}
+# Transformative effect tags currently active (effect_id -> stack contribution).
+var _effects: Dictionary = {}
 # The progression owner is also the authority for wave-gated run upgrades. GameRoot
 # updates this mirror as waves start; direct callers cannot apply a future upgrade.
 var _current_wave: int = 1
@@ -47,6 +49,7 @@ const COOLDOWN := [&"attack_cooldown_multiplier", &"dodge_cooldown_multiplier", 
 func reset() -> void:
 	_stacks.clear()
 	_modifiers.clear()
+	_effects.clear()
 	_current_wave = 1
 
 
@@ -75,7 +78,37 @@ func apply_upgrade(config: UpgradeConfig) -> bool:
 		return false
 	_stacks[config.upgrade_id] = current + 1
 	_accumulate(config)
+	_accumulate_effects(config)
 	return true
+
+
+## Record transformative effect tags so BuildEffects can query them without
+## hardcoding upgrade ids. Stacking an effect-bearing upgrade increments the tag.
+func _accumulate_effects(config: UpgradeConfig) -> void:
+	if config == null:
+		return
+	for effect in config.effect_tags:
+		var key := StringName(String(effect))
+		if String(key).is_empty():
+			continue
+		_effects[key] = int(_effects.get(key, 0)) + 1
+	# Convenience: an upgrade whose id matches a known effect tag also counts,
+	# so single-purpose transform cards can omit the array.
+	if config.upgrade_id in UpgradeConfig.KNOWN_EFFECT_TAGS:
+		var id := config.upgrade_id
+		_effects[id] = int(_effects.get(id, 0)) + 1
+
+
+func has_effect(effect_id: StringName) -> bool:
+	return int(_effects.get(effect_id, 0)) > 0
+
+
+func get_effect_stacks(effect_id: StringName) -> int:
+	return int(_effects.get(effect_id, 0))
+
+
+func get_effect_snapshot() -> Dictionary:
+	return _effects.duplicate()
 
 
 func apply_upgrade_by_id(upgrade_id: StringName) -> bool:
@@ -194,6 +227,7 @@ func restore_progression(snapshot: Dictionary, wave_number: int = -1) -> int:
 	var restored := 0
 	_stacks.clear()
 	_modifiers.clear()
+	_effects.clear()
 	if wave_number > 0:
 		_current_wave = maxi(wave_number, 1)
 	if snapshot == null or snapshot.is_empty() or ContentRegistry == null:
@@ -244,4 +278,8 @@ func add_permanent_bonus(key: StringName, delta: float) -> void:
 
 
 func get_debug_snapshot() -> Dictionary:
-	return {"upgrade_stacks": _stacks.duplicate(), "modifiers": _modifiers.duplicate()}
+	return {
+		"upgrade_stacks": _stacks.duplicate(),
+		"modifiers": _modifiers.duplicate(),
+		"effects": _effects.duplicate(),
+	}

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UpgradeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+upgrade_id = &"blood_rite"
+display_name = "Blood Rite"
+description = "Every fifth kill heals a burst of HP. Aggression is sustain."
+rarity = &"epic"
+category = &"transform"
+max_stacks = 2
+stat_modifiers = {
+"healing_on_kill": 2.0,
+}
+tags = Array[StringName]([&"transform", &"sustain", &"kill"])
+effect_tags = Array[StringName]([&"lifesteal_burst"])
+prerequisites = Array[StringName]([])
+exclusions = Array[StringName]([])
+unlock_wave = 2
+weight = 0.5
+disabled = false

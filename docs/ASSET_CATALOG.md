@@ -2,8 +2,8 @@
 
 Reviewed **8 September 2026** · Godot 4.4.1 · 3D third-person · Android
 
-**222 checksum-locked files, 35.05 MiB: 81 models, 79 PNGs, 31 audio clips,
-2 fonts, 14 binary mesh dependencies and 15 licence/credit notices.**
+**239 checksum-locked files, 45.63 MiB: 81 models, 87 PNGs, 4 JPGs, 3 HDRIs,
+31 audio clips, 2 fonts, 14 binary mesh dependencies and 17 licence/credit notices.**
 
 See [the audit](ASSET_AUDIT.md) for additions, online comparisons and limitations.
 The machine-readable role map is [`assets/catalog.json`](../assets/catalog.json);
@@ -11,7 +11,20 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
 
 ## Integration status — important
 
-- **Integrated (environment/presentation pass, Agent 4):**
+- **HD realism pass (presentation overhaul):**
+  - **Arena replaced:** photo-PBR rock floor, aged-brick walls with stone trims and
+    marble cornices, corner towers with marble caps, wooden gate with iron banding,
+    marble dais, littered boulders and four flickering torch sconces
+    (`scenes/arena/arena.tscn`; collisions/spawns unchanged).
+  - **Real skies:** per-arena Poly Haven CC0 HDRI panoramas (Default sunrise, Ember
+    sunset, Frost moonlit) drive `PanoramaSkyMaterial` + IBL with graceful
+    procedural fallback in `arena.gd`.
+  - **Post + lighting:** glow (torch/lava/crystal bloom), exposure/contrast
+    adjustment, tuned fog, softer high-quality PCF shadows and 2× MSAA + 8×
+    anisotropic filtering in `project.godot` — mobile renderer kept (no SSAO/SSR).
+  - **Actor material pass:** `HdMaterials` applies anisotropic filtering and
+    role-tuned roughness/metallic/specular to every mounted player/enemy model and
+    every decorator prop (no texture replacement, no rig changes).
   - Detailed arena floor/wall materials; six distinct pickup models.
   - Approved **character + enemy models** mounted onto the live actors (player via
     `VisualRoot/CharacterModel` + a scene mount node; all eight enemy archetypes via
@@ -77,11 +90,17 @@ bottle/crystal shapes help identification independently of tint.
 
 ## Environment, UI, effects, audio
 
-- 37 KayKit dungeon environment models remain available for walls, floors, gates,
-  pillars, banners, crates, barrels, torches and rubble.
-- Shared stone colour/normal/AO maps (1024 × 666) power local materials under
-  `assets/materials/`. Floor tiling and world-space wall projection prevent wall
-  stretch; no parallax, tessellation, displacement or new physics geometry.
+- The live arena shell is now **photo PBR**: `arena_floor_rock.tres` (rock albedo +
+  normal + AO + metallic, triplanar), `arena_wall_brick.tres` (aged-brick set,
+  world-space triplanar), plus marble/wood/metal materials for dais, cornices,
+  gate and sconces. Sources are the locks under `assets/textures/rock|brick|stone|
+  wood|metal/`.
+- Three archived **HDRI panoramas** (`assets/textures/panorama/*.hdr`, 1K,
+  Poly Haven CC0 captures via the pinned three.js mirror) are mapped per arena in
+  `arena.gd`; falling back to the procedural sky if a `.hdr` is unimported.
+- 37 KayKit dungeon environment models remain available for props; they now get
+  the same anisotropic/PBR material polish, plus the scene's torches/banners.
+- No parallax, tessellation, displacement or new physics geometry.
 - `gameplay_arenas` covers all three arenas (themes + decorator); `gameplay_skills` covers all eight skills integrated (EffectDirector distinct tint+texture+radius+burst + SkillExecutor behaviour + audio/camera).
 - Existing 55 UI PNGs, 15 particle PNGs and Rajdhani Regular/Bold remain. Every
   upgrade has an icon assignment. No font version change was available in the

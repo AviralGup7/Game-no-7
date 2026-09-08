@@ -133,6 +133,9 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	_hide_primitive(mount)
 	_add_ground_shadow(mount)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
+	# HD material pass: anisotropic filtering + role-tuned roughness/metallic so the
+	# approved art reads realistically under the new panormaic lighting.
+	HdMaterials.polish(instance as Node3D, role)
 	# Subtle breathing bob keeps the hero alive even when idle (pure visual, no gameplay).
 	if role == &"player":
 		start_breathing(wrapper)

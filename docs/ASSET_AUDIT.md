@@ -11,6 +11,41 @@
   79 PNGs, 31 audio files and 2 fonts. Added 31 downloads, about **10.30 MiB**.
 - All eight enemy archetypes + the player, nine weapons (via PlayerEquipment socket), six pickups, eight skills (distinct VFX/texture/tint) and three arenas (themes+decorator) now have explicit source-art mappings **and runtime integration** (CharacterVisuals/EnemyAnimator/PlayerAnimation/ModelVisual/EffectDirector/AudioAssetIntegrator); remaining gap is per-arena bespoke meshes + boss-music fallback.
 
+## HD realism pass (same review date)
+
+The game now looks visually different — this is a presentation overhaul, **not**
+new gameplay, rigs, balance or systems.
+
+| Concern | What changed | Source / status |
+|---|---|---|
+| Arena map | Flat plane + colour boxes replaced by a photo-PBR shell: rock floor, aged-brick walls with trims and marble cornices, corner towers + caps, iron-banded wooden gate, marble dais, boulders, 4 flickering torches | Realistic textures lock; scene rebuilt (`arena.tscn`); collisions/spawns/navigation untouched |
+| Sky & lighting | Procedural sky replaced by real **HDRI panoramas** per arena (IBL); softer shadows, tuned fog, exposure/contrast, glow on emissives | Poly Haven CC0 HDRIs via pinned three.js mirror (MIT) |
+| Render settings | 2× MSAA, 8× anisotropic filtering, high-quality PCF shadows | `project.godot`; mobile renderer retained for frame time |
+| Character/enemy look | `HdMaterials` material pass on every mounted actor: anisotropic filtering + role-tuned roughness/metallic/specular (armour vs bone vs hide) | Scripts; no texture/model/rig replacement |
+| Arena props | KayKit dungeon props + landmarks receive the same material polish; landmarks use the photo-rock/marble materials | Scripts/materials |
+| Models | **Kept** the rigged KayKit/Quaternius actors | See "Why not a photoreal rig swap" below |
+
+### Why not a photoreal rig swap
+
+Reviewed candidates for a fully rigged, fully animated, permissively licensed
+realistic humanoid were checked on GitHub (three.js `Soldier.glb` / `Xbot.glb` /
+`Michelle.glb` / `kira.glb`, Khronos `CesiumMan` / `Fox` / `BrainStem`, Blender
+Studio Sintel mirrors, Quaternius Modular Character Outfits — Fantasy):
+
+- `Soldier` — photoreal PBR (2.1 MB, Idle/Walk/Run) but **no attack/hurt/death/
+  dodge clips** and a modern rifle asset; swapping it in would leave the hero
+  gliding through combat.
+- `Michelle` / `kira` / `Nemetona` — no locomotion or combat clip sets.
+- `Xbot`/`Fox`/`BrainStem` — no combat clip sets, wrong silhouette/theme.
+- Sintel (CC BY mirrors) — no reliable combat clip set; mirror provenance issues.
+- Quaternius Outfits — not an animated drop-in; requires full retargeting.
+
+Replacing the working 76/95/14-clip inventories with a rig that lacks the clips the
+animators drive would visibly break combat feedback, so the approved rigs were
+retained and upgraded at the material level instead. A photoreal animated
+character set (with a documented retarget plan) is a future work item; the
+candidate URLs stay in this audit for that pass.
+
 ## Downloaded additions and replacement selections
 
 | Role | New selection | Why / status |

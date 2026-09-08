@@ -14,7 +14,7 @@ func _ready() -> void:
 	wordmark.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	wordmark.add_theme_constant_override("outline_size", 6)
 	UiFactory.title("A R E N A", box, 30).modulate = UiTheme.GOLD
-	UiFactory.label("One arena. Endless pressure. Make every stand count.", box, 22).modulate = UiTheme.MUTED
+	UiFactory.label("Modes. Builds. Prestige. Make every stand count.", box, 22).modulate = UiTheme.MUTED
 	# Primary CTA is visually dominant; secondary actions share one row below it.
 	var play := UiFactory.button("START RUN", box, 26, Vector2(280, 96))
 	UiTheme.decorate(play, "play")
@@ -50,7 +50,13 @@ func _fit() -> void:
 
 
 func refresh() -> void:
-	_records.text = "PERSONAL BEST  %s    /    WAVE %d    /    BANK %d" % [
-		SaveManager.get_best_score(), SaveManager.get_best_wave(), SaveManager.get_meta_wallet()]
+	var prestige := 0
+	var title := "Unproven"
+	if SaveManager != null and SaveManager.has_method("get_prestige_rank"):
+		prestige = int(SaveManager.call("get_prestige_rank"))
+		title = Prestige.title_for(prestige)
+	_records.text = "PERSONAL BEST  %s    /    WAVE %d    /    BANK %d\n%s  •  Prestige %d" % [
+		SaveManager.get_best_score(), SaveManager.get_best_wave(), SaveManager.get_meta_wallet(),
+		title, prestige]
 	if not SaveManager.is_tutorial_completed():
 		_records.text += "\nFirst stand? Controls and a guided coach are ready for you."

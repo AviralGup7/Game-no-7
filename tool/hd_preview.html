@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+  HD realism pass — live preview (dev tool only, excluded from the Godot export).
+  Serves the real locked HD assets from the repository root with three.js:
+  the Poly Haven HDRI panoramas, the photo-PBR rock/brick/marble/metal/wood
+  textures and the approved KayKit/Quaternius models used by the game.
+
+  Run: python3 -m http.server 8000  (from the repository root)
+  Open: http://localhost:8000/tool/hd_preview.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Stand: Arena — HD realism preview</title>
+<style>
+  html, body { margin:0; height:100%; overflow:hidden; background:#0b0d10; color:#cfd6e0; font-family:system-ui,sans-serif; }
+  #app { position:fixed; inset:0; }
+  #hud { position:fixed; top:12px; left:12px; padding:10px 12px; background:rgba(10,12,16,.72); border:1px solid #2a3140; border-radius:8px; font-size:13px; max-width:330px; line-height:1.5; }
+  #hud b { color:#7fc7ff; }
+  #hud .sky { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+  #hud button { background:#1b2230; color:#dfe7f2; border:1px solid #3a4557; border-radius:6px; padding:5px 9px; cursor:pointer; font-size:12px; }
+  #hud button.active { background:#2d5a8f; border-color:#7fc7ff; color:#fff; }
+  #status { position:fixed; bottom:10px; left:12px; color:#8fa3bd; font-size:12px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div id="hud">
+  <b>Last Stand: Arena — HD realism preview</b><br>
+  Real HDRI sky + photo-PBR arena shell + approved game models (Godot uses the same assets).
+  <div class="sky">
+    <button data-sky="default_arena" class="active">Default (sunrise)</button>
+    <button data-sky="ember_crucible">Ember (sunset)</button>
+    <button data-sky="frost_hollow">Frost (moonlit)</button>
+  </div>
+</div>
+<div id="status">loading…</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './vendor/GLTFLoader.js';
+import { RGBELoader } from './vendor/RGBELoader.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
+
+const PANOS = {
+  default_arena: '../assets/textures/panorama/spruit_sunrise_1k.hdr',
+  ember_crucible: '../assets/textures/panorama/venice_sunset_1k.hdr',
+  frost_hollow: '../assets/textures/panorama/moonless_golf_1k.hdr',
+};
+const TXT = '../assets/textures/';
+const status = document.getElementById('status');
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.getElementById('app').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x8a8f96, 0.008);
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 300);
+camera.position.set(11, 7.5, 13);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.4, 0);
+controls.maxPolarAngle = Math.PI * 0.48;
+
+const sun = new THREE.DirectionalLight(0xfff2d8, 2.2);
+sun.position.set(14, 24, -10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -20; sun.shadow.camera.right = 20;
+sun.shadow.camera.top = 20; sun.shadow.camera.bottom = -20;
+sun.shadow.camera.far = 80;
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xbcc8dd, 0x3a3733, 0.85));
+
+const loader = new THREE.TextureLoader();
+const rgb = new RGBELoader();
+function pbr(maps) {
+  const opt = { map: loader.load(TXT + maps.albedo), roughness: maps.rough ?? 0.8, metalness: 0.0 };
+  if (maps.normal) opt.normalMap = loader.load(TXT + maps.normal);
+  if (maps.ao) opt.aoMap = loader.load(TXT + maps.ao);
+  if (maps.metal) opt.metalnessMap = loader.load(TXT + maps.metal), opt.metalness = 1.0;
+  const m = new THREE.MeshStandardMaterial(opt);
+  m.anisotropy = 8;
+  return m;
+}
+
+// --- arena shell (same geometry/material ideas as scenes/arena/arena.tscn) ---
+const arena = new THREE.Group(); scene.add(arena);
+const HALF = 13.5;
+const floorMat = pbr({ albedo: 'rock/rock_albedo.png', normal: 'rock/rock_normal.png', ao: 'rock/rock_ao.png', metal: 'rock/rock_metal.png', rough: 0.74 });
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(26, 26), floorMat);
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+floor.material.map.repeat.set(14, 14); floor.material.map.wrapS = floor.material.map.wrapT = THREE.RepeatWrapping;
+if (floor.material.normalMap) floor.material.normalMap.repeat.set(14, 14);
+arena.add(floor);
+
+const wallMat = pbr({ albedo: 'brick/brick_albedo.jpg', normal: 'brick/brick_normal.jpg', ao: 'brick/brick_ao.jpg', metal: 'brick/brick_metal.jpg', rough: 0.82 });
+wallMat.map.repeat.set(7, 1.5); wallMat.map.wrapS = wallMat.map.wrapT = THREE.RepeatWrapping;
+wallMat.normalMap.repeat.copy(wallMat.map.repeat);
+for (const [x, z, w, d] of [[0, -HALF, 28, 1], [0, HALF, 28, 1], [HALF, 0, 1, 28], [-HALF, 0, 1, 28]]) {
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(w, 3, d), wallMat);
+  wall.position.set(x, 1.5, z); wall.castShadow = wall.receiveShadow = true;
+  arena.add(wall);
+}
+const trimMat = pbr({ albedo: 'rock/rock_albedo.png', normal: 'rock/rock_normal.png', ao: 'rock/rock_ao.png', rough: 0.85 });
+for (const [x, z, w, d] of [[0, -HALF, 28, 1.12], [0, HALF, 28, 1.12], [HALF, 0, 1.12, 28], [-HALF, 0, 1.12, 28]]) {
+  const trim = new THREE.Mesh(new THREE.BoxGeometry(w, 0.55, d), trimMat);
+  trim.position.set(x, 0.27, z); trim.receiveShadow = true;
+  arena.add(trim);
+}
+const marbleMat = pbr({ albedo: 'stone/marble_albedo.png', rough: 0.16, metalness: 0.05 });
+const cornice = new THREE.Mesh(new THREE.BoxGeometry(28, 0.4, 1.2), marbleMat);
+cornice.position.set(0, 3.2, -HALF); cornice.castShadow = true; arena.add(cornice);
+const dais = new THREE.Mesh(new THREE.CylinderGeometry(2.7, 2.7, 0.06, 48), marbleMat);
+dais.position.y = 0.03; dais.receiveShadow = true; arena.add(dais);
+const daisRim = new THREE.Mesh(new THREE.CylinderGeometry(3.05, 3.05, 0.04, 48), trimMat);
+daisRim.position.y = 0.02; arena.add(daisRim);
+const towerMat = pbr({ albedo: 'rock/rock_albedo.png', normal: 'rock/rock_normal.png', ao: 'rock/rock_ao.png', rough: 0.8 });
+for (const [x, z] of [[13.4, -13.4], [-13.4, -13.4], [13.4, 13.4], [-13.4, 13.4]]) {
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(2.3, 4.6, 2.3), towerMat);
+  tower.position.set(x, 2.3, z); tower.castShadow = tower.receiveShadow = true;
+  const cap = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.45, 2.8), marbleMat);
+  cap.position.set(x, 4.83, z); cap.castShadow = true;
+  arena.add(tower, cap);
+}
+const woodMat = pbr({ albedo: 'wood/wood_albedo.png', rough: 0.62 });
+const door = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.7, 0.55), woodMat);
+door.position.set(0, 1.35, -HALF); arena.add(door);
+const metalMat = pbr({ albedo: 'metal/aluminium_albedo.png', normal: 'metal/aluminium_normal.png', rough: 0.3, metalness: 0.95 });
+for (const y of [0.55, 1.35, 2.15]) {
+  const band = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.18, 0.62), metalMat);
+  band.position.set(0, y, -HALF); arena.add(band);
+}
+// obelisk landmark (default arena)
+const obelisk = new THREE.Mesh(new THREE.BoxGeometry(1.0, 4.2, 1.0), towerMat);
+obelisk.position.y = 2.1; obelisk.castShadow = true;
+const capGold = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.35, 1.25),
+  new THREE.MeshStandardMaterial({ color: 0xd9b45a, metalness: 0.8, roughness: 0.25, emissive: 0xd9b45a, emissiveIntensity: 0.35 }));
+capGold.position.y = 4.4;
+arena.add(obelisk, capGold);
+
+// torches (as in-game: 4 wall sconces, omni lights, no shadows)
+const torchMat = new THREE.MeshStandardMaterial({ color: 0xff8c26, emissive: 0xff5a0a, emissiveIntensity: 6, roughness: 0.4 });
+for (const [x, z] of [[-6.5, -13.35], [6.5, -13.35], [-6.5, 13.35], [6.5, 13.35]]) {
+  const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.55, 0.4), metalMat);
+  bracket.position.set(x, 2.05, z);
+  const flame = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 8), torchMat);
+  flame.scale.y = 1.4; flame.position.set(x, 2.47, z + (z < 0 ? 0.28 : -0.28));
+  const light = new THREE.PointLight(0xff9e4d, 22, 8, 2);
+  light.position.set(x, 2.5, z + (z < 0 ? 0.58 : -0.58));
+  arena.add(bracket, flame, light);
+}
+
+// --- the game's own models (character + enemies) ---
+const gltf = new GLTFLoader();
+const hero = new THREE.Group(); hero.position.set(0, 0, 4.5); arena.add(hero);
+const enemies = new THREE.Group(); arena.add(enemies);
+function fit(obj, height) {
+  const box = new THREE.Box3().setFromObject(obj);
+  const size = box.getSize(new THREE.Vector3());
+  const s = height / Math.max(size.y, 0.001);
+  obj.scale.setScalar(s);
+  const b2 = new THREE.Box3().setFromObject(obj);
+  obj.position.y -= b2.min.y;
+  obj.position.x -= (b2.min.x + b2.max.x) / 2;
+  obj.position.z -= (b2.min.z + b2.max.z) / 2;
+}
+gltf.load('../assets/characters/adventurers/Knight.glb', (g) => {
+  const model = g.scene;
+  model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.material.anisotropy = 8; } });
+  fit(model, 1.78); model.rotation.y = Math.PI; hero.add(model);
+  const mixer = new THREE.AnimationMixer(model);
+  const idle = g.animations.find((a) => a.name === 'Idle') || g.animations[0];
+  if (idle) mixer.clipAction(idle).play();
+  window.__mixers = window.__mixers || []; window.__mixers.push(mixer);
+  status.textContent = 'Knight ✓  Skeleton ✓  Demon ✓';
+});
+gltf.load('../assets/characters/skeletons/Skeleton_Minion.glb', (g) => {
+  const model = g.scene;
+  model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.material.anisotropy = 8; } });
+  fit(model, 1.72); model.rotation.y = Math.PI; model.position.x = -2.6; enemies.add(model);
+  const mixer = new THREE.AnimationMixer(model);
+  const idle = g.animations.find((a) => a.name === 'Idle') || g.animations[0];
+  if (idle) mixer.clipAction(idle).play();
+  window.__mixers = window.__mixers || []; window.__mixers.push(mixer);
+});
+gltf.load('../assets/characters/monsters/BlueDemon.gltf', (g) => {
+  const model = g.scene;
+  model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.material.anisotropy = 8; } });
+  fit(model, 2.45); model.rotation.y = Math.PI; model.position.x = 3.2; enemies.add(model);
+  const mixer = new THREE.AnimationMixer(model);
+  const idle = g.animations.find((a) => a.name === 'Idle') || g.animations[0];
+  if (idle) mixer.clipAction(idle).play();
+  window.__mixers = window.__mixers || []; window.__mixers.push(mixer);
+});
+
+// --- skies (the actual locked HDRIs) ---
+const envs = {};
+function applySky(key) {
+  if (!envs[key]) {
+    rgb.load(PANOS[key], (tex) => {
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      envs[key] = tex;
+      scene.background = tex; scene.environment = tex;
+      // per-arena mood grading, same idea as arena.gd themes
+      if (key === 'ember_crucible') { scene.fog.color.setHex(0x5a2410); scene.fog.density = 0.011; renderer.toneMappingExposure = 1.0; }
+      else if (key === 'frost_hollow') { scene.fog.color.setHex(0x2c3d5c); scene.fog.density = 0.009; renderer.toneMappingExposure = 0.95; }
+      else { scene.fog.color.setHex(0x8a8f96); scene.fog.density = 0.008; renderer.toneMappingExposure = 1.0; }
+    });
+  } else { scene.background = envs[key]; scene.environment = envs[key]; }
+  document.querySelectorAll('#hud button').forEach((b) => b.classList.toggle('active', b.dataset.sky === key));
+}
+applySky('default_arena');
+document.querySelectorAll('#hud button').forEach((b) => b.addEventListener('click', () => applySky(b.dataset.sky)));
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta();
+  (window.__mixers || []).forEach((m) => m.update(dt));
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
