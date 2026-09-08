@@ -52,13 +52,27 @@ func _process(delta: float) -> void:
 func _refresh_targets() -> void:
 	if not is_inside_tree():
 		return
-	var world_arena := get_tree().current_scene.get_node_or_null("WorldRoot/Arena") if get_tree().current_scene != null else null
+	var world_arena := _find_arena()
 	if world_arena != null and world_arena.has_method("get_interior_half"):
 		arena_half = float(world_arena.call("get_interior_half"))
 	var players := get_tree().get_nodes_in_group("player")
 	_player = players[0] as Node3D if not players.is_empty() else null
 	_enemies = get_tree().get_nodes_in_group("enemies")
 	_pickups = get_tree().get_nodes_in_group(Pickup.PICKUP_GROUP)
+
+
+## Resolve the live arena layout-independently (audit "fragile hardcoded path"): the
+## Arena joins `Arena.ARENA_GROUP` in its _ready, so the group lookup works no matter
+## which scene roots the UI or what the arena node is named. The old hardcoded
+## "WorldRoot/Arena" path off current_scene stays as a fallback for authored scenes
+## whose arena predates the group contract; no arena (UI tests) keeps the default
+## arena_half.
+func _find_arena() -> Node:
+	var arena := get_tree().get_first_node_in_group(Arena.ARENA_GROUP)
+	if arena != null:
+		return arena
+	var cs := get_tree().current_scene
+	return cs.get_node_or_null("WorldRoot/Arena") if cs != null else null
 
 
 func _draw() -> void:

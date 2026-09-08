@@ -7,6 +7,11 @@ class_name Arena
 ## following this contract + an ArenaConfig resource.
 
 const SPAWN_POINT_GROUP := &"enemy_spawn_point"
+## Lookup group for the live arena. UI (minimap) and any layout-agnostic consumer
+## resolve the arena through this instead of scene paths — main.gd rebuilds the
+## world synchronously and nodes may be renamed by the engine mid-frame, so path
+## lookups against `WorldRoot/Arena` are the fragile pattern this group replaces.
+const ARENA_GROUP := &"arena"
 
 @export var arena_id: StringName = &"default_arena"
 @export var config_path: String = &"res://data/arenas/default_arena.tres"
@@ -16,6 +21,7 @@ const SPAWN_POINT_GROUP := &"enemy_spawn_point"
 
 
 func _ready() -> void:
+	add_to_group(ARENA_GROUP)
 	_build_navigation_floor()
 	# Presentation (Agent 4): give the active arena a distinct lighting/sky/mood.
 	apply_theme(_resolve_arena_id())
