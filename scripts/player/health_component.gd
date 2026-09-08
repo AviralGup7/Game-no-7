@@ -143,8 +143,11 @@ func reset(max_hp: float) -> void:
 	# the OLD current_health against the NEW maximum and emit that intermediate
 	# state first: resetting a fresh 100 hp component to a 600 hp boss published
 	# health_changed(100, 600) -- a 16% health fraction. BossController reads that
-	# as "below the 33% threshold" and jumps straight to Enrage before the fight
+	# as below the 33% threshold and jumps straight to Enrage before the fight
 	# starts, with the phase multipliers already applied and no way back down.
+	# (origin/main fixed the same transient by assigning current_health first;
+	# assigning both directly additionally avoids the duplicate emission that
+	# set_max_health would still produce.)
 	max_health = maxf(max_hp, 1.0)
 	current_health = max_health
 	health_changed.emit(current_health, max_health)

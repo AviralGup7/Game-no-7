@@ -28,6 +28,9 @@ func _ready() -> void:
 	_label.text = {"attack": "ATTACK", "dodge": "DODGE", "switch_weapon": "SWAP"}.get(action_name, action_name.to_upper())
 	_label.add_theme_font_override("font", UiTheme.BOLD)
 	_label.add_theme_font_size_override("font_size", 18)
+	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_label.add_theme_constant_override("outline_size", 5)
+	_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_label)
 	visibility_changed.connect(func() -> void:
 		if not is_visible_in_tree(): cancel())
@@ -78,9 +81,13 @@ func _draw() -> void:
 	# stays visually centered; clamp the ring to the smaller dimension.
 	var center := size * 0.5
 	var r := minf(radius, minf(size.x, size.y) * 0.5)
-	var col := Color("365064") if _held else UiTheme.INK
+	# Touch feedback: pressed grows a gold ring and brightens the disc, so a tap
+	# is confirmed visually even when the thumb hides the label.
+	var col := Color("3f6b86") if _held else Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.82)
 	draw_circle(center, r, col)
-	draw_arc(center, r, 0.0, TAU, 48, UiTheme.GOLD if _held else UiTheme.CYAN, 3.0)
+	draw_arc(center, r, 0.0, TAU, 48, UiTheme.GOLD if _held else UiTheme.CYAN, 4.0 if _held else 3.0)
+	if _held:
+		draw_arc(center, r + 5.0, 0.0, TAU, 48, Color(UiTheme.GOLD.r, UiTheme.GOLD.g, UiTheme.GOLD.b, 0.5), 2.0)
 
 
 func _input(event: InputEvent) -> void:

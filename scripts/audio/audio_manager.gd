@@ -11,12 +11,18 @@ var _sfx_pool: Array[AudioStreamPlayer] = []
 var _current_music_id: StringName = &""
 var _settings := SettingsData.new()
 var _buses_ready := false
+## True while the OS has backgrounded the app (Android home/recents). Combines
+## with the player's mute setting so audio never plays behind other apps.
+var _background_muted := false
 
 ## cue_id -> AudioStream (registered content; may be empty while audio is added).
 var _cues: Dictionary = {}
 
 
 func _ready() -> void:
+	# Mixer policy must survive pause: settings change from the pause menu and
+	# background/foreground transitions arrive while the tree may be paused.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_buses()
 	_music_player = AudioStreamPlayer.new()
 	_music_player.bus = "Music"
@@ -66,7 +72,7 @@ func apply_settings(settings: SettingsData) -> void:
 	AudioServer.set_bus_volume_db(0, master_db)
 	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume))
 	AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(settings.sfx_volume))
-	AudioServer.set_bus_mute(0, settings.muted)
+	AudioServer.set_bus_mute(0, settings.muted or _background_muted)
 
 
 func _db(linear: float) -> float:
@@ -102,6 +108,44 @@ func set_sfx_volume(value: float) -> void:
 func set_muted(muted: bool) -> void:
 	_settings.set_muted(muted)
 	apply_settings(_settings)
+
+
+## Live bus preview for the settings sliders: writes straight to the mixer
+## without touching SettingsData, so Back still discards unapplied edits while
+## the player hears the mix immediately. Callers restore via apply_settings().
+func preview_bus_volume(bus_key: String, linear: float) -> void:
+	if not _buses_ready:
+		return
+	match bus_key:
+		"master":
+			AudioServer.set_bus_volume_db(0, _db(linear))
+		"music":
+			AudioServer.set_bus_volume_db(_bus_index("Music"), _db(linear))
+		"sfx":
+			AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(linear))
+
+
+func _notification(what: int) -> void:
+	# Android backgrounds the app without pausing the tree: mute the master bus
+	# so music/SFX never play behind other apps, then restore on return. The
+	# mute combines with (never overwrites) the player's own mute setting.
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			_set_background_muted(true)
+		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_WM_WINDOW_FOCUS_IN:
+			_set_background_muted(false)
+
+
+func _set_background_muted(muted: bool) -> void:
+	if _background_muted == muted:
+		return
+	_background_muted = muted
+	apply_settings(_settings)
+
+
+func is_background_muted() -> bool:
+	return _background_muted
 
 
 ## Null-safe stream lookup for the MusicManager (missing cues stay silent).
@@ -145,8 +189,8 @@ func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1
 		EventBus.report_warning("SFX voice limit reached; dropping: %s" % String(cue_id))
 		return false
 	player.stream = stream
-	player.volume_db = volume_db
-	player.pitch_scale = pitch_scale
+	player.volume_db = _validated_volume(volume_db)
+	player.pitch_scale = _validated_pitch(pitch_scale)
 	player.play()
 	return true
 
@@ -189,6 +233,7 @@ func get_debug_snapshot() -> Dictionary:
 		"max_sfx_voices": MAX_SFX_VOICES,
 		"registered_cues": _cues.size(),
 		"muted": _settings.muted,
+		"background_muted": _background_muted,
 	}
 
 ## Hardened: clamp volume and validate bus before applying.
@@ -196,4 +241,10 @@ func _validated_volume(vol: float) -> float:
 	if not is_finite(vol):
 		return 0.0
 	return clampf(vol, -80.0, 6.0)
+
+
+func _validated_pitch(pitch: float) -> float:
+	if not is_finite(pitch) or pitch <= 0.0:
+		return 1.0
+	return clampf(pitch, 0.1, 4.0)
 

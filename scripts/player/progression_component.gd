@@ -114,6 +114,8 @@ func _accumulate(config: UpgradeConfig) -> void:
 		# error and yields null, float(null) == 0.0, and the accumulated value was
 		# silently discarded. Net effect: the first stack of every upgrade did
 		# nothing (+15% damage still read as base).
+		# (origin/main fixed the same bug via .get() on both reads; this keeps a
+		# single lookup and one clearly-named local.)
 		var current: float = float(_modifiers.get(k, 0.0))
 		if not is_finite(current):
 			current = 0.0

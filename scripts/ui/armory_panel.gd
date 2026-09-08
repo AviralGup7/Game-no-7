@@ -31,15 +31,17 @@ func _ready() -> void:
 		_persistence.text = "Saving failed. Purchases may not survive closing the game.")
 	EventBus.save_completed.connect(func() -> void: _persistence.text = "")
 	_rows = VBoxContainer.new()
-	_rows.add_theme_constant_override("separation", 8)
+	_rows.add_theme_constant_override("separation", UiTheme.SPACE_S)
 	add_child(_rows)
 	_gallery = AchievementGallery.new()
 	add_child(_gallery)
 	var close := Button.new()
-	close.text = "Close"
-	close.custom_minimum_size = Vector2(200, 56)
+	close.text = "CLOSE"
+	close.custom_minimum_size = Vector2(220, UiTheme.TOUCH_MIN)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	close.pressed.connect(func() -> void: close_requested.emit())
+	close.pressed.connect(func() -> void:
+		UiFactory.play_press("Close")
+		close_requested.emit())
 	add_child(close)
 	refresh()
 
@@ -74,7 +76,7 @@ func refresh() -> void:
 func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 	var def: Dictionary = MetaProgression.ARMORY[item_id]
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	row.add_theme_constant_override("separation", UiTheme.SPACE_M)
 	var info := VBoxContainer.new()
 	info.custom_minimum_size = Vector2(0, 0)
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -94,7 +96,8 @@ func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 	row.add_child(info)
 	var verdict := meta.can_purchase(item_id)
 	var buy := Button.new()
-	buy.custom_minimum_size = Vector2(150, 56)
+	buy.custom_minimum_size = Vector2(160, UiTheme.TOUCH_MIN)
+	buy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	match verdict:
 		&"ok":
 			buy.text = "BUY  %d" % meta.price_of(item_id)
@@ -126,9 +129,10 @@ func _prereq_names(def: Dictionary) -> String:
 
 
 func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
+	UiFactory.play_press("BUY")
 	if UiCommands.purchase(get_tree(), item_id):
 		_feedback.text = "%s purchased. Rank %d." % [MetaProgression.ARMORY[item_id]["name"], meta.get_rank(item_id)]
-		AudioManager.play_sfx(&"upgrade_select")
+		AudioManager.play_sfx(&"upgrade_select", -8.0)
 	else:
 		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()

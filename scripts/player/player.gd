@@ -485,12 +485,11 @@ func _on_enemy_kill_xp(enemy: Node, _archetype_id: StringName, _score: int, _cur
 
 func _on_leveled_up(new_level: int) -> void:
 	leveled_up.emit(new_level)
-	# The ExperienceComponent owns the level reward (heal + stamina); the player
-	# owns the celebration.
+	# The ExperienceComponent owns the level reward (heal + stamina) and already
+	# plays the `level_up` sting; the player owns the banner. A second stacked
+	# chime here only muddied the celebration, so this plays nothing.
 	if EventBus != null:
 		EventBus.announcement.emit(&"level_up", "Level %d!" % new_level, &"info")
-	if AudioManager != null:
-		AudioManager.play_sfx(&"upgrade_select")
 
 
 func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:

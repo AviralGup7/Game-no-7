@@ -25,6 +25,9 @@ var _numbers: DamageNumberLayer
 var _confirm: ConfirmationDialog
 var _confirm_command: Callable
 var _text_scale := 1.0
+var _banner_fits := true
+var _minimap_fits := true
+var _boss_fits := true
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -78,6 +81,10 @@ func _build_screens() -> void:
 		_mount(key, panel)
 		var box := UiFactory.center_box(panel)
 		UiFactory.title(String(key).to_upper(), box, 34)
+		UiFactory.label(
+			"Changes apply immediately unless a button says otherwise." if key == &"settings"
+			else "Spend banked coins on permanent upgrades.", box, 18
+		).modulate = UiTheme.MUTED
 		if key == &"settings":
 			_settings = SettingsPanel.new()
 			box.add_child(_settings)
@@ -95,8 +102,17 @@ func _build_screens() -> void:
 	status.set_anchors_preset(PRESET_FULL_RECT)
 	_mount(&"status", status)
 	var status_box := UiFactory.center_box(status)
+	UiFactory.label("LOADING", status_box, 18).modulate = UiTheme.CYAN
 	UiFactory.title("PREPARING THE ARENA", status_box, 34).name = "StatusTitle"
-	UiFactory.label("Please wait. If loading cannot complete, return to the menu.", status_box)
+	UiFactory.label("Please wait. If loading cannot complete, return to the menu.", status_box).modulate = UiTheme.MUTED
+	# Static accent rule, not a progress indicator: the loader has no measurable
+	# progress to report, so it must not imply one.
+	var status_rule := ColorRect.new()
+	status_rule.name = "StatusRule"
+	status_rule.color = UiTheme.CYAN
+	status_rule.custom_minimum_size.y = 3
+	status_rule.mouse_filter = MOUSE_FILTER_IGNORE
+	status_box.add_child(status_rule)
 	UiFactory.button("MAIN MENU", status_box, 22).pressed.connect(func() -> void: GameRoot.request_main_menu())
 	_confirm = ConfirmationDialog.new()
 	_confirm.title = "LEAVE THIS STAND?"
@@ -104,7 +120,9 @@ func _build_screens() -> void:
 	_confirm.ok_button_text = "LEAVE RUN"
 	_confirm.cancel_button_text = "KEEP PLAYING"
 	_confirm.confirmed.connect(func() -> void:
+		UiFactory.play_press("LEAVE")
 		if _confirm_command.is_valid(): _confirm_command.call())
+	_confirm.canceled.connect(func() -> void: UiFactory.play_press("CANCEL"))
 	add_child(_confirm)
 
 func _build_pause() -> void:
@@ -114,12 +132,23 @@ func _build_pause() -> void:
 	var box := UiFactory.center_box(panel)
 	UiFactory.label("TAKE A BREATH", box, 18).modulate = UiTheme.CYAN
 	UiFactory.title("PAUSED", box, 48)
-	UiFactory.label("Your run is frozen. Resume when you're ready.", box, 22)
-	UiFactory.button("RESUME RUN", box, 24).pressed.connect(func() -> void: GameRoot.request_resume())
+	UiFactory.label("Your run is frozen. Resume when you're ready.", box, 22).modulate = UiTheme.MUTED
+	# Resume is the primary action and gets the tallest target; the two
+	# destructive actions share a row at the bottom so they read as secondary.
+	var resume := UiFactory.button("RESUME RUN", box, 24, Vector2(260, 96))
+	UiTheme.decorate(resume, "play")
+	resume.pressed.connect(func() -> void: GameRoot.request_resume())
 	UiFactory.button("HOW TO PLAY", box, 22).pressed.connect(func() -> void: _navigate(&"help"))
 	UiFactory.button("SETTINGS", box, 22).pressed.connect(func() -> void: _navigate(&"settings"))
-	UiFactory.button("RESTART RUN", box, 22).pressed.connect(func() -> void: _confirm_leave(GameRoot.request_restart))
-	UiFactory.button("MAIN MENU", box, 22).pressed.connect(func() -> void: _confirm_leave(GameRoot.request_main_menu))
+	var leave_row := HBoxContainer.new()
+	leave_row.add_theme_constant_override("separation", UiTheme.SPACE_M)
+	box.add_child(leave_row)
+	for entry in [["RESTART RUN", GameRoot.request_restart], ["MAIN MENU", GameRoot.request_main_menu]]:
+		var button := UiFactory.button(entry[0], leave_row, 20, Vector2(0, UiTheme.TOUCH_MIN))
+		button.size_flags_horizontal = SIZE_EXPAND_FILL
+		button.clip_text = true
+		var command: Callable = entry[1]
+		button.pressed.connect(func() -> void: _confirm_leave(command))
 
 func _build_hud() -> void:
 	_hud = GameHud.new()
@@ -146,24 +175,28 @@ func _build_hud() -> void:
 
 func _layout() -> void:
 	if _banner == null: return
-	var width := _safe.size.x
-	var height := _safe.size.y
-	_hud.layout_for_size(width)
-	_banner.position = Vector2(290, 160)
-	_banner.size = Vector2(maxf(width - 490, 220), 100)
-	_boss_bar.position = Vector2(width * 0.5 - 160, 78)
-	_boss_bar.size = Vector2(320, 70)
-	if width < 850:
-		_boss_bar.position = Vector2(20, 260)
-		_boss_bar.size.x = width - 40
-		_banner.position = Vector2(20, 355)
-		_banner.size.x = width - 40
-	_minimap.position = Vector2(width - 164, 82)
-	_minimap.size = Vector2(140, 140)
-	_skill_bar.position = Vector2(width * 0.32 + 8, height - (210 if _text_scale > 1.3 else 145))
-	_skill_bar.fit_touch_targets(width)
+	# One solver owns every overlay rect, so HUD, minimap, boss frame, banner,
+	# stick, action cluster and skill bar can never overlap on any aspect ratio.
+	var view := _safe.size
+	var plan := UiLayout.compute(view, _text_scale)
+	_hud.apply_layout(plan, view)
+	_touch.apply_layout(plan, view)
+	UiLayout.place(_banner, plan["banner"], view)
+	UiLayout.place(_boss_bar, plan["boss"], view)
+	UiLayout.place(_minimap, plan["minimap"], view)
+	_minimap_fits = not UiLayout.is_collapsed(plan["minimap"])
+	_minimap.visible = _minimap.visible and _minimap_fits
+	# When the solver has no room for a message element on a very short screen it
+	# collapses the rect; drop the element instead of letting it overlap.
+	_banner_fits = not UiLayout.is_collapsed(plan["banner"])
+	_boss_fits = not UiLayout.is_collapsed(plan["boss"])
+	_banner.visible = _banner.visible and _banner_fits
+	_boss_gate.visible = _boss_gate.visible and _boss_fits
+	var skills: Rect2 = UiLayout.sanitize(plan["skills"], view)
+	_skill_bar.fit_touch_targets(skills.size)
+	_skill_bar.position = skills.position
 	# Apply after child minimum-size invalidations (e.g. rotating a wide tablet).
-	_skill_bar.set_deferred("size", Vector2(maxf(width * 0.68 - 270, 210), 190 if _text_scale > 1.3 else 125))
+	_skill_bar.set_deferred("size", skills.size)
 
 static func screen_for_state(state: StringName) -> StringName:
 	if state in [&"starting_run", &"loading", &"error"]: return &"status"
@@ -180,9 +213,9 @@ func _show_screen(screen: StringName) -> void:
 	_hud.visible = playing
 	_touch.visible = playing and (DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"))
 	_skill_bar.visible = playing
-	_minimap.visible = playing
-	_boss_gate.visible = playing
-	_banner.visible = playing
+	_minimap.visible = playing and _minimap_fits
+	_boss_gate.visible = playing and _boss_fits
+	_banner.visible = playing and _banner_fits
 	_banner.set_process(playing)
 	_numbers.visible = playing
 	_numbers.set_process(playing)
@@ -220,7 +253,9 @@ func _navigate(screen: StringName) -> void:
 	_show_screen(screen)
 
 func _close_auxiliary() -> void:
-	if _active_screen == &"settings": _settings.cancel_edit()
+	if _active_screen == &"settings":
+		_settings.cancel_edit()
+		_settings.cancel_preview()
 	_show_screen(_return_screen)
 
 func _input(event: InputEvent) -> void:
@@ -239,7 +274,23 @@ func _confirm_leave(command: Callable) -> void:
 	_confirm.title = "LEAVE THIS STAND?"
 	_confirm.dialog_text = "Unfinished run progress will be lost. No end-of-run reward is granted."
 	_confirm.ok_button_text = "LEAVE RUN"
-	_confirm.popup_centered(Vector2i(500, 220))
+	_confirm.cancel_button_text = "KEEP PLAYING"
+	_popup_confirm()
+
+## Size the modal from the live viewport and the text scale so the message never
+## clips at 200% text or overflows a small phone screen.
+func _popup_confirm() -> void:
+	var view := get_viewport_rect().size
+	var width := int(clampf(view.x * 0.8, 320.0, 560.0 * _text_scale))
+	var height := int(clampf(200.0 * _text_scale, 180.0, maxf(view.y * 0.8, 180.0)))
+	_confirm.min_size = Vector2i(mini(width, int(view.x)), mini(height, int(view.y)))
+	_confirm.popup_centered(_confirm.min_size)
+	for button in [_confirm.get_ok_button(), _confirm.get_cancel_button()]:
+		if button != null:
+			button.custom_minimum_size = Vector2(150, UiTheme.TOUCH_MIN)
+	_confirm.get_label().autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_confirm.get_ok_button().grab_focus.call_deferred()
+
 
 func _choose_upgrade(id: StringName) -> void:
 	if GameRoot.get_current_state() != GameRoot.State.UPGRADE_SELECTION: return
@@ -296,7 +347,7 @@ func _request_quit() -> void:
 	_confirm.ok_button_text = "QUIT ANYWAY"
 	_confirm.cancel_button_text = "CANCEL"
 	_confirm_command = func() -> void: get_tree().quit()
-	_confirm.popup_centered(Vector2i(500, 220))
+	_popup_confirm()
 
 ## Hardened: validate ui root state before transition.
 func _validated_state(s: StringName) -> bool:

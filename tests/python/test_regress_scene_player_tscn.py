@@ -17,4 +17,9 @@ class PlayerSceneTests(unittest.TestCase):
     def test_player_tscn_has_fallback_body(self):
         txt=read("scenes/player/player.tscn")
         self.assertIn('[node name="Body" type="MeshInstance3D" parent="VisualRoot/CharacterModel"]',txt)
+    def test_player_tscn_body_has_mesh_subresource(self):
+        # The fallback Body must actually render: mesh wired to a CapsuleMesh sub-resource.
+        txt=read("scenes/player/player.tscn")
+        self.assertIn('CapsuleMesh',txt)
+        self.assertRegex(txt,r'mesh\s*=\s*SubResource\("[^"]+"\)')
 if __name__=="__main__": unittest.main()

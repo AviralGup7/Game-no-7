@@ -31,8 +31,8 @@ func _ready() -> void:
 	_cards_box = GridContainer.new()
 	_cards_box.columns = 3
 	resized.connect(_layout_cards)
-	_cards_box.add_theme_constant_override("h_separation", 16)
-	_cards_box.add_theme_constant_override("v_separation", 16)
+	_cards_box.add_theme_constant_override("h_separation", UiTheme.SPACE_M)
+	_cards_box.add_theme_constant_override("v_separation", UiTheme.SPACE_M)
 	box.add_child(_cards_box)
 	_note = Label.new()
 	_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -88,6 +88,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 		return
 	var btn := Button.new()
 	btn.custom_minimum_size = Vector2(0, 240)
+	btn.clip_text = false
 	btn.size_flags_horizontal = SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -122,6 +123,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 func _on_card_pressed(upgrade_id: StringName) -> void:
 	if _selection_locked:
 		return
+	UiFactory.play_press("CONFIRM")
 	choice_pressed.emit(upgrade_id)
 
 
@@ -157,8 +159,16 @@ func show_feedback(message: String) -> void:
 	_note.text = message
 
 func _layout_cards() -> void:
-	if _cards_box != null:
-		_cards_box.columns = 1 if size.x < 1000 or SaveManager.get_settings().text_scale > 1.3 else 3
+	if _cards_box == null:
+		return
+	# Fit as many ~300px cards as the panel can host (3 / 2 / 1) so tablets,
+	# landscape phones and portrait all get a sane grid instead of a hard cutoff.
+	var usable := size.x - UiTheme.SPACE_L * 2.0
+	var per_card := 300.0 * clampf(SaveManager.get_settings().text_scale, 1.0, 2.0)
+	_cards_box.columns = clampi(int(usable / maxf(per_card, 1.0)), 1, 3)
+	var tall := SaveManager.get_settings().text_scale > 1.3
+	for button in _card_buttons:
+		button.custom_minimum_size = Vector2(0, 300.0 if tall else 230.0)
 
 ## Hardened: validate upgrade card index.
 func _validated_card_index(i: int, n: int) -> int:

@@ -30,6 +30,25 @@ silhouettes, clean geometry, good contrast, attractive on mobile, and lightweigh
 
 Use high-contrast variant (settings toggle) for accessibility.
 
+## UI system rules
+
+- **One skin.** All colours, fonts (Rajdhani Regular/Bold), corner radii and
+  button states come from `UiTheme`. Do not hand-tint a control that the theme
+  already covers.
+- **One spacing scale.** `UiTheme.SPACE_S` (8) / `SPACE_M` (16) / `SPACE_L` (24).
+  Margins, separations and grid gaps are multiples of it.
+- **One touch floor.** `UiTheme.TOUCH_MIN` = 88 logical px (clears Android's 48dp
+  accessibility minimum at the project's 1280x720 design size). `UiFactory`
+  enforces it for buttons and checks; custom-drawn touch widgets read
+  `UiLayout.MIN_TOUCH`.
+- **One overlay solver.** Gameplay-overlay geometry (HUD, minimap, boss frame,
+  banner, toast, stick, action cluster, skill bar) is solved once per resize by
+  `UiLayout.compute()` from the safe-area size and the text scale — never from
+  hardcoded offsets. This is what keeps every Android aspect ratio, safe-area
+  cutout and 200% text setting free of overlaps.
+- **Readability over decoration.** HUD text sits on translucent scrims or carries
+  an outline, and the overlay must never cover the player or the arena centre.
+
 ## Scale & proportion
 
 - Arena floor ~26 × 26 m; walls ~3 m high.

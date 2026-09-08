@@ -36,6 +36,28 @@ static func has_model(role: StringName) -> bool:
 	return ROLE_MODELS.has(role)
 
 
+## Source path of the approved model for `role` ("" when none) — for diagnostics.
+static func model_path(role: StringName) -> String:
+	if not ROLE_MODELS.has(role):
+		return ""
+	return String((ROLE_MODELS[role] as Dictionary).get("path", ""))
+
+
+## Diagnose a failed/aborted mount. Failure is never fatal: the actor keeps its
+## primitive fallback; the message is pushed as a warning (always visible in
+## device logs) AND mirrored into the EventBus diagnostic feed when available.
+static func _report_mount_issue(message: String) -> void:
+	push_warning(message)
+	# EventBus is an autoload: resolve it through the tree so this static stays
+	# safe in minimal/headless contexts that lack the singletons.
+	var eb: Node = null
+	var loop := Engine.get_main_loop()
+	if loop is SceneTree:
+		eb = (loop as SceneTree).root.get_node_or_null("/root/EventBus")
+	if eb != null and eb.has_method("report_diagnostic"):
+		eb.call("report_diagnostic", message, &"warning")
+
+
 ## Mount the approved model for `role` under `body`'s VisualRoot/CharacterModel.
 ## Returns the mounted model wrapper (a Node3D) on success, or null when the actor has
 ## no mount / no model / an unimported model (in which case the primitive is kept).
@@ -45,6 +67,7 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	var cfg: Dictionary = ROLE_MODELS[role]
 	var mount := body.get_node_or_null("VisualRoot/CharacterModel") as Node3D
 	if mount == null:
+		_report_mount_issue("CharacterVisuals: no VisualRoot/CharacterModel mount point for role %s (primitive kept)" % String(role))
 		return null
 	# Idempotent: never double-mount on a pooled/re-used actor.
 	var existing := mount.get_node_or_null("CharacterVisual")
@@ -53,15 +76,16 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 
 	var path := String(cfg["path"])
 	if not ResourceLoader.exists(path):
-		push_warning("CharacterVisuals: model missing for role %s: %s (primitive kept)" % [String(role), path])
+		_report_mount_issue("CharacterVisuals: model missing for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 	var scene := load(path)
 	if scene == null or not scene is PackedScene:
-		push_warning("CharacterVisuals: model failed to import for role %s: %s (primitive kept)" % [String(role), path])
+		_report_mount_issue("CharacterVisuals: model failed to import for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 	var instance := (scene as PackedScene).instantiate()
 	if not instance is Node3D:
 		instance.free()
+		_report_mount_issue("CharacterVisuals: model root is not a Node3D for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 
 	var wrapper := Node3D.new()
@@ -80,6 +104,7 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 		# No usable geometry -> keep the primitive and tear down the mount.
 		mount.remove_child(wrapper)
 		wrapper.free()
+		_report_mount_issue("CharacterVisuals: model has no usable geometry for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 
 	# Bake our orientation + scale on the model child only; VisualRoot keeps its own
@@ -93,6 +118,7 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	if measured == null:
 		mount.remove_child(wrapper)
 		wrapper.free()
+		_report_mount_issue("CharacterVisuals: model has no visible mesh bounds for role %s: %s (primitive kept)" % [String(role), path])
 		return null
 	var bounds := measured as AABB
 	(instance as Node3D).position = Vector3(
@@ -111,12 +137,18 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 
 
 ## Play a looping idle clip when the imported rig exposes one; otherwise no-op.
+## The loop flag is forced (same as EnemyAnimator) so the fallback idle never
+## plays once and freezes on the last frame when no animator drives the rig.
 static func _play_idle(root: Node3D, clip: String) -> void:
 	if clip.is_empty():
 		return
 	for player in root.find_children("*", "AnimationPlayer", true, false):
-		if (player as AnimationPlayer).has_animation(StringName(clip)):
-			(player as AnimationPlayer).play(StringName(clip))
+		var anim_player := player as AnimationPlayer
+		if anim_player != null and anim_player.has_animation(StringName(clip)):
+			var anim := anim_player.get_animation(StringName(clip))
+			if anim != null and anim.loop_mode == Animation.LOOP_NONE:
+				anim.loop_mode = Animation.LOOP_LINEAR
+			anim_player.play(StringName(clip))
 			return
 
 

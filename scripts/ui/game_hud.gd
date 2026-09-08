@@ -18,52 +18,86 @@ var _toast_show_until := 0
 var _experience: ExperienceComponent
 var _vitals: VBoxContainer
 var _top: HBoxContainer
+var _top_scrim: PanelContainer
+var _vitals_scrim: PanelContainer
+var _pause_button: Button
 var _compact := false
+var _toast_fits := true
 var _weapon_refresh := 0.0
+var _last_hp := 0.0
+var _last_hp_max := 0.0
+var _last_stamina := 0.0
+var _last_stamina_max := 0.0
 
 func _ready() -> void:
 	name = "GameplayHUD"
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
+	# Top strip: a scrim panel keeps wave/score readable over bright arena floors.
+	_top_scrim = PanelContainer.new()
+	_top_scrim.mouse_filter = MOUSE_FILTER_IGNORE
+	_top_scrim.add_theme_stylebox_override("panel", _scrim())
+	# Clip so a long label can never bleed past the solved rect onto gameplay.
+	_top_scrim.clip_contents = true
+	add_child(_top_scrim)
 	_top = HBoxContainer.new()
-	_top.set_anchors_preset(PRESET_TOP_WIDE)
-	_top.offset_left = 20
-	_top.offset_right = -20
-	_top.offset_top = 12
 	_top.mouse_filter = MOUSE_FILTER_IGNORE
-	_top.resized.connect(_fit_vitals)
-	add_child(_top)
+	_top.add_theme_constant_override("separation", 12)
+	_top.alignment = BoxContainer.ALIGNMENT_CENTER
+	_top_scrim.add_child(_top)
 	_wave_label = UiFactory.title("WAVE 1", _top, 24)
+	_wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_wave_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_wave_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_wave_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_combo_label = UiFactory.label("", _top, 20)
+	_combo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_combo_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_combo_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_combo_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_combo_label.modulate = UiTheme.GOLD
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = SIZE_EXPAND_FILL
 	spacer.mouse_filter = MOUSE_FILTER_IGNORE
 	_top.add_child(spacer)
 	_currency_label = UiFactory.label("COINS 0", _top, 20)
+	_currency_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_currency_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_currency_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_currency_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_score_label = UiFactory.title("SCORE 0", _top, 24)
-	var pause := UiFactory.button("PAUSE", _top, 20, Vector2(110, 52))
-	UiTheme.decorate(pause, "pause")
-	pause.pressed.connect(func() -> void: GameRoot.request_pause())
+	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_score_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_score_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_score_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	# Pause is the only interactive HUD widget: keep it at a full touch target.
+	_pause_button = UiFactory.button(
+		"PAUSE", _top, 20, Vector2(UiLayout.MIN_TOUCH * 1.4, UiLayout.MIN_TOUCH)
+	)
+	_pause_button.size_flags_vertical = SIZE_SHRINK_CENTER
+	_pause_button.tooltip_text = "Pause the run"
+	UiTheme.decorate(_pause_button, "pause")
+	_pause_button.pressed.connect(func() -> void: GameRoot.request_pause())
+	# Vitals: scrim panel so the meters read against any arena theme.
+	_vitals_scrim = PanelContainer.new()
+	_vitals_scrim.mouse_filter = MOUSE_FILTER_IGNORE
+	_vitals_scrim.add_theme_stylebox_override("panel", _scrim())
+	_vitals_scrim.clip_contents = true
+	add_child(_vitals_scrim)
 	_vitals = VBoxContainer.new()
-	_vitals.position = Vector2(20, 78)
-	_vitals.custom_minimum_size.x = 260
-	_vitals.add_theme_constant_override("separation", 3)
+	_vitals.add_theme_constant_override("separation", 4)
 	_vitals.mouse_filter = MOUSE_FILTER_IGNORE
-	add_child(_vitals)
-	_hp_label = UiFactory.title("HEALTH —", _vitals, 20)
+	_vitals_scrim.add_child(_vitals)
+	_hp_label = _vital_label("HEALTH —", 20, true)
 	_hp_bar = _meter(_vitals, Color("70e0a0"))
-	_stamina_label = UiFactory.label("STAMINA —", _vitals, 18)
+	_stamina_label = _vital_label("STAMINA —", 18, false)
 	_stamina_bar = _meter(_vitals, UiTheme.GOLD)
-	_xp_label = UiFactory.label("LEVEL 1  /  XP 0", _vitals, 18)
+	_xp_label = _vital_label("LEVEL 1  /  XP 0", 18, false)
 	_xp_bar = _meter(_vitals, UiTheme.CYAN)
-	_weapon_label = UiFactory.label("WEAPON —", _vitals, 20)
+	_weapon_label = _vital_label("WEAPON —", 20, false)
+	_weapon_label.modulate = UiTheme.MUTED
 	_toast_label = UiFactory.label("", self, 22)
-	_toast_label.set_anchors_preset(PRESET_BOTTOM_WIDE)
-	_toast_label.offset_left = 320
-	_toast_label.offset_right = -280
-	_toast_label.offset_top = -200
-	_toast_label.offset_bottom = -155
+	_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_toast_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_toast_label.add_theme_constant_override("outline_size", 6)
 	_toast_label.visible = false
@@ -77,6 +111,29 @@ func _ready() -> void:
 	EventBus.wave_progressed.connect(_wave_progress)
 	EventBus.weapon_equipped.connect(func(id: StringName, _slot: int) -> void: set_weapon(id))
 	EventBus.weapon_switched.connect(func(_old: StringName, id: StringName) -> void: set_weapon(id))
+
+## Translucent backing so HUD text stays legible over bright arena surfaces
+## without hiding gameplay behind an opaque plate.
+func _scrim() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.55)
+	style.border_color = Color(UiTheme.EDGE.r, UiTheme.EDGE.g, UiTheme.EDGE.b, 0.55)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 14
+	style.content_margin_right = 14
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	return style
+
+
+func _vital_label(text: String, font_size: int, bold: bool) -> Label:
+	var label := UiFactory.label(text, _vitals, font_size) if not bold else UiFactory.title(text, _vitals, font_size)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	return label
+
 
 func _meter(parent: Control, color: Color) -> ProgressBar:
 	var meter := ProgressBar.new()
@@ -129,6 +186,8 @@ func seed_from_run() -> void:
 	if weapons != null: set_weapon(weapons.active_weapon_id())
 
 func set_health(current: float, maximum: float) -> void:
+	_last_hp = current
+	_last_hp_max = maximum
 	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		_hp_bar.value = 0.0
 	else:
@@ -138,6 +197,8 @@ func set_health(current: float, maximum: float) -> void:
 	_hp_label.modulate = UiTheme.GOLD if low else Color.WHITE
 
 func set_stamina(current: float, maximum: float) -> void:
+	_last_stamina = current
+	_last_stamina_max = maximum
 	if not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
 		_stamina_bar.value = 0.0
 	else:
@@ -165,7 +226,7 @@ func _wave_progress(wave: int, defeated: int, total: int) -> void:
 
 func show_toast(message: String) -> void:
 	_toast_label.text = message
-	_toast_label.visible = true
+	_toast_label.visible = _toast_fits
 	_toast_show_until = Time.get_ticks_msec() + 3500
 
 func _process(delta: float) -> void:
@@ -179,21 +240,39 @@ func _process(delta: float) -> void:
 		_toast_label.visible = false
 
 
-func layout_for_size(width: float) -> void:
+## Position every HUD element from the shared layout solution (safe-area local).
+func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	if _top == null: return
-	_compact = width < 1100 or SaveManager.get_settings().text_scale > 1.3
-	_wave_label.custom_minimum_size.x = width * 0.23
-	_score_label.custom_minimum_size.x = width * 0.18
-	_currency_label.custom_minimum_size.x = width * 0.14
-	_combo_label.custom_minimum_size.x = width * 0.11
-	_vitals.custom_minimum_size.x = minf(width * 0.28, 280)
-	_toast_label.offset_left = 20 if width < 850 else 320
-	_toast_label.offset_right = -20 if width < 850 else -280
-	_fit_vitals()
+	_compact = bool(plan.get("compact", false)) or SaveManager.get_settings().text_scale > 1.3
+	var top_bar: Rect2 = plan["top_bar"]
+	var vitals: Rect2 = plan["vitals"]
+	UiLayout.place(_top_scrim, top_bar, view)
+	UiLayout.place(_vitals_scrim, vitals, view)
+	UiLayout.place(_toast_label, plan["toast"], view)
+	# Collapsed rects mean the solver found no room on this screen.
+	_vitals_scrim.visible = not UiLayout.is_collapsed(vitals)
+	_toast_fits = not UiLayout.is_collapsed(plan["toast"])
+	if not _toast_fits:
+		_toast_label.visible = false
+	# Labels flex; only the interactive pause target keeps a hard minimum.
+	for label in [_wave_label, _score_label, _currency_label, _combo_label]:
+		label.custom_minimum_size.x = 0
+	_wave_label.size_flags_horizontal = SIZE_SHRINK_BEGIN
+	_combo_label.size_flags_horizontal = SIZE_SHRINK_BEGIN
+	_currency_label.size_flags_horizontal = SIZE_SHRINK_END
+	_score_label.size_flags_horizontal = SIZE_SHRINK_END
+	_currency_label.visible = not _compact or top_bar.size.x > 620.0
+	_vitals.custom_minimum_size.x = maxf(vitals.size.x - 28.0, 120.0)
+	# Refresh compact/full wording immediately so nothing clips after a rotation.
+	_relabel()
 
-func _fit_vitals() -> void:
-	if _vitals != null:
-		_vitals.position.y = maxf(78, _top.position.y + _top.size.y + 10)
+
+## Re-emit current values through the compact/full formatters.
+func _relabel() -> void:
+	if _last_hp_max > 0.0:
+		set_health(_last_hp, _last_hp_max)
+	if _last_stamina_max > 0.0:
+		set_stamina(_last_stamina, _last_stamina_max)
 
 
 func _refresh_weapon() -> void:

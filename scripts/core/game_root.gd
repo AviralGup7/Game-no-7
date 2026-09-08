@@ -96,10 +96,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	# toggle: two independent `if`s would pause and immediately resume on one press.
 	if not (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
 		return
+	# Keyboard pause path: buttons already click through UiFactory, so only the
+	# key-driven toggle needs its tick here (avoids a double tick on buttons).
 	if _current_state == State.PAUSED:
 		request_resume()
+		_click(&"ui_confirm")
 	elif _can_pause_from(_current_state):
 		request_pause()
+		_click(&"ui_back")
 	var vp := get_viewport()
 	if vp != null:
 		vp.set_input_as_handled()
@@ -171,6 +175,13 @@ func request_resume() -> void:
 	if _current_state == State.PAUSED:
 		_set_paused(false)
 		transition_to(_resume_state)
+
+
+## UI tick for pause/resume. Guarded like the other optional-cue paths so bare
+## headless drivers without the audio autoload never fail.
+func _click(cue_id: StringName) -> void:
+	if AudioManager != null and AudioManager.has_method("play_sfx"):
+		AudioManager.play_sfx(cue_id, -10.0)
 
 
 func request_game_over() -> void:
@@ -300,8 +311,19 @@ func _finalize_run() -> void:
 	_best_score = maxi(_best_score, _current_run.score)
 	_best_wave = maxi(_best_wave, _current_run.current_wave)
 	SaveManager.record_run_completed(summary)
+	# The save store owns the authoritative bests (it loads from disk before
+	# GameRoot in the autoload order — see project.godot note); adopt them after
+	# recording so the emitted best is never a stale startup cache.
+	if SaveManager != null:
+		if SaveManager.has_method("get_best_score"):
+			_best_score = maxi(_best_score, SaveManager.get_best_score())
+		if SaveManager.has_method("get_best_wave"):
+			_best_wave = maxi(_best_wave, SaveManager.get_best_wave())
 	RunAnalytics.record_run_end(summary)
 	EventBus.run_ended.emit(_current_run.score, _current_run.current_wave, _best_score)
+	# The run-end sting fires exactly once with the run_ended fan-out (the music
+	# director handles the bed separately via its own run_ended/state hooks).
+	_click(&"game_over")
 	_set_paused(false)
 
 
