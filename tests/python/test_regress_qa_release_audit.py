@@ -19,8 +19,12 @@ def read(rel: str) -> str:
 
 
 def func_body(text: str, name: str) -> str:
-    """Return the source of `func name(...)` up to the next top-level func."""
-    m = re.search(r"^func %s\(.*?\).*?:\n(.*?)(?=^func |\Z)" % re.escape(name), text, re.S | re.M)
+    """Return the source of `[static] func name(...)` up to the next top-level func."""
+    m = re.search(
+        r"^(?:static )?func %s\(.*?\).*?:\n(.*?)(?=^(?:static )?func |\Z)" % re.escape(name),
+        text,
+        re.S | re.M,
+    )
     assert m is not None, "function %s not found" % name
     return m.group(1)
 
@@ -248,3 +252,58 @@ class AndroidPermissionDocAccuracyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProgressionFirstStackTests(unittest.TestCase):
+    """The first stack of EVERY upgrade silently did nothing.
+
+    _accumulate() guarded with `_modifiers.get(k, 0.0)` (which supplies a default)
+    but then assigned from `_modifiers[k]` (which does not). On the first stack of
+    any key that index hit a missing entry: Godot pushes an error and evaluates to
+    null, float(null) == 0.0, so the accumulated value was discarded. apply_upgrade()
+    still returned true, so the failure was silent -- +15% damage still read as base.
+
+    Caught by tests/unit/test_progression.gd once the headless gate was restored.
+    """
+
+    def test_accumulate_seeds_the_slot_before_reading_it(self):
+        body = func_body(read("scripts/player/progression_component.gd"), "_accumulate")
+        self.assertIn("_modifiers.get(k, 0.0)", body)
+
+    def test_accumulate_never_indexes_a_possibly_missing_key(self):
+        body = func_body(read("scripts/player/progression_component.gd"), "_accumulate")
+        self.assertNotIn(
+            "float(_modifiers[k]) + v",
+            body,
+            "reading _modifiers[k] directly drops the first stack of every upgrade",
+        )
+
+
+class WavePlannerCountCapTests(unittest.TestCase):
+    """wave_planner caps basic and fast with mini() but heavy grew unbounded, so
+    planned_count reached 46 by wave 40 against a documented ceiling of 40."""
+
+    def test_heavy_tier_is_capped(self):
+        body = func_body(read("scripts/waves/wave_planner.gd"), "_counts_for_wave")
+        self.assertRegex(
+            body,
+            r"heavy = mini\(",
+            "heavy must be capped like basic/fast or planned_count exceeds the ceiling",
+        )
+
+    def test_planned_count_stays_within_ceiling(self):
+        """Recompute the planner's own curve and assert the documented bound."""
+        body = func_body(read("scripts/waves/wave_planner.gd"), "_counts_for_wave")
+        m = re.search(r"heavy = mini\(1 \+ int\(floor\(extra / 2\.0\)\), (\d+)\)", body)
+        self.assertIsNotNone(m, "could not read the heavy cap from the planner")
+        heavy_cap = int(m.group(1))
+        early = {1: (5, 0, 0), 2: (7, 0, 0), 3: (8, 1, 0), 4: (10, 2, 0), 5: (8, 2, 1)}
+        worst = 0
+        for w in range(1, 41):
+            if w in early:
+                b, f, h = early[w]
+            else:
+                extra = w - 5
+                b, f, h = min(8 + extra, 18), min(2 + extra, 10), min(1 + extra // 2, heavy_cap)
+            worst = max(worst, b + f + h)
+        self.assertLessEqual(worst, 40, "max planned_count over waves 1..40 is %d" % worst)
