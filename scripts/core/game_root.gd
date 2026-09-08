@@ -100,7 +100,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		request_resume()
 	elif _can_pause_from(_current_state):
 		request_pause()
-	get_viewport().set_input_as_handled()
+	var vp := get_viewport()
+	if vp != null:
+		vp.set_input_as_handled()
 
 
 ## ---------- Command interface (called by UI controllers / inputs) ----------
@@ -235,7 +237,9 @@ func _set_paused(value: bool) -> void:
 		return
 	_paused = value
 	_current_run.paused = value
-	get_tree().paused = value
+	var tree := get_tree()
+	if tree != null:
+		tree.paused = value
 	EventBus.pause_changed.emit(value)
 
 

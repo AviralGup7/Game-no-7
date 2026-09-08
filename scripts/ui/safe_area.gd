@@ -5,7 +5,9 @@ extends Control
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
-	get_viewport().size_changed.connect(refresh)
+	var vp := get_viewport()
+	if vp != null:
+		vp.size_changed.connect(refresh)
 	refresh.call_deferred()
 
 static func insets(logical: Vector2, window_pixels: Vector2, safe: Rect2) -> Vector4:
