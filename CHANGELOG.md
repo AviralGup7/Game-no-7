@@ -4,6 +4,15 @@
 
 - **Version bump**: `0.5.0→0.6.0` (version code `2→3`).
 - Initiated development cycle for `v0.6.0`.
+- **Character integrity**: `PlayerStart` moved off the central landmark so the hero
+  is visible at run start; `player.tscn` gains a fallback `Body` capsule
+  (load_steps `26→28`) mirroring the enemy pattern; `character_visuals.gd` fixes
+  double-counted fit scale in grounding, hides Knight equipment before measuring,
+  skips hidden/mesh-less nodes in bounds, warns (with `ResourceLoader.exists`
+  pre-check) on mount failure, plants the ground shadow on the mount, and exposes
+  start/stop breathing; `PlayerAnimation`/`PlayerEquipment` re-bind late mounts,
+  stop before animation-library surgery, and rest the death pose; `PlayerFeedback`
+  re-collects late-mounted weapon meshes.
 
 ## [0.5.0] — Polished presentation & release fix (2026-09-08)
 

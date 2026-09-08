@@ -20,14 +20,21 @@ var _last_impact_frame := -1
 func _ready() -> void:
 	_visual = get_parent().get_node_or_null("VisualRoot") as Node3D
 	_health = get_parent().get_node_or_null("HealthComponent") as HealthComponent
-	if _visual != null:
-		for node in _visual.find_children("*", "MeshInstance3D", true, false):
-			_meshes.append(node as MeshInstance3D)
+	_collect_meshes()
 	_overlay = StandardMaterial3D.new()
 	_overlay.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_overlay.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_overlay.no_depth_test = false
 	get_parent().respawned.connect(reset)
+
+
+## Cache every rendered mesh for the hit-flash overlay. Re-run on respawn so
+## late-mounted weapon models join the set (they attach after _ready).
+func _collect_meshes() -> void:
+	_meshes.clear()
+	if _visual != null:
+		for node in _visual.find_children("*", "MeshInstance3D", true, false):
+			_meshes.append(node as MeshInstance3D)
 
 
 func _physics_process(delta: float) -> void:
@@ -54,6 +61,7 @@ func _set_overlay(color: Color) -> void:
 
 func reset() -> void:
 	_flash_left = 0.0
+	_collect_meshes()
 	_set_overlay(Color.TRANSPARENT)
 
 

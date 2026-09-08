@@ -14,7 +14,7 @@ func _ready() -> void:
 	if body is Node3D and role != &"" and CharacterVisuals.has_model(role):
 		var mounted := CharacterVisuals.mount(body as Node3D, role)
 		if mounted == null and EventBus != null:
-			EventBus.report_info("VisualMount: no model mounted for role %s (primitive kept)" % String(role))
+			EventBus.report_warning("VisualMount: no model mounted for role %s (primitive kept)" % String(role))
 
 ## Hardened: validate visual mount.
 func _validated_mount(host: Node, id: StringName) -> bool:

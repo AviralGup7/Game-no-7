@@ -19,16 +19,37 @@ var _muzzle: MeshInstance3D
 var _flash_left := 0.0
 
 
+var _wired := false
+
+
 func _ready() -> void:
 	_manager = get_parent().get_node_or_null("WeaponManager") as WeaponManager
+	if _manager == null:
+		set_process(false)
+		return
+	if not _bind_skeleton():
+		# The mounted rig (VisualMount) normally precedes us; retry once after
+		# every _ready so sibling order can never strand the weapon sockets.
+		call_deferred("_bind_skeleton_deferred")
+		return
+	_finish_ready()
+
+
+func _bind_skeleton_deferred() -> void:
+	if _bind_skeleton():
+		_finish_ready()
+
+
+## Attach hand sockets + muzzle flash to the mounted rig. False when no rig yet.
+func _bind_skeleton() -> bool:
+	if _socket != null:
+		return true
 	var character := get_parent().get_node_or_null("VisualRoot/CharacterModel")
 	if character == null:
-		set_process(false)
-		return
+		return false
 	var skeleton := character.find_child("Skeleton3D", true, false) as Skeleton3D
-	if skeleton == null or _manager == null:
-		set_process(false)
-		return
+	if skeleton == null:
+		return false
 	# The source includes a full alternate loadout: hide weapons/shields, not armour.
 	for node in character.find_children("*", "MeshInstance3D", true, false):
 		if "Sword" in node.name or "Shield" in node.name:
@@ -54,13 +75,22 @@ func _ready() -> void:
 	_socket.add_child(_muzzle)
 	_muzzle.position.y = 0.5
 	_muzzle.hide()
-	_manager.weapon_equipped_local.connect(_on_equipped)
-	_manager.weapon_switched_local.connect(_on_switched)
-	EventBus.projectile_fired.connect(_on_projectile)
-	get_parent().died.connect(_clear_flash)
-	get_parent().respawned.connect(_refresh)
+	return true
+
+
+## Wire equip signals exactly once, then mount the active weapon model.
+func _finish_ready() -> void:
+	if _socket == null or _manager == null:
+		return
+	if not _wired:
+		_wired = true
+		_manager.weapon_equipped_local.connect(_on_equipped)
+		_manager.weapon_switched_local.connect(_on_switched)
+		EventBus.projectile_fired.connect(_on_projectile)
+		get_parent().died.connect(_clear_flash)
+		get_parent().respawned.connect(_refresh)
+		set_process(false)
 	_refresh()
-	set_process(false)
 
 
 func _on_equipped(_id: StringName, _slot: int) -> void:
@@ -72,6 +102,10 @@ func _on_switched(_old: StringName, _new: StringName) -> void:
 
 
 func _refresh() -> void:
+	if _socket == null and _bind_skeleton():
+		# Late-bound rig (see _ready): wire signals exactly once, then mount.
+		_finish_ready()
+		return
 	if _socket == null:
 		return
 	_clear_flash()
@@ -127,7 +161,7 @@ func _make_model(id: StringName) -> Node3D:
 		# Reviewed weapons use identity scene roots with their grip at the source
 		# origin. Keep ModelVisual's scale, but undo its floor/centre repositioning:
 		# a sword is held by its hilt and a bow by its centre, not its bottom edge.
-		if preserve_source_grip:
+		if preserve_source_grip and fitted.get_child_count() > 0 and fitted.get_child(0) is Node3D:
 			(fitted.get_child(0) as Node3D).position = Vector3.ZERO
 		fitted.position = grip_offsets.get(id, Vector3.ZERO)
 	return fitted
