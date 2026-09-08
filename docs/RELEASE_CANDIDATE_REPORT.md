@@ -101,8 +101,10 @@
 - `168d74b` `milestone 0: repository audit...` (docs/MILESTONE0_AUDIT.md)
 - `bd9c12c` `milestone 1: 9-weapon arsenal, visuals grounding` (player.tscn 26, player_animation 3 clips, tests 7)
 - `4cb3a43` `milestones 2-7: skills VFX, effect priority, ... +491 OK` (effect_director 9 priorities, bus hardening, authority isolation, character_controller.apply_dash, project 0.5.0, docs/tests 18)
-- Next: this report `docs/RELEASE_CANDIDATE_REPORT.md` (pending push).
-- Remote `origin/arena/01a07f1a-game-no-7` verified `ls-remote` at `4cb3a43`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `3 ahead / 30 behind` `origin/main@850bf0b` (main merges unrelated).
+- `f000277` `milestone 7 final: authoritative dash, SPAWN/PICKUP priorities, release report` (CharacterController.apply_dash, effect_director 45/35)
+- `1fdda9f` `milestone 7 follow-up: catalog reconciliation, audio LIVE, skill distinct` (catalog 9/8/3 integrated, docs/ASSET_*, player_audio equip, pickup item_drop, effect_director textures)
+- `86bebbd` `docs: release report 1fdda9f addendum` (skill textures + audio taxonomy)
+- Remote `origin/arena/01a07f1a-game-no-7` at `86bebbd`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `6 ahead / 30 behind` `origin/main@850bf0b`.
 
 ## 19. Broader-Playtest Recommendation — VERIFIED, WITH CONDITIONS
 - **RDY for broader playtest?** **Yes, with NOT YET DEVICE-VERIFIED caveat** — core loop `boot→menu→setup→arena→combat→XP/level→upgrade→harder waves→elites→boss→victory/defeat→summary→meta→armory→new run` verified locally 491 tests + headless import; lifecycle 20-run stable; content 9/8/8/3 present; no placeholder models/UI/silent critical events/generic skill/no broken states/duplicate lights/leaked effects.

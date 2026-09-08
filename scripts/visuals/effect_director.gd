@@ -118,7 +118,9 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRI
 	p.scale = Vector3.ONE * scale
 	p.restart()
 	_burst_prios[p] = priority
-	EventBus.report_info("EffectDirector burst at %s" % str(at))
+	# Gate noisy diagnostics: only high-value telegraphs (SKILL/BOSS/CRITICAL/SPAWN/PICKUP) log; per-hit HITS are silent.
+	if priority >= PRIORITY_PICKUP:
+		EventBus.report_info("EffectDirector burst at %s" % str(at))
 
 
 ## Expanding telegraph/collect ring (flat translucent disc on the ground plane).
@@ -135,7 +137,8 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	ring.scale = Vector3(radius, radius, radius)
 	_show_ring(ring, 0.6)
 	_ring_prios[ring] = priority
-	EventBus.report_info("EffectDirector ring at %s" % str(at))
+	if priority >= PRIORITY_PICKUP:
+		EventBus.report_info("EffectDirector ring at %s" % str(at))
 
 
 # ---------------------- event wiring ----------------------

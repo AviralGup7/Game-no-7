@@ -12,11 +12,11 @@ extends RefCounted
 
 const MIX_RATE := 22050
 
-## Audio mapping (M4):
-##  LIVE — synthesized fallback always present (procedural) so game is never silent;
-##  FALLBACK — real file in assets/audio/* (verified via AudioManager.has_cue) wins over procedural;
-##  RESERVED — future cues (footstep, equip, item_drop) routed through LIVE→FALLBACK seam but not yet bound to gameplay;
-##  UNUSED — no tag currently unmapped. All cues documented in assets/catalog.json audio_cues + here.
+## Audio mapping (M4 — updated M7):
+##  LIVE — every catalog cue has a real file + procedural fallback and a gameplay caller (player_step distance-based, equip via player_switch alias, item_drop via pickup spawn, plus weapons/skills/boss/waves/pickups/UI);
+##  FALLBACK — procedural synthesis guarantees silence-free fallback; real file in assets/audio/* wins when AudioManager.has_cue;
+##  RESERVED — none currently (footstep/equip/item_drop migrated to LIVE in M7);
+##  UNUSED — none. All cues documented in assets/catalog.json audio_cues + here. Catalog 31 cues + SFX_CUES 27 + MUSIC 5 all LIVE via has_cue seam.
 const SFX_CUES: Array[StringName] = [
 	&"player_attack", &"player_hurt", &"player_death", &"player_dodge",
 	&"player_step", &"player_switch", &"player_shot", &"player_reload", &"player_low_health",

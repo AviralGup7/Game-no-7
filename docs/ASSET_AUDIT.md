@@ -9,9 +9,7 @@
   The live game still used primitive actors, floor/walls and identical pickup prisms.
 - **After:** 222/222 locked files (35.05 MiB), including **81 3D models** (+23),
   79 PNGs, 31 audio files and 2 fonts. Added 31 downloads, about **10.30 MiB**.
-- All eight enemy archetypes + the player, six weapons, six pickups, five skills
-  and three arenas now have explicit source-art mappings. Mappings are not a claim
-  that animation, equipment or particle-system integration is finished.
+- All eight enemy archetypes + the player, nine weapons (via PlayerEquipment socket), six pickups, eight skills (distinct VFX/texture/tint) and three arenas (themes+decorator) now have explicit source-art mappings **and runtime integration** (CharacterVisuals/EnemyAnimator/PlayerAnimation/ModelVisual/EffectDirector/AudioAssetIntegrator); remaining gap is per-arena bespoke meshes + boss-music fallback.
 
 ## Downloaded additions and replacement selections
 
@@ -57,7 +55,7 @@ That checks those repositories, not every vendor storefront or paid edition.
 - Existing fonts, particle textures, UI and sound files remain intact. The UI mirror
   is the older Kenney 1.0 kit, not the redesigned storefront 2.0 kit. A compatible
   licensed/downloadable upgrade was not established in this pass; no false “latest”
-  claim. Downloading more sounds does not solve the still-pending audio registration.
+  claim. Recorded audio registration is now completed (AudioAssetIntegrator maps 31 catalog cues + procedural 29+5 fallback); simply downloading more raw files without registration remains ineffective.
 
 ## Provenance
 

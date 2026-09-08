@@ -52,10 +52,7 @@ Use high-contrast variant (settings toggle) for accessibility.
 The reviewed kit in `assets/` uses **KayKit Adventurers + Skeletons + Dungeon
 Remastered** for matching characters, weapons, props and texture language, with
 Kenney particle/UI assets and Rajdhani fonts. See `docs/ASSET_CATALOG.md` for exact
-files, animation names and per-role mappings. Detailed stone surfaces and pickup models are now integrated. The Quaternius
-creature/equipment additions are mapped for the expanded roster, but live actor
-primitives and equipment/animation wiring remain pending. Combat/camera behaviour
-is unchanged. See `ASSET_AUDIT.md` for decisions and outstanding review.
+files, animation names and per-role mappings. Detailed stone surfaces, pickup models (Heart/Crystal/Star), Quaternius creature/equipment additions (Rat/Spider/Demon/BlueDemon + 9 weapons via PlayerEquipment socket `handslot.r/l`), and all 8 character/9 enemy models (Knight + Skeletons + creatures via CharacterVisuals fitted bounds + EnemyAnimator/PlayerAnimation) are now integrated. Combat/camera behaviour preserved. See `ASSET_AUDIT.md` / `ASSET_CATALOG.md` for exact mappings; remaining art gap is per-arena bespoke meshes (themes+decorator suffice) and boss-music procedural fallback.
 
 Keep the original textured materials when applying the role palette; tint accents
 or duplicate materials rather than flattening every surface to a single colour.
