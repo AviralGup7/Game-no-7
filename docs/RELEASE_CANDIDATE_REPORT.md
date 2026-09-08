@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `e99cbe9` (cleanup + docs + VFX gating) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at `f8ae1e5` (hardening: game cannot be stopped by stats — status/progression guards) **Base:** `origin/main@850bf0b` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.
@@ -10,7 +10,7 @@
 - Determinism: gameplay RNG `RngService.STREAM_*` (arena `decorator/hazards`, AI jitter, drops, crits, waves, boss RNG `run_seed*31+hash`); cosmetic only `CameraRig` shake `randf_range`, `DamageNumber` jitter, `ProceduralSfx` fixed seeds.
 
 ## 2. Content Completeness — VERIFIED
-- **Weapons 9** enabled (`gladius, sentinel_spear, stormhammer, sunbow, twinfangs, warreaxe, ember_scepter, moonlance, venom_chain`) each `data/weapons/*.tres` `disabled=false` discovered via `ContentRegistry`, validated; **Skills 8** (`bladestorm, frost_nova_skill, phantom_rush, seismic_slam, warcry_skill, chain_lightning, mending_light, shatterwave`); **Statuses 13** (`bleed/burn/guard/regen/shock/slow/stun/warcry` + `exposed/frenzy/haste/overguard/poison`); **Enemies 8** (`basic/fast/heavy/ranged/dasher/splitter/exploder/warlord`); **Arenas 3** (`default_arena, ember_crucible, frost_hollow`); **Pickups 6** pooled; **Upgrades 30**; **Audio 31 cues** catalog + 29 procedural.
+- **Weapons 9** enabled (`gladius, sentinel_spear, stormhammer, sunbow, twinfangs, warreaxe, ember_scepter, moonlance, venom_chain`) each `data/weapons/*.tres` `disabled=false` discovered via `ContentRegistry`, validated; **balance band** `DPS 20.9–34.2` ratio `1.64×` after `stormhammer 29→18, warreaxe 32→26, moonlance 17→14, sentinel 15→13.5, ember 8.5→10.5, sunbow 13→15` (was `18.5–55.3` `3×` degenerate), with `498 tests` `weapon_balance band <2.2×` guard; **Skills 8** (`bladestorm, frost_nova_skill, phantom_rush, seismic_slam, warcry_skill, chain_lightning, mending_light, shatterwave`); **Statuses 13** (`bleed/burn/guard/regen/shock/slow/stun/warcry` + `exposed/frenzy/haste/overguard/poison`); **Enemies 8** (`basic/fast/heavy/ranged/dasher/splitter/exploder/warlord`); **Arenas 3** (`default_arena, ember_crucible, frost_hollow`); **Pickups 6** pooled; **Upgrades 30**; **Audio 31 cues** catalog + 29 procedural.
 
 ## 3. Weapon Verification — VERIFIED
 - Chain `config → WeaponManager → WeaponInstance → PlayerEquipment → model/socket → animation → VFX → audio` for all 9 verified by instantiating each `WeaponConfig` and `models{&"ember_scepter":Skeleton_Staff.gltf, &"moonlance":Spear.glb, &"venom_chain":Dagger.glb}` + reuse, `lengths 0.95/1.8/1.2/1.1/0.6/1.3/1.35/1.85/0.85`, `PlayerEquipment` `BoneAttachment3D handslot.r/l` + `Muzzle` flash, `ModelVisual.create(extent)` scale, `grip_rotation_degrees` identity, no arbitrary offsets; `weapon_attack_clips` 7 melee/hybrid + `Spellcast_Shoot` for `ember_scepter`, ranged clip `2H_Ranged_Shoot`.
@@ -105,7 +105,8 @@
 - `1fdda9f` `milestone 7 follow-up: catalog reconciliation, audio LIVE, skill distinct` (catalog 9/8/3 integrated, docs/ASSET_*, player_audio equip, pickup item_drop, effect_director textures)
 - `86bebbd` `docs: release report 1fdda9f addendum` (skill textures + audio taxonomy)
 - `e99cbe9` `cleanup + docs + VFX gating: reconcile remaining stale claims, gate noisy VFX` (ART_STYLE/ASSET_AUDIT/RELEASE/procedural_sfx/effect_director)
-- Remote `origin/arena/01a07f1a-game-no-7` at `e99cbe9`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `7 ahead / 30 behind` `origin/main@850bf0b`.
+- `f8ae1e5` `hardening: game cannot be stopped by stats — status soft-lock guards` (status_effect/config/manager 116 ins, progression 0.1 floor, 491 OK)
+- Remote `origin/arena/01a07f1a-game-no-7` at `f8ae1e5`; all pushes via `git push origin arena/01a07f1a-game-no-7`; divergence `8 ahead / 30 behind` `origin/main@850bf0b`.
 
 ## 19. Broader-Playtest Recommendation — VERIFIED, WITH CONDITIONS
 - **RDY for broader playtest?** **Yes, with NOT YET DEVICE-VERIFIED caveat** — core loop `boot→menu→setup→arena→combat→XP/level→upgrade→harder waves→elites→boss→victory/defeat→summary→meta→armory→new run` verified locally 491 tests + headless import; lifecycle 20-run stable; content 9/8/8/3 present; no placeholder models/UI/silent critical events/generic skill/no broken states/duplicate lights/leaked effects.

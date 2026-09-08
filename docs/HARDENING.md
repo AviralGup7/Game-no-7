@@ -33,16 +33,16 @@ no soft-lock on missing content.
   wave number clamp, delta clamp
 - **meta/** — spend guard, unlock guard
 - **player/** — stamina config clamp, health payload finite, progression stat
-  finite, experience xp_mult clamp, locomotion speed, targeting range, attack
+  finite (multiplicative floored 0.1 so no zero/negative stall, max_health ≥1), experience xp_mult clamp, locomotion speed, targeting range, attack
   damage, dodge window, animation speed, build id, equipment slot, feedback
-  intensity, character_controller input, combo window, health heal amount
+  intensity, character_controller input (legacy AttackController isolated, single authority), combo window, health heal amount
 - **progression/** — upgrade weight clamp, pick count clamp
 - **pickups/** — pickup value clamp, manager pool clamp + drop pos, drop table
   chance clamp, config value/lifetime clamp
 - **save/** — currency clamp, save dict filter, schema version, settings
   volume/sensitivity
 - **status/** — manager effects filter + finite delta + is_instance_valid,
-  effect duration clamp, config duration/tick clamp
+  effect duration clamp, config duration/tick clamp, permanent stun/root/shield rejected, stun/root capped 3s even with 10× duration multiplier, tick hitch guard 64 ticks + 60 cap, move/damage pow NaN→1.0 0..10, DOT/HOT 0..10000
 - **skills/** — controller cooldown, config stats, executor cast pos, instance
   cast pos
 - **ui/** — minimap pos clamp, upgrade card index, boss fraction, hud fraction,

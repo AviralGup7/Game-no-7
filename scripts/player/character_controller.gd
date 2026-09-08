@@ -14,13 +14,14 @@ class_name CharacterController
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
 var _weapons: WeaponManager
-var _legacy: AttackController
+# LEGACY ISOLATED: AttackController is not consulted for movement locking.
+# Authoritative lock is WeaponInstance.phase == WINDUP only; fallback removed
+# to guarantee single authority even if a legacy node is present in the scene.
 
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
 	_weapons = get_parent().get_node_or_null("WeaponManager") as WeaponManager
-	_legacy = get_parent().get_node_or_null("AttackController") as AttackController
 	if _owner_body == null:
 		push_warning("CharacterController parent is not a CharacterBody3D")
 
@@ -40,8 +41,6 @@ func tick(move_input: Vector2, delta: float) -> void:
 	var target_h := dir * move_speed
 	var inst := _weapons.active_instance() if _weapons != null else null
 	var locked := inst != null and inst.phase == WeaponInstance.PHASE_WINDUP
-	if inst == null and _legacy != null:
-		locked = _legacy.get_phase() == AttackController.PHASE_WINDUP
 	if dir.length_squared() > 0.001:
 		vel.x = move_toward(vel.x, target_h.x, acceleration * delta)
 		vel.z = move_toward(vel.z, target_h.z, acceleration * delta)
@@ -112,8 +111,6 @@ func apply_dash(direction: Vector3, speed: float, delta: float) -> void:
 	# Face the dash direction for readability, but don't lock windup attacks.
 	var inst := _weapons.active_instance() if _weapons != null else null
 	var locked := inst != null and inst.phase == WeaponInstance.PHASE_WINDUP
-	if inst == null and _legacy != null:
-		locked = _legacy.get_phase() == AttackController.PHASE_WINDUP
 	if not locked and direction.length_squared() > 0.0001:
 		_turn_toward(direction, delta)
 

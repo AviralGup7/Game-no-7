@@ -249,7 +249,10 @@ func _try_attack() -> bool:
 func _aim_attack() -> void:
 	if _targeting == null or _controller == null or not _controller.has_method("face_direction"):
 		return
-	var target: Node = _targeting.call("pick_best_target", get_tree().get_nodes_in_group("enemies"))
+	if not is_inside_tree():
+		return
+	var nodes := get_tree().get_nodes_in_group("enemies")
+	var target: Node = _targeting.call("pick_best_target", nodes)
 	if target is Node3D:
 		_controller.call("face_direction", (target as Node3D).global_position - global_position)
 

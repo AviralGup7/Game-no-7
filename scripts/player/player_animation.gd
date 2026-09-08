@@ -48,12 +48,12 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
-var _legacy: AttackController
+# LEGACY ISOLATED: AttackController not used for animation timing.
+# Authoritative timing is WeaponInstance (windup/cooldown/reload) only.
 
 
 func _ready() -> void:
 	_player = get_parent() as Player
-	_legacy = _player.get_node_or_null("AttackController") as AttackController
 	_weapons = _player.get_node_or_null("WeaponManager") as WeaponManager
 	var char_root := _player.get_node_or_null("VisualRoot/CharacterModel")
 	_animation = (char_root.find_child("AnimationPlayer", true, false) as AnimationPlayer) if char_root != null else null
@@ -102,8 +102,6 @@ func _physics_process(_delta: float) -> void:
 		_paused_for_control = false
 		_animation.play()
 	var inst := _weapons.active_instance() if _weapons != null else null
-	if inst == null and _legacy != null and _legacy.is_on_cooldown():
-		_align_contact(_legacy.attack_cooldown)
 	var reloading := inst != null and inst.is_reloading()
 	if reloading and not _reloading:
 		_locked = true
@@ -130,9 +128,6 @@ func _on_attack() -> void:
 	if inst != null:
 		step = inst.combo_step
 		windup = inst.config.windup
-	elif _legacy != null:
-		windup = _legacy.attack_windup
-		step = _legacy.get_combo_step()
 	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"1H_Melee_Attack_Chop"
 	if inst != null and inst.config.is_ranged() and not inst.config.is_melee():
 		_attack_clip = ranged_clip

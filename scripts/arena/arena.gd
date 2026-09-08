@@ -301,9 +301,10 @@ func get_player_start() -> Node3D:
 
 func get_spawn_points() -> Array[Node3D]:
 	var out: Array[Node3D] = []
-	for child in get_tree().get_nodes_in_group(String(SPAWN_POINT_GROUP)):
-		if is_instance_valid(child) and self.is_ancestor_of(child):
-			out.append(child as Node3D)
+	if is_inside_tree():
+		for child in get_tree().get_nodes_in_group(String(SPAWN_POINT_GROUP)):
+			if is_instance_valid(child) and self.is_ancestor_of(child):
+				out.append(child as Node3D)
 	# Fall back to direct children if not grouped in a headless context.
 	if out.is_empty():
 		var spawns := get_node_or_null("SpawnPoints")
