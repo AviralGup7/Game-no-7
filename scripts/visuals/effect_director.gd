@@ -6,7 +6,7 @@ extends Node
 ## GPUParticles3D bursts + billboard rings so nothing accumulates or runs per frame.
 ##
 ## Mobile-safe:
-##  - One shared template per effect type (cached), reused across the pool.
+##  - Every emitter is owned by this node and reused across the pool.
 ##  - Pool caps, one-shot particles, tiny amounts, short lifetimes.
 ##  - GPU particles only; no scripted per-frame emitter work beyond returning a ring.
 ##
@@ -95,7 +95,6 @@ const SKILL_BURST_TEXTURES := {
 	&"shatterwave": "res://assets/effects/kenney/circle_05.png",
 }
 var _bursts: Array[GPUParticles3D] = []
-var _burst_template: GPUParticles3D = null
 var _ring_pool: Array[Node3D] = []
 var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
@@ -373,10 +372,8 @@ func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
 # ---------------------- pool management ----------------------
 
 func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
-	if _burst_template == null:
-		_burst_template = _make_burst_template()
-		if _burst_template == null:
-			return null
+	# No detached "template" Node: every constructed emitter must enter the
+	# owned pool below so world teardown frees its rendering resources.
 	for b in _bursts:
 		if not b.emitting:
 			return b

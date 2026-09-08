@@ -37,10 +37,6 @@ func _create_persistent_directors() -> void:
 	_music.name = "MusicManager"
 	add_child(_music)
 	_music.begin_tracking()
-	# Agent 4 audio: register the approved recorded SFX + looping music tracks over the
-	# procedural fallback (real cues always take precedence; safe + idempotent).
-	var audio_assets := AudioAssetIntegrator.new()
-	audio_assets.register()
 	_achievements = Achievements.new()
 	_achievements.name = "Achievements"
 	add_child(_achievements)

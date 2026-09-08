@@ -15,10 +15,9 @@ extends RefCounted
 ##  - It keeps every source byte inside the locked assets/ tree (no duplication) so
 ##    the manifest/provenance checks stay intact.
 ##
-## Registration happens once at startup after the ContentRegistry autoload has run,
-## and ALWAYS takes precedence over ProceduralSfx fallback because register_audio_cue
-## overwrites. Missing/invalid source files only log a diagnostic and keep the
-## procedural fallback — never a crash.
+## Registration runs inside ContentRegistry.refresh_all(), after data/audio loads
+## and before ProceduralSfx fills missing cues. The approved library still takes
+## precedence; missing/invalid sources leave data cues intact or receive fallback.
 
 ## Catalog path (source of truth for cue -> file mappings).
 const CATALOG_PATH := "res://assets/catalog.json"

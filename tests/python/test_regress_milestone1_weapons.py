@@ -77,14 +77,16 @@ class Milestone1WeaponsIntegrationTests(unittest.TestCase):
 
     def test_character_visuals_grounding_without_arbitrary_offsets(self):
         txt = read("scripts/visuals/character_visuals.gd")
-        # Must use bounds.get_center().x * factor and bounds.position.y * factor (no magic numbers)
-        self.assertIn("bounds.get_center().x * factor", txt)
-        self.assertIn("bounds.position.y * factor", txt)
-        self.assertIn("bounds.get_center().z * factor", txt)
-        # No per-model hardcoded Vector3 offsets like Vector3(0, 0.5, 0) for grounding
-        # Check that position assignment uses -bounds.get_center / -bounds.position pattern
-        self.assertIn("-bounds.get_center().x * factor", txt)
-        self.assertIn("-bounds.position.y * factor", txt)
+        # Grounding derives from measured post-scale bounds (no magic numbers):
+        # position assignment uses the -bounds.get_center / -bounds.position pattern.
+        self.assertIn("-bounds.get_center().x", txt)
+        self.assertIn("-bounds.position.y", txt)
+        self.assertIn("-bounds.get_center().z", txt)
+        # ...applied exactly once: bounds already include scale/rotation, so a second
+        # `* factor` would double-count the fit scale and offset the body off-capsule.
+        self.assertNotIn("get_center().x * factor", txt)
+        self.assertNotIn("position.y * factor", txt)
+        self.assertNotIn("get_center().z * factor", txt)
         # Yaw is PI uniform, no per-role random yaw
         self.assertIn('"yaw\": PI', txt)
 
