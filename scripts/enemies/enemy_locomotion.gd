@@ -63,7 +63,7 @@ func integrate(body: CharacterBody3D, desired_dir: Vector3, desired_speed: float
 func _clamp_to_bounds(body: CharacterBody3D) -> void:
 	if _bounds_half < 0.0:
 		return
-	var limit := _bounds_half - _bounds_margin
+	var limit := maxf(_bounds_half - _bounds_margin, 0.0)
 	var p := body.global_position
 	var changed := false
 	if p.x < -limit:

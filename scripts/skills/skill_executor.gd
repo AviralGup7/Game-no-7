@@ -147,6 +147,10 @@ func _do_frost_nova(cfg: SkillConfig, enemies: Array) -> void:
 	# respect the authored proc chance and status-build bonus.
 	_apply_victim_effects(cfg, hits)
 	if ContentRegistry != null:
+		# Avoid double-stacking slow when the config already includes it in
+		# victim_effects — the guaranteed application handles it once.
+		if &"slow" in cfg.victim_effects:
+			return
 		var slow_ids: Array[StringName] = [&"slow"]
 		for v in hits:
 			if v is Node:

@@ -161,7 +161,9 @@ func _open_spot(half: float, margin: float) -> Vector3:
 			continue
 		var blocked := false
 		for n in _spawned:
-			if n.global_position.distance_to(p) < PILLAR_CLEARANCE:
+			# Use local position — global_position is not yet valid for nodes
+			# just added this frame (transform propagation is deferred).
+			if (n as Node3D).position.distance_to(p) < PILLAR_CLEARANCE:
 				blocked = true
 				break
 		if not blocked:
