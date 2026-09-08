@@ -166,6 +166,27 @@ class DamageNumberPoolTests(unittest.TestCase):
         body = func_body(read("scripts/ui/damage_number_layer.gd"), "_obtain")
         self.assertIn("recycled.visible = false", body)
 
+    def test_ui_suite_does_not_pin_the_old_clamped_value(self):
+        """The UI runner must assert bounding, not the pre-fix DEFAULT_POOL.
+
+        tests/ui/ui_test_runner.gd called set_max_live(999) and then asserted
+        _max_live == DEFAULT_POOL. That is the behaviour the fix removed: it
+        would silently re-break the ULTRA tier's 48-number request. This is a
+        semantic conflict git merges cleanly, so it needs a guard.
+        """
+        txt = read("tests/ui/ui_test_runner.gd")
+        m = re.search(
+            r'_check\(\s*"damage number pool bounded",\s*([^)]*?)\)', txt, re.S
+        )
+        self.assertIsNotNone(m, "the bounded-pool UI check is missing")
+        assertion = m.group(1)
+        self.assertIn(
+            "MAX_POOL",
+            assertion,
+            "the bound is MAX_POOL; pinning DEFAULT_POOL re-asserts the old bug",
+        )
+        self.assertNotIn("DEFAULT_POOL", assertion)
+
 
 class OptionButtonIndexBoundsTests(unittest.TestCase):
     """OptionButton.selected is -1 before a pick; indexing the id arrays with it

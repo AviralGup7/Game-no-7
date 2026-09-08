@@ -212,8 +212,17 @@ func _test_hud_and_effects() -> void:
 	_ui._banner.set_reduced_motion(true)
 	_ui._banner._process(0.1)
 	_check("reduced motion banner has no pop", _ui._banner.scale == Vector2.ONE)
+	# Bounded means clamped to MAX_POOL, not pinned to the initial pool size.
+	# Asserting DEFAULT_POOL here would re-enshrine the bug where set_max_live()
+	# clamped to the starting pool, so the ULTRA tier's request for 48 numbers
+	# silently stayed at 32.
 	_ui._numbers.set_max_live(999)
-	_check("damage number pool bounded", _ui._numbers._max_live == DamageNumberLayer.DEFAULT_POOL)
+	_check("damage number pool bounded", _ui._numbers._max_live == DamageNumberLayer.MAX_POOL)
+	_ui._numbers.set_max_live(48)
+	_check("damage number pool honours a tier request", _ui._numbers._max_live == 48)
+	_ui._numbers.set_max_live(1)
+	_check("damage number pool has a floor", _ui._numbers._max_live == 4)
+	_ui._numbers.set_max_live(DamageNumberLayer.DEFAULT_POOL)
 	var boss := Node3D.new()
 	var hp := HealthComponent.new()
 	hp.name = "HealthComponent"
