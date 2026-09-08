@@ -9,7 +9,7 @@ signal became_active()
 signal became_inactive()
 
 @export var radius: float = 96.0
-@export var dead_zone: float = 0.12
+@export_range(0.0, 0.5, 0.01) var dead_zone: float = 0.12
 @export var opacity: float = 0.45
 
 var _active := false
