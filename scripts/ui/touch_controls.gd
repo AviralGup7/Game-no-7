@@ -12,13 +12,14 @@ func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	joystick = VirtualJoystick.new()
 	joystick.name = "MovementJoystick"
-	joystick.opacity = 0.75
+	joystick.opacity = 0.78
 	add_child(joystick)
-	for entry in [["attack", "request_attack", 60.0], ["dodge", "request_dodge", 48.0], ["switch_weapon", "request_weapon_switch", 48.0]]:
+	# Larger attack target (thumb-friendly) per mobile guidelines; others balanced.
+	for entry in [["attack", "request_attack", 64.0], ["dodge", "request_dodge", 52.0], ["switch_weapon", "request_weapon_switch", 52.0]]:
 		var button := TouchActionButton.new()
 		button.action_name = entry[0]
 		button.radius = entry[2]
-		button.opacity = 0.95
+		button.opacity = 0.96
 		button.vibrate_on_press = entry[0] == "attack"
 		var method: StringName = entry[1]
 		button.pressed.connect(func() -> void:

@@ -87,7 +87,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	if _cards_box == null:
 		return
 	var btn := Button.new()
-	btn.custom_minimum_size = Vector2(0, 220)
+	btn.custom_minimum_size = Vector2(0, 240)
 	btn.size_flags_horizontal = SIZE_EXPAND_FILL
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -98,9 +98,21 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	btn.text = body
 	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/ui/upgrades/award.png")
 	btn.expand_icon = true
-	btn.add_theme_constant_override("icon_max_width", 28)
-	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(22))
+	btn.add_theme_constant_override("icon_max_width", 32)
+	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(21))
 	btn.add_theme_color_override("font_color", _rarity_color(cfg.rarity))
+	# Rarity border for hierarchy: common subtle, legendary strong gold.
+	var border_col := _rarity_color(cfg.rarity)
+	border_col.a = 0.85
+	var bg := UiTheme.box(UiTheme.SURFACE, border_col, 2 if cfg.rarity != &"common" else 1)
+	bg.set_corner_radius_all(10)
+	btn.add_theme_stylebox_override("normal", bg)
+	var hover_bg := UiTheme.box(Color("28465a"), UiTheme.CYAN, 2)
+	hover_bg.set_corner_radius_all(10)
+	btn.add_theme_stylebox_override("hover", hover_bg)
+	var pressed_bg := UiTheme.box(Color("365064"), UiTheme.GOLD, 2)
+	pressed_bg.set_corner_radius_all(10)
+	btn.add_theme_stylebox_override("pressed", pressed_bg)
 	var id := cfg.upgrade_id
 	btn.pressed.connect(func() -> void: _on_card_pressed(id))
 	_cards_box.add_child(btn)
