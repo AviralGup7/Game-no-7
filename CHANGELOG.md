@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Asset audit and medium-detail upgrade (2026-09-08)
+
+- Verify all 191 prior downloads; add 31 licensed/locked files (~10.30 MiB),
+  including 23 models and detailed stone maps. Total: 222 files, 81 models.
+- Cover all current character, weapon, pickup, skill and arena roles in the catalogue.
+- Replace live flat arena materials and identical pickup prisms; retain physics,
+  collection rules and missing-art fallback. Character/equipment integration pending.
+- Validate complete content-ID coverage, runtime source references and shared
+  licence notices; add material/model import checks and normalization tests.
+- Document upstream upgrade decisions and remaining integration in ASSET_AUDIT.md.
+
+
 ## [Unreleased] — Arena build-out · weapons, skills, arenas, enemies, meta
 
 ### Added

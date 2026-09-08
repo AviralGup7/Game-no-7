@@ -6,6 +6,11 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release version (for example v0.4.0)"
+        required: true
+        type: string
 
 env:
   GODOT_VERSION: "4.4.1-stable"
@@ -60,10 +65,24 @@ jobs:
       - name: Validate resources & assets
         shell: bash
         run: |
-          python3 tool/validate_resources.py
-          python3 scripts/download_assets.py --verify
-          python3 tool/validate_assets.py
-          python3 -m unittest discover -s tests/python -v
+          mkdir -p build
+          check_assets() {
+            if "$@" > build/asset-validation.log 2>&1; then
+              cat build/asset-validation.log
+            else
+              cat build/asset-validation.log
+              # Surface useful diagnostics even when artifact/log hosts are unavailable.
+              while IFS= read -r line; do
+                line="${line//%/%25}"
+                printf '::error title=Asset validation::%s\n' "$line"
+              done < <(tail -30 build/asset-validation.log)
+              return 1
+            fi
+          }
+          check_assets python3 tool/validate_resources.py
+          check_assets python3 scripts/download_assets.py --verify
+          check_assets python3 tool/validate_assets.py
+          check_assets python3 -m unittest discover -s tests/python -v
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project
@@ -112,60 +131,45 @@ jobs:
             *.log
           if-no-files-found: ignore
 
-  # Publish a milestone APK to a GitHub Release ("push it to git").
-  # Runs only on a tag push or manual workflow_dispatch. Produces the same
-  # reproducible debug-signed APK as the main job and attaches it to a Release.
-  # (A Play-ready release-signed APK needs the owner's keystore configured per
-  # docs/BUILD.md and is built locally; this job proves + archives the CI build.)
+  # Publish only the APK produced by the successful validation/build job.
+  # This is a debug-signed milestone, not a Play-ready production build.
   publish-release:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    needs: build-android
     runs-on: ubuntu-latest
-    # Needed to create a Release and upload the APK asset.
     permissions:
       contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Godot ${{ env.GODOT_VERSION }}
-        uses: chickensoft-games/setup-godot@v2
+      - name: Download validated APK
+        uses: actions/download-artifact@v4
         with:
-          version: ${{ env.GODOT_VERSION }}
-          use-dotnet: false
-          include-templates: true
+          name: LastStandArena-android
+          path: build
 
-      # Verify the templates landed in the canonical location (idempotent, fails loudly).
-      - name: Verify Android export templates installed
+      - name: Verify APK and generate checksum
         shell: bash
-        run: bash scripts/install_export_templates.sh
-
-      # Godot 4.x Android export uses a Gradle build that requires a JDK.
-      - name: Set up JDK (Gradle Android export)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        shell: bash
-        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
-
-      # Gradle Android export requires the build template inside the project.
-      - name: Install Android build template into project
-        shell: bash
-        run: bash scripts/install_android_build_template.sh
-
-      - name: Build + test + export APK (debug, milestone artifact)
-        shell: bash
-        env:
-          BUILD_TYPE: debug
-        run: bash scripts/build_android.sh
+        run: |
+          test -s "$APK_PATH"
+          unzip -t "$APK_PATH"
+          cd build
+          sha256sum LastStandArena-debug.apk > SHA256SUMS.txt
 
       - name: Publish APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/LastStandArena-debug.apk
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ inputs.release_tag || github.ref_name }}
+          files: |
+            build/LastStandArena-debug.apk
+            build/SHA256SUMS.txt
+          fail_on_unmatched_files: true
+          body: |
+            Android ARM64 milestone for Last Stand: Arena.
+
+            **Debug-signed APK for sideloading/testing; not a Google Play production release.**
+
+            Published from the exact commit validated by this workflow: headless unit tests,
+            native asset import checks, resource/asset validation, Python tests and Android export.
+            SHA256SUMS.txt contains the APK checksum.
           generate_release_notes: true

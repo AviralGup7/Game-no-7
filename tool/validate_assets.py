@@ -160,6 +160,35 @@ def check_font(path: Path) -> None:
     require({b"cmap", b"name", b"head"} <= names, "font missing required tables")
 
 
+def content_ids(category: str, field: str) -> set[str]:
+    ids = set()
+    for path in (ROOT / "data" / category).glob("*.tres"):
+        match = re.search(r'^' + re.escape(field) + r' = &"([^"\n]+)"',
+                          path.read_text(), re.MULTILINE)
+        require(match is not None, f"missing {field} in {path.name}")
+        require(match[1] not in ids, f"duplicate {field}: {match[1]}")
+        ids.add(match[1])
+    require(bool(ids), f"no content definitions for {category}")
+    return ids
+
+
+def check_asset_inventory(approved: set[Path]) -> None:
+    # Raw downloads must never silently escape provenance/hash validation.
+    raw_suffixes = {".glb", ".gltf", ".bin", ".png", ".ttf", ".ogg", ".wav"}
+    for path in (ROOT / "assets").rglob("*"):
+        if path.is_file() and path.suffix.lower() in raw_suffixes:
+            require(path.resolve() in approved, f"untracked source asset: {path.relative_to(ROOT)}")
+    for folder in ("scenes", "data", "assets/materials"):
+        for path in (ROOT / folder).rglob("*"):
+            if path.suffix not in (".tscn", ".tres"):
+                continue
+            for relative in re.findall(r'path="res://(assets/[^"\n]+)"', path.read_text()):
+                asset = ROOT / relative
+                require(asset.is_file(), f"missing runtime asset: {relative}")
+                require(asset.suffix == ".tres" or asset.resolve() in approved,
+                        f"runtime reference lacks provenance: {relative}")
+
+
 def check_catalog(catalog: dict, approved: set[Path], models: dict[str, dict]) -> None:
     def check_references(value):
         if isinstance(value, dict):
@@ -171,7 +200,12 @@ def check_catalog(catalog: dict, approved: set[Path], models: dict[str, dict]) -
         elif isinstance(value, str) and value.startswith("assets/"):
             require((ROOT / value).resolve() in approved, f"catalog references an unapproved file: {value}")
     check_references(catalog)
-    require(set(catalog["characters"]) == {"player", "basic", "fast", "heavy"}, "missing character role")
+    enemy_ids = content_ids("enemies", "archetype_id")
+    require(set(catalog["characters"]) == enemy_ids | {"player"}, "missing character role")
+    for category, field in (("weapons", "weapon_id"), ("skills", "skill_id"),
+                            ("pickups", "pickup_id"), ("arenas", "arena_id")):
+        ids = content_ids(category, field)
+        require(set(catalog["gameplay_" + category]) == ids, f"missing {category} role")
     for role, character in catalog["characters"].items():
         doc = models[character["model"]]
         require(bool(doc.get("skins")), f"{role}: character is not rigged")
@@ -179,7 +213,8 @@ def check_catalog(catalog: dict, approved: set[Path], models: dict[str, dict]) -
         require(set(character["animations"].values()) <= animations, f"{role}: requested animation clip missing")
         require(len(doc["animations"]) == character["animation_count"], f"{role}: stale animation inventory")
         bones = {doc["nodes"][j].get("name") for skin in doc["skins"] for j in skin["joints"]}
-        require({"handslot.l", "handslot.r"} <= bones, f"{role}: weapon attachment joints missing")
+        require(set(character.get("required_bones", [])) <= bones,
+                f"{role}: required attachment joints missing")
     upgrade_ids = {p.stem for p in (ROOT / "data/upgrades").glob("*.tres")}
     require(set(catalog["upgrade_icons"]) == upgrade_ids, "upgrade icon map must cover every current upgrade")
     referenced_cues = set()
@@ -219,6 +254,7 @@ def main() -> int:
                     check_font(path)
             except (OSError, ValueError, KeyError, IndexError, struct.error, wave.Error) as exc:
                 problems.append(f"{entry['path']}: {exc}")
+        check_asset_inventory(approved)
         catalog = json.loads((ROOT / "assets/catalog.json").read_text())
         check_catalog(catalog, approved, models)
     except (OSError, ValueError, TypeError, KeyError) as exc:

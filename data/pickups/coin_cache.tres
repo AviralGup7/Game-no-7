@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="PickupConfig" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PickupConfig" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
+
+[ext_resource type="PackedScene" path="res://assets/pickups/rpg/Coin_Star.glb" id="2_visual"]
 
 [resource]
 script = ExtResource("1_script")
@@ -17,3 +19,5 @@ drop_weight = 1.0
 min_wave = 1
 disabled = false
 tags = Array[StringName]([&"currency"])
+visual_scene = ExtResource("2_visual")
+visual_extent = 0.6

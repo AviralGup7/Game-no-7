@@ -2,7 +2,7 @@
   "schema_version": 1,
   "game": "Last Stand: Arena",
   "target": "Godot 4.4.1 / Android / 3D third-person",
-  "integration_status": "Downloaded and validated source assets; not connected to the live game scenes, animation states, UI, or audio events.",
+  "integration_status": "Detailed stone surfaces and pickup models integrated; complete character/equipment catalogue downloaded, rig/animation/attachment wiring remains pending.",
   "characters": {
     "player": {
       "model": "assets/characters/adventurers/Knight.glb",
@@ -102,7 +102,12 @@
       "weapon": "assets/weapons/adventurers/sword_1handed.gltf",
       "shield": "assets/weapons/adventurers/shield_badge.gltf",
       "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l"
+      "left_hand_bone": "handslot.l",
+      "required_bones": [
+        "handslot.l",
+        "handslot.r"
+      ],
+      "source_triangles": 6952
     },
     "basic": {
       "model": "assets/characters/skeletons/Skeleton_Minion.glb",
@@ -221,7 +226,12 @@
       "weapon": "assets/weapons/skeletons/Skeleton_Blade.gltf",
       "shield": "assets/weapons/skeletons/Skeleton_Shield_Small_A.gltf",
       "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l"
+      "left_hand_bone": "handslot.l",
+      "required_bones": [
+        "handslot.l",
+        "handslot.r"
+      ],
+      "source_triangles": 5288
     },
     "fast": {
       "model": "assets/characters/skeletons/Skeleton_Rogue.glb",
@@ -340,7 +350,12 @@
       "weapon": "assets/weapons/adventurers/dagger.gltf",
       "shield": null,
       "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l"
+      "left_hand_bone": "handslot.l",
+      "required_bones": [
+        "handslot.l",
+        "handslot.r"
+      ],
+      "source_triangles": 5278
     },
     "heavy": {
       "model": "assets/characters/skeletons/Skeleton_Warrior.glb",
@@ -459,7 +474,237 @@
       "weapon": "assets/weapons/skeletons/Skeleton_Axe.gltf",
       "shield": "assets/weapons/skeletons/Skeleton_Shield_Large_A.gltf",
       "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l"
+      "left_hand_bone": "handslot.l",
+      "required_bones": [
+        "handslot.l",
+        "handslot.r"
+      ],
+      "source_triangles": 5934
+    },
+    "ranged": {
+      "model": "assets/characters/skeletons/Skeleton_Mage.glb",
+      "intended_scene": "scenes/enemies/ranged_enemy.tscn",
+      "intended_mount": "VisualRoot/CharacterModel",
+      "animation_count": 95,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walking_A",
+        "run": "Running_A",
+        "attack": "Spellcast_Shoot",
+        "hurt": "Hit_A",
+        "death": "Death_A"
+      },
+      "available_animations": [
+        "1H_Melee_Attack_Chop",
+        "1H_Melee_Attack_Jump_Chop",
+        "1H_Melee_Attack_Slice_Diagonal",
+        "1H_Melee_Attack_Slice_Horizontal",
+        "1H_Melee_Attack_Stab",
+        "1H_Ranged_Aiming",
+        "1H_Ranged_Reload",
+        "1H_Ranged_Shoot",
+        "1H_Ranged_Shooting",
+        "2H_Melee_Attack_Chop",
+        "2H_Melee_Attack_Slice",
+        "2H_Melee_Attack_Spin",
+        "2H_Melee_Attack_Spinning",
+        "2H_Melee_Attack_Stab",
+        "2H_Melee_Idle",
+        "2H_Ranged_Aiming",
+        "2H_Ranged_Reload",
+        "2H_Ranged_Shoot",
+        "2H_Ranged_Shooting",
+        "Block",
+        "Block_Attack",
+        "Block_Hit",
+        "Blocking",
+        "Cheer",
+        "Death_A",
+        "Death_A_Pose",
+        "Death_B",
+        "Death_B_Pose",
+        "Death_C_Pose",
+        "Death_C_Skeletons",
+        "Death_C_Skeletons_Resurrect",
+        "Dodge_Backward",
+        "Dodge_Forward",
+        "Dodge_Left",
+        "Dodge_Right",
+        "Dualwield_Melee_Attack_Chop",
+        "Dualwield_Melee_Attack_Slice",
+        "Dualwield_Melee_Attack_Stab",
+        "Hit_A",
+        "Hit_B",
+        "Idle",
+        "Idle_B",
+        "Idle_Combat",
+        "Interact",
+        "Jump_Full_Long",
+        "Jump_Full_Short",
+        "Jump_Idle",
+        "Jump_Land",
+        "Jump_Start",
+        "Lie_Down",
+        "Lie_Idle",
+        "Lie_Pose",
+        "Lie_StandUp",
+        "PickUp",
+        "Running_A",
+        "Running_B",
+        "Running_C",
+        "Running_Strafe_Left",
+        "Running_Strafe_Right",
+        "Sit_Chair_Down",
+        "Sit_Chair_Idle",
+        "Sit_Chair_Pose",
+        "Sit_Chair_StandUp",
+        "Sit_Floor_Down",
+        "Sit_Floor_Idle",
+        "Sit_Floor_Pose",
+        "Sit_Floor_StandUp",
+        "Skeleton_Inactive_Standing_Pose",
+        "Skeletons_Awaken_Floor",
+        "Skeletons_Awaken_Floor_Long",
+        "Skeletons_Awaken_Standing",
+        "Skeletons_Inactive_Floor_Pose",
+        "Spawn_Air",
+        "Spawn_Ground",
+        "Spawn_Ground_Skeletons",
+        "Spellcast_Long",
+        "Spellcast_Raise",
+        "Spellcast_Shoot",
+        "Spellcast_Summon",
+        "Spellcasting",
+        "T-Pose",
+        "Taunt",
+        "Taunt_Longer",
+        "Throw",
+        "Unarmed_Idle",
+        "Unarmed_Melee_Attack_Kick",
+        "Unarmed_Melee_Attack_Punch_A",
+        "Unarmed_Melee_Attack_Punch_B",
+        "Unarmed_Pose",
+        "Use_Item",
+        "Walking_A",
+        "Walking_B",
+        "Walking_Backwards",
+        "Walking_C",
+        "Walking_D_Skeletons"
+      ],
+      "required_bones": [
+        "handslot.l",
+        "handslot.r"
+      ],
+      "source_triangles": 4588
+    },
+    "dasher": {
+      "model": "assets/characters/creatures/Rat.glb",
+      "intended_scene": "scenes/enemies/dasher_enemy.tscn",
+      "intended_mount": "VisualRoot/CharacterModel",
+      "animation_count": 6,
+      "animations": {
+        "idle": "RatArmature|Rat_Idle",
+        "walk": "RatArmature|Rat_Walk",
+        "run": "RatArmature|Rat_Run",
+        "attack": "RatArmature|Rat_Attack",
+        "death": "RatArmature|Rat_Death"
+      },
+      "available_animations": [
+        "RatArmature|Rat_Attack",
+        "RatArmature|Rat_Death",
+        "RatArmature|Rat_Idle",
+        "RatArmature|Rat_Jump",
+        "RatArmature|Rat_Run",
+        "RatArmature|Rat_Walk"
+      ],
+      "required_bones": [],
+      "source_triangles": 4004
+    },
+    "splitter": {
+      "model": "assets/characters/creatures/Spider.glb",
+      "intended_scene": "scenes/enemies/splitter_enemy.tscn",
+      "intended_mount": "VisualRoot/CharacterModel",
+      "animation_count": 5,
+      "animations": {
+        "idle": "SpiderArmature|Spider_Idle",
+        "walk": "SpiderArmature|Spider_Walk",
+        "run": "SpiderArmature|Spider_Walk",
+        "attack": "SpiderArmature|Spider_Attack",
+        "death": "SpiderArmature|Spider_Death"
+      },
+      "available_animations": [
+        "SpiderArmature|Spider_Attack",
+        "SpiderArmature|Spider_Death",
+        "SpiderArmature|Spider_Idle",
+        "SpiderArmature|Spider_Jump",
+        "SpiderArmature|Spider_Walk"
+      ],
+      "required_bones": [],
+      "source_triangles": 2712
+    },
+    "exploder": {
+      "model": "assets/characters/monsters/Demon.gltf",
+      "intended_scene": "scenes/enemies/exploder_enemy.tscn",
+      "intended_mount": "VisualRoot/CharacterModel",
+      "animation_count": 14,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Run",
+        "attack": "Punch",
+        "hurt": "HitReact",
+        "death": "Death"
+      },
+      "available_animations": [
+        "Death",
+        "Duck",
+        "HitReact",
+        "Idle",
+        "Jump",
+        "Jump_Idle",
+        "Jump_Land",
+        "No",
+        "Punch",
+        "Run",
+        "Walk",
+        "Wave",
+        "Weapon",
+        "Yes"
+      ],
+      "required_bones": [],
+      "source_triangles": 6712
+    },
+    "warlord": {
+      "model": "assets/characters/monsters/BlueDemon.gltf",
+      "intended_scene": "scenes/enemies/warlord_enemy.tscn",
+      "intended_mount": "VisualRoot/CharacterModel",
+      "animation_count": 14,
+      "animations": {
+        "idle": "Idle",
+        "walk": "Walk",
+        "run": "Run",
+        "attack": "Punch",
+        "hurt": "HitReact",
+        "death": "Death"
+      },
+      "available_animations": [
+        "Death",
+        "Duck",
+        "HitReact",
+        "Idle",
+        "Jump",
+        "Jump_Idle",
+        "Jump_Land",
+        "No",
+        "Punch",
+        "Run",
+        "Walk",
+        "Wave",
+        "Weapon",
+        "Yes"
+      ],
+      "required_bones": [],
+      "source_triangles": 5800
     }
   },
   "upgrade_icons": {
@@ -677,13 +922,107 @@
   "pickups": {
     "currency": "assets/pickups/dungeon/coin.glb",
     "currency_stack": "assets/pickups/dungeon/coin_stack_small.glb",
-    "reward_chest": "assets/pickups/dungeon/chest.glb",
-    "rare_reward_chest": "assets/pickups/dungeon/chest_gold.glb",
+    "reward_chest": "assets/pickups/rpg/Chest_Closed.glb",
+    "rare_reward_chest": "assets/pickups/rpg/Chest_Ingots.glb",
     "health_bottle": "assets/pickups/dungeon/bottle_A_labeled_green.glb",
     "future_key": "assets/pickups/dungeon/key.glb"
   },
   "fonts": {
     "body": "assets/fonts/rajdhani/Rajdhani-Regular.ttf",
     "heading": "assets/fonts/rajdhani/Rajdhani-Bold.ttf"
+  },
+  "gameplay_weapons": {
+    "gladius": {
+      "model": "assets/weapons/medieval/Sword_Golden.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "sentinel_spear": {
+      "model": "assets/weapons/medieval/Spear.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "stormhammer": {
+      "model": "assets/weapons/medieval/Hammer_Double.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "sunbow": {
+      "model": "assets/weapons/medieval/Bow_Golden.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "twinfangs": {
+      "model": "assets/weapons/medieval/Dagger.glb",
+      "status": "downloaded; attachment integration pending"
+    },
+    "warreaxe": {
+      "model": "assets/weapons/medieval/Axe_Double.glb",
+      "status": "downloaded; attachment integration pending"
+    }
+  },
+  "gameplay_pickups": {
+    "health_orb": {
+      "model": "assets/pickups/rpg/Heart.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    },
+    "stamina_brew": {
+      "model": "assets/pickups/rpg/Potion1_Filled.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    },
+    "antidote": {
+      "model": "assets/pickups/rpg/Potion3_Filled.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    },
+    "xp_gem": {
+      "model": "assets/pickups/rpg/Crystal1.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    },
+    "magnet_core": {
+      "model": "assets/pickups/rpg/Crystal2.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    },
+    "coin_cache": {
+      "model": "assets/pickups/rpg/Coin_Star.glb",
+      "status": "integrated; pooled visual, original collection radius preserved"
+    }
+  },
+  "gameplay_skills": {
+    "bladestorm": {
+      "texture": "assets/effects/kenney/trace_01.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "phantom_rush": {
+      "texture": "assets/effects/kenney/smoke_03.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "seismic_slam": {
+      "texture": "assets/effects/kenney/dirt_01.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "frost_nova_skill": {
+      "texture": "assets/effects/kenney/circle_05.png",
+      "status": "source texture ready; skill VFX integration pending"
+    },
+    "warcry_skill": {
+      "texture": "assets/effects/kenney/magic_01.png",
+      "status": "source texture ready; skill VFX integration pending"
+    }
+  },
+  "gameplay_arenas": {
+    "default_arena": {
+      "floor_albedo": "assets/textures/stone/stone_albedo.png",
+      "floor_normal": "assets/textures/stone/stone_normal.png",
+      "floor_ao": "assets/textures/stone/stone_ao.png",
+      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+    },
+    "ember_crucible": {
+      "floor_albedo": "assets/textures/stone/stone_albedo.png",
+      "floor_normal": "assets/textures/stone/stone_normal.png",
+      "floor_ao": "assets/textures/stone/stone_ao.png",
+      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+    },
+    "frost_hollow": {
+      "floor_albedo": "assets/textures/stone/stone_albedo.png",
+      "floor_normal": "assets/textures/stone/stone_normal.png",
+      "floor_ao": "assets/textures/stone/stone_ao.png",
+      "status": "integrated shared detailed stone material; arena-specific art variants pending"
+    }
   }
 }

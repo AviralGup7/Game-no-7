@@ -40,6 +40,7 @@ func _initialize() -> void:
 					_failures.append("Not an imported AudioStream: " + path)
 				elif (imported as AudioStream).get_length() <= 0.0:
 					_failures.append("Empty audio stream: " + path)
+	_check_integrated_materials_and_pickups(catalog)
 	if _checked == 0:
 		_failures.append("No importable assets found in the manifest")
 	print("Asset imports: %d resources, %d failures" % [_checked, _failures.size()])
@@ -79,3 +80,20 @@ func _check_model(path: String, imported: Resource, catalog: Dictionary) -> void
 			if not found:
 				_failures.append("Missing imported clip %s in %s" % [clip, path])
 	instance.free()
+
+
+func _check_integrated_materials_and_pickups(catalog: Dictionary) -> void:
+	for path in ["res://assets/materials/arena_stone.tres", "res://assets/materials/arena_wall_stone.tres"]:
+		var material := load(path) as StandardMaterial3D
+		if material == null or material.albedo_texture == null or material.normal_texture == null:
+			_failures.append("Detailed material import failed: " + path)
+	for id in catalog.get("gameplay_pickups", {}):
+		var cfg := load("res://data/pickups/%s.tres" % id) as PickupConfig
+		if cfg == null or cfg.visual_scene == null:
+			_failures.append("Pickup has no imported visual: " + str(id))
+			continue
+		var visual := ModelVisual.create(cfg.visual_scene, cfg.visual_extent)
+		if visual == null:
+			_failures.append("Cannot fit pickup visual: " + str(id))
+		else:
+			visual.free()

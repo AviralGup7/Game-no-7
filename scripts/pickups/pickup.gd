@@ -20,6 +20,8 @@ var _bob_phase := 0.0
 var _player: Node3D = null
 var _visual: Node3D = null
 var _mesh: MeshInstance3D = null
+# Lazily cache each visual per pooled pickup; subsequent drops reuse instances.
+var _models: Dictionary = {}
 
 
 func _ready() -> void:
@@ -41,6 +43,7 @@ func drop(cfg: PickupConfig, at: Vector3, player: Node3D, pickup_level: int = 1)
 	set_physics_process(true)
 	global_position = at
 	_base_y = at.y
+	_apply_model()
 	_apply_tint()
 
 
@@ -100,6 +103,29 @@ func _collect(collector: Node) -> void:
 func _expire() -> void:
 	_active = false
 	release_requested.emit(self)
+
+
+func _apply_model() -> void:
+	if _visual == null or config == null:
+		return
+	for model in _models.values():
+		(model as Node3D).visible = false
+	var selected: Node3D = null
+	if config.visual_scene != null:
+		var key := config.visual_scene.resource_path + ":" + str(config.visual_extent)
+		if not _models.has(key):
+			var model := ModelVisual.create(config.visual_scene, config.visual_extent)
+			if model != null:
+				_visual.add_child(model)
+				model.position.y = 0.2
+				_models[key] = model
+		selected = _models.get(key) as Node3D
+	if selected != null:
+		selected.visible = true
+	if _mesh != null:
+		_mesh.visible = selected == null
+	_visual.rotation = Vector3.ZERO
+	_visual.position = Vector3.ZERO
 
 
 func _apply_tint() -> void:
