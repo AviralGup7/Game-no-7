@@ -155,5 +155,5 @@ static func _string_int_map(value: Variant) -> Dictionary:
 		for key in value:
 			var v: Variant = value[key]
 			if v is float or v is int:
-				out[String(key)] = maxi(int(v), 0)
+				out[String(key)] = maxi(int(round(float(v))), 0)
 	return out

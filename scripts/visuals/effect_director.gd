@@ -232,4 +232,4 @@ func _show_ring(ring: Node3D, duration: float) -> void:
 
 
 func _has_particle_texture(path: String) -> bool:
-	return load(path) != null
+	return ResourceLoader.exists(path)
