@@ -58,7 +58,7 @@ func set_attacks_enabled(enabled: bool) -> void:
 func cancel_in_progress() -> void:
 	for inst in _slots:
 		if inst is WeaponInstance:
-			(inst as WeaponInstance).reset()
+			(inst as WeaponInstance).cancel_attack()
 
 
 ## Equip a weapon config into a slot (replaces whatever was there). Returns the
@@ -100,6 +100,9 @@ func switch_to(slot: int) -> bool:
 		return false
 	if not (_slots[slot] is WeaponInstance):
 		return false
+	var old := active_instance()
+	if old != null:
+		old.cancel_attack()
 	var old_id := active_weapon_id()
 	_active_slot = slot
 	var new_id := active_weapon_id()
@@ -170,12 +173,20 @@ func request_attack() -> int:
 	var inst := active_instance()
 	if inst == null:
 		return 0
-	return inst.try_start_attack()
+	var was_reloading := inst.is_reloading()
+	var step := inst.try_start_attack()
+	if not was_reloading and inst.is_reloading():
+		reload_started.emit(inst.config.weapon_id)
+	return step
 
 
 ## Advance the active weapon's timers; resolves the swing/shot when its windup
 ## elapses. Must be called every physics step while the player is live.
 func tick(delta: float) -> void:
+	# Holstered cooldowns/reloads continue, but cannot fire delayed swings.
+	for slot in range(_slots.size()):
+		if slot != _active_slot and _slots[slot] is WeaponInstance:
+			(_slots[slot] as WeaponInstance).tick(delta)
 	var inst := active_instance()
 	if inst == null:
 		return

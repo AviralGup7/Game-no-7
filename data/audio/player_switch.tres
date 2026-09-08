@@ -1,0 +1,9 @@
+[gd_resource type="AudioStreamRandomizer" load_steps=2 format=3]
+
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/rpg/draw_knife_1.ogg" id="1_stream"]
+
+[resource]
+randomization_type = 2
+streams_count = 1
+stream_0/stream = ExtResource("1_stream")
+stream_0/weight = 1.0

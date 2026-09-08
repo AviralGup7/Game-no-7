@@ -720,6 +720,46 @@
     "vitality": "assets/ui/upgrades/suit_hearts.png"
   },
   "audio_cues": {
+    "player_step": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/footstep_concrete_000.ogg"
+      ],
+      "suggested_volume_db": -16.0
+    },
+    "player_switch": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/draw_knife_1.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_shot": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/knife_slice_2.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_reload": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/rpg/cloth_2.ogg"
+      ],
+      "suggested_volume_db": -8.0
+    },
+    "player_low_health": {
+      "bus": "SFX",
+      "loop": false,
+      "files": [
+        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+      ],
+      "suggested_volume_db": -12.0
+    },
     "player_attack": {
       "bus": "SFX",
       "loop": false,
