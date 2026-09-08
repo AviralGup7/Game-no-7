@@ -34,10 +34,11 @@ static func choose_for_wave(run: RunState, player: Node, wave_number: int) -> Ar
 ## when the selection may proceed, otherwise the human-readable rejection reason
 ## (already reported as a warning).
 static func validate_selection(run: RunState, player: Node, upgrade_id: StringName) -> String:
+	var reason: String = ""
 	if run == null:
 		return "no run"
 	if upgrade_id not in run.upgrade_choices:
-		var reason := "Upgrade %s is not currently offered" % String(upgrade_id)
+		reason = "Upgrade %s is not currently offered" % String(upgrade_id)
 		EventBus.report_warning(reason)
 		return reason
 	if player == null or not is_instance_valid(player) or not bool(player.call("is_alive")):

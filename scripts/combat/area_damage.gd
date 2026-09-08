@@ -108,7 +108,7 @@ static func apply_chain(candidates: Array, origin: Vector3, initial_radius: floa
 	var pool := candidates.duplicate()
 	while remaining > 0:
 		var radius := initial_radius if victims.is_empty() else jump_radius
-		var next := _nearest_damageable(pool, from, radius)
+		var next: Node = _nearest_damageable(pool, from, radius)
 		if next == null:
 			break
 		var payload := _payload(dealt, source, source_id, &"shock", (next as Node3D).global_position)
@@ -122,8 +122,8 @@ static func apply_chain(candidates: Array, origin: Vector3, initial_radius: floa
 	return victims
 
 
-static func _nearest_damageable(candidates: Array, from: Vector3, radius: float) -> Variant:
-	var best: Variant = null
+static func _nearest_damageable(candidates: Array, from: Vector3, radius: float) -> Node:
+	var best: Node = null
 	var best_dist := radius
 	for c in candidates:
 		if not _damageable(c):
