@@ -64,8 +64,8 @@ func _test_model_bounds() -> void:
 	var mesh := MeshInstance3D.new()
 	mesh.mesh = BoxMesh.new()
 	root.add_child(mesh)
-	var bounds := CharacterVisuals._bounds(root, Transform3D.IDENTITY)
-	_check("bounds accepts non-3D animation children", bounds.size == Vector3.ONE)
+	var bounds: Variant = CharacterVisuals._bounds(root, Transform3D.IDENTITY)
+	_check("bounds accepts non-3D animation children", bounds is AABB and (bounds as AABB).size == Vector3.ONE)
 	root.free()
 
 
