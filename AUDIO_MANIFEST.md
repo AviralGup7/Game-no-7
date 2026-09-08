@@ -60,8 +60,10 @@ menu loop and one combat loop, so combat-adjacent states share the combat track)
 Paths below are relative to `assets/audio/`. Every file is in the checksum lock.
 The full variant lists, intended buses, loop flags, and suggested gains are in
 `assets/catalog.json`. Those JSON fields are metadata (not a new audio registry);
-`data/audio/` remains empty because the integrator loads straight from `assets/audio/`
-and can force Ogg looping at runtime.
+`data/audio/` also contains nine player-only cue resources loaded through the existing
+ContentLoader/ContentRegistry path. The integrator subsequently registers catalogue
+variants, taking precedence over those initial mappings, and can force Ogg looping
+at runtime. No source audio bytes are duplicated or changed.
 
 | Cue | Downloaded file(s) | Intended use |
 |---|---|---|
@@ -69,6 +71,11 @@ and can force Ogg looping at runtime.
 | `player_hurt` | `sfx/impact/impact_punch_medium_000.ogg`, `sfx/impact/impact_punch_medium_001.ogg` | Player impact (non-vocal) |
 | `player_dodge` | `sfx/rpg/cloth_1.ogg`, `sfx/rpg/cloth_2.ogg`, `sfx/rpg/cloth_3.ogg` | Cloth swish |
 | `player_death` | `sfx/impact/impact_soft_heavy_000.ogg` | Body fall (non-vocal) |
+| `player_step` | `sfx/impact/footstep_concrete_000.ogg` | Distance-paced grounded footsteps |
+| `player_switch` | `sfx/rpg/draw_knife_1.ogg` | Successful weapon switch |
+| `player_shot` | `sfx/rpg/knife_slice_2.ogg` | Arrow release swish |
+| `player_reload` | `sfx/rpg/cloth_2.ogg` | Reload start |
+| `player_low_health` | `sfx/impact/impact_punch_heavy_000.ogg` | Once on entering low health |
 | `enemy_attack` | `sfx/rpg/chop.ogg` | Melee attack |
 | `enemy_hit` | `sfx/impact/impact_wood_medium_000.ogg`, `sfx/impact/impact_generic_light_000.ogg`, `sfx/impact/impact_generic_light_001.ogg` | Impact / bone-like knock |
 | `enemy_death` | `sfx/impact/impact_wood_heavy_000.ogg`, `sfx/impact/impact_punch_heavy_000.ogg` | Heavy impact |
@@ -92,7 +99,7 @@ original RPG Vorbis files decode with peaks above 0 dBFS, so they should not be
 played together at full gain. Source audio was deliberately **not normalized or
 re-encoded**. Start SFX around −8 dB (footsteps lower), then mix on the target
 device; the two music sources also have different loudness. Suggested gains are
-not applied to gameplay yet.
+now applied by PlayerAudio for player cues; other systems retain their own gains.
 
 Enable **Loop** on the two music streams in Godot and audition their transitions.
 Leave SFX non-looping. Wrap clips/variants in `AudioStreamRandomizer` resources

@@ -237,3 +237,13 @@ func get_debug_snapshot() -> Dictionary:
 		"cooldown": effective_cooldown(),
 		"range": effective_range(),
 	}
+
+
+## Interrupt a swing without replenishing ammo, skipping recovery, or cancelling reload.
+func cancel_attack() -> void:
+	_chain_left = 0.0
+	combo_step = 0
+	if phase == PHASE_WINDUP:
+		_windup_left = 0.0
+		_recovery_left = effective_cooldown()
+		phase = PHASE_RECOVERY

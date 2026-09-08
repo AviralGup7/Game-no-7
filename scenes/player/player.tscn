@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
@@ -14,28 +14,27 @@
 [ext_resource type="Script" path="res://scripts/skills/skill_controller.gd" id="12_skills"]
 [ext_resource type="Script" path="res://scripts/weapons/weapon_manager.gd" id="13_weapons"]
 [ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="14_status"]
-[ext_resource type="Script" path="res://scripts/visuals/visual_mount.gd" id="15_mount"]
+
+[ext_resource type="PackedScene" path="res://assets/characters/adventurers/Knight.glb" id="15_knight"]
+[ext_resource type="Script" path="res://scripts/player/player_animation.gd" id="16_anim"]
+[ext_resource type="Script" path="res://scripts/player/player_equipment.gd" id="17_equip"]
+[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/sword_1handed.gltf" id="18_sword"]
+[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Spear.glb" id="19_spear"]
+[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Hammer_Double.glb" id="20_hammer"]
+[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Bow_Golden.glb" id="21_bow"]
+[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/dagger.gltf" id="22_dagger"]
+[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/axe_2handed.gltf" id="23_axe"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.45
 height = 1.9
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
-radius = 0.42
-height = 1.7
-
-[sub_resource type="StandardMaterial3D" id="Mat_player"]
-albedo_color = Color(0.24, 0.56, 0.95, 1)
-roughness = 0.55
-
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 2
 collision_mask = 1
+floor_snap_length = 0.25
+safe_margin = 0.02
 script = ExtResource("1_player")
-
-[node name="VisualMount" type="Node3D" parent="."]
-script = ExtResource("15_mount")
-role = &"player"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
@@ -45,12 +44,9 @@ shape = SubResource("CapsuleShape_body")
 
 [node name="CharacterModel" type="Node3D" parent="VisualRoot"]
 
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/CharacterModel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
-mesh = SubResource("CapsuleMesh_body")
-surface_material_override/0 = SubResource("Mat_player")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualRoot"]
+[node name="Knight" parent="VisualRoot/CharacterModel" instance=ExtResource("15_knight")]
+rotation = Vector3(0, 3.1415927, 0)
+scale = Vector3(0.75, 0.75, 0.75)
 
 [node name="TargetingOrigin" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0)
@@ -90,6 +86,14 @@ script = ExtResource("13_weapons")
 
 [node name="StatusManager" type="Node" parent="."]
 script = ExtResource("14_status")
+
+[node name="PlayerAnimation" type="Node" parent="."]
+script = ExtResource("16_anim")
+
+[node name="PlayerEquipment" type="Node" parent="."]
+script = ExtResource("17_equip")
+models = {&"gladius": ExtResource("18_sword"), &"sentinel_spear": ExtResource("19_spear"), &"stormhammer": ExtResource("20_hammer"), &"sunbow": ExtResource("21_bow"), &"twinfangs": ExtResource("22_dagger"), &"warreaxe": ExtResource("23_axe")}
+lengths = {&"gladius": 0.95, &"sentinel_spear": 1.8, &"stormhammer": 1.2, &"sunbow": 1.1, &"twinfangs": 0.6, &"warreaxe": 1.3}
 
 [node name="PlayerFeedback" type="Node" parent="."]
 script = ExtResource("7_fb")

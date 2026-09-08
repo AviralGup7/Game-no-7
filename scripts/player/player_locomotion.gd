@@ -46,13 +46,17 @@ func current_input() -> Vector2:
 
 func clear() -> void:
 	_move_input = Vector2.ZERO
+	track(Vector2.ZERO)
 
 
 ## Full stop: clear intent and settle the controller in place.
 func clear_and_idle() -> void:
-	_move_input = Vector2.ZERO
-	if _controller != null and _controller.has_method("tick"):
-		_controller.call("tick", Vector2.ZERO, 0.0)
+	clear()
+	if _controller != null and _controller.has_method("stop"):
+		_controller.call("stop")
+	elif _body != null:
+		_body.velocity.x = 0.0
+		_body.velocity.z = 0.0
 
 
 ## Set the arena interior half-extent for movement/bounds clamping; -1 disables it.
@@ -84,22 +88,12 @@ func track(move: Vector2) -> void:
 func clamp_to_bounds() -> void:
 	if _bounds_half < 0.0 or _body == null:
 		return
-	var limit := _bounds_half - 0.5
+	var limit := maxf(_bounds_half - 0.5, 0.0)
 	var p := _body.global_position
-	var changed := false
-	if p.x < -limit:
-		p.x = -limit
-		changed = true
-	elif p.x > limit:
-		p.x = limit
-		changed = true
-	if p.z < -limit:
-		p.z = -limit
-		changed = true
-	elif p.z > limit:
-		p.z = limit
-		changed = true
-	if changed:
-		_body.global_position = p
+	var clamped := Vector3(clampf(p.x, -limit, limit), p.y, clampf(p.z, -limit, limit))
+	if clamped.x != p.x and _body.velocity.x * p.x > 0.0:
 		_body.velocity.x = 0.0
+	if clamped.z != p.z and _body.velocity.z * p.z > 0.0:
 		_body.velocity.z = 0.0
+	if clamped != p:
+		_body.global_position = clamped
