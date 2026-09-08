@@ -36,6 +36,8 @@ var _active := false
 var _hit_bodies: Array = []
 var _visual: Node3D = null
 var _trail: Node = null
+# Owned by this pooled object; reused rather than allocated on every activation.
+var _tint_material: StandardMaterial3D = null
 
 
 func _ready() -> void:
@@ -111,7 +113,9 @@ func _apply_team_tint() -> void:
 		mesh.call("set_team_tint", team)
 		return
 	var tint := Color(1.0, 0.8, 0.25) if team == TEAM_PLAYER else Color(1.0, 0.2, 0.25)
-	var mat := StandardMaterial3D.new()
+	if _tint_material == null:
+		_tint_material = StandardMaterial3D.new()
+	var mat := _tint_material
 	mat.albedo_color = tint
 	mat.emission_enabled = true
 	mat.emission = tint

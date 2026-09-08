@@ -20,6 +20,8 @@ var _bob_phase := 0.0
 var _player: Node3D = null
 var _visual: Node3D = null
 var _mesh: MeshInstance3D = null
+# Owned by this pooled object; reused rather than allocated on every activation.
+var _tint_material: StandardMaterial3D = null
 # Lazily cache each visual per pooled pickup; subsequent drops reuse instances.
 var _models: Dictionary = {}
 
@@ -131,7 +133,9 @@ func _apply_model() -> void:
 func _apply_tint() -> void:
 	if _mesh == null or config == null:
 		return
-	var mat := StandardMaterial3D.new()
+	if _tint_material == null:
+		_tint_material = StandardMaterial3D.new()
+	var mat := _tint_material
 	mat.albedo_color = config.tint
 	mat.emission_enabled = true
 	mat.emission = config.tint

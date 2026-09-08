@@ -157,8 +157,18 @@ func _apply_tier_to_engine() -> void:
 		TIER_MEDIUM:
 			Engine.max_fps = 60
 		_:
-			Engine.max_fps = 0
+			# Respect the Android project ceiling instead of unlocking 90/120 Hz
+			# whenever quality rises. Desktop keeps its configured (default 0) cap.
+			Engine.max_fps = _configured_max_fps()
 
+
+func _configured_max_fps() -> int:
+	return int(ProjectSettings.get_setting_with_override("application/run/max_fps"))
+
+
+func _exit_tree() -> void:
+	# A low-tier run must not leave the persistent menus capped at 30 FPS.
+	Engine.max_fps = _configured_max_fps()
 
 ## Effect-budget multipliers queried by particle/text layers.
 func particle_budget_scale() -> float:

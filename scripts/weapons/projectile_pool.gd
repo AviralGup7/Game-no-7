@@ -33,6 +33,9 @@ func _make_projectile() -> Projectile:
 		var inst: Node = projectile_scene.instantiate()
 		if inst is Projectile:
 			p = inst as Projectile
+		elif inst != null:
+			# Rejected scene roots are not reference counted or owned by the tree.
+			inst.free()
 	if p == null:
 		p = _make_fallback_projectile()
 	add_child(p)
