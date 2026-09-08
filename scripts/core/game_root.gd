@@ -307,6 +307,14 @@ func _finalize_run() -> void:
 	_best_score = maxi(_best_score, _current_run.score)
 	_best_wave = maxi(_best_wave, _current_run.current_wave)
 	SaveManager.record_run_completed(summary)
+	# The save store owns the authoritative bests (it loads from disk before
+	# GameRoot in the autoload order — see project.godot note); adopt them after
+	# recording so the emitted best is never a stale startup cache.
+	if SaveManager != null:
+		if SaveManager.has_method("get_best_score"):
+			_best_score = maxi(_best_score, SaveManager.get_best_score())
+		if SaveManager.has_method("get_best_wave"):
+			_best_wave = maxi(_best_wave, SaveManager.get_best_wave())
 	RunAnalytics.record_run_end(summary)
 	EventBus.run_ended.emit(_current_run.score, _current_run.current_wave, _best_score)
 	# The run-end sting fires exactly once with the run_ended fan-out (the music

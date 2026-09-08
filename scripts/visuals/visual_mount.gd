@@ -11,10 +11,20 @@ extends Node3D
 
 func _ready() -> void:
 	var body := get_parent()
-	if body is Node3D and role != &"" and CharacterVisuals.has_model(role):
-		var mounted := CharacterVisuals.mount(body as Node3D, role)
-		if mounted == null and EventBus != null:
-			EventBus.report_warning("VisualMount: no model mounted for role %s (primitive kept)" % String(role))
+	if not body is Node3D or role == &"" or not CharacterVisuals.has_model(role):
+		return
+	var mounted := CharacterVisuals.mount(body as Node3D, role)
+	if mounted != null:
+		return
+	# Model mount failed (missing/unimported/undecodable asset on this device):
+	# the actor falls back to its scene-authored primitive Body. Loud warning —
+	# including the model path and whether the fallback visual is present — so
+	# on-device failures are diagnosable instead of an invisible actor.
+	if EventBus != null:
+		var fallback := (body as Node3D).get_node_or_null("VisualRoot/CharacterModel/Body") != null
+		EventBus.report_warning("VisualMount: no model mounted for role %s (path %s) — %s" % [
+			String(role), CharacterVisuals.model_path(role),
+			"primitive Body fallback kept" if fallback else "NO FALLBACK VISUAL PRESENT"])
 
 ## Hardened: validate visual mount.
 func _validated_mount(host: Node, id: StringName) -> bool:

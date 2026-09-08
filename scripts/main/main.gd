@@ -90,6 +90,7 @@ func _safe_arena_id(default: StringName = &"default_arena") -> StringName:
 
 func _start_run_waves() -> void:
 	if _wave_manager == null or _spawn_manager == null:
+		EventBus.report_error("Waves cannot start: spawn/wave systems missing (world build was incomplete)")
 		return
 	_run_started = true
 	_wave_manager.start_run(_safe_seed())
@@ -107,8 +108,9 @@ func build_world(arena_id: StringName) -> void:
 	_clear_world()
 	_run_started = false
 	if _world_root == null:
+		EventBus.report_error("World build aborted: WorldRoot missing from main scene")
 		return
-	var arena_cfg := ContentRegistry.get_arena(arena_id)
+	var arena_cfg := ContentRegistry.get_arena(arena_id) if ContentRegistry != null else null
 	if (arena_cfg == null or arena_cfg.scene == null) and ContentRegistry != null:
 		var fallback_id: StringName = ContentRegistry.get_selected_arena_id()
 		if fallback_id != arena_id:
@@ -125,9 +127,15 @@ func build_world(arena_id: StringName) -> void:
 		EventBus.report_error("Arena config/scene missing for %s" % String(arena_id))
 		return
 	var arena := arena_scene.instantiate()
+	if arena == null:
+		EventBus.report_error("Arena scene failed to instantiate: %s" % arena_scene.resource_path)
+		return
 	arena.name = "Arena"
 	_world_root.add_child(arena)
 	var player := _spawn_player(arena)
+	if player == null:
+		EventBus.report_error("World build incomplete: player failed to spawn; run systems not created")
+		return
 	_create_systems(arena, player)
 
 
@@ -136,9 +144,16 @@ func _spawn_player(arena: Node) -> Node:
 	var spawn := Transform3D.IDENTITY
 	if start_marker != null:
 		spawn = start_marker.global_transform
+	if PLAYER_SCENE == null:
+		EventBus.report_error("Player scene failed to load: scenes/player/player.tscn (the player will not appear)")
+		return null
 	var player := PLAYER_SCENE.instantiate()
+	if player == null:
+		EventBus.report_error("Player scene failed to instantiate: scenes/player/player.tscn (the player will not appear)")
+		return null
 	player.name = "Player"
 	_world_root.add_child(player)
+	_validate_player_visual(player)
 	if player.has_method("reset_for_new_run"):
 		player.call("reset_for_new_run", spawn)
 	GameRoot.set_active_player(player)
@@ -149,6 +164,23 @@ func _spawn_player(arena: Node) -> Node:
 		player.call("set_control_enabled", true)
 	_setup_camera(player)
 	return player
+
+
+## Verify the player spawned with its full authored visuals. If the scene failed
+## to build CharacterModel/Audio/attachments, log a clear diagnostic instead of
+## silently running an invisible or partially-assembled hero.
+func _validate_player_visual(player: Node) -> void:
+	var visual_root := player.get_node_or_null("VisualRoot") as Node3D
+	if visual_root == null:
+		EventBus.report_error("Player spawned WITHOUT VisualRoot — the hero will be invisible on device")
+		return
+	var model_mount := visual_root.get_node_or_null("CharacterModel")
+	if model_mount == null:
+		EventBus.report_error("Player VisualRoot has no CharacterModel mount — model will not attach")
+		return
+	var body := (model_mount as Node).get_node_or_null("Body")
+	if body == null:
+		EventBus.report_diagnostic("Player CharacterModel has no primitive Body; model mount is the only visual", &"warning")
 
 
 func _setup_camera(player: Node) -> void:
@@ -176,14 +208,20 @@ func _create_systems(arena: Node, player: Node) -> void:
 	spawn.name = "SpawnManager"
 	_world_root.add_child(spawn)
 	_spawn_manager = spawn as SpawnManager
-	_spawn_manager.configure(arena, player, container, _safe_seed())
+	if _spawn_manager == null:
+		EventBus.report_error("SpawnManager scene missing its script — enemies will not spawn (%s)" % SPAWN_SCENE.resource_path)
+	else:
+		_spawn_manager.configure(arena, player, container, _safe_seed())
 
 	var wave := WAVE_MANAGER_SCRIPT.new()
 	wave.name = "WaveManager"
 	_world_root.add_child(wave)
 	_wave_manager = wave as WaveManager
-	_wave_manager.setup(_spawn_manager)
-	_apply_daily_mutators()
+	if _wave_manager == null:
+		EventBus.report_error("WaveManager script failed to instantiate — waves will not run")
+	else:
+		_wave_manager.setup(_spawn_manager)
+		_apply_daily_mutators()
 
 	_create_run_systems(arena, player)
 

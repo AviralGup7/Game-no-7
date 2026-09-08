@@ -16,14 +16,25 @@ config/icon="res://icon.svg"
 config/version="0.6.0"
 boot_splash/bg_color=Color(0.09, 0.1, 0.12, 1)
 
+; Autoload initialization is order-sensitive: each singleton's _ready() runs in
+; declaration order, so a singleton may only read another singleton's *data* in
+; _ready() when the dependency is declared ABOVE it (all nodes exist by then —
+; the engine defers tree insertion — but only earlier _ready()s have run).
+; Keep this dependency-first ordering:
+;   EventBus      — no dependencies (signals only)
+;   SaveManager   — loads from disk in _ready(); reports through EventBus
+;   AudioManager  — applies SaveManager settings + EventBus signals at _ready()
+;   ContentRegistry — registers loaded + catalogued audio cues into AudioManager
+;   GameRoot      — reads persisted best score/wave from SaveManager at _ready()
+;   SceneRouter/RunAnalytics/TestHarness — leaf singletons
 [autoload]
 
-GameRoot="*res://scripts/core/game_root.gd"
 EventBus="*res://scripts/core/event_bus.gd"
-AudioManager="*res://scripts/audio/audio_manager.gd"
 SaveManager="*res://scripts/save/save_manager.gd"
-SceneRouter="*res://scripts/core/scene_router.gd"
+AudioManager="*res://scripts/audio/audio_manager.gd"
 ContentRegistry="*res://scripts/core/content_registry.gd"
+GameRoot="*res://scripts/core/game_root.gd"
+SceneRouter="*res://scripts/core/scene_router.gd"
 RunAnalytics="*res://scripts/core/run_analytics.gd"
 TestHarness="*res://scripts/core/test_harness.gd"
 
