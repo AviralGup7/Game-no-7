@@ -62,18 +62,24 @@ godot --headless --path . --script res://tests/run_tests.gd
 ## Downloaded 3D asset kit
 
 The reviewed asset library now contains **9 rigged/animated character models,
-81 models total, detailed stone maps, UI/particle textures, 2 fonts, 29 sound
-effects and 2 music loops** (~35.05 MiB of locked downloads). All source files have
-pinned provenance, SHA-256 checksums and preserved licences.
+81 models total, photo-PBR arena texture sets, real HDRI panorama skies,
+UI/particle textures, 2 fonts, 29 sound effects and 2 music loops**
+(~45.63 MiB of locked downloads). All source files have pinned provenance,
+SHA-256 checksums and preserved licences.
 
-**Integrated:** detailed arena floor/wall materials, six distinct pickup models,
-the approved character + enemy models on the live actors, KayKit dungeon props and
-per-arena themes (Default / Ember Crucible / Frost Hollow), pooled death/wave/boss/
-status VFX, and the approved recorded SFX + music registered over the procedural
-fallback. See the [asset catalogue](docs/ASSET_CATALOG.md) and
+**Integrated — HD realism pass:** the arena was rebuilt with photo-PBR rock floor,
+aged-brick walls, marble dais/cornices, an iron-banded wooden gate, corner towers
+and flickering torch sconces; each arena gets its own real Poly Haven CC0 HDRI
+sky (sunrise / sunset / moonlit) with image-based lighting; 2× MSAA, 8×
+anisotropic filtering, high-quality PCF shadows and glow are enabled; every
+character, enemy and arena prop receives a role-tuned PBR material pass
+(`HdMaterials`). Earlier work — six pickup models, approved characters/enemies on
+live actors, KayKit dungeon props, per-arena themes, pooled VFX and registered
+SFX/music — remains. See the [asset catalogue](docs/ASSET_CATALOG.md) and
 [quality audit](docs/ASSET_AUDIT.md) for exact additions, replacement selections,
-upstream checks and limitations. Weapon hand-attachments and UI skinning remain
-future work.
+upstream checks and limitations. A photoreal animated character rig set (with
+combat-clip coverage) remains future work; the audit records the reviewed
+candidates and why they were not drop-in replacements.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check
