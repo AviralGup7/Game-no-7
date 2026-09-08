@@ -39,7 +39,9 @@ func _ready() -> void:
 	close.text = "Close"
 	close.custom_minimum_size = Vector2(200, 56)
 	close.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	close.pressed.connect(func() -> void: close_requested.emit())
+	close.pressed.connect(func() -> void:
+		UiFactory.play_press("Close")
+		close_requested.emit())
 	add_child(close)
 	refresh()
 
@@ -126,9 +128,10 @@ func _prereq_names(def: Dictionary) -> String:
 
 
 func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
+	UiFactory.play_press("BUY")
 	if UiCommands.purchase(get_tree(), item_id):
 		_feedback.text = "%s purchased. Rank %d." % [MetaProgression.ARMORY[item_id]["name"], meta.get_rank(item_id)]
-		AudioManager.play_sfx(&"upgrade_select")
+		AudioManager.play_sfx(&"upgrade_select", -8.0)
 	else:
 		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()

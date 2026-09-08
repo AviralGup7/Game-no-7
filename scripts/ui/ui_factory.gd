@@ -53,7 +53,32 @@ static func button(text: String, parent: Node, font_size: int, min_size: Vector2
 	b.mouse_filter = Control.MOUSE_FILTER_STOP
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	parent.add_child(b)
+	# Every factory button acknowledges its press acoustically (previously the
+	# ui_confirm/ui_back cues existed but had zero call sites, so the whole UI
+	# was silent). Resolve through the tree so headless/test contexts stay safe.
+	b.pressed.connect(func() -> void: UiFactory.play_press(b.text))
 	return b
+
+
+## Shared press tick for factory buttons AND hand-built buttons (upgrade cards,
+## armory rows, dialogs). Back/dismiss-style captions get `ui_back`, everything
+## else gets `ui_confirm`. Failure-safe: silence when audio is unavailable.
+static func play_press(caption: String) -> void:
+	var cue := &"ui_back" if _is_back_caption(caption) else &"ui_confirm"
+	var loop := Engine.get_main_loop() as SceneTree
+	if loop == null or loop.root == null:
+		return
+	var audio := loop.root.get_node_or_null("AudioManager")
+	if audio != null and audio.has_method("play_sfx"):
+		audio.call("play_sfx", cue, -8.0)
+
+
+static func _is_back_caption(caption: String) -> bool:
+	var upper := caption.to_upper()
+	for token in ["BACK", "RETURN", "QUIT", "CANCEL", "LEAVE", "SKIP", "GOT IT", "MAIN MENU", "CLOSE"]:
+		if upper.contains(token):
+			return true
+	return false
 
 static func check(text: String, parent: Node, initial: bool, on_toggle: Callable, font_size: int) -> CheckButton:
 	var c := CheckButton.new()

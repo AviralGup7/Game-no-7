@@ -5,6 +5,41 @@
 - **Version bump**: `0.5.0→0.6.0` (version code `2→3`).
 - Initiated development cycle for `v0.6.0`.
 
+## [Unreleased] — Audio & feedback polish (2026-09-08)
+
+No new gameplay; feel-only fixes to existing audio, buses, and feedback.
+- **Missing audio connected**: every `UiFactory` button now ticks (`ui_confirm` /
+  `ui_back` by caption; those cues previously had zero call sites), plus upgrade
+  cards, armory buy/close, option rows, toggles, the leave-run dialog, keyboard
+  pause/resume, and the run-end `game_over` sting in `GameRoot._finalize_run`.
+- **Double plays removed**: level-up no longer stacks `upgrade_select` over
+  `level_up`; weapon switch plays `player_switch` exactly once (`equip` kept as a
+  fallback via the `play_sfx` return value instead of a layered double).
+- **Consistent mix**: enemy/pickup/upgrade cues moved from 0 dB to the catalogue's
+  suggested gains (`-8`, spawns `-10`, explosions `-6`); enemy cues gained slight
+  pitch variance; `AudioManager.play_sfx` now clamps volume/pitch (the
+  `_validated_volume` helper was previously unused).
+- **Music lifecycle**: menu bed seeds on fresh launch (previously silent until the
+  first return to menu); heat resets on run start; crossfades capture the outgoing
+  level so rapid state changes don't pop; recorded tracks register before tracking
+  starts so launch audio is never the procedural placeholder.
+- **Background/foreground**: `AudioManager` mutes the master bus on
+  application-pause/focus-loss and restores on resume, combined with (never
+  overwriting) the player's mute setting.
+- **Volume controls**: settings sliders preview live on the mixer without touching
+  saved data; leaving without saving restores the saved mix (`cancel_preview`).
+- **Enemy hit feedback rebuilt**: `EnemyFeedback` no longer touches the
+  nonexistent `Node3D.modulate` (runtime errors on every hit, no flash) — color
+  flashes use a per-enemy overlay material, scale pops are relative so archetype /
+  elite scales survive hits, overlapping flashes replace instead of piling up,
+  hit/crit juice honors reduced motion, and the death sink fills the 0.8 s free
+  window instead of vanishing early.
+- **Softer transitions**: announcement banner entrance pop (reduced-motion aware),
+  boss bar fade in/out with spawn-token guard, fallback idle clips forced to loop.
+- **Hygiene**: integrator re-registration resets its counters; no new players,
+  buses, or content — pool and memory footprint unchanged (16 SFX + 2 music + 1
+  legacy music voice).
+
 ## [0.5.0] — Polished presentation & release fix (2026-09-08)
 
 - **Arena identities**: per-arena themes (ember 0.12/0.85 fog 0.028 sun1.85, frost 0.18/0.82 fog0.024, default) plus central `Landmark` (forge lava 4.5+light2.2, crystal prisms 1.8, obelisk+cap) via `arena.gd:THEMES`+`_spawn_landmark`; `arena_decorator` distinct clutter (ember 18+5 braziers, frost columns+ice shards, default stone circle).

@@ -104,7 +104,9 @@ func _build_screens() -> void:
 	_confirm.ok_button_text = "LEAVE RUN"
 	_confirm.cancel_button_text = "KEEP PLAYING"
 	_confirm.confirmed.connect(func() -> void:
+		UiFactory.play_press("LEAVE")
 		if _confirm_command.is_valid(): _confirm_command.call())
+	_confirm.canceled.connect(func() -> void: UiFactory.play_press("CANCEL"))
 	add_child(_confirm)
 
 func _build_pause() -> void:
@@ -217,7 +219,9 @@ func _navigate(screen: StringName) -> void:
 	_show_screen(screen)
 
 func _close_auxiliary() -> void:
-	if _active_screen == &"settings": _settings.cancel_edit()
+	if _active_screen == &"settings":
+		_settings.cancel_edit()
+		_settings.cancel_preview()
 	_show_screen(_return_screen)
 
 func _input(event: InputEvent) -> void:

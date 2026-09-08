@@ -71,7 +71,19 @@ func _process(delta: float) -> void:
 	add_theme_color_override("font_color", _severity_color(StringName(String(next["severity"]))))
 	_timer = SHOW_SECONDS + FADE_SECONDS
 	self_modulate.a = 1.0
-	scale = Vector2.ONE
+	_pop_in()
+
+
+## Small entrance pop so new announcements land with weight instead of blinking
+## in. Skipped under reduced motion (matches the documented behavior).
+func _pop_in() -> void:
+	if _reduced_motion or not is_inside_tree():
+		scale = Vector2.ONE
+		return
+	pivot_offset = size * 0.5
+	scale = Vector2(0.92, 0.92)
+	var tween := create_tween()
+	tween.tween_property(self, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _severity_color(severity: StringName) -> Color:

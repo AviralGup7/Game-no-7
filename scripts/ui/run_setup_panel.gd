@@ -35,7 +35,9 @@ func _ready() -> void:
 			if config != null and config.arena_id not in _arena_ids:
 				_arena_ids.append(config.arena_id)
 				_arenas.add_item(config.display_name)
-	_arenas.item_selected.connect(func(_i: int) -> void: _refresh_details())
+	_arenas.item_selected.connect(func(_i: int) -> void:
+		UiFactory.play_press("OPTION")
+		_refresh_details())
 	var weapon_card := UiFactory.card(body)
 	UiFactory.title("LOADOUT INTEL", weapon_card, 22)
 	_weapons = OptionButton.new()
@@ -45,7 +47,9 @@ func _ready() -> void:
 	_weapon_ids.sort()
 	for id in _weapon_ids:
 		_weapons.add_item(ContentRegistry.get_weapon(id).display_name)
-	_weapons.item_selected.connect(func(_i: int) -> void: _refresh_details())
+	_weapons.item_selected.connect(func(_i: int) -> void:
+		UiFactory.play_press("OPTION")
+		_refresh_details())
 	_weapon_info = UiFactory.label("", weapon_card)
 	_feedback = UiFactory.label("", body, 20)
 	_feedback.modulate = UiTheme.GOLD

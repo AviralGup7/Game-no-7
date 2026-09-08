@@ -47,6 +47,8 @@ func register() -> void:
 	if AudioManager == null or ContentRegistry == null:
 		EventBus.report_warning("AudioAssetIntegrator: autoloads not ready")
 		return
+	_registered_sfx = 0
+	_registered_music = 0
 	var catalog: Variant = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH))
 	if not catalog is Dictionary:
 		EventBus.report_warning("AudioAssetIntegrator: cannot read " + CATALOG_PATH)
@@ -79,7 +81,11 @@ func register() -> void:
 
 
 ## Pooled one-shot SFX: one AudioStreamRandomizer per cue so variants play alternately.
-static func _build_variant_stream(files: Array, volume_db: float) -> AudioStreamRandomizer:
+## NOTE: `_volume_db` (the catalogue's suggested gain) is intentionally not baked
+## into the shared stream — AudioStreamRandomizer has no base-gain property and the
+## streams are shared. Gains live at the play_sfx() call sites instead, matching
+## the catalogue values (player/enemy/pickup/UI all pass them explicitly).
+static func _build_variant_stream(files: Array, _volume_db: float) -> AudioStreamRandomizer:
 	var any := false
 	var rand := AudioStreamRandomizer.new()
 	rand.playback_mode = AudioStreamRandomizer.PLAYBACK_RANDOM

@@ -171,7 +171,7 @@ func _on_collected(pickup: Pickup, collector: Node) -> void:
 
 func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
 	if AudioManager != null:
-		AudioManager.play_sfx(&"pickup")
+		AudioManager.play_sfx(&"pickup", -8.0)
 	var amount := cfg.scaled_amount(level)
 	match cfg.effect:
 		PickupConfig.EFFECT_HEAL:

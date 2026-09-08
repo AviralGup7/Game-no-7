@@ -28,7 +28,7 @@ func refresh() -> void:
 	_pending_bindings.clear()
 	_rebind_buttons.clear()
 	_volume_labels.clear()
-	UiFactory.label("Apply saves your changes. Back discards unapplied edits.", self, 20)
+	UiFactory.label("Volume sliders preview live. Apply saves your changes. Back discards unapplied edits.", self, 20)
 	_section("AUDIO")
 	for key in ["master", "music", "sfx"]:
 		_volume_row(key)
@@ -53,14 +53,18 @@ func refresh() -> void:
 	if q_idx < 0:
 		q_idx = 1  # medium is the safe default for unknown/legacy values
 	quality.select(q_idx)
-	quality.item_selected.connect(func(index: int) -> void: _draft.set_graphics_quality(tiers[index]))
+	quality.item_selected.connect(func(index: int) -> void:
+		_draft.set_graphics_quality(tiers[index])
+		UiFactory.play_press("OPTION"))
 	add_child(quality)
 	var fps := OptionButton.new()
 	fps.custom_minimum_size.y = 56
 	for cap in [30, 60, 120, 0]:
 		fps.add_item(("%d FPS" % cap if cap > 0 else "Unlimited FPS") + " (this session)", cap)
 	fps.select(maxi(fps.get_item_index(_fps), 0))
-	fps.item_selected.connect(func(index: int) -> void: _fps = fps.get_item_id(index))
+	fps.item_selected.connect(func(index: int) -> void:
+		_fps = fps.get_item_id(index)
+		UiFactory.play_press("OPTION"))
 	add_child(fps)
 	_section("KEYBOARD / GAMEPAD BINDINGS")
 	UiFactory.label("Bindings apply for this session only; the current save schema has no binding field. Escape cancels capture. Conflicts are rejected.", self, 18)
@@ -100,7 +104,22 @@ func _volume_row(key: String) -> void:
 	var slider := _slider(0, 1, 0.01, value)
 	slider.value_changed.connect(func(amount: float) -> void:
 		_draft.call("set_" + key + "_volume", amount)
-		label.text = "%s  %d%%" % [key.capitalize(), int(amount * 100)])
+		label.text = "%s  %d%%" % [key.capitalize(), int(amount * 100)]
+		_preview_volume(key, amount))
+
+
+## Live mix preview: writes straight to the mixer bus without touching the saved
+## SettingsData, so Back still discards while the player hears each change.
+func _preview_volume(key: String, amount: float) -> void:
+	if AudioManager != null and AudioManager.has_method("preview_bus_volume"):
+		AudioManager.preview_bus_volume(key, amount)
+
+
+## Restore the saved mix after leaving without saving (ui_root calls this next
+## to cancel_edit). After SAVE, the persisted settings are already live.
+func cancel_preview() -> void:
+	if AudioManager != null and AudioManager.has_method("apply_settings"):
+		AudioManager.apply_settings(SaveManager.get_settings())
 
 func _toggle(text: String, initial: bool, callback: Callable) -> void:
 	var row := HBoxContainer.new()
@@ -111,7 +130,9 @@ func _toggle(text: String, initial: bool, callback: Callable) -> void:
 	check.custom_minimum_size = Vector2(90, 56)
 	check.button_pressed = initial
 	check.tooltip_text = text
-	check.toggled.connect(callback)
+	check.toggled.connect(func(on: bool) -> void:
+		callback.call(on)
+		UiFactory.play_press("TOGGLE"))
 	row.add_child(check)
 
 func _begin_rebind(action: StringName) -> void:

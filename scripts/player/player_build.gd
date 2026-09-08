@@ -44,7 +44,7 @@ func apply_upgrade(upgrade_id: StringName) -> bool:
 	if not bool(_progression.call("apply_upgrade_by_id", upgrade_id)):
 		return false
 	upgrade_applied.emit(upgrade_id)
-	AudioManager.play_sfx(&"upgrade_select")
+	AudioManager.play_sfx(&"upgrade_select", -8.0)
 	rebuild_derived_stats()
 	if was_full:
 		_top_up_health_to_max()

@@ -43,9 +43,10 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_switch(_old: StringName, _new: StringName) -> void:
-	AudioManager.play_sfx(&"player_switch", -8.0)
-	# LIVE alias: equip shares same file as switch; keep both cues LIVE.
-	AudioManager.play_sfx(&"equip", -8.0)
+	# `equip` shares the switch file: use it as a fallback, never a layer, so a
+	# successful switch plays exactly once (play_sfx reports failure/silence).
+	if not AudioManager.play_sfx(&"player_switch", -8.0):
+		AudioManager.play_sfx(&"equip", -8.0)
 
 
 func _on_reload(_id: StringName) -> void:
@@ -84,11 +85,11 @@ func play_death() -> void:
 
 
 func play_upgrade() -> void:
-	AudioManager.play_sfx(&"upgrade_select")
+	AudioManager.play_sfx(&"upgrade_select", -8.0)
 
 
 func play_pickup() -> void:
-	AudioManager.play_sfx(&"pickup")
+	AudioManager.play_sfx(&"pickup", -8.0)
 
 ## Hardened: validate audio cue.
 func _validated_cue(cue: StringName) -> bool:

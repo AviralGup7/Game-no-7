@@ -122,6 +122,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 func _on_card_pressed(upgrade_id: StringName) -> void:
 	if _selection_locked:
 		return
+	UiFactory.play_press("CONFIRM")
 	choice_pressed.emit(upgrade_id)
 
 
