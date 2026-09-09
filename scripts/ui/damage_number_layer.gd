@@ -193,7 +193,7 @@ func _process(delta: float) -> void:
 		var follow: Node3D = entry.get("follow", null) as Node3D
 		if follow != null and is_instance_valid(follow) and follow.is_inside_tree() \
 				and not (follow is Damageable and not (follow as Damageable).is_alive()):
-			var world := follow.global_position + entry.get("offset", Vector3.UP)
+			var world: Vector3 = follow.global_position + (entry.get("offset", Vector3.UP) as Vector3)
 			entry["last_world"] = world
 			var projected: Variant = _project(world)
 			if projected != null:

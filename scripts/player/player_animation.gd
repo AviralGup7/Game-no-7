@@ -93,11 +93,11 @@ func _bind_animation() -> bool:
 		var library := _animation.get_animation_library(library_name).duplicate() as AnimationLibrary
 		for clip in [idle_clip, walk_clip, run_clip]:
 			if library.has_animation(clip):
-			var loop := library.get_animation(clip).duplicate() as Animation
-			loop.loop_mode = Animation.LOOP_LINEAR
-			_lock_hip_xz(loop)
-			library.remove_animation(clip)
-			library.add_animation(clip, loop)
+				var loop := library.get_animation(clip).duplicate() as Animation
+				loop.loop_mode = Animation.LOOP_LINEAR
+				_lock_hip_xz(loop)
+				library.remove_animation(clip)
+				library.add_animation(clip, loop)
 		_animation.remove_animation_library(library_name)
 		_animation.add_animation_library(library_name, library)
 	_animation.animation_finished.connect(_on_finished)
