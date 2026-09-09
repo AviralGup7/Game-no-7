@@ -97,6 +97,7 @@ func _begin(index: int, position: Vector2) -> void:
 		return
 	if not _is_finite_v2(position):
 		return
+	_resume_ignore = 0.0
 	_active = true
 	_touch_index = index
 	_base = position
