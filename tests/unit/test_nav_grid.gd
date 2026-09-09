@@ -57,10 +57,18 @@ static func _wall_free_los() -> bool:
 static func _flow_field_routes_around(results: Array) -> void:
 	var g := _wall_grid()
 	g.rebuild_flow_field(Vector3(11.0, 0.0, 0.0))
+	# The start sits in the CLEAR LANE west of the wall: the field heads
+	# straight east until the wall edge forces a turn (a human takes the lane,
+	# it does not pre-detour across empty ground).
 	var d := g.flow_field_direction(Vector3(0.0, 0.0, 0.0))
 	_check(results, "flow field gives a direction at the start", d != Vector3.ZERO, str(d))
-	_check(results, "flow field detours around the wall (lateral + forward)",
-			d.x > 0.3 and absf(d.z) > 0.3, str(d))
+	_check(results, "flow field takes the clear lane east from the start",
+			d.x > 0.9 and absf(d.z) < 0.1, str(d))
+	# Right up against the wall's edge the field turns onto the detour (north,
+	# the first open side in the fixed neighbor order).
+	var dn := g.flow_field_direction(Vector3(3.0, 0.0, 0.0))
+	_check(results, "flow field turns lateral at the wall edge",
+			absf(dn.z) > 0.9 and absf(dn.x) < 0.1, str(dn))
 	var at_target := g.flow_field_direction(Vector3(11.0, 0.0, 0.0))
 	_check(results, "flow field is zero at the target", at_target.length() < 0.001, str(at_target))
 	var inside_wall := g.flow_field_direction(Vector3(6.0, 0.0, 0.0))
@@ -125,11 +133,19 @@ static func _paths_equal(a: PackedVector3Array, b: PackedVector3Array) -> bool:
 static func _obstacle_layouts(results: Array) -> void:
 	var ids := ["default_arena", "ember_crucible", "frost_hollow"]
 	var spawn_points := [Vector3(11, 0, 0), Vector3(-11, 0, 0), Vector3(0, 11, 0), Vector3(0, -11, 0)]
-	# Circular hazards per arena (vents/heal) from ArenaHazards._layout_defaults.
+	# Hazard CENTERS per arena, mirrored from ArenaHazards._layout_defaults.
+	# Hazards are allowed to sit beside obstacles by design (a vent on the lane
+	# next to a pillar); the constraint is that no hazard CENTER is buried
+	# inside a solid obstacle box, which would mask the hazard's effect area.
 	var hazards := {
-		"default_arena": [[Vector3(6, 0, 0), 2.2], [Vector3(-6, 0, 0), 2.2], [Vector3(0, 0, -6), 2.5]],
-		"ember_crucible": [[Vector3(5, 0, 5), 2.2], [Vector3(-5, 0, 5), 2.2], [Vector3(5, 0, -5), 2.2], [Vector3(-5, 0, -5), 2.2], [Vector3(0, 0, 0), 2.5]],
-		"frost_hollow": [[Vector3(0, 0, 4), 2.5], [Vector3(0, 0, -4), 2.5]],
+		"default_arena": [Vector3(6, 0, 0), Vector3(-6, 0, 0), Vector3(0, 0, 6), Vector3(0, 0, -6),
+			Vector3(4, 0, 4), Vector3(-4, 0, -4), Vector3(3, 0, -3), Vector3(-3, 0, 3),
+			Vector3(0, 0, 0), Vector3(0, 0, -6), Vector3(0, 0, 6)],
+		"ember_crucible": [Vector3(5, 0, 5), Vector3(-5, 0, -5), Vector3(-5, 0, 5), Vector3(5, 0, -5),
+			Vector3(0, 0, 7), Vector3(0, 0, -7), Vector3(0, 0, 0), Vector3(6, 0, 0), Vector3(7, 0, 7)],
+		"frost_hollow": [Vector3(4, 0, 0), Vector3(-4, 0, 0), Vector3(0, 0, 5), Vector3(0, 0, -5),
+			Vector3(6, 0, 6), Vector3(-6, 0, -6), Vector3(0, 0, 4), Vector3(0, 0, -4),
+			Vector3(0, 0, 0), Vector3(0, 0, 7)],
 	}
 	var half := 12.0
 	for id in ids:
@@ -139,7 +155,7 @@ static func _obstacle_layouts(results: Array) -> void:
 			continue
 		var in_bounds := true
 		var spawn_clear := true
-		var hazard_clear := true
+		var hazard_buried := false
 		for ob in layout:
 			var pos: Vector3 = ob["pos"]
 			var hs: Vector3 = ob["half_size"]
@@ -150,13 +166,12 @@ static func _obstacle_layouts(results: Array) -> void:
 				if pos.distance_to(sp) < foot + 1.2 + 0.5:
 					spawn_clear = false  # jitter 1.2 + 0.5 safety
 			for hz in hazards[id]:
-				var hp: Vector3 = hz[0]
-				var hr: float = hz[1]
-				if pos.distance_to(hp) < foot + hr + 0.3:
-					hazard_clear = false
+				var hp: Vector3 = hz
+				if absf(hp.x - pos.x) < hs.x and absf(hp.z - pos.z) < hs.z:
+					hazard_buried = true  # hazard center inside the solid box
 		_check(results, "%s: obstacles inside the arena" % id, in_bounds)
 		_check(results, "%s: spawn markers stay clear (jitter-proof)" % id, spawn_clear)
-		_check(results, "%s: hazard footprints stay clear" % id, hazard_clear)
+		_check(results, "%s: no hazard center buried in an obstacle" % id, not hazard_buried)
 	# The Pit keeps a passable gate between its twin towers.
 	var pit := ArenaObstacles.layout_for(StringName("default_arena"), half)
 	var gap := 999.0

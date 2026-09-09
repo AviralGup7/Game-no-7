@@ -138,9 +138,9 @@ func _maneuver_goal(host: EnemyBase, target_pos: Vector3, flat_offset: Vector3, 
 			var perp := Vector3(-to_target.z, 0.0, to_target.x) * side
 			# A point beside the lane to the target: arcs in instead of piling on.
 			return target_pos + perp * orbit + to_target * (0.5 * orbit)
-		Maneuver.STRAFE:
 		_:
-			# Hold the current band and drift sideways (skirmisher rhythm).
+			# STRAFE (the only remaining maneuver): hold the current band and
+			# drift sideways (skirmisher rhythm).
 			var perp := Vector3(-to_target.z, 0.0, to_target.x) * _flank_sign
 			var hold := clampf(dist, cfg_attack_range(host) * 0.9, cfg_attack_range(host) * 1.4)
 			return host.global_position + perp * 0.8 + to_target * (hold - dist)

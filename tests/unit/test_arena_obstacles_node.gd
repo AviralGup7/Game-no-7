@@ -111,7 +111,8 @@ static func _run_checks(results: Array, arena: Node3D) -> void:
 	})
 
 	# Static environment survived: floor + 4 walls with meshes, boundary body
-	# with 5 shapes (floor + 4 walls).
+	# with AT LEAST the 5 core shapes (floor + 4 walls; presentation adds the
+	# four corner tower shapes on the same body).
 	var floor_mi := arena.get_node_or_null("Geometry/Floor") as MeshInstance3D
 	var walls_ok := floor_mi != null and floor_mi.mesh != null
 	for wn in ["Wall_N", "Wall_S", "Wall_E", "Wall_W"]:
@@ -131,7 +132,7 @@ static func _run_checks(results: Array, arena: Node3D) -> void:
 	})
 	results.append({
 		"name": "arena: boundary collision has floor + 4 wall shapes",
-		"passed": boundary != null and boundary_shapes == 5,
+		"passed": boundary != null and boundary_shapes >= 5,
 		"why": "shapes=%d" % boundary_shapes,
 	})
 
