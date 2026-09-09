@@ -515,28 +515,28 @@ func _lethal_payload(source: Node) -> DamagePayload:
 ## initialize() and through its first steps, surfaced via an ::error annotation
 ## (visible on GitHub) because CI step logs/artifacts are not downloadable here.
 func _encounter_probe_debug() -> void:
-	var dbg := PackedStringArray()
+	var miss := PackedStringArray()
 	var tgt := _FakeTarget.new()
 	root.add_child(tgt)
 	tgt.global_position = Vector3(1.0, 0.0, 0.0)
 	var e := _make_enemy(_basic_cfg(), Vector3.ZERO, tgt)
 	var m := e.get_node("EnemyStateMachine") as EnemyStateMachine
-	var reg := 0
 	for s in EnemyStateMachine.STATE_IDS:
-		if m.has_state(s):
-			reg += 1
-	dbg.append("registered=%d/%d" % [reg, EnemyStateMachine.STATE_IDS.size()])
-	dbg.append("current_after_init=%s" % String(m.get_current()))
-	dbg.append("alive=%s" % str(e.is_alive()))
-	dbg.append("ai_enabled=%s" % str(e._ai_enabled))
-	dbg.append("archetype=%s" % String(e.get_archetype_id()))
-	dbg.append("perc=%s can_engage=%s" % [e.get_perception().get_status_name(), str(e.get_perception().can_engage())])
-	dbg.append("reaction=%s vision=%s always=%s" % [str(e.get_perception().reaction_base), str(e.get_perception().vision_range), str(e.get_perception().always_aware)])
+		if not m.has_state(s):
+			miss.append(String(s))
+	print("::error title=ENCOUNTER_DEBUG1::missing=[%s] current=%s perc=%s react=%s always=%s" % [",".join(miss), String(m.get_current()), e.get_perception().get_status_name(), str(e.get_perception().reaction_base), str(e.get_perception().always_aware)])
+	# Directly construct each state class to find the one that errors at runtime.
+	print("::error title=ENCOUNTER_DEBUG2::idle=%s" % str(EnemyIdleState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::chase=%s" % str(EnemyChaseState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::attack=%s" % str(EnemyAttackState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::hurt=%s" % str(EnemyHurtState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::dead=%s" % str(EnemyDeadState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::ranged=%s" % str(EnemyRangedState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::dash=%s" % str(EnemyDashState.new() != null))
+	print("::error title=ENCOUNTER_DEBUG2::fuse=%s" % str(EnemyFuseState.new() != null))
 	for i in range(6):
 		_step_enemy(e, 1.0 / 60.0)
-		dbg.append("step%d=%s" % [i, String(m.get_current())])
-	dbg.append("perc_after=%s can_engage_after=%s" % [e.get_perception().get_status_name(), str(e.get_perception().can_engage())])
-	print("::error title=ENCOUNTER_DEBUG::" + " ".join(dbg))
+		print("::error title=ENCOUNTER_DEBUG2::step%d=%s perc=%s" % [i, String(m.get_current()), e.get_perception().get_status_name()])
 	e.queue_free()
 	tgt.queue_free()
 
