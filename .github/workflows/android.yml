@@ -98,7 +98,21 @@ jobs:
 
       - name: Import project (godot --import)
         shell: bash
-        run: godot --headless --path . --import
+        run: |
+          set +e
+          godot --headless --path . --import > godot-import.log 2>&1
+          code=$?
+          set -e
+          echo "--- godot import errors surfaced as annotations ---"
+          awk '
+            {
+              line=$0; gsub(/[[:space:]]+/, " ", line);
+              if (line ~ /SCRIPT ERROR:|Parse Error:|Failed to load script|Identifier not found|not declared|Failed to compile depended/) {
+                print "::error title=godot import::" line;
+              }
+            }
+          ' godot-import.log
+          exit "$code"
 
       # Capture the full Godot output (stdout+stderr) so engine/runtime errors
       # that only appear on stderr can be surfaced as ::error annotations (the
