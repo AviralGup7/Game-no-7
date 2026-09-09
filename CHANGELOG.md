@@ -1,5 +1,119 @@
 # Changelog
 
+## [Unreleased] — Recheck, modularize, perfect (2026-09-09)
+
+Follow-up pass over the 2026-09-08 AI/collision work: full re-read of every
+touched file, extraction of the last inlined brain logic into the module
+pattern, and small correctness/perf fixes.
+
+### New: pack-coordination module (`scripts/enemies/enemy_pack.gd`)
+
+`EnemyPack` (RefCounted, same pattern as EnemyLocomotion/EnemyNavigator/
+EnemyStriker) now owns everything "the pack around me": hearing an ally's hit
+(stimulus into EnemyPerception), grief-retreat after nearby ally kills,
+player projectile/skill noise, and the separation steering query — including
+the EventBus wiring (injected `connect_signals`/`disconnect_signals`, so the
+module stays tree-free and headless-testable). `EnemyBase` shrank
+accordingly and delegates: `is_fear_retreating()`, per-frame `update`/
+`apply_separation`, `get_run_time()` for the grief window. Behavior is
+unchanged; the query parameters object is now allocated ONCE per enemy
+instead of per query (12–40 concurrent enemies was churning GC every
+0.12 s).
+
+### Fixes & polish
+
+* **Attention-boost leak** — `enemy_idle_state.gd` reset
+  `attention_boost = 1.0` only in the wander branch, so a look-pause boost
+  (×1.6) leaked into REACTING/INVESTIGATING for the whole investigate
+  window. The baseline is now reset at the top of `physics_update`, before
+  any branch; only an ACTIVE look-pause widens sight.
+* **Obstacle node building extracted** — `ArenaObstacles.build_nodes()`
+  (static, deterministic, no autoload access) creates the StaticBody3D/
+  BoxShape3D/BoxMesh set; `arena.gd`'s `_spawn_obstacles` now only resolves
+  the parent node and delegates.
+* **Flow-field refresh gated** — `arena.gd` skips the 10 Hz flow-field
+  refresh entirely while no enemies are on the field (the field rebuilds on
+  the first tick of the next wave).
+* **Nav margin = capsule radius** — `ArenaNavGrid.AGENT_MARGIN` 0.45 → 0.5
+  (the enemy capsule radius) so the path centerline never steers a body's
+  edge into a wall. Verified: blocked cells are identical at 0.5 m cell size,
+  so existing nav-grid assertions are unaffected.
+
+### Tests
+
+* `tests/unit/test_arena_obstacles_node.gd` (new, NODE_SUITES) —
+  instantiates the REAL arena scene headless and asserts end to end: one
+  StaticBody3D per layout entry on collision layer 1 with box shape + mesh
+  matching the layout, landmark collision body present, wall/floor geometry
+  and boundary collision intact, nav grid blocking every obstacle + landmark
+  footprint while the gate gap and player start stay walkable, LOS through
+  the landmark blocked, flow field steering. The arena is freed before the
+  later integration stages run.
+* `tests/unit/test_nav_grid.gd` — margin comment updated to 0.5.
+
+## [Unreleased] — Human-like enemy AI + nothing walks through objects (2026-09-08)
+
+Research-driven pass over the enemy brain and arena collision. Full source
+analysis (web game-dev literature + free open-source games on GitHub) lives in
+`docs/ENEMY_AI_RESEARCH.md`.
+
+### New: shared navigation grid (`scripts/arena/arena_nav_grid.gd`)
+
+One deterministic 48×48 grid per arena (the Manymies flow-field pattern): a
+shared flow field toward the player — rebuilt only when the player crosses a
+cell — plus per-goal A\* with string-pulling, sampled line-of-sight, no corner
+cutting, and deterministic tie-breaks. Pure RefCounted, headless-testable.
+
+### New: interior obstacles the player AND enemies collide with
+(`scripts/arena/arena_obstacles.gd`, `scripts/arena/arena.gd`)
+
+Each arena now has a deterministic pillar/block set (hand-cleared against
+hazards and spawn markers). Every obstacle is a StaticBody3D on collision
+layer 1 — the same layer the player (mask 1) and enemies (mask 5) use — and
+the same set feeds the nav grid, so **the AI's intent routes around exactly
+what physics blocks**. The central landmark (forge/crystal/obelisk) also gets
+a collision body: it was previously the one object both sides could walk
+through. Enemy packs also get soft separation steering so they fan out
+instead of overlapping each other.
+
+### New: perception + personality (the "human" pass)
+
+* `scripts/enemies/enemy_perception.gd` — sight (range + FOV cone + grid
+  line of sight), hearing (ally hits, kills, player attacks/skills, being hit),
+  a visible reaction beat, last-seen memory → investigate → forget, and the
+  legacy always-aware mode when ranges are zeroed.
+* `scripts/enemies/enemy_personality.gd` — deterministic per-enemy cast
+  (aggression, caution, aim skill, strafe bias, reaction scale, dash
+  willingness, cooldown spread) from `(run_seed, spawn_serial)`.
+* Idle now wanders + "looks around" instead of freezing; chase re-rolls a
+  maneuver (straight/flank/strafe) on a personal 0.9–1.8 s clock; melee
+  cooldowns are jittered per swing (0.6×–1.4×); ranged enemies fire only
+  with line of sight, aim with distance-scaled error, and their first shot
+  is deliberately loose; wounded cautious enemies back off briefly after
+  nearby allies die; dashers sometimes fake a charge by not dashing.
+* All knobs are data-driven: 9 new validated `EnemyConfig` fields, tuned
+  per archetype in `data/enemies/*.tres` (`detect_range > 0` still wins).
+* `scripts/enemies/enemy_navigator.gd` — grid (LOS → flow field → A\*) first,
+  legacy navmesh fallback, then direct.
+
+### Tests
+
+* `tests/unit/test_nav_grid.gd` — LOS, flow-field detour/idempotence, A\*
+  detour/reach/determinism, obstacle-layout safety (bounds, spawn/hazard
+  clearance, passable gate, scaling).
+* `tests/unit/test_enemy_brain.gd` — personality determinism + ranges; full
+  perception state machine (sight, hearing, LOS, FOV, memory, legacy mode).
+* `tests/run_tests.gd` — new "reaction beat" integration check; the
+  step-counted encounter assertions keep their frame budgets via
+  `reaction_time = 0` in the probe config.
+
+### Notes
+
+* Enemy vs enemy is steering-separated (swarm-standard); enemy vs object and
+  player vs object remain hard physics.
+* Hazards intentionally stay walkable for the AI (kiting enemies through
+  vents remains a player strategy).
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no

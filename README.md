@@ -17,7 +17,11 @@ instantly restart.
 > 3 arena configs with hazards, a meta game (banked-currency armory, 19 achievements,
 > playable daily challenge), full settings (volumes, remapping, accessibility), and
 > procedural audio fallback so the game is never silent. All content stays data-driven
-> (`.tres` under `res://data/`) and headless-tested.
+> (`.tres` under `res://data/`) and headless-tested. Enemies now fight like
+> individuals — perception (sight/hearing/reaction/memory), deterministic
+> personalities, maneuver-based pursuit, pack awareness — and nothing walks
+> through objects: a shared nav grid routes AI around the same obstacles (pillars,
+> central landmark) that physics collides with. See `docs/ENEMY_AI_RESEARCH.md`.
 
 ---
 

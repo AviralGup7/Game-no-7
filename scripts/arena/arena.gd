@@ -13,12 +13,72 @@ const SPAWN_POINT_GROUP := &"enemy_spawn_point"
 ## Interior half-extent used to keep actors in-bounds and build the nav floor.
 @export var interior_half: float = 12.0
 @export var min_spawn_distance: float = 6.0
+## Nav grid cell size (meters). 0.5 keeps paths smooth on a 24 m arena at a
+## trivial cost (one shared grid, rebuilt only when the player crosses a cell).
+@export var nav_cell_size: float = 0.5
+
+var _nav_grid: ArenaNavGrid = null
+var _obstacles: Array = []  # [{"pos","half_size","kind"}] — single source of truth
+var _landmark_half := Vector3.ZERO  # XZ half-extent of the landmark footprint (0 = none)
+var _flow_tick := 0.0
 
 
 func _ready() -> void:
-	_build_navigation_floor()
+	# Order matters: theme (landmark) and obstacles must exist before the
+	# navigation floor is built from their footprints.
+	_spawn_obstacles()
 	# Presentation (Agent 4): give the active arena a distinct lighting/sky/mood.
 	apply_theme(_resolve_arena_id())
+	_build_navigation_floor()
+
+
+## Low-rate refresh of the shared flow field toward the player. Rebuilding only
+## happens when the player crosses a grid cell, so this is a few hundred cheap
+## ops per second at worst (the 1500-enemy flow-field pattern from Manymies).
+func _process(delta: float) -> void:
+	if _nav_grid == null or not is_inside_tree():
+		return
+	# No enemies on the field: nothing reads the flow field, so skip the 10 Hz
+	# refresh entirely (the field rebuilds on the first tick of the next wave).
+	if get_tree().get_nodes_in_group("enemies").is_empty():
+		return
+	_flow_tick -= delta
+	if _flow_tick > 0.0:
+		return
+	_flow_tick = 0.1
+	var player := get_tree().get_first_node_in_group("player")
+	if player is Node3D:
+		_nav_grid.rebuild_flow_field((player as Node3D).global_position)
+
+
+## Shared by every enemy (SpawnManager wires it at spawn). Null-safe.
+func get_nav_grid() -> ArenaNavGrid:
+	return _nav_grid
+
+
+## ---------- Interior obstacles (collision + nav, one source of truth) ----------
+
+## Deterministic pillar/block set per arena (ArenaObstacles.layout_for). Every
+## entry becomes a StaticBody3D on collision_layer 1 — the SAME layer the
+## player (mask 1) and every enemy (mask 5) collide with — plus a stone mesh,
+## and is registered with the nav grid so AI routes around it instead of
+## clipping through. Nothing can walk through objects anymore: physics for the
+## bodies, nav grid for the intent.
+func _spawn_obstacles() -> void:
+	_obstacles = ArenaObstacles.layout_for(_resolve_arena_id(), interior_half)
+	var parent := get_node_or_null("Obstacles") as Node3D
+	if parent == null:
+		parent = Node3D.new()
+		parent.name = "Obstacles"
+		add_child(parent)
+	else:
+		for c in parent.get_children():
+			c.queue_free()
+	var mat: Material = null
+	var res := load("res://assets/materials/arena_wall_stone.tres")
+	if res is Material:
+		mat = res
+	ArenaObstacles.build_nodes(parent, _obstacles, mat)
 
 
 ## Presentation entry point. Reads the run's real arena id (the shared arena scene is
@@ -31,6 +91,9 @@ func apply_theme(theme_arena_id: StringName) -> void:
 	_apply_sky_and_light(preset)
 	_tint_surfaces(preset)
 	_spawn_landmark(preset)
+	# Landmark footprint changed: refresh the shared nav grid so the AI's
+	# intent avoids it exactly as the physics body blocks the bodies.
+	_rebuild_navigation_floor()
 
 
 func _resolve_arena_id() -> StringName:
@@ -153,6 +216,46 @@ func _tint_geometry(root_path: String, floor_tint: Color, wall_tint: Color) -> v
 		mi.material_override = dup
 
 
+## Per-landmark collision body + XZ footprint (shared with the nav grid).
+func _add_landmark_collision(holder: Node3D, kind: String) -> void:
+	var old := holder.get_node_or_null("Body")
+	if old != null:
+		old.queue_free()
+	var body := StaticBody3D.new()
+	body.name = "Body"
+	body.collision_layer = 1
+	body.collision_mask = 0
+	var shape := CollisionShape3D.new()
+	var half := Vector3.ZERO
+	match kind:
+		"forge":
+			# Stone basin; the emissive lava sits inside it.
+			var cyl := CylinderShape3D.new()
+			cyl.radius = 1.9
+			cyl.height = 1.4
+			shape.shape = cyl
+			shape.position = Vector3(0.0, 0.7, 0.0)
+			half = Vector3(1.9, 0.7, 1.9)
+		"crystal":
+			# Prism cluster.
+			var cyl2 := CylinderShape3D.new()
+			cyl2.radius = 1.4
+			cyl2.height = 3.2
+			shape.shape = cyl2
+			shape.position = Vector3(0.0, 1.6, 0.0)
+			half = Vector3(1.4, 1.6, 1.4)
+		_:
+			# Obelisk column + cap.
+			var box := BoxShape3D.new()
+			box.size = Vector3(1.1, 4.6, 1.1)
+			shape.shape = box
+			shape.position = Vector3(0.0, 2.3, 0.0)
+			half = Vector3(0.55, 2.3, 0.55)
+	body.add_child(shape)
+	holder.add_child(body)
+	_landmark_half = half
+
+
 func _spawn_landmark(preset: Dictionary) -> void:
 	# Remove any previous landmark (idempotent for theme switches / headless re-entry).
 	var old := get_node_or_null("Landmark")
@@ -163,6 +266,10 @@ func _spawn_landmark(preset: Dictionary) -> void:
 	var holder := Node3D.new()
 	holder.name = "Landmark"
 	add_child(holder)
+	# Collision footprint: the landmark is an OBJECT, not scenery — neither
+	# the player nor any enemy may walk through it (physics for the bodies,
+	# footprint registered with the nav grid for the AI's intent).
+	_add_landmark_collision(holder, kind)
 	match kind:
 		"forge":
 			# Central forge: dark stone base + emissive lava basin + point light
@@ -258,29 +365,43 @@ func _spawn_landmark(preset: Dictionary) -> void:
 			holder.add_child(light)
 
 
-## Deterministic, precomputed navigation floor (no runtime baking). Builds a flat
-## convex NavigationMesh covering the walkable interior so NavigationAgent3D enemies
-## get reliable paths on mobile without the cost/fragility of runtime baking.
+## Deterministic, precomputed navigation floor (no runtime baking). Two layers,
+## built from the same obstacle set that owns the collision shapes:
+##   * ArenaNavGrid — authoritative for enemy steering: shared flow field +
+##     A* that routes AROUND pillars, blocks and the landmark;
+##   * the legacy flat NavigationMesh — kept for NavigationAgent3D fallback in
+##     scenes without a grid (obstacle-free interiors only).
 func _build_navigation_floor() -> void:
 	var region := get_node_or_null("NavigationRegion3D") as NavigationRegion3D
-	if region == null:
-		return
-	var nm := NavigationMesh.new()
-	nm.cell_size = 0.25
-	nm.cell_height = 0.25
-	nm.agent_radius = 0.4
-	nm.agent_max_climb = 0.4
-	nm.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
-	var h := maxf(interior_half - 0.75, 3.0)
-	var verts := PackedVector3Array([
-		Vector3(-h, 0.0, -h),
-		Vector3(h, 0.0, -h),
-		Vector3(h, 0.0, h),
-		Vector3(-h, 0.0, h),
-	])
-	nm.vertices = verts
-	nm.add_polygon(PackedInt32Array([0, 1, 2, 3]))
-	region.navigation_mesh = nm
+	if region != null:
+		var nm := NavigationMesh.new()
+		nm.cell_size = 0.25
+		nm.cell_height = 0.25
+		nm.agent_radius = 0.4
+		nm.agent_max_climb = 0.4
+		nm.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
+		var h := maxf(interior_half - 0.75, 3.0)
+		var verts := PackedVector3Array([
+			Vector3(-h, 0.0, -h),
+			Vector3(h, 0.0, -h),
+			Vector3(h, 0.0, h),
+			Vector3(-h, 0.0, h),
+		])
+		nm.vertices = verts
+		nm.add_polygon(PackedInt32Array([0, 1, 2, 3]))
+		region.navigation_mesh = nm
+	_nav_grid = ArenaNavGrid.new()
+	var aabbs: Array = []
+	for ob in _obstacles:
+		aabbs.append(ob)
+	if _landmark_half.x > 0.0 or _landmark_half.z > 0.0:
+		aabbs.append({"pos": Vector3.ZERO, "half_size": _landmark_half})
+	_nav_grid.build(interior_half, nav_cell_size, aabbs)
+
+
+## Rebuild after a theme switch swaps the landmark (idempotent, cheap).
+func _rebuild_navigation_floor() -> void:
+	_build_navigation_floor()
 
 
 func get_arena_id() -> StringName:
@@ -326,10 +447,13 @@ func get_pickup_spawn_points() -> Array[Node3D]:
 
 
 func get_debug_snapshot() -> Dictionary:
+	var grid := {} if _nav_grid == null else _nav_grid.get_debug_snapshot()
 	return {
 		"arena_id": String(arena_id),
 		"spawn_point_count": get_spawn_points().size(),
 		"player_start": _vec_string(get_player_start()),
+		"obstacles": _obstacles.size(),
+		"nav_grid": grid,
 	}
 
 

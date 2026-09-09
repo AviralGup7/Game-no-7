@@ -211,6 +211,10 @@ func _spawn_one() -> bool:
 	instance.global_position = point.global_position + _spawn_jitter()
 	instance.set_bounds(SpawnPlacer.interior_half(_arena))
 	instance.initialize(config, _player as Node3D, _run_seed)
+	# Shared arena nav grid: the enemy's intent routes around the same
+	# obstacles its physics body collides with (no walking through objects).
+	if _arena != null and _arena.has_method("get_nav_grid"):
+		instance.set_nav_grid(_arena.call("get_nav_grid"))
 	instance.set_spawn_serial(_spawn_index)
 	_apply_spawn_scaling(instance, config)
 	_maybe_make_elite(instance, config)

@@ -19,7 +19,30 @@ extends Resource
 @export var currency_value: int = 1
 @export var knockback_resistance: float = 0.0
 ## How far this enemy will first notice a target (0 => always alert).
+## Kept for backward compatibility: when > 0 it overrides vision_range.
 @export var detect_range: float = 0.0
+## Perception (see EnemyPerception): sight range in world units when
+## detect_range is 0. 0 with detect_range 0 => always aware (legacy behavior).
+@export var vision_range: float = 16.0
+## Field-of-view cone in degrees; 360 = omnidirectional sight.
+@export var vision_fov_degrees: float = 360.0
+## How far this enemy hears noise (hits, kills, player attacks); pulls it out
+## of wandering idle into investigation even without line of sight.
+@export var hearing_range: float = 8.0
+## Base stimulus-to-response delay in seconds (scaled per-enemy by the
+## rolled personality). This is the "turning to look" beat before pursuit.
+@export var reaction_time: float = 0.2
+## Seconds an engaged enemy keeps pressing toward a target it lost sight of.
+@export var memory_time: float = 3.0
+## Idle wander radius around the spawn spot (scaled by personality).
+@export var wander_radius: float = 2.2
+## Chance per maneuver roll that a close-range chaser strafes instead of
+## closing (skirmisher feel; 0 = always rushes).
+@export var strafe_chance: float = 0.22
+## Attack cooldown jitter in [-x, +x] so packs never swing on one clock.
+@export var attack_cd_jitter: float = 0.18
+## Radius in which an ally being hit alerts this enemy (pack coordination).
+@export var alert_radius: float = 10.0
 ## Seconds spent in the "hurt" reaction after taking damage.
 @export var hurt_duration: float = 0.25
 ## World-space XZ radius used to keep enemies inside the arena bounds.
@@ -127,6 +150,26 @@ func validate() -> Array[String]:
 		problems.append("hurt_duration cannot be negative")
 	if visual_scale <= 0.0:
 		problems.append("visual_scale must be > 0")
+	if detect_range < 0.0:
+		problems.append("detect_range cannot be negative")
+	if vision_range < 0.0:
+		problems.append("vision_range cannot be negative")
+	if vision_fov_degrees < 0.0 or vision_fov_degrees > 360.0:
+		problems.append("vision_fov_degrees must be in [0,360]")
+	if hearing_range < 0.0:
+		problems.append("hearing_range cannot be negative")
+	if reaction_time < 0.0:
+		problems.append("reaction_time cannot be negative")
+	if memory_time < 0.0:
+		problems.append("memory_time cannot be negative")
+	if wander_radius < 0.0:
+		problems.append("wander_radius cannot be negative")
+	if strafe_chance < 0.0 or strafe_chance > 1.0:
+		problems.append("strafe_chance must be in [0,1]")
+	if attack_cd_jitter < 0.0 or attack_cd_jitter > 0.9:
+		problems.append("attack_cd_jitter must be in [0,0.9]")
+	if alert_radius < 0.0:
+		problems.append("alert_radius cannot be negative")
 	if score_value < 0:
 		problems.append("score_value cannot be negative")
 	if currency_value < 0:

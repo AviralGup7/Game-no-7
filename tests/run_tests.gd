@@ -29,6 +29,8 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_extracted_modules.gd",
 	"res://tests/unit/test_procedural_sfx.gd",
 	"res://tests/unit/test_enemy_behaviors.gd",
+	"res://tests/unit/test_nav_grid.gd",
+	"res://tests/unit/test_enemy_brain.gd",
 	"res://tests/unit/test_content_progression.gd",
 	"res://tests/unit/test_presentation_scripts.gd",
 ]
@@ -44,6 +46,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_weapons.gd",
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_character_visuals.gd",
+	"res://tests/unit/test_arena_obstacles_node.gd",
 ]
 
 var _failures: Array[String] = []
@@ -451,6 +454,12 @@ func _basic_cfg() -> EnemyConfig:
 	cfg.attack_range = 1.5
 	cfg.attack_cooldown = 0.5
 	cfg.attack_windup = 0.2
+	# These step-counted assertions were written for the instant-engage loop;
+	# the production default now includes a human reaction beat (0.2 s). Zero
+	# keeps the exact frame budgets below valid. The reaction beat itself is
+	# covered by the dedicated "reaction beat" integration check and by
+	# tests/unit/test_enemy_brain.gd.
+	cfg.reaction_time = 0.0
 	return cfg
 
 
@@ -508,6 +517,28 @@ func _run_enemy_encounter_integration() -> Array:
 		"why": "state=%s hits=%d signals=%d" % [String(melee.get_state()), target.hits.size(), attack_signals[0]],
 	})
 	melee.queue_free()
+
+	# --- Reaction beat: the default config no longer engages on the first
+	# frame — the stimulus needs the (short) reaction time before pursuit.
+	var react_target := _FakeTarget.new()
+	root.add_child(react_target)
+	react_target.global_position = Vector3(1.0, 0.0, 0.0)
+	var react_cfg := _basic_cfg()
+	react_cfg.reaction_time = 0.3
+	var reactor := _make_enemy(react_cfg, Vector3.ZERO, react_target)
+	_step_enemy(reactor, 1.0 / 60.0)
+	_step_enemy(reactor, 1.0 / 60.0)
+	var still_wary := reactor.get_state() == &"idle"
+	var engaged := _step_enemy_until(
+		reactor, 0.05, 25, func() -> bool: return reactor.get_state() != &"idle"
+	)
+	results.append({
+		"name": "reaction beat: a perceived stimulus delays engagement by the reaction time",
+		"passed": still_wary and engaged,
+		"why": "wary_after_2_frames=%s engaged_sooner_or_by_budget=%s state=%s" \
+				% [str(still_wary), str(engaged), String(reactor.get_state())],
+	})
+	reactor.queue_free()
 
 	# --- Whiff rule: target escapes mid-windup -> chase, no hit -------------
 	var whiff_target := _FakeTarget.new()
