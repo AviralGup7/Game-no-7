@@ -18,17 +18,30 @@ func set_profile(profile: CameraProfile) -> void:
 func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, world: World3D) -> Vector3:
 	if _profile == null or orbit == null:
 		return to
+	if not (is_finite(from.x) and is_finite(from.y) and is_finite(from.z)):
+		return Vector3(0.0, 4.0, 6.0)
+	if not (is_finite(to.x) and is_finite(to.y) and is_finite(to.z)):
+		return from + Vector3(0.0, 2.4, 0.0)
 
 	var dir := to - from
 	var dist := dir.length()
-	if dist < 0.001:
-		return to
+	if not is_finite(dist) or dist < 0.001:
+		return from + Vector3(0.0, 2.2, 0.0)
 
 	var hit := _sphere_cast(from, to, _profile.collision_radius, target, world)
 	var target_dist := dist
 
 	if hit.has("fraction"):
 		var safe := float(hit.get("fraction", 1.0))
+		if not is_finite(safe):
+			safe = 0.0
+		# Origin already inside a wall (camera spawned in the skybox / south wall):
+		# do not slide along the wall normal into NaN — lift to a clear height.
+		if safe < 0.04:
+			is_colliding = true
+			recovery_timer = _profile.collision_recovery_delay
+			orbit.collision_distance = _profile.min_distance
+			return from + Vector3(0.0, 2.4, 0.0)
 		target_dist = maxf(dist * safe - 0.25, _profile.min_distance)
 		is_colliding = true
 		recovery_timer = _profile.collision_recovery_delay
@@ -50,11 +63,15 @@ func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, 
 	orbit.collision_distance = clampf(target_dist, _profile.min_distance, _profile.max_distance)
 
 	var final_dir := dir.normalized()
+	if final_dir.length_squared() < 0.0001:
+		return from + Vector3(0.0, 2.2, 0.0)
 	var result: Vector3
 	if is_colliding:
 		result = from + final_dir * orbit.collision_distance
 	else:
 		result = from + final_dir * orbit.current_distance
+	if not (is_finite(result.x) and is_finite(result.y) and is_finite(result.z)):
+		result = from + Vector3(0.0, 2.4, 0.0)
 
 	result = _enforce_ground_clearance(result, from, world)
 	return result

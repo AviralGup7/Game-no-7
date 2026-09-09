@@ -389,7 +389,25 @@ func _apply_follow_position(next_pos: Vector3, weight: float) -> void:
 	if not CameraMath.is_finite_v3(next):
 		_report_bad_camera_frame()
 		return
+	next = _clamp_inside_arena(next)
 	global_position = next
+
+
+func _clamp_inside_arena(pos: Vector3) -> Vector3:
+	var tree := get_tree()
+	if tree == null:
+		return pos
+	var arena := tree.get_first_node_in_group("arena") as Arena
+	if arena == null:
+		return pos
+	var half := maxf(arena.get_interior_half() - 1.35, 2.0)
+	pos.x = clampf(pos.x, -half, half)
+	pos.z = clampf(pos.z, -half, half)
+	if not is_finite(pos.y):
+		pos.y = 3.0
+	else:
+		pos.y = clampf(pos.y, 0.4, 18.0)
+	return pos
 
 
 func _report_bad_camera_frame() -> void:

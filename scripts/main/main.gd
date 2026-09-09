@@ -139,10 +139,7 @@ func build_world(arena_id: StringName) -> void:
 
 
 func _spawn_player(arena: Arena) -> Player:
-	var start_marker := arena.get_node_or_null("PlayerStart") as Marker3D
-	var spawn := Transform3D.IDENTITY
-	if start_marker != null:
-		spawn = start_marker.global_transform
+	var spawn := arena.get_safe_player_spawn() if arena != null else Transform3D.IDENTITY
 	if PLAYER_SCENE == null:
 		EventBus.report_error("Player scene failed to load: scenes/player/player.tscn (the player will not appear)")
 		return null
