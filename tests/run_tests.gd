@@ -511,39 +511,8 @@ func _lethal_payload(source: Node) -> DamagePayload:
 	return payload
 
 
-## TEMP diagnostic: reports how a freshly-made enemy is wired right after
-## initialize() and through its first steps, surfaced via an ::error annotation
-## (visible on GitHub) because CI step logs/artifacts are not downloadable here.
-func _encounter_probe_debug() -> void:
-	var miss := PackedStringArray()
-	var tgt := _FakeTarget.new()
-	root.add_child(tgt)
-	tgt.global_position = Vector3(1.0, 0.0, 0.0)
-	var e := _make_enemy(_basic_cfg(), Vector3.ZERO, tgt)
-	var m := e.get_node("EnemyStateMachine") as EnemyStateMachine
-	for s in EnemyStateMachine.STATE_IDS:
-		if not m.has_state(s):
-			miss.append(String(s))
-	print("::error title=ENCOUNTER_DEBUG1::missing=[%s] current=%s perc=%s react=%s always=%s" % [",".join(miss), String(m.get_current()), e.get_perception().get_status_name(), str(e.get_perception().reaction_base), str(e.get_perception().always_aware)])
-	# Directly construct each state class to find the one that errors at runtime.
-	print("::error title=ENCOUNTER_DEBUG2::idle=%s" % str(EnemyIdleState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::chase=%s" % str(EnemyChaseState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::attack=%s" % str(EnemyAttackState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::hurt=%s" % str(EnemyHurtState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::dead=%s" % str(EnemyDeadState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::ranged=%s" % str(EnemyRangedState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::dash=%s" % str(EnemyDashState.new() != null))
-	print("::error title=ENCOUNTER_DEBUG2::fuse=%s" % str(EnemyFuseState.new() != null))
-	for i in range(6):
-		_step_enemy(e, 1.0 / 60.0)
-		print("::error title=ENCOUNTER_DEBUG2::step%d=%s perc=%s" % [i, String(m.get_current()), e.get_perception().get_status_name()])
-	e.queue_free()
-	tgt.queue_free()
-
-
 func _run_enemy_encounter_integration() -> Array:
 	var results: Array = []
-	_encounter_probe_debug()
 
 	# --- State machine registers the full roster of states ------------------
 	var probe := _make_enemy(_basic_cfg(), Vector3(0, 0, 0), null)
