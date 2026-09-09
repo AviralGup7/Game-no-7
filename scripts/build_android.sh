@@ -70,6 +70,9 @@ step "Validate native Godot asset imports"
 step "Run automated tests"
 (cd "$PROJECT_DIR" && "$GODOT_BIN" --headless --path . --script res://tests/run_tests.gd)
 
+step "Validate hero runtime animation and sockets"
+(cd "$PROJECT_DIR" && GODOT="$GODOT_BIN" bash tool/test_hero_runtime.sh)
+
 step "Validate resources"
 (cd "$PROJECT_DIR" && python3 tool/validate_resources.py)
 

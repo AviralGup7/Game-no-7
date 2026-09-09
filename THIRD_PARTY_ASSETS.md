@@ -113,3 +113,20 @@ cue-level record in `AUDIO_MANIFEST.md`.
 The shared notice provision does not allow unknown licences, unpinned downloads,
 missing notice files or licence-type mismatches. No paid tiers or application code
 from asset mirrors were downloaded.
+
+
+## Arena Warden derivative — 9 September 2026
+
+The live hero now uses **project-authored** armor/underlayers/helmet/skin weights
+and PBR textures, plus a project-authored gladius. The 76 motions and rest axes
+are derived from the already-approved **KayKit Adventurers / Kay Lousberg, CC0**
+source; no source download was edited and no new third-party character licence
+is assumed. See `ASSET_LICENSES/arena-warden.md` and `docs/HERO_FIDELITY.md`.
+`assets/characters/warden/build_report.json` pins the donor, recipe and all five
+generated outputs. The normal asset validator checks this derived inventory as
+strictly as the upstream download lock; the downloader does not manage it.
+
+The dev-only art viewer's missing `tool/vendor/three.core.js` was restored from
+three.js commit `2431a09f46f34c560bc8e44b33be0e567723d5b9`, matching the already
+vendored `three.module.js`. The MIT notice is preserved in
+`ASSET_LICENSES/threejs-pbr.txt`; `tool/vendor/README.md` records the file hash.

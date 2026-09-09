@@ -19,7 +19,14 @@ func _initialize() -> void:
 		push_error("Cannot read asset manifest/catalog")
 		quit(1)
 		return
-	for entry in manifest.get("files", []):
+	var derived: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/characters/warden/build_report.json"))
+	if not derived is Dictionary or (derived as Dictionary).get("files", []).is_empty():
+		push_error("Cannot read the derived hero asset inventory")
+		quit(1)
+		return
+	var entries: Array = manifest.get("files", []).duplicate()
+	entries.append_array(derived.get("files", []))
+	for entry in entries:
 		var path := "res://%s" % entry["path"]
 		var extension := path.get_extension()
 		if extension not in ["glb", "gltf", "png", "ttf", "ogg", "wav"]:
@@ -69,6 +76,9 @@ func _check_model(path: String, imported: Resource, catalog: Dictionary) -> void
 		var skeletons := instance.find_children("*", "Skeleton3D", true, false)
 		if not instance is Skeleton3D and skeletons.is_empty():
 			_failures.append("Character has no imported Skeleton3D: " + path)
+		if character == catalog.get("characters", {}).get("player", {}):
+			for missing in HeroRigContract.missing_requirements(instance):
+				_failures.append("Hero rig contract: " + missing)
 		var players := instance.find_children("*", "AnimationPlayer", true, false)
 		if players.is_empty():
 			_failures.append("Character has no AnimationPlayer: " + path)

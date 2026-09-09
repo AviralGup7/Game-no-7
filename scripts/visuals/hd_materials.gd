@@ -29,24 +29,21 @@ const DEFAULT_TUNING := [0.45, 0.90, 0.00, 0.30]
 
 ## Upgrade every mesh surface under `root`. Safe on any node and on missing art:
 ## no surfaces or non-standard materials are ever touched.
-static func polish(root: Node, role: StringName = &"") -> void:
+static func polish(root: Node, role: StringName = &"", preserve_authored_pbr: bool = false) -> void:
 	if root == null:
 		return
-	_tuning = ROLE_TUNING.get(role, DEFAULT_TUNING)
-	_walk(root)
+	var tuning: Array = ROLE_TUNING.get(role, DEFAULT_TUNING)
+	_walk(root, tuning, preserve_authored_pbr)
 
 
-static var _tuning: Array = DEFAULT_TUNING
-
-
-static func _walk(node: Node) -> void:
+static func _walk(node: Node, tuning: Array, preserve_authored_pbr: bool) -> void:
 	if node is MeshInstance3D:
-		_polish_mesh(node as MeshInstance3D)
+		_polish_mesh(node as MeshInstance3D, tuning, preserve_authored_pbr)
 	for child in node.get_children():
-		_walk(child)
+		_walk(child, tuning, preserve_authored_pbr)
 
 
-static func _polish_mesh(mi: MeshInstance3D) -> void:
+static func _polish_mesh(mi: MeshInstance3D, tuning: Array, preserve_authored_pbr: bool) -> void:
 	if mi.mesh == null:
 		return
 	var surfaces := mi.mesh.get_surface_count()
@@ -59,9 +56,13 @@ static func _polish_mesh(mi: MeshInstance3D) -> void:
 		if tuned == null:
 			continue
 		tuned.texture_filter = FILTER_ANISO
-		tuned.specular = clampf(source.specular, 0.35, 0.6)
-		tuned.roughness = clampf(source.roughness, float(_tuning[0]), float(_tuning[1]))
-		tuned.metallic = clampf(source.metallic, float(_tuning[2]), float(_tuning[3]))
-		if tuned.normal_enabled and not tuned.normal_texture == null:
-			tuned.normal_scale = clampf(source.normal_scale, 0.8, 1.25)
+		# Authored PBR uses unit factors multiplied by its ORM atlas. Clamping those
+		# factors to the old palette-kit range would turn steel into plastic and
+		# lower cloth roughness. Only filtering changes on such assets.
+		if not preserve_authored_pbr:
+			tuned.metallic_specular = clampf(source.metallic_specular, 0.35, 0.6)
+			tuned.roughness = clampf(source.roughness, float(tuning[0]), float(tuning[1]))
+			tuned.metallic = clampf(source.metallic, float(tuning[2]), float(tuning[3]))
+			if tuned.normal_enabled and not tuned.normal_texture == null:
+				tuned.normal_scale = clampf(source.normal_scale, 0.8, 1.25)
 		mi.set_surface_override_material(index, tuned)

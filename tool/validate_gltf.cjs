@@ -16,8 +16,10 @@ async function main() {
         return 1;
     }
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'assets/manifest.json'), 'utf8'));
-    const approved = new Set(manifest.files.map(file => path.resolve(root, file.path)));
-    const models = manifest.files.filter(file => /\.(glb|gltf)$/.test(file.path));
+    const derived = JSON.parse(fs.readFileSync(path.join(root, 'assets/characters/warden/build_report.json'), 'utf8'));
+    const files = [...manifest.files, ...derived.files];
+    const approved = new Set(files.map(file => path.resolve(root, file.path)));
+    const models = files.filter(file => /\.(glb|gltf)$/.test(file.path));
     let errors = 0;
     let warnings = 0;
     const codes = new Set();

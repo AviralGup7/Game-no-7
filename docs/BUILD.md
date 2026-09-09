@@ -38,10 +38,11 @@ No GitHub token is required by the asset downloader. A rate-limit/network error 
 a failed download, not permission to bypass the hash lock; retry later or use the
 already-versioned files. See `docs/ASSET_CATALOG.md` and the provenance manifests.
 
-After import, test actual Godot resource types, skeletons and animation names:
+After import, test actual Godot resource types, skeletons and animation names (including the authored Warden):
 
 ```bash
 godot --headless --path . --script res://tests/validate_asset_imports.gd
+bash tool/test_hero_runtime.sh  # isolated profile; Player combat animation/equipment lifecycle
 ```
 
 The export presets include `ASSET_LICENSES/*.txt` / `*.md` and both provenance
@@ -202,3 +203,12 @@ On an existing developer checkout, change the model's Import setting to Embed as
 Basis Universal and reimport if its old `.import` sidecar still selects Extract
 Textures. Only remove obsolete generated PNGs after confirming they are not in
 `assets/manifest.json`; never delete the approved editable texture atlases.
+
+### Authored hero assets
+
+The checked-in Warden GLBs and three shared PNG maps import normally in Godot
+4.4.1; Python/SciPy/Pillow are **optional authoring tools**, not build/runtime
+dependencies. `tool/validate_assets.py` verifies the separate derived-output and
+recipe lock. Rebuild/review instructions and validation limitations are in
+`docs/HERO_FIDELITY.md`. Export presets include the derived provenance report and
+its licence notice; authoring code and browser tooling stay excluded.

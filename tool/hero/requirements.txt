@@ -1,0 +1,4 @@
+# Optional authoring dependencies. Game, offline verification and CI need none.
+numpy==2.4.6
+scipy==1.17.1
+pillow==12.3.0

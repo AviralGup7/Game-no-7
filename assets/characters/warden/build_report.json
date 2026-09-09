@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "recipe": "arena_warden_v1",
+  "description": "Project-authored proportional armored hero; baked CC0 motion retarget. Not a scanned/photoreal human.",
+  "license_notice": "ASSET_LICENSES/arena-warden.md",
+  "generator": "tool/build_hero.py",
+  "inputs": [
+    {
+      "path": "assets/characters/adventurers/Knight.glb",
+      "sha256": "60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168",
+      "license": "CC0-1.0"
+    }
+  ],
+  "recipe_files": [
+    {
+      "path": "tool/build_hero.py",
+      "sha256": "1c2fbacd8b7420fae7907850c31112a063ad7fe59cf4a8664878b6dcf22c77d1"
+    },
+    {
+      "path": "tool/hero/geometry.py",
+      "sha256": "c398ae37c648f3fb2a3d3502b300f77b4c36860454dca120ec390d170463ab6d"
+    },
+    {
+      "path": "tool/hero/rig.py",
+      "sha256": "84a0debd90f0e1b183beab8aa36d0e6cdd3068d208a65f8bcb1ae8a6b7964709"
+    },
+    {
+      "path": "tool/hero/requirements.txt",
+      "sha256": "587b6fd17e7a313b408cf3653de4883180d69a024807da84b60c1e47552f2202"
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/characters/warden/ArenaWarden.glb",
+      "bytes": 3409124,
+      "sha256": "93d923de605f97da6dd3fb1b42ed060584cb85adba4ac6ddb06b9012941285c7"
+    },
+    {
+      "path": "assets/characters/warden/WardenGladius.glb",
+      "bytes": 122480,
+      "sha256": "0a939e887131e3ab32f8d1983d6027c68aee57679ad2a2f0fb384be6e9c69153"
+    },
+    {
+      "path": "assets/characters/warden/Warden_base_color.png",
+      "bytes": 452237,
+      "sha256": "d0ed4ebdc568437482211072c3e2d7e271d9388215d6d9dd935cf6f8ca99b918"
+    },
+    {
+      "path": "assets/characters/warden/Warden_normal.png",
+      "bytes": 1022062,
+      "sha256": "0647d29650794186de53937bb786125f9f9e30fe98cc97044908b02e677c19e1"
+    },
+    {
+      "path": "assets/characters/warden/Warden_ORM.png",
+      "bytes": 163188,
+      "sha256": "7e1cd3ba522b2f1bad1497cbb956c3e09022ebce53c3258f339e25505f5d3daf"
+    }
+  ],
+  "budgets": {
+    "max_triangles": 42000,
+    "max_bones": 32,
+    "max_draw_surfaces": 1,
+    "max_texture_edge": 1024,
+    "max_file_bytes": 8388608
+  },
+  "measured": {
+    "triangles": 34860,
+    "vertices": 22001,
+    "bones": 23,
+    "draw_surfaces": 1,
+    "texture_images": 3,
+    "bytes": 3409124,
+    "bundle_bytes": 5169091,
+    "clips": 76
+  },
+  "clips": [
+    {
+      "name": "1H_Melee_Attack_Chop",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "1H_Melee_Attack_Slice_Diagonal",
+      "duration": 1.0,
+      "frames": 31
+    },
+    {
+      "name": "1H_Melee_Attack_Slice_Horizontal",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "1H_Melee_Attack_Stab",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "1H_Ranged_Aiming",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "1H_Ranged_Reload",
+      "duration": 1.166667,
+      "frames": 36
+    },
+    {
+      "name": "1H_Ranged_Shoot",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "1H_Ranged_Shooting",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "2H_Melee_Attack_Chop",
+      "duration": 1.633333,
+      "frames": 50
+    },
+    {
+      "name": "2H_Melee_Attack_Slice",
+      "duration": 1.1,
+      "frames": 34
+    },
+    {
+      "name": "2H_Melee_Attack_Spin",
+      "duration": 2.4,
+      "frames": 73
+    },
+    {
+      "name": "2H_Melee_Attack_Spinning",
+      "duration": 0.666667,
+      "frames": 21
+    },
+    {
+      "name": "2H_Melee_Attack_Stab",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "2H_Melee_Idle",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "2H_Ranged_Aiming",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "2H_Ranged_Reload",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "2H_Ranged_Shoot",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "2H_Ranged_Shooting",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Block",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Block_Attack",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Block_Hit",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Blocking",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Cheer",
+      "duration": 1.666667,
+      "frames": 51
+    },
+    {
+      "name": "Death_A",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Death_A_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Death_B",
+      "duration": 2.633333,
+      "frames": 80
+    },
+    {
+      "name": "Death_B_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Dodge_Backward",
+      "duration": 0.4,
+      "frames": 13
+    },
+    {
+      "name": "Dodge_Forward",
+      "duration": 0.4,
+      "frames": 13
+    },
+    {
+      "name": "Dodge_Left",
+      "duration": 0.4,
+      "frames": 13
+    },
+    {
+      "name": "Dodge_Right",
+      "duration": 0.4,
+      "frames": 13
+    },
+    {
+      "name": "Dualwield_Melee_Attack_Chop",
+      "duration": 1.266667,
+      "frames": 39
+    },
+    {
+      "name": "Dualwield_Melee_Attack_Slice",
+      "duration": 1.166667,
+      "frames": 36
+    },
+    {
+      "name": "Dualwield_Melee_Attack_Stab",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "Hit_A",
+      "duration": 0.666667,
+      "frames": 21
+    },
+    {
+      "name": "Hit_B",
+      "duration": 0.866667,
+      "frames": 27
+    },
+    {
+      "name": "Idle",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Interact",
+      "duration": 1.3,
+      "frames": 40
+    },
+    {
+      "name": "Jump_Full_Long",
+      "duration": 2.333333,
+      "frames": 71
+    },
+    {
+      "name": "Jump_Full_Short",
+      "duration": 1.166667,
+      "frames": 36
+    },
+    {
+      "name": "Jump_Idle",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Jump_Land",
+      "duration": 0.666667,
+      "frames": 21
+    },
+    {
+      "name": "Jump_Start",
+      "duration": 0.6,
+      "frames": 19
+    },
+    {
+      "name": "Lie_Down",
+      "duration": 3.0,
+      "frames": 91
+    },
+    {
+      "name": "Lie_Idle",
+      "duration": 2.666667,
+      "frames": 81
+    },
+    {
+      "name": "Lie_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Lie_StandUp",
+      "duration": 2.333333,
+      "frames": 71
+    },
+    {
+      "name": "PickUp",
+      "duration": 1.3,
+      "frames": 40
+    },
+    {
+      "name": "Running_A",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Running_B",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Running_Strafe_Left",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Running_Strafe_Right",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Sit_Chair_Down",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Sit_Chair_Idle",
+      "duration": 3.6,
+      "frames": 109
+    },
+    {
+      "name": "Sit_Chair_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Sit_Chair_StandUp",
+      "duration": 0.8,
+      "frames": 25
+    },
+    {
+      "name": "Sit_Floor_Down",
+      "duration": 1.0,
+      "frames": 31
+    },
+    {
+      "name": "Sit_Floor_Idle",
+      "duration": 4.0,
+      "frames": 121
+    },
+    {
+      "name": "Sit_Floor_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Sit_Floor_StandUp",
+      "duration": 1.133333,
+      "frames": 35
+    },
+    {
+      "name": "Spellcast_Long",
+      "duration": 2.533333,
+      "frames": 77
+    },
+    {
+      "name": "Spellcast_Raise",
+      "duration": 2.1,
+      "frames": 64
+    },
+    {
+      "name": "Spellcast_Shoot",
+      "duration": 0.933333,
+      "frames": 29
+    },
+    {
+      "name": "Spellcasting",
+      "duration": 0.666667,
+      "frames": 21
+    },
+    {
+      "name": "T-Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Throw",
+      "duration": 1.366667,
+      "frames": 42
+    },
+    {
+      "name": "Unarmed_Idle",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Unarmed_Melee_Attack_Kick",
+      "duration": 0.933333,
+      "frames": 29
+    },
+    {
+      "name": "Unarmed_Melee_Attack_Punch_A",
+      "duration": 1.466667,
+      "frames": 45
+    },
+    {
+      "name": "Unarmed_Melee_Attack_Punch_B",
+      "duration": 1.666667,
+      "frames": 51
+    },
+    {
+      "name": "Unarmed_Pose",
+      "duration": 0.033333,
+      "frames": 2
+    },
+    {
+      "name": "Use_Item",
+      "duration": 1.6,
+      "frames": 49
+    },
+    {
+      "name": "Walking_A",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Walking_B",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Walking_Backwards",
+      "duration": 1.066667,
+      "frames": 33
+    },
+    {
+      "name": "Walking_C",
+      "duration": 1.6,
+      "frames": 49
+    }
+  ]
+}

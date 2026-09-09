@@ -18,7 +18,7 @@
 
 [ext_resource type="Script" path="res://scripts/player/player_animation.gd" id="16_anim"]
 [ext_resource type="Script" path="res://scripts/player/player_equipment.gd" id="17_equip"]
-[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/sword_1handed.gltf" id="18_sword"]
+[ext_resource type="PackedScene" path="res://assets/characters/warden/WardenGladius.glb" id="18_sword"]
 [ext_resource type="PackedScene" path="res://assets/weapons/medieval/Spear.glb" id="19_spear"]
 [ext_resource type="PackedScene" path="res://assets/weapons/medieval/Hammer_Double.glb" id="20_hammer"]
 [ext_resource type="PackedScene" path="res://assets/weapons/medieval/Bow_Golden.glb" id="21_bow"]

@@ -1,6 +1,23 @@
 # Asset audit and quality upgrade — 8 September 2026
 
-## Result
+## Hero follow-up — 9 September 2026
+
+The hero-only rig deferral below is now addressed with **project-authored Arena
+Warden geometry + a baked CC0 motion retarget**, not a model-only Soldier swap.
+The live player selects a human-proportioned armored mesh with 34,860 triangles,
+23 deform bones, one body surface and shared 1K base/normal/ORM maps. All 76 clips
+remain; a compatibility gate covers every live combat/cast/locomotion selection
+and both weapon sockets before the old visual is hidden. A matching PBR gladius,
+conditioned gait, grounded idle (no float tween), safe KayKit fallback and a
+before/after animation viewer are included.
+
+This is **not photoreal human/skin art** and does not replace the enemy roster.
+The detailed recipe, provenance, measurements and honest verification limits are
+in [HERO_FIDELITY.md](HERO_FIDELITY.md). New GLBs: zero Khronos errors/warnings;
+native Godot/device approval still required. Historical results below describe
+the prior pass, not validation of this new implementation.
+
+## Result (8 September review)
 
 - **Before:** 191/191 locked downloads present and correct (24.75 MiB). No corrupt
   downloads, broken glTF dependencies, or missing referenced scene resources found.
@@ -25,7 +42,7 @@ new gameplay, rigs, balance or systems.
 | Arena props | KayKit dungeon props + landmarks receive the same material polish; landmarks use the photo-rock/marble materials | Scripts/materials |
 | Models | **Kept** the rigged KayKit/Quaternius actors | See "Why not a photoreal rig swap" below |
 
-### Why not a photoreal rig swap
+### Why a drop-in photoreal rig swap was deferred (8 September)
 
 Reviewed candidates for a fully rigged, fully animated, permissively licensed
 realistic humanoid were checked on GitHub (three.js `Soldier.glb` / `Xbot.glb` /
@@ -42,9 +59,10 @@ Studio Sintel mirrors, Quaternius Modular Character Outfits — Fantasy):
 
 Replacing the working 76/95/14-clip inventories with a rig that lacks the clips the
 animators drive would visibly break combat feedback, so the approved rigs were
-retained and upgraded at the material level instead. A photoreal animated
-character set (with a documented retarget plan) is a future work item; the
-candidate URLs stay in this audit for that pass.
+retained and upgraded at the material level in that pass. The follow-up above
+now replaces the **hero mesh** and actually bakes a compatible motion retarget.
+A scanned/sculpted photoreal character set remains distinct future art work; the
+candidate URLs stay here as historical sourcing notes.
 
 ## Downloaded additions and replacement selections
 

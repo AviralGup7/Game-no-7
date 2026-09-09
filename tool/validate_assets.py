@@ -21,6 +21,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.download_assets import load_manifest, verification_problem  # noqa: E402
+from tool.derived_assets import load_derived_manifest  # noqa: E402
 
 
 def require(condition: bool, message: str) -> None:
@@ -235,8 +236,10 @@ def main() -> int:
     counts = Counter()
     try:
         manifest = load_manifest()
-        approved = {(ROOT / e["path"]).resolve() for e in manifest["files"]}
-        for entry in manifest["files"]:
+        derived = load_derived_manifest(ROOT)
+        entries = manifest["files"] + derived["files"]
+        approved = {(ROOT / e["path"]).resolve() for e in entries}
+        for entry in entries:
             try:
                 problem = verification_problem(entry)
                 require(not problem, problem)
@@ -262,6 +265,9 @@ def main() -> int:
         check_asset_inventory(approved)
         catalog = json.loads((ROOT / "assets/catalog.json").read_text())
         check_catalog(catalog, approved, models)
+        from tool.validate_hero import check_hero
+        hero_doc, hero_binary = gltf_document(ROOT / catalog["characters"]["player"]["model"])
+        check_hero(hero_doc, hero_binary, derived, ROOT)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         problems.append(str(exc))
     if problems:
