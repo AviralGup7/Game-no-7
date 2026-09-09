@@ -62,7 +62,9 @@ jobs:
 
       - name: Python unit tests (incl. regression guards)
         shell: bash
-        run: python3 -m unittest discover -s tests/python -v
+        run: |
+          set -o pipefail
+          python3 -m unittest discover -s tests/python -v 2>&1 | tee python-tests.log
 
       - name: Upload reports (validate-resources)
         if: always()

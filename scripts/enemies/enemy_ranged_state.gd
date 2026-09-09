@@ -25,6 +25,9 @@ var _windup := 0.0
 var _firing := false
 var _strafe_dir := 1.0
 var _strafe_timer := 0.0
+## Shots fired since entering this state; the first is the deliberately loose
+## "warning shot" (see _fire).
+var _shot_index := 0
 
 
 func _init() -> void:
@@ -36,6 +39,7 @@ func enter(host: EnemyBase) -> void:
 	_windup = 0.0
 	_firing = false
 	_strafe_timer = 0.0
+	_shot_index = 0
 
 
 func exit(host: EnemyBase) -> void:
@@ -78,7 +82,10 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 			_firing = false
 			_fire(host, target)
 		return
-	if _cooldown <= 0.0 and dist <= max_range:
+	# Humans do not shoot through pillars: without line of sight the enemy
+	# scrambles for a cleaner angle instead of firing blind.
+	var has_los := host.has_line_of_sight_to(target.global_position)
+	if _cooldown <= 0.0 and dist <= max_range and has_los:
 		_firing = true
 		_windup = _cfg(host, &"ranged_windup", 0.5)
 		host.set_desired_move(Vector3.ZERO, 0.0)
@@ -86,7 +93,8 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 		host.play_telegraph_feedback()
 		host.play_windup_sound()
 		return
-	# Strafe orbit at preferred distance (drift in/out + sideways).
+	# Strafe orbit at preferred distance (drift in/out + sideways); faster
+	# when the angle is blocked, so repositioning reads as intent.
 	var radial := Vector3.ZERO
 	if dist > 0.01:
 		var outward := to.normalized()
@@ -98,7 +106,10 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 	var move := (radial * 0.7 + tangent * 0.7)
 	if move.length_squared() > 1.0:
 		move = move.normalized()
-	host.set_desired_move(move, host.get_effective_speed() * _cfg(host, &"strafe_speed", 0.6))
+	var strafe_speed := _cfg(host, &"strafe_speed", 0.6)
+	if not has_los:
+		strafe_speed = maxf(strafe_speed, 0.9)
+	host.set_desired_move(move, host.get_effective_speed() * strafe_speed)
 
 
 func _fire(host: EnemyBase, target: Node3D) -> void:
@@ -114,6 +125,20 @@ func _fire(host: EnemyBase, target: Node3D) -> void:
 	if aim.length_squared() < 0.0001:
 		aim = Vector3.FORWARD
 	aim = aim.normalized()
+	# Human aim (research, docs/ENEMY_AI_RESEARCH.md): spread grows with
+	# distance and the individual's inaccuracy, and the FIRST shot after
+	# spotting is deliberately looser — a warning the player can dodge, not a
+	# laser from the first frame.
+	var max_range_los := _cfg(host, &"ranged_range", 14.0)
+	var skill := host.get_aim_skill()
+	var err_rad := (1.0 - skill) * 0.22 * clampf(from.distance_to(target.global_position) / max_range_los, 0.0, 1.0)
+	if _shot_index == 0:
+		err_rad *= 1.7
+	_shot_index += 1
+	if err_rad > 0.001:
+		var h := hash(Vector3(float(host.get_instance_id()), float(_shot_index), 0.0))
+		var t := fposmodf(float(h), 1000.0) / 1000.0 * 2.0 - 1.0  # deterministic -1..1
+		aim = aim.rotated(Vector3.UP, err_rad * t)
 	var count := int(_cfg(host, &"projectile_count", 1.0))
 	var dirs := RangedResolver.spread_directions(aim, count, _cfg(host, &"projectile_spread", 8.0))
 	var speed := _cfg(host, &"projectile_speed", 12.0)

@@ -17,6 +17,9 @@ enum { PHASE_WINDUP, PHASE_COOLDOWN, PHASE_RETREAT }
 
 var _phase := PHASE_WINDUP
 var _elapsed := 0.0
+## Cooldown for the CURRENT swing, jittered per enemy/personality so a pack
+## of eight never swings on one clock (the "synchronized horde" tell).
+var _cooldown_target := 1.0
 
 
 func _init() -> void:
@@ -76,6 +79,10 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 					_phase = PHASE_RETREAT
 				else:
 					_phase = PHASE_COOLDOWN
+					# Human cadence: this swing's rest is its base cooldown
+					# jittered by the enemy's own clock (0.6x .. 1.4x).
+					_cooldown_target = host.get_effective_attack_cooldown() \
+							* host.get_attack_cooldown_roll()
 				_elapsed = 0.0
 		PHASE_RETREAT:
 			# Hit-and-run: create distance after the strike, then re-engage.
@@ -90,7 +97,7 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 		PHASE_COOLDOWN:
 			host.set_desired_move(Vector3.ZERO, 0.0)
 			_elapsed += delta
-			if _elapsed >= host.get_effective_attack_cooldown():
+			if _elapsed >= _cooldown_target:
 				host.state_machine_change_to(&"chase")
 
 func _attack_can_enter(host: Node) -> bool:

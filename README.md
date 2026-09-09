@@ -17,8 +17,13 @@ and can instantly restart.
 > **differentiated arenas** (pressure plates, orbiting movers, denser hazard grids);
 > a **narrator + campaign beat sheet**; and a **prestige endgame** (permanent score/
 > currency mults, titles, cosmetics). Still ships 8 enemy archetypes, switchable
-> weapons, skills, mutators, armory, achievements, and daily challenge. All content
-> stays data-driven (`.tres` under `res://data/`) and headless-tested.
+> weapons, skills, mutators, armory, achievements, and daily challenge — and
+> enemies now fight like individuals: perception (sight/hearing/reaction/memory),
+> deterministic personalities, maneuver-based pursuit, pack awareness. Nothing
+> walks through objects: a shared nav grid routes AI around the same obstacles
+> (pillars, central landmark) that physics collides with.
+> All content stays data-driven (`.tres` under `res://data/`) and headless-tested.
+> See `docs/ENEMY_AI_RESEARCH.md`.
 
 ---
 

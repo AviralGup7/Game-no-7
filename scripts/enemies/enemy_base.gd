@@ -92,6 +92,26 @@ var _dash_cooldown_left := 0.0
 var _spawn_serial := 0
 var _approach_offset := Vector3.ZERO
 
+## ---------- Human-like brain (see docs/ENEMY_AI_RESEARCH.md) ----------
+## Perception (sight/FOV/LOS/hearing/reaction/memory) + a rolled personality
+## turn identical archetypes into individuals: they notice on their own clock,
+## flank, hesitate, grieve nearby kills and stop chasing players they cannot
+## see. Both are pure RefCounted modules, headless-testable.
+var _perception := EnemyPerception.new()
+var _personality: EnemyPersonality = null
+var _decisions_rng: RandomNumberGenerator = null
+var _home_pos := Vector3.ZERO
+
+## Shared arena navigation grid (flow field + A*). When wired, EnemyNavigator
+## routes around pillars/landmark; EnemyPerception uses its LOS for sight.
+var _nav_grid: ArenaNavGrid = null
+
+## Pack coordination module (hearing alerts, grief retreat, separation
+## steering, bus wiring) — see EnemyPack.
+var _pack := EnemyPack.new()
+var _bus_connected := false
+var _run_time := 0.0
+
 ## Elite affix cache (set via set_elite; queried by cadence/vampiric hooks).
 var _elite_affixes: Array[StringName] = []
 
@@ -103,6 +123,8 @@ func _ready() -> void:
 	if not is_inside_tree():
 		return
 	add_to_group(TARGET_GROUP)
+	_pack.bind(self)
+	_connect_bus_signals()
 	_resolve_components()
 	if not _check_required_components():
 		return
@@ -148,6 +170,26 @@ func _eb() -> Node:
 	return _event_bus
 
 
+func _exit_tree() -> void:
+	_pack.disconnect_signals()
+	_event_bus = null
+	_bus_connected = false
+
+
+## Wire the EventBus signals that drive pack awareness (delegated to
+## EnemyPack). Null-safe: in the bare headless harness there is no bus and
+## nothing happens; retried on the first physics tick so a bus that appears
+## after _ready (test harness ordering) still connects.
+func _connect_bus_signals() -> void:
+	if _bus_connected:
+		return
+	var bus := _eb()
+	if bus == null:
+		return
+	_pack.connect_signals(bus)
+	_bus_connected = true
+
+
 func set_ai_enabled(enabled: bool) -> void:
 	_ai_enabled = enabled
 	if not enabled:
@@ -158,6 +200,7 @@ func set_ai_enabled(enabled: bool) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_run_time += delta
 	if _config == null or not _alive or not _ai_enabled:
 		return
 	_decay_timers(delta)
@@ -167,7 +210,16 @@ func _physics_process(delta: float) -> void:
 		desired_speed = 0.0
 		_locomotion.integrate(self, Vector3.ZERO, 0.0, 1.0, delta, false)
 		return
+	if not _bus_connected:
+		_connect_bus_signals()  # the bus may appear after _ready (test harness)
+	# Perception runs BEFORE the state machine so every state queries this
+	# frame's awareness (a human answers the stimulus it can actually sense).
+	var target := get_move_target()
+	if _perception != null and target != null:
+		_perception.update(delta, global_position, _flat_forward(), target.global_position, true)
 	_machine.physics_update(delta)
+	if _move_override_time <= 0.0:
+		_pack.apply_separation(delta)
 	var dir := desired_dir
 	var speed := desired_speed
 	if _move_override_time > 0.0:
@@ -183,6 +235,16 @@ func _decay_timers(delta: float) -> void:
 		_dash_cooldown_left = maxf(_dash_cooldown_left - delta, 0.0)
 	if _poise_guard and _poise_damage > 0.0:
 		_poise_damage = maxf(_poise_damage - POISE_DECAY_PER_SECOND * delta, 0.0)
+	_pack.update(delta)
+
+
+## Flat facing direction (visual yaw); used for the perception FOV cone.
+func _flat_forward() -> Vector3:
+	var f := -global_transform.basis.z
+	f.y = 0.0
+	if f.length_squared() < 0.001:
+		return Vector3.FORWARD
+	return f.normalized()
 
 
 ## ---------- Stable command interface (Phase 2 preserved) ----------
@@ -220,7 +282,24 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 		CharacterVisuals.mount(self, config.archetype_id)
 	_machine.force_state(&"idle")
 	_navigator.reset(target)
+	_home_pos = global_position
+	_pack.reset()
+	_perception.reset()
+	_configure_perception(config)
 	initialized.emit(_archetype_id)
+
+
+## Configure perception from config. detect_range > 0 (legacy) wins over
+## vision_range; both zero = always aware (original behavior).
+func _configure_perception(config: EnemyConfig) -> void:
+	var vision := config.vision_range if config.detect_range <= 0.0 else config.detect_range
+	var always_aware := vision <= 0.0
+	_perception.configure(vision, config.vision_fov_degrees, config.hearing_range,
+			config.reaction_time, config.memory_time, always_aware)
+	var reaction := config.reaction_time * (_personality.reaction if _personality != null else 1.0)
+	_perception.reaction_base = maxf(reaction, 0.0)
+	if _nav_grid != null:
+		_perception.set_los_check(Callable(_nav_grid, &"has_line_of_sight"))
 
 
 func apply_damage(payload: DamagePayload) -> DamageResult:
@@ -417,6 +496,13 @@ func get_effective_dash_speed() -> float:
 func set_spawn_serial(serial: int) -> void:
 	_spawn_serial = maxi(serial, 0)
 	_roll_approach_offset()
+	# The deterministic cast: same (run_seed, serial) always rolls the same
+	# individual. Re-entrant safe — identical inputs yield identical values.
+	_personality = EnemyPersonality.roll(_run_seed, _spawn_serial)
+	_decisions_rng = RngService.make_generator(_run_seed, RngService.STREAM_AI + _spawn_serial * 13 + 901)
+	# Personality scales the reaction time now that the cast is known.
+	if _config != null:
+		_perception.reaction_base = maxf(_config.reaction_time * _personality.reaction, 0.0)
 
 
 func _roll_approach_offset() -> void:
@@ -460,11 +546,95 @@ func face_target(target: Node3D) -> void:
 	face_direction(target.global_position - global_position)
 
 
-## Navigation-aware steering (see EnemyNavigator): prefers the navmesh path when
-## usable, otherwise falls back to the caller's direct direction.
+## Navigation-aware steering (see EnemyNavigator): prefers the shared nav grid
+## (line of sight, else flow field around obstacles), then the navmesh, then
+## the caller's direct direction.
 func get_navigation_direction(fallback: Vector3) -> Vector3:
 	var interval := _config.navigation_target_update_interval if _config != null else 0.2
 	return _navigator.direction(global_position, get_move_target(), fallback, interval)
+
+
+## Steer toward a fixed world point (investigation / waypoint) through the nav
+## grid when wired; direct steering otherwise.
+func get_navigation_direction_toward(point: Vector3, fallback: Vector3, delta: float) -> Vector3:
+	return _navigator.direction_toward(global_position, point, fallback, delta)
+
+
+## ---------- Brain accessors (read-only, for AI states) ----------
+
+## Wire (or clear) the shared arena navigation grid. Also gives perception its
+## line-of-sight check so sight is blocked by the same geometry physics uses.
+func set_nav_grid(grid: ArenaNavGrid) -> void:
+	_nav_grid = grid
+	_navigator.set_grid(grid)
+	_perception.set_los_check(Callable(grid, &"has_line_of_sight") if grid != null else Callable())
+
+
+func get_nav_grid() -> ArenaNavGrid:
+	return _nav_grid
+
+
+func get_perception() -> EnemyPerception:
+	return _perception
+
+
+func get_personality() -> EnemyPersonality:
+	return _personality
+
+
+## Fresh deterministic 0..1 roll from this enemy's decision stream.
+func personality_roll() -> float:
+	if _decisions_rng == null:
+		return 0.5
+	return _decisions_rng.randf()
+
+
+func get_run_seed() -> int:
+	return _run_seed
+
+
+func get_spawn_serial() -> int:
+	return _spawn_serial
+
+
+func get_home_position() -> Vector3:
+	return _home_pos
+
+
+## True while a griefed (cautious, wounded) enemy backs off after nearby allies
+## died — the chase state honors it for EnemyPack.FEAR_DURATION seconds.
+func is_fear_retreating() -> bool:
+	return _pack.is_retreating()
+
+
+## Accumulated physics seconds since spawn (monotonic per run); the pack
+## module timestamps grief kills against this clock.
+func get_run_time() -> float:
+	return _run_time
+
+
+## Cooldown multiplier for this swing ([-jitter,+jitter] scaled by personality
+## spread). Packs stop sharing one attack clock; melee hits land spread out.
+func get_attack_cooldown_roll() -> float:
+	var cfg := _config
+	if cfg == null or cfg.attack_cd_jitter <= 0.0:
+		return 1.0
+	var n := personality_roll()
+	var spread := cfg.attack_cd_jitter * (_personality.cd_spread if _personality != null else 0.5)
+	return clampf(1.0 + (n * 2.0 - 1.0) * spread, 0.6, 1.4)
+
+
+## Can this enemy currently see `point` (grid line of sight)? True without a
+## grid — physics collision still covers the worst case.
+func has_line_of_sight_to(point: Vector3) -> bool:
+	if _nav_grid == null or not _nav_grid.is_built():
+		return true
+	return _nav_grid.has_line_of_sight(global_position, point)
+
+
+## Ranged aim quality (0 sloppy .. 1 precise), from the rolled personality.
+func get_aim_skill() -> float:
+	return _personality.aim_skill if _personality != null else 0.55
 
 
 ## ---------- Attacks ----------
@@ -552,6 +722,13 @@ func note_hurt_started() -> void:
 func _on_damage_applied(result: DamageResult, payload: DamagePayload) -> void:
 	if not result.accepted:
 		return
+	# Pain reveals the attacker: even an unaware enemy snaps its attention to
+	# whoever hurt it (a stimulus, not a mind read — it still needs its
+	# reaction beat before committing).
+	if _perception != null and not _perception.can_engage() and payload != null:
+		var source := payload.source
+		if source != null and source != self and source is Node3D:
+			_perception.note_noise((source as Node3D).global_position, 1.0, global_position)
 	var cfg := _config
 	var resistance := cfg.knockback_resistance if cfg != null else 0.0
 	var resisted := payload.knockback * (1.0 - clampf(resistance, 0.0, 1.0))
@@ -719,4 +896,8 @@ func get_debug_snapshot() -> Dictionary:
 		"move_override": _move_override_time > 0.0,
 		"poise_guard": _poise_guard,
 		"elite": is_elite(),
+		"perception": _perception.get_status_name(),
+		"aggression": roundf(_personality.aggression * 100.0) / 100.0 if _personality != null else -1.0,
+		"caution": roundf(_personality.caution * 100.0) / 100.0 if _personality != null else -1.0,
+		"fear_retreating": is_fear_retreating(),
 	}
