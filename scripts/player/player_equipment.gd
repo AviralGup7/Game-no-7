@@ -274,7 +274,7 @@ func _setup_two_hand_ik(id: StringName) -> void:
 	_shaft_target.name = "OffhandShaft"
 	_model.add_child(_shaft_target)
 	_shaft_target.position = shaft_grip.get(id, Vector3(0.0, 0.35, 0.0))
-	var ik := ClassDB.instantiate("SkeletonIK3D") as Node
+	var ik := ClassDB.instantiate("SkeletonIK3D") as SkeletonIK3D
 	if ik == null:
 		return
 	var root_bone := _first_bone(["upperarm.l", "UpperArm.L", "mixamorig:LeftArm", "LeftArm"])
@@ -292,8 +292,7 @@ func _setup_two_hand_ik(id: StringName) -> void:
 		ik.set("magnet", 0.08)
 	_apply_ik(0.0)
 	_ik_target = 1.0
-	if ik.has_method("start"):
-		ik.call("start")
+	ik.start()
 	set_process(true)
 
 
@@ -411,8 +410,8 @@ func _make_string_mesh(mesh_name: String) -> MeshInstance3D:
 
 func _teardown_ik() -> void:
 	if _ik != null and is_instance_valid(_ik):
-		if _ik.has_method("stop"):
-			_ik.call("stop")
+		if _ik is SkeletonIK3D:
+			(_ik as SkeletonIK3D).stop()
 		_ik.queue_free()
 	_ik = null
 	if _shaft_target != null and is_instance_valid(_shaft_target):

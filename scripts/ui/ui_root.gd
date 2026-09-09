@@ -331,7 +331,7 @@ func _on_player_damaged(result: DamageResult) -> void:
 	if not (player is Node3D):
 		return
 	var follow: Node3D = player as Node3D
-	if player.has_method("is_alive") and not player.is_alive():
+	if player is Damageable and not (player as Damageable).is_alive():
 		follow = null
 	_numbers.spawn_damage_number(
 		(player as Node3D).global_position + Vector3.UP * 1.4,
@@ -348,8 +348,7 @@ func _apply_settings(settings: SettingsData) -> void:
 	UiTheme.apply_text_scale(self, settings.text_scale)
 	_banner.set_reduced_motion(settings.reduced_motion)
 	_numbers.set_reduced_motion(settings.reduced_motion)
-	if _numbers.has_method("set_text_scale"):
-		_numbers.set_text_scale(settings.text_scale)
+	_numbers.set_text_scale(settings.text_scale)
 	_boss_bar.set_reduced_motion(settings.reduced_motion)
 	_touch.set_high_contrast(settings.high_contrast)
 	for node in get_tree().get_nodes_in_group("hitstop_manager"):

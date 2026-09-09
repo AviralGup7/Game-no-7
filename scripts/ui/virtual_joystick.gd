@@ -121,7 +121,9 @@ func _end() -> void:
 
 
 func _update(position: Vector2) -> void:
-	if _resume_ignore > 0 or not _active:
+	if not _active:
+		return
+	if _resume_ignore > 0:
 		return
 	if get_tree() != null and get_tree().paused:
 		cancel()

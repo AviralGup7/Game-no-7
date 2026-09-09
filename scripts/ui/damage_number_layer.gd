@@ -192,7 +192,7 @@ func _process(delta: float) -> void:
 		var frac: float = clampf(float(entry["timer"]) / LIFE_SECONDS, 0.0, 1.0)
 		var follow: Node3D = entry.get("follow", null) as Node3D
 		if follow != null and is_instance_valid(follow) and follow.is_inside_tree() \
-				and not (follow.has_method("is_alive") and not follow.is_alive()):
+				and not (follow is Damageable and not (follow as Damageable).is_alive()):
 			var world := follow.global_position + entry.get("offset", Vector3.UP)
 			entry["last_world"] = world
 			var projected: Variant = _project(world)

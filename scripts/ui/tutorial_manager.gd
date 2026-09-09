@@ -151,8 +151,8 @@ func _poll_player_triggers() -> void:
 			if _resume_guard > 0.0:
 				return
 			var intent := 0.0
-			if player.has_method("get_move_intent"):
-				intent = float(player.get_move_intent())
+			if player is Player:
+				intent = float((player as Player).get_move_intent())
 			var axes := Vector2(Input.get_axis("move_left", "move_right"), Input.get_axis("move_up", "move_down"))
 			var analog := axes.length() > 0.42
 			var keys := axes.length() > 0.18 and axes.length() <= 0.42
@@ -191,9 +191,9 @@ func notify_player_dodged() -> void:
 	if _current_step() == STEP_DODGE:
 		_complete_current()
 	elif _current_step() == STEP_WINDED:
-		if GameRoot.get_active_player() != null and GameRoot.get_active_player().has_method("get_stamina_fraction"):
-			if GameRoot.get_active_player().get_stamina_fraction() <= 0.12:
-				_complete_current()
+		var p := GameRoot.get_active_player() as Player
+		if p != null and p.get_stamina_fraction() <= 0.12:
+			_complete_current()
 
 
 func _complete_current() -> void:

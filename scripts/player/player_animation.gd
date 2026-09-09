@@ -48,7 +48,6 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
-var _bus := EventBindings.new()
 var _ik_dampen := false
 var _ik_dampen_hold := 0.0
 # Animation timing is driven only by WeaponInstance (windup/cooldown/reload);
@@ -140,13 +139,23 @@ func _connect_combat_signals() -> void:
 		_weapons.attack_resolved.connect(_on_contact)
 		_weapons.weapon_switched_local.connect(_on_switch)
 	if EventBus != null:
-		_bus.bind(EventBus.skill_cast, _on_skill_cast)
-		_bus.bind(EventBus.player_leveled_up, _on_level_up)
-		_bus.bind(EventBus.boss_slain, _on_boss_victory)
+		if not EventBus.skill_cast.is_connected(_on_skill_cast):
+			EventBus.skill_cast.connect(_on_skill_cast)
+		if not EventBus.player_leveled_up.is_connected(_on_level_up):
+			EventBus.player_leveled_up.connect(_on_level_up)
+		if not EventBus.boss_slain.is_connected(_on_boss_victory):
+			EventBus.boss_slain.connect(_on_boss_victory)
 
 
 func _exit_tree() -> void:
-	_bus.unbind_all()
+	if EventBus == null:
+		return
+	if EventBus.skill_cast.is_connected(_on_skill_cast):
+		EventBus.skill_cast.disconnect(_on_skill_cast)
+	if EventBus.player_leveled_up.is_connected(_on_level_up):
+		EventBus.player_leveled_up.disconnect(_on_level_up)
+	if EventBus.boss_slain.is_connected(_on_boss_victory):
+		EventBus.boss_slain.disconnect(_on_boss_victory)
 
 
 func _pin_visual_xz() -> void:
@@ -173,10 +182,10 @@ func _physics_process(_delta: float) -> void:
 		if _ik_dampen_hold >= 0.2:
 			_ik_dampen = want_dampen
 			_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
-	if equipment != null and equipment.has_method("set_slope_ik_dampen"):
+	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
+	if equipment != null:
 		equipment.set_slope_ik_dampen(_ik_dampen)
-	elif equipment == null:
+	else:
 		_ik_dampen_hold = 0.0
 	if _animation == null:
 		return
@@ -319,8 +328,8 @@ func _on_death() -> void:
 	_locked = true
 	_ik_dampen = false
 	_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
-	if equipment != null and equipment.has_method("reset_ik_dampen"):
+	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
+	if equipment != null:
 		equipment.reset_ik_dampen()
 	var model := _player.get_node_or_null("VisualRoot/CharacterModel") as Node3D if _player != null else null
 	if model != null:
@@ -332,8 +341,8 @@ func _on_death() -> void:
 func _on_switch(_old: StringName, _new: StringName) -> void:
 	_ik_dampen = false
 	_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
-	if equipment != null and equipment.has_method("reset_ik_dampen"):
+	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
+	if equipment != null:
 		equipment.reset_ik_dampen()
 	if not _dead:
 		_locked = false

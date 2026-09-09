@@ -17,7 +17,7 @@ static func apply(body: CharacterBody3D, max_offset: float = 0.14, delta: float 
 	if model == null:
 		return 0.0
 	# Death clips own hip Y — do not snap the plant to 0 under a fade.
-	if body.has_method("is_alive") and not body.is_alive():
+	if body is Damageable and not (body as Damageable).is_alive():
 		return model.position.y
 	var world := body.get_world_3d()
 	if world == null or world.direct_space_state == null:

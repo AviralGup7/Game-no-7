@@ -104,10 +104,8 @@ func get_debug_snapshot() -> Dictionary:
 
 
 func set_high_contrast(enabled: bool) -> void:
-	if joystick != null and joystick.has_method("set_rest_alpha"):
+	if joystick != null:
 		joystick.set_rest_alpha(1.0 if enabled else 0.75)
-	elif joystick != null:
-		joystick.modulate.a = 1.0 if enabled else 0.75
 	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.88
 	if joystick != null and not enabled:
 		joystick.set_rest_alpha(0.7)

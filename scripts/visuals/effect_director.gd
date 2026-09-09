@@ -162,7 +162,7 @@ func try_telegraph(for_boss: bool = false) -> bool:
 	if is_inside_tree() and get_tree() != null:
 		for n in get_tree().get_nodes_in_group("enemies"):
 			if n != null and n.get_node_or_null("BossController") != null:
-				if n.has_method("is_alive") and n.is_alive():
+				if n is Damageable and (n as Damageable).is_alive():
 					bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
 	var free := 0
@@ -244,6 +244,7 @@ func _wire_events() -> void:
 	if _wired or EventBus == null:
 		return
 	_wired = true
+	# is_connected is enforced inside EventBus.bind (no duplicate listeners).
 	EventBus.bind(self, EventBus.enemy_spawned, _on_enemy_spawned)
 	EventBus.bind(self, EventBus.enemy_killed, _on_enemy_killed)
 	EventBus.bind(self, EventBus.enemy_damaged, _on_enemy_damaged)
