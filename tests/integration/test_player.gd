@@ -16,11 +16,13 @@ class Target extends Damageable:
 		result.final_amount = 12.0
 		return result
 
-class Juice extends Node:
+# PlayerFeedback deliberately accepts only the typed HitstopManager contract.
+# Keep the spy typed as well; a plain Node is rejected before either callback.
+class Juice extends HitstopManager:
 	var requests := 0
 	var trauma := 0.0
 
-	func request_hitstop(_duration: float) -> void:
+	func request_hitstop(_duration: float, _scale: float = 0.05) -> void:
 		requests += 1
 
 	func add_trauma(amount: float) -> void:

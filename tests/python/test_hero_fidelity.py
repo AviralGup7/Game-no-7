@@ -101,6 +101,8 @@ class HeroFidelityTests(unittest.TestCase):
         imports = (ROOT / 'tests/validate_asset_imports.gd').read_text()
         self.assertIn('build_report.json', imports)
         self.assertIn('HeroRigContract.missing_requirements', imports)
+        player_suite = (ROOT / 'tests/integration/test_player.gd').read_text()
+        self.assertIn('class Juice extends HitstopManager:', player_suite)
 
     def test_animation_remains_cosmetic_and_body_dimensions_are_unchanged(self):
         animator = (ROOT / 'scripts/player/player_animation.gd').read_text()
