@@ -3,8 +3,16 @@ extends SceneTree
 ## godot --headless --path . --script res://tests/run_player_tests.gd
 
 
-func _initialize() -> void:
-	_run.call_deferred()
+var _launched := false
+
+
+func _process(_delta: float) -> bool:
+	if not _launched:
+		_launched = true
+		# Like run_tests.gd, start on the first live frame: deferred calls from
+		# _initialize can flush before autoloads and Node3D transforms are ready.
+		_run()
+	return false
 
 
 func _run() -> void:
