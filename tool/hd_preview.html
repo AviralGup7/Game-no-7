@@ -35,7 +35,7 @@
 <div id="app"></div>
 <div id="hud">
   <b>Last Stand: Arena — HD realism preview</b><br>
-  Real HDRI sky + photo-PBR arena shell + approved game models (Godot uses the same assets).
+  Real HDRI sky + photo-PBR arena shell + the new Warden hero (Godot uses the same assets). <a href="./hero_preview.html" style="color:#d1ad73">Inspect hero &amp; animations ↗</a>
   <div class="sky">
     <button data-sky="default_arena" class="active">Default (sunrise)</button>
     <button data-sky="ember_crucible">Ember (sunset)</button>
@@ -178,15 +178,15 @@ function fit(obj, height) {
   obj.position.x -= (b2.min.x + b2.max.x) / 2;
   obj.position.z -= (b2.min.z + b2.max.z) / 2;
 }
-gltf.load('../assets/characters/adventurers/Knight.glb', (g) => {
+gltf.load('../assets/characters/warden/ArenaWarden.glb', (g) => {
   const model = g.scene;
   model.traverse((n) => { if (n.isMesh) { n.castShadow = true; n.material.anisotropy = 8; } });
-  fit(model, 1.78); model.rotation.y = Math.PI; hero.add(model);
+  fit(model, 1.84); model.rotation.y = Math.PI; hero.add(model);
   const mixer = new THREE.AnimationMixer(model);
   const idle = g.animations.find((a) => a.name === 'Idle') || g.animations[0];
   if (idle) mixer.clipAction(idle).play();
   window.__mixers = window.__mixers || []; window.__mixers.push(mixer);
-  status.textContent = 'Knight ✓  Skeleton ✓  Demon ✓';
+  status.textContent = 'Arena Warden loaded · drag to orbit';
 });
 gltf.load('../assets/characters/skeletons/Skeleton_Minion.glb', (g) => {
   const model = g.scene;

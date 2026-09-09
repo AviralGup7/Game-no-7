@@ -67,10 +67,11 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 ## Downloaded 3D asset kit
 
-The reviewed asset library now contains **9 rigged/animated character models,
-81 models total, photo-PBR arena texture sets, real HDRI panorama skies,
+The reviewed asset library contains **9 downloaded rigged/animated character models,
+81 downloaded models, photo-PBR arena texture sets, real HDRI panorama skies,
 UI/particle textures, 2 fonts, 29 sound effects and 5 music loops**
-(~49.08 MiB of locked downloads). All source files have pinned provenance,
+(~49.08 MiB of locked downloads), plus the **Arena Warden hero and PBR gladius**
+(~4.93 MiB of checksum-locked authored assets). All source files have pinned provenance,
 SHA-256 checksums and preserved licences.
 
 **Integrated — HD realism pass:** the arena was rebuilt with photo-PBR rock floor,
@@ -83,13 +84,18 @@ character, enemy and arena prop receives a role-tuned PBR material pass
 live actors, KayKit dungeon props, per-arena themes, pooled VFX and registered
 SFX/music — remains. See the [asset catalogue](docs/ASSET_CATALOG.md) and
 [quality audit](docs/ASSET_AUDIT.md) for exact additions, replacement selections,
-upstream checks and limitations. A photoreal animated character rig set (with
-combat-clip coverage) remains future work; the audit records the reviewed
-candidates and why they were not drop-in replacements.
+upstream checks and limitations. **Hero fidelity:** the live player now uses a new human-proportioned PBR armored
+Warden, with all **76 clips retargeted**, 23 deform bones, one body surface, shared
+1K PBR maps and a matching gladius. The existing attack timing, four dodges,
+hurt/death, casts and hand sockets are retained; incomplete imports safely fall
+back to KayKit. This is authored armored art, **not a scanned photoreal human**;
+enemy meshes remain the approved stylized set. See [hero fidelity](docs/HERO_FIDELITY.md)
+for the reproducible recipe, compatibility gate, review tool and validation limits.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check
-python3 tool/validate_assets.py              # model dependencies + content coverage
+python3 tool/validate_assets.py              # downloads + derived art + combat coverage
+python3 tool/serve_art.py --port 8000         # optional live hero comparison / clip viewer
 # If files are missing: python3 scripts/download_assets.py
 ```
 
@@ -118,6 +124,7 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 | `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
 | `docs/ANDROID_PERMISSIONS.md` | why the app requests no Android permissions + how to verify |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
+| `docs/HERO_FIDELITY.md` | New Warden, retarget recipe, complete clip/socket gate + validation limits |
 | `docs/ASSET_CATALOG.md` | Downloaded asset inventory, file/role map, animation names + integration status |
 | `docs/EXTENDING.md` | Step-by-step extension guides |
 | `THIRD_PARTY_ASSETS.md` | Visual asset licences + provenance |

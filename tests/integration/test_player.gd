@@ -16,11 +16,13 @@ class Target extends Damageable:
 		result.final_amount = 12.0
 		return result
 
-class Juice extends Node:
+# PlayerFeedback deliberately accepts only the typed HitstopManager contract.
+# Keep the spy typed as well; a plain Node is rejected before either callback.
+class Juice extends HitstopManager:
 	var requests := 0
 	var trauma := 0.0
 
-	func request_hitstop(_duration: float) -> void:
+	func request_hitstop(_duration: float, _scale: float = 0.05) -> void:
 		requests += 1
 
 	func add_trauma(amount: float) -> void:
@@ -184,9 +186,9 @@ func _test_player_scene() -> void:
 	_check("canonical player scene loads", packed != null)
 	if packed == null:
 		return
-	var source_scene := load("res://assets/characters/adventurers/Knight.glb") as PackedScene
+	var source_scene := load(HeroRigContract.MODEL_PATH) as PackedScene
 	var source_model := source_scene.instantiate()
-	var source_animation := source_model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var source_animation := HeroRigContract.animation_player(source_model)
 	var source_idle := source_animation.get_animation(&"Idle")
 	var source_loop_mode := source_idle.loop_mode
 	source_model.free()
@@ -207,11 +209,14 @@ func _test_player_scene() -> void:
 	var equipment := player.get_node("PlayerEquipment") as PlayerEquipment
 	var feedback := player.get_node("PlayerFeedback") as PlayerFeedback
 	var health := player.get_node("HealthComponent") as HealthComponent
-	_check("Knight animation player found", animation._animation != null)
+	_check("Warden animation player found", animation._animation != null)
 	if animation._animation == null:
 		player.free()
 		return
-	for clip in [&"Idle", &"Walking_A", &"Running_A", &"Dodge_Forward", &"Hit_A", &"Death_A", &"2H_Ranged_Shoot", &"2H_Ranged_Reload"]:
+	var hero := player.get_node("VisualRoot/CharacterModel/CharacterVisual") as Node3D
+	_check("player uses production Warden, not fallback", hero.get_meta(HeroRigContract.MODEL_PATH_META, "") == HeroRigContract.MODEL_PATH)
+	_check("idle bob cannot detach feet from arena", not hero.has_meta(CharacterVisuals.BREATHING_TWEEN_META))
+	for clip in HeroRigContract.REQUIRED_CLIPS:
 		_check("supplied clip: " + String(clip), animation._animation.has_animation(clip))
 	_check("locomotion loops do not mutate source animations", source_idle.loop_mode == source_loop_mode and animation._animation.get_animation(&"Idle") != source_idle)
 	_check("equipped starter has model and hand socket", equipment._model != null and equipment._socket.bone_idx >= 0)
@@ -240,6 +245,7 @@ func _test_player_scene() -> void:
 	player.request_attack()
 	manager.tick(0.2)
 	_check("melee resolves once at contact", target.hits == 1)
+	_check("contact frame stays aligned to authoritative windup", is_equal_approx(animation._animation.current_animation_position, animation._length(animation._attack_clip) * animation.contact_fraction))
 	player._attack_buffer.tick(0.01, player._try_attack)
 	_check("early combo input is buffered", starts[0] == 2 and manager.active_instance().combo_step == 2)
 	player._attack_buffer.tick(0.01, player._try_attack)
@@ -356,12 +362,22 @@ func _test_player_scene() -> void:
 	_check("death pose cannot return to idle", animation._animation.current_animation == "Death_A")
 	player.reset_for_new_run(Transform3D.IDENTITY)
 	_check("respawn resets animation and feedback", not animation._dead and animation._animation.current_animation == "Idle" and feedback._last_color == Color.TRANSPARENT)
+	_check("respawn cannot restart whole-body bob", not hero.has_meta(CharacterVisuals.BREATHING_TWEEN_META))
+	for side in [&"Dodge_Forward", &"Dodge_Backward", &"Dodge_Left", &"Dodge_Right"]:
+		var direction: Vector3 = {&"Dodge_Forward": Vector3.FORWARD, &"Dodge_Backward": Vector3.BACK, &"Dodge_Left": Vector3.LEFT, &"Dodge_Right": Vector3.RIGHT}[side]
+		player.rotation.y = 0.0
+		dodge._dir = direction
+		animation._on_dodge()
+		_check("runtime directional dodge: " + String(side), animation._animation.current_animation == String(side))
+	animation.reset()
 	for weapon_id in equipment.models:
 		manager.equip(registry.get_weapon(weapon_id), 0)
 		manager.switch_to(0)
 		_check("model mapping: " + String(weapon_id), equipment._model != null)
 		if equipment._model != null:
 			_check("source grip preserved: " + String(weapon_id), (equipment._model.get_child(0) as Node3D).position == Vector3.ZERO)
+		if weapon_id == &"sunbow":
+			_check("bow long axis uses the aiming socket's up direction", equipment._model.basis.y.normalized().is_equal_approx(Vector3.BACK))
 		if weapon_id == &"twinfangs":
 			_check("dual wield has offhand dagger", equipment._second_model != null)
 	for cue in [&"player_attack", &"player_hurt", &"player_dodge", &"player_death", &"player_step", &"player_shot", &"player_switch", &"player_reload", &"player_low_health"]:

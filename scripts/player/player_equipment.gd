@@ -8,6 +8,11 @@ extends Node
 @export var preserve_source_grip: bool = true
 @export var dual_wield_ids: Array[StringName] = [&"twinfangs"]
 @export var grip_rotation_degrees := Vector3.ZERO
+# The reviewed Quaternius bow has a different source axis from KayKit's sockets.
+# Keep its centre grip fixed; orient its long axis vertically in the aiming pose.
+@export var weapon_grip_rotations: Dictionary[StringName, Vector3] = {
+	&"sunbow": Vector3(0, 90, 90),
+}
 
 var _manager: WeaponManager
 var _socket: BoneAttachment3D
@@ -47,7 +52,7 @@ func _bind_skeleton() -> bool:
 	var character := get_parent().get_node_or_null("VisualRoot/CharacterModel")
 	if character == null:
 		return false
-	var skeleton := character.find_child("Skeleton3D", true, false) as Skeleton3D
+	var skeleton := HeroRigContract.skeleton(character)
 	if skeleton == null:
 		return false
 	# The source includes a full alternate loadout: hide weapons/shields, not armour.
@@ -110,6 +115,9 @@ func _refresh() -> void:
 		return
 	_clear_flash()
 	var id := _manager.active_weapon_id()
+	# The corrected bow aims along -socket Y; other ranged assets use +Y.
+	if _muzzle != null:
+		_muzzle.position = Vector3(0, -0.12 if id == &"sunbow" else 0.5, 0)
 	if id == _equipped:
 		return
 	_equipped = id
@@ -124,12 +132,14 @@ func _refresh() -> void:
 	_model = _make_model(id)
 	if _model != null:
 		_socket.add_child(_model)
-		_model.rotation_degrees = grip_rotation_degrees
+		if id == &"gladius":
+			HdMaterials.polish(_model, &"player", true)
+		_model.rotation_degrees = weapon_grip_rotations.get(id, grip_rotation_degrees)
 	if id in dual_wield_ids:
 		_second_model = _make_model(id)
 		if _second_model != null:
 			_offhand.add_child(_second_model)
-			_second_model.rotation_degrees = grip_rotation_degrees
+			_second_model.rotation_degrees = weapon_grip_rotations.get(id, grip_rotation_degrees)
 	var inst := _manager.active_instance()
 	_socket.bone_name = "handslot.l" if inst != null and inst.config.is_ranged() and not inst.config.is_melee() else "handslot.r"
 

@@ -1,8 +1,10 @@
 # ART_STYLE.md — Visual style guide
 
-A cohesive **stylized characters + photoreal environment** look: colourful but not
-childish, readable silhouettes, photo-PBR arena shells and real HDRI skies behind
-the approved low-poly rigs, good contrast, attractive on mobile, and lightweight.
+A **grounded PBR armored hero + photo-PBR arena**, with the existing stylized enemy
+roster retained for now. Adult hero proportions, readable blue cloth accents and
+physically distinct steel/leather/mail replace the oversized-head KayKit hero.
+This is not yet an entirely photoreal cast. Keep silhouettes readable, contrast
+strong, shared material budgets bounded and mobile performance measured.
 
 ## Core principles
 
@@ -81,7 +83,11 @@ three.js mirror) for real skies, with Kenney particle/UI assets and Rajdhani fon
 See `docs/ASSET_CATALOG.md` for exact files and per-role mappings; `ASSET_AUDIT.md`
 explains why the rig inventory was kept (its combat clip coverage) while the
 presentation (arena, sky, lighting, post, per-actor material tuning via
-`HdMaterials`) went photoreal.
+`HdMaterials`) changed. The subsequent **Arena Warden** replaces the hero mesh
+and bakes all 76 motions onto a proportional 23-bone rig; see
+`HERO_FIDELITY.md`. The new hero/gladius share base, normal and ORM atlases.
+Never clamp their unit metallic/roughness factors to the palette-kit role values
+or add a whole-body breathing tween to the baked grounded idle.
 
 Keep the original textured materials when applying the role palette; tint accents
 or duplicate materials rather than flattening every surface to a single colour.

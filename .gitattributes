@@ -7,3 +7,10 @@
 /assets/manifest.json text eol=lf
 /assets/catalog.json text eol=lf
 /ASSET_LICENSES/README.md text eol=lf
+
+# Reproducible project-authored hero recipe / provenance (hashes are over LF bytes).
+/assets/characters/warden/build_report.json text eol=lf
+/ASSET_LICENSES/arena-warden.md text eol=lf
+/tool/build_hero.py text eol=lf
+/tool/hero/*.py text eol=lf
+/tool/hero/requirements.txt text eol=lf

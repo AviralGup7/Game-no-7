@@ -1,0 +1,151 @@
+<!doctype html>
+<!-- Dev-only review of the actual shipped GLBs, clips, weapons and arena HDRIs.
+     Start the review server: python3 tool/serve_art.py --port 8000
+     This is an asset viewer, NOT an emulation of Godot combat or device performance. -->
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Last Stand · Character lab</title>
+<style>
+:root{color-scheme:dark;--paper:#e7e5de;--muted:#8d969b;--edge:#303a3e;--gold:#d1ad73;--panel:#151d21}
+*{box-sizing:border-box}body{margin:0;background:#0e151a;color:var(--paper);font:13px/1.5 system-ui,sans-serif}button,select,input{font:inherit}button,select{color:inherit;cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}button{background:transparent;border:1px solid var(--edge);border-radius:4px;padding:8px 12px}button:hover{border-color:#a5977d}button.active{border-color:var(--gold);color:var(--gold);background:#d1ad730b}button:disabled{opacity:.4;cursor:wait}header{height:77px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;border-bottom:1px solid var(--edge);background:#11191e}.brand{display:flex;align-items:center;gap:14px}.mark{width:37px;height:42px;display:grid;place-items:center;border:1px solid var(--gold);clip-path:polygon(0 0,100% 0,100% 75%,50% 100%,0 75%);color:var(--gold);font:600 21px Georgia,serif}.brand strong{display:block;font-size:14px;letter-spacing:3px;font-weight:500}.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}.header-right{display:flex;align-items:center;gap:22px}.status-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#accbaf;margin-right:8px}main{height:calc(100dvh - 77px);display:grid;grid-template-columns:278px minmax(0,1fr)}aside{background:var(--panel);border-right:1px solid var(--edge);padding:25px 22px;overflow-y:auto}.number{font-size:11px;letter-spacing:1.4px;color:var(--gold)}h1{font-family:Georgia,serif;font-weight:400;font-size:31px;line-height:1.17;margin:10px 0 12px}p{color:var(--muted);font-size:12px;margin:8px 0 20px}.divider{border-top:1px solid var(--edge);margin:23px 0}.section-heading{display:flex;justify-content:space-between;align-items:center;margin:0 0 11px;font-size:10px;letter-spacing:1.6px;text-transform:uppercase}.section-heading span{color:var(--muted);letter-spacing:0}.group-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:13px}.group-tabs button{padding:5px 7px;font-size:10px}.clips{display:flex;flex-direction:column;gap:5px}.clips button{text-align:left;display:flex;align-items:center;justify-content:space-between;border-color:transparent;padding:9px 10px;background:#0e161b66}.clips button.active{border-color:#a78a5b70;background:#d1ad7311}.clips .arrow{color:var(--muted)}label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}select{background:#0f171b;border:1px solid var(--edge);padding:8px 9px;width:100%;border-radius:4px}.note{font-size:10px;line-height:1.65;color:#7e8a91;margin-top:16px}.stage{position:relative;min-height:0;overflow:hidden}#viewport{position:absolute;inset:0}canvas{display:block}.stage-top{position:absolute;top:24px;left:27px;right:27px;display:flex;justify-content:space-between;gap:15px;pointer-events:none}.view-title{font-family:Georgia,serif;font-size:18px;margin-top:3px}.stage-actions{pointer-events:auto;display:flex;gap:7px;align-items:flex-start}.stage-actions button{font-size:11px;background:#10191dd9;backdrop-filter:blur(15px)}.vertical-caption{position:absolute;left:26px;bottom:146px;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}.model-label{position:absolute;bottom:200px;text-align:center;pointer-events:none;display:none}.model-label small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.6px;margin-bottom:4px}.model-label b{font-size:12px;font-weight:500}.footer{position:absolute;bottom:20px;left:27px;right:27px;background:#121b21e8;backdrop-filter:blur(20px);border:1px solid var(--edge);border-radius:6px}.transport{display:flex;align-items:center;gap:18px;padding:15px 18px}.play{width:34px;height:34px;padding:0;color:var(--gold);font-size:14px}.now{min-width:136px}.now strong{display:block;font-size:12px;font-weight:500}.now small{color:var(--muted);font-size:10px}.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:11px;white-space:nowrap}input[type=range]{min-width:50px;width:100%;accent-color:var(--gold);height:3px;cursor:pointer}.stats{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--edge);padding:10px 18px;color:var(--muted);font-size:10px}.stats strong{font-weight:500;color:#c2cbc9;margin-right:4px}.stats .badge{color:#abc5b1}.speed{background:transparent;padding:5px;font-size:11px;width:69px}.loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#101820;z-index:2;flex-direction:column;gap:12px}.loading span{color:var(--muted);font-size:12px}.loading.hidden{display:none}.light-row{display:flex;gap:6px}.light-row button{flex:1;font-size:11px;padding:7px 0}.error{color:#e6a691!important}a{color:var(--gold);text-decoration:none}.coverage{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;font-size:11px;color:#aeb8b8}.coverage span::before{content:'✓';color:#b0c2a5;font-size:10px;margin-right:7px}
+@media(max-width:800px){header{height:65px;padding:0 16px}.header-right .eyebrow{display:none}main{height:calc(100dvh - 65px);grid-template-columns:215px minmax(0,1fr)}aside{padding:18px 15px}h1{font-size:26px}.stage-top{left:16px;right:16px}.stage-actions{flex-direction:column}.footer{left:12px;right:12px;bottom:12px}.transport{gap:9px;padding:12px}.now{min-width:85px}.stats{flex-wrap:wrap;font-size:9px;padding:8px 12px}.view-title{font-size:16px}.vertical-caption{display:none}.transport .time{display:none}}
+@media(max-width:520px){header .header-right{display:none}main{grid-template-columns:1fr;grid-template-rows:1fr 180px}.stage{grid-row:1}aside{grid-row:2;padding:12px 15px;display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--edge)}aside .intro,aside .divider,aside .lighting,aside .coverage-section,aside .note{display:none}.clips{max-height:103px;overflow-y:auto}.group-tabs{gap:2px;margin-bottom:6px}.group-tabs button{padding:3px;font-size:9px}.clips button{padding:4px 8px}.section-heading{margin-bottom:6px}h1{font-size:20px}.footer{bottom:8px}.stats{display:none}.stage-top{top:12px}.stage-actions button{padding:5px 8px}.now{min-width:110px}}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<header><div class="brand"><div class="mark">VII</div><div><strong>LAST STAND</strong><div class="eyebrow">Arena · character development</div></div></div><div class="header-right"><span class="eyebrow"><i class="status-dot"></i>Live asset review</span><a href="./hd_preview.html">View arena ↗</a></div></header>
+<main>
+<aside>
+<div class="intro"><div class="number">01 / HERO FIDELITY</div><h1>The Arena<br>Warden.</h1><p>Forged plate. Woven blue. A human silhouette built for the arena.</p></div>
+<div class="animation-controls"><div class="section-heading">Motion library <span id="clip-count">—</span></div><div class="group-tabs" id="groups"></div><div class="clips" id="clips"></div></div>
+<div class="divider"></div>
+<div class="equipment"><div class="section-heading">Equipment</div><label for="weapon">Live hand-socket attachment</label><select id="weapon"><option value="none">Unarmed / inspect hands</option><option value="gladius" selected>Gladius</option><option value="sentinel_spear">Sentinel spear</option><option value="stormhammer">Stormhammer</option><option value="sunbow">Sunbow</option><option value="twinfangs">Twinfangs · dual wield</option><option value="warreaxe">Warreaxe</option><option value="ember_scepter">Ember scepter</option><option value="moonlance">Moonlance</option><option value="venom_chain">Venom chain</option></select></div>
+<div class="divider"></div>
+<div class="lighting"><div class="section-heading">Arena light</div><div class="light-row"><button data-light="sunrise" class="active">Dawn</button><button data-light="sunset">Ember</button><button data-light="moonlit">Frost</button></div></div>
+<div class="divider"></div>
+<div class="coverage-section"><div class="section-heading">Combat coverage</div><div class="coverage"><span>Locomotion</span><span>Melee / ranged</span><span>Four dodges</span><span>Hit & death</span><span>Skill casts</span><span>Hand sockets</span></div></div>
+<div class="note">Actual production GLB, baked clips and arena HDRIs. This review uses three.js, not Godot gameplay. Device frame time is not measured here.</div>
+</aside>
+<section class="stage" aria-label="Interactive 3D character viewer">
+<div id="viewport"></div>
+<div class="stage-top"><div><div class="eyebrow">PRODUCTION MESH / PBR</div><div class="view-title" id="view-title">Armor & articulation</div></div><div class="stage-actions"><button id="compare" aria-pressed="false">Compare KayKit</button><button id="rotate" aria-pressed="false">Turntable</button><button id="reset-camera">Reset view</button></div></div>
+<div class="vertical-caption">Drag to orbit &nbsp; / &nbsp; Scroll to inspect</div>
+<div class="model-label" id="legacy-label" style="left:14%"><small>BEFORE</small><b>KayKit Knight</b></div>
+<div class="model-label" id="warden-label" style="right:14%"><small>AFTER</small><b>Arena Warden</b></div>
+<div class="footer"><div class="transport"><button class="play" id="play" aria-label="Pause animation">Ⅱ</button><div class="now"><strong id="clip-name">Idle</strong><small id="clip-source">Retargeted · in place</small></div><input id="timeline" aria-label="Animation position" type="range" min="0" max="1" step="0.001" value="0"><span class="time" id="time">0.00 / 0.00</span><select class="speed" id="speed" aria-label="Playback speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></div><div class="stats"><span><strong id="triangles">—</strong> triangles</span><span><strong id="bones">—</strong> bones</span><span><strong>1</strong> body surface</span><span><strong>1K</strong> PBR maps</span><span class="badge" id="asset-status">Loading asset…</span></div></div>
+<div class="loading" id="loading"><div class="eyebrow">PREPARING THE WARDEN</div><span id="load-status">Loading production mesh and surface maps…</span></div>
+</section>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './vendor/GLTFLoader.js';
+import { RGBELoader } from './vendor/RGBELoader.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
+const $=id=>document.getElementById(id);
+const GROUPS={
+ 'Move':[['Idle','Idle'],['Walk','Walking_A'],['Run','Running_A']],
+ 'Combat':[['Slash','1H_Melee_Attack_Slice_Horizontal'],['Diagonal cut','1H_Melee_Attack_Slice_Diagonal'],['One-hand chop','1H_Melee_Attack_Chop'],['Heavy chop','2H_Melee_Attack_Chop'],['Heavy slice','2H_Melee_Attack_Slice'],['Spear thrust','2H_Melee_Attack_Stab'],['Dual slash','Dualwield_Melee_Attack_Slice'],['Bow shot','2H_Ranged_Shoot'],['Reload','2H_Ranged_Reload']],
+ 'React':[['Dodge forward','Dodge_Forward'],['Dodge backward','Dodge_Backward'],['Dodge left','Dodge_Left'],['Dodge right','Dodge_Right'],['Hit reaction','Hit_A'],['Death','Death_A']],
+ 'Cast':[['Spell shot','Spellcast_Shoot'],['Warcry','Spellcast_Raise'],['Bladestorm','2H_Melee_Attack_Spin'],['Victory','Cheer']]
+};
+const LOOPING=new Set(['Idle','Walking_A','Running_A']);
+let group='Move',clip='Idle',playing=true,comparing=false,turntable=false,equipVersion=0;
+let hero,legacy,report,activeSky=0;
+const actorState=[];
+const host=$('viewport');
+const scene=new THREE.Scene();
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x17232b);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+host.appendChild(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(37,1,.03,100);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;
+controls.minDistance=1.2;controls.maxDistance=9;
+controls.maxPolarAngle=Math.PI*.49;
+function resetCamera(){camera.position.set(comparing?3.35:2.6,1.85,comparing?5.6:3.7);controls.target.set(0,.94,0);controls.update()}
+resetCamera();
+const key=new THREE.DirectionalLight(0xffe7c5,2.3);key.position.set(-3,5,4);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);key.shadow.camera.left=-3;key.shadow.camera.right=3;key.shadow.camera.top=3;key.shadow.camera.bottom=-3;key.shadow.camera.near=.1;key.shadow.camera.far=14;key.shadow.normalBias=.025;key.shadow.bias=-.0001;scene.add(key);
+const fill=new THREE.DirectionalLight(0x9bbde0,1.2);fill.position.set(3,3,-2);scene.add(fill);
+scene.add(new THREE.HemisphereLight(0xbacbd3,0x1e2429,.65));
+const textures=new THREE.TextureLoader();
+const floorMap=textures.load('../assets/textures/rock/rock_albedo.png');floorMap.colorSpace=THREE.SRGBColorSpace;
+const floorNormal=textures.load('../assets/textures/rock/rock_normal.png');
+for(const t of [floorMap,floorNormal]){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(54,54);t.anisotropy=8}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x4a5154,map:floorMap,normalMap:floorNormal,normalScale:new THREE.Vector2(.6,.6),roughness:.82}));
+floor.rotation.x=-Math.PI/2;floor.position.y=-.012;floor.receiveShadow=true;scene.add(floor);
+scene.fog=new THREE.FogExp2(0x17232b,.12);
+const ring=new THREE.Mesh(new THREE.RingGeometry(.89,.896,100),new THREE.MeshBasicMaterial({color:0x6b6c5e,transparent:true,opacity:.40,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=-.008;scene.add(ring);
+const loader=new GLTFLoader();
+async function sky(name){
+ const request=++activeSky;
+ const file={sunrise:'spruit_sunrise_1k',sunset:'venice_sunset_1k',moonlit:'moonless_golf_1k'}[name];
+ const tex=await new RGBELoader().loadAsync('../assets/textures/panorama/'+file+'.hdr');
+ if(request!==activeSky){tex.dispose();return}
+ const old=scene.environment;tex.mapping=THREE.EquirectangularReflectionMapping;scene.environment=tex;if(old)old.dispose();
+ key.color.set(name==='sunset'?0xffc292:name==='moonlit'?0xbcd3ff:0xffe7c5);
+ key.intensity=name==='moonlit'?1.25:2.3;
+ document.querySelectorAll('[data-light]').forEach(b=>b.classList.toggle('active',b.dataset.light===name));
+}
+function visibleBounds(obj){const result=new THREE.Box3();obj.updateWorldMatrix(true,true);obj.traverse(n=>{if(n.isMesh&&n.visible){n.geometry.computeBoundingBox();result.union(n.geometry.boundingBox.clone().applyMatrix4(n.matrixWorld))}});return result}
+function prepare(g,height,isLegacy=false){
+ const model=g.scene;
+ model.traverse(n=>{if(n.isMesh){if(/Sword|Shield/.test(n.name))n.visible=false;n.castShadow=true;n.receiveShadow=true;const mats=Array.isArray(n.material)?n.material:[n.material];for(const m of mats){for(const t of [m.map,m.normalMap,m.roughnessMap,m.metalnessMap])if(t)t.anisotropy=8;if(isLegacy){m.roughness=Math.max(.35,Math.min(.6,m.roughness));m.metalness=Math.max(.1,Math.min(.3,m.metalness));}}}});
+ const box=visibleBounds(model);const factor=height/(box.max.y-box.min.y);model.scale.setScalar(factor);const fitted=visibleBounds(model);model.position.set(-(fitted.min.x+fitted.max.x)/2,-fitted.min.y,-(fitted.min.z+fitted.max.z)/2);
+ const wrapper=new THREE.Group();wrapper.add(model);scene.add(wrapper);
+ const state={wrapper,model,clips:g.animations,mixer:new THREE.AnimationMixer(model),action:null,weapons:[]};actorState.push(state);return state;
+}
+function chooseClip(name,label){
+ const wasDeath=clip==='Death_A';clip=name;playing=true;$('play').textContent='Ⅱ';$('play').setAttribute('aria-label','Pause animation');
+ for(const actor of actorState){actor.mixer.stopAllAction();const anim=actor.clips.find(c=>c.name===name);if(!anim)continue;actor.action=actor.mixer.clipAction(anim);actor.action.reset();actor.action.setLoop(LOOPING.has(name)?THREE.LoopRepeat:THREE.LoopOnce,LOOPING.has(name)?Infinity:1);actor.action.clampWhenFinished=true;actor.action.play();actor.mixer.update(0)}
+ if(name==='Death_A'){controls.target.set(0,.4,.3);camera.position.set(comparing?3.35:2.6,2.1,comparing?5.6:3.7);controls.update()}else if(wasDeath){resetCamera()}
+ $('clip-name').textContent=label||name.replaceAll('_',' ');$('clip-source').textContent=LOOPING.has(name)?'Retargeted · looping':'Retargeted · one shot';
+ document.querySelectorAll('[data-clip]').forEach(b=>b.classList.toggle('active',b.dataset.clip===name));
+}
+function renderGroups(){
+ $('groups').replaceChildren();for(const name of Object.keys(GROUPS)){const b=document.createElement('button');b.textContent=name;b.classList.toggle('active',name===group);b.onclick=()=>{group=name;renderGroups()};$('groups').append(b)}
+ $('clips').replaceChildren();for(const [label,name] of GROUPS[group]){const b=document.createElement('button');b.dataset.clip=name;b.classList.toggle('active',name===clip);const title=document.createElement('span');title.textContent=label;const arrow=document.createElement('span');arrow.className='arrow';arrow.textContent='↗';b.append(title,arrow);b.onclick=()=>chooseClip(name,label);$('clips').append(b)}
+}
+const WEAPONS={gladius:['../assets/characters/warden/WardenGladius.glb',.95],sentinel_spear:['../assets/weapons/medieval/Spear.glb',1.8],stormhammer:['../assets/weapons/medieval/Hammer_Double.glb',1.2],sunbow:['../assets/weapons/medieval/Bow_Golden.glb',1.1],twinfangs:['../assets/weapons/adventurers/dagger.gltf',.6],warreaxe:['../assets/weapons/adventurers/axe_2handed.gltf',1.3],ember_scepter:['../assets/weapons/skeletons/Skeleton_Staff.gltf',1.35],moonlance:['../assets/weapons/medieval/Spear.glb',1.85],venom_chain:['../assets/weapons/adventurers/dagger.gltf',.85]};
+const weaponCache=new Map();
+function socket(model,side){return model.getObjectByName('handslot.'+side)||model.getObjectByName('handslot'+side)}
+async function equip(id){
+ const version=++equipVersion;
+ for(const actor of actorState){for(const w of actor.weapons)w.removeFromParent();actor.weapons=[]}
+ if(id==='none')return;
+ if(!weaponCache.has(id))weaponCache.set(id,loader.loadAsync(WEAPONS[id][0]));
+ const source=await weaponCache.get(id);if(version!==equipVersion)return;
+ for(const actor of actorState){for(const side of id==='twinfangs'?['r','l']:[['sunbow','ember_scepter'].includes(id)?'l':'r']){
+  const bone=socket(actor.model,side);if(!bone)throw new Error('Missing hand socket '+side);
+  const obj=source.scene.clone(true);const box=new THREE.Box3().setFromObject(obj);const size=box.getSize(new THREE.Vector3());obj.scale.setScalar(WEAPONS[id][1]/Math.max(size.x,size.y,size.z));obj.position.set(0,0,0);if(id==='sunbow')obj.rotation.set(0,Math.PI/2,Math.PI/2);obj.traverse(n=>{if(n.isMesh)n.castShadow=true});bone.add(obj);actor.weapons.push(obj);
+ }}
+}
+$('weapon').onchange=()=>equip($('weapon').value).catch(showError);
+$('play').onclick=()=>{if(hero?.action?.time>=hero.action.getClip().duration-.001&&!LOOPING.has(clip)){chooseClip(clip,$('clip-name').textContent);return}playing=!playing;$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'Pause animation':'Play animation')};
+$('timeline').oninput=()=>{playing=false;$('play').textContent='▶';$('play').setAttribute('aria-label','Play animation');const fraction=Number($('timeline').value);for(const actor of actorState){if(actor.action){actor.action.paused=false;actor.action.time=fraction*actor.action.getClip().duration;actor.mixer.update(0)}}};
+$('compare').onclick=()=>{comparing=!comparing;legacy.wrapper.visible=comparing;hero.wrapper.position.x=comparing?.72:0;legacy.wrapper.position.x=-.72;ring.visible=!comparing;for(const id of ['legacy-label','warden-label'])$(id).style.display=comparing?'block':'none';$('compare').classList.toggle('active',comparing);$('compare').setAttribute('aria-pressed',String(comparing));$('view-title').textContent=comparing?'Same height. Same motion. New silhouette.':'Armor & articulation';resetCamera()};
+$('rotate').onclick=()=>{turntable=!turntable;$('rotate').classList.toggle('active',turntable);$('rotate').setAttribute('aria-pressed',String(turntable))};
+$('reset-camera').onclick=()=>{for(const a of actorState)a.wrapper.rotation.y=0;resetCamera()};
+document.querySelectorAll('[data-light]').forEach(b=>b.onclick=()=>sky(b.dataset.light).catch(showError));
+function resize(){const {width,height}=host.getBoundingClientRect();renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(host);resize();
+function showError(e){console.error(e);$('loading').classList.remove('hidden');$('load-status').textContent=e.message||String(e);$('load-status').classList.add('error');$('asset-status').textContent='Asset review failed'}
+window.heroLab={ready:false,chooseClip,equip,scene,camera,renderer,actors:actorState,setTime(t){playing=false;for(const a of actorState){if(a.action){a.action.paused=false;a.action.time=Math.max(0,Math.min(t,a.action.getClip().duration));a.mixer.update(0)}}},setCamera(pos,target){camera.position.fromArray(pos);controls.target.fromArray(target);controls.update()}};
+const clock=new THREE.Clock();
+renderer.setAnimationLoop(()=>{const dt=Math.min(clock.getDelta(),.05);if(playing)for(const a of actorState)a.mixer.update(dt*Number($('speed').value));if(turntable)for(const a of actorState)a.wrapper.rotation.y+=dt*.28;controls.update();renderer.render(scene,camera);if(hero?.action){const duration=hero.action.getClip().duration;const t=hero.action.time;$('timeline').value=t/duration;$('time').textContent=t.toFixed(2)+' / '+duration.toFixed(2);if(t>=duration-.001&&!LOOPING.has(clip)){playing=false;$('play').textContent='↺';$('play').setAttribute('aria-label','Replay animation')}}});
+try{
+ const [production,previous,metrics]=await Promise.all([loader.loadAsync('../assets/characters/warden/ArenaWarden.glb'),loader.loadAsync('../assets/characters/adventurers/Knight.glb'),fetch('../assets/characters/warden/build_report.json').then(r=>{if(!r.ok)throw new Error('Missing build report');return r.json()}),sky('sunrise')]);
+ report=metrics;hero=prepare(production,1.84);legacy=prepare(previous,1.84,true);legacy.wrapper.visible=false;
+ for(const entries of Object.values(GROUPS))for(const [,name]of entries)if(!production.animations.some(a=>a.name===name))throw new Error('Missing production clip: '+name);
+ $('clip-count').textContent=production.animations.length+' clips';$('triangles').textContent=report.measured.triangles.toLocaleString();$('bones').textContent=report.measured.bones;$('asset-status').textContent='Complete combat inventory';
+ renderGroups();chooseClip('Idle','Idle');await equip($('weapon').value);$('loading').classList.add('hidden');window.heroLab.ready=true;
+}catch(e){showError(e)}
+</script>
+</body></html>

@@ -76,9 +76,14 @@ func _bind_animation() -> bool:
 	if _player == null:
 		return false
 	var char_root := _player.get_node_or_null("VisualRoot/CharacterModel")
-	_animation = (char_root.find_child("AnimationPlayer", true, false) as AnimationPlayer) if char_root != null else null
+	_animation = HeroRigContract.animation_player(char_root)
 	if _animation == null:
 		return false
+	var visual := _character_visual()
+	if visual != null and bool(visual.get_meta(HeroRigContract.AUTHORED_IDLE_META, false)):
+		# Stride distances are measured on the retargeted adult-length leg chains.
+		walk_cycle_distance = 1.6
+		run_cycle_distance = 2.1
 	# The mount auto-plays its idle clip; stop it before swapping libraries.
 	_animation.stop()
 	# Only the three loop clips need private resources; other imported clips stay shared.
@@ -146,7 +151,7 @@ func _physics_process(_delta: float) -> void:
 	var playback := 1.0
 	if clip != idle_clip:
 		var stride := walk_cycle_distance if clip == walk_clip else run_cycle_distance
-		playback = clampf(speed * _length(clip) / maxf(stride, 0.1), 0.08, 2.0)
+		playback = clampf(speed * _length(clip) / maxf(stride, 0.1), 0.08, 2.8)
 	_play(clip, false, playback)
 
 
@@ -194,26 +199,9 @@ func _on_dodge() -> void:
 	# Directional dodge: pick Forward/Backward/Left/Right based on dodge vector vs facing.
 	var clip := dodge_clip
 	if _animation != null:
-		var dir: Vector3 = dodge.get_dodge_direction()
-		if dir.length_squared() > 0.0001 and _player != null:
-			var facing := -_player.global_transform.basis.z
-			facing.y = 0.0
-			if facing.length_squared() < 0.0001:
-				facing = Vector3.FORWARD
-			else:
-				facing = facing.normalized()
-			dir.y = 0.0
-			dir = dir.normalized()
-			var fwd := facing.dot(dir)
-			var right := facing.cross(dir).y  # +right = dodge is to the right of facing
-			# Prefer cardinal direction with largest component
-			if absf(fwd) > absf(right):
-				clip = &"Dodge_Forward" if fwd > 0 else &"Dodge_Backward"
-			else:
-				clip = &"Dodge_Right" if right > 0 else &"Dodge_Left"
-			# Fallback if clip missing in this rig
-			if not _animation.has_animation(clip):
-				clip = dodge_clip
+		clip = HeroRigContract.directional_dodge(-_player.global_transform.basis.z, dodge.get_dodge_direction())
+		if not _animation.has_animation(clip):
+			clip = dodge_clip
 	_play(clip, true, _length(clip) / maxf(dodge.duration + dodge.recovery_duration, 0.01))
 
 
@@ -271,6 +259,7 @@ func reset() -> void:
 	_locked = false
 	_reloading = false
 	_attack_clip = &""
+	_contact_aligned = false
 	CharacterVisuals.start_breathing(_character_visual())
 	_play(idle_clip, true)
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## [Unreleased] — Hero character fidelity (2026-09-09)
+
+- Replace the live KayKit hero mesh with the project-authored **Arena Warden**:
+  human proportions, layered armor, mail, gloves, split blue tabard, 1K PBR maps;
+  34,860 triangles / 23 deform bones / one opaque body surface.
+- Bake all **76 CC0 donor clips** to the new rig, preserving every combat/cast
+  selection and hand socket. Condition gait lift, remove planar root travel,
+  ground support and preserve pose reset channels. No gameplay/balance changes.
+- Add an authored PBR gladius sharing the hero atlas; preserve authored material
+  factors, remove the hero float tween and correct left/right dodge selection.
+- Gate imports by the full clip/socket contract; keep the complete KayKit rig and
+  primitive as fallbacks. Idle autoplay now uses private animation resources.
+- Add reproducible authoring/provenance, strict offline validation, 19 focused
+  Python tests, native pose/fallback/material tests and a real Player animation
+  lifecycle CI gate with isolated saves.
+- Add an interactive before/after clip viewer using actual GLBs/HDRIs; restore
+  the existing three.js viewer's missing core dependency.
+- Validation scope: both new models pass Khronos with no errors/warnings, focused
+  tests and changed-script lint pass, output rebuilds are byte-identical. The full
+  Python suite passes 415/415 after incorporating the subsequent fixes from
+  `main`. Native Godot CI and device review remain required (the engine is
+  unavailable locally).
+- This is authored PBR armored art, not a photoreal scanned human or a replacement
+  of the entire enemy roster. See `docs/HERO_FIDELITY.md` for remaining limits.
+
 ## [Unreleased] — Prestige gets teeth: cosmetics, tiers, objectives (2026-09-09)
 
 Prestige, cosmetics, and challenge tiers were tables of IDs that never touched a

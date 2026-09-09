@@ -156,6 +156,10 @@ jobs:
           ' godot-unit.log
           exit "$code"
 
+      - name: Validate hero combat clips, sockets and lifecycle
+        shell: bash
+        run: bash tool/test_hero_runtime.sh
+
       # Real-node UI suite (screens, navigation, and the UiLayout geometry
       # contract across Android resolutions / text scales). It was previously
       # never invoked by CI, so UI regressions could land unnoticed.

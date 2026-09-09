@@ -2,10 +2,10 @@
  "schema_version": 1,
  "game": "Last Stand: Arena",
  "target": "Godot 4.4.1 / Android / 3D third-person",
- "integration_status": "HD realism pass: photo PBR arena shell (rock/brick/marble/wood/metal), Poly Haven CC0 HDRI panorama skies per arena, 2x MSAA + anisotropic filtering + PCF shadows, glow/fog/tonemap post, flickering torch lights, and an anisotropic/roughness/metallic material pass on every character, enemy and arena prop. All 9 weapons, 8 skills, 8 enemies/3 arenas/6 pickups behaviour unchanged; device perf NOT YET DEVICE-VERIFIED.",
+ "integration_status": "Hero fidelity: project-authored Arena Warden and PBR gladius replace the visible KayKit hero/starting blade; 76 retargeted clips, validated combat/socket contract, 1K shared atlases, safe KayKit fallback. HD realism pass: photo PBR arena shell (rock/brick/marble/wood/metal), Poly Haven CC0 HDRI panorama skies per arena, 2x MSAA + anisotropic filtering + PCF shadows, glow/fog/tonemap post, flickering torch lights, and an anisotropic/roughness/metallic material pass on every character, enemy and arena prop. All 9 weapons, 8 skills, 8 enemies/3 arenas/6 pickups behaviour unchanged; device perf NOT YET DEVICE-VERIFIED.",
  "characters": {
   "player": {
-   "model": "assets/characters/adventurers/Knight.glb",
+   "model": "assets/characters/warden/ArenaWarden.glb",
    "intended_scene": "scenes/player/player.tscn",
    "intended_mount": "VisualRoot/CharacterModel",
    "animation_count": 76,
@@ -19,7 +19,19 @@
     "dodge_forward": "Dodge_Forward",
     "dodge_backward": "Dodge_Backward",
     "dodge_left": "Dodge_Left",
-    "dodge_right": "Dodge_Right"
+    "dodge_right": "Dodge_Right",
+    "attack_diagonal": "1H_Melee_Attack_Slice_Diagonal",
+    "attack_chop": "1H_Melee_Attack_Chop",
+    "heavy_chop": "2H_Melee_Attack_Chop",
+    "heavy_slice": "2H_Melee_Attack_Slice",
+    "spin": "2H_Melee_Attack_Spin",
+    "thrust": "2H_Melee_Attack_Stab",
+    "dual_slice": "Dualwield_Melee_Attack_Slice",
+    "ranged": "2H_Ranged_Shoot",
+    "reload": "2H_Ranged_Reload",
+    "cast": "Spellcast_Shoot",
+    "raise": "Spellcast_Raise",
+    "victory": "Cheer"
    },
    "available_animations": [
     "1H_Melee_Attack_Chop",
@@ -99,15 +111,21 @@
     "Walking_Backwards",
     "Walking_C"
    ],
-   "weapon": "assets/weapons/adventurers/sword_1handed.gltf",
+   "weapon": "assets/characters/warden/WardenGladius.glb",
    "shield": "assets/weapons/adventurers/shield_badge.gltf",
    "right_hand_bone": "handslot.r",
    "left_hand_bone": "handslot.l",
    "required_bones": [
+    "hips",
+    "chest",
+    "head",
     "handslot.l",
     "handslot.r"
    ],
-   "source_triangles": 6952
+   "source_triangles": 34860,
+   "fallback_model": "assets/characters/adventurers/Knight.glb",
+   "material_profile": "authored_pbr",
+   "motion_provenance": "KayKit Adventurers CC0 motion; project-authored visible mesh, PBR atlases, proportional retarget and gait conditioning."
   },
   "basic": {
    "model": "assets/characters/skeletons/Skeleton_Minion.glb",
@@ -1100,8 +1118,10 @@
  },
  "gameplay_weapons": {
   "gladius": {
-   "model": "assets/weapons/medieval/Sword_Golden.glb",
-   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+   "model": "assets/characters/warden/WardenGladius.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio",
+   "notes": "Project-authored narrow PBR blade; grip at source origin; existing gameplay reach/timing unchanged.",
+   "alternate_model": "assets/weapons/medieval/Sword_Golden.glb"
   },
   "sentinel_spear": {
    "model": "assets/weapons/medieval/Spear.glb",

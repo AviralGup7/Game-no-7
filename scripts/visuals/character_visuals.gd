@@ -19,7 +19,7 @@ extends RefCounted
 
 const ROLE_MODELS := {
 	# role / archetype -> { path, height (m, before visual_scale), yaw (rad), idle }
-	&"player":    { "path": "res://assets/characters/adventurers/Knight.glb",   "height": 1.78, "yaw": PI, "idle": "Idle" },
+	&"player":    { "path": "res://assets/characters/warden/ArenaWarden.glb", "fallback_path": "res://assets/characters/adventurers/Knight.glb", "height": 1.84, "yaw": PI, "idle": "Idle" },
 	&"basic":     { "path": "res://assets/characters/skeletons/Skeleton_Minion.glb",  "height": 1.72, "yaw": PI, "idle": "Idle" },
 	&"fast":      { "path": "res://assets/characters/skeletons/Skeleton_Rogue.glb",   "height": 1.70, "yaw": PI, "idle": "Idle" },
 	&"heavy":     { "path": "res://assets/characters/skeletons/Skeleton_Warrior.glb", "height": 1.95, "yaw": PI, "idle": "Idle" },
@@ -67,7 +67,13 @@ static func _report_mount_issue(message: String) -> void:
 static func mount(body: Node3D, role: StringName) -> Node3D:
 	if body == null or not ROLE_MODELS.has(role):
 		return null
-	var cfg: Dictionary = ROLE_MODELS[role]
+	return _mount_config(body, role, ROLE_MODELS[role])
+
+
+## Config seam keeps fallback behavior testable without deleting source files.
+static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> Node3D:
+	if body == null:
+		return null
 	var mount := body.get_node_or_null("VisualRoot/CharacterModel") as Node3D
 	if mount == null:
 		_report_mount_issue("CharacterVisuals: no VisualRoot/CharacterModel mount point for role %s (primitive kept)" % String(role))
@@ -78,21 +84,18 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 		return existing as Node3D
 
 	var path := String(cfg["path"])
-	if not ResourceLoader.exists(path):
-		_report_mount_issue("CharacterVisuals: model missing for role %s: %s (primitive kept)" % [String(role), path])
+	var instance := _load_compatible_model(path, role == &"player")
+	if instance == null and cfg.has("fallback_path"):
+		path = String(cfg["fallback_path"])
+		instance = _load_compatible_model(path, role == &"player")
+	if instance == null:
 		return null
-	var scene := load(path)
-	if scene == null or not scene is PackedScene:
-		_report_mount_issue("CharacterVisuals: model failed to import for role %s: %s (primitive kept)" % [String(role), path])
-		return null
-	var instance := (scene as PackedScene).instantiate()
-	if not instance is Node3D:
-		instance.free()
-		_report_mount_issue("CharacterVisuals: model root is not a Node3D for role %s: %s (primitive kept)" % [String(role), path])
-		return null
+	var authored_hero := role == &"player" and path == HeroRigContract.MODEL_PATH
 
 	var wrapper := Node3D.new()
 	wrapper.name = &"CharacterVisual"
+	wrapper.set_meta(HeroRigContract.MODEL_PATH_META, path)
+	wrapper.set_meta(HeroRigContract.AUTHORED_IDLE_META, authored_hero)
 	instance.name = &"Model"
 	wrapper.add_child(instance)
 	mount.add_child(wrapper)
@@ -102,7 +105,8 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	# the visible body off the capsule axis. (PlayerEquipment repeats this rule.)
 	_hide_equipment(instance as Node3D)
 
-	var factor := _fit_factor(instance, float(cfg["height"]))
+	var target_height := 1.78 if role == &"player" and not authored_hero else float(cfg["height"])
+	var factor := _fit_factor(instance, target_height)
 	if factor <= 0.0:
 		# No usable geometry -> keep the primitive and tear down the mount.
 		mount.remove_child(wrapper)
@@ -134,12 +138,40 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	_add_ground_shadow(mount)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
 	# HD material pass: anisotropic filtering + role-tuned roughness/metallic so the
-	# approved art reads realistically under the new panormaic lighting.
-	HdMaterials.polish(instance as Node3D, role)
-	# Subtle breathing bob keeps the hero alive even when idle (pure visual, no gameplay).
+	# authored metal/roughness atlas remains physically distinct under arena lighting.
+	HdMaterials.polish(instance as Node3D, role, authored_hero)
+	# The Warden has baked, grounded idle motion. Never add a whole-body float tween.
 	if role == &"player":
 		start_breathing(wrapper)
 	return wrapper
+
+
+## Validate while detached. An incomplete rig must never hide the visible fallback.
+static func _load_compatible_model(path: String, require_combat: bool) -> Node3D:
+	if not ResourceLoader.exists(path):
+		_report_mount_issue("CharacterVisuals: model missing: %s (trying fallback)" % path)
+		return null
+	var scene := load(path) as PackedScene
+	if scene == null:
+		_report_mount_issue("CharacterVisuals: model failed to import: %s (trying fallback)" % path)
+		return null
+	var instance := scene.instantiate()
+	if not instance is Node3D:
+		instance.free()
+		_report_mount_issue("CharacterVisuals: model root is not a Node3D: %s (trying fallback)" % path)
+		return null
+	if require_combat:
+		var missing := HeroRigContract.missing_requirements(instance)
+		if not missing.is_empty():
+			instance.free()
+			_report_mount_issue("CharacterVisuals: incomplete hero %s: %s (trying fallback)" % [path, ", ".join(missing)])
+			return null
+	_hide_equipment(instance as Node3D)
+	if _fit_factor(instance as Node3D, 1.0) <= 0.0:
+		instance.free()
+		_report_mount_issue("CharacterVisuals: model has no usable geometry: %s (trying fallback)" % path)
+		return null
+	return instance as Node3D
 
 
 ## Play a looping idle clip when the imported rig exposes one; otherwise no-op.
@@ -150,12 +182,25 @@ static func _play_idle(root: Node3D, clip: String) -> void:
 		return
 	for player in root.find_children("*", "AnimationPlayer", true, false):
 		var anim_player := player as AnimationPlayer
-		if anim_player != null and anim_player.has_animation(StringName(clip)):
-			var anim := anim_player.get_animation(StringName(clip))
-			if anim != null and anim.loop_mode == Animation.LOOP_NONE:
-				anim.loop_mode = Animation.LOOP_LINEAR
-			anim_player.play(StringName(clip))
-			return
+		if anim_player == null or not anim_player.has_animation(StringName(clip)):
+			continue
+		# A PackedScene's library is shared by all instances. Make idle private
+		# before changing its loop mode (including the mount's pre-bind autoplay).
+		for library_name in anim_player.get_animation_library_list():
+			var source_library := anim_player.get_animation_library(library_name)
+			for name in source_library.get_animation_list():
+				var full_name := String(name) if library_name == &"" else String(library_name) + "/" + String(name)
+				if full_name != clip:
+					continue
+				var library := source_library.duplicate() as AnimationLibrary
+				var idle := source_library.get_animation(name).duplicate() as Animation
+				idle.loop_mode = Animation.LOOP_LINEAR
+				library.remove_animation(name)
+				library.add_animation(name, idle)
+				anim_player.remove_animation_library(library_name)
+				anim_player.add_animation_library(library_name, library)
+				anim_player.play(StringName(clip))
+				return
 
 
 ## Hide alternate-loadout equipment meshes (KayKit adventurers ship swords and
@@ -197,6 +242,8 @@ const BREATHING_TWEEN_META := &"breathing_tween"
 ## Idle breathing bob (looping tween, no bones). Idempotent; safe off-tree.
 static func start_breathing(wrapper: Node3D) -> void:
 	if wrapper == null or not is_instance_valid(wrapper):
+		return
+	if bool(wrapper.get_meta(HeroRigContract.AUTHORED_IDLE_META, false)):
 		return
 	if wrapper.has_meta(BREATHING_TWEEN_META):
 		return

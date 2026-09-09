@@ -1,9 +1,13 @@
 # Last Stand: Arena — asset catalogue
 
-Reviewed **8 September 2026** · Godot 4.4.1 · 3D third-person · Android
+Reviewed **9 September 2026** · Godot 4.4.1 · 3D third-person · Android
 
 **243 checksum-locked files, 49.08 MiB: 81 models, 87 PNGs, 4 JPGs, 3 HDRIs,
 34 audio clips, 2 fonts, 14 binary mesh dependencies and 18 licence/credit notices.**
+In addition, the project-authored Warden bundle has **5 derived files / 4.93 MiB**:
+2 GLBs and 3 shared PNG maps (now **83 models** in the combined inventory).
+Its independent recipe/input/output hash lock is
+`assets/characters/warden/build_report.json`; upstream downloads stay untouched.
 
 See [the audit](ASSET_AUDIT.md) for additions, online comparisons and limitations.
 The machine-readable role map is [`assets/catalog.json`](../assets/catalog.json);
@@ -11,6 +15,11 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
 
 ## Integration status — important
 
+- **Hero fidelity follow-up:** new Warden body/rig + gladius, complete 76-clip
+  retarget, 23 deform bones, one opaque body surface and shared 1K PBR atlas.
+  `HeroRigContract` rejects incomplete imports before hiding the fallback;
+  the hero's authored material response is preserved rather than clamped to
+  palette-kit values. See [HERO_FIDELITY.md](HERO_FIDELITY.md).
 - **HD realism pass (presentation overhaul):**
   - **Arena replaced:** photo-PBR rock floor, aged-brick walls with stone trims and
     marble cornices, corner towers with marble caps, wooden gate with iron banding,
@@ -50,7 +59,8 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
 
 | Game role | Model | Clips | Source triangles |
 |---|---|---:|---:|
-| Player | `characters/adventurers/Knight.glb` | 76 | 6,952 |
+| Player | `characters/warden/ArenaWarden.glb` | 76 | 34,860 |
+| Player fallback / motion donor | `characters/adventurers/Knight.glb` | 76 | 6,952 |
 | Basic | `characters/skeletons/Skeleton_Minion.glb` | 95 | 5,288 |
 | Fast | `characters/skeletons/Skeleton_Rogue.glb` | 95 | 5,278 |
 | Heavy | `characters/skeletons/Skeleton_Warrior.glb` | 95 | 5,934 |
