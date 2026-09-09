@@ -65,7 +65,7 @@ func _ready() -> void:
 	_profile = ContentRegistry.get_camera_profile(&"default") if ContentRegistry != null else null
 	if _profile == null:
 		_profile = CameraProfile.new()
-	_profile._validated_profile()
+	_profile._clamp_profile_fields()
 
 	# Setup modules
 	_input.setup(_profile)
@@ -123,7 +123,7 @@ func set_camera_profile(profile: CameraProfile) -> void:
 	if profile == null:
 		return
 	_profile = profile
-	_profile._validated_profile()
+	_profile._clamp_profile_fields()
 	_input.set_profile(_profile)
 	_focus.set_profile(_profile)
 	_auto_follow.set_profile(_profile)
@@ -141,7 +141,12 @@ func set_camera_profile(profile: CameraProfile) -> void:
 func add_shake(amplitude: float, duration: float) -> void:
 	if _profile == null or _reduced_motion:
 		return
-	_shake.add_shake(amplitude, duration, _reduced_motion)
+	# Cosmetic camera shake: cap event amplitude by the tuned ceiling so a
+	# single hard hit never overpowers the profile's max_shake_amplitude budget.
+	var capped := amplitude
+	if _profile.max_shake_amplitude > 0.0:
+		capped = minf(amplitude, _profile.max_shake_amplitude)
+	_shake.add_shake(capped, duration, _reduced_motion)
 
 
 func reset_transform() -> void:
@@ -350,7 +355,7 @@ func _update_look_at() -> void:
 	if absf(forward.dot(up)) > 0.99:
 		up = Vector3.FORWARD
 
-	var target_xform := Transform3D(BASIS, cam_origin).looking_at(look_target, up)
+	var target_xform := Transform3D(Basis(), cam_origin).looking_at(look_target, up)
 	_camera.global_transform = target_xform
 
 
@@ -360,7 +365,7 @@ func _update_lock_on_target() -> void:
 	if _target == null:
 		return
 	# Try to get targeting component from player
-	var targeting := _target.get_node_or_null("TargetingComponent")
+	var targeting := _target.get_node_or_null("TargetingComponent") as TargetingComponent
 	if targeting == null:
 		# Also check WeaponManager or player directly for best target
 		if _mode.is_locked() and _mode.get_lock_target() != null:
@@ -370,27 +375,21 @@ func _update_lock_on_target() -> void:
 				_mode.set_lock_target(null)
 		return
 
-	# If targeting component has method pick_best_target, use it to find lock
-	if targeting.has_method("pick_best_target"):
-		var tree := get_tree()
-		if tree != null:
-			var enemies := tree.get_nodes_in_group("enemies")
-			var best: Node = targeting.call("pick_best_target", enemies)
-			if best is Node3D and best != null and is_instance_valid(best):
-				var dist := (best as Node3D).global_position.distance_to(_target.global_position)
-				if dist < _profile.lock_on_max_distance:
-					# If currently locked, keep, else optionally auto-lock when in combat mode?
-					# For now, only update if already locked, or if player is aiming
-					if _mode.is_locked():
-						_mode.set_lock_target(best as Node3D)
-				else:
-					if _mode.is_locked():
-						_mode.set_lock_target(null)
-
-	# Touch camera handling – if touch drag detected, treat as manual orbit
-	# Placeholder for mobile: virtual joystick right side could feed _input
-	# We already handle mouse motion via right button; for touch, InputEventScreenDrag could be added
-	# in _unhandled_input if needed.
+	# If the targeting component is present, use it to find the best lock target.
+	var tree := get_tree()
+	if tree == null:
+		return
+	var enemies := tree.get_nodes_in_group("enemies")
+	var best := targeting.pick_best_target(enemies)
+	if best is Node3D and best != null and is_instance_valid(best):
+		var dist := (best as Node3D).global_position.distance_to(_target.global_position)
+		if dist < _profile.lock_on_max_distance:
+			# Only re-target while already locked (or when the player is aiming);
+			# otherwise let manual orbit stay authoritative.
+			if _mode.is_locked():
+				_mode.set_lock_target(best as Node3D)
+		elif _mode.is_locked():
+			_mode.set_lock_target(null)
 
 
 func _get_target_facing_yaw() -> float:
@@ -411,7 +410,7 @@ func _get_target_facing_yaw() -> float:
 
 func _test_hitstop_manager() -> void:
 	if _hitstop_manager != null and is_instance_valid(_hitstop_manager):
-		_shake.set_hitstop_manager(_hitstop_manager)
+		_shake.set_hitstop_manager(_hitstop_manager as HitstopManager)
 		return
 	var tree := get_tree()
 	if tree == null:
@@ -424,7 +423,7 @@ func _test_hitstop_manager() -> void:
 			if _hitstop_manager == null:
 				_hitstop_manager = _find_node_by_class(world, "HitstopManager")
 	if _hitstop_manager != null:
-		_shake.set_hitstop_manager(_hitstop_manager)
+		_shake.set_hitstop_manager(_hitstop_manager as HitstopManager)
 
 
 func _find_node_by_class(root: Node, cls_name: String) -> Node:
@@ -440,7 +439,7 @@ func _find_node_by_class(root: Node, cls_name: String) -> Node:
 
 
 func _refresh_settings() -> void:
-	_reduced_motion = SaveManager.get_settings().reduced_motion if SaveManager != null and SaveManager.has_method("get_settings") else false
+	_reduced_motion = SaveManager.get_settings().reduced_motion if SaveManager != null else false
 
 
 func _wire_combat_feedback() -> void:
@@ -482,13 +481,3 @@ func _on_player_death_shake() -> void:
 	add_shake(0.9, 0.7)
 
 
-# ------------------------------------------------------------------
-# Hardened helpers
-# ------------------------------------------------------------------
-
-func _validated_lerp_weight(w: float, delta: float) -> float:
-	if not is_finite(w) or w < 0.0:
-		w = 0.1
-	if not is_finite(delta) or delta <= 0.0:
-		delta = 0.016
-	return clampf(w * delta * 60.0, 0.0, 1.0)

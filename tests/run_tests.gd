@@ -61,6 +61,7 @@ func _initialize() -> void:
 	_run_suites(UNIT_SUITES)
 
 
+
 ## Load each suite and fold its cases into the totals/failures.
 func _run_suites(paths: Array) -> void:
 	for path in paths:

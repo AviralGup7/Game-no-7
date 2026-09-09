@@ -137,7 +137,7 @@ func _fire(host: EnemyBase, target: Node3D) -> void:
 	_shot_index += 1
 	if err_rad > 0.001:
 		var h := hash(Vector3(float(host.get_instance_id()), float(_shot_index), 0.0))
-		var t := fposmodf(float(h), 1000.0) / 1000.0 * 2.0 - 1.0  # deterministic -1..1
+		var t := fposmod(float(h), 1000.0) / 1000.0 * 2.0 - 1.0  # deterministic -1..1
 		aim = aim.rotated(Vector3.UP, err_rad * t)
 	var count := int(_cfg(host, &"projectile_count", 1.0))
 	var dirs := RangedResolver.spread_directions(aim, count, _cfg(host, &"projectile_spread", 8.0))

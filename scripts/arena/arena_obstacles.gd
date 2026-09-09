@@ -23,10 +23,16 @@ static func layout_for(arena_id: StringName, half: float) -> Array:
 			# Cardinal pillars make four approach lanes to the forge; the four
 			# corner pillars break diagonal rushes. Clears all (±5,±5) vents
 			# (r 2.2) and the (0,0) heal circle (r 2.5).
-			_add(out, Vector3(8.5 * s, 0.0, 0.0), pillar, "pillar")
-			_add(out, Vector3(-8.5 * s, 0.0, 0.0), pillar, "pillar")
-			_add(out, Vector3(0.0, 0.0, 8.5 * s), pillar, "pillar")
-			_add(out, Vector3(0.0, 0.0, -8.5 * s), pillar, "pillar")
+			# The four cardinal pillars ring the forge at radius 8.0 (was 8.5):
+			# radius 8.5 sat each exactly 2.5 m from an axis enemy spawn at +-11
+			# (interior half 12) = foot 0.8 + jitter 1.2 + safety 0.5, i.e. zero
+			# margin; and f32 0.8 pushed the f64 threshold over 2.5, so the
+			# jitter-proof spawn check tripped. Radius 8.0 leaves a real 0.5 m
+			# margin while still clearing the center forge and its vents.
+			_add(out, Vector3(8.0 * s, 0.0, 0.0), pillar, "pillar")
+			_add(out, Vector3(-8.0 * s, 0.0, 0.0), pillar, "pillar")
+			_add(out, Vector3(0.0, 0.0, 8.0 * s), pillar, "pillar")
+			_add(out, Vector3(0.0, 0.0, -8.0 * s), pillar, "pillar")
 			_add(out, Vector3(8.5 * s, 0.0, 8.5 * s), block, "block")
 			_add(out, Vector3(-8.5 * s, 0.0, 8.5 * s), block, "block")
 			_add(out, Vector3(8.5 * s, 0.0, -8.5 * s), block, "block")
