@@ -75,7 +75,7 @@ BUILTIN_TYPES = {
     "AudioStreamRandomizer", "AnimationLibrary", "Animation", "AnimationPlayer",
     "Skeleton3D", "Texture2D", "Texture2DArray", "AtlasTexture",
     "GradientTexture2D", "CompressedTexture2D", "InputEventKey",
-    "InputEventMouseButton", "InputEventScreenTouch", "InputEventScreenDrag",
+    "InputEventMouseButton", "InputEventMouseMotion", "InputEventScreenTouch", "InputEventScreenDrag",
     "InputEventJoypadButton", "InputEventJoypadMotion", "InputEventAction",
     "InputEventWithModifiers", "RandomNumberGenerator", "QuadMesh",
     "GPUParticles3D", "CPUParticles3D", "BoxMesh", "SphereMesh", "CylinderMesh",
