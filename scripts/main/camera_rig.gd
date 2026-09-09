@@ -345,12 +345,12 @@ func _update_look_at() -> void:
 	if _mode.is_locked():
 		var lock_t := _mode.get_lock_target()
 		if lock_t != null:
-		var factor := 0.5
-		if _profile != null:
-			factor = clampf(_profile.lock_on_midpoint_factor, 0.0, 1.0)
-		var midpoint := _focus.focus_point.lerp(lock_t.global_position, factor)
-		midpoint.y = _focus.focus_point.y
-		look_target = midpoint
+			var factor := 0.5
+			if _profile != null:
+				factor = clampf(_profile.lock_on_midpoint_factor, 0.0, 1.0)
+			var midpoint := _focus.focus_point.lerp(lock_t.global_position, factor)
+			midpoint.y = _focus.focus_point.y
+			look_target = midpoint
 		else:
 			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
 	else:
