@@ -343,21 +343,21 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 			if n.x != 0 and n.y != 0:
 				if _blocked[(c.y + n.y) * width + c.x] != 0 or _blocked[c.y * width + (c.x + n.x)] != 0:
 					continue
-		var ni := nc.y * width + nc.x
-		if closed[ni] != 0:
-			continue
-		var step := sqrt(2.0) if (n.x != 0 and n.y != 0) else 1.0
-		# Light clearance tax: hugging a blocked face is legal but costs extra
-		# so A* prefers a one-cell lateral detour around slabs instead of
-		# string-pulling a waypoint onto the inflated wall edge.
-		var tax := 0.0
-		if _cell_touches_blocked(nc):
-			tax = 0.35
-		var ng := g[i] + step + tax
-		if ng < g[ni] - 1.0e-6:
-			g[ni] = ng
-			came[ni] = i
-			_heap_push(heap, Vector2(ng + _heuristic(nc, tc), float(ni)))
+			var ni := nc.y * width + nc.x
+			if closed[ni] != 0:
+				continue
+			var step := sqrt(2.0) if (n.x != 0 and n.y != 0) else 1.0
+			# Light clearance tax: hugging a blocked face is legal but costs extra
+			# so A* prefers a one-cell lateral detour around slabs instead of
+			# string-pulling a waypoint onto the inflated wall edge.
+			var tax := 0.0
+			if _cell_touches_blocked(nc):
+				tax = 0.35
+			var ng := g[i] + step + tax
+			if ng < g[ni] - 1.0e-6:
+				g[ni] = ng
+				came[ni] = i
+				_heap_push(heap, Vector2(ng + _heuristic(nc, tc), float(ni)))
 	if came[goal_i] == -1:
 		return empty
 	# Reconstruct (goal -> start), convert to world waypoints (start excluded).
