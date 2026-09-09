@@ -103,6 +103,18 @@ class TestMinimapRadarShape(unittest.TestCase):
         self.assertIn("cfg.lifetime", text)
         self.assertIn("func blink_alpha(", text)
 
+    def test_angle_and_vector_math_is_44_safe(self) -> None:
+        text = read(MINIMAP)
+        # DEG2RAD/RAD2DEG are Godot 3 globals (removed in 4.0); 4.x exposes
+        # deg_to_rad()/rad_to_deg() instead.
+        self.assertNotIn("DEG2RAD", text)
+        self.assertNotIn("RAD2DEG", text)
+        self.assertIn("deg_to_rad(FOV_CONE_HALF_DEGREES)", text)
+        # Vector3.xz is not a 4.4 member: world projection goes through the
+        # explicit world_xz() helper.
+        self.assertIn("static func world_xz(p: Vector3) -> Vector2:", text)
+        self.assertNotIn(".xz)", text)
+
     def test_dots_are_drawn_from_tracks_not_from_entities(self) -> None:
         text = read(MINIMAP)
         draw = func_body(text, "_draw")

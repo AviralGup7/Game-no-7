@@ -399,7 +399,7 @@ func _draw() -> void:
 
 	# Facing cone: where you are looking (north-up, so map angle = facing.angle()).
 	var cone_r := minf(FOV_CONE_RANGE / _cached_half, 1.0) * r
-	var half_a := FOV_CONE_HALF_DEGREES * DEG2RAD
+	var half_a := deg_to_rad(FOV_CONE_HALF_DEGREES)  # 4.x exposes the function, not the 3.x constant
 	var a0 := facing.angle() - half_a
 	var fan := PackedVector2Array([pc])
 	for i in range(9):

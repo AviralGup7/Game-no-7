@@ -337,8 +337,10 @@ func _tick_auto_scale(now: int) -> void:
 		_down_streak += 1
 	else:
 		_down_streak = 0
-	if _down_streak >= 2:
-		request_step_down()
+	if _down_streak >= 2 and _cooldown_elapsed():
+		# Auto path (the manual step-down API never persists): downgrades must
+		# persist like upgrades — the next launch opens at the settled tier.
+		_auto_step(_tier - 1, "sustained frame-time deficit")
 		return
 	var clean := _is_clean(stats, float(stats["avg_ms"]), budget)
 	if clean and _tier < TIER_ULTRA and _cooldown_elapsed():

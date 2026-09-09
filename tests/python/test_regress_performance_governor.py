@@ -176,6 +176,12 @@ class GovernorAlgorithmTests(unittest.TestCase):
     def test_hysteresis_down_and_up(self):
         txt = read(MONITOR)
         self.assertIn("_down_streak >= 2", txt)
+        # Auto downgrades must take the persisting _auto_step path, not the
+        # manual request_step_down() (which by contract never persists):
+        # the next launch has to open at the tier the device settled on.
+        tick = func_body(txt, "_tick_auto_scale")
+        self.assertIn("_auto_step(_tier - 1,", tick)
+        self.assertNotIn("request_step_down()", tick)
         self.assertIn("UP_STABILITY_SECONDS := 15.0", txt)
         self.assertIn("now - _stable_since_msec >= int(UP_STABILITY_SECONDS * 1000.0)", txt)
         self.assertIn("MIN_SECONDS_BETWEEN_STEPS := 5.0", txt)
