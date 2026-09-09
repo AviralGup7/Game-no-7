@@ -585,10 +585,13 @@ class PackedSceneOwnerTests(unittest.TestCase):
     Spawned enemies had no HealthComponent, apply_damage was rejected with
     no_health_component, nothing ever died, and every defeat/clear assertion in
     the stage failed for a reason unrelated to SpawnManager.
+
+    The fixture lives in tests/integration_stages.gd (runtime-loaded stage
+    script; see MainRunnerLoadOrderTests for why the runner is dependency-free).
     """
 
     def test_fixture_children_are_owned_before_packing(self):
-        body = func_body(read("tests/run_tests.gd"), "_pack_test_enemy_scene")
+        body = func_body(read("tests/integration_stages.gd"), "_pack_test_enemy_scene")
         owner_at = body.find("hp.owner = proto")
         machine_at = body.find("machine.owner = proto")
         pack_at = body.find("ps.pack(proto)")
@@ -608,17 +611,53 @@ class EncounterSteppingTests(unittest.TestCase):
     """
 
     def test_step_enemy_integrates_velocity_with_the_test_delta(self):
-        body = func_body(read("tests/run_tests.gd"), "_step_enemy")
+        body = func_body(read("tests/integration_stages.gd"), "_step_enemy")
         self.assertIn("enemy.velocity.x", body)
         self.assertIn("* dt", body, "position must advance using the test's dt")
 
     def test_a_condition_driven_stepping_helper_exists(self):
-        txt = read("tests/run_tests.gd")
+        txt = read("tests/integration_stages.gd")
         self.assertIn(
             "func _step_enemy_until(",
             txt,
             "fixed frame budgets are fragile; a predicate-driven helper is required",
         )
+
+
+class MainRunnerLoadOrderTests(unittest.TestCase):
+    """The --script main loop is compiled BEFORE project autoloads are
+    registered as global identifiers (Godot Main::start order).
+
+    If tests/run_tests.gd had a compile-time dependency on any game script that
+    references an autoload (EventBus / GameRoot / AudioManager), startup would
+    dump "Identifier not found" compile errors for the whole closure. The
+    integration stages therefore live in a runtime-loaded script and the
+    runner itself must stay free of project-class references.
+    """
+
+    GAME_CLASSES = (
+        "EnemyBase",
+        "EnemyConfig",
+        "HealthComponent",
+        "DamagePayload",
+        "Damageable",
+        "SpawnManager",
+        "BossController",
+        "EnemyStateMachine",
+        "FakeArena",
+    )
+
+    def test_runner_has_no_game_class_references(self):
+        txt = read("tests/run_tests.gd")
+        for cls in self.GAME_CLASSES:
+            self.assertNotIn(cls, txt, "runner may not reference %s (compile-time autoload closure)" % cls)
+        self.assertNotIn("preload(", txt, "runner may not preload project scripts")
+
+    def test_runner_delegates_to_the_runtime_loaded_stage(self):
+        txt = read("tests/run_tests.gd")
+        self.assertIn("res://tests/integration_stages.gd", txt)
+        self.assertIn("load(INTEGRATION_STAGES)", txt)
+        self.assertTrue((ROOT / "tests/integration_stages.gd").exists())
 
 
 class HealthResetAtomicityTests(unittest.TestCase):

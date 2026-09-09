@@ -201,7 +201,9 @@ func _apply_sky_and_light(preset: Dictionary) -> void:
 	if pano != null:
 		var pm := PanoramaSkyMaterial.new()
 		pm.panorama = pano
-		pm.energy = 0.85
+		# PanoramaSkyMaterial has no energy knob in Godot 4.4 (unlike
+		# ProceduralSkyMaterial); the HDRI's exposure is governed by the
+		# Environment (ambient energy + tonemap/adjustment brightness).
 		sky.sky_material = pm
 	else:
 		# Fallback: procedural daylight (never mutate the scene's shared default).

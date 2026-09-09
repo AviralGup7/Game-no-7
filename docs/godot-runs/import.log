@@ -1,0 +1,1944 @@
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+Unable to open Android 'build-tools' directory.
+first_scan_filesystem: begin: Project initialization steps: 5
+	first_scan_filesystem: step 0: Scanning file structure...
+	first_scan_filesystem: step 1: Loading global class names...
+	first_scan_filesystem: step 2: Verifying GDExtensions...
+	first_scan_filesystem: step 3: Creating autoload scripts...
+	first_scan_filesystem: step 4: Initializing plugins...
+	first_scan_filesystem: step 5: Starting file scan...
+first_scan_filesystem: end
+update_scripts_classes: begin: Registering global classes... steps: 218
+	update_scripts_classes: step 0: Arena
+	update_scripts_classes: step 1: ArenaConfig
+	update_scripts_classes: step 2: ArenaDecorator
+	update_scripts_classes: step 3: ArenaHazards
+	update_scripts_classes: step 4: ArenaNavGrid
+	update_scripts_classes: step 5: ArenaObstacles
+	update_scripts_classes: step 6: TorchFlicker
+	update_scripts_classes: step 7: AudioAssetIntegrator
+	update_scripts_classes: step 8: AudioConfig
+	update_scripts_classes: step 9: 
+	update_scripts_classes: step 10: MusicManager
+	update_scripts_classes: step 11: ProceduralSfx
+	update_scripts_classes: step 12: AreaDamage
+	update_scripts_classes: step 13: CombatLog
+	update_scripts_classes: step 14: CombatQuery
+	update_scripts_classes: step 15: CriticalSystem
+	update_scripts_classes: step 16: Damageable
+	update_scripts_classes: step 17: DamagePayload
+	update_scripts_classes: step 18: DamageResult
+	update_scripts_classes: step 19: HitstopManager
+	update_scripts_classes: step 20: ContentLoader
+	update_scripts_classes: step 21: 
+	update_scripts_classes: step 22: 
+	update_scripts_classes: step 23: 
+	update_scripts_classes: step 24: 
+	update_scripts_classes: step 25: RunScorekeeper
+	update_scripts_classes: step 26: RunState
+	update_scripts_classes: step 27: 
+	update_scripts_classes: step 28: 
+	update_scripts_classes: step 29: UpgradeService
+	update_scripts_classes: step 30: ValidatedConfig
+	update_scripts_classes: step 31: BossController
+	update_scripts_classes: step 32: BossPhaseConfig
+	update_scripts_classes: step 33: EnemyAnimator
+	update_scripts_classes: step 34: EnemyAttackState
+	update_scripts_classes: step 35: EnemyAudio
+	update_scripts_classes: step 36: EnemyBase
+	update_scripts_classes: step 37: EnemyChaseState
+	update_scripts_classes: step 38: EnemyConfig
+	update_scripts_classes: step 39: EnemyDashState
+	update_scripts_classes: step 40: EnemyDeadState
+	update_scripts_classes: step 41: EliteAffix
+	update_scripts_classes: step 42: EnemyFeedback
+	update_scripts_classes: step 43: EnemyFuseState
+	update_scripts_classes: step 44: EnemyHurtState
+	update_scripts_classes: step 45: EnemyIdleState
+	update_scripts_classes: step 46: EnemyLocomotion
+	update_scripts_classes: step 47: EnemyNavigator
+	update_scripts_classes: step 48: EnemyPack
+	update_scripts_classes: step 49: EnemyPerception
+	update_scripts_classes: step 50: EnemyPersonality
+	update_scripts_classes: step 51: EnemyRangedState
+	update_scripts_classes: step 52: EnemyState
+	update_scripts_classes: step 53: EnemyStateMachine
+	update_scripts_classes: step 54: EnemyStriker
+	update_scripts_classes: step 55: SpawnLedger
+	update_scripts_classes: step 56: SpawnManager
+	update_scripts_classes: step 57: SpawnPatterns
+	update_scripts_classes: step 58: SpawnPlacer
+	update_scripts_classes: step 59: CameraAutoFollowController
+	update_scripts_classes: step 60: CameraCollisionSolver
+	update_scripts_classes: step 61: CameraFocusTracker
+	update_scripts_classes: step 62: CameraFovController
+	update_scripts_classes: step 63: CameraFramingController
+	update_scripts_classes: step 64: CameraInputHandler
+	update_scripts_classes: step 65: CameraMath
+	update_scripts_classes: step 66: CameraModeController
+	update_scripts_classes: step 67: CameraOrbitController
+	update_scripts_classes: step 68: CameraOrbitState
+	update_scripts_classes: step 69: CameraShakeController
+	update_scripts_classes: step 70: CameraVelocityTracker
+	update_scripts_classes: step 71: CameraProfile
+	update_scripts_classes: step 72: CameraRig
+	update_scripts_classes: step 73: Main
+	update_scripts_classes: step 74: Achievements
+	update_scripts_classes: step 75: Cosmetics
+	update_scripts_classes: step 76: DailyChallenge
+	update_scripts_classes: step 77: GameMode
+	update_scripts_classes: step 78: MetaProgression
+	update_scripts_classes: step 79: Narrator
+	update_scripts_classes: step 80: ObjectiveDirector
+	update_scripts_classes: step 81: Prestige
+	update_scripts_classes: step 82: DropTable
+	update_scripts_classes: step 83: Pickup
+	update_scripts_classes: step 84: PickupConfig
+	update_scripts_classes: step 85: PickupManager
+	update_scripts_classes: step 86: AttackBuffer
+	update_scripts_classes: step 87: CharacterController
+	update_scripts_classes: step 88: DodgeController
+	update_scripts_classes: step 89: ExperienceComponent
+	update_scripts_classes: step 90: HealthComponent
+	update_scripts_classes: step 91: Player
+	update_scripts_classes: step 92: PlayerAnimation
+	update_scripts_classes: step 93: PlayerAudio
+	update_scripts_classes: step 94: PlayerBuild
+	update_scripts_classes: step 95: PlayerEquipment
+	update_scripts_classes: step 96: PlayerFeedback
+	update_scripts_classes: step 97: PlayerLocomotion
+	update_scripts_classes: step 98: ProgressionComponent
+	update_scripts_classes: step 99: StaminaComponent
+	update_scripts_classes: step 100: TargetingComponent
+	update_scripts_classes: step 101: BuildEffects
+	update_scripts_classes: step 102: UpgradeConfig
+	update_scripts_classes: step 103: UpgradeSelector
+	update_scripts_classes: step 104: 
+	update_scripts_classes: step 105: SaveSchema
+	update_scripts_classes: step 106: SettingsData
+	update_scripts_classes: step 107: SkillConfig
+	update_scripts_classes: step 108: SkillController
+	update_scripts_classes: step 109: SkillExecutor
+	update_scripts_classes: step 110: StatusEffect
+	update_scripts_classes: step 111: StatusEffectConfig
+	update_scripts_classes: step 112: StatusManager
+	update_scripts_classes: step 113: AchievementGallery
+	update_scripts_classes: step 114: AnnouncementBanner
+	update_scripts_classes: step 115: ArmoryPanel
+	update_scripts_classes: step 116: BossHealthBar
+	update_scripts_classes: step 117: DamageNumberLayer
+	update_scripts_classes: step 118: GameHud
+	update_scripts_classes: step 119: HelpPanel
+	update_scripts_classes: step 120: MenuBackdrop
+	update_scripts_classes: step 121: MenuPanel
+	update_scripts_classes: step 122: Minimap
+	update_scripts_classes: step 123: RunSetupPanel
+	update_scripts_classes: step 124: RunSummaryPanel
+	update_scripts_classes: step 125: UiSafeArea
+	update_scripts_classes: step 126: SettingsPanel
+	update_scripts_classes: step 127: SkillBar
+	update_scripts_classes: step 128: TouchActionButton
+	update_scripts_classes: step 129: TouchControls
+	update_scripts_classes: step 130: TutorialManager
+	update_scripts_classes: step 131: UiCommands
+	update_scripts_classes: step 132: UiFactory
+	update_scripts_classes: step 133: UiLayout
+	update_scripts_classes: step 134: UiRoot
+	update_scripts_classes: step 135: UiText
+	update_scripts_classes: step 136: UiTheme
+	update_scripts_classes: step 137: UpgradePanel
+	update_scripts_classes: step 138: VirtualJoystick
+	update_scripts_classes: step 139: InputRemapper
+	update_scripts_classes: step 140: JsonHelpers
+	update_scripts_classes: step 141: ObjectPool
+	update_scripts_classes: step 142: PerformanceMonitor
+	update_scripts_classes: step 143: RngService
+	update_scripts_classes: step 144: WeightedTable
+	update_scripts_classes: step 145: CharacterVisuals
+	update_scripts_classes: step 146: EffectDirector
+	update_scripts_classes: step 147: HdMaterials
+	update_scripts_classes: step 148: HeroRigContract
+	update_scripts_classes: step 149: ModelVisual
+	update_scripts_classes: step 150: PlayerCosmetics
+	update_scripts_classes: step 151: RingFade
+	update_scripts_classes: step 152: 
+	update_scripts_classes: step 153: DifficultyDirector
+	update_scripts_classes: step 154: Scoring
+	update_scripts_classes: step 155: WaveConfig
+	update_scripts_classes: step 156: WaveManager
+	update_scripts_classes: step 157: WaveMutators
+	update_scripts_classes: step 158: WavePlanner
+	update_scripts_classes: step 159: WaveSpawnEntry
+	update_scripts_classes: step 160: MeleeResolver
+	update_scripts_classes: step 161: Projectile
+	update_scripts_classes: step 162: ProjectilePool
+	update_scripts_classes: step 163: RangedResolver
+	update_scripts_classes: step 164: WeaponConfig
+	update_scripts_classes: step 165: WeaponInstance
+	update_scripts_classes: step 166: WeaponManager
+	update_scripts_classes: step 167: FakeArena
+	update_scripts_classes: step 168: FakeClock
+	update_scripts_classes: step 169: FakeSaveStorage
+	update_scripts_classes: step 170: 
+	update_scripts_classes: step 171: 
+	update_scripts_classes: step 172: 
+	update_scripts_classes: step 173: 
+	update_scripts_classes: step 174: 
+	update_scripts_classes: step 175: 
+	update_scripts_classes: step 176: 
+	update_scripts_classes: step 177: 
+	update_scripts_classes: step 178: 
+	update_scripts_classes: step 179: 
+	update_scripts_classes: step 180: 
+	update_scripts_classes: step 181: 
+	update_scripts_classes: step 182: 
+	update_scripts_classes: step 183: 
+	update_scripts_classes: step 184: 
+	update_scripts_classes: step 185: 
+	update_scripts_classes: step 186: 
+	update_scripts_classes: step 187: 
+	update_scripts_classes: step 188: 
+	update_scripts_classes: step 189: 
+	update_scripts_classes: step 190: 
+	update_scripts_classes: step 191: 
+	update_scripts_classes: step 192: 
+	update_scripts_classes: step 193: 
+	update_scripts_classes: step 194: 
+	update_scripts_classes: step 195: 
+	update_scripts_classes: step 196: 
+	update_scripts_classes: step 197: 
+	update_scripts_classes: step 198: 
+	update_scripts_classes: step 199: 
+	update_scripts_classes: step 200: 
+	update_scripts_classes: step 201: 
+	update_scripts_classes: step 202: 
+	update_scripts_classes: step 203: 
+	update_scripts_classes: step 204: 
+	update_scripts_classes: step 205: 
+	update_scripts_classes: step 206: 
+	update_scripts_classes: step 207: 
+	update_scripts_classes: step 208: 
+	update_scripts_classes: step 209: 
+	update_scripts_classes: step 210: 
+	update_scripts_classes: step 211: 
+	update_scripts_classes: step 212: 
+	update_scripts_classes: step 213: 
+	update_scripts_classes: step 214: 
+	update_scripts_classes: step 215: 
+	update_scripts_classes: step 216: 
+	update_scripts_classes: step 217: 
+update_scripts_classes: end
+_update_scan_actions: begin: Scanning actions... steps: 220
+	_update_scan_actions: step 0: arena_boss.ogg
+	_update_scan_actions: step 1: arena_calm.ogg
+	_update_scan_actions: step 2: arena_gameplay.ogg
+	_update_scan_actions: step 3: arena_menu.ogg
+	_update_scan_actions: step 4: arena_victory.ogg
+	_update_scan_actions: step 5: footstep_concrete_000.ogg
+	_update_scan_actions: step 6: footstep_concrete_001.ogg
+	_update_scan_actions: step 7: footstep_concrete_002.ogg
+	_update_scan_actions: step 8: footstep_concrete_003.ogg
+	_update_scan_actions: step 9: impact_bell_heavy_000.ogg
+	_update_scan_actions: step 10: impact_generic_light_000.ogg
+	_update_scan_actions: step 11: impact_generic_light_001.ogg
+	_update_scan_actions: step 12: impact_punch_heavy_000.ogg
+	_update_scan_actions: step 13: impact_punch_medium_000.ogg
+	_update_scan_actions: step 14: impact_punch_medium_001.ogg
+	_update_scan_actions: step 15: impact_soft_heavy_000.ogg
+	_update_scan_actions: step 16: impact_wood_heavy_000.ogg
+	_update_scan_actions: step 17: impact_wood_medium_000.ogg
+	_update_scan_actions: step 18: back_001.wav
+	_update_scan_actions: step 19: click_001.wav
+	_update_scan_actions: step 20: confirmation_001.wav
+	_update_scan_actions: step 21: confirmation_002.wav
+	_update_scan_actions: step 22: error_006.wav
+	_update_scan_actions: step 23: open_001.wav
+	_update_scan_actions: step 24: chop.ogg
+	_update_scan_actions: step 25: cloth_1.ogg
+	_update_scan_actions: step 26: cloth_2.ogg
+	_update_scan_actions: step 27: cloth_3.ogg
+	_update_scan_actions: step 28: draw_knife_1.ogg
+	_update_scan_actions: step 29: drop_leather.ogg
+	_update_scan_actions: step 30: handle_coins.ogg
+	_update_scan_actions: step 31: handle_coins_2.ogg
+	_update_scan_actions: step 32: knife_slice.ogg
+	_update_scan_actions: step 33: knife_slice_2.ogg
+	_update_scan_actions: step 34: Knight.glb
+	_update_scan_actions: step 35: knight_texture.png
+	_update_scan_actions: step 36: Rat.glb
+	_update_scan_actions: step 37: Spider.glb
+	_update_scan_actions: step 38: BlueDemon.gltf
+	_update_scan_actions: step 39: Demon.gltf
+	_update_scan_actions: step 40: Skeleton_Mage.glb
+	_update_scan_actions: step 41: Skeleton_Minion.glb
+	_update_scan_actions: step 42: Skeleton_Rogue.glb
+	_update_scan_actions: step 43: skeleton_texture.png
+	_update_scan_actions: step 44: Skeleton_Warrior.glb
+	_update_scan_actions: step 45: ArenaWarden.glb
+	_update_scan_actions: step 46: WardenGladius.glb
+	_update_scan_actions: step 47: Warden_base_color.png
+	_update_scan_actions: step 48: Warden_normal.png
+	_update_scan_actions: step 49: Warden_ORM.png
+	_update_scan_actions: step 50: circle_01.png
+	_update_scan_actions: step 51: circle_05.png
+	_update_scan_actions: step 52: dirt_01.png
+	_update_scan_actions: step 53: flame_01.png
+	_update_scan_actions: step 54: flare_01.png
+	_update_scan_actions: step 55: light_01.png
+	_update_scan_actions: step 56: magic_01.png
+	_update_scan_actions: step 57: magic_03.png
+	_update_scan_actions: step 58: smoke_01.png
+	_update_scan_actions: step 59: smoke_03.png
+	_update_scan_actions: step 60: spark_01.png
+	_update_scan_actions: step 61: spark_04.png
+	_update_scan_actions: step 62: star_01.png
+	_update_scan_actions: step 63: star_04.png
+	_update_scan_actions: step 64: trace_01.png
+	_update_scan_actions: step 65: banner_blue.glb
+	_update_scan_actions: step 66: banner_green.glb
+	_update_scan_actions: step 67: banner_red.glb
+	_update_scan_actions: step 68: banner_yellow.glb
+	_update_scan_actions: step 69: barrel_large.glb
+	_update_scan_actions: step 70: barrel_small.glb
+	_update_scan_actions: step 71: barrier.glb
+	_update_scan_actions: step 72: barrier_column.glb
+	_update_scan_actions: step 73: barrier_corner.glb
+	_update_scan_actions: step 74: box_large.glb
+	_update_scan_actions: step 75: box_small.glb
+	_update_scan_actions: step 76: candle_lit.glb
+	_update_scan_actions: step 77: column.glb
+	_update_scan_actions: step 78: crates_stacked.glb
+	_update_scan_actions: step 79: floor_dirt_large.glb
+	_update_scan_actions: step 80: floor_tile_big_spikes.glb
+	_update_scan_actions: step 81: floor_tile_grate.glb
+	_update_scan_actions: step 82: floor_tile_large.glb
+	_update_scan_actions: step 83: floor_tile_small.glb
+	_update_scan_actions: step 84: floor_tile_small_broken_A.glb
+	_update_scan_actions: step 85: pillar.glb
+	_update_scan_actions: step 86: pillar_decorated.glb
+	_update_scan_actions: step 87: rubble_half.glb
+	_update_scan_actions: step 88: rubble_large.glb
+	_update_scan_actions: step 89: stairs.glb
+	_update_scan_actions: step 90: torch_lit.glb
+	_update_scan_actions: step 91: torch_mounted.glb
+	_update_scan_actions: step 92: wall.glb
+	_update_scan_actions: step 93: wall_arched.glb
+	_update_scan_actions: step 94: wall_broken.glb
+	_update_scan_actions: step 95: wall_corner.glb
+	_update_scan_actions: step 96: wall_cracked.glb
+	_update_scan_actions: step 97: wall_doorway.glb
+	_update_scan_actions: step 98: wall_endcap.glb
+	_update_scan_actions: step 99: wall_gated.glb
+	_update_scan_actions: step 100: wall_half.glb
+	_update_scan_actions: step 101: wall_pillar.glb
+	_update_scan_actions: step 102: Rajdhani-Bold.ttf
+	_update_scan_actions: step 103: Rajdhani-Regular.ttf
+	_update_scan_actions: step 104: bottle_A_labeled_green.glb
+	_update_scan_actions: step 105: chest.glb
+	_update_scan_actions: step 106: chest_gold.glb
+	_update_scan_actions: step 107: coin.glb
+	_update_scan_actions: step 108: coin_stack_small.glb
+	_update_scan_actions: step 109: key.glb
+	_update_scan_actions: step 110: Chest_Closed.glb
+	_update_scan_actions: step 111: Chest_Ingots.glb
+	_update_scan_actions: step 112: Coin_Star.glb
+	_update_scan_actions: step 113: Crystal1.glb
+	_update_scan_actions: step 114: Crystal2.glb
+	_update_scan_actions: step 115: Heart.glb
+	_update_scan_actions: step 116: Potion1_Filled.glb
+	_update_scan_actions: step 117: Potion3_Filled.glb
+	_update_scan_actions: step 118: brick_albedo.jpg
+	_update_scan_actions: step 119: brick_ao.jpg
+	_update_scan_actions: step 120: brick_metal.jpg
+	_update_scan_actions: step 121: brick_normal.jpg
+	_update_scan_actions: step 122: aluminium_albedo.png
+	_update_scan_actions: step 123: aluminium_normal.png
+	_update_scan_actions: step 124: moonless_golf_1k.hdr
+	_update_scan_actions: step 125: spruit_sunrise_1k.hdr
+	_update_scan_actions: step 126: venice_sunset_1k.hdr
+	_update_scan_actions: step 127: rock_albedo.png
+	_update_scan_actions: step 128: rock_ao.png
+	_update_scan_actions: step 129: rock_metal.png
+	_update_scan_actions: step 130: rock_normal.png
+	_update_scan_actions: step 131: marble_albedo.png
+	_update_scan_actions: step 132: stone_albedo.png
+	_update_scan_actions: step 133: stone_ao.png
+	_update_scan_actions: step 134: stone_normal.png
+	_update_scan_actions: step 135: wood_albedo.png
+	_update_scan_actions: step 136: audioOff.png
+	_update_scan_actions: step 137: audioOn.png
+	_update_scan_actions: step 138: checkmark.png
+	_update_scan_actions: step 139: contrast.png
+	_update_scan_actions: step 140: cross.png
+	_update_scan_actions: step 141: gamepad.png
+	_update_scan_actions: step 142: gear.png
+	_update_scan_actions: step 143: home.png
+	_update_scan_actions: step 144: joystick.png
+	_update_scan_actions: step 145: musicOff.png
+	_update_scan_actions: step 146: musicOn.png
+	_update_scan_actions: step 147: pause.png
+	_update_scan_actions: step 148: phone.png
+	_update_scan_actions: step 149: play.png
+	_update_scan_actions: step 150: return.png
+	_update_scan_actions: step 151: star.png
+	_update_scan_actions: step 152: target.png
+	_update_scan_actions: step 153: trophy.png
+	_update_scan_actions: step 154: blue_button00.png
+	_update_scan_actions: step 155: blue_button01.png
+	_update_scan_actions: step 156: blue_button02.png
+	_update_scan_actions: step 157: blue_button03.png
+	_update_scan_actions: step 158: blue_checkmark.png
+	_update_scan_actions: step 159: blue_circle.png
+	_update_scan_actions: step 160: blue_panel.png
+	_update_scan_actions: step 161: blue_sliderRight.png
+	_update_scan_actions: step 162: grey_box.png
+	_update_scan_actions: step 163: grey_button00.png
+	_update_scan_actions: step 164: grey_button01.png
+	_update_scan_actions: step 165: grey_panel.png
+	_update_scan_actions: step 166: grey_sliderEnd.png
+	_update_scan_actions: step 167: grey_sliderHorizontal.png
+	_update_scan_actions: step 168: yellow_button00.png
+	_update_scan_actions: step 169: yellow_button01.png
+	_update_scan_actions: step 170: yellow_panel.png
+	_update_scan_actions: step 171: arrow_horizontal.png
+	_update_scan_actions: step 172: arrow_right.png
+	_update_scan_actions: step 173: award.png
+	_update_scan_actions: step 174: bow.png
+	_update_scan_actions: step 175: crown_a.png
+	_update_scan_actions: step 176: exploding.png
+	_update_scan_actions: step 177: fire.png
+	_update_scan_actions: step 178: flask_full.png
+	_update_scan_actions: step 179: hand.png
+	_update_scan_actions: step 180: hourglass.png
+	_update_scan_actions: step 181: pawn_skip.png
+	_update_scan_actions: step 182: pawn_up.png
+	_update_scan_actions: step 183: pouch.png
+	_update_scan_actions: step 184: shield.png
+	_update_scan_actions: step 185: skull.png
+	_update_scan_actions: step 186: suit_hearts.png
+	_update_scan_actions: step 187: suit_hearts_broken.png
+	_update_scan_actions: step 188: sword.png
+	_update_scan_actions: step 189: timer_0.png
+	_update_scan_actions: step 190: tokens.png
+	_update_scan_actions: step 191: axe_1handed.gltf
+	_update_scan_actions: step 192: axe_2handed.gltf
+	_update_scan_actions: step 193: barbarian_texture.png
+	_update_scan_actions: step 194: dagger.gltf
+	_update_scan_actions: step 195: knight_texture.png
+	_update_scan_actions: step 196: rogue_texture.png
+	_update_scan_actions: step 197: shield_badge.gltf
+	_update_scan_actions: step 198: shield_round.gltf
+	_update_scan_actions: step 199: sword_1handed.gltf
+	_update_scan_actions: step 200: sword_2handed.gltf
+	_update_scan_actions: step 201: Arrow.glb
+	_update_scan_actions: step 202: Axe_Double.glb
+	_update_scan_actions: step 203: Bow_Golden.glb
+	_update_scan_actions: step 204: Dagger.glb
+	_update_scan_actions: step 205: Hammer_Double.glb
+	_update_scan_actions: step 206: Spear.glb
+	_update_scan_actions: step 207: Sword_Golden.glb
+	_update_scan_actions: step 208: Skeleton_Arrow.gltf
+	_update_scan_actions: step 209: Skeleton_Axe.gltf
+	_update_scan_actions: step 210: Skeleton_Blade.gltf
+	_update_scan_actions: step 211: Skeleton_Crossbow.gltf
+	_update_scan_actions: step 212: Skeleton_Shield_Large_A.gltf
+	_update_scan_actions: step 213: Skeleton_Shield_Small_A.gltf
+	_update_scan_actions: step 214: Skeleton_Staff.gltf
+	_update_scan_actions: step 215: skeleton_texture.png
+	_update_scan_actions: step 216: enemy_dash.wav
+	_update_scan_actions: step 217: enemy_explosion.wav
+	_update_scan_actions: step 218: enemy_windup.wav
+	_update_scan_actions: step 219: icon.svg
+_update_scan_actions: end
+reimport: begin: (Re)Importing Assets steps: 220
+	reimport: step 0: Preparing files to reimport...
+	reimport: step 1: Preparing files to reimport...
+	reimport: step 2: Preparing files to reimport...
+	reimport: step 3: Preparing files to reimport...
+	reimport: step 4: Preparing files to reimport...
+	reimport: step 5: Preparing files to reimport...
+	reimport: step 6: Preparing files to reimport...
+	reimport: step 7: Preparing files to reimport...
+	reimport: step 8: Preparing files to reimport...
+	reimport: step 9: Preparing files to reimport...
+	reimport: step 10: Preparing files to reimport...
+	reimport: step 11: Preparing files to reimport...
+	reimport: step 12: Preparing files to reimport...
+	reimport: step 13: Preparing files to reimport...
+	reimport: step 14: Preparing files to reimport...
+	reimport: step 15: Preparing files to reimport...
+	reimport: step 16: Preparing files to reimport...
+	reimport: step 17: Preparing files to reimport...
+	reimport: step 18: Preparing files to reimport...
+	reimport: step 19: Preparing files to reimport...
+	reimport: step 20: Preparing files to reimport...
+	reimport: step 21: Preparing files to reimport...
+	reimport: step 22: Preparing files to reimport...
+	reimport: step 23: Preparing files to reimport...
+	reimport: step 24: Preparing files to reimport...
+	reimport: step 25: Preparing files to reimport...
+	reimport: step 26: Preparing files to reimport...
+	reimport: step 27: Preparing files to reimport...
+	reimport: step 28: Preparing files to reimport...
+	reimport: step 29: Preparing files to reimport...
+	reimport: step 30: Preparing files to reimport...
+	reimport: step 31: Preparing files to reimport...
+	reimport: step 32: Preparing files to reimport...
+	reimport: step 33: Preparing files to reimport...
+	reimport: step 34: Preparing files to reimport...
+	reimport: step 35: Preparing files to reimport...
+	reimport: step 36: Preparing files to reimport...
+	reimport: step 37: Preparing files to reimport...
+	reimport: step 38: Preparing files to reimport...
+	reimport: step 39: Preparing files to reimport...
+	reimport: step 40: Preparing files to reimport...
+	reimport: step 41: Preparing files to reimport...
+	reimport: step 42: Preparing files to reimport...
+	reimport: step 43: Preparing files to reimport...
+	reimport: step 44: Preparing files to reimport...
+	reimport: step 45: Preparing files to reimport...
+	reimport: step 46: Preparing files to reimport...
+	reimport: step 47: Preparing files to reimport...
+	reimport: step 48: Preparing files to reimport...
+	reimport: step 49: Preparing files to reimport...
+	reimport: step 50: Preparing files to reimport...
+	reimport: step 51: Preparing files to reimport...
+	reimport: step 52: Preparing files to reimport...
+	reimport: step 53: Preparing files to reimport...
+	reimport: step 54: Preparing files to reimport...
+	reimport: step 55: Preparing files to reimport...
+	reimport: step 56: Preparing files to reimport...
+	reimport: step 57: Preparing files to reimport...
+	reimport: step 58: Preparing files to reimport...
+	reimport: step 59: Preparing files to reimport...
+	reimport: step 60: Preparing files to reimport...
+	reimport: step 61: Preparing files to reimport...
+	reimport: step 62: Preparing files to reimport...
+	reimport: step 63: Preparing files to reimport...
+	reimport: step 64: Preparing files to reimport...
+	reimport: step 65: Preparing files to reimport...
+	reimport: step 66: Preparing files to reimport...
+	reimport: step 67: Preparing files to reimport...
+	reimport: step 68: Preparing files to reimport...
+	reimport: step 69: Preparing files to reimport...
+	reimport: step 70: Preparing files to reimport...
+	reimport: step 71: Preparing files to reimport...
+	reimport: step 72: Preparing files to reimport...
+	reimport: step 73: Preparing files to reimport...
+	reimport: step 74: Preparing files to reimport...
+	reimport: step 75: Preparing files to reimport...
+	reimport: step 76: Preparing files to reimport...
+	reimport: step 77: Preparing files to reimport...
+	reimport: step 78: Preparing files to reimport...
+	reimport: step 79: Preparing files to reimport...
+	reimport: step 80: Preparing files to reimport...
+	reimport: step 81: Preparing files to reimport...
+	reimport: step 82: Preparing files to reimport...
+	reimport: step 83: Preparing files to reimport...
+	reimport: step 84: Preparing files to reimport...
+	reimport: step 85: Preparing files to reimport...
+	reimport: step 86: Preparing files to reimport...
+	reimport: step 87: Preparing files to reimport...
+	reimport: step 88: Preparing files to reimport...
+	reimport: step 89: Preparing files to reimport...
+	reimport: step 90: Preparing files to reimport...
+	reimport: step 91: Preparing files to reimport...
+	reimport: step 92: Preparing files to reimport...
+	reimport: step 93: Preparing files to reimport...
+	reimport: step 94: Preparing files to reimport...
+	reimport: step 95: Preparing files to reimport...
+	reimport: step 96: Preparing files to reimport...
+	reimport: step 97: Preparing files to reimport...
+	reimport: step 98: Preparing files to reimport...
+	reimport: step 99: Preparing files to reimport...
+	reimport: step 100: Preparing files to reimport...
+	reimport: step 101: Preparing files to reimport...
+	reimport: step 102: Preparing files to reimport...
+	reimport: step 103: Preparing files to reimport...
+	reimport: step 104: Preparing files to reimport...
+	reimport: step 105: Preparing files to reimport...
+	reimport: step 106: Preparing files to reimport...
+	reimport: step 107: Preparing files to reimport...
+	reimport: step 108: Preparing files to reimport...
+	reimport: step 109: Preparing files to reimport...
+	reimport: step 110: Preparing files to reimport...
+	reimport: step 111: Preparing files to reimport...
+	reimport: step 112: Preparing files to reimport...
+	reimport: step 113: Preparing files to reimport...
+	reimport: step 114: Preparing files to reimport...
+	reimport: step 115: Preparing files to reimport...
+	reimport: step 116: Preparing files to reimport...
+	reimport: step 117: Preparing files to reimport...
+	reimport: step 118: Preparing files to reimport...
+	reimport: step 119: Preparing files to reimport...
+	reimport: step 120: Preparing files to reimport...
+	reimport: step 121: Preparing files to reimport...
+	reimport: step 122: Preparing files to reimport...
+	reimport: step 123: Preparing files to reimport...
+	reimport: step 124: Preparing files to reimport...
+	reimport: step 125: Preparing files to reimport...
+	reimport: step 126: Preparing files to reimport...
+	reimport: step 127: Preparing files to reimport...
+	reimport: step 128: Preparing files to reimport...
+	reimport: step 129: Preparing files to reimport...
+	reimport: step 130: Preparing files to reimport...
+	reimport: step 131: Preparing files to reimport...
+	reimport: step 132: Preparing files to reimport...
+	reimport: step 133: Preparing files to reimport...
+	reimport: step 134: Preparing files to reimport...
+	reimport: step 135: Preparing files to reimport...
+	reimport: step 136: Preparing files to reimport...
+	reimport: step 137: Preparing files to reimport...
+	reimport: step 138: Preparing files to reimport...
+	reimport: step 139: Preparing files to reimport...
+	reimport: step 140: Preparing files to reimport...
+	reimport: step 141: Preparing files to reimport...
+	reimport: step 142: Preparing files to reimport...
+	reimport: step 143: Preparing files to reimport...
+	reimport: step 144: Preparing files to reimport...
+	reimport: step 145: Preparing files to reimport...
+	reimport: step 146: Preparing files to reimport...
+	reimport: step 147: Preparing files to reimport...
+	reimport: step 148: Preparing files to reimport...
+	reimport: step 149: Preparing files to reimport...
+	reimport: step 150: Preparing files to reimport...
+	reimport: step 151: Preparing files to reimport...
+	reimport: step 152: Preparing files to reimport...
+	reimport: step 153: Preparing files to reimport...
+	reimport: step 154: Preparing files to reimport...
+	reimport: step 155: Preparing files to reimport...
+	reimport: step 156: Preparing files to reimport...
+	reimport: step 157: Preparing files to reimport...
+	reimport: step 158: Preparing files to reimport...
+	reimport: step 159: Preparing files to reimport...
+	reimport: step 160: Preparing files to reimport...
+	reimport: step 161: Preparing files to reimport...
+	reimport: step 162: Preparing files to reimport...
+	reimport: step 163: Preparing files to reimport...
+	reimport: step 164: Preparing files to reimport...
+	reimport: step 165: Preparing files to reimport...
+	reimport: step 166: Preparing files to reimport...
+	reimport: step 167: Preparing files to reimport...
+	reimport: step 168: Preparing files to reimport...
+	reimport: step 169: Preparing files to reimport...
+	reimport: step 170: Preparing files to reimport...
+	reimport: step 171: Preparing files to reimport...
+	reimport: step 172: Preparing files to reimport...
+	reimport: step 173: Preparing files to reimport...
+	reimport: step 174: Preparing files to reimport...
+	reimport: step 175: Preparing files to reimport...
+	reimport: step 176: Preparing files to reimport...
+	reimport: step 177: Preparing files to reimport...
+	reimport: step 178: Preparing files to reimport...
+	reimport: step 179: Preparing files to reimport...
+	reimport: step 180: Preparing files to reimport...
+	reimport: step 181: Preparing files to reimport...
+	reimport: step 182: Preparing files to reimport...
+	reimport: step 183: Preparing files to reimport...
+	reimport: step 184: Preparing files to reimport...
+	reimport: step 185: Preparing files to reimport...
+	reimport: step 186: Preparing files to reimport...
+	reimport: step 187: Preparing files to reimport...
+	reimport: step 188: Preparing files to reimport...
+	reimport: step 189: Preparing files to reimport...
+	reimport: step 190: Preparing files to reimport...
+	reimport: step 191: Preparing files to reimport...
+	reimport: step 192: Preparing files to reimport...
+	reimport: step 193: Preparing files to reimport...
+	reimport: step 194: Preparing files to reimport...
+	reimport: step 195: Preparing files to reimport...
+	reimport: step 196: Preparing files to reimport...
+	reimport: step 197: Preparing files to reimport...
+	reimport: step 198: Preparing files to reimport...
+	reimport: step 199: Preparing files to reimport...
+	reimport: step 200: Preparing files to reimport...
+	reimport: step 201: Preparing files to reimport...
+	reimport: step 202: Preparing files to reimport...
+	reimport: step 203: Preparing files to reimport...
+	reimport: step 204: Preparing files to reimport...
+	reimport: step 205: Preparing files to reimport...
+	reimport: step 206: Preparing files to reimport...
+	reimport: step 207: Preparing files to reimport...
+	reimport: step 208: Preparing files to reimport...
+	reimport: step 209: Preparing files to reimport...
+	reimport: step 210: Preparing files to reimport...
+	reimport: step 211: Preparing files to reimport...
+	reimport: step 212: Preparing files to reimport...
+	reimport: step 213: Preparing files to reimport...
+	reimport: step 214: Preparing files to reimport...
+	reimport: step 215: Preparing files to reimport...
+	reimport: step 216: Preparing files to reimport...
+	reimport: step 217: Preparing files to reimport...
+	reimport: step 218: Preparing files to reimport...
+	reimport: step 219: Preparing files to reimport...
+	reimport: step 0: Executing pre-reimport operations...
+preload_reimporting_scene: begin: Preparing scenes for reload steps: 1
+	preload_reimporting_scene: step 0: Analyzing scene [empty]
+	preload_reimporting_scene: step 1: Preparation done.
+preload_reimporting_scene: end
+	reimport: step 0: Rajdhani-Bold.ttf
+	reimport: step 1: Rajdhani-Regular.ttf
+	reimport: step 2: Rajdhani-Bold.ttf
+	reimport: step 3: Rajdhani-Regular.ttf
+	reimport: step 4: knife_slice_2.ogg
+	reimport: step 5: knife_slice.ogg
+	reimport: step 6: handle_coins_2.ogg
+	reimport: step 7: handle_coins.ogg
+	reimport: step 8: drop_leather.ogg
+	reimport: step 9: draw_knife_1.ogg
+	reimport: step 10: cloth_3.ogg
+	reimport: step 11: cloth_2.ogg
+	reimport: step 12: cloth_1.ogg
+	reimport: step 13: chop.ogg
+	reimport: step 14: impact_wood_medium_000.ogg
+	reimport: step 15: impact_wood_heavy_000.ogg
+	reimport: step 16: impact_soft_heavy_000.ogg
+	reimport: step 17: arena_boss.ogg
+	reimport: step 18: arena_calm.ogg
+	reimport: step 19: arena_gameplay.ogg
+	reimport: step 20: arena_menu.ogg
+	reimport: step 21: arena_victory.ogg
+	reimport: step 22: footstep_concrete_000.ogg
+	reimport: step 23: footstep_concrete_001.ogg
+	reimport: step 24: footstep_concrete_002.ogg
+	reimport: step 25: footstep_concrete_003.ogg
+	reimport: step 26: impact_bell_heavy_000.ogg
+	reimport: step 27: impact_generic_light_000.ogg
+	reimport: step 28: impact_generic_light_001.ogg
+	reimport: step 29: impact_punch_heavy_000.ogg
+	reimport: step 30: Rajdhani-Bold.ttf
+	reimport: step 31: Rajdhani-Regular.ttf
+	reimport: step 32: knife_slice_2.ogg
+	reimport: step 33: knife_slice.ogg
+	reimport: step 34: handle_coins_2.ogg
+	reimport: step 35: handle_coins.ogg
+	reimport: step 36: drop_leather.ogg
+	reimport: step 37: draw_knife_1.ogg
+	reimport: step 38: cloth_3.ogg
+	reimport: step 39: cloth_2.ogg
+	reimport: step 40: cloth_1.ogg
+	reimport: step 41: chop.ogg
+	reimport: step 42: impact_wood_medium_000.ogg
+	reimport: step 43: impact_wood_heavy_000.ogg
+	reimport: step 44: impact_soft_heavy_000.ogg
+	reimport: step 45: arena_boss.ogg
+	reimport: step 46: arena_calm.ogg
+	reimport: step 47: arena_gameplay.ogg
+	reimport: step 48: arena_menu.ogg
+	reimport: step 49: arena_victory.ogg
+	reimport: step 50: footstep_concrete_000.ogg
+	reimport: step 51: footstep_concrete_001.ogg
+	reimport: step 52: footstep_concrete_002.ogg
+	reimport: step 53: footstep_concrete_003.ogg
+	reimport: step 54: impact_bell_heavy_000.ogg
+	reimport: step 55: impact_generic_light_000.ogg
+WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+	reimport: step 56: impact_generic_light_001.ogg
+WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+	reimport: step 57: impact_punch_heavy_000.ogg
+WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+	reimport: step 58: impact_punch_medium_000.ogg
+	reimport: step 59: impact_punch_medium_001.ogg
+	reimport: step 60: audioOn.png
+	reimport: step 61: checkmark.png
+	reimport: step 62: contrast.png
+	reimport: step 63: cross.png
+	reimport: step 64: gamepad.png
+	reimport: step 65: gear.png
+	reimport: step 66: home.png
+	reimport: step 67: joystick.png
+	reimport: step 68: musicOff.png
+	reimport: step 69: musicOn.png
+	reimport: step 70: pause.png
+	reimport: step 71: phone.png
+	reimport: step 72: play.png
+	reimport: step 73: return.png
+	reimport: step 74: star.png
+	reimport: step 75: blue_button01.png
+	reimport: step 76: blue_button00.png
+	reimport: step 77: trophy.png
+	reimport: step 78: target.png
+	reimport: step 79: brick_albedo.jpg
+	reimport: step 80: brick_ao.jpg
+	reimport: step 81: brick_metal.jpg
+	reimport: step 82: brick_normal.jpg
+	reimport: step 83: aluminium_albedo.png
+	reimport: step 84: aluminium_normal.png
+	reimport: step 85: moonless_golf_1k.hdr
+	reimport: step 86: spruit_sunrise_1k.hdr
+	reimport: step 87: venice_sunset_1k.hdr
+	reimport: step 88: rock_albedo.png
+	reimport: step 89: rock_ao.png
+	reimport: step 90: rock_metal.png
+	reimport: step 91: rock_normal.png
+	reimport: step 92: marble_albedo.png
+	reimport: step 93: stone_albedo.png
+	reimport: step 94: stone_ao.png
+	reimport: step 95: stone_normal.png
+	reimport: step 96: wood_albedo.png
+	reimport: step 97: audioOff.png
+	reimport: step 98: exploding.png
+	reimport: step 99: fire.png
+	reimport: step 100: flask_full.png
+	reimport: step 101: hand.png
+	reimport: step 102: hourglass.png
+	reimport: step 103: pawn_skip.png
+	reimport: step 104: pawn_up.png
+	reimport: step 105: pouch.png
+	reimport: step 106: shield.png
+	reimport: step 107: skull.png
+	reimport: step 108: suit_hearts.png
+	reimport: step 109: suit_hearts_broken.png
+	reimport: step 110: sword.png
+	reimport: step 111: timer_0.png
+	reimport: step 112: tokens.png
+	reimport: step 113: barbarian_texture.png
+	reimport: step 114: knight_texture.png
+	reimport: step 115: rogue_texture.png
+	reimport: step 116: skeleton_texture.png
+	reimport: step 117: icon.svg
+	reimport: step 118: blue_button02.png
+	reimport: step 119: blue_button03.png
+	reimport: step 120: blue_checkmark.png
+	reimport: step 121: blue_circle.png
+	reimport: step 122: blue_panel.png
+	reimport: step 123: blue_sliderRight.png
+	reimport: step 124: grey_box.png
+	reimport: step 125: grey_button00.png
+	reimport: step 126: grey_button01.png
+	reimport: step 127: grey_panel.png
+	reimport: step 128: Rajdhani-Bold.ttf
+	reimport: step 129: Rajdhani-Regular.ttf
+	reimport: step 130: knife_slice_2.ogg
+	reimport: step 131: knife_slice.ogg
+	reimport: step 132: handle_coins_2.ogg
+	reimport: step 133: handle_coins.ogg
+	reimport: step 134: drop_leather.ogg
+	reimport: step 135: draw_knife_1.ogg
+	reimport: step 136: cloth_3.ogg
+	reimport: step 137: shield_round.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 138: shield_badge.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 139: Crystal1.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 140: Crystal2.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 141: dagger.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 142: Heart.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 143: axe_2handed.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 144: axe_1handed.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 145: Potion1_Filled.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 146: Knight.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 147: Potion3_Filled.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 148: Rat.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 149: Spider.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 150: BlueDemon.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 151: Demon.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 152: Skeleton_Mage.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 153: Skeleton_Minion.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 154: Skeleton_Rogue.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 155: coin.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 156: Skeleton_Warrior.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 157: coin_stack_small.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 158: key.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 159: Chest_Closed.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 160: Chest_Ingots.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 161: Coin_Star.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 162: Skeleton_Staff.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 163: Skeleton_Shield_Small_A.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 164: Skeleton_Shield_Large_A.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 165: Skeleton_Crossbow.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 166: Skeleton_Blade.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 167: Skeleton_Axe.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 168: Skeleton_Arrow.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 169: Sword_Golden.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 170: Spear.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 171: Hammer_Double.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 172: Dagger.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 173: Bow_Golden.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 174: Axe_Double.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 175: Arrow.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 176: sword_2handed.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 177: sword_1handed.gltf
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 178: banner_green.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 179: banner_red.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 180: banner_yellow.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 181: barrel_large.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 182: barrel_small.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 183: barrier.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 184: barrier_column.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 185: barrier_corner.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 186: box_large.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 187: box_small.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 188: candle_lit.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 189: column.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 190: crates_stacked.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 191: floor_dirt_large.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 192: floor_tile_big_spikes.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 193: floor_tile_grate.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 194: floor_tile_large.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 195: floor_tile_small.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 196: floor_tile_small_broken_A.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 197: pillar.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 198: pillar_decorated.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 199: ArenaWarden.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 200: WardenGladius.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 201: chest_gold.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 202: chest.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 203: bottle_A_labeled_green.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 204: wall_pillar.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 205: wall_half.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 206: wall_gated.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 207: wall_endcap.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 208: wall_doorway.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 209: wall_cracked.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 210: wall_corner.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 211: wall_broken.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 212: wall_arched.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 213: wall.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 214: torch_mounted.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 215: torch_lit.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 216: stairs.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 217: rubble_large.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 218: rubble_half.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 219: banner_blue.glb
+import: begin: Import Scene steps: 104
+	import: step 0: Importing Scene...
+Mode: UASTC LDR Level 0
+Mode: UASTC LDR Level 0
+	import: step 2: Running Custom Script...
+	import: step 104: Saving...
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)
+import: end
+	reimport: step 220: Finalizing Asset Import...
+reimport: end
+update_script_paths_documentation: begin: Updating scripts documentation steps: 218
+	update_script_paths_documentation: step 0: arena.gd
+	update_script_paths_documentation: step 1: arena_config.gd
+	update_script_paths_documentation: step 2: arena_decorator.gd
+	update_script_paths_documentation: step 3: arena_hazards.gd
+	update_script_paths_documentation: step 4: arena_nav_grid.gd
+	update_script_paths_documentation: step 5: arena_obstacles.gd
+	update_script_paths_documentation: step 6: torch_flicker.gd
+	update_script_paths_documentation: step 7: audio_asset_integrator.gd
+	update_script_paths_documentation: step 8: audio_config.gd
+	update_script_paths_documentation: step 9: audio_manager.gd
+	update_script_paths_documentation: step 10: music_manager.gd
+	update_script_paths_documentation: step 11: procedural_sfx.gd
+	update_script_paths_documentation: step 12: area_damage.gd
+	update_script_paths_documentation: step 13: combat_log.gd
+	update_script_paths_documentation: step 14: combat_query.gd
+	update_script_paths_documentation: step 15: critical_system.gd
+	update_script_paths_documentation: step 16: damageable.gd
+	update_script_paths_documentation: step 17: damage_payload.gd
+	update_script_paths_documentation: step 18: damage_result.gd
+	update_script_paths_documentation: step 19: hitstop_manager.gd
+	update_script_paths_documentation: step 20: content_loader.gd
+	update_script_paths_documentation: step 21: content_registry.gd
+	update_script_paths_documentation: step 22: event_bus.gd
+	update_script_paths_documentation: step 23: game_root.gd
+	update_script_paths_documentation: step 24: run_analytics.gd
+	update_script_paths_documentation: step 25: run_scorekeeper.gd
+	update_script_paths_documentation: step 26: run_state.gd
+	update_script_paths_documentation: step 27: scene_router.gd
+	update_script_paths_documentation: step 28: test_harness.gd
+	update_script_paths_documentation: step 29: upgrade_service.gd
+	update_script_paths_documentation: step 30: validated_config.gd
+	update_script_paths_documentation: step 31: boss_controller.gd
+	update_script_paths_documentation: step 32: boss_phase_config.gd
+	update_script_paths_documentation: step 33: enemy_animator.gd
+	update_script_paths_documentation: step 34: enemy_attack_state.gd
+	update_script_paths_documentation: step 35: enemy_audio.gd
+	update_script_paths_documentation: step 36: enemy_base.gd
+	update_script_paths_documentation: step 37: enemy_chase_state.gd
+	update_script_paths_documentation: step 38: enemy_config.gd
+	update_script_paths_documentation: step 39: enemy_dash_state.gd
+	update_script_paths_documentation: step 40: enemy_dead_state.gd
+	update_script_paths_documentation: step 41: enemy_elite_affix.gd
+	update_script_paths_documentation: step 42: enemy_feedback.gd
+	update_script_paths_documentation: step 43: enemy_fuse_state.gd
+	update_script_paths_documentation: step 44: enemy_hurt_state.gd
+	update_script_paths_documentation: step 45: enemy_idle_state.gd
+	update_script_paths_documentation: step 46: enemy_locomotion.gd
+	update_script_paths_documentation: step 47: enemy_navigator.gd
+	update_script_paths_documentation: step 48: enemy_pack.gd
+	update_script_paths_documentation: step 49: enemy_perception.gd
+	update_script_paths_documentation: step 50: enemy_personality.gd
+	update_script_paths_documentation: step 51: enemy_ranged_state.gd
+	update_script_paths_documentation: step 52: enemy_state.gd
+	update_script_paths_documentation: step 53: enemy_state_machine.gd
+	update_script_paths_documentation: step 54: enemy_striker.gd
+	update_script_paths_documentation: step 55: spawn_ledger.gd
+	update_script_paths_documentation: step 56: spawn_manager.gd
+	update_script_paths_documentation: step 57: spawn_patterns.gd
+	update_script_paths_documentation: step 58: spawn_placer.gd
+	update_script_paths_documentation: step 59: camera_auto_follow_controller.gd
+	update_script_paths_documentation: step 60: camera_collision_solver.gd
+	update_script_paths_documentation: step 61: camera_focus_tracker.gd
+	update_script_paths_documentation: step 62: camera_fov_controller.gd
+	update_script_paths_documentation: step 63: camera_framing_controller.gd
+	update_script_paths_documentation: step 64: camera_input_handler.gd
+	update_script_paths_documentation: step 65: camera_math.gd
+	update_script_paths_documentation: step 66: camera_mode_controller.gd
+	update_script_paths_documentation: step 67: camera_orbit_controller.gd
+	update_script_paths_documentation: step 68: camera_orbit_state.gd
+	update_script_paths_documentation: step 69: camera_shake_controller.gd
+	update_script_paths_documentation: step 70: camera_velocity_tracker.gd
+	update_script_paths_documentation: step 71: camera_profile.gd
+	update_script_paths_documentation: step 72: camera_rig.gd
+	update_script_paths_documentation: step 73: main.gd
+	update_script_paths_documentation: step 74: achievements.gd
+	update_script_paths_documentation: step 75: cosmetics.gd
+	update_script_paths_documentation: step 76: daily_challenge.gd
+	update_script_paths_documentation: step 77: game_mode.gd
+	update_script_paths_documentation: step 78: meta_progression.gd
+	update_script_paths_documentation: step 79: narrator.gd
+	update_script_paths_documentation: step 80: objective_director.gd
+	update_script_paths_documentation: step 81: prestige.gd
+	update_script_paths_documentation: step 82: drop_table.gd
+	update_script_paths_documentation: step 83: pickup.gd
+	update_script_paths_documentation: step 84: pickup_config.gd
+	update_script_paths_documentation: step 85: pickup_manager.gd
+	update_script_paths_documentation: step 86: attack_buffer.gd
+	update_script_paths_documentation: step 87: character_controller.gd
+	update_script_paths_documentation: step 88: dodge_controller.gd
+	update_script_paths_documentation: step 89: experience_component.gd
+	update_script_paths_documentation: step 90: health_component.gd
+	update_script_paths_documentation: step 91: player.gd
+	update_script_paths_documentation: step 92: player_animation.gd
+	update_script_paths_documentation: step 93: player_audio.gd
+	update_script_paths_documentation: step 94: player_build.gd
+	update_script_paths_documentation: step 95: player_equipment.gd
+	update_script_paths_documentation: step 96: player_feedback.gd
+	update_script_paths_documentation: step 97: player_locomotion.gd
+	update_script_paths_documentation: step 98: progression_component.gd
+	update_script_paths_documentation: step 99: stamina_component.gd
+	update_script_paths_documentation: step 100: targeting_component.gd
+	update_script_paths_documentation: step 101: build_effects.gd
+	update_script_paths_documentation: step 102: upgrade_config.gd
+	update_script_paths_documentation: step 103: upgrade_selector.gd
+	update_script_paths_documentation: step 104: save_manager.gd
+	update_script_paths_documentation: step 105: save_schema.gd
+	update_script_paths_documentation: step 106: settings_data.gd
+	update_script_paths_documentation: step 107: skill_config.gd
+	update_script_paths_documentation: step 108: skill_controller.gd
+	update_script_paths_documentation: step 109: skill_executor.gd
+	update_script_paths_documentation: step 110: status_effect.gd
+	update_script_paths_documentation: step 111: status_effect_config.gd
+	update_script_paths_documentation: step 112: status_manager.gd
+	update_script_paths_documentation: step 113: achievement_gallery.gd
+	update_script_paths_documentation: step 114: announcement_banner.gd
+	update_script_paths_documentation: step 115: armory_panel.gd
+	update_script_paths_documentation: step 116: boss_health_bar.gd
+	update_script_paths_documentation: step 117: damage_number_layer.gd
+	update_script_paths_documentation: step 118: game_hud.gd
+	update_script_paths_documentation: step 119: help_panel.gd
+	update_script_paths_documentation: step 120: menu_backdrop.gd
+	update_script_paths_documentation: step 121: menu_panel.gd
+	update_script_paths_documentation: step 122: minimap.gd
+	update_script_paths_documentation: step 123: run_setup_panel.gd
+	update_script_paths_documentation: step 124: run_summary_panel.gd
+	update_script_paths_documentation: step 125: safe_area.gd
+	update_script_paths_documentation: step 126: settings_panel.gd
+	update_script_paths_documentation: step 127: skill_bar.gd
+	update_script_paths_documentation: step 128: touch_action_button.gd
+	update_script_paths_documentation: step 129: touch_controls.gd
+	update_script_paths_documentation: step 130: tutorial_manager.gd
+	update_script_paths_documentation: step 131: ui_commands.gd
+	update_script_paths_documentation: step 132: ui_factory.gd
+	update_script_paths_documentation: step 133: ui_layout.gd
+	update_script_paths_documentation: step 134: ui_root.gd
+	update_script_paths_documentation: step 135: ui_text.gd
+	update_script_paths_documentation: step 136: ui_theme.gd
+	update_script_paths_documentation: step 137: upgrade_panel.gd
+	update_script_paths_documentation: step 138: virtual_joystick.gd
+	update_script_paths_documentation: step 139: input_remapper.gd
+	update_script_paths_documentation: step 140: json_helpers.gd
+	update_script_paths_documentation: step 141: object_pool.gd
+	update_script_paths_documentation: step 142: performance_monitor.gd
+	update_script_paths_documentation: step 143: rng_service.gd
+	update_script_paths_documentation: step 144: weighted_table.gd
+	update_script_paths_documentation: step 145: character_visuals.gd
+	update_script_paths_documentation: step 146: effect_director.gd
+	update_script_paths_documentation: step 147: hd_materials.gd
+	update_script_paths_documentation: step 148: hero_rig_contract.gd
+	update_script_paths_documentation: step 149: model_visual.gd
+	update_script_paths_documentation: step 150: player_cosmetics.gd
+	update_script_paths_documentation: step 151: ring_fade.gd
+	update_script_paths_documentation: step 152: visual_mount.gd
+	update_script_paths_documentation: step 153: difficulty_director.gd
+	update_script_paths_documentation: step 154: scoring.gd
+	update_script_paths_documentation: step 155: wave_config.gd
+	update_script_paths_documentation: step 156: wave_manager.gd
+	update_script_paths_documentation: step 157: wave_mutators.gd
+	update_script_paths_documentation: step 158: wave_planner.gd
+	update_script_paths_documentation: step 159: wave_spawn_entry.gd
+	update_script_paths_documentation: step 160: melee_resolver.gd
+	update_script_paths_documentation: step 161: projectile.gd
+	update_script_paths_documentation: step 162: projectile_pool.gd
+	update_script_paths_documentation: step 163: ranged_resolver.gd
+	update_script_paths_documentation: step 164: weapon_config.gd
+	update_script_paths_documentation: step 165: weapon_instance.gd
+	update_script_paths_documentation: step 166: weapon_manager.gd
+	update_script_paths_documentation: step 167: fake_arena.gd
+	update_script_paths_documentation: step 168: fake_clock.gd
+	update_script_paths_documentation: step 169: fake_save_storage.gd
+	update_script_paths_documentation: step 170: android_performance.gd
+	update_script_paths_documentation: step 171: test_player.gd
+	update_script_paths_documentation: step 172: ui_player_double.gd
+	update_script_paths_documentation: step 173: ui_test_runner.gd
+	update_script_paths_documentation: step 174: test_area_combat.gd
+	update_script_paths_documentation: step 175: test_arena_obstacles_node.gd
+	update_script_paths_documentation: step 176: test_character_visuals.gd
+	update_script_paths_documentation: step 177: test_combat.gd
+	update_script_paths_documentation: step 178: test_combo.gd
+	update_script_paths_documentation: step 179: test_configs.gd
+	update_script_paths_documentation: step 180: test_content_progression.gd
+	update_script_paths_documentation: step 181: test_director_mutators.gd
+	update_script_paths_documentation: step 182: test_drops_elites.gd
+	update_script_paths_documentation: step 183: test_enemy_behaviors.gd
+	update_script_paths_documentation: step 184: test_enemy_brain.gd
+	update_script_paths_documentation: step 185: test_enemy_scene_inheritance.gd
+	update_script_paths_documentation: step 186: test_extracted_modules.gd
+	update_script_paths_documentation: step 187: test_game_modes.gd
+	update_script_paths_documentation: step 188: test_hero_rig.gd
+	update_script_paths_documentation: step 189: test_meta_misc.gd
+	update_script_paths_documentation: step 190: test_model_visual.gd
+	update_script_paths_documentation: step 191: test_nav_grid.gd
+	update_script_paths_documentation: step 192: test_planner_extended.gd
+	update_script_paths_documentation: step 193: test_presentation_scripts.gd
+	update_script_paths_documentation: step 194: test_procedural_sfx.gd
+	update_script_paths_documentation: step 195: test_progression.gd
+	update_script_paths_documentation: step 196: test_rng_tables.gd
+	update_script_paths_documentation: step 197: test_save.gd
+	update_script_paths_documentation: step 198: test_scoring.gd
+	update_script_paths_documentation: step 199: test_status_skills.gd
+	update_script_paths_documentation: step 200: test_upgrades.gd
+	update_script_paths_documentation: step 201: test_upgrade_selection.gd
+	update_script_paths_documentation: step 202: test_waves.gd
+	update_script_paths_documentation: step 203: test_weapons.gd
+	update_script_paths_documentation: step 204: integration_stages.gd
+	update_script_paths_documentation: step 205: regress_upgrades.gd
+	update_script_paths_documentation: step 206: regress_upgrades_inner.gd
+	update_script_paths_documentation: step 207: run_player_tests.gd
+	update_script_paths_documentation: step 208: run_tests.gd
+	update_script_paths_documentation: step 209: soak_runtime.gd
+	update_script_paths_documentation: step 210: soak_runtime_inner.gd
+	update_script_paths_documentation: step 211: stress_loops.gd
+	update_script_paths_documentation: step 212: stress_loops_inner.gd
+	update_script_paths_documentation: step 213: stress_systems.gd
+	update_script_paths_documentation: step 214: stress_systems_inner.gd
+	update_script_paths_documentation: step 215: validate_asset_imports.gd
+	update_script_paths_documentation: step 216: verify_flow.gd
+	update_script_paths_documentation: step 217: verify_flow_inner.gd
+update_script_paths_documentation: end
+update_scene_groups: begin: Updating Scene Groups steps: 100
+	update_scene_groups: step 0: arena.tscn
+	update_scene_groups: step 1: basic_enemy.tscn
+	update_scene_groups: step 2: dasher_enemy.tscn
+	update_scene_groups: step 3: enemy_base.tscn
+	update_scene_groups: step 4: exploder_enemy.tscn
+	update_scene_groups: step 5: fast_enemy.tscn
+	update_scene_groups: step 6: heavy_enemy.tscn
+	update_scene_groups: step 7: ranged_enemy.tscn
+	update_scene_groups: step 8: spawn_manager.tscn
+	update_scene_groups: step 9: splitter_enemy.tscn
+	update_scene_groups: step 10: warlord_enemy.tscn
+	update_scene_groups: step 11: camera_rig.tscn
+	update_scene_groups: step 12: main.tscn
+	update_scene_groups: step 13: player.tscn
+	update_scene_groups: step 14: ui_root.tscn
+	update_scene_groups: step 15: android_performance.tscn
+	update_scene_groups: step 16: ui_test_runner.tscn
+	update_scene_groups: step 17: Knight.glb
+	update_scene_groups: step 18: Rat.glb
+	update_scene_groups: step 19: Spider.glb
+	update_scene_groups: step 20: BlueDemon.gltf
+	update_scene_groups: step 21: Demon.gltf
+	update_scene_groups: step 22: Skeleton_Mage.glb
+	update_scene_groups: step 23: Skeleton_Minion.glb
+	update_scene_groups: step 24: Skeleton_Rogue.glb
+	update_scene_groups: step 25: Skeleton_Warrior.glb
+	update_scene_groups: step 26: ArenaWarden.glb
+	update_scene_groups: step 27: WardenGladius.glb
+	update_scene_groups: step 28: banner_blue.glb
+	update_scene_groups: step 29: banner_green.glb
+	update_scene_groups: step 30: banner_red.glb
+	update_scene_groups: step 31: banner_yellow.glb
+	update_scene_groups: step 32: barrel_large.glb
+	update_scene_groups: step 33: barrel_small.glb
+	update_scene_groups: step 34: barrier.glb
+	update_scene_groups: step 35: barrier_column.glb
+	update_scene_groups: step 36: barrier_corner.glb
+	update_scene_groups: step 37: box_large.glb
+	update_scene_groups: step 38: box_small.glb
+	update_scene_groups: step 39: candle_lit.glb
+	update_scene_groups: step 40: column.glb
+	update_scene_groups: step 41: crates_stacked.glb
+	update_scene_groups: step 42: floor_dirt_large.glb
+	update_scene_groups: step 43: floor_tile_big_spikes.glb
+	update_scene_groups: step 44: floor_tile_grate.glb
+	update_scene_groups: step 45: floor_tile_large.glb
+	update_scene_groups: step 46: floor_tile_small.glb
+	update_scene_groups: step 47: floor_tile_small_broken_A.glb
+	update_scene_groups: step 48: pillar.glb
+	update_scene_groups: step 49: pillar_decorated.glb
+	update_scene_groups: step 50: rubble_half.glb
+	update_scene_groups: step 51: rubble_large.glb
+	update_scene_groups: step 52: stairs.glb
+	update_scene_groups: step 53: torch_lit.glb
+	update_scene_groups: step 54: torch_mounted.glb
+	update_scene_groups: step 55: wall.glb
+	update_scene_groups: step 56: wall_arched.glb
+	update_scene_groups: step 57: wall_broken.glb
+	update_scene_groups: step 58: wall_corner.glb
+	update_scene_groups: step 59: wall_cracked.glb
+	update_scene_groups: step 60: wall_doorway.glb
+	update_scene_groups: step 61: wall_endcap.glb
+	update_scene_groups: step 62: wall_gated.glb
+	update_scene_groups: step 63: wall_half.glb
+	update_scene_groups: step 64: wall_pillar.glb
+	update_scene_groups: step 65: bottle_A_labeled_green.glb
+	update_scene_groups: step 66: chest.glb
+	update_scene_groups: step 67: chest_gold.glb
+	update_scene_groups: step 68: coin.glb
+	update_scene_groups: step 69: coin_stack_small.glb
+	update_scene_groups: step 70: key.glb
+	update_scene_groups: step 71: Chest_Closed.glb
+	update_scene_groups: step 72: Chest_Ingots.glb
+	update_scene_groups: step 73: Coin_Star.glb
+	update_scene_groups: step 74: Crystal1.glb
+	update_scene_groups: step 75: Crystal2.glb
+	update_scene_groups: step 76: Heart.glb
+	update_scene_groups: step 77: Potion1_Filled.glb
+	update_scene_groups: step 78: Potion3_Filled.glb
+	update_scene_groups: step 79: axe_1handed.gltf
+	update_scene_groups: step 80: axe_2handed.gltf
+	update_scene_groups: step 81: dagger.gltf
+	update_scene_groups: step 82: shield_badge.gltf
+	update_scene_groups: step 83: shield_round.gltf
+	update_scene_groups: step 84: sword_1handed.gltf
+	update_scene_groups: step 85: sword_2handed.gltf
+	update_scene_groups: step 86: Arrow.glb
+	update_scene_groups: step 87: Axe_Double.glb
+	update_scene_groups: step 88: Bow_Golden.glb
+	update_scene_groups: step 89: Dagger.glb
+	update_scene_groups: step 90: Hammer_Double.glb
+	update_scene_groups: step 91: Spear.glb
+	update_scene_groups: step 92: Sword_Golden.glb
+	update_scene_groups: step 93: Skeleton_Arrow.gltf
+	update_scene_groups: step 94: Skeleton_Axe.gltf
+	update_scene_groups: step 95: Skeleton_Blade.gltf
+	update_scene_groups: step 96: Skeleton_Crossbow.gltf
+	update_scene_groups: step 97: Skeleton_Shield_Large_A.gltf
+	update_scene_groups: step 98: Skeleton_Shield_Small_A.gltf
+	update_scene_groups: step 99: Skeleton_Staff.gltf
+update_scene_groups: end
+reimport: begin: (Re)Importing Assets steps: 220
+	reimport: step 0: Executing post-reimport operations...
+reimport: end
+loading_editor_layout: begin: Loading editor steps: 5
+	loading_editor_layout: step 0: Loading editor layout...
+loading_editor_layout: end

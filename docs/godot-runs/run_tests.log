@@ -1,0 +1,62 @@
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
+   at: parse_string (core/io/json.cpp:582)
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 13 status, 7 pickups, 6 waves
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy probe_basic died
+[diagnostic] Enemy probe_exploder died
+[diagnostic] Enemy probe_boss died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
+   at: push_error (core/variant/variant_utility.cpp:1098)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy splitter died
+[diagnostic] splitter split into 2 x mite
+[diagnostic] Enemy mite died
+[diagnostic] Enemy mite died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+========================================
+GDScript tests: 640 total, 0 failed
+========================================
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2378)
+ERROR: 7 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:614)

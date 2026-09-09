@@ -63,7 +63,7 @@ script = ExtResource("6_status")
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 1.5
 target_desired_distance = 1.2
-path_height_tolerance = 0.6
+path_height_offset = 0.6
 
 [node name="ModifierReceiver" type="Node" parent="."]
 
