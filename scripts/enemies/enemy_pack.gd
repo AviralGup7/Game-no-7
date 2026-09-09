@@ -210,11 +210,16 @@ func apply_separation(delta: float) -> void:
 func _query_separation() -> Vector3:
 	if _host == null or not _host.is_inside_tree():
 		return Vector3.ZERO
-	var space := _host.get_world_3d()
-	if space == null:
+	var world := _host.get_world_3d()
+	if world == null:
 		return Vector3.ZERO
 	_sep_query.transform = Transform3D(Basis(), _host.global_position)
-	var results := space.intersect_shape(_sep_query, 8)
+	# intersect_shape lives on the physics direct-space state, not World3D.
+	# Headless tests have no physics space; guard so separation is skipped.
+	var space_state := world.direct_space_state
+	if space_state == null:
+		return Vector3.ZERO
+	var results: Array[Dictionary] = space_state.intersect_shape(_sep_query, 8)
 	var push := Vector3.ZERO
 	for r in results:
 		var body = r.get("collider")

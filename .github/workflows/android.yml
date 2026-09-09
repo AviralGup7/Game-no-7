@@ -107,8 +107,15 @@ jobs:
           awk '
             {
               line=$0; gsub(/[[:space:]]+/, " ", line);
-              if (line ~ /SCRIPT ERROR:|Parse Error:|Failed to load script|Identifier not found|not declared|Failed to compile depended/) {
+              if (line ~ /SCRIPT ERROR:|Parse Error:|Identifier not found|not declared|Failed to compile depended/) {
                 print "::error title=godot import::" line;
+                for (i=0;i<6;i++) {
+                  if ((getline nxt) > 0) {
+                    gsub(/[[:space:]]+/, " ", nxt);
+                    if (nxt ~ /res:\/\/.*\.gd/) print "::error title=godot import::" nxt;
+                    if (nxt ~ /^SCRIPT ERROR|^Parse Error|^ERROR/) break;
+                  } else break;
+                }
               }
             }
           ' godot-import.log
