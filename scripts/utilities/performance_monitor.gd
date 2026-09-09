@@ -158,6 +158,33 @@ func _apply_tier_to_engine() -> void:
 			# Respect the Android project ceiling instead of unlocking 90/120 Hz
 			# whenever quality rises. Desktop keeps its configured (default 0) cap.
 			Engine.max_fps = _configured_max_fps()
+	_apply_render_tier()
+
+
+## Shadows, glow, and sun energy promised by Settings.graphics_quality.
+func _apply_render_tier() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+	var shadow_on := _tier >= TIER_MEDIUM
+	var glow_on := _tier >= TIER_HIGH
+	var shadow_size := 1024 if _tier <= TIER_MEDIUM else 2048
+	RenderingServer.directional_shadow_atlas_set_size(shadow_size, true)
+	for n in tree.get_nodes_in_group("arena"):
+		if n is Node:
+			_tune_arena_lights(n as Node, shadow_on, glow_on)
+
+
+func _tune_arena_lights(arena: Node, shadow_on: bool, glow_on: bool) -> void:
+	var sun := arena.get_node_or_null("Lighting/Sun") as DirectionalLight3D
+	if sun != null:
+		sun.shadow_enabled = shadow_on
+		sun.light_energy = 0.85 if _tier == TIER_LOW else 1.15
+	var wenv := arena.get_node_or_null("Environment") as WorldEnvironment
+	if wenv != null and wenv.environment != null:
+		wenv.environment.glow_enabled = glow_on
+		if _tier == TIER_LOW:
+			wenv.environment.fog_density = minf(wenv.environment.fog_density, 0.008)
 
 
 func _configured_max_fps() -> int:
@@ -189,6 +216,20 @@ func max_damage_numbers() -> int:
 			return 32
 		TIER_MEDIUM:
 			return 20
+		_:
+			return 10
+
+
+## Live-enemy budget used by WaveManager so high waves cannot spawn unbounded
+## crowds on a LOW/MEDIUM phone. Independent of authored wave caps (takes min).
+func max_simultaneous_enemies() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 28
+		TIER_HIGH:
+			return 22
+		TIER_MEDIUM:
+			return 16
 		_:
 			return 10
 

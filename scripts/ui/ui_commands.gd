@@ -40,12 +40,13 @@ static func action(method: StringName, args: Array = []) -> bool:
 		return false
 	match method:
 		&"request_attack":
-			player.request_attack()
-			return true
+			return player.request_attack()
 		&"request_dodge":
 			return player.request_dodge()
 		&"request_weapon_switch":
 			return player.request_weapon_switch()
+		&"request_lock_on":
+			return player.request_lock_on()
 		&"request_skill":
 			# A non-numeric arg would raise inside int() and abort the dispatch;
 			# an out-of-range slot is simply declined by the controller.

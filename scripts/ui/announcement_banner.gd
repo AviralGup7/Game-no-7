@@ -29,15 +29,16 @@ func _ready() -> void:
 	# every resize, so it can never land on top of the announcement text.
 	_coach = UiFactory.label("", self, 20)
 	_coach.set_anchors_preset(PRESET_BOTTOM_WIDE)
-	_coach.offset_top = -46
-	_coach.offset_bottom = 0
+	_coach.offset_top = 4
+	_coach.offset_bottom = 40
+	_coach.position.y = size.y + 4.0
 	_coach.modulate = UiTheme.CYAN
 	_coach.add_theme_color_override("font_outline_color", Color.BLACK)
 	_coach.add_theme_constant_override("outline_size", 6)
 	if EventBus != null and not EventBus.announcement.is_connected(_on_announcement):
 		EventBus.announcement.connect(_on_announcement)
-	EventBus.wave_completed.connect(func(wave: int, bonus: int) -> void:
-		announce("WAVE %d CLEARED / +%d SCORE" % [wave, bonus], &"victory"))
+	if EventBus != null and not EventBus.wave_completed.is_connected(_on_wave_cleared):
+		EventBus.wave_completed.connect(_on_wave_cleared)
 
 
 func set_reduced_motion(reduced: bool) -> void:
@@ -59,6 +60,10 @@ func announce(text: String, severity: StringName = &"info") -> void:
 
 func _on_announcement(_key: StringName, text: String, severity: StringName) -> void:
 	announce(text, severity)
+
+
+func _on_wave_cleared(wave: int, bonus: int) -> void:
+	announce("WAVE %d CLEARED / +%d SCORE" % [wave, bonus], &"victory")
 
 
 func _process(delta: float) -> void:
@@ -109,7 +114,11 @@ func pending_count() -> int:
 
 
 func set_coach(message: String) -> void:
-	if _coach != null: _coach.text = message
+	if _coach == null:
+		return
+	_coach.text = message
+	_coach.scale = Vector2.ONE
+	_coach.position.y = size.y + 4.0
 
 func clear_pending() -> void:
 	_queue.clear()

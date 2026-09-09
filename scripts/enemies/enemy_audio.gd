@@ -20,12 +20,11 @@ func _am() -> Node:
 ## Gains match the catalogue's suggested mix (-8 dB SFX bed, spawns softer since
 ## they arrive in bursts). Slight per-play pitch variance keeps packs of enemies
 ## from sounding like one machine-gunned sample. (Global RNG is auto-seeded.)
-func _play(cue_id: StringName, volume_db: float = -8.0, pitch_lo: float = 0.95, pitch_hi: float = 1.05) -> void:
-	# /root/AudioManager is the AudioManager autoload by construction (the
-	# documented autoload-optional seam); no has_method probe is needed.
+func _play(cue_id: StringName, volume_db: float = -8.0, pitch_lo: float = 0.95, pitch_hi: float = 1.05) -> bool:
 	var manager := _am()
-	if manager != null:
-		manager.play_sfx(cue_id, volume_db, randf_range(pitch_lo, pitch_hi))
+	if manager == null:
+		return false
+	return bool(manager.play_sfx(cue_id, volume_db, randf_range(pitch_lo, pitch_hi)))
 
 
 func play_hit() -> void:
@@ -46,7 +45,13 @@ func play_spawn() -> void:
 
 ## Optional polish cues (procedural/drop-in; missing = no-op).
 func play_windup() -> void:
-	_play(&"enemy_windup", -10.0, 0.97, 1.03)
+	if not _play(&"enemy_windup", -10.0, 0.97, 1.03):
+		return
+	var manager := _am()
+	if manager != null:
+		var host := get_parent()
+		var boss_tell := host != null and host.get_node_or_null("BossController") != null
+		AudioManager.duck_music(1.1 if boss_tell else 0.22, 5.0)
 
 
 func play_dash() -> void:

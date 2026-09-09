@@ -70,6 +70,8 @@ func execute(cfg: SkillConfig, enemies: Array) -> void:
 ## Advance whirl follow-ups + the active dash. Called every physics step even when
 ## input is disabled so in-flight skills always resolve.
 func tick(delta: float, enemies: Array) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_tick_pending_hits(delta, enemies)
 	_tick_dash(delta, enemies)
 
@@ -250,6 +252,9 @@ func _tick_pending_hits(delta: float, enemies: Array) -> void:
 		if float(entry["timer"]) > 0.0:
 			continue
 		var cfg: SkillConfig = entry["config"]
+		if cfg == null:
+			_pending_hits.erase(entry)
+			continue
 		var hits := AreaDamage.apply_radial(enemies, origin, _radius(cfg), float(entry["per_hit"]), _owner_body, cfg.skill_id, cfg.knockback * 0.4, true, AreaDamage.FALLOFF_NONE, [], cfg.damage_type)
 		_apply_victim_effects(cfg, hits)
 		entry["hits_left"] = int(entry["hits_left"]) - 1

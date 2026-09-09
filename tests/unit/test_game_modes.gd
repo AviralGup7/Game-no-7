@@ -143,6 +143,13 @@ static func suite() -> Array:
 			and not Narrator.mode_intro(GameMode.MODE_BOSS_RUSH).is_empty(),
 		"why": "",
 	})
+	results.append({
+		"name": "Narrator enemy blurbs cover the headline archetypes",
+		"passed": not Narrator.enemy_blurb(&"warlord").is_empty()
+			and not Narrator.enemy_blurb(&"exploder").is_empty()
+			and not Narrator.enemy_blurb(&"dasher").is_empty(),
+		"why": Narrator.enemy_blurb(&"warlord"),
+	})
 
 	# --- Prestige ---
 	results.append({

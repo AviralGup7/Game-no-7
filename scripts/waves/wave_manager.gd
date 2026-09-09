@@ -40,6 +40,7 @@ var _forced_mutators: Array[StringName] = []
 var _director := DifficultyDirector.new()
 var _director_wired := false
 var _wired_health: HealthComponent = null
+var _bus := EventBindings.new()
 
 
 func _ready() -> void:
@@ -47,7 +48,7 @@ func _ready() -> void:
 	_transition_timer.one_shot = true
 	_transition_timer.timeout.connect(_on_transition_done)
 	add_child(_transition_timer)
-	EventBus.game_state_changed.connect(_on_game_state_changed)
+	_bus.bind(EventBus.game_state_changed, _on_game_state_changed)
 
 
 func setup(spawn_manager: SpawnManager) -> void:
@@ -174,7 +175,11 @@ func _launch_wave(wave_number: int) -> void:
 	_last_delay = cfg.transition_delay
 	_resolve_mutators(wave_number, cfg)
 	_push_scaling_to_spawner(wave_number, cfg)
-	_spawn.queue_wave(queue, wave_number, cfg.spawn_interval, cfg.maximum_simultaneous_enemies)
+	var live_cap := cfg.maximum_simultaneous_enemies
+	var monitors := get_tree().get_nodes_in_group("performance_monitor") if get_tree() != null else []
+	if not monitors.is_empty() and monitors[0] is PerformanceMonitor:
+		live_cap = mini(live_cap, (monitors[0] as PerformanceMonitor).max_simultaneous_enemies())
+	_spawn.queue_wave(queue, wave_number, cfg.spawn_interval, live_cap)
 	GameRoot.record_current_wave(wave_number)
 	EventBus.wave_started.emit(wave_number, _planned_count)
 	EventBus.report_info("Wave %d started (%d planned)%s" % [wave_number, _planned_count,
@@ -367,8 +372,7 @@ func _wire_director() -> void:
 		return
 	_director_wired = true
 	_director.reset(_player_max_hp())
-	if not EventBus.enemy_killed.is_connected(_on_director_kill):
-		EventBus.enemy_killed.connect(_on_director_kill)
+	_bus.bind(EventBus.enemy_killed, _on_director_kill)
 	_rebind_player_damage()
 
 
@@ -399,6 +403,8 @@ func _on_player_damaged(result: DamageResult) -> void:
 func _exit_tree() -> void:
 	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.damaged.is_connected(_on_player_damaged):
 		_wired_health.damaged.disconnect(_on_player_damaged)
+	_wired_health = null
+	_bus.unbind_all()
 
 
 func _player_max_hp() -> float:

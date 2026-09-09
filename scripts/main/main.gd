@@ -20,6 +20,7 @@ var _music: MusicManager = null
 var _achievements: Achievements = null
 var _meta: MetaProgression = null
 var _tutorial: TutorialManager = null
+var _soak: RuntimeSoak = null
 
 
 func _ready() -> void:
@@ -53,6 +54,9 @@ func _create_persistent_directors() -> void:
 	# before Main, so the banner already exists).
 	if _ui_root != null:
 		_tutorial.bind_banner(_ui_root.get_announcement_banner())
+	_soak = RuntimeSoak.new()
+	_soak.name = "RuntimeSoak"
+	add_child(_soak)
 
 
 func _on_state_changed(_previous: StringName, current: StringName) -> void:
@@ -135,10 +139,7 @@ func build_world(arena_id: StringName) -> void:
 
 
 func _spawn_player(arena: Arena) -> Player:
-	var start_marker := arena.get_node_or_null("PlayerStart") as Marker3D
-	var spawn := Transform3D.IDENTITY
-	if start_marker != null:
-		spawn = start_marker.global_transform
+	var spawn := arena.get_safe_player_spawn() if arena != null else Transform3D.IDENTITY
 	if PLAYER_SCENE == null:
 		EventBus.report_error("Player scene failed to load: scenes/player/player.tscn (the player will not appear)")
 		return null

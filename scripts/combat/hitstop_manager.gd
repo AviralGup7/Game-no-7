@@ -40,7 +40,7 @@ func set_reduced_motion(reduced: bool) -> void:
 
 ## Add trauma in [0,1] (clamped). CameraRig queries get_shake_offset().
 func add_trauma(amount: float) -> void:
-	if _reduced_motion or amount <= 0.0:
+	if _reduced_motion or not is_finite(amount) or amount <= 0.0:
 		return
 	var before := _trauma
 	_trauma = clampf(_trauma + amount, 0.0, MAX_TRAUMA)
@@ -67,6 +67,8 @@ func request_slowmo(duration: float, scale: float = 0.35) -> void:
 
 
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	var real := delta / maxf(Engine.time_scale, 0.001)
 	_trauma = maxf(_trauma - TRAUMA_DECAY_PER_SECOND * real, 0.0)
 	_noise_time += real

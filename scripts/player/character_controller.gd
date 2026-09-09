@@ -160,7 +160,15 @@ func _apply_velocity(vel: Vector3) -> void:
 	if not _is_finite_v3(vel):
 		vel = Vector3.ZERO
 	_owner_body.velocity = vel
+	var before := _owner_body.global_position
 	_owner_body.move_and_slide()
+	# Overlapping a wall/landmark can depenetrate by tens of metres (or NaN).
+	# Keep the hero in the same cell instead of launching them into the skybox.
+	var after_pos := _owner_body.global_position
+	if not _is_finite_v3(after_pos) or ( _is_finite_v3(before) and before.distance_squared_to(after_pos) > 36.0 ):
+		_report_non_finite("move_and_slide jump")
+		_owner_body.global_position = before
+		_owner_body.velocity = Vector3.ZERO
 	# move_and_slide() can hand back non-finite velocity when a floor/slope query
 	# degenerates, and a bad collider can push NaN into the transform. Repair, never
 	# propagate: recovering per axis keeps the hero where they were instead of

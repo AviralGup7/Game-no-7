@@ -57,7 +57,10 @@ func _ready() -> void:
 ## Configure + launch. Safe to call on a pooled (already in tree) instance.
 func launch(config: Dictionary) -> void:
 	team = config.get("team", TEAM_PLAYER)
-	direction = (config.get("direction", Vector3.FORWARD) as Vector3).normalized()
+	var raw_dir: Vector3 = config.get("direction", Vector3.FORWARD) as Vector3
+	if raw_dir.length_squared() < 0.0001 or not is_finite(raw_dir.x) or not is_finite(raw_dir.y) or not is_finite(raw_dir.z):
+		raw_dir = Vector3.FORWARD
+	direction = raw_dir.normalized()
 	speed = maxf(float(config.get("speed", 18.0)), 0.1)
 	gravity_arc = maxf(float(config.get("gravity", 0.0)), 0.0)
 	damage = maxf(float(config.get("damage", 10.0)), 0.0)
@@ -103,8 +106,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _face_travel() -> void:
-	if _visual != null and direction.length_squared() > 0.0001:
-		_visual.look_at(_visual.global_position + direction, Vector3.UP)
+	if _visual == null or direction.length_squared() <= 0.0001:
+		return
+	var up := Vector3.UP
+	if absf(direction.normalized().dot(up)) > 0.99:
+		up = Vector3.FORWARD
+	_visual.look_at(_visual.global_position + direction, up)
 
 
 func _apply_team_tint() -> void:

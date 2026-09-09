@@ -120,7 +120,7 @@ func _player() -> Player:
 
 
 func _on_enemy_killed(enemy: Node, archetype_id: StringName, _score: int, _currency: int) -> void:
-	var run := GameRoot.get_run()
+	var run := GameRoot.get_run() if GameRoot != null else null
 	var wave := maxi(run.current_wave, 1) if run != null else 1
 	var is_elite := enemy is EnemyBase and (enemy as EnemyBase).is_elite()
 	var is_boss := enemy != null and enemy.is_in_group("boss")
@@ -164,23 +164,28 @@ func _on_collected(pickup: Pickup, collector: Node) -> void:
 
 
 func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
-	AudioManager.play_sfx(&"pickup", -8.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"pickup", -8.0)
 	var amount := cfg.scaled_amount(level)
 	var player := collector as Player
 	match cfg.effect:
 		PickupConfig.EFFECT_HEAL:
 			if player != null:
-				player.get_health_component().heal(amount)
+				var hp := player.get_health_component()
+				if hp != null:
+					hp.heal(amount)
 		PickupConfig.EFFECT_CURRENCY:
-			var run_c := GameRoot.get_run()
+			var run_c := GameRoot.get_run() if GameRoot != null else null
 			if run_c != null:
 				run_c.add_currency(int(round(amount)))
-				EventBus.currency_changed.emit(run_c.currency, int(round(amount)))
+				if EventBus != null:
+					EventBus.currency_changed.emit(run_c.currency, int(round(amount)))
 		PickupConfig.EFFECT_SCORE:
-			var run_s := GameRoot.get_run()
+			var run_s := GameRoot.get_run() if GameRoot != null else null
 			if run_s != null:
 				run_s.add_score(int(round(amount)))
-				EventBus.score_changed.emit(run_s.score, int(round(amount)))
+				if EventBus != null:
+					EventBus.score_changed.emit(run_s.score, int(round(amount)))
 		PickupConfig.EFFECT_STAMINA:
 			if player != null:
 				player.restore_stamina(amount)
@@ -191,12 +196,16 @@ func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
 			if player != null:
 				var shield_cfg: StatusEffectConfig = ContentRegistry.get_status_effect(&"guard")
 				if shield_cfg != null:
-					player.get_status_manager().apply_effect(shield_cfg, 1, player)
+					var sm := player.get_status_manager()
+					if sm != null:
+						sm.apply_effect(shield_cfg, 1, player)
 		PickupConfig.EFFECT_MAGNET:
 			magnet_burst()
 		PickupConfig.EFFECT_CLEANSE:
 			if player != null:
-				player.get_status_manager().cleanse_all(true)
+				var sm := player.get_status_manager()
+				if sm != null:
+					sm.cleanse_all(true)
 
 
 func _on_release_requested(p: Pickup) -> void:

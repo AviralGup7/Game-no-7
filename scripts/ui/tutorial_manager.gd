@@ -1,11 +1,9 @@
 class_name TutorialManager
 extends Node
 
-## First-run coach: ordered hint steps (move -> attack -> dodge -> skill ->
-## upgrade -> survive) that complete off real game events. Steps show through
-## an AnnouncementBanner-compatible callback; progress persists in the save so
-## veterans never see it twice. Each step has an event trigger + a timeout
-## fallback so the tutorial can never soft-lock the game.
+## First-run coach: four steps in ~30s (move -> attack -> dodge -> winded).
+## Completes off real game events. Timeout fallback per step so it never
+## soft-locks. Only practiced completions persist the save flag.
 
 signal tutorial_step_shown(step_id: StringName, text: String)
 signal tutorial_finished()
@@ -13,11 +11,12 @@ signal tutorial_finished()
 const STEP_MOVE := &"move"
 const STEP_ATTACK := &"attack"
 const STEP_DODGE := &"dodge"
+const STEP_WINDED := &"winded"
 const STEP_SKILL := &"skill"
 const STEP_UPGRADE := &"upgrade"
 const STEP_SURVIVE := &"survive"
-const STEP_ORDER := [STEP_MOVE, STEP_ATTACK, STEP_DODGE, STEP_SKILL, STEP_UPGRADE, STEP_SURVIVE]
-const STEP_TIMEOUT := 25.0
+const STEP_ORDER := [STEP_MOVE, STEP_ATTACK, STEP_DODGE, STEP_WINDED]
+const STEP_TIMEOUT := 7.5
 
 var _active := false
 var _step_index := 0
@@ -25,22 +24,28 @@ var _step_timer := 0.0
 var _completed: Dictionary = {}
 var _banner: AnnouncementBanner = null
 var _practiced_all := true
+var _bus := EventBindings.new()
+var _resume_guard := 0.0
+var _did_dodge := false
+var _bound_player: Node = null
 
 
 func _ready() -> void:
 	add_to_group("tutorial_manager")
 	if EventBus != null:
-		EventBus.run_started.connect(_on_run_started)
-		EventBus.run_ended.connect(func(_s: int, _w: int, _b: int) -> void: _stop())
-		EventBus.game_state_changed.connect(func(_p: StringName, current: StringName) -> void:
-			if current == &"main_menu": _stop())
+		_bus.bind(EventBus.run_started, _on_run_started)
+		_bus.bind(EventBus.run_ended, _on_run_ended)
+		_bus.bind(EventBus.game_state_changed, _on_game_state_changed)
+
+
+func _exit_tree() -> void:
+	_bus.unbind_all()
 
 
 func bind_banner(banner: AnnouncementBanner) -> void:
 	_banner = banner
 
 
-## Has the player ever finished the tutorial (persisted flag)?
 func is_tutorial_done() -> bool:
 	if SaveManager != null:
 		return SaveManager.is_tutorial_completed()
@@ -52,23 +57,40 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 		return
 	_active = true
 	_practiced_all = true
+	_did_dodge = false
 	_step_index = 0
 	_step_timer = 0.0
-	_wire_events()
 	_show_current()
+	_bind_player_signals()
 
 
-func _wire_events() -> void:
-	if EventBus == null:
+func _bind_player_signals() -> void:
+	var player := GameRoot.get_active_player() if GameRoot != null else null
+	if player == _bound_player:
 		return
-	_connect_once(EventBus.upgrade_selected, _on_upgrade_selected)
-	_connect_once(EventBus.skill_cast, _on_skill_cast)
-	_connect_once(EventBus.wave_completed, _on_wave_completed)
+	if _bound_player != null and is_instance_valid(_bound_player):
+		if _bound_player.has_signal("attack_started") and _bound_player.attack_started.is_connected(notify_player_attacked):
+			_bound_player.attack_started.disconnect(notify_player_attacked)
+		if _bound_player.has_signal("dodged") and _bound_player.dodged.is_connected(notify_player_dodged):
+			_bound_player.dodged.disconnect(notify_player_dodged)
+	_bound_player = player
+	if player == null:
+		return
+	if player.has_signal("attack_started"):
+		_connect_once(player.attack_started, notify_player_attacked)
+	if player.has_signal("dodged"):
+		_connect_once(player.dodged, notify_player_dodged)
 
 
-func _connect_once(sig: Signal, fn: Callable) -> void:
-	if not sig.is_connected(fn):
-		sig.connect(fn)
+func _on_run_ended(_s: int, _w: int, _b: int) -> void:
+	_stop()
+
+
+func _on_game_state_changed(previous: StringName, current: StringName) -> void:
+	if current == &"main_menu":
+		_stop()
+	if previous == &"paused" and current == &"playing":
+		_resume_guard = 0.35
 
 
 func _show_current() -> void:
@@ -90,6 +112,8 @@ static func step_text(step_id: StringName) -> String:
 			return "Tap ATTACK or %s. Face your target and chain hits." % UiCommands.binding(&"attack")
 		STEP_DODGE:
 			return "DODGE / %s avoids danger but costs stamina." % UiCommands.binding(&"dodge")
+		STEP_WINDED:
+			return "Stamina empties after dodges — wait for the bar to refill."
 		STEP_SKILL:
 			return "Tap a READY skill or %s. Level labels mean locked." % UiCommands.binding(&"skill_1")
 		STEP_UPGRADE:
@@ -106,11 +130,16 @@ func _process(delta: float) -> void:
 		return
 	if GameRoot.get_current_state() not in [&"playing", &"wave_transition"]:
 		return
+	if _resume_guard > 0.0:
+		_resume_guard = maxf(_resume_guard - delta, 0.0)
+		return
 	_step_timer += delta
 	_poll_player_triggers()
 	if _step_timer >= STEP_TIMEOUT:
+		if _current_step() == STEP_WINDED and not _did_dodge and _step_timer < STEP_TIMEOUT * 2.0:
+			return
 		_practiced_all = false
-		_complete_current()  # never trap the player; do not mark unpracticed tutorial done
+		_complete_current()
 
 
 func _poll_player_triggers() -> void:
@@ -119,14 +148,28 @@ func _poll_player_triggers() -> void:
 		return
 	match _current_step():
 		STEP_MOVE:
-			if player is CharacterBody3D and (player as CharacterBody3D).velocity.length() > 1.0:
+			if _resume_guard > 0.0:
+				return
+			var intent := 0.0
+			if player is Player:
+				intent = float((player as Player).get_move_intent())
+			var axes := Vector2(Input.get_axis("move_left", "move_right"), Input.get_axis("move_up", "move_down"))
+			var analog := axes.length() > 0.42
+			var keys := axes.length() > 0.18 and axes.length() <= 0.42
+			if analog or keys or intent > 0.4:
 				_complete_current()
 		STEP_ATTACK:
-			if player.has_signal("attack_started"):
-				_connect_once(player.attack_started, notify_player_attacked)
+			_bind_player_signals()
 		STEP_DODGE:
-			if player.has_signal("dodged"):
-				_connect_once(player.dodged, notify_player_dodged)
+			_bind_player_signals()
+		STEP_WINDED:
+			# Dodge-empty only — walking drain must not skip the lesson.
+			pass
+
+
+func _connect_once(sig: Signal, fn: Callable) -> void:
+	if not sig.is_connected(fn):
+		sig.connect(fn)
 
 
 func _current_step() -> StringName:
@@ -135,30 +178,22 @@ func _current_step() -> StringName:
 	return &""
 
 
-## Called by player-signal glue (attack_started / dodged) — wire from Main.
 func notify_player_attacked() -> void:
 	if _active and _current_step() == STEP_ATTACK:
 		_complete_current()
 
 
+
 func notify_player_dodged() -> void:
-	if _active and _current_step() == STEP_DODGE:
+	if not _active:
+		return
+	_did_dodge = true
+	if _current_step() == STEP_DODGE:
 		_complete_current()
-
-
-func _on_skill_cast(_skill_id: StringName, _caster: Node) -> void:
-	if _active and _current_step() == STEP_SKILL:
-		_complete_current()
-
-
-func _on_upgrade_selected(_upgrade_id: StringName) -> void:
-	if _active and _current_step() == STEP_UPGRADE:
-		_complete_current()
-
-
-func _on_wave_completed(wave_number: int, _bonus: int) -> void:
-	if _active and _current_step() == STEP_SURVIVE and wave_number >= 2:
-		_complete_current()
+	elif _current_step() == STEP_WINDED:
+		var p := GameRoot.get_active_player() as Player
+		if p != null and p.get_stamina_fraction() <= 0.12:
+			_complete_current()
 
 
 func _complete_current() -> void:
@@ -172,7 +207,8 @@ func _complete_current() -> void:
 
 func _finish() -> void:
 	_active = false
-	if _banner != null: _banner.set_coach("")
+	if _banner != null:
+		_banner.set_coach("")
 	_completed[&"finished"] = _practiced_all
 	if _practiced_all and SaveManager != null:
 		SaveManager.set_tutorial_completed(true)
@@ -195,10 +231,19 @@ func current_step() -> StringName:
 
 func _stop() -> void:
 	_active = false
-	if _banner != null: _banner.set_coach("")
+	if _banner != null:
+		_banner.set_coach("")
 
 
 func replay_next_run() -> void:
 	_stop()
+	if _bound_player != null and is_instance_valid(_bound_player):
+		if _bound_player.has_signal("attack_started") and _bound_player.attack_started.is_connected(notify_player_attacked):
+			_bound_player.attack_started.disconnect(notify_player_attacked)
+		if _bound_player.has_signal("dodged") and _bound_player.dodged.is_connected(notify_player_dodged):
+			_bound_player.dodged.disconnect(notify_player_dodged)
+	_bound_player = null
+	_did_dodge = false
 	_completed.clear()
 	SaveManager.set_tutorial_completed(false)
+

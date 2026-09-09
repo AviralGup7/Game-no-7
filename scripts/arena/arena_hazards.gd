@@ -271,6 +271,8 @@ func _hazard_emission(h: Dictionary) -> StandardMaterial3D:
 
 
 func _apply_burn(victims: Array, center: Vector3) -> void:
+	if ContentRegistry == null:
+		return
 	var burn: StatusEffectConfig = ContentRegistry.get_status_effect(&"burn")
 	if burn == null:
 		return

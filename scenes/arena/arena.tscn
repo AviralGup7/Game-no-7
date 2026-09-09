@@ -438,7 +438,7 @@ groups=["enemy_spawn_point"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
 
 [node name="PlayerStart" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.5)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.2, 4.5)
 
 [node name="PickupSpawnPoints" type="Node3D" parent="."]
 

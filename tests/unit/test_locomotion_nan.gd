@@ -217,6 +217,17 @@ static func _camera_math(results: Array) -> void:
 	_check(results, "yaw from a zero direction is defined",
 		is_finite(CameraMath.yaw_from_direction(Vector3.ZERO)))
 	_check(results, "infinite distance is rejected, not laundered",
-		not _finite3(CameraMath.spherical_offset(0.0, 0.0, INF)))
+		CameraMath.spherical_offset(0.0, 0.0, INF) == Vector3.ZERO)
 	_check(results, "finite distance stays finite",
 		_finite3(CameraMath.spherical_offset(0.0, 0.0, 4.0)))
+	var focus := Vector3(0.0, 1.5, 4.5)
+	var outside := Vector3(0.0, 4.0, 18.0)
+	var fitted := CameraMath.shorten_arm_to_box(focus, outside, 10.65)
+	_check(results, "boom shortens instead of leaving the arena",
+		absf(fitted.z) <= 10.65 + 0.001 and _finite3(fitted),
+		"got %s" % str(fitted))
+	var inside := Vector3(1.0, 3.0, 2.0)
+	_check(results, "boom inside the box is unchanged",
+		CameraMath.shorten_arm_to_box(focus, inside, 10.65).is_equal_approx(inside))
+	_check(results, "poisoned boom falls back to a finite lift",
+		_finite3(CameraMath.shorten_arm_to_box(Vector3(NAN, 0.0, 0.0), outside, 10.0)))

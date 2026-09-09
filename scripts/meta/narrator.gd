@@ -1,6 +1,8 @@
 class_name Narrator
 extends RefCounted
 
+static var _seen_archetypes := {}
+
 ## Minimal narrative layer: short arena lore lines, wave beats, and mode intros
 ## delivered through EventBus.announcement. Pure static lookups — no tree access.
 ## Campaign mode gets a fuller beat sheet; other modes get light flavour.
@@ -121,6 +123,26 @@ static func announce_run_start(mode_id: StringName, arena_id: StringName) -> voi
 	if line.is_empty():
 		line = arena_intro(arena_id)
 	EventBus.announcement.emit(&"narrator", line, &"info")
+
+
+static func reset_run() -> void:
+	_seen_archetypes.clear()
+
+
+static func note_enemy_spawned(archetype_id: StringName) -> void:
+	if _seen_archetypes.has(archetype_id):
+		return
+	_seen_archetypes[archetype_id] = true
+	announce_first_of_kind(archetype_id)
+
+
+static func announce_first_of_kind(archetype_id: StringName) -> void:
+	if EventBus == null:
+		return
+	var line := enemy_blurb(archetype_id)
+	if line.is_empty():
+		return
+	EventBus.announcement.emit(&"narrator", line, &"warning")
 
 
 static func announce_victory(mode_id: StringName) -> void:

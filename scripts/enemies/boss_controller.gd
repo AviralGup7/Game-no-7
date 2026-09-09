@@ -23,6 +23,7 @@ const BOSS_GROUP := "boss"
 const TELEGRAPH_SLAM := &"slam"
 const TELEGRAPH_CHARGE := &"charge"
 const TELEGRAPH_SUMMON := &"summon"
+const TELEGRAPH_SHOCKWAVE := &"shockwave"
 const TELEGRAPH_RECOVER := &"recover"
 
 const SLAM_RADIUS := 3.5
@@ -96,7 +97,7 @@ func _default_phases() -> Array:
 	return [
 		{"threshold": 1.0, "name": "Awakening", "damage_mult": 1.0, "speed_mult": 1.0, "abilities": [&"slam"], "interval": 0.0},
 		{"threshold": 0.66, "name": "Fury", "damage_mult": 1.25, "speed_mult": 1.1, "abilities": [&"slam", &"summon"], "interval": 0.0},
-		{"threshold": 0.33, "name": "Enrage", "damage_mult": 1.5, "speed_mult": 1.25, "abilities": [&"slam", &"summon", &"charge"], "interval": 0.0},
+		{"threshold": 0.33, "name": "Enrage", "damage_mult": 1.5, "speed_mult": 1.25, "abilities": [&"slam", &"summon", &"charge", &"shockwave"], "interval": 0.0},
 	]
 
 
@@ -147,7 +148,8 @@ func begin_fight(run_seed: int = 0) -> void:
 	if bus != null:
 		bus.boss_spawned.emit(_host, _host.get_archetype_id())
 		bus.announcement.emit(&"boss_spawned", "%s has entered the arena!" % _display_name(), &"danger")
-	AudioManager.play_sfx(&"boss_spawned", -6.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_spawned", -6.0)
 
 
 func _display_name() -> String:
@@ -158,6 +160,8 @@ func _display_name() -> String:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if _host == null or not _host.is_alive():
 		return
 	if not _announced_intro:
@@ -220,7 +224,8 @@ func _advance_to(index: int) -> void:
 	if bus != null:
 		bus.boss_phase_changed.emit(_host, _phase, _phases.size())
 		bus.announcement.emit(&"boss_phase", "%s: %s!" % [_display_name(), phase_name()], &"warning")
-	AudioManager.play_sfx(&"boss_phase_changed", -7.0, 1.0 + 0.08 * _phase)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_phase_changed", -7.0, 1.0 + 0.08 * _phase)
 	# A short pause before the phase's first ability so the change is felt.
 	_ability_cooldown = 0.8
 
@@ -280,6 +285,8 @@ func _trigger_ability() -> void:
 			_begin_telegraph(TELEGRAPH_CHARGE, CHARGE_TELEGRAPH, aim)
 		"summon":
 			_begin_telegraph(TELEGRAPH_SUMMON, SUMMON_TELEGRAPH, _host.global_position)
+		"shockwave":
+			_begin_telegraph(TELEGRAPH_SHOCKWAVE, 1.1, _host.global_position)
 		_:
 			_begin_telegraph(TELEGRAPH_SLAM, SLAM_TELEGRAPH, aim)
 
@@ -320,6 +327,9 @@ func _resolve_telegraph() -> void:
 		TELEGRAPH_SUMMON:
 			_resolve_summon()
 			_begin_recovery(SUMMON_RECOVERY)
+		TELEGRAPH_SHOCKWAVE:
+			_resolve_shockwave()
+			_begin_recovery(SLAM_RECOVERY)
 	_telegraph_kind = &""
 
 
@@ -359,6 +369,14 @@ func _resolve_summon() -> void:
 	summon_requested.emit(&"basic", 2 if not _enraged else 3)
 
 
+func _resolve_shockwave() -> void:
+	var dmg := _host.get_effective_attack_damage() * 1.35
+	var victims: Array = []
+	if _host.get_move_target() != null:
+		victims = [_host.get_move_target()]
+	AreaDamage.apply_radial(victims, _host.global_position, SLAM_RADIUS * 1.8, dmg, _host, _host.get_archetype_id(), 12.0, true, AreaDamage.FALLOFF_LINEAR)
+
+
 func _exit_tree() -> void:
 	# Prevent stale boss health_changed/died connections after despawn/reuse.
 	if _health != null and _health.has_signal("health_changed") and _health.health_changed.is_connected(_on_health_changed):
@@ -377,7 +395,8 @@ func _on_boss_died() -> void:
 	if bus != null:
 		bus.boss_slain.emit(_host.get_archetype_id() if _host != null else &"boss")
 		bus.announcement.emit(&"boss_slain", "%s defeated!" % _display_name(), &"victory")
-	AudioManager.play_sfx(&"boss_slain", -6.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_slain", -6.0)
 
 
 func get_debug_snapshot() -> Dictionary:

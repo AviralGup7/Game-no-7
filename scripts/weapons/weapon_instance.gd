@@ -78,6 +78,8 @@ func try_start_attack() -> int:
 ## Advance timers. Returns true on the exact tick the windup finishes (the hit
 ## must be resolved by the caller NOW via resolve damage helpers).
 func tick(delta: float) -> bool:
+	if not is_finite(delta) or delta <= 0.0:
+		return false
 	var resolved := false
 	if _reload_left > 0.0:
 		_reload_left -= delta

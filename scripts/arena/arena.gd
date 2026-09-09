@@ -263,6 +263,8 @@ func _tint_geometry(root_path: String, floor_tint: Color, wall_tint: Color) -> v
 			tint = wall_tint
 		else:
 			continue
+		if mi.mesh == null:
+			continue
 		var base := mi.mesh.material as StandardMaterial3D
 		var dup: StandardMaterial3D = (base.duplicate(true) if base != null else StandardMaterial3D.new())
 		dup.albedo_color = tint
@@ -504,6 +506,42 @@ func get_min_spawn_distance() -> float:
 
 func get_player_start() -> Node3D:
 	return get_node_or_null("PlayerStart") as Node3D
+
+
+## Spawn pose that is on the floor, inside the playable box, and outside the
+## central landmark. The authored marker can sit too close to the south wall
+## (camera then starts in the HDRI "mountain" sky) or overlap the forge/obelisk.
+func get_safe_player_spawn() -> Transform3D:
+	var marker := get_player_start()
+	var xf := Transform3D.IDENTITY
+	if marker != null:
+		xf = marker.global_transform
+	xf.origin = unstuck_origin(xf.origin)
+	if not xf.basis.is_conformal() or xf.basis.determinant() == 0.0:
+		xf.basis = Basis.IDENTITY
+	return xf
+
+
+func unstuck_origin(p: Vector3) -> Vector3:
+	var half := maxf(interior_half - 2.25, 3.0)
+	if not is_finite(p.x):
+		p.x = 0.0
+	if not is_finite(p.y):
+		p.y = 0.2
+	if not is_finite(p.z):
+		p.z = 4.5
+	p.x = clampf(p.x, -half, half)
+	p.z = clampf(p.z, -half, half)
+	p.y = maxf(p.y, 0.15)
+	var need := maxf(_landmark_half.x, _landmark_half.z) + 1.35
+	var flat := Vector2(p.x, p.z)
+	if need > 0.1 and flat.length() < need:
+		var dir := flat.normalized() if flat.length() > 0.05 else Vector2(0.0, 1.0)
+		p.x = dir.x * need
+		p.z = dir.y * need
+		p.x = clampf(p.x, -half, half)
+		p.z = clampf(p.z, -half, half)
+	return p
 
 
 func get_spawn_points() -> Array[Node3D]:
