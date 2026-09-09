@@ -59,6 +59,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_hero_rig.gd",
 	"res://tests/unit/test_arena_obstacles_node.gd",
+	"res://tests/unit/test_decorator_collision.gd",
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
 ]
 

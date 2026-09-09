@@ -23,11 +23,19 @@ func _ready() -> void:
 		button.opacity = 0.96
 		button.vibrate_on_press = entry[0] == "attack"
 		var method: StringName = entry[1]
-		button.pressed.connect(func() -> void:
-			if not UiCommands.action(method):
-				action_declined.emit("Unavailable — check stamina, cooldown or equipped slots."))
+		button.pressed.connect(_on_button_pressed.bind(method))
 		add_child(button)
 		_buttons.append(button)
+
+
+## Single guarded entry point for every touch action button (attack / dodge / swap).
+## A declined command is normal gameplay (stamina, cooldown, holstered slot) and
+## surfaces as a toast; an unexpected failure is reported through EventBus so a
+## device-side problem is visible in the log instead of looking like a dead button.
+func _on_button_pressed(command: StringName) -> void:
+	if UiCommands.action(command):
+		return
+	action_declined.emit("Unavailable — check stamina, cooldown or equipped slots.")
 	resized.connect(_layout)
 	visibility_changed.connect(_on_visibility_changed)
 	_layout.call_deferred()

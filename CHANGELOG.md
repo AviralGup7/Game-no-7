@@ -1,5 +1,69 @@
 # Changelog
 
+## [Unreleased] — Solid decoration + touch-button dispatch hardening (2026-09-09)
+
+Player-reported: *"character crossing through objects"* and *"crash on clicking the
+attack button or any other button"*.
+
+### Nothing walks through objects — decoration was the remaining hole
+
+`ArenaObstacles` and the central landmark were already solid and nav-registered, but
+the KayKit props the `ArenaDecorator` scatters — barrels, crates, boxes, rubble, the
+brazier/torch rings and the frost ice shards — were **visual-only `Node3D` + mesh
+holders**, so the hero and every enemy walked straight through them. The decorator's
+own structural pillars had collision but were **missing from the nav grid**, so AI
+intent routed through a pillar and the body leaned on it until the stuck-nudge freed
+it. Both now honour the invariant the README/`docs/ENEMY_AI_RESEARCH.md` §3.1 promise:
+
+- Every floor-standing prop gets a `StaticBody3D` named `PropCollision` on
+  `collision_layer 1` / `mask 0` — the world layer the player (mask 1) and every enemy
+  (mask 5) already collide with — sized from the mounted model's **own imported AABB**
+  (`_combined_local_aabb` walks the child transforms, so a GLB's internal node offsets
+  are included and no hardcoded box clips or floats), clamped to
+  `MIN_PROP_HALF`/`MAX_PROP_HALF_XZ`/`MAX_PROP_HALF_Y` so a corrupt import can never
+  produce a room-sized invisible wall.
+- Each footprint (expanded to the axis-aligned bounds of the yaw-rotated box) is
+  published through `Arena.register_decoration_blockers()` and merged into
+  `ArenaNavGrid.build()`, so AI routes around exactly what physics blocks. Structural
+  pillars are registered too.
+- Props now also keep `SPAWN_MARKER_CLEAR_RADIUS` from every **enemy spawn marker**
+  (previously only the player start and other props), so a new collider can never sit
+  on a spawn and shove a spawning enemy into a wall.
+- Wall-hung banners stay visual-only: flat cloth against the arena shell, not floor
+  obstacles.
+- New headless node suite `tests/unit/test_decorator_collision.gd` (registered in
+  `run_tests.gd`'s `NODE_SUITES`) instantiates the real arena + decorator and asserts
+  collider presence/layer/shape, one footprint per solid body, every footprint
+  blocked in the rebuilt nav grid, the player start still walkable, and no solid prop
+  on the hero start or a spawn marker.
+
+### Touch buttons: the command can no longer be swallowed
+
+`TouchActionButton._fire()` ran the settings lookup and `Input.vibrate_handheld()`
+**before** `pressed.emit()`. Any failure in that presentation-only step aborted
+`_fire()` and the gameplay intent never left the button — and the ATTACK button is the
+only one with `vibrate_on_press`, which is exactly why it was the one that stopped
+answering. The command is now emitted first, and haptics moved into a guarded
+`_vibrate()` (null settings check, `OS.has_feature("mobile")` gate) that cannot reach
+the input path.
+
+- `TouchControls` routes all three buttons through one named dispatcher
+  (`_on_button_pressed`, `pressed.connect(... .bind(method))`) instead of three
+  anonymous lambdas, so a declined/failed command has a single place to surface.
+- `UiCommands.action()` type-checks the skill-slot argument before `int()`, so a
+  non-numeric arg degrades to slot 0 instead of raising mid-dispatch.
+
+### Android haptics — documented, not silently dead
+
+`docs/ANDROID_PERMISSIONS.md` claimed Godot adds `VIBRATE` automatically. Verified
+against the 4.4.1 source, it does not: `platform/android/export/export_plugin.cpp`
+reads `permissions/vibrate` from the export preset (line 945), and this preset
+declares no `permissions/*` at all, so `Input.vibrate_handheld()` can never fire on
+Android (`Godot.kt` gates it behind `requestPermission("VIBRATE")`). The doc is
+corrected; enabling haptics on device is a deliberate product decision (it would add
+`permissions/vibrate=true` and change the "no permissions" posture guarded by
+`tests/python/test_android_permissions.py`), so it is left to the operator.
+
 ## [Unreleased] — Real Godot 4.4.1 verification + log hygiene (2026-09-09)
 
 The handoff's open items are closed against a **real Godot 4.4.1-stable

@@ -25,6 +25,10 @@ const ARENA_GROUP := &"arena"
 var _nav_grid: ArenaNavGrid = null
 var _obstacles: Array = []  # [{"pos","half_size","kind"}] — single source of truth
 var _landmark_half := Vector3.ZERO  # XZ half-extent of the landmark footprint (0 = none)
+## Footprints of the solid decoration props (ArenaDecorator publishes these after
+## decorate()). They block nav cells exactly like the hand-authored obstacles, so
+## AI routes around a barrel instead of pathing straight through it.
+var _decoration_blockers: Array = []
 var _flow_tick := 0.0
 
 
@@ -466,7 +470,19 @@ func _build_navigation_floor() -> void:
 		aabbs.append(ob)
 	if _landmark_half.x > 0.0 or _landmark_half.z > 0.0:
 		aabbs.append({"pos": Vector3.ZERO, "half_size": _landmark_half})
+	# Solid decoration props (barrels/crates/rubble/braziers) are obstacles too:
+	# physics blocks the bodies, this blocks the AI's intent through them.
+	for foot in _decoration_blockers:
+		aabbs.append(foot)
 	_nav_grid.build(interior_half, nav_cell_size, aabbs)
+
+
+## Register the solid decoration footprints and rebuild the shared nav grid so the AI
+## routes around what the new colliders block. Called by ArenaDecorator.decorate();
+## safe to call before any decoration exists (rebuilds with the current set).
+func register_decoration_blockers(blockers: Array) -> void:
+	_decoration_blockers = blockers.duplicate() if blockers != null else []
+	_rebuild_navigation_floor()
 
 
 ## Rebuild after a theme switch swaps the landmark (idempotent, cheap).
