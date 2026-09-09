@@ -290,7 +290,7 @@ func _discover() -> void:
 	var tree := get_tree()
 	var pn := tree.get_first_node_in_group(PLAYER_GROUP)
 	_player = pn if (pn is Node3D and is_instance_valid(pn)) else null
-	_boss_live = tree.has_any_node_in_group(BossController.BOSS_GROUP)
+	_boss_live = tree.has_node_in_group(BossController.BOSS_GROUP)
 
 	var fresh: Array = []
 	var fresh_xz: Dictionary = {}

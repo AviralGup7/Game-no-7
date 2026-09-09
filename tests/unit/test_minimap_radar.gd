@@ -128,7 +128,7 @@ static func suite() -> Array:
 		{"id": 3, "xz": Vector2(1.0, 1.0), "kind": &"pickup", "blink": 1.0},
 	]
 	var t1 := Minimap.advance_tracks({}, live1, 0.016, 1000)
-	var spawn_at_truth := t1.size() == 3 \
+	var spawn_at_truth: bool = t1.size() == 3 \
 		and (t1[1] as Dictionary)["pos"] == Vector2(2.0, 0.0) \
 		and (t1[1] as Dictionary)["born_ms"] == 1000 \
 		and (t1[3] as Dictionary)["kind"] == &"pickup" \
@@ -155,7 +155,7 @@ static func suite() -> Array:
 	# Entity 1 vanished: fades at 1/0.35 per second, holds last position.
 	var t3 := Minimap.advance_tracks(t2, live2, 0.175, 1275)
 	var a3 := float((t3[1] as Dictionary)["alpha"])
-	var hold := (t3[1] as Dictionary)["pos"] == p21
+	var hold: bool = (t3[1] as Dictionary)["pos"] == p21
 	results.append({
 		"name": "advance_tracks stale tracks fade (0.5 after half-fade) and hold position",
 		"passed": absf(a3 - 0.5) < 1.0e-3 and hold,

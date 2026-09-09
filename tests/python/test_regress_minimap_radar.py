@@ -95,7 +95,7 @@ class TestMinimapRadarShape(unittest.TestCase):
         self.assertIn("_nearest_threat_id", text)
         # Boss danger state (rim pulse + boss halo).
         self.assertIn("DANGER_PULSE_HZ := 1.4", text)
-        self.assertIn("has_any_node_in_group(BossController.BOSS_GROUP)", text)
+        self.assertIn("has_node_in_group(BossController.BOSS_GROUP)", text)
         # Facing cone uses Godot's -Z forward (v1 convention, not +X).
         self.assertIn("Vector2(-f.x, -f.z)", text)
         # Pickup expiry blink driven by real lifetime data.
