@@ -175,8 +175,8 @@ static func _check_archetype(id: StringName) -> Array:
 		g["mesh"][0], g["mesh"][1], g["mesh"][2]))
 
 	var mat: StandardMaterial3D = null
-	if body != null and body.get_surface_material_override_count() > 0:
-		mat = body.get_surface_material_override(0) as StandardMaterial3D
+	if body != null and body.get_surface_override_material_count() > 0:
+		mat = body.get_surface_override_material(0) as StandardMaterial3D
 	var albedo_ok := mat != null and mat.albedo_color.is_equal_approx(g["albedo"])
 	if g.get("emissive", false):
 		albedo_ok = albedo_ok and mat.emission_enabled and mat.emission.is_equal_approx(g["albedo"])
@@ -191,7 +191,7 @@ static func _check_archetype(id: StringName) -> Array:
 		"name": tag + ": nav distances %s/%s" % [g["nav"][0], g["nav"][1]],
 		"passed": nav != null and is_equal_approx(nav.path_desired_distance, g["nav"][0]) \
 			and is_equal_approx(nav.target_desired_distance, g["nav"][1]) \
-			and is_equal_approx(nav.path_height_tolerance, g["nav"][2]),
+			and is_equal_approx(nav.path_height_offset, g["nav"][2]),
 		"why": "nav=%s" % str(nav),
 	})
 

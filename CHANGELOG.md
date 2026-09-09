@@ -1,5 +1,43 @@
 # Changelog
 
+## [Unreleased] — Real Godot 4.4.1 verification + log hygiene (2026-09-09)
+
+The handoff's open items are closed against a **real Godot 4.4.1-stable
+runtime** (built from the official source tag in-sandbox; see
+`GODOT_HANDOFF_RESOLUTION.md` for provenance and the complete unedited
+`--import` / `run_tests.gd` logs under `docs/godot-runs/`):
+
+- **All 7 documented arena-nav/obstacle test failures confirmed fixed on
+  `main`** by the real runtime — no navigation code was modified (operator
+  requirement honored).
+- **AUTOLOAD blocker fixed per real 4.4.1 behavior.** Godot compiles the
+  `--script` main loop *before* registering autoload globals (`Main::start`
+  order); the runner's compile-time closure no longer reaches
+  autoload-referencing scripts. `tests/run_tests.gd` is now dependency-free
+  (built-in types + suite paths + thin wrappers) and loads the moved
+  integration stages at runtime from `tests/integration_stages.gd`. No fake
+  singletons; the real autoloads are used. New Python guards pin this
+  load-order contract.
+- **Runtime-surfaced script bugs fixed:**
+  - `test_enemy_scene_inheritance.gd` used nonexistent
+    `MeshInstance3D.get_surface_material_override_*` — the runtime error
+    aborted the check function and silently skipped ~96 checks across all 8
+    archetypes; now `get_surface_override_material_*` (suite grew 544 → 640).
+  - `enemy_base.tscn` / the nav check referenced nonexistent
+    `NavigationAgent3D.path_height_tolerance`; renamed to
+    `path_height_offset` (the pinned 0.6 value is now actually in effect).
+  - `arena.gd` set `PanoramaSkyMaterial.energy` (not a 4.4.1 property) on
+    every themed arena load; removed with a comment.
+  - `arena_{marble,metal,wood}.tres` carried the dead Godot-3 `specular`
+    parameter (engine warning per load); removed.
+  - The `_boss_ability_sequence` encounter fixture lacked its
+    `EnemyStateMachine`, tripping the required-component fail-fast 3× per
+    run; fixture now carries the full component set.
+- Python regression suite: 415 → 417 tests, all green. Full local CI replica
+  green: import (0 script errors), unit/integration (640/0 failed),
+  hero runtime (148/0), UI validation (2189/0 ×2 profiles), asset imports
+  (209 resources, 0 failures).
+
 ## [Unreleased] — Hero character fidelity (2026-09-09)
 
 - Replace the live KayKit hero mesh with the project-authored **Arena Warden**:
