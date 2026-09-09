@@ -342,7 +342,7 @@ discarded — three of seven mutators advertised on their banner more than they 
 anyone.
 
 Now: mutators are `WaveMutatorConfig` resources under `res://data/mutators/` (registered by
-`ContentLoader`, referenced by id from `WaveConfig.arena_modifier_ids`, `GameMode.forced_mutators`
+`ContentLoader`, referenced by id from `WaveConfig.arena_modifier_ids`, `GameModeConfig.forced_mutators` (loaded from `res://data/game_modes/`)
 and the challenge pool — all four checked at load). The fold's result is one typed value object,
 `WaveModifiers`, built by `WaveManager._fold_modifiers()` in a documented order — plan scalars,
 then the director's bounded nudge, then the mutators — and bounded once by `clamp_bounds()`.
@@ -365,6 +365,47 @@ is about to launch instead of replaying a stale fold.
 consumed key for a reader, pins the fold order, and refuses the old shapes;
 `tests/unit/test_wave_mutators.gd` covers the arithmetic and the refusal paths headlessly.
 
+
+## Run definitions (modes, the ladder, and the announcer's voice)
+
+A run's *rules* are now data too. `GameMode`'s docblock had promised for as long as the mode list
+existed that adding a mode was data-only; it was not, because `CATALOG` was a Dictionary in code,
+thirteen accessors each carried their own `.get(key, default)`, and `def()`/`validated()` answered an
+unrecognised id with Standard. A renamed mode id was therefore not an error — it was an endless 1.0×
+run wearing another mode's name. Four of the seven modes also fell through a `match` for their
+victory copy, `collect_target` was authored on two of seven, `upgrade_every` was `maxi(…, 1)`-wrapped
+so "no upgrades" could not be authored, and `narrator_id`, `boss_interval` and `unlock_prestige` were
+authored on all seven and read by nothing.
+
+Now a mode is `res://data/game_modes/<id>.tres` (`GameModeConfig`, 21 exported fields) and its
+scripted waves are `GameModeWavePlan` rows inside it. `GameMode` resolves and reads; it no longer
+decides anything by name. Composition differences are fields — `planner_wave_offset`,
+`planner_wave_floor`, `every_n_waves` + `every_n_append`, `wave_plans` — which is why five per-mode
+queue builders and the campaign's `match wave_number` over literal archetype lists are gone, and why
+`Narrator`, `ObjectiveDirector` and the setup panel ask a mode's fields instead of matching its id:
+`scripts/` contains no comparison against a mode id at all, only the seven `MODE_*` handles callers
+use to name the files.
+
+The same shape took the rest of `scripts/meta/`'s tables out:
+
+- `Prestige`'s titles, cost curve, challenge tiers and cosmetic staircase are
+  `res://data/prestige/ladder.tres` — `ChallengeTier` and `PrestigeUnlock` rows validated by the
+  config that owns them, so a gap in the ladder can no longer pay the top rank the easiest run.
+- `Narrator` knows no arena id, no mode id and no archetype id. Arena flavour is three
+  `ArenaConfig.lore_*` fields authored in the arena's own `.tres`; wave flavour is the mode's beat
+  row. `ARENA_LORE`, `MODE_INTRO`, `CAMPAIGN_BEATS` and `ENEMY_BLURBS` (which read nothing at all)
+  are deleted, and `run_setup_panel` prints the arena's `lore_intro` instead of guessing from tags.
+- UI copy that had been a constant is now computed: the armory panel's armory gate is
+  `Prestige.armory_completion_required()`, and a mode's victory line comes from `victory_line`.
+
+**A migration must not change what the player reads.** The four modes that used to fall through the
+old `match` still emit `"Victory. The stand holds."`; that, and every other string in the seven mode
+files and the ladder, is mirrored in `tests/python/test_regress_run_modes.py`.
+`tests/unit/test_game_modes.gd` covers the resolvers and each `validate()` refusal path, and
+`tests/integration_stages.gd::_run_run_definition_integration` proves the wire in a live tree: a real
+`Narrator.announce_wave` emits the campaign row's own text, a cold `Prestige.ladder()` still finds
+the content folder when the harness booted no registry, and a challenge kill pays exactly one
+multiplier — tier 0's, with the flat per-rank bonus correctly skipped.
 
 ## Autoload policy
 

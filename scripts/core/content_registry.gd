@@ -26,6 +26,8 @@ var _waves: Dictionary = {}          # int wave_number -> WaveConfig
 var _mutators: Dictionary = {}      # StringName mutator_id -> WaveMutatorConfig
 var _hazards: Dictionary = {}        # StringName hazard_id -> HazardConfig
 var _hazard_modes: Dictionary = {}   # StringName mode_id -> HazardModeLayout
+var _game_modes: Dictionary = {}     # StringName mode_id -> GameModeConfig
+var _prestige_ladder: PrestigeLadderConfig = null
 var _audio_cues: Dictionary = {}     # StringName -> AudioStream
 var _selected_arena: StringName = &"default_arena"
 var _validation_errors: Array[String] = []
@@ -33,10 +35,10 @@ var _validation_errors: Array[String] = []
 
 func _ready() -> void:
 	refresh_all()
-	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras, %d weapons, %d skills, %d status, %d pickups, %d waves, %d hazards, %d mutators" % [
+	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras, %d weapons, %d skills, %d status, %d pickups, %d waves, %d hazards, %d mutators, %d modes, prestige ladder %s" % [
 		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size(),
 		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size(), _hazards.size(),
-		_mutators.size()
+		_mutators.size(), _game_modes.size(), "loaded" if _prestige_ladder != null else "MISSING"
 	])
 	# Surface broken content at startup. Bad data should scream — and in debug /
 	# test builds it must STOP the process, not leave the game running with
@@ -74,6 +76,8 @@ func refresh_all() -> void:
 	_mutators = tables[&"mutators"]
 	_hazards = tables[&"hazards"]
 	_hazard_modes = tables[&"hazard_modes"]
+	_game_modes = tables[&"game_modes"]
+	_prestige_ladder = loaded.get("prestige_ladder")
 	_validation_errors = loaded["errors"]
 	var first_arena: StringName = loaded.get("first_arena", &"")
 	if _selected_arena == &"" and first_arena != &"":
@@ -213,6 +217,24 @@ func get_all_wave_mutators() -> Dictionary:
 ## with no pressure file is normal, not an error).
 func get_hazard_mode_layout(mode_id: StringName) -> HazardModeLayout:
 	return _hazard_modes.get(mode_id)
+
+
+## One authored run mode (res://data/game_modes/). `GameMode` resolves through this first and
+## falls back to loading the file, so the run-definition layer works with or without the registry —
+## and an id that is in neither answers null, where `GameMode.def()` used to answer Standard.
+func get_game_mode(mode_id: StringName) -> GameModeConfig:
+	return _game_modes.get(mode_id)
+
+
+func get_all_game_modes() -> Dictionary:
+	return _game_modes
+
+
+## The whole endgame ladder (one file, one instance). May be null when content failed to load, in
+## which case every Prestige accessor answers neutral and the armory panel refuses the purchase —
+## there is no baked-in fallback any more to price prestige from.
+func get_prestige_ladder() -> PrestigeLadderConfig:
+	return _prestige_ladder
 
 
 func get_all_hazard_mode_layouts() -> Dictionary:

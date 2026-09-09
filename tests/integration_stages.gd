@@ -553,6 +553,9 @@ static func _run_enemy_encounter_integration(tree: SceneTree) -> Array:
 	var spawn_results := _run_spawn_manager_integration(tree)
 	results.append_array(spawn_results)
 
+	# --- Authored run definitions reaching a live tree -------------------------
+	results.append_array(_run_run_definition_integration(tree))
+
 	target.queue_free()
 	whiff_target.queue_free()
 	poise_target.queue_free()
@@ -897,3 +900,91 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	player.queue_free()
 	return results
 
+
+## What the run's authored files actually do inside a live tree. The static suites prove a `.tres`
+## parses and that its numbers match the mirror; this proves the *wire* — that a mode's wave row is
+## what the announcer emits, that a mode's scripted queue survives the registry hop, and that the
+## prestige ladder's rung is the number the scoreboard multiplies with. In a running game these all
+## resolve through ContentRegistry, which is a different path than the harness's folder scan.
+static func _run_run_definition_integration(tree: SceneTree) -> Array:
+	var results: Array = []
+
+	# --- the announcer reads the mode's row, not a table of its own -----------------
+	var heard: Array = []
+	var listener := func(text_key: StringName, text: String, _severity: StringName) -> void:
+		heard.append([String(text_key), text])
+	EventBus.announcement.connect(listener)
+	Narrator.announce_wave(GameMode.MODE_CAMPAIGN, &"frost_hollow", 5)
+	Narrator.announce_wave(GameMode.MODE_SURVIVAL, &"ember_crucible", 1)
+	Narrator.announce_wave(GameMode.MODE_COLLECT, &"default_arena", 2)
+	EventBus.announcement.disconnect(listener)
+	# Exactly two announcements from three calls: the third (Relic Hunt, wave 2) has no authored beat
+	# and is not a milestone wave, so silence is itself under test — the old code could only reach it
+	# by falling through a `match` that knew the mode by name.
+	var authored := load("res://data/game_modes/campaign.tres") as GameModeConfig
+	var row := authored.plan_for_wave(5) if authored != null else null
+	var expected_beat := "%s — %s" % [String(row.beat_title), String(row.beat_line)] if row != null else ""
+	var beat_ok := heard.size() == 2 and String(heard[0][0]) == "campaign_beat" \
+		and String(heard[0][1]) == expected_beat and not expected_beat.is_empty()
+	var survival := load("res://data/game_modes/survival.tres") as GameModeConfig
+	var intro_ok := heard.size() == 2 and String(heard[1][0]) == "narrator" \
+		and survival != null and String(heard[1][1]) == String(survival.intro_line)
+	results.append({
+		"name": "announcer emits the mode's authored beat and intro, and nothing else",
+		"passed": beat_ok and intro_ok,
+		"why": str(heard),
+	})
+
+	# --- a mode's scripted queue survives the registry hop -------------------------
+	var queue := GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 7)
+	var queue_ok := queue.size() == 7 and queue[0] == &"warlord" and queue.count(&"heavy") == 1
+	results.append({
+		"name": "boss rush wave 3 arrives scripted from the registry path",
+		"passed": queue_ok,
+		"why": str(queue),
+	})
+
+	# --- the ladder resolves with no registry at all ---------------------------------
+	# This harness boots only EventBus, so `Prestige.ladder()` must find the content folder on its
+	# own. Forgetting the cache here is the point: it proves the disk path is a real fallback and not
+	# a convenience that only the unit tests exercise. `Prestige.forget_ladder()` exists so a content
+	# reload can re-resolve, and the stage reuses it to force a cold lookup.
+	Prestige.forget_ladder()
+	var ladder := Prestige.ladder()
+	var ladder_ok := ladder != null and Prestige.max_rank() == 10 and Prestige.cost_base() == 2000 \
+		and is_equal_approx(Prestige.armory_completion_required(), ladder.armory_completion_required)
+	var gate_ok := ladder != null \
+		and Prestige.can_prestige(0, ladder.cost_base - 1, 1.0) != &"ok" \
+		and Prestige.can_prestige(0, ladder.cost_base, ladder.armory_completion_required) == &"ok" \
+		and Prestige.can_prestige(0, ladder.cost_base, ladder.armory_completion_required - 0.01) != &"ok" \
+		and Prestige.can_prestige(Prestige.max_rank(), 1000000, 1.0) != &"ok"
+	results.append({
+		"name": "the prestige ladder resolves from the content folder, and its gate is the file's own",
+		"passed": ladder_ok and gate_ok,
+		"why": "ladder=%s rank=%d" % [str(ladder != null), Prestige.max_rank()],
+	})
+
+	# --- and the rung is what the scoreboard pays with ------------------------------
+	# `RunScorekeeper` reads GameRoot for the rank; with no GameRoot here the rank is 0, so the live
+	# number is tier 0's `score_mult` and nothing else — which is exactly the double-count bug the
+	# flat per-rank bonus used to be. The escalated rung is asserted against the file too, one call
+	# apart, because the ladder's whole contract is that rank 8 means tier 3.
+	var run := RunState.new()
+	var keeper := RunScorekeeper.new()
+	keeper.reset_run(run)
+	keeper.record_kill(100, 0)
+	var tier_zero: ChallengeTier = ladder.challenge_tiers[0] \
+			if ladder != null and not ladder.challenge_tiers.is_empty() else null
+	var want_zero := int(round(101.0 * (tier_zero.score_mult if tier_zero != null else -1.0)))
+	var rung: ChallengeTier = ladder.challenge_tiers[3] \
+			if ladder != null and ladder.challenge_tiers.size() > 3 else null
+	var at_eighth := GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 8)
+	var payout_ok := run.score == want_zero and rung != null \
+		and is_equal_approx(at_eighth, rung.score_mult) \
+		and is_equal_approx(GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8), 1.0)
+	results.append({
+		"name": "a run's payout is its tier's multiplier and the mode's own, never both",
+		"passed": payout_ok,
+		"why": "score=%d want=%d rank8=%.3f want=%.3f" % [run.score, want_zero, at_eighth,
+				rung.score_mult if rung != null else -1.0],
+	})

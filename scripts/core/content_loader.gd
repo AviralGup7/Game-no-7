@@ -26,6 +26,7 @@ static func load_all() -> Dictionary:
 		&"hazards": {},
 		&"hazard_modes": {},
 		&"mutators": {},
+		&"game_modes": {},
 	}
 	_load_typed(&"res://data/enemies", &"enemies", tables, errors)
 	_load_typed(&"res://data/upgrades", &"upgrades", tables, errors)
@@ -39,7 +40,12 @@ static func load_all() -> Dictionary:
 	_load_typed(&"res://data/hazards", &"hazards", tables, errors)
 	_load_typed(&"res://data/hazard_modes", &"hazard_modes", tables, errors)
 	_load_typed(&"res://data/mutators", &"mutators", tables, errors)
-	_validate_references(tables, errors)
+	# Registered before the hazard-mode overlays, whose configs ask GameMode whether a mode id is
+	# real; the order does not matter to correctness (both resolve through the same disk fallback)
+	# but reading the catalogue first keeps the load log in dependency order.
+	_load_typed(&"res://data/game_modes", &"game_modes", tables, errors)
+	var prestige_ladder := _load_prestige_ladder(errors)
+	_validate_references(tables, errors, prestige_ladder)
 	var audio := _load_audio_streams(errors)
 	var first_arena := &""
 	var arenas: Dictionary = tables[&"arenas"]
@@ -53,13 +59,14 @@ static func load_all() -> Dictionary:
 		"audio": audio,
 		"errors": errors,
 		"first_arena": first_arena,
+		"prestige_ladder": prestige_ladder,
 	}
 
 
 ## Cross-resource references are validated after every directory is loaded. A
 ## malformed reference remains visible in the registry for diagnostics but is
 ## never silently treated as a valid build card/proc.
-static func _validate_references(tables: Dictionary, errors: Array[String]) -> void:
+static func _validate_references(tables: Dictionary, errors: Array[String], prestige_ladder: PrestigeLadderConfig = null) -> void:
 	var statuses: Dictionary = tables[&"status"]
 	for raw in (tables[&"weapons"] as Dictionary).values():
 		var weapon := raw as WeaponConfig
@@ -140,13 +147,101 @@ static func _validate_references(tables: Dictionary, errors: Array[String]) -> v
 				errors.append("wave %d declares unknown mutator %s" % [
 					wave.wave_number, String(mutator_id),
 				])
-	for mode_id in GameMode.CATALOG.keys():
-		for mutator_id in GameMode.forced_mutators(StringName(String(mode_id))):
+	_validate_game_modes(tables, mutators, prestige_ladder, errors)
+
+
+## The run-definition cross-checks. Each of these was previously *assumed* across two or three
+## files with nothing enforcing it: a mode's forced mutators and its prestige pool had to name real
+## mutators, a tier's mutator_count had to fit inside the pool it draws from, tier 0 had to agree
+## with the mode's own opening payout, the ladder's top rung had to be reachable at the ladder's top
+## rank, and a scripted wave had to name an archetype the enemy folder actually ships. A `match` arm
+## over `&"warlord"` cannot be checked by anyone but the reader.
+static func _validate_game_modes(tables: Dictionary, mutators: Dictionary,
+		ladder: PrestigeLadderConfig, errors: Array[String]) -> void:
+	var modes: Dictionary = tables[&"game_modes"]
+	if modes.is_empty():
+		errors.append("no GameModeConfig resources under res://data/game_modes — the run setup has no modes")
+		return
+	var enemies: Dictionary = tables[&"enemies"]
+	var weapons: Dictionary = tables[&"weapons"]
+	for raw in modes.values():
+		var mode := raw as GameModeConfig
+		if mode == null:
+			continue
+		for mutator_id in mode.forced_mutators:
 			if not mutators.has(mutator_id):
-				errors.append("game mode %s forces unknown mutator %s" % [String(mode_id), String(mutator_id)])
-	for mutator_id in GameMode.CHALLENGE_MUTATOR_POOL:
-		if not mutators.has(mutator_id):
-			errors.append("challenge mutator pool references unknown mutator %s" % String(mutator_id))
+				errors.append("game mode %s forces unknown mutator %s" % [String(mode.mode_id), String(mutator_id)])
+		for mutator_id in mode.prestige_mutator_pool:
+			if not mutators.has(mutator_id):
+				errors.append("game mode %s pools unknown mutator %s" % [String(mode.mode_id), String(mutator_id)])
+		if mode.fixed_weapon != &"" and not weapons.has(mode.fixed_weapon):
+			errors.append("game mode %s pins fixed_weapon %s, which is not an authored weapon"
+					% [String(mode.mode_id), String(mode.fixed_weapon)])
+		for archetype_id in mode.every_n_append:
+			if not enemies.has(archetype_id):
+				errors.append("game mode %s appends unknown archetype %s every %d waves"
+						% [String(mode.mode_id), String(archetype_id), mode.every_n_waves])
+		for plan in mode.wave_plans:
+			if plan == null:
+				continue
+			for archetype_id in plan.archetypes:
+				if not enemies.has(archetype_id):
+					errors.append("game mode %s wave %d spawns unknown archetype %s"
+							% [String(mode.mode_id), plan.wave_number, String(archetype_id)])
+		if mode.scales_with_prestige:
+			_validate_scaled_mode(mode, ladder, errors)
+
+
+static func _validate_scaled_mode(mode: GameModeConfig, ladder: PrestigeLadderConfig,
+		errors: Array[String]) -> void:
+	if ladder == null:
+		errors.append("game mode %s scales with prestige but res://data/prestige/ladder.tres is missing"
+				% String(mode.mode_id))
+		return
+	var pool_size := mode.prestige_mutator_pool.size()
+	for tier in ladder.challenge_tiers:
+		if tier == null:
+			continue
+		if tier.mutator_count > pool_size:
+			errors.append("challenge tier '%s' wants %d mutators but mode %s pools %d"
+					% [tier.label, tier.mutator_count, String(mode.mode_id), pool_size])
+	var first := ladder.challenge_tiers[0] if not ladder.challenge_tiers.is_empty() else null
+	if first == null:
+		errors.append("game mode %s scales with prestige but the ladder has no tier for rank 0"
+				% String(mode.mode_id))
+		return
+	# Tier 0 *is* the mode's base row: the run-setup card reads the mode's authored numbers and a
+	# Challenge run folds the tier's, so the two must say the same thing or the card lies.
+	if not is_equal_approx(first.score_mult, mode.score_mult) \
+			or not is_equal_approx(first.currency_mult, mode.currency_mult):
+		errors.append("challenge tier 0 pays x%.2f/x%.2f but mode %s authors x%.2f/x%.2f"
+				% [first.score_mult, first.currency_mult, String(mode.mode_id), mode.score_mult,
+					mode.currency_mult])
+	if first.mutator_count != mode.forced_mutators.size():
+		errors.append("challenge tier 0 takes %d mutators but mode %s authors %d in forced_mutators"
+				% [first.mutator_count, String(mode.mode_id), mode.forced_mutators.size()])
+	if first.max_waves != mode.max_waves:
+		errors.append("challenge tier 0 caps at %d waves but mode %s authors max_waves %d"
+				% [first.max_waves, String(mode.mode_id), mode.max_waves])
+	if ladder.max_rank > 0 and ladder.challenge_tiers[ladder.challenge_tiers.size() - 1].unlock_rank > ladder.max_rank:
+		errors.append("the top challenge tier unlocks at prestige %d, past the ladder's max_rank %d"
+				% [ladder.challenge_tiers[ladder.challenge_tiers.size() - 1].unlock_rank, ladder.max_rank])
+
+
+## One ladder for the whole game: it is a sequence (cost curve, dense titles, ordered rungs), so it
+## is a single file rather than a folder of ids.
+static func _load_prestige_ladder(errors: Array[String]) -> PrestigeLadderConfig:
+	var path := "res://data/prestige/ladder.tres"
+	if not ResourceLoader.exists(path):
+		errors.append("Missing prestige ladder: %s (the armory cannot price prestige without it)" % path)
+		return null
+	var ladder := ResourceLoader.load(path) as PrestigeLadderConfig
+	if ladder == null:
+		errors.append("Not a PrestigeLadderConfig: %s" % path)
+		return null
+	for problem in ladder.validate():
+		errors.append("%s: %s" % [path, problem])
+	return ladder
 
 
 static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, errors: Array[String]) -> void:
@@ -197,6 +292,12 @@ static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, 
 					errors.append("Not a WaveMutatorConfig: %s" % path)
 				else:
 					_register_resource(tables[&"mutators"], StringName(mutator.mutator_id), mutator, path, errors)
+			&"game_modes":
+				var mode := res as GameModeConfig
+				if mode == null:
+					errors.append("Not a GameModeConfig: %s" % path)
+				else:
+					_register_resource(tables[&"game_modes"], StringName(mode.mode_id), mode, path, errors)
 			&"hazards":
 				var hazard := res as HazardConfig
 				if hazard == null:

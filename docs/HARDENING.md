@@ -44,7 +44,12 @@ no soft-lock on missing content.
   striker execution, ledger archetype, manager configure, placer half
 - **main/** — _safe_run/_safe_seed/_safe_arena_id Dictionary branches,
   wave number clamp, delta clamp
-- **meta/** — spend guard, unlock guard
+- **meta/** — spend guard, unlock guard, and the run-definition resolvers: `GameMode`,
+  `Prestige` and `Narrator` null-guard the registry, clamp an unknown mode id or prestige rank
+  against what the content actually defines (`clamp_rank`, `validated()`) instead of substituting a
+  default, and every authored record is checked by `validate()` at load — a mode that spawns nothing
+  and says nothing, a ladder whose titles do not cover `max_rank`, and a cosmetic id `Cosmetics`
+  does not know are all startup errors, not runtime surprises.
 - **player/** — stamina config clamp, health payload finite, progression stat
   finite (multiplicative floored 0.1 so no zero/negative stall, max_health ≥1), experience xp_mult clamp, locomotion speed, targeting range, attack
   damage, dodge window, animation speed, build id, equipment slot, feedback
@@ -81,8 +86,10 @@ no soft-lock on missing content.
 
 1. **No bare GameRoot.get_run().seed** — always via `_safe_seed()` or Dictionary
    branch (`is Dictionary` + `"key" in run`).
-2. **No bare ContentRegistry.get_* without null** — always `if ContentRegistry
-   == null or not has_method` guard.
+2. **No bare ContentRegistry.get_* without null** — check `ContentRegistry == null` and take
+   the content-folder fallback. Duck-typing the registry (`has_method("get_*")`) is banned by
+   `tool/validate_guards.py`: a method that may or may not exist is a seam, and seams do not fail
+   loudly.
 3. **No bare EventBus.emit without is_instance_valid** — pooled feedback checks
    `is_instance_valid`.
 4. **All floats entering physics are finite** — `is_finite` + `clampf` before use.
@@ -104,6 +111,10 @@ no soft-lock on missing content.
 - `test_regress_arena_world_data` — the arena's theme/landmark/obstacle data, the death of the
   id-keyed tables and Dictionary records, and every shipped look number audited against the
   values the deleted tables held
+- `test_regress_wave_mutators` — mutator data, the folded `WaveModifiers` record, the fold order
+- `test_regress_run_modes` — the seven authored modes, the prestige ladder, the announcer's
+  provenance, and the ban on Dictionary records or id-matching anywhere in the run-definition layer
+
 
 ## CI split (was monolith)
 
@@ -125,6 +136,8 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 - `tool/validate_resources.py` — load_steps + ext_resource existence
 - `tool/validate_assets.py` — GLB/PNG/OGG integrity, checksum lock, deps
 - `tool/validate_guards.py` — pins the real inlined guards (post-refactor contract)
+  (175 checks as of the run-definition pass, up from 99: every authored mode, ladder rule and
+  deleted code table is pinned there too)
 - `tool/check_typed_arch.py` — typed-architecture gate (no duck typing; refs resolve)
 - `scripts/download_assets.py --verify` — offline checksum lock verification
 
@@ -147,9 +160,18 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 
 ## Metrics
 
+The coverage count above is the sweep's own, frozen: it says how many files that pass touched, and
+rewriting it would rewrite history. These are current, and
+`tests/python/test_regress_run_modes.py::DocCountTests` re-derives the GDScript count, the validated
+file count and the guard-needle count from the tools themselves rather than trusting this prose:
+
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 635 python + the headless Godot suites (was 95) — all green
-- Validated files: 151/151 (was 85)
-- Guard needles: 99 (was 61) — each one an inlined guard, a bounded export, or an absence
-  (the wave-mutator pass added 38, half of them "this Dictionary shape must not come back")
+- Tests: 681 python + the headless Godot suites (was 95) — all green
+- GDScripts under `scripts/`: 187 (was 139 at the sweep; the subsystem rebuilds since have added
+  their config/record types, each of which is `validate()`-checked at load rather than guarded per
+  call)
+- Validated files: 159/159 (was 85, then 151: +7 authored game modes, +1 prestige ladder)
+- Guard needles: 175 (was 61, then 99) — each one an inlined guard, a bounded export, or an absence
+  (the wave-mutator pass added 38, the run-definition pass 76, most of both saying "this Dictionary
+  shape must not come back")

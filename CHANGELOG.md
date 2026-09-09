@@ -1,5 +1,88 @@
 # Changelog
 
+## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)
+
+Sixth architecture pass, same method: rank `scripts/` by structural weakness, read the winner fully,
+grep its blast radius, check it against how the engine and the industry model the problem, rebuild,
+then pin the weak shape out with tests that have to fail when the defect is re-introduced. The target
+was the run-definition layer — `scripts/meta/game_mode.gd`, `prestige.gd`, `narrator.gd` — three
+files whose job was to answer "what is this run like, and what does it sound like" out of code
+tables.
+
+- **A mode is a `.tres`.** `GameMode.CATALOG` was a Dictionary of Dictionaries — fourteen authored
+  keys per mode, inside the script that ran them — while `GameMode`'s own docblock and
+  `docs/EXTENDING.md` both promised that adding a mode was data-only. The seven shipped modes are now
+  `res://data/game_modes/<id>.tres` (`GameModeConfig`, 21 exported fields), registered by
+  `ContentLoader` alongside the rest of the content (159 validated files, up from 151), and Run Setup
+  lists whatever the folder holds. Thirteen `def(id).get("key", default)` accessors are gone; a
+  mode id that resolves to nothing is now a `push_error` plus Standard instead of an invisible 1.0×
+  run wearing another mode's name.
+- **Composition rules are fields, not arms.** Five per-mode queue builders (`_boss_rush_queue`,
+  `_survival_queue`, `_defend_queue`, `_collect_queue` and a fifteen-arm `match wave_number` of
+  literal archetype lists) became `wave_plans` (inline `GameModeWavePlan` rows),
+  `planner_wave_offset`, `planner_wave_floor`, `every_n_waves` and `every_n_append`: Boss Rush's
+  4/5/7/9/12 with `heavy` only from wave 3, Campaign's fifteen waves (1–10 and 14–15 scripted,
+  11–13 delegated to `WavePlanner` at wave+2), Survival's `+1 heavy` every 4, Defend's every 3,
+  Relic Hunt's `+1 ranged` every 4. The campaign's *length* had been copied into a third place
+  (`max_waves: 15`); it is one array now.
+- **Three dead fields deleted, two authoring walls removed.** `narrator_id`, `boss_interval` and
+  `unlock_prestige` were authored on all seven modes and read by nothing; `collect_target` existed on
+  two of seven. `upgrade_every` went through `maxi(…, 1)`, so "never offer an upgrade" could not be
+  written down — it is `@export_range(0, 20)` now, with 0 meaning never, and every numeric field on
+  the five new config types is range-bounded so the editor refuses a value the code would clamp.
+- **`Narrator` knows no ids.** `ARENA_LORE`, `MODE_INTRO`, `CAMPAIGN_BEATS` and `ENEMY_BLURBS` (five
+  of eight archetypes, read by no caller) are deleted: arena flavour is three `ArenaConfig.lore_*`
+  fields authored in the arena's own file, wave flavour is the mode's beat row, and the victory line
+  is `GameModeConfig.victory_line`. An authored-empty line emits nothing at all — the milestone
+  branches used to put a banner on screen with no text in it. `run_setup_panel` prints
+  `arena.lore_intro` instead of guessing "Classic survival" from tags.
+- **The prestige ladder is one authored file.** `res://data/prestige/ladder.tres`
+  (`PrestigeLadderConfig`) carries the cost curve, `max_rank`, both per-rank bonuses,
+  `armory_completion_required`, eleven titles, five `ChallengeTier` rungs (ranks 0/2/4/6/8,
+  1.5→3.5 score) and six `PrestigeUnlock` rows (ranks 1, 2, 3, 5, 7, 10). `Prestige` resolves, caches and *reports*:
+  `can_prestige()` gained `&"unavailable"` (a missing ladder used to read as "you may prestige"),
+  `clamp_rank()` replaced the `min/max` arithmetic that zeroed a save's rank when content failed to
+  load, and `title_for` stopped answering `"Unproven"` at rank 9 through a `.get` default. The
+  `min(floor(rank / 2), size - 1)` index into an int-keyed Dictionary had let a gap in the ladder pay
+  the top rank the *easiest* run at full price; rung order, monotonic cost and bonus, title coverage,
+  reachability of the top rung and the cosmetic ids' existence in `Cosmetics` are all `validate()`
+  rules now, one of them (`min(idx, size-1)`) only expressible once the cross-row rules moved to the
+  config that owns the rows.
+- **The challenge protocol is closed across the seam.** Which mutators a prestige-scaled run forces
+  had been split between `GameMode.CHALLENGE_MUTATOR_POOL` and numbers in `Prestige`, joined only by
+  `mini(count, pool.size())`. Per-mode `prestige_mutator_pool` × per-tier `mutator_count`,
+  cross-checked at load — with tier 0 required to *equal* the mode's own `score_mult`/`currency_mult`,
+  so the ladder cannot silently rebase a mode.
+- **Nothing the player reads moved.** The four modes that used to fall through a `match` default still
+  emit `"Victory. The stand holds."`; every label, blurb, intro, beat, objective string and payout in
+  the seven mode files and the ladder is mirrored value by value in
+  `tests/python/test_regress_run_modes.py`. The `armory_panel` row that read `"ARMORY 60%+"` computes
+  it from `Prestige.armory_completion_required()`.
+- **Three of eight consumers needed no change at all** (`wave_manager.gd`, `run_scorekeeper.gd`,
+  `objective_director.gd`): their call sites were already spelled the way the new layer exposes them,
+  which is what "the public API survived" is supposed to mean. The rest moved off record-keys onto
+  fields — `Prestige.clamp_rank`, `arena.lore_intro`, `Prestige.armory_completion_required`.
+- **Tests.** `tests/unit/test_game_modes.gd` (56 cases headless: resolvers, every `validate()` refusal
+  quoted from source, shipped data clean); `tests/python/test_regress_run_modes.py` (43 cases: the
+  shipped mirror, the no-dead-field rule, per-field record-literal bans, no mode-id comparison
+  anywhere in `scripts/`, loader/registry/consumer pins, and `DocCountTests` re-deriving the
+  doc's own counts from the tools); a new live integration stage
+  `_run_run_definition_integration` (4 cases) chained from the encounter stage, which is the only
+  place that proves a real `Narrator.announce_wave` emits the campaign row's copy, that
+  `Prestige.ladder()` still resolves in a tree that booted no registry, and that a challenge kill pays
+  exactly one multiplier. `tool/validate_guards.py` 99 → 175 checks; `docs/EXTENDING.md`'s game-mode
+  and prestige sections rewritten (they had told modders to append to `GameMode.CATALOG`) and
+  renumbered out of a duplicate-§11 collision. **Mutation matrix: 32 reintroduced defects, 32
+  caught** — and five of those only after the matrix exposed that a whole-file skip had left
+  `game_mode.gd` unbanned, that a `needle in file` check was satisfied by the *other* branch of the
+  same guard, that a comment naming a deleted call kept its presence-check green, and that two
+  copy-literal regressions nothing was watching at all.
+- **Behaviour changes worth knowing at review time.** A save naming a removed mode id, or a
+  `RunState.arena_id` nobody authored, is reported now (`push_error`) instead of being laundered into
+  Standard's payout / The Pit's lore; milestone waves with no authored lore are silent; `wave 0`
+  cannot trigger the "wave 10" line; `ChallengeTierConfig` is `ChallengeTier` (`*_config.gd` names are
+  reserved for loadable, validated configs).
+
 ## [Unreleased] — The wave's rules became data, and one typed record (2026-09-09)
 
 Fifth architecture pass, same method: rank `scripts/` by structural weakness, read the winner

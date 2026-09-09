@@ -1,0 +1,91 @@
+[gd_resource type="Resource" script_class="PrestigeLadderConfig" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/meta/prestige_ladder_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/meta/challenge_tier.gd" id="2_tier"]
+[ext_resource type="Script" path="res://scripts/meta/prestige_unlock.gd" id="3_unlock"]
+
+[sub_resource type="Resource" id="ct1"]
+script = ExtResource("2_tier")
+label = "Standard Challenge"
+unlock_rank = 0
+score_mult = 1.5
+currency_mult = 1.4
+mutator_count = 2
+max_waves = 12
+
+[sub_resource type="Resource" id="ct2"]
+script = ExtResource("2_tier")
+label = "Hard Challenge"
+unlock_rank = 2
+score_mult = 1.8
+currency_mult = 1.55
+mutator_count = 3
+max_waves = 14
+
+[sub_resource type="Resource" id="ct3"]
+script = ExtResource("2_tier")
+label = "Nightmare Challenge"
+unlock_rank = 4
+score_mult = 2.2
+currency_mult = 1.7
+mutator_count = 3
+max_waves = 16
+
+[sub_resource type="Resource" id="ct4"]
+script = ExtResource("2_tier")
+label = "Mythic Challenge"
+unlock_rank = 6
+score_mult = 2.8
+currency_mult = 1.9
+mutator_count = 4
+max_waves = 18
+
+[sub_resource type="Resource" id="ct5"]
+script = ExtResource("2_tier")
+label = "Last Stand Challenge"
+unlock_rank = 8
+score_mult = 3.5
+currency_mult = 2.2
+mutator_count = 4
+max_waves = 20
+
+[sub_resource type="Resource" id="pu1"]
+script = ExtResource("3_unlock")
+unlock_rank = 1
+cosmetic_id = &"banner_survivor"
+
+[sub_resource type="Resource" id="pu2"]
+script = ExtResource("3_unlock")
+unlock_rank = 2
+cosmetic_id = &"trail_ember"
+
+[sub_resource type="Resource" id="pu3"]
+script = ExtResource("3_unlock")
+unlock_rank = 3
+cosmetic_id = &"title_champion"
+
+[sub_resource type="Resource" id="pu4"]
+script = ExtResource("3_unlock")
+unlock_rank = 5
+cosmetic_id = &"aura_legend"
+
+[sub_resource type="Resource" id="pu5"]
+script = ExtResource("3_unlock")
+unlock_rank = 7
+cosmetic_id = &"trail_frost"
+
+[sub_resource type="Resource" id="pu6"]
+script = ExtResource("3_unlock")
+unlock_rank = 10
+cosmetic_id = &"banner_last_stand"
+
+[resource]
+script = ExtResource("1_script")
+cost_base = 2000
+max_rank = 10
+score_bonus_per_rank = 0.08
+currency_bonus_per_rank = 0.06
+armory_completion_required = 0.6
+titles = PackedStringArray("Unproven", "Survivor", "Veteran", "Champion", "Warlord-Slayer", "Pit Legend", "Ashen Crown", "Frostbound", "Eternal Guard", "Mythic", "Last Stand")
+challenge_tiers = Array[ChallengeTier]([SubResource("ct1"), SubResource("ct2"), SubResource("ct3"), SubResource("ct4"), SubResource("ct5")])
+cosmetic_unlocks = Array[PrestigeUnlock]([SubResource("pu1"), SubResource("pu2"), SubResource("pu3"), SubResource("pu4"), SubResource("pu5"), SubResource("pu6")])

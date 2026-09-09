@@ -1,139 +1,119 @@
 class_name Narrator
 extends RefCounted
 
-## Minimal narrative layer: short arena lore lines, wave beats, and mode intros
-## delivered through EventBus.announcement. Pure static lookups — no tree access.
-## Campaign mode gets a fuller beat sheet; other modes get light flavour.
+## The voice that reads authored copy aloud: short arena lines, per-wave beats, and mode intros
+## delivered through EventBus.announcement. No tables of its own any more.
+##
+## `scripts/meta/narrator.gd` used to be four hand-written Dictionaries: `ARENA_LORE` (keyed by
+## arena id, with a `name` key nobody read and a fall-through that gave **The Pit's** lines to any
+## arena not in the table), `MODE_INTRO` (keyed by a second `narrator_id` on each mode, which no
+## caller followed, so the two modes that meant to borrow Standard's intro got their own anyway),
+## `CAMPAIGN_BEATS` (keyed by wave number, duplicating the arc the campaign's spawn `match` already
+## scripted), and `ENEMY_BLURBS` (five of eight archetypes, read by nobody — deleted, not migrated).
+## Every line now lives on the thing it describes: the arena config, the mode config, and the mode's
+## own wave-plan rows, so the encounter and the sentence about it cannot disagree.
+##
+## Pure static API — no tree access.
 
-const ARENA_LORE := {
-	&"default_arena": {
-		"name": "The Pit",
-		"intro": "The Pit remembers every stand. Yours begins now.",
-		"mid": "Blood has soaked these stones for generations.",
-		"late": "The crowd wants a legend. Don't disappoint them.",
-	},
-	&"ember_crucible": {
-		"name": "Ember Crucible",
-		"intro": "The Crucible breathes fire. Vents erupt — use them, or burn.",
-		"mid": "Ash falls like snow. The floor itself is a weapon.",
-		"late": "The forges below roar. Something ancient stirs in the heat.",
-	},
-	&"frost_hollow": {
-		"name": "Frost Hollow",
-		"intro": "Cold that bites bone. Ichor pools slow the unwary.",
-		"mid": "Frost claims the careless. Keep moving.",
-		"late": "The Hollow freezes hope. Only will remains.",
-	},
-}
-
-const MODE_INTRO := {
-	&"standard": "One arena. Endless pressure. Make every stand count.",
-	&"boss_rush": "No warm-up. Five Warlords. Prove you belong in the pantheon.",
-	&"survival": "Five minutes. Mounting waves. Outlast the arena itself.",
-	&"challenge": "Glass and fire. One blade. Twelve waves. No excuses.",
-	&"campaign": "They sealed the gate. You are the last line. Hold the stand.",
-	&"defend": "The beacon must not fall. Hold the centre — everything comes for the light.",
-	&"collect": "Their bones carry relics. Reap them from the horde before it buries you.",
-}
-
-const CAMPAIGN_BEATS := {
-	1: {"title": "Awakening", "line": "The outer gate falls. Footsteps in the dark."},
-	2: {"title": "First Blood", "line": "Scouts die easy. The real horde is still coming."},
-	3: {"title": "Archers", "line": "Bolts from the gallery. Clear the backline."},
-	4: {"title": "The Charge", "line": "Heavies and dashers. Break their momentum."},
-	5: {"title": "Warlord I", "line": "A champion of the Pit steps forward. End him."},
-	6: {"title": "Aftershock", "line": "The champion falls. The horde does not stop."},
-	7: {"title": "Split Spore", "line": "Things that divide when cut. Choose your swings."},
-	8: {"title": "Powder Keg", "line": "Exploders in the mix. Kite them into their own."},
-	9: {"title": "Gathering Storm", "line": "Every archetype at once. Stay calm."},
-	10: {"title": "Warlord II", "line": "A second champion. Stronger. Angrier."},
-	11: {"title": "Attrition", "line": "The gate holds — barely. Buy time with steel."},
-	12: {"title": "Breach", "line": "Walls crack. The arena itself is failing."},
-	13: {"title": "Last Reserves", "line": "Whatever you have left, spend it now."},
-	14: {"title": "The Gauntlet", "line": "No mercy pack. Survive the next minute."},
-	15: {"title": "Final Reckoning", "line": "Two Warlords. One last stand. The gate depends on you."},
-}
-
-const ENEMY_BLURBS := {
-	&"warlord": "Arena Warlord — thrice-crowned killer of the Pit.",
-	&"exploder": "Powder-gut — dies loud. Keep your distance.",
-	&"splitter": "Sporekin — cut once, fight twice.",
-	&"dasher": "Blink-blade — telegraphs, then commits.",
-	&"ranged": "Gallery bow — soft, but never alone.",
-}
+const ARENA_CONFIG_DIR := "res://data/arenas/"
 
 
 static func arena_intro(arena_id: StringName) -> String:
-	var lore: Dictionary = ARENA_LORE.get(arena_id, ARENA_LORE[&"default_arena"])
-	return String(lore.get("intro", ""))
+	var cfg := _arena(arena_id)
+	return cfg.lore_intro if cfg != null else ""
 
 
 static func arena_mid(arena_id: StringName) -> String:
-	var lore: Dictionary = ARENA_LORE.get(arena_id, ARENA_LORE[&"default_arena"])
-	return String(lore.get("mid", ""))
+	var cfg := _arena(arena_id)
+	return cfg.lore_mid if cfg != null else ""
 
 
 static func arena_late(arena_id: StringName) -> String:
-	var lore: Dictionary = ARENA_LORE.get(arena_id, ARENA_LORE[&"default_arena"])
-	return String(lore.get("late", ""))
+	var cfg := _arena(arena_id)
+	return cfg.lore_late if cfg != null else ""
 
 
+## What the mode says as its run begins. `ArenaConfig.lore_intro` is the fallback the table used to
+## offer; it is kept as an explicit choice by the caller, not a Dictionary default.
 static func mode_intro(mode_id: StringName) -> String:
-	return String(MODE_INTRO.get(mode_id, MODE_INTRO[&"standard"]))
+	return GameMode.intro_line(mode_id)
 
 
-static func campaign_beat(wave_number: int) -> Dictionary:
-	return CAMPAIGN_BEATS.get(wave_number, {})
+static func victory_line(mode_id: StringName) -> String:
+	return GameMode.victory_line(mode_id)
 
 
-static func enemy_blurb(archetype_id: StringName) -> String:
-	return String(ENEMY_BLURBS.get(archetype_id, ""))
+## The announcer's line for one scripted wave of a mode, or "" when the wave has no beat. Replaces
+## `campaign_beat()`, which returned a Dictionary out of a table the mode's spawn queue already
+## had its own copy of.
+static func beat_text(mode_id: StringName, wave_number: int) -> String:
+	var plan := GameMode.beat_for_wave(mode_id, wave_number)
+	if plan == null or not plan.has_beat():
+		return ""
+	if plan.beat_title.is_empty():
+		return plan.beat_line
+	if plan.beat_line.is_empty():
+		return plan.beat_title
+	return "%s — %s" % [plan.beat_title, plan.beat_line]
 
 
-## Emit the right announcement for a wave start given mode + arena context.
+## Emit the right announcement for a wave start given mode + arena context. Which modes have beats is
+## not a question this function answers any more — it asks the mode — so a new scripted mode is
+## announced without touching this file. The severity cadence stays here: every fifth wave reads as a
+## milestone, which is how the announcer works, not what the author wrote.
 static func announce_wave(mode_id: StringName, arena_id: StringName, wave_number: int) -> void:
 	if EventBus == null:
 		return
-	if mode_id == GameMode.MODE_CAMPAIGN:
-		var beat := campaign_beat(wave_number)
-		if not beat.is_empty():
-			EventBus.announcement.emit(
-				&"campaign_beat",
-				"%s — %s" % [String(beat.get("title", "")), String(beat.get("line", ""))],
-				&"warning" if wave_number % 5 == 0 else &"info"
-			)
-			return
-	# Light flavour on milestone waves for other modes.
+	var beat := beat_text(mode_id, wave_number)
+	if not beat.is_empty():
+		_emit(&"campaign_beat", beat, &"warning" if wave_number % 5 == 0 else &"info")
+		return
+	# Light flavour on milestone waves for other modes. Wave 1 is the mode's own line and the arena's
+	# is its fallback; 5 and every tenth after that belong to the arena.
 	if wave_number == 1:
 		var intro := mode_intro(mode_id)
-		var arena_line := arena_intro(arena_id)
-		EventBus.announcement.emit(&"narrator", intro if not intro.is_empty() else arena_line, &"info")
+		_emit(&"narrator", intro if not intro.is_empty() else arena_intro(arena_id), &"info")
 	elif wave_number == 5:
-		EventBus.announcement.emit(&"narrator", arena_mid(arena_id), &"info")
-	elif wave_number == 10 or wave_number % 10 == 0:
-		EventBus.announcement.emit(&"narrator", arena_late(arena_id), &"warning")
+		_emit(&"narrator", arena_mid(arena_id), &"info")
+	elif wave_number >= 10 and wave_number % 10 == 0:
+		_emit(&"narrator", arena_late(arena_id), &"warning")
 
 
 static func announce_run_start(mode_id: StringName, arena_id: StringName) -> void:
 	if EventBus == null:
 		return
 	var line := mode_intro(mode_id)
-	if line.is_empty():
-		line = arena_intro(arena_id)
-	EventBus.announcement.emit(&"narrator", line, &"info")
+	_emit(&"narrator", line if not line.is_empty() else arena_intro(arena_id), &"info")
 
 
 static func announce_victory(mode_id: StringName) -> void:
 	if EventBus == null:
 		return
-	var line := "Victory. The stand holds."
-	match mode_id:
-		GameMode.MODE_BOSS_RUSH:
-			line = "The pantheon yields. Five crowns are yours."
-		GameMode.MODE_SURVIVAL:
-			line = "Five minutes. You outlasted the arena."
-		GameMode.MODE_CHALLENGE:
-			line = "Challenge complete. The glass did not break you."
-		GameMode.MODE_CAMPAIGN:
-			line = "The gate holds. The Last Stand is won — for now."
-	EventBus.announcement.emit(&"victory", line, &"victory")
+	_emit(&"victory", victory_line(mode_id), &"victory")
+
+
+## One wire for every line this class produces. A mode with an empty intro_line, or an arena with no
+## lore_mid, used to put a banner on screen with no text in it: silence is the correct reading of
+## authored nothing, and it belongs here rather than in each caller.
+static func _emit(text_key: StringName, text: String, severity: StringName) -> void:
+	if text.is_empty():
+		return
+	EventBus.announcement.emit(text_key, text, severity)
+
+
+## Registry first, then the file: `ArenaConfig` is the arena's authored identity, and the announcer
+## is handed only an id by WaveManager. Same path ArenaHazards takes, and it is reached at most a few
+## times per run (run start, wave 5, wave 10) — the headless harness never gets here, because every
+## announce_* above returns as soon as EventBus is missing. A missing arena is answered with no
+## line, never with another arena's.
+static func _arena(arena_id: StringName) -> ArenaConfig:
+	if arena_id == &"":
+		return null
+	if ContentRegistry != null:
+		var registered: ArenaConfig = ContentRegistry.get_arena(arena_id)
+		if registered != null:
+			return registered
+	var path := "%s%s.tres" % [ARENA_CONFIG_DIR, String(arena_id)]
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as ArenaConfig

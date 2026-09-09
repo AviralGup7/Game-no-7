@@ -74,7 +74,7 @@ static func normalize_save(raw_data: Variant) -> Dictionary:
 	out.achievements = _string_list(_dict_get(data, "achievements", []))
 	out.meta_wallet = maxi(0, _int_or(_dict_get(data, "meta_wallet", 0), 0))
 	out.meta_ranks = _string_int_map(_dict_get(data, "meta_ranks", {}))
-	out.prestige_rank = clampi(_int_or(_dict_get(data, "prestige_rank", 0), 0), 0, Prestige.MAX_PRESTIGE)
+	out.prestige_rank = Prestige.clamp_rank(_int_or(_dict_get(data, "prestige_rank", 0), 0))
 	if data.has("lifetime_statistics") and data.lifetime_statistics is Dictionary:
 		var src: Dictionary = data.lifetime_statistics
 		var ls: Dictionary = out.lifetime_statistics

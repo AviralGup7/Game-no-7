@@ -27,6 +27,13 @@ extends ValidatedConfig
 @export var background_music_cue: StringName = &""
 @export var allowed_archetypes: Array[StringName] = []
 @export var tags: Array[StringName] = []
+## The arena's voice, read at run start, wave 5 and wave 10 (Narrator.announce_wave). These were a
+## `ARENA_LORE` Dictionary in narrator.gd keyed by arena id, with a fourth `name` key nobody read
+## and a fall-through that handed **The Pit's** lines to any arena not in the table — so the third
+## arena anyone dropped into res://data/arenas announced itself as somebody else's level.
+@export_multiline var lore_intro: String = ""
+@export_multiline var lore_mid: String = ""
+@export_multiline var lore_late: String = ""
 @export_range(1, 1000) var unlock_wave: int = 1
 ## The arena's hazard layout, authored here so ArenaHazards never needs a per-arena
 ## branch. Each placement expands its own radial symmetry (HazardPlacement.mirror), so
@@ -45,6 +52,16 @@ extends ValidatedConfig
 @export var obstacle_layout: Array[ArenaObstaclePlacement] = []
 
 
+func _lore_field(field: String) -> String:
+	match field:
+		"lore_intro":
+			return lore_intro
+		"lore_mid":
+			return lore_mid
+		_:
+			return lore_late
+
+
 func validate() -> Array[String]:
 	var problems: Array[String] = []
 	if String(arena_id).is_empty():
@@ -53,6 +70,12 @@ func validate() -> Array[String]:
 		problems.append("scene is null for %s" % String(arena_id))
 	if enemy_spawn_min_player_distance < 0.0:
 		problems.append("enemy_spawn_min_player_distance cannot be negative")
+	# Named per field: "an arena's lore is empty" would not say which of the three beats went quiet.
+	for field in ["lore_intro", "lore_mid", "lore_late"]:
+		var value := _lore_field(field)
+		if value.is_empty():
+			problems.append("%s: %s is empty (an arena that owns a scene owns its three lines too)"
+					% [String(arena_id), field])
 	if hazard_layout.size() > 64:
 		problems.append("hazard_layout has %d placements; expand mirrors instead of hand-listing" % hazard_layout.size())
 	for placement in hazard_layout:

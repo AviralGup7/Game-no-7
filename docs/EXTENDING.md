@@ -97,6 +97,11 @@ step 7).
    same file (`hazard_layout`, see §11) — an arena that authors none still gets the four
    compass vents `ArenaHazards.fallback_layout_positions()` describes, so a new level is
    never hazard-less just because nobody got to it.
+   **Author its voice** in the same file: `lore_intro`, `lore_mid` and `lore_late` are the three
+   lines `Narrator` prints on wave 1 (only when the mode authored no `intro_line` of its own), wave
+   5, and every tenth wave after that. The announcer knows no arena ids to fall back on, so an arena
+   that leaves them empty is simply not narrated — a milestone wave with nothing to say emits no
+   announcement at all rather than an empty banner.
 3. **Author its look** as `res://data/arena_themes/<arena_id>.tres` (`ArenaThemeConfig`) and
    point `theme` at it. Copy a shipped file and change numbers: sky/horizon/ground colours,
    `panorama_path` (a `res://` `.hdr`; a soft *path*, not an `ExtResource`, so a device without
@@ -412,16 +417,45 @@ internals:
   `EnemyPack._sep_query`, `CameraCollisionSolver`, `Projectile`) — the server reads
   them at call time.
 
-## 11. Add a game mode
+## 13. Add a game mode
 
-Modes live in `scripts/meta/game_mode.gd` (`GameMode.CATALOG`). Add an entry with
-`display_name`, `blurb`, `objective`, score/currency mults, `max_waves` (0 = endless),
-`target_seconds` (survival), `upgrade_every`, `forced_mutators`, optional `fixed_weapon`,
-and `narrator_id`. Override `spawn_queue()` for scripted compositions (see Boss Rush /
-Campaign). Run Setup discovers modes via `GameMode.all_mode_ids()`; GameRoot stores
-`RunState.mode_id`; WaveManager reads queues, mutators, upgrade cadence and victory.
+A mode is one resource: copy `res://data/game_modes/standard.tres` to
+`res://data/game_modes/<your_id>.tres`, set `mode_id` to the file stem, and edit. No script is
+involved — `ContentLoader` scans `res://data/game_modes/`, `ContentRegistry` registers every
+`GameModeConfig`, `GameMode.all_mode_ids()` reads that table, and Run Setup lists whatever it finds.
+(This has only recently been true: the mode list used to be `GameMode.CATALOG`, a Dictionary in
+code, and a `.tres` nobody loaded would have been ignored.)
 
-## 12. Add a transformative upgrade
+Twenty-one exported fields, grouped by who reads them:
+
+| Field | Read by |
+|---|---|
+| `display_name`, `blurb` | Run Setup's mode list |
+| `intro_line`, `victory_line`, `wave_plans[].beat_title/beat_line` | `Narrator` (wave 1, the end of the run, and any wave that authors a beat) |
+| `objective` + `max_waves` / `target_seconds` / `collect_target` | `ObjectiveDirector` and the HUD's objective line; `objective` is one of `GameModeConfig.OBJECTIVE_*` and `validate()` refuses an objective whose counter field is missing |
+| `score_mult`, `currency_mult` | `RunScorekeeper` (which skips the flat per-rank prestige bonus for a mode that scales, so a rank is not counted twice) |
+| `upgrade_every` | `WaveManager`'s upgrade cadence — `0` really means *never*, which was impossible while the accessor did `maxi(…, 1)` |
+| `fixed_weapon`, `forced_mutators` | `GameRoot` / `WaveManager`; mutator id lists are duplicated on the way out, so a run cannot scribble on the definition |
+| `planner_wave_offset`, `planner_wave_floor`, `every_n_waves`, `every_n_append` | `GameMode.spawn_queue()` when the mode has no scripted rows — that is how Survival (`+2`, floor 3, a `heavy` every 4) and Defend (`+1`, floor 2, a `heavy` every 3) differ from Standard without a line of per-mode code |
+| `wave_plans` | scripted composition: Boss Rush's five rows and Campaign's fifteen (rows 1–10 and 14–15 script both enemies and the announcer's line; 11–13 leave the queue to the planner) |
+| `scales_with_prestige`, `prestige_mutator_pool` | the challenge protocol — see §15 |
+
+`GameMode` itself is only a resolver and a set of typed accessors. `resolve(id)` / `definition(id)`
+return the config from the registry, falling back to the content folder when there is no registry
+(that is how the headless harness and `tool/` scripts run); a miss `push_error`s and clamps to
+Standard rather than handing back an invisible 1.0× run, which is what the old `.get(key, default)`
+accessors did to a typo'd id.
+
+Before a mode ships, `validate()` gets it: `ContentLoader` calls it on every file at startup, so a
+bad mode is a startup error and `godot --headless --import` fails the build. It checks what a config
+can see about itself (an empty id, a `wave_plans` row that spawns nothing and says nothing, an
+objective without its target, `every_n_waves = 0` with an `every_n_append` that will never fire);
+the cross-file rules — unknown mutator/weapon/archetype ids, tier 0 versus the ladder — are
+`ContentLoader._validate_game_modes()`'s. The seven shipped modes are mirrored field by field in
+`tests/python/test_regress_run_modes.py::SHIPPED`; change a number there and that table is where you
+say so.
+
+## 14. Add a transformative upgrade
 
 1. Create `res://data/upgrades/<name>.tres` with `category = &"transform"` and
    `effect_tags` listing one or more of the keys in `UpgradeConfig.KNOWN_EFFECT_TAGS`
@@ -430,9 +464,30 @@ Campaign). Run Setup discovers modes via `GameMode.all_mode_ids()`; GameRoot sto
 3. BuildEffects is attached by Main on world build and listens to dodge / damage /
    kill signals — no UI or WaveManager changes needed.
 
-## 13. Prestige / cosmetics
+## 15. Prestige / cosmetics
 
-`scripts/meta/prestige.gd` owns costs, multipliers, titles and cosmetic ids.
-`MetaProgression.perform_prestige()` spends the wallet, strips stat ranks (keeps
-weapon/skill unlocks), bumps `prestige_rank` (save schema v5), and unlocks cosmetics
-via `SaveManager.unlock_cosmetic`. Armory panel shows the prestige row automatically.
+The ladder is data: `res://data/prestige/ladder.tres`, a `PrestigeLadderConfig` with `cost_base`,
+`max_rank`, `score_bonus_per_rank`, `currency_bonus_per_rank`, `armory_completion_required`,
+`titles` (index 0 … `max_rank`), `challenge_tiers` (`ChallengeTier` rows) and `cosmetic_unlocks`
+(`PrestigeUnlock` rows, each keyed by the rank that grants it). Adding a rung means adding rows —
+`Prestige` reads it through `ContentRegistry`, falls back to the content folder with no registry,
+and caches; `Prestige.forget_ladder()` drops that cache when content is reloaded.
+
+`PrestigeLadderConfig.validate()` refuses the ways a ladder can lie: titles that do not cover every
+rank, a cost or bonus that does not increase, rungs out of order, a tier harder *and* shorter than
+the one below it, a top rung `max_rank` cannot reach, a cosmetic id `Cosmetics` does not know. The
+row types check what a row can see; the cross-row rules belong to the config that owns them — which
+is why a sparse ladder no longer hands rank 10 the easiest run, the way the old
+`min(rank / CHALLENGE_TIER_EVERY, size - 1)` plus a second `.get()` did.
+
+`ContentLoader._validate_game_modes()` then joins the ladder to the modes: for every
+`scales_with_prestige` mode, tier 0's `score_mult`/`currency_mult` must equal the mode's own base
+(and its `mutator_count` must equal the length of `forced_mutators`), and each tier's `mutator_count`
+must fit inside that mode's `prestige_mutator_pool`. That pair of rules is the whole challenge
+protocol: which rung you are on picks how many mutators your run forces, in pool order.
+
+`MetaProgression.perform_prestige()` spends the wallet, strips stat ranks (keeps weapon/skill
+unlocks), bumps `prestige_rank` (save schema v5), and unlocks cosmetics via
+`SaveManager.unlock_cosmetic`. Ranks loaded from a save go through `Prestige.clamp_rank()` — never a
+reset to 0 — so a content-load failure costs you a title instead of your progress. Armory panel
+shows the row automatically and quotes the ladder's own percentages and its armory gate.

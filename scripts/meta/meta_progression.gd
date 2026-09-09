@@ -238,7 +238,7 @@ func perform_prestige() -> bool:
 		if String(def.get("kind", "")) != "stat":
 			kept[item_id] = _ranks[item_id]
 	_ranks = kept
-	_prestige_rank = mini(_prestige_rank + 1, Prestige.MAX_PRESTIGE)
+	_prestige_rank = Prestige.clamp_rank(_prestige_rank + 1)
 	# Unlock cosmetics for the new rank.
 	for c in Prestige.cosmetics_for_rank(_prestige_rank):
 		SaveManager.unlock_cosmetic(String(c))

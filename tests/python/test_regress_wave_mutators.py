@@ -307,22 +307,23 @@ class NoCodeTableTests(Bans, unittest.TestCase):
                          "a fallback record is the neutral-Dictionary bug wearing a typed hat")
 
     def test_no_mutator_definition_or_special_case_lives_in_scripts(self):
-        # No mutator id may be special-cased in code: `GameMode` names the ids its modes force
-        # (validated by ContentLoader's reference check), and nothing else needs to know one exists.
+        # No mutator id may be special-cased in code, and now the exemption this check used to need
+        # is gone: `GameMode` used to hold `CHALLENGE_MUTATOR_POOL` as a const array of ids and
+        # `Prestige` used to name `elite_surge` in its tier comment. The pool is authored on the mode
+        # config (`prestige_mutator_pool`), so scripts/ has no id literal left to forgive.
         for path in sorted((ROOT / "scripts").rglob("*.gd")):
             rel = str(path.relative_to(ROOT))
-            if rel == MODE_GD or rel == "scripts/meta/prestige.gd":
-                continue
             self.assertAbsent(rel, tuple(f'&"{mid}"' for mid in SHIPPED),
                               "a mutator id is special-cased in code again")
 
     def test_the_wave_multipliers_are_never_a_dictionary_record_in_a_consumer(self):
         # The shape that let five knobs go unread was a Dictionary of `hp_mult`-style keys crossing
         # a boundary. Several other systems use that vocabulary for their OWN scalars — boss phases
-        # (`BossController`/`BossPhaseConfig`) and the run-wide mode/prestige multipliers
-        # (`GameMode.CATALOG`, `Prestige.CHALLENGE_TIERS`, read by `score_multiplier_for`) — and
-        # they are deliberately still Dictionaries, pinned by `test_regress_prestige_meta_teeth.py`
-        # and out of this phase's scope. The distinction that matters is not the key name but whose
+        # (`BossController`/`BossPhaseConfig`). The two other files that used to be exempt here —
+        # `GameMode.CATALOG` and `Prestige.CHALLENGE_TIERS` — are not exempt any more, because they
+        # are not Dictionaries any more: a mode is a `GameModeConfig` and a rung is a
+        # `ChallengeTier`, so the only stringly records left are the boss-phase ones. The
+        # distinction that matters is not the key name but whose
         # record it is: a *wave* rule is `WaveModifiers`'s field, and an exemption that stops being
         # used has to be deleted rather than left to rot.
         holders = set()
@@ -331,7 +332,7 @@ class NoCodeTableTests(Bans, unittest.TestCase):
             text = code(rel)
             if any(f'"{field}":' in text for field in FOLD_FIELDS) or '"burn_tick":' in text:
                 holders.add(rel)
-        allowed = {CONFIG_GD, RECORD_GD, MODE_GD, "scripts/meta/prestige.gd",
+        allowed = {CONFIG_GD, RECORD_GD,
                    "scripts/enemies/boss_controller.gd", "scripts/enemies/boss_phase_config.gd"}
         self.assertEqual(holders, allowed,
                          "the set of files allowed to hand-roll a multiplier Dictionary changed. A "
@@ -575,7 +576,7 @@ class ContentValidationTests(Bans, unittest.TestCase):
         # `errors.append(` around it: a reported-but-not-failing check is how the arena's stale-id
         # bug stayed invisible for so long.
         for msg in ("references unknown status", "both claim roll_order", "declares unknown mutator",
-                    "forces unknown mutator", "challenge mutator pool references unknown mutator",
+                    "forces unknown mutator", "pools unknown mutator",
                     "no WaveMutatorConfig resources"):
             self.assertRegex(loader, r'errors\.append\("[^"]*' + re.escape(msg),
                              f"the loader no longer reports `{msg}` as an error")
@@ -597,11 +598,19 @@ class ContentValidationTests(Bans, unittest.TestCase):
             declared.update(re.findall(r'&"([a-z_0-9]+)"', blob))
         self.assertTrue(declared, "no wave declares a mutator any more; the authored path is unpinned")
         self.assertEqual(declared - known, set(), "a wave .tres names a mutator nobody ships")
-        pool = set(re.findall(r'&"([a-z_0-9]+)"', re.search(
-            r"const CHALLENGE_MUTATOR_POOL[^\n]*\n\t(.*?)\n\]", code(MODE_GD), flags=re.S).group(1)))
+        # The pool and the forced sets are authored data now, so the check reads the data files: the
+        # reference has to resolve whether it was written in GDScript or in a .tres.
+        mode_text = "\n".join(f.read_text(encoding="utf-8")
+                          for f in (ROOT / "data" / "game_modes").glob("*.tres"))
+        pool = set()
+        for blob in re.findall(r"prestige_mutator_pool = Array\[StringName\]\(\[(.*?)\]\)", mode_text):
+            pool.update(re.findall(r'&"([a-z_0-9]+)"', blob))
+        self.assertTrue(pool, "no mode authors a prestige mutator pool; the escalation is unpinned")
         self.assertEqual(pool - known, set(), "the challenge pool names a mutator nobody ships")
-        forced = set(re.findall(r'&"([a-z_0-9]+)"', re.search(
-            r'"forced_mutators": \[(.*?)\]', code(MODE_GD), flags=re.S).group(1)))
+        forced = set()
+        for blob in re.findall(r"forced_mutators = Array\[StringName\]\(\[(.*?)\]\)", mode_text):
+            forced.update(re.findall(r'&"([a-z_0-9]+)"', blob))
+        self.assertTrue(forced, "no mode forces a mutator any more; the authored path is unpinned")
         for mid in forced:
             self.assertIn(mid, known, f"game mode forces {mid}, which is not authored")
 

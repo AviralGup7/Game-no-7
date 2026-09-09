@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="GameModeConfig" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/meta/game_mode_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/meta/game_mode_wave_plan.gd" id="2_plan"]
+
+[sub_resource type="Resource" id="wp1"]
+script = ExtResource("2_plan")
+wave_number = 1
+archetypes = Array[StringName]([&"warlord", &"basic", &"fast", &"basic"])
+beat_title = ""
+beat_line = ""
+
+[sub_resource type="Resource" id="wp2"]
+script = ExtResource("2_plan")
+wave_number = 2
+archetypes = Array[StringName]([&"warlord", &"basic", &"fast", &"basic", &"fast"])
+beat_title = ""
+beat_line = ""
+
+[sub_resource type="Resource" id="wp3"]
+script = ExtResource("2_plan")
+wave_number = 3
+archetypes = Array[StringName]([&"warlord", &"basic", &"fast", &"basic", &"fast", &"basic", &"heavy"])
+beat_title = ""
+beat_line = ""
+
+[sub_resource type="Resource" id="wp4"]
+script = ExtResource("2_plan")
+wave_number = 4
+archetypes = Array[StringName]([&"warlord", &"basic", &"fast", &"basic", &"fast", &"basic", &"fast", &"heavy"])
+beat_title = ""
+beat_line = ""
+
+[sub_resource type="Resource" id="wp5"]
+script = ExtResource("2_plan")
+wave_number = 5
+archetypes = Array[StringName]([&"warlord", &"basic", &"fast", &"basic", &"fast", &"basic", &"fast", &"heavy", &"ranged", &"dasher"])
+beat_title = ""
+beat_line = ""
+
+[resource]
+script = ExtResource("1_script")
+mode_id = &"boss_rush"
+display_name = "Boss Rush"
+blurb = "Five Warlord duels. Short rests. No filler packs."
+intro_line = "No warm-up. Five Warlords. Prove you belong in the pantheon."
+victory_line = "The pantheon yields. Five crowns are yours."
+objective = &"slay_bosses"
+score_mult = 1.35
+currency_mult = 1.25
+max_waves = 5
+target_seconds = 0.0
+collect_target = 0
+upgrade_every = 1
+fixed_weapon = &""
+forced_mutators = Array[StringName]([&"elite_surge"])
+scales_with_prestige = false
+prestige_mutator_pool = Array[StringName]([])
+planner_wave_offset = 0
+planner_wave_floor = 1
+every_n_waves = 0
+every_n_append = Array[StringName]([])
+wave_plans = Array[GameModeWavePlan]([SubResource("wp1"), SubResource("wp2"), SubResource("wp3"), SubResource("wp4"), SubResource("wp5")])

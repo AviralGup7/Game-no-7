@@ -161,6 +161,81 @@ def main() -> int:
             PASSED += 1
             print(f"OK   {path}: no {needle[:40]!r}")
 
+    print("-- run definitions: modes, the prestige ladder, and the arena's own voice --")
+    meta_checks = [
+    	('scripts/meta/game_mode.gd', 'static func resolve(mode_id: StringName) -> GameModeConfig'),
+    	('scripts/meta/game_mode.gd', 'static func definition(mode_id: StringName) -> GameModeConfig'),
+    	('scripts/meta/game_mode.gd', 'push_error("GameMode: unknown mode id'),
+    	('scripts/meta/game_mode.gd', 'cfg.plan_for_wave(w)'),
+    	('scripts/meta/game_mode.gd', 'out = WavePlanner.extended_queue_for_wave(asked, seed)'),
+    	('scripts/meta/game_mode.gd', 'DirAccess.open("res://data/game_modes")'),
+    	('scripts/meta/game_mode_config.gd', 'func overrides_planner() -> bool'),
+    	('scripts/meta/game_mode_config.gd', 'func plan_for_wave(wave_number: int) -> GameModeWavePlan'),
+    	('scripts/meta/game_mode_wave_plan.gd', 'func has_beat() -> bool'),
+    	('scripts/meta/prestige.gd', 'static func ladder() -> PrestigeLadderConfig'),
+    	('scripts/meta/prestige.gd', 'static func clamp_rank(rank: int) -> int'),
+    	('scripts/meta/prestige.gd', 'return &"unavailable"'),
+    	('scripts/meta/prestige.gd', 'return cfg.tier_for_rank(rank) if cfg != null else null'),
+    	('scripts/meta/prestige_ladder_config.gd', 'func tier_index_for_rank(rank: int) -> int'),
+    	('scripts/meta/prestige_ladder_config.gd', 'func title_for(rank: int) -> String'),
+    	('scripts/meta/challenge_tier.gd', 'func validate() -> Array[String]'),
+    	('scripts/meta/narrator.gd', 'static func beat_text(mode_id: StringName, wave_number: int) -> String'),
+    	('scripts/meta/narrator.gd', 'var beat := beat_text(mode_id, wave_number)'),
+    	('scripts/meta/narrator.gd', 'static func _arena(arena_id: StringName) -> ArenaConfig'),
+    	('scripts/arena/arena_config.gd', '@export_multiline var lore_intro: String = ""'),
+    	('scripts/arena/arena_config.gd', 'func _lore_field(field: String) -> String'),
+    	('scripts/core/content_loader.gd', '_load_typed(&"res://data/game_modes", &"game_modes", tables, errors)'),
+    	('scripts/core/content_loader.gd', 'Missing prestige ladder'),
+    	('scripts/core/content_loader.gd', 'no GameModeConfig resources'),
+    	('scripts/core/content_loader.gd', 'which is not an authored weapon'),
+    	('scripts/core/content_loader.gd', 'spawns unknown archetype'),
+    	('scripts/core/content_registry.gd', 'func get_game_mode(mode_id: StringName) -> GameModeConfig'),
+    	('scripts/core/content_registry.gd', 'func get_prestige_ladder() -> PrestigeLadderConfig'),
+    	('scripts/meta/meta_progression.gd', 'Prestige.clamp_rank(_prestige_rank + 1)'),
+    	('scripts/ui/run_setup_panel.gd', 'arena.lore_intro'),
+    	('scripts/ui/armory_panel.gd', 'Prestige.armory_completion_required()'),
+    	('scripts/ui/armory_panel.gd', 'Prestige.score_bonus_per_rank() * 100.0'),
+    	('scripts/save/save_schema.gd', 'Prestige.clamp_rank('),
+    ]
+    for path, needle in meta_checks:
+        check(path, needle)
+    # And the shapes that made the mode layer untrustworthy are refused here too: a Dictionary
+    # catalogue, an id-keyed fallback, a per-mode queue builder, a table the loader cannot see.
+    meta_absences = [
+    	('scripts/meta/game_mode.gd', 'const CATALOG'),
+    	('scripts/meta/game_mode.gd', 'static func def('),
+    	('scripts/meta/game_mode.gd', 'CHALLENGE_MUTATOR_POOL'),
+    	('scripts/meta/game_mode.gd', 'static func boss_interval'),
+    	('scripts/meta/game_mode.gd', 'static func narrator_id'),
+    	('scripts/meta/game_mode.gd', 'static func _survival_queue'),
+    	('scripts/meta/game_mode.gd', 'static func _defend_queue'),
+    	('scripts/meta/game_mode.gd', 'match mode_id'),
+    	('scripts/meta/game_mode.gd', '"score_mult":'),
+    	('scripts/meta/prestige.gd', 'const TITLES'),
+    	('scripts/meta/prestige.gd', 'const CHALLENGE_TIERS'),
+    	('scripts/meta/prestige.gd', 'const MAX_PRESTIGE'),
+    	('scripts/meta/prestige.gd', 'const PRESTIGE_COST_BASE'),
+    	('scripts/meta/prestige.gd', '.get('),
+    	('scripts/meta/narrator.gd', 'const ARENA_LORE'),
+    	('scripts/meta/narrator.gd', 'const MODE_INTRO'),
+    	('scripts/meta/narrator.gd', 'const CAMPAIGN_BEATS'),
+    	('scripts/meta/narrator.gd', 'const ENEMY_BLURBS'),
+    	('scripts/meta/narrator.gd', 'default_arena'),
+    	('scripts/meta/narrator.gd', 'GameMode.MODE_'),
+    	('scripts/meta/narrator.gd', 'match mode_id'),
+    	('scripts/meta/game_mode_config.gd', 'func _definition'),
+    	('scripts/meta/game_mode_config.gd', '"unlock_prestige"'),
+    ]
+    for path, needle in meta_absences:
+        txt = (ROOT / path).read_text(encoding="utf-8", errors="ignore")
+        body = "\n".join(l for l in txt.splitlines() if not l.lstrip().startswith("#"))
+        if needle in body:
+            FAILED += 1
+            print(f"FAIL {path}: reintroduced {needle!r}")
+        else:
+            PASSED += 1
+            print(f"OK   {path}: no {needle[:40]!r}")
+
     print("-- @export_range editor enforcement on content configs --")
     export_checks = [
         ("scripts/enemies/enemy_config.gd", "@export_range(0.0, 10000.0, 0.5) var max_health"),
@@ -194,6 +269,28 @@ def main() -> int:
         ("scripts/waves/wave_mutator_config.gd", "@export_range(0.0, 1.0, 0.01) var explode_chance"),
         ("scripts/waves/wave_mutator_config.gd", "@export_range(0, 64) var roll_order"),
         ("scripts/waves/wave_mutator_config.gd", "@export_range(1, 1000) var min_wave"),
+        # Run definitions: a mode's multipliers, a ladder's costs and a tier's wave cap are bounded
+        # in the inspector, so the authored file cannot carry a value the code would have to clamp.
+        ('scripts/meta/game_mode_config.gd', '@export_range(0.05, 10.0, 0.01) var score_mult'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0.05, 10.0, 0.01) var currency_mult'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0, 200, 1) var max_waves'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0.0, 3600.0, 1.0) var target_seconds'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0, 500, 1) var collect_target'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0, 20, 1) var upgrade_every'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(-20, 20, 1) var planner_wave_offset'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(1, 200, 1) var planner_wave_floor'),
+        ('scripts/meta/game_mode_config.gd', '@export_range(0, 20, 1) var every_n_waves'),
+        ('scripts/meta/game_mode_wave_plan.gd', '@export_range(1, 200, 1) var wave_number'),
+        ('scripts/meta/prestige_ladder_config.gd', '@export_range(1, 1000000, 1) var cost_base'),
+        ('scripts/meta/prestige_ladder_config.gd', '@export_range(1, 40, 1) var max_rank'),
+        ('scripts/meta/prestige_ladder_config.gd', '@export_range(0.0, 1.0, 0.001) var score_bonus_per_rank'),
+        ('scripts/meta/prestige_ladder_config.gd', '@export_range(0.0, 1.0, 0.001) var currency_bonus_per_rank'),
+        ('scripts/meta/prestige_ladder_config.gd', '@export_range(0.0, 1.0, 0.01) var armory_completion_required'),
+        ('scripts/meta/challenge_tier.gd', '@export_range(0.05, 20.0, 0.01) var score_mult'),
+        ('scripts/meta/challenge_tier.gd', '@export_range(0.05, 20.0, 0.01) var currency_mult'),
+        ('scripts/meta/challenge_tier.gd', '@export_range(0, 12, 1) var mutator_count'),
+        ('scripts/meta/challenge_tier.gd', '@export_range(1, 200, 1) var max_waves'),
+        ('scripts/meta/prestige_unlock.gd', '@export_range(1, 40, 1) var unlock_rank'),
         ("scripts/enemies/boss_phase_config.gd", "@export_range(0.01, 1.0, 0.01) var threshold"),
         ("scripts/player/health_component.gd", "@export_range(1.0, 100000.0, 1.0) var max_health"),
     ]
