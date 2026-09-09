@@ -276,9 +276,15 @@ func _on_finished(_clip: StringName) -> void:
 
 
 func _length(clip: StringName) -> float:
-	if _animation == null:
+	if _animation == null or not _animation.has_animation(clip):
 		return 0.3
-	return _animation.get_animation(clip).length if _animation.has_animation(clip) else 0.3
+	# `has_animation` only proves the name is registered: the resource behind it can be
+	# null or (for a condition-baked clip) carry a non-positive/NaN length, and this
+	# value is used as a divisor for the playback speed_scale.
+	var anim := _animation.get_animation(clip)
+	if anim == null or not is_finite(anim.length) or anim.length <= 0.0:
+		return 0.3
+	return anim.length
 
 
 func _play(clip: StringName, restart: bool = false, speed: float = 1.0) -> void:

@@ -64,6 +64,13 @@ func _process(_delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 	var value := joystick.get_value()
+	if not is_finite(value.x) or not is_finite(value.y):
+		# Never forward a poisoned sample to the player: it would be latched into
+		# locomotion until the stick is released.
+		if _last_value != Vector2.ZERO:
+			_last_value = Vector2.ZERO
+			UiCommands.move(Vector2.ZERO)
+		return
 	if value != _last_value:
 		_last_value = value
 		UiCommands.move(value)

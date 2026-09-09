@@ -70,6 +70,24 @@ def main() -> int:
         ("scripts/audio/audio_manager.gd", "clampf(pitch_scale, 0.1, 4.0)"),
         ("scripts/save/settings_data.gd", "_clamp01"),
         ("scripts/visuals/ring_fade.gd", "clampf(_elapsed / _duration, 0.0, 1.0)"),
+        # Joystick -> locomotion -> physics/camera: the non-finite-proof chain that keeps
+        # a bad analog sample from latching into a CharacterBody3D / Camera3D transform
+        # (docs/MOVEMENT_STABILITY.md). Losing any one of these re-opens a device crash.
+        ("scripts/ui/virtual_joystick.gd", "func _safe_radius() -> float:"),
+        ("scripts/ui/virtual_joystick.gd", "return _value if _is_finite_v2(_value) else Vector2.ZERO"),
+        ("scripts/ui/touch_controls.gd", "if not is_finite(value.x) or not is_finite(value.y):"),
+        ("scripts/player/player_locomotion.gd", "if not is_finite(input_vector.x) or not is_finite(input_vector.y):"),
+        ("scripts/player/character_controller.gd", "func _apply_velocity(vel: Vector3) -> void:"),
+        ("scripts/player/character_controller.gd", "func _clean_velocity(vel: Vector3) -> Vector3:"),
+        ("scripts/player/character_controller.gd", "if not is_finite(delta) or delta <= 0.0:"),
+        ("scripts/player/character_controller.gd", "clampf(value, 0.0, 40.0)"),
+        ("scripts/main/camera/camera_math.gd", "static func is_finite_transform(xform: Transform3D) -> bool:"),
+        ("scripts/main/camera_rig.gd", "func _apply_follow_position(next_pos: Vector3, weight: float) -> void:"),
+        ("scripts/main/camera_rig.gd", "if cam_origin.distance_squared_to(look_target) < 0.0004:"),
+        ("scripts/main/camera/camera_shake_controller.gd", "if CameraMath.is_finite_transform(rolled):"),
+        ("scripts/main/camera/camera_fov_controller.gd", "func _bounded(fov: float) -> float:"),
+        ("scripts/arena/arena_hazards.gd", "func _hazard_emission(h: Dictionary) -> StandardMaterial3D:"),
+        ("scripts/player/player_animation.gd", "if anim == null or not is_finite(anim.length) or anim.length <= 0.0:"),
     ]
     for path, needle in checks:
         check(path, needle)

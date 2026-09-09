@@ -47,8 +47,19 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, framing: Camera
 		smoothing = _profile.reduced_motion_smoothing
 
 	var weight := CameraMath.exp_weight(smoothing, delta)
-	current_fov = lerpf(current_fov, target_fov, weight)
+	current_fov = _bounded(lerpf(current_fov, target_fov, weight))
 	camera.fov = current_fov
 
+
+## A non-finite or out-of-range FOV makes an invalid projection matrix, which the
+## renderer cannot recover from mid-frame and which also corrupts every
+## `Camera3D.unproject_position()` the HUD performs. Hold the last good value instead;
+## the limits are Godot's own for Camera3D.fov, so authored values are untouched.
+func _bounded(fov: float) -> float:
+	if not is_finite(fov):
+		return current_fov if is_finite(current_fov) else 45.0
+	return clampf(fov, 1.0, 179.0)
+
+
 func snap_to(profile_fov: float) -> void:
-	current_fov = profile_fov
+	current_fov = 45.0 if not is_finite(profile_fov) else clampf(profile_fov, 1.0, 179.0)

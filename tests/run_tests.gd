@@ -23,6 +23,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_rng_tables.gd",
 	"res://tests/unit/test_status_skills.gd",
 	"res://tests/unit/test_drops_elites.gd",
+	"res://tests/unit/test_locomotion_nan.gd",
 	"res://tests/unit/test_director_mutators.gd",
 	"res://tests/unit/test_meta_misc.gd",
 	"res://tests/unit/test_planner_extended.gd",
