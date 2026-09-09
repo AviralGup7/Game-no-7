@@ -188,6 +188,9 @@ func _on_projectile(source: Node, _id: StringName) -> void:
 
 func _process(delta: float) -> void:
 	_flash_left -= delta
+	if _flash_left <= 0.0 and _muzzle != null and _muzzle.visible:
+		_muzzle.hide()
+		_flash_left = 0.0
 	_place_bow_string(delta)
 	_tick_ik(delta)
 	if _flash_left <= 0.0 and _string == null and (_ik == null or absf(_ik_value() - _ik_target) < 0.01):
