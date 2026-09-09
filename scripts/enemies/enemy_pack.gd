@@ -99,7 +99,7 @@ func disconnect_signals() -> void:
 	for sig_name in handlers:
 		if _bus.has_signal(sig_name):
 			var cb: Callable = handlers[sig_name]
-			if _bus.is_signal_connected(sig_name, cb):
+			if _bus.is_connected(sig_name, cb):
 				_bus.disconnect(sig_name, cb)
 	_bus = null
 
