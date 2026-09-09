@@ -73,7 +73,9 @@ static func _joystick(results: Array) -> void:
 	no_start._begin(0, Vector2(NAN, 4.0))
 	_check(results, "non-finite press does not capture", not no_start.is_active())
 	no_start._update(Vector2(50, 50))
-	_check(results, "un-captured stick reports no motion", no_start.get_value() == Vector2.ZERO)
+	no_start._update(Vector2(50, 50))
+	_check(results, "un-captured stick reports no motion", no_start.get_value() == Vector2.ZERO,
+		"got %s" % str(no_start.get_value()))
 	no_start.free()
 
 	# Mouse parity: the stick has to be draggable in the editor so this exact path is

@@ -86,6 +86,11 @@ func _end() -> void:
 
 
 func _update(position: Vector2) -> void:
+	# The stick only has a value while a pointer owns it: `_base` is meaningless
+	# otherwise, and a late drag arriving after release would otherwise publish phantom
+	# movement that the player then latches (see PlayerLocomotion.set_move_input).
+	if not _active:
+		return
 	if not _is_finite_v2(position):
 		return
 	var r := _safe_radius()
