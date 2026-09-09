@@ -66,7 +66,8 @@ class HotPathTests(unittest.TestCase):
     def test_minimap_caches_arena(self):
         src = read("scripts/ui/minimap.gd")
         self.assertIn("var _cached_arena: Arena", src)
-        self.assertIn("_cached_arena = world_arena", src)
+        self.assertIn("_cached_arena = _find_arena()", src)
+        self.assertIn("is_instance_valid(_cached_arena)", src)
 
     def test_projectile_shares_two_materials(self):
         src = read("scripts/weapons/projectile.gd")

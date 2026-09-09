@@ -1,5 +1,34 @@
 # Changelog
 
+## [Unreleased] — Minimap radar rebuilt from the base up (2026-09-09)
+
+The next-weakest subsystem audit picked the radar: v1 re-queried groups at
+15 Hz and snap-drew every dot from raw node positions (visible ~0.8 m stepping
+per refresh for a fast enemy), carried a dead `_north_up` member, had no
+spawn/death transitions, no facing cone, no threat hierarchy, and redrew
+unconditionally at the discovery cadence even when idle. Rebuilt as a
+threat-aware radar grounded in published radar-HUD practice (full write-up +
+sources in `docs/MINIMAP_RADAR.md`):
+
+- **Smoothed tracks, decoupled cadences.** Each entity's display position
+  eases toward the truth with frame-rate-independent exponential smoothing
+  (`1 - exp(-rate*dt)`, the same family the camera uses). Group queries stay
+  at 15 Hz; drawing runs per frame but `queue_redraw()` is gated on actual
+  change, so an idle radar issues zero canvas invalidations.
+- **Pure testable core.** Projection (v1-pinned semantics, now degenerate-
+  safe), `track_position`, `ping_progress`, `blink_alpha`, `wedge_points` and
+  the `advance_tracks` state machine are static + deterministic — new unit
+  suite `tests/unit/test_minimap_radar.gd` plus Python shape guards.
+- **Threat intelligence.** New enemies spawn a 1.2 s "spotted" ping; deaths
+  fade out; the closest enemy gets a white emphasis ring; a live boss turns
+  the rim into a red danger pulse with a boss halo; expiring pickups blink.
+- **Orientation context.** North-up radar with a 70° facing cone (10 m range)
+  so "which way is ahead" reads at a glance; player wedge stays instant.
+- **Preserved contracts.** `project_to_map` semantics, `arena_half`,
+  140×140 minimum, `Arena.ARENA_GROUP` lookup with legacy path fallback in
+  `_find_arena()`, shared group constants; help-panel legend updated to the
+  new vocabulary.
+
 ## [Unreleased] — Performance governor rebuilt from the base up (2026-09-09)
 
 The audit found the weakest subsystem: the adaptive-quality monitor. It
