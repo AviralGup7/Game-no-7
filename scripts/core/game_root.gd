@@ -57,6 +57,7 @@ func _ready() -> void:
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	EventBus.wave_started.connect(_on_wave_started)
 	EventBus.wave_completed.connect(_on_wave_completed)
+	EventBus.objective_resolved.connect(_on_objective_resolved)
 	_sync_player_control()
 	EventBus.diagnostic.connect(func(_m: String, _s: StringName) -> void: pass)
 	EventBus.report_info("GameRoot ready")
@@ -200,11 +201,24 @@ func _declare_victory() -> void:
 	_current_run.victory = true
 	_current_run.completed_objectives.append(&"mode_victory")
 	Narrator.announce_victory(_current_run.mode_id)
-	# Survival/time modes earn a flat completion bonus scaled by mode score mult.
-	var bonus := int(500.0 * GameMode.score_multiplier(_current_run.mode_id))
+	# Survival/time modes earn a flat completion bonus scaled by mode score mult
+	# (prestige-tier scaled for Challenge).
+	var bonus := int(500.0 * GameMode.score_multiplier_for(_current_run.mode_id, _prestige_rank))
 	if bonus > 0:
 		_score.award_bonus(bonus)
 	transition_to(State.GAME_OVER)
+
+
+## Objective director (Hold the Line / Relic Hunt) resolved its win/lose condition.
+## Success routes through the shared victory path; failure ends the run in a loss.
+func _on_objective_resolved(_mode_id: StringName, success: bool) -> void:
+	if _current_state not in [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION]:
+		return
+	if success:
+		_declare_victory()
+	else:
+		_current_run.player_alive = false
+		request_game_over()
 
 
 func request_restart() -> void:
@@ -357,8 +371,12 @@ func _start_new_run() -> void:
 		EventBus.announcement.emit(&"daily", "%s — mutators: %s" % [
 			String(_daily.get("label", "Daily")), ", ".join(names)], &"warning")
 	elif _current_run.mode_id != GameMode.MODE_STANDARD:
+		var mode_title := GameMode.display_name(_current_run.mode_id)
+		# Challenge announces its live prestige tier so the escalation is legible.
+		if GameMode.scales_with_prestige(_current_run.mode_id):
+			mode_title = "%s — %s" % [mode_title, GameMode.challenge_tier_label(_current_run.mode_id, _prestige_rank)]
 		EventBus.announcement.emit(&"mode", "%s — %s" % [
-			GameMode.display_name(_current_run.mode_id), GameMode.blurb(_current_run.mode_id)], &"info")
+			mode_title, GameMode.blurb(_current_run.mode_id)], &"info")
 	transition_to(State.PLAYING)
 
 

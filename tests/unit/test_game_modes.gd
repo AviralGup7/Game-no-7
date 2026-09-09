@@ -8,13 +8,15 @@ static func suite() -> Array:
 
 	# --- GameMode catalogue ---
 	results.append({
-		"name": "GameMode catalogue has five playable modes",
-		"passed": GameMode.all_mode_ids().size() == 5
+		"name": "GameMode catalogue has seven playable modes",
+		"passed": GameMode.all_mode_ids().size() == 7
 			and GameMode.is_known(GameMode.MODE_STANDARD)
 			and GameMode.is_known(GameMode.MODE_BOSS_RUSH)
 			and GameMode.is_known(GameMode.MODE_SURVIVAL)
 			and GameMode.is_known(GameMode.MODE_CHALLENGE)
-			and GameMode.is_known(GameMode.MODE_CAMPAIGN),
+			and GameMode.is_known(GameMode.MODE_CAMPAIGN)
+			and GameMode.is_known(GameMode.MODE_DEFEND)
+			and GameMode.is_known(GameMode.MODE_COLLECT),
 		"why": str(GameMode.all_mode_ids()),
 	})
 	results.append({
@@ -53,10 +55,42 @@ static func suite() -> Array:
 		"why": str(GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 15, 1)),
 	})
 	results.append({
-		"name": "Challenge forces glass + ember mutators",
-		"passed": GameMode.forced_mutators(GameMode.MODE_CHALLENGE) == [&"glass_cannon", &"ember_winds"]
+		"name": "Challenge tier-0 mutators are glass + ember; fixed gladius",
+		"passed": GameMode.challenge_mutators(GameMode.MODE_CHALLENGE, 0) == [&"glass_cannon", &"ember_winds"]
 			and GameMode.fixed_weapon(GameMode.MODE_CHALLENGE) == &"gladius",
-		"why": str(GameMode.forced_mutators(GameMode.MODE_CHALLENGE)),
+		"why": str(GameMode.challenge_mutators(GameMode.MODE_CHALLENGE, 0)),
+	})
+	results.append({
+		"name": "Challenge scales with prestige: more mutators, higher payout, longer",
+		"passed": GameMode.scales_with_prestige(GameMode.MODE_CHALLENGE)
+			and not GameMode.scales_with_prestige(GameMode.MODE_STANDARD)
+			and GameMode.challenge_mutators(GameMode.MODE_CHALLENGE, 8).size() > GameMode.challenge_mutators(GameMode.MODE_CHALLENGE, 0).size()
+			and GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 8) > GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 0)
+			and GameMode.currency_multiplier_for(GameMode.MODE_CHALLENGE, 8) > GameMode.currency_multiplier_for(GameMode.MODE_CHALLENGE, 0)
+			and GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 8) > GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 0),
+		"why": "%d muts @r8, cap %d" % [GameMode.challenge_mutators(GameMode.MODE_CHALLENGE, 8).size(), GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 8)],
+	})
+	results.append({
+		"name": "Challenge victory wave tracks the prestige tier cap",
+		"passed": GameMode.is_victory_wave_for(GameMode.MODE_CHALLENGE, GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 0), 0)
+			and not GameMode.is_victory_wave_for(GameMode.MODE_CHALLENGE, GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 0), 8),
+		"why": "cap0=%d cap8=%d" % [GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 0), GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 8)],
+	})
+	results.append({
+		"name": "Defend + Collect objectives resolve to their constants",
+		"passed": GameMode.objective(GameMode.MODE_DEFEND) == GameMode.OBJECTIVE_DEFEND_POINT
+			and GameMode.objective(GameMode.MODE_COLLECT) == GameMode.OBJECTIVE_COLLECT
+			and GameMode.collect_target(GameMode.MODE_COLLECT) > 0
+			and GameMode.collect_target(GameMode.MODE_STANDARD) == 0
+			and GameMode.target_seconds(GameMode.MODE_DEFEND) > 0.0,
+		"why": str(GameMode.collect_target(GameMode.MODE_COLLECT)),
+	})
+	results.append({
+		"name": "Defend + Collect provide endless spawn queues",
+		"passed": not GameMode.spawn_queue(GameMode.MODE_DEFEND, 1, 7).is_empty()
+			and not GameMode.spawn_queue(GameMode.MODE_COLLECT, 1, 7).is_empty()
+			and GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7) == GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7),
+		"why": str(GameMode.spawn_queue(GameMode.MODE_DEFEND, 1, 7)),
 	})
 	results.append({
 		"name": "Mode score multipliers are > 1 for non-standard",
@@ -78,6 +112,13 @@ static func suite() -> Array:
 			and not GameMode.objective_label(GameMode.MODE_BOSS_RUSH, 2, 0.0, 1).is_empty()
 			and "Wave" in GameMode.objective_label(GameMode.MODE_CAMPAIGN, 3, 0.0, 0),
 		"why": GameMode.objective_label(GameMode.MODE_SURVIVAL, 1, 30.0, 0),
+	})
+	results.append({
+		"name": "Defend/Collect objective labels reflect live progress",
+		"passed": "Beacon" in GameMode.objective_label(GameMode.MODE_DEFEND, 1, 10.0, 0, 42)
+			and "Relics" in GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5)
+			and ("5 / %d" % GameMode.collect_target(GameMode.MODE_COLLECT)) in GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5),
+		"why": GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5),
 	})
 
 	# --- Narrator ---
@@ -130,6 +171,45 @@ static func suite() -> Array:
 			and Prestige.challenge_tier(4) >= 2
 			and float(Prestige.challenge_tier_def(4).get("score_mult", 0)) > 1.5,
 		"why": str(Prestige.challenge_tier_def(4)),
+	})
+	results.append({
+		"name": "Prestige challenge tier accessors escalate with rank",
+		"passed": Prestige.challenge_tier_mutator_count(0) == 2
+			and Prestige.challenge_tier_mutator_count(8) >= 4
+			and Prestige.challenge_tier_waves(8) > Prestige.challenge_tier_waves(0)
+			and Prestige.challenge_tier_currency_mult(8) > Prestige.challenge_tier_currency_mult(0)
+			and Prestige.challenge_tier_label(10) == "Last Stand Challenge",
+		"why": Prestige.challenge_tier_label(10),
+	})
+
+	# --- Cosmetics catalogue: unlocked ids now resolve to applyable definitions ---
+	var worn := ["banner_survivor", "trail_ember", "aura_legend", "trail_frost", "banner_last_stand", "title_champion"]
+	results.append({
+		"name": "Cosmetics: highest-order trail/aura/title chosen from unlocks",
+		"passed": Cosmetics.active_trail(worn) == &"trail_frost"  # frost outranks ember
+			and Cosmetics.active_aura(worn) == &"aura_legend"
+			and Cosmetics.active_title(worn) == &"title_champion"
+			and Cosmetics.active_banners(worn).size() == 2,
+		"why": "%s / %s" % [Cosmetics.active_trail(worn), str(Cosmetics.active_banners(worn))],
+	})
+	results.append({
+		"name": "Cosmetics: empty/unknown unlocks yield nothing worn",
+		"passed": Cosmetics.active_trail([]) == &""
+			and Cosmetics.active_aura(["bogus"]) == &""
+			and Cosmetics.active_banners([]).is_empty()
+			and Cosmetics.is_known(&"trail_ember")
+			and not Cosmetics.is_known(&"bogus"),
+		"why": "",
+	})
+	var all_prestige_cosmetics := Prestige.all_cosmetics_up_to(Prestige.MAX_PRESTIGE)
+	var all_known := not all_prestige_cosmetics.is_empty()
+	for cid in all_prestige_cosmetics:
+		if not Cosmetics.is_known(cid):
+			all_known = false
+	results.append({
+		"name": "Prestige rank cosmetics map to known catalogue ids",
+		"passed": all_known,
+		"why": str(all_prestige_cosmetics),
 	})
 
 	# --- UpgradeConfig transformative contract ---

@@ -49,6 +49,12 @@ signal achievement_unlocked(achievement_id: StringName)
 signal tutorial_step_completed(step_id: StringName)
 signal announcement(text_key: StringName, text: String, severity: StringName)
 signal diagnostic(message: String, severity: StringName)
+## Objective-mode telemetry. `label` is the HUD-ready progress line; `progress`
+## and `target` are the raw counters (relics banked / quota, beacon hp / max %).
+signal objective_progress(label: String, progress: int, target: int)
+## Emitted when an objective-mode win/lose condition resolves (defend timer met,
+## relic quota banked, beacon destroyed). GameRoot decides victory vs game over.
+signal objective_resolved(mode_id: StringName, success: bool)
 
 
 ## Convenience: post a diagnostic without callers needing the severity constant.

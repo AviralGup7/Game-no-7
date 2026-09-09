@@ -321,3 +321,52 @@ func _primitive_banner(holder: Node) -> void:
 	pole.position.y = 2.25
 	pole.material_override = _mat(Color(0.3, 0.25, 0.2))
 	holder.add_child(pole)
+
+
+# ---------------------- prestige cosmetics (banners) ----------------------
+
+## Hang the player's prestige-unlocked banners (Cosmetics KIND_BANNER) on the
+## arena walls in their unlock colours. Called by Main after decorate(); a no-op
+## when no banners are unlocked, so it's always safe to invoke. These are the
+## in-world payoff for banner_survivor / banner_last_stand, which previously
+## unlocked in save and never appeared anywhere.
+func apply_prestige_banners(arena_half: float, unlocked: Array) -> void:
+	var banners := Cosmetics.active_banners(unlocked)
+	if banners.is_empty():
+		return
+	# Place one per banner, evenly spaced on the wall ring, offset from the
+	# generic wall props so both read clearly.
+	var count := banners.size()
+	for i in range(count):
+		var angle := TAU * float(i) / float(count) + PI / float(maxi(count, 1))
+		var at := Vector3(cos(angle) * (arena_half - 0.35), 0, sin(angle) * (arena_half - 0.35))
+		var holder := Node3D.new()
+		holder.name = "PrestigeBanner_%d" % i
+		holder.position = at
+		holder.rotation.y = -angle
+		_prestige_banner_cloth(holder, Cosmetics.color_of(banners[i]))
+		add_child(holder)
+		_spawned.append(holder)
+
+
+## Emissive prestige banner: a tall pole with a glowing coloured cloth.
+func _prestige_banner_cloth(holder: Node, color: Color) -> void:
+	var pole := MeshInstance3D.new()
+	var pm := CylinderMesh.new()
+	pm.top_radius = 0.07
+	pm.bottom_radius = 0.07
+	pm.height = 4.8
+	pole.mesh = pm
+	pole.position.y = 2.4
+	pole.material_override = _mat(Color(0.22, 0.18, 0.15))
+	holder.add_child(pole)
+	var cloth := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(1.1, 2.4)
+	cloth.mesh = quad
+	cloth.position = Vector3(0, 3.0, 0.06)
+	var mat := _mat(color, 1.4)
+	mat.albedo_color = color
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	cloth.material_override = mat
+	holder.add_child(cloth)

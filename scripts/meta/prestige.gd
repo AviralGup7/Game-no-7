@@ -27,13 +27,17 @@ const TITLES := {
 	10: "Last Stand",
 }
 
-## Challenge tiers unlocked by prestige (used by GameMode challenge variants).
+## Challenge tiers unlocked by prestige (consumed by GameMode challenge variants).
+## Each tier scales the Challenge run: how many mutators ride the whole run, the
+## score/currency payout, and how many waves must be cleared. `mutators` is a COUNT
+## drawn deterministically from GameMode's challenge mutator pool — not a fixed list —
+## so a higher tier is a genuinely harsher, better-paying, longer run.
 const CHALLENGE_TIERS := {
-	0: {"label": "Standard Challenge", "score_mult": 1.5, "mutators": 2},
-	1: {"label": "Hard Challenge", "score_mult": 1.8, "mutators": 3},
-	2: {"label": "Nightmare Challenge", "score_mult": 2.2, "mutators": 3},
-	3: {"label": "Mythic Challenge", "score_mult": 2.8, "mutators": 4},
-	4: {"label": "Last Stand Challenge", "score_mult": 3.5, "mutators": 4},
+	0: {"label": "Standard Challenge", "score_mult": 1.5, "currency_mult": 1.4, "mutators": 2, "waves": 12},
+	1: {"label": "Hard Challenge", "score_mult": 1.8, "currency_mult": 1.55, "mutators": 3, "waves": 14},
+	2: {"label": "Nightmare Challenge", "score_mult": 2.2, "currency_mult": 1.7, "mutators": 3, "waves": 16},
+	3: {"label": "Mythic Challenge", "score_mult": 2.8, "currency_mult": 1.9, "mutators": 4, "waves": 18},
+	4: {"label": "Last Stand Challenge", "score_mult": 3.5, "currency_mult": 2.2, "mutators": 4, "waves": 20},
 }
 
 
@@ -71,6 +75,27 @@ static func challenge_tier(rank: int) -> int:
 
 static func challenge_tier_def(rank: int) -> Dictionary:
 	return CHALLENGE_TIERS.get(challenge_tier(rank), CHALLENGE_TIERS[0])
+
+
+## Challenge-tier field accessors (safe defaults so callers never branch on shape).
+static func challenge_tier_label(rank: int) -> String:
+	return String(challenge_tier_def(rank).get("label", "Standard Challenge"))
+
+
+static func challenge_tier_score_mult(rank: int) -> float:
+	return float(challenge_tier_def(rank).get("score_mult", 1.5))
+
+
+static func challenge_tier_currency_mult(rank: int) -> float:
+	return float(challenge_tier_def(rank).get("currency_mult", 1.4))
+
+
+static func challenge_tier_mutator_count(rank: int) -> int:
+	return maxi(int(challenge_tier_def(rank).get("mutators", 2)), 0)
+
+
+static func challenge_tier_waves(rank: int) -> int:
+	return maxi(int(challenge_tier_def(rank).get("waves", 12)), 1)
 
 
 ## Cosmetics unlocked at each prestige rank (ids only — visuals are freeform).

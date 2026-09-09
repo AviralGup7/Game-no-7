@@ -1160,6 +1160,10 @@
   "coin_cache": {
    "model": "assets/pickups/rpg/Coin_Star.glb",
    "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "relic_shard": {
+   "model": "assets/pickups/rpg/Crystal1.glb",
+   "status": "integrated; Relic Hunt objective drop, spawned by ObjectiveDirector"
   }
  },
  "gameplay_skills": {

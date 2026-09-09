@@ -244,6 +244,9 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	decorator.name = "ArenaDecorator"
 	arena.add_child(decorator)
 	decorator.decorate(arena_id, half, seed)
+	# Prestige banners (unlocked cosmetics) hang on the arena walls in their colours.
+	if SaveManager != null:
+		decorator.apply_prestige_banners(half, SaveManager.get_unlocked_cosmetics())
 
 	var hazards := ArenaHazards.new()
 	hazards.name = "ArenaHazards"
@@ -260,6 +263,14 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	effects.name = "EffectDirector"
 	_world_root.add_child(effects)
 
+	# Objective director: arms Hold the Line / Relic Hunt win-loss logic. A no-op
+	# for wave/survival/boss modes, so it is always safe to create.
+	var objectives := ObjectiveDirector.new()
+	objectives.name = "ObjectiveDirector"
+	_world_root.add_child(objectives)
+	# The beacon / relic fallback anchor sits at the arena's geometric centre.
+	objectives.configure(mode_id, arena.global_position, pickups)
+
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
 	var skills := player.get_skill_controller()
 	if skills != null:
@@ -274,7 +285,28 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 		player.dodged.connect(_tutorial.notify_player_dodged)
 	if _meta != null:
 		_meta.apply_all_to_run()
+	_apply_player_cosmetics(player)
 	player.rebuild_derived_stats()
+
+
+## Attach the prestige-unlocked body cosmetics (trail / aura) to the live hero.
+## Reads the persisted unlock list from SaveManager; banners are arena-scoped and
+## applied by ArenaDecorator, titles are HUD text.
+func _apply_player_cosmetics(player: Player) -> void:
+	if player == null:
+		return
+	var visual_root := player.get_node_or_null("VisualRoot") as Node3D
+	if visual_root == null:
+		return
+	var unlocked: Array = []
+	if SaveManager != null:
+		unlocked = SaveManager.get_unlocked_cosmetics()
+	var existing := visual_root.get_node_or_null("PlayerCosmetics") as PlayerCosmetics
+	if existing == null:
+		existing = PlayerCosmetics.new()
+		existing.name = "PlayerCosmetics"
+		visual_root.add_child(existing)
+	existing.apply(unlocked)
 
 
 ## Daily runs share one deterministic mutator pair for every wave.

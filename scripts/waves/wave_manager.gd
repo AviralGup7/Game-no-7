@@ -150,6 +150,13 @@ func _run_mode() -> StringName:
 	return GameMode.MODE_STANDARD
 
 
+## Player's prestige tier, consulted for prestige-scaling modes (Challenge).
+func _prestige_rank() -> int:
+	if GameRoot != null:
+		return GameRoot.get_prestige_rank()
+	return 0
+
+
 func _launch_wave(wave_number: int) -> void:
 	if _spawn == null:
 		EventBus.report_warning("WaveManager has no spawn manager")
@@ -180,7 +187,7 @@ func _launch_wave(wave_number: int) -> void:
 func _announce_wave(wave_number: int) -> void:
 	var mode_id := _run_mode()
 	var text := "Wave %d" % wave_number
-	var cap := GameMode.max_waves(mode_id)
+	var cap := GameMode.max_waves_for(mode_id, _prestige_rank())
 	if cap > 0:
 		text = "Wave %d / %d" % [wave_number, cap]
 	var severity := &"info"
@@ -205,7 +212,8 @@ func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
 			EventBus.wave_mutator_applied.emit(id, wave_number)
 		return
 	# Mode-forced mutators (challenge / boss rush) apply for the whole run.
-	var mode_forced := GameMode.forced_mutators(_run_mode())
+	# Challenge scales its set by prestige tier; other modes keep authored lists.
+	var mode_forced := GameMode.challenge_mutators(_run_mode(), _prestige_rank())
 	if not mode_forced.is_empty():
 		_active_mutators = mode_forced.duplicate()
 		for id in _active_mutators:
@@ -300,15 +308,17 @@ func _complete_current_wave() -> void:
 	_phase = PHASE_COMPLETED
 	var cfg := _wave_config(_current_wave)
 	var bonus := cfg.completion_bonus
-	# Mode score multiplier folds into the wave completion bonus.
-	bonus = int(round(float(bonus) * GameMode.score_multiplier(_run_mode())))
+	# Mode score multiplier folds into the wave completion bonus (prestige-scaled
+	# for Challenge, so a Last Stand tier pays out on its escalated curve).
+	bonus = int(round(float(bonus) * GameMode.score_multiplier_for(_run_mode(), _prestige_rank())))
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
 	AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
-	# Mode win condition: finishing the cap wave ends the run in victory.
-	if GameMode.is_victory_wave(_run_mode(), _current_wave):
+	# Mode win condition: finishing the cap wave ends the run in victory
+	# (Challenge's cap grows with prestige tier).
+	if GameMode.is_victory_wave_for(_run_mode(), _current_wave, _prestige_rank()):
 		if GameRoot != null:
 			GameRoot.declare_victory()
 		stop()

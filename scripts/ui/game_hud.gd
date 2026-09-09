@@ -13,6 +13,7 @@ var _wave_label: Label
 var _combo_label: Label
 var _currency_label: Label
 var _weapon_label: Label
+var _objective_label: Label
 var _toast_label: Label
 var _toast_show_until := 0
 var _experience: ExperienceComponent
@@ -96,6 +97,10 @@ func _ready() -> void:
 	_xp_bar = _meter(_vitals, UiTheme.CYAN)
 	_weapon_label = _vital_label("WEAPON —", 20, false)
 	_weapon_label.modulate = UiTheme.MUTED
+	# Objective line: hidden for wave/survival modes, shown for defend / collect.
+	_objective_label = _vital_label("", 18, false)
+	_objective_label.modulate = UiTheme.CYAN
+	_objective_label.visible = false
 	_toast_label = UiFactory.label("", self, 22)
 	_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_toast_label.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -111,6 +116,7 @@ func _ready() -> void:
 	EventBus.wave_progressed.connect(_wave_progress)
 	EventBus.weapon_equipped.connect(func(id: StringName, _slot: int) -> void: set_weapon(id))
 	EventBus.weapon_switched.connect(func(_old: StringName, id: StringName) -> void: set_weapon(id))
+	EventBus.objective_progress.connect(func(label: String, _p: int, _t: int) -> void: set_objective(label))
 
 ## Translucent backing so HUD text stays legible over bright arena surfaces
 ## without hiding gameplay behind an opaque plate.
@@ -160,6 +166,8 @@ func seed_from_run() -> void:
 	set_currency(run.currency)
 	set_wave(run.current_wave)
 	set_combo(run.combo)
+	# Objective line resets each run; the director re-emits it for defend/collect.
+	set_objective("")
 	_toast_label.visible = false
 	var player := GameRoot.get_active_player()
 	if is_instance_valid(_experience) and _experience.xp_changed.is_connected(_on_xp):
@@ -207,6 +215,10 @@ func set_weapon(id: StringName) -> void:
 	var cfg := ContentRegistry.get_weapon(id)
 	_weapon_label.text = cfg.display_name if cfg != null else "No weapon"
 	_weapon_label.tooltip_text = "Switch weapon: " + UiCommands.binding(&"switch_weapon")
+
+func set_objective(label: String) -> void:
+	_objective_label.text = label
+	_objective_label.visible = not label.is_empty()
 
 func set_score(score: int) -> void: _score_label.text = "SCORE %d" % score
 func set_currency(currency: int) -> void: _currency_label.text = "COINS %d" % currency

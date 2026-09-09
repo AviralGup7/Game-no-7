@@ -32,6 +32,8 @@ const MODE_INTRO := {
 	&"survival": "Five minutes. Mounting waves. Outlast the arena itself.",
 	&"challenge": "Glass and fire. One blade. Twelve waves. No excuses.",
 	&"campaign": "They sealed the gate. You are the last line. Hold the stand.",
+	&"defend": "The beacon must not fall. Hold the centre — everything comes for the light.",
+	&"collect": "Their bones carry relics. Reap them from the horde before it buries you.",
 }
 
 const CAMPAIGN_BEATS := {
