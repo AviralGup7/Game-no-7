@@ -68,14 +68,13 @@ func _wire_signals() -> void:
 		return
 	if _player.has_signal("dodged") and not _player.dodged.is_connected(_on_player_dodged):
 		_player.dodged.connect(_on_player_dodged)
-	if _player.has_signal("attack_hit") and not _player.attack_hit.is_connected(_on_attack_hit):
-		_player.attack_hit.connect(_on_attack_hit)
 	if _player.has_signal("damaged") and not _player.damaged.is_connected(_on_player_damaged):
 		_player.damaged.connect(_on_player_damaged)
 	if EventBus != null:
 		if not EventBus.enemy_killed.is_connected(_on_enemy_killed):
 			EventBus.enemy_killed.connect(_on_enemy_killed)
-		# WeaponManager path does not emit Player.attack_hit; enemy_damaged covers both.
+		# Offensive hits arrive via EventBus.enemy_damaged (the weapon path never
+		# emitted Player.attack_hit, which was removed with the legacy controller).
 		if not EventBus.enemy_damaged.is_connected(_on_enemy_damaged):
 			EventBus.enemy_damaged.connect(_on_enemy_damaged)
 
@@ -84,8 +83,6 @@ func _exit_tree() -> void:
 	if _player != null and is_instance_valid(_player):
 		if _player.has_signal("dodged") and _player.dodged.is_connected(_on_player_dodged):
 			_player.dodged.disconnect(_on_player_dodged)
-		if _player.has_signal("attack_hit") and _player.attack_hit.is_connected(_on_attack_hit):
-			_player.attack_hit.disconnect(_on_attack_hit)
 		if _player.has_signal("damaged") and _player.damaged.is_connected(_on_player_damaged):
 			_player.damaged.disconnect(_on_player_damaged)
 	if EventBus != null:
@@ -132,10 +129,6 @@ func _on_player_dodged() -> void:
 		_spawn_trail(pos, &"fire", FIRE_TRAIL_DURATION * float(_stacks(EFFECT_FIRE_TRAIL)))
 	if _has(EFFECT_FROST_DODGE):
 		_apply_frost_nova(pos)
-
-
-func _on_attack_hit(target: Node, result: DamageResult) -> void:
-	_handle_offensive_hit(target, result)
 
 
 func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:

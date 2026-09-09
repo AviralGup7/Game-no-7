@@ -145,6 +145,9 @@ gameplay-adjacent tuning.*
 - **`wave_manager._apply_director_count_nudge`** appends `queue[i % queue.size()]` while the
   queue grows, so the sampled distribution skews toward early entries. Deterministic, so not
   a bug — but the intent was probably to sample the original queue.
+  **RESOLVED (2026-09-09):** the nudge is now a pure static `apply_count_nudge` that spreads
+  additions/removals evenly across the ORIGINAL queue (no head bias, no `pop_back` deleting
+  late elites/bosses); unit + regression guards added.
 
 ---
 
@@ -183,6 +186,11 @@ gameplay-adjacent tuning.*
   ERROR state; `_validation_dirty` is write-only; `validate_all()` calls the expensive
   `refresh_all()` and its duplicate-id loop is unreachable. `get_camera_profile` falls back
   to `&"default"` while `get_enemy`/`get_weapon` return null — inconsistent contracts.
+  **RESOLVED (2026-09-09):** `_ready()` now halts in debug/test builds when content
+  validation fails; `_validation_dirty` and the unreachable duplicate loop were deleted
+  (ContentLoader already rejects duplicates). The `get_camera_profile` default-vs-null
+  contract difference is a separate, intentional tolerance (camera has a shipped default
+  fallback; other content does not) and is left unchanged.
 
 ---
 
@@ -216,6 +224,10 @@ gameplay-adjacent tuning.*
 6. **Dead `_validated_*` helpers** (above) — deliberately retained, guarded by the validator.
 7. **`ContentRegistry` never halts on validation failure** — changing that is a behavioural
    decision about whether bad content should be fatal; flagged, not changed.
+   **RESOLVED (2026-09-09):** bad content is now fatal in debug/test builds (startup
+   `assert` in `ContentRegistry._ready()`); release builds report every problem and continue
+   with the degraded-but-usable tables, matching the "release logs once, debug asserts"
+   convention used for required player components.
 
 ---
 

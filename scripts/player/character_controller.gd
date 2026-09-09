@@ -14,9 +14,8 @@ class_name CharacterController
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
 var _weapons: WeaponManager
-# LEGACY ISOLATED: AttackController is not consulted for movement locking.
-# Authoritative lock is WeaponInstance.phase == WINDUP only; fallback removed
-# to guarantee single authority even if a legacy node is present in the scene.
+# Movement is never locked by a legacy attack controller: the single authority
+# for attack-driven movement locking is WeaponInstance.phase == WINDUP.
 
 
 func _ready() -> void:

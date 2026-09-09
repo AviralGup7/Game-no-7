@@ -37,8 +37,26 @@ class RemainingPlayerRisks(unittest.TestCase):
         self.assertIn("class_name", read("scripts/player/player_animation.gd"))
     def test_character_controller_exists(self):
         self.assertIn("CharacterController", read("scripts/player/character_controller.gd"))
-    def test_combo_chain_exists(self):
-        self.assertIn("ComboChain", read("scripts/player/combo_chain.gd"))
+    def test_combo_logic_lives_in_weapons(self):
+        # Combo chaining is canonical in WeaponInstance (combo_step / _chain_left);
+        # the legacy ComboChain helper shipped with AttackController is removed.
+        self.assertFalse((ROOT / "scripts/player/combo_chain.gd").exists())
+        txt = read("scripts/weapons/weapon_instance.gd")
+        self.assertIn("combo_step", txt)
+        self.assertIn("_chain_left", txt)
+
+    def test_player_attack_signal_gone_effects_use_event_bus(self):
+        # The weapon path never emitted Player.attack_hit (it resolves through
+        # EventBus.enemy_damaged), so the legacy signal/handler and the
+        # build_effects wiring to it must not be resurrected as a second
+        # offensive-hit authority.
+        player = read("scripts/player/player.gd")
+        self.assertNotIn("signal attack_hit", player)
+        self.assertNotIn("func _on_attack_hit", player)
+        effects = read("scripts/progression/build_effects.gd")
+        self.assertNotIn("_player.attack_hit", effects)
+        self.assertIn("EventBus.enemy_damaged.is_connected(_on_enemy_damaged)", effects)
+        self.assertIn("func _on_enemy_damaged", effects)
     def test_attack_buffer_exists(self):
         self.assertIn("AttackBuffer", read("scripts/player/attack_buffer.gd"))
     def test_health_still_emits(self):

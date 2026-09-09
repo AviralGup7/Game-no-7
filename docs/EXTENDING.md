@@ -2,7 +2,11 @@
 
 Content is added through **data resources + registries + scenes**, not core rewrites.
 The `ContentRegistry` autoload discovers `.tres` files under `res://data/<kind>/`,
-validates them, and caches them. This file shows each common extension.
+validates them, and caches them. Broken content is a hard authoring error: in debug /
+test builds a resource that fails to load, has the wrong script type, or fails its own
+`validate()` **halts startup** (see the registry's `_ready()`), so a bad `.tres` cannot
+silently ship a game missing that content. Release builds report every problem and
+continue with the degraded-but-usable tables. This file shows each common extension.
 
 ## 1. Add a new enemy archetype
 
@@ -96,7 +100,8 @@ so a `1.0` resistance floors at 0, never negative damage.
    shots use the same manager → `RangedResolver` → fixed `ProjectilePool` path.
    `attack_pattern` and tags describe identity while numeric fields tune geometry and
    cadence; no new resolver branch is needed for normal content.
-3. The legacy `AttackController` remains a fallback for older scenes. New loadouts use
+3. `WeaponManager` is the single attack authority (the legacy `AttackController`
+   fallback was removed) — equip through
    `WeaponManager.equip_by_id(id, slot, bypass_wave_gate=false)`. Ordinary calls reject
    unknown, disabled, invalid, and future-wave ids; only run setup may explicitly pass
    `true` for a starter/daily/meta loadout. `set_current_wave()` is driven by GameRoot.
@@ -237,12 +242,14 @@ modules. Put new logic in the module, not the orchestrator:
 | `spawn_manager.gd` | `SpawnLedger`, `SpawnPlacer` | queue/counters → Ledger, points → Placer |
 | `game_root.gd` | `RunScorekeeper`, `UpgradeService` | score/combo → Scorekeeper, offers/apply → Service |
 | `skill_controller.gd` | `SkillExecutor` | behaviors/scheduled hits → Executor |
-| `attack_controller.gd` | `ComboChain` | combo steps/window → Chain |
+| `weapon_instance.gd` | `WeaponConfig` combo steps/window | combo cadence + multipliers → Config |
 | `save_manager.gd` | `SaveSchema` | defaults/normalize/migrate → Schema |
 | `content_registry.gd` | `ContentLoader` | scanning/registration → Loader |
 
-Pure modules (`ComboChain`, `SpawnLedger`, `SaveSchema`, `UiText`) are covered by
+Pure modules (`SpawnLedger`, `SaveSchema`, `UiText`) are covered by
 `tests/unit/test_extracted_modules.gd` — extend that suite when you change them.
+(Combo chaining lives in `WeaponInstance`/`WeaponConfig` and is exercised by
+`tests/unit/test_weapons.gd`.)
 
 ## Public progression/content contracts
 

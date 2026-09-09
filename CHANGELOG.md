@@ -1,5 +1,67 @@
 # Changelog
 
+## [Unreleased] — Smaller product-debt cleanup (2026-09-09)
+
+Follow-up on the remaining QA_RELEASE_AUDIT debt items that were not part of any
+feature pass: fail-loud content loading, deletion of the legacy melee path, an
+unbiased wave-director count nudge, and a strict (allowlist-free) UI gate.
+
+### Content loading now halts on broken content (debug/test)
+
+`ContentRegistry._ready()` already reported validation problems but then kept
+running, so a corrupt `.tres` under `res://data/` could silently ship a game
+missing enemies/weapons/upgrades. It now halts in debug/test builds (push_error
++ assert) and still reports every problem in release builds before continuing
+with the degraded-but-usable tables. Cleaned up alongside: the write-only
+`_validation_dirty` flag and the unreachable duplicate-id loop in `validate_all()`
+(ContentLoader rejects duplicate ids at load time) were deleted; both startup and
+`validate_all()` now share one error-reporting path.
+
+### Legacy `AttackController`/`ComboChain` removed (M3 cleanup)
+
+`Player._try_attack()` has used the `WeaponManager → WeaponInstance →
+MeleeResolver/RangedResolver` path as its single authority since the typed
+architecture overhaul; the `AttackController` fallback only ever ran when no
+`WeaponInstance` was equipped, which production scenes never hit. Both files are
+deleted, the `player.tscn` node and its `ext_resource` are gone, and `player.gd`
+no longer resolves/ticks/resets the legacy controller; the vestigial
+`Player.attack_hit` signal + handler (never emitted by the weapon path) and
+`build_effects.gd`'s legacy wiring to it were removed too. Comments in
+`combat_query.gd`, `character_controller.gd`, `player_animation.gd`,
+`melee_resolver.gd`, `weapon_manager.gd` and the UI player double were updated;
+docs (`ARCHITECTURE`, `EXTENDING`, plus RESOLVED markers on the audit summaries)
+now describe `WeaponManager` as the single attack authority. The GDScript
+integration suites that drove the legacy class directly were removed/updated
+(`run_tests.gd` combo stage, `test_player.gd` legacy-recovery scenario), and the
+Python regression guards that read the deleted files were retargeted to the
+canonical combat code or inverted into “must stay deleted” guards.
+
+### Wave-director count nudge no longer skews spawn composition
+
+`WaveManager._apply_director_count_nudge` appended `queue[i % queue.size()]`
+while the queue grew (sampling from the head) and used `pop_back()` to trim
+(dropping the tail). Because spawn queues order weak-to-strong, that over-copied
+the weakest front entries and silently deleted late elites/bosses on a down
+nudge. The logic is now a pure, headless-testable
+`WaveManager.apply_count_nudge(queue, bonus)` that spreads additions/removals
+evenly across the ORIGINAL queue. New unit coverage in `tests/unit/test_waves.gd`
+(boss preserved on −1, late entries kept on −2, deterministic, never empties a
+non-empty plan) plus a structural guard in
+`tests/python/test_regress_wave_systems.py`.
+
+### UI validation gate is strict again (allowlist deleted)
+
+The `KNOWN_FAILURES` filter in `scripts/ui/run_ui_validation.sh` masked two
+pre-existing runtime bugs surfaced by the UI suite: `RunScorekeeper` calling the
+nonexistent `CombatLog.log()` (fixed on `main` — the API is `record`, which the
+scorekeeper has used since the runtime-verification pass) and the UI player
+double exposing a Dictionary where a typed `ProgressionComponent` is expected
+(the double now builds a real `Player` with real typed components). Both
+underlying bugs are fixed in this tree, so the allowlist and its rationale
+comment were deleted: any `SCRIPT ERROR` / `Parse Error` / `UI FAIL` now fails
+the gate again. The suite re-runs in CI (fresh + existing save profiles) to
+confirm no masked errors remain.
+
 ## [Unreleased] — Recheck, modularize, perfect (2026-09-09)
 
 Follow-up pass over the 2026-09-08 AI/collision work: full re-read of every

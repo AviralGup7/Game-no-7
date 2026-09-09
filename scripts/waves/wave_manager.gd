@@ -239,13 +239,50 @@ func _push_scaling_to_spawner(wave_number: int, _cfg: WaveConfig) -> void:
 
 func _apply_director_count_nudge(queue: Array[StringName]) -> void:
 	var bonus := int(_director.next_wave_multipliers().get("count_bonus", 0))
+	apply_count_nudge(queue, bonus)
+
+
+## Deterministic spawn-count nudge for one resolved queue. Additions/removals are
+## spread evenly across the ORIGINAL queue instead of appending its first entries
+## or popping its tail, which skewed the wave toward head archetypes (weakest
+## first) and silently dropped the late-wave elites/boss it was meant to keep.
+## Pure + headless-testable; a +2 nudge on [a,a,a,a,b,b] adds queue[2], queue[4]
+## (one of each third), and a -1 nudge removes the middle entry, never the boss.
+static func apply_count_nudge(queue: Array[StringName], bonus: int) -> void:
+	var n := queue.size()
+	if n <= 0 or bonus == 0:
+		return
 	if bonus > 0:
+		# Duplicate the entry at each evenly-spaced pick position of the ORIGINAL
+		# queue (spacing divides the queue into bonus+1 equal segments).
 		for i in range(bonus):
-			if not queue.is_empty():
-				queue.append(queue[i % queue.size()])
-	elif bonus < 0:
-		for i in range(mini(-bonus, queue.size() - 1)):
-			queue.pop_back()
+			queue.append(queue[_spread_position(i, bonus, n)])
+		return
+	# Negative: remove `drop` entries, but never empty a non-empty plan. Removing
+	# evenly spaced original positions (instead of popping the tail) preserves
+	# late-wave entries like elites/bosses.
+	var drop := mini(-bonus, n - 1)
+	if drop <= 0:
+		return
+	var drop_positions: Dictionary = {}
+	for i in range(drop):
+		drop_positions[_spread_position(i, drop, n)] = true
+	var survivors: Array[StringName] = []
+	for idx in range(n):
+		if not drop_positions.has(idx):
+			survivors.append(queue[idx])
+	queue.clear()
+	for idn in survivors:
+		queue.append(idn)
+
+
+## The i-th (0-based) of `k` evenly-spaced positions in an `n`-long sequence:
+## the sequence is split into k+1 equal segments and one position per segment is
+## chosen, so picks can never cluster at the head or the tail.
+static func _spread_position(i: int, k: int, n: int) -> int:
+	if n <= 0:
+		return 0
+	return mini((i + 1) * n / (k + 1), n - 1)
 
 
 func _on_all_cleared() -> void:

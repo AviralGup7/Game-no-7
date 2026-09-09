@@ -1,8 +1,8 @@
 class_name CombatQuery
 ## Pure, deterministic melee/arc query helpers. No scene state, no RNG: given an
 ## origin, a facing direction and a candidate list, return which targets fall inside
-## the attack arc at a range. Unit-testable headlessly; used by the AttackController
-## to resolve real hits each swing.
+## the attack arc at a range. Unit-testable headlessly; used by the weapon
+## resolvers to resolve real hits each swing.
 
 ## Returns the subset of `targets` that:
 ##  - are alive (have is_alive() == true, or no is_alive -> treated alive),
