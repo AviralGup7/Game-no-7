@@ -1,3 +1,4 @@
+class_name ContentRegistryService
 extends Node
 ## Autoload: ContentRegistry
 ## Owns the live content tables and exposes enemy / upgrade / arena / weapon /

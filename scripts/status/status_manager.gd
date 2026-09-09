@@ -58,22 +58,25 @@ func apply_effect(config: StatusEffectConfig, stacks: int = 1, source: Node = nu
 	_sync_shield_pool()
 	var total := (_effects[id] as StatusEffect).stacks
 	effect_applied.emit(id, total)
-	if EventBus != null:
-		EventBus.status_applied.emit(_owner_body, id, total)
+	var bus := _event_bus()
+	if bus != null:
+		bus.status_applied.emit(_owner_body, id, total)
 	return total
 
 
 ## Apply several effect ids at once (unknown ids are skipped with a warning).
 func apply_effects(effect_ids: Array, source: Node = null) -> Dictionary:
 	var applied: Dictionary = {}
-	if ContentRegistry == null:
+	var registry := _content_registry()
+	if registry == null:
 		return applied
 	for raw in effect_ids:
 		var id := StringName(String(raw))
-		var cfg: StatusEffectConfig = ContentRegistry.get_status_effect(id)
+		var cfg: StatusEffectConfig = registry.get_status_effect(id)
 		if cfg == null:
-			if EventBus != null:
-				EventBus.report_warning("Unknown status effect %s" % String(id))
+			var bus := _event_bus()
+			if bus != null:
+				bus.report_warning("Unknown status effect %s" % String(id))
 			continue
 		applied[id] = apply_effect(cfg, 1, source)
 	return applied
@@ -167,8 +170,9 @@ func _physics_process(delta: float) -> void:
 	for id in expired:
 		_remove_effect(id)
 		effect_expired.emit(id)
-		if EventBus != null:
-			EventBus.status_expired.emit(_owner_body, id)
+		var expired_bus := _event_bus()
+		if expired_bus != null:
+			expired_bus.status_expired.emit(_owner_body, id)
 
 
 func _apply_ticks(fx: StatusEffect, ticks: int) -> void:
@@ -309,6 +313,25 @@ func absorb_direct(amount: float) -> float:
 		remaining = maxf(remaining - absorbed, 0.0)
 	_sync_shield_pool()
 	return maxf(remaining, 0.0)
+
+
+func _event_bus() -> EventBusService:
+	var n := _autoload_node("EventBus")
+	return n as EventBusService
+
+
+func _content_registry() -> ContentRegistryService:
+	var n := _autoload_node("ContentRegistry")
+	return n as ContentRegistryService
+
+
+func _autoload_node(node_name: String) -> Node:
+	var tree := get_tree()
+	if tree == null:
+		tree = Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return null
+	return tree.root.get_node_or_null(node_name)
 
 
 func get_debug_snapshot() -> Dictionary:

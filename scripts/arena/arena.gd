@@ -103,10 +103,12 @@ func apply_theme(theme_arena_id: StringName) -> void:
 
 
 func _resolve_arena_id() -> StringName:
-	# GameRoot null check keeps the hermetic headless harness (no autoloads)
-	# working; get_run() is typed -> RunState so no Dictionary probing remains.
-	if GameRoot != null:
-		var run := GameRoot.get_run()
+	# Look up the live autoload by path so this script compiles under a bare
+	# SceneTree `--script` harness (autoload identifiers like GameRoot are not
+	# injected there). The node is the real GameRoot script when autoloads ran.
+	var gr := get_node_or_null("/root/GameRoot") as GameRootService
+	if gr != null:
+		var run := gr.get_run()
 		if run != null and run.arena_id != &"":
 			return run.arena_id
 	return arena_id

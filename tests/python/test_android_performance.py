@@ -66,11 +66,13 @@ class AndroidPerformanceTests(unittest.TestCase):
         self.assertRegex(make, r"elif inst != null:\s*#[^\n]+\s*inst\.free\(\)")
 
     def test_tint_materials_allocated_only_once_per_pooled_object(self):
-        for path in ("scripts/weapons/projectile.gd", "scripts/pickups/pickup.gd"):
-            source = read(path)
-            self.assertIn("if _tint_material == null:\n\t\t_tint_material = StandardMaterial3D.new()", source)
-            self.assertIn("var mat := _tint_material", source)
-            self.assertNotIn("var mat := StandardMaterial3D.new()", source)
+        pickup = read("scripts/pickups/pickup.gd")
+        self.assertIn("if _tint_material == null:\n\t\t_tint_material = StandardMaterial3D.new()", pickup)
+        self.assertIn("var mat := _tint_material", pickup)
+        proj = read("scripts/weapons/projectile.gd")
+        self.assertIn("static var _shared_player_mat", proj)
+        self.assertIn("static var _shared_enemy_mat", proj)
+        self.assertIn("_shared_player_mat = mat", proj)
 
     def test_damage_text_does_not_copy_active_array_each_frame(self):
         source = read("scripts/ui/damage_number_layer.gd")

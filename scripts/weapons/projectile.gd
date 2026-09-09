@@ -36,7 +36,12 @@ var _active := false
 var _hit_bodies: Array = []
 var _visual: Node3D = null
 var _trail: Node = null
-# Owned by this pooled object; reused rather than allocated on every activation.
+# Two shared materials for the whole game (player gold / enemy red). Per-instance
+# StandardMaterial3D on every launch was the largest avoidable volley allocation.
+static var _shared_player_mat: StandardMaterial3D = null
+static var _shared_enemy_mat: StandardMaterial3D = null
+# Legacy per-instance slot kept so pooled objects that already hold a material
+# keep working; new launches use the shared pair.
 var _tint_material: StandardMaterial3D = null
 
 
@@ -110,14 +115,20 @@ func _apply_team_tint() -> void:
 	var mesh := get_node_or_null("Visual/Mesh") as MeshInstance3D
 	if mesh == null:
 		return
-	var tint := Color(1.0, 0.8, 0.25) if team == TEAM_PLAYER else Color(1.0, 0.2, 0.25)
-	if _tint_material == null:
-		_tint_material = StandardMaterial3D.new()
-	var mat := _tint_material
-	mat.albedo_color = tint
-	mat.emission_enabled = true
-	mat.emission = tint
-	mat.emission_energy_multiplier = 1.5
+	var player_team := team == TEAM_PLAYER
+	var tint := Color(1.0, 0.8, 0.25) if player_team else Color(1.0, 0.2, 0.25)
+	var mat := _shared_player_mat if player_team else _shared_enemy_mat
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		mat.albedo_color = tint
+		mat.emission_enabled = true
+		mat.emission = tint
+		mat.emission_energy_multiplier = 1.5
+		if player_team:
+			_shared_player_mat = mat
+		else:
+			_shared_enemy_mat = mat
+	_tint_material = mat
 	mesh.material_override = mat
 
 
