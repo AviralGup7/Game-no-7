@@ -43,10 +43,9 @@ func run(viewport: Window) -> Dictionary:
 	_test_buffer()
 	_test_combo_and_interrupt()
 	_test_dodge_timing()
-	_test_legacy_recovery()
 	_test_motion_and_targeting()
 	_test_player_scene()
-	_check("all integration scenarios reached completion", _completed_cases == 7)
+	_check("all integration scenarios reached completion", _completed_cases == 6)
 	return {"checks": _checks, "failures": _failures}
 
 
@@ -73,13 +72,8 @@ func _test_buffer() -> void:
 	_completed_cases += 1
 
 func _test_combo_and_interrupt() -> void:
-	var chain := ComboChain.new()
-	chain.begin(1)
-	chain.open_chain()
-	chain.begin(chain.try_chain(3))
-	_check("new swing closes previous chain window", chain.step() == 2 and not chain.is_chain_ready())
-	chain.finish()
-	_check("combo finish resets step", chain.step() == 0)
+	# Combo chaining is owned by WeaponInstance (combo_step / _chain_left); the
+	# legacy ComboChain helper was removed with AttackController.
 	var config := WeaponConfig.new()
 	config.ammo_per_magazine = 4
 	config.windup = 0.1
@@ -119,22 +113,6 @@ func _test_dodge_timing() -> void:
 	_check("recovery overshoot carries into cooldown", is_equal_approx(dodge.get_cooldown_remaining(), 0.05))
 	dodge.tick(0.06)
 	_check("overshot dodge cycle can return ready", dodge.is_ready())
-	body.free()
-
-	_completed_cases += 1
-
-func _test_legacy_recovery() -> void:
-	var body := CharacterBody3D.new()
-	var attack := AttackController.new()
-	body.add_child(attack)
-	root.add_child(body)
-	attack.attack_windup = 0.01
-	attack.attack_cooldown = 0.05
-	attack.combo_chain_window = 0.35
-	attack.request_attack()
-	attack.advance(0.02)
-	attack.advance(0.06)
-	_check("legacy cooldown shorter than chain window returns ready", attack.is_attack_ready())
 	body.free()
 
 	_completed_cases += 1

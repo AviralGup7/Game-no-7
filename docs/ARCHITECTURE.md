@@ -54,7 +54,8 @@ An "interface" is an abstract base class others extend:
   ProgressionComponent, TargetingComponent, DodgeController, StaminaComponent,
   ExperienceComponent, WeaponManager, StatusManager.
 - **Optional** (nullable typed refs, guarded): SkillController, PlayerFeedback,
-  PlayerAudio, AttackController (legacy isolated fallback).
+  PlayerAudio. (The legacy `AttackController`/`ComboChain` fallback was removed;
+  `WeaponManager` is the single attack authority.)
 - Public typed accessors are the cross-system API: `get_health_component()`,
   `get_weapon_manager()`, `get_skill_controller()`, `get_status_manager()`,
   `get_stamina_component()`, `get_experience_component()`.

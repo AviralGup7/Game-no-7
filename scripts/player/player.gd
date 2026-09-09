@@ -3,10 +3,8 @@ class_name Player
 
 ## Player authority root — gameplay truth is Player → WeaponManager → WeaponInstance
 ## → MeleeResolver/RangedResolver/ProjectilePool → DamagePayload → HealthComponent.
-## AttackController/ComboChain are LEGACY ISOLATED fallbacks (see M3) and are NOT
-## part of the authoritative path when WeaponManager is wired. Dash intent is
-## captured in request_dodge() → DodgeController (stamina-checked, direction from
-## input vs facing, interrupt-aware).
+## Dash intent is captured in request_dodge() → DodgeController (stamina-checked,
+## direction from input vs facing, interrupt-aware).
 ##
 ## TYPED COMPONENT ARCHITECTURE (see docs/ARCHITECTURE.md):
 ## Every component is held as its concrete `class_name` type and called directly —
@@ -18,7 +16,7 @@ class_name Player
 ##   REQUIRED : HealthComponent, CharacterController, ProgressionComponent,
 ##              TargetingComponent, DodgeController, StaminaComponent,
 ##              ExperienceComponent, WeaponManager, StatusManager
-##   OPTIONAL : SkillController, PlayerFeedback, PlayerAudio, AttackController
+##   OPTIONAL : SkillController, PlayerFeedback, PlayerAudio
 ## Coordinates movement, combat, health, death, and external commands for the
 ## player. UI and future systems talk to THIS node through the stable command
 ## interface below; Player and EnemyBase share the Damageable combat protocol.
@@ -26,7 +24,6 @@ class_name Player
 signal move_started()
 signal move_stopped()
 signal attack_started()
-signal attack_hit(target: Node, result: DamageResult)
 signal attack_finished()
 signal damaged(result: DamageResult)
 signal dodged()
@@ -58,7 +55,6 @@ var _status: StatusManager = null
 var _skills: SkillController = null
 var _feedback: PlayerFeedback = null
 var _player_audio: PlayerAudio = null
-var _attack: AttackController = null
 
 var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
@@ -88,10 +84,6 @@ func _ready() -> void:
 	# Damage resistance: route progression resistance through the generic mitigation
 	# seam (HealthComponent stays Player-agnostic).
 	_health.set_mitigation_source(_mitigation_provider)
-	if _attack != null:
-		_attack.attack_started.connect(_on_attack_started)
-		_attack.attack_finished.connect(_on_attack_finished)
-		_attack.attack_hit.connect(_on_attack_hit)
 	_weapons.attack_resolved.connect(_on_weapon_attack_resolved)
 	_experience.leveled_up.connect(_on_leveled_up)
 	_dodge.bind_health(_health)
@@ -119,7 +111,6 @@ func _resolve_components() -> void:
 	_skills = get_node_or_null("SkillController") as SkillController
 	_feedback = get_node_or_null("PlayerFeedback") as PlayerFeedback
 	_player_audio = get_node_or_null("PlayerAudio") as PlayerAudio
-	_attack = get_node_or_null("AttackController") as AttackController
 
 
 ## Fail fast when a REQUIRED component is missing from the scene variant.
@@ -181,8 +172,6 @@ func _physics_process(delta: float) -> void:
 		_locomotion.track(Vector2.ZERO)
 		_locomotion.clamp_to_bounds()
 		# Stunned: timers still advance so the stun itself can expire, but no input.
-		if _attack != null:
-			_attack.advance(delta)
 		_weapons.tick(delta)
 		return
 	if _locomotion.uses_actions():
@@ -192,9 +181,7 @@ func _physics_process(delta: float) -> void:
 			request_dodge()
 		if Input.is_action_just_pressed("switch_weapon"):
 			request_weapon_switch()
-	# Advance attack timers every active step so hits resolve deterministically.
-	if _attack != null:
-		_attack.advance(delta)
+	# Advance weapon timers every active step so hits resolve deterministically.
 	_weapons.tick(delta)
 	_attack_buffer.tick(delta, _try_attack)
 	var move := _locomotion.gather()
@@ -225,8 +212,6 @@ func set_control_enabled(enabled: bool) -> void:
 	if _skills != null:
 		_skills.set_enabled(enabled)
 	_weapons.set_attacks_enabled(enabled)
-	if _attack != null:
-		_attack.set_attacks_enabled(enabled)
 	if not enabled:
 		velocity = Vector3.ZERO
 		_clear_input()
@@ -263,22 +248,16 @@ func _can_combat() -> bool:
 
 func _try_attack() -> bool:
 	# AUTHORITATIVE: Player → WeaponManager → WeaponInstance → Resolver → DamagePayload.
-	# Legacy AttackController is isolated fallback only when no WeaponInstance is equipped (headless).
+	# WeaponManager is the single attack authority; without an equipped weapon
+	# instance there is nothing to attack with (the legacy AttackController
+	# fallback was removed).
 	if not _can_combat() or _dodge.is_dodging():
 		return false
-	if _weapons.active_instance() != null:
-		if _weapons.request_attack() <= 0:
-			return false
-		_aim_attack()
-		_on_attack_started()
-		return true
-	# Legacy fallback — isolated, not authoritative; kept for minimal test scenes without WeaponManager wiring.
-	if _attack != null:
-		var started := _attack.request_attack()
-		if started:
-			_aim_attack()
-		return started
-	return false
+	if _weapons.active_instance() == null or _weapons.request_attack() <= 0:
+		return false
+	_aim_attack()
+	_on_attack_started()
+	return true
 
 
 func _aim_attack() -> void:
@@ -519,8 +498,6 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	# Reset progression FIRST so health derives from the fresh (empty) run modifiers.
 	_progression.reset()
 	_health.reset(_build.derived_max_health())
-	if _attack != null:
-		_attack.reset_attack_state()
 	_dodge.reset()
 	_stamina.reset_for_new_run()
 	_experience.reset_for_new_run()
@@ -623,12 +600,6 @@ func _on_dodge_started() -> void:
 		_feedback.play_dodge_feedback()
 
 
-func _on_attack_hit(target: Node, result: DamageResult) -> void:
-	attack_hit.emit(target, result)
-	if result.accepted and _feedback != null:
-		_feedback.play_impact_feedback(result.was_critical)
-
-
 func get_progression_snapshot() -> Dictionary:
 	return _progression.get_debug_snapshot()
 
@@ -650,18 +621,12 @@ func get_debug_snapshot() -> Dictionary:
 
 func _combat_busy() -> bool:
 	var inst := _weapons.active_instance()
-	if inst != null:
-		return inst.phase == WeaponInstance.PHASE_WINDUP or inst.phase == WeaponInstance.PHASE_RECOVERY
-	if _attack != null:
-		return _attack.is_attacking()
-	return false
+	return inst != null and (inst.phase == WeaponInstance.PHASE_WINDUP or inst.phase == WeaponInstance.PHASE_RECOVERY)
 
 
 func _cancel_combat() -> void:
 	_attack_buffer.clear()
 	_weapons.cancel_in_progress()
-	if _attack != null:
-		_attack.reset_attack_state()
 
 
 func is_control_enabled() -> bool:

@@ -40,7 +40,7 @@ var _flow_target := Vector2i(-1, -1)
 var _built := false
 
 # Fixed 8-neighbor order: N, NE, E, SE, S, SW, W, NW (deterministic ties).
-const NEIGHBORS := [
+const NEIGHBORS: Array[Vector2i] = [
 	Vector2i(0, -1), Vector2i(1, -1), Vector2i(1, 0), Vector2i(1, 1),
 	Vector2i(0, 1), Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-1, -1),
 ]
@@ -75,18 +75,34 @@ func build(half_extent: float, cell_size_value: float, obstacles: Array) -> void
 		var hs: Vector3 = ob.get("half_size", Vector3.ONE * 0.5)
 		if not is_finite(pos.x) or not is_finite(pos.z):
 			continue
-		var aabb := AABB(pos, hs * 2.0).grow(AGENT_MARGIN)
+		# pos is the obstacle CENTER (see layout_for / tests). AABB(min, size),
+		# so the box spans pos ± hs. Treating pos as the min corner (AABB(pos,
+		# hs*2)) silently shifted every footprint by +half on each axis, which
+		# blocked the wrong cells (e.g. a wall at x∈[4,8] becoming x∈[5.75,10.75]).
+		var min_corner := pos - hs
+		var aabb := AABB(min_corner, hs * 2.0).grow(AGENT_MARGIN)
 		_mark_blocked(aabb)
 		obstacle_count += 1
 	_built = true
 
 
-## Mark every cell whose center falls inside `aabb` as blocked.
+## Mark every cell whose CENTER falls inside `aabb` as blocked.
+##
+## Naively converting the box corners to their containing cells is off by one:
+## cell_center(c) == (c+0.5)*cell_size - half, so the cell that merely CONTAINS
+## the max corner has its center up to one cell OUTSIDE the box. That overshoot
+## blocked one extra row/column per face, so a ray that cleared the wall by a
+## few tenths of a cell (e.g. "LOS open over the wall") was still reported as
+## intersecting a blocked cell. Mark exactly the cells whose centers lie inside.
 func _mark_blocked(aabb: AABB) -> void:
-	var min_c := _clamp_cell(to_cell(aabb.position))
-	var max_c := _clamp_cell(to_cell(aabb.end))
-	for z in range(min_c.y, max_c.y + 1):
-		for x in range(min_c.x, max_c.x + 1):
+	var c0 := _clamp_cell(Vector2i(
+		ceili((aabb.position.x + half) / cell_size - 0.5),
+		ceili((aabb.position.z + half) / cell_size - 0.5)))
+	var c1 := _clamp_cell(Vector2i(
+		floori((aabb.end.x + half) / cell_size - 0.5),
+		floori((aabb.end.z + half) / cell_size - 0.5)))
+	for z in range(c0.y, c1.y + 1):
+		for x in range(c0.x, c1.x + 1):
 			_blocked[z * width + x] = 1
 
 

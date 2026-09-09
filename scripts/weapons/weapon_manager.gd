@@ -4,8 +4,8 @@ extends Node
 ## Player-side weapon loadout: owns up to LOADOUT_SLOTS WeaponInstances, the
 ## active slot, equip/switch rules, per-frame cooldown ticking and the melee +
 ## volley dispatch that connects WeaponInstance timing to MeleeResolver /
-## RangedResolver / ProjectilePool. UI and skills talk to THIS node; the
-## AttackController remains the legacy single-weapon path and stays untouched.
+## RangedResolver / ProjectilePool. UI and skills talk to THIS node; it is the
+## player's single attack authority (the legacy AttackController path is gone).
 ##
 ## Wiring (optional, all tolerant): parent Player, sibling ProgressionComponent
 ## (derived stats), ProjectilePool (found via group "projectile_pool").

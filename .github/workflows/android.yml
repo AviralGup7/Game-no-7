@@ -98,11 +98,63 @@ jobs:
 
       - name: Import project (godot --import)
         shell: bash
-        run: godot --headless --path . --import
+        run: |
+          set +e
+          godot --headless --path . --import > godot-import.log 2>&1
+          code=$?
+          set -e
+          echo "--- godot import errors surfaced as annotations ---"
+          awk '
+            {
+              line=$0; gsub(/[[:space:]]+/, " ", line);
+              if (line ~ /SCRIPT ERROR:|Parse Error:|Identifier not found|not declared|Failed to compile depended/) {
+                print "::error title=godot import::" line;
+                for (i=0;i<6;i++) {
+                  if ((getline nxt) > 0) {
+                    gsub(/[[:space:]]+/, " ", nxt);
+                    if (nxt ~ /res:\/\/.*\.gd/) print "::error title=godot import::" nxt;
+                    if (nxt ~ /^SCRIPT ERROR|^Parse Error|^ERROR/) break;
+                  } else break;
+                }
+              }
+            }
+          ' godot-import.log
+          exit "$code"
 
+      # Capture the full Godot output (stdout+stderr) so engine/runtime errors
+      # that only appear on stderr can be surfaced as ::error annotations (the
+      # step log itself is only downloadable from a blob store). Keeps the run's
+      # real exit code.
       - name: Run headless unit tests
         shell: bash
-        run: godot --headless --path . --script res://tests/run_tests.gd
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/run_tests.gd > godot-unit.log 2>&1
+          code=$?
+          set -e
+          echo "--- godot unit test log (last 120 lines) ---"
+          tail -120 godot-unit.log
+          echo "--- engine/script errors surfaced as annotations ---"
+          # Godot prints the error, then an 'at: res://....gd:N' line. Re-emit
+          # the error plus the following res:// location lines as ::error
+          # annotations (visible via the checks API) because the raw step log
+          # lives on an unreachable blob store.
+          awk '
+            {
+              line=$0; gsub(/[[:space:]]+/, " ", line);
+              if (line ~ /SCRIPT ERROR:|Parse Error:|Failed to load script/) {
+                print "::error title=godot engine::" line;
+                for (i=0;i<8;i++) {
+                  if ((getline nxt) > 0) {
+                    gsub(/[[:space:]]+/, " ", nxt);
+                    if (nxt ~ /res:\/\/.*\.gd/) { print "::error title=godot engine::" nxt; }
+                    if (nxt ~ /^SCRIPT ERROR|^Parse Error|^ERROR/) break;
+                  } else break;
+                }
+              }
+            }
+          ' godot-unit.log
+          exit "$code"
 
       # Real-node UI suite (screens, navigation, and the UiLayout geometry
       # contract across Android resolutions / text scales). It was previously

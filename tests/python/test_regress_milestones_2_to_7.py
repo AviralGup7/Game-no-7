@@ -40,18 +40,30 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         self.assertIn("forge", txt2)
         self.assertIn("crystal", txt2)
 class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
-    def test_attack_controller_isolated_legacy(self):
-        txt = read("scripts/player/attack_controller.gd")
-        self.assertIn("LEGACY ISOLATED", txt)
-        self.assertIn("authoritative combat is Player", txt)
-        txt2 = read("scripts/player/combo_chain.gd")
-        self.assertIn("LEGACY ISOLATED", txt2)
+    def test_legacy_attack_modules_removed(self):
+        # The M3 cleanup is done: AttackController/ComboChain were deleted, not
+        # left as parallel legacy authorities. Nothing may resurrect them as
+        # loadable gameplay code (comments may still say "removed").
+        for rel in ["scripts/player/attack_controller.gd", "scripts/player/combo_chain.gd"]:
+            self.assertFalse((ROOT / rel).exists(), f"legacy file must stay deleted: {rel}")
+        needles = [
+            "res://scripts/player/attack_controller.gd",
+            "res://scripts/player/combo_chain.gd",
+            "AttackController.new(",
+            "ComboChain.new(",
+            "as AttackController",
+        ]
+        for root in [(ROOT / "scripts"), (ROOT / "scenes"), (ROOT / "tests")]:
+            for rel in sorted(root.rglob("*.gd")) + sorted(root.rglob("*.tscn")):
+                text = rel.read_text(encoding="utf-8", errors="ignore")
+                for needle in needles:
+                    self.assertNotIn(needle, text, msg=f"legacy loadable reference {needle!r} in {rel}")
     def test_player_authoritative_chain(self):
         txt = read("scripts/player/player.gd")
         self.assertIn("Player → WeaponManager → WeaponInstance", txt)
         self.assertIn("MeleeResolver", txt)
         self.assertIn("DamagePayload", txt)
-        self.assertIn("Legacy fallback", txt)
+        self.assertNotIn("Legacy fallback", txt)
     def test_dash_intent(self):
         txt = read("scripts/player/player.gd")
         self.assertIn("request_dodge", txt)

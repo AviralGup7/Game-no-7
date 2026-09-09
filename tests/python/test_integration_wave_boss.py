@@ -97,9 +97,13 @@ class PlayerDeathIntegrationTests(unittest.TestCase):
     """Audit §25 — Test 4: death disables gameplay systems."""
 
     def test_player_death_disables_attacks(self):
-        txt = read("scripts/player/attack_controller.gd")
-        self.assertIn("set_attacks_enabled", txt)
-        self.assertIn("is_alive", txt)
+        txt = read("scripts/player/player.gd")
+        # Death gates every attack command: _can_combat refuses while dead and
+        # set_control_enabled(false) disables the WeaponManager attack path.
+        block = txt[txt.find("func _can_combat"):txt.find("func _can_combat") + 220]
+        self.assertIn("not _is_dead", block)
+        txt2 = read("scripts/weapons/weapon_manager.gd")
+        self.assertIn("func set_attacks_enabled", txt2)
     def test_player_has_health_died_signal(self):
         txt = read("scripts/player/health_component.gd")
         self.assertIn("signal died", txt)
@@ -161,20 +165,31 @@ class ContentLoaderRecursionTests(unittest.TestCase):
 class DeterminismAuditTests(unittest.TestCase):
     """Audit §21-22 — no gameplay system should call global RNG directly."""
 
-    def test_attack_controller_uses_injected_or_seeded_rng(self):
-        txt = read("scripts/player/attack_controller.gd")
-        # Must have injectable source and seeded fallback, not bare randf()
-        self.assertIn("_crit_roll_source", txt)
-        self.assertIn("RngService", txt)
-        # The final fallback randf() is only for no-seed headless; primary path is seeded
-        self.assertIn("seed_val", txt)
+    def test_combat_uses_injected_or_seeded_rng(self):
+        # Every gameplay roll routes through RngService on a named stream; the
+        # attack path is now WeaponInstance (legacy AttackController removed).
+        txt = read("scripts/weapons/weapon_instance.gd")
+        self.assertIn("_rng := RngService.new()", txt)
+        self.assertIn("STREAM_CRITS", txt)
+        txt2 = read("scripts/combat/critical_system.gd")
+        self.assertIn("RngService", txt2)
+        self.assertIn("STREAM_CRITS", txt2)
     def test_boss_not_using_global_randi(self):
         txt = read("scripts/enemies/boss_controller.gd")
         self.assertNotIn("randi() %", txt)
     def test_camera_rig_is_cosmetic_only(self):
-        txt = read("scripts/main/camera_rig.gd")
-        # Camera shake may use randf_range for cosmetic; should be documented as non-gameplay
-        self.assertIn("randf_range", txt)
+        rig = read("scripts/main/camera_rig.gd")
+        shake = read("scripts/main/camera/camera_shake_controller.gd")
+        # Camera motion is cosmetic/non-gameplay. After the modular refactor the
+        # shake lives in its own CameraShakeController: camera_rig only delegates
+        # through add_shake (reduced-motion gated), and the shake module clamps to
+        # max_shake_amplitude so it can never affect gameplay simulation.
+        self.assertIn("CameraShakeController", rig)
+        self.assertIn("_reduced_motion", rig)
+        self.assertIn("max_shake_amplitude", shake)
+        self.assertIn("reduced_motion", shake)
+        # The rig itself must not perform gameplay RNG rolls.
+        self.assertNotIn("randi() %", rig)
     def test_damage_numbers_are_cosmetic(self):
         txt = read("scripts/ui/damage_number_layer.gd")
         self.assertIn("randf_range", txt)

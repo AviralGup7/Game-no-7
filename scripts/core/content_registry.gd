@@ -3,10 +3,13 @@ extends Node
 ## Owns the live content tables and exposes enemy / upgrade / arena / weapon /
 ## camera / audio / skill / status / pickup / wave definitions. Scanning +
 ## typed registration moved to ContentLoader; this node adopts the loaded tables,
-## keeps arena selection, and registers audio cues. Every registry is tolerant:
-## missing or invalid optional content produces diagnostics + fallback and never
-## crashes startup. Adding content = drop a .tres in the right folder and
-## (optionally) register a default; no core-script rewrites.
+## keeps arena selection, and registers audio cues. Optional content that is
+## MISSING is tolerated (diagnostics + fallback), but content that is present and
+## BROKEN is a hard authoring error: _ready() reports every problem and halts
+## startup in debug/test builds instead of silently running with enemies,
+## weapons or upgrades missing from the tables. Adding content = drop a valid
+## .tres in the right folder and (optionally) register a default; no core-script
+## rewrites.
 
 const DATA_ROOT := "res://data"
 
@@ -22,7 +25,6 @@ var _waves: Dictionary = {}          # int wave_number -> WaveConfig
 var _audio_cues: Dictionary = {}     # StringName -> AudioStream
 var _selected_arena: StringName = &"default_arena"
 var _validation_errors: Array[String] = []
-var _validation_dirty := true
 
 
 func _ready() -> void:
@@ -31,9 +33,24 @@ func _ready() -> void:
 		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size(),
 		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size()
 	])
-	# Surface broken content at startup (fatal in debug: bad data should scream).
+	# Surface broken content at startup. Bad data should scream — and in debug /
+	# test builds it must STOP the process, not leave the game running with
+	# enemies/weapons/upgrades silently absent from the tables (a release that
+	# reached players with such content was an authoring/QA failure; the CI gate
+	# and this halt exist to catch it before then).
+	if not _validation_errors.is_empty():
+		_surface_validation_errors()
+		if OS.is_debug_build():
+			push_error("ContentRegistry halting: %d invalid/missing content file(s) under res://data (see errors above). Fix the offending .tres before running." % _validation_errors.size())
+			assert(false, "ContentRegistry halting on invalid content (see Content validation errors above).")
+
+
+## Emit every collected problem once (startup + validate_all share this path).
+## Returns true when nothing was reported, i.e. the content tables are clean.
+func _surface_validation_errors() -> bool:
 	for e in _validation_errors:
 		EventBus.report_error("Content validation: " + e)
+	return _validation_errors.is_empty()
 
 
 ## Re-scan all data directories. Called at startup and available to tooling/tests.
@@ -60,7 +77,6 @@ func refresh_all() -> void:
 	AudioAssetIntegrator.new().register()
 	# Missing/invalid optional files still get the same deterministic fallback.
 	ProceduralSfx.ensure_registered()
-	_validation_dirty = true
 
 
 func _register_audio_cues(cues: Dictionary) -> void:
@@ -198,20 +214,15 @@ func is_audio_present(cue_id: StringName) -> bool:
 # ---------------------- Validation ----------------------
 
 ## Re-validate all registered content. Returns false if any problems found.
+## Used by tooling and the smoke harness; does NOT halt (callers decide), unlike
+## the debug-build halt in _ready().
 func validate_all() -> bool:
 	refresh_all()
-	# Duplicate detection across enemies for the smoke test.
-	var seen := {}
-	for idn in _enemies:
-		var key := String(idn)
-		if seen.has(key):
-			_validation_errors.append("Duplicate enemy archetype id: %s" % key)
-		seen[key] = true
-	if _validation_errors.is_empty():
+	# ContentLoader already rejects duplicate ids across files at load time, so
+	# nothing more to dedupe here.
+	if _surface_validation_errors():
 		EventBus.report_info("ContentRegistry validation: OK")
 		return true
-	for e in _validation_errors:
-		EventBus.report_error("Content validation: " + e)
 	return false
 
 

@@ -25,10 +25,13 @@ class UISkillTests(unittest.TestCase):
         self.assertIn('if tier_idx < 0:',txt)
         self.assertIn("tier_idx = 2",txt)
         self.assertIn("high is the default when save carries an unknown",txt)
-    def test_attack_combo_chains_only_on_hit(self):
-        txt=read("scripts/player/attack_controller.gd")
-        self.assertIn("combo_chain_window",txt)
-        self.assertIn("if _elapsed > combo_chain_window:",txt)
+    def test_weapon_combo_chains_only_inside_window(self):
+        # Combo chaining is canonical in WeaponInstance: a press only chains while
+        # the previous swing's window is still open and below the max step
+        # (the legacy AttackController/ComboChain window logic was removed).
+        txt=read("scripts/weapons/weapon_instance.gd")
+        self.assertIn("_chain_left <= 0.0",txt)
+        self.assertIn("combo_step += 1",txt)
     def test_arena_resolve_handles_dict_and_object(self):
         txt=read("scripts/arena/arena.gd")
         block = txt[txt.find("func _resolve_arena_id"):txt.find("func _resolve_arena_id") + 500]

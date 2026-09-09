@@ -13,7 +13,7 @@ var _shake_time := 0.0
 var _shake_remaining := 0.0
 var _shake_amplitude := 0.0
 var _base_local := Vector3.ZERO
-var _hitstop_manager: Node = null
+var _hitstop_manager: HitstopManager = null
 var _idle_breath_enabled := true
 
 func setup(profile: CameraProfile, camera: Camera3D) -> void:
@@ -39,7 +39,7 @@ func set_camera(camera: Camera3D) -> void:
 	if _camera != null:
 		_camera.position = _base_local
 
-func set_hitstop_manager(manager: Node) -> void:
+func set_hitstop_manager(manager: HitstopManager) -> void:
 	_hitstop_manager = manager
 
 func add_shake(amplitude: float, duration: float, reduced_motion: bool) -> void:
@@ -47,8 +47,8 @@ func add_shake(amplitude: float, duration: float, reduced_motion: bool) -> void:
 		return
 	_shake_amplitude = clampf(amplitude, 0.0, _profile.max_shake_amplitude)
 	_shake_remaining = maxf(_shake_remaining, duration)
-	if _hitstop_manager != null and _hitstop_manager.has_method("add_trauma"):
-		_hitstop_manager.call("add_trauma", clampf(amplitude * 0.35, 0.0, 1.0))
+	if _hitstop_manager != null:
+		_hitstop_manager.add_trauma(clampf(amplitude * 0.35, 0.0, 1.0))
 
 func tick(delta: float, reduced_motion: bool, speed: float = 0.0, is_colliding: bool = false) -> void:
 	if _camera == null:
@@ -59,10 +59,8 @@ func tick(delta: float, reduced_motion: bool, speed: float = 0.0, is_colliding: 
 	var trauma_roll := 0.0
 
 	if _hitstop_manager != null:
-		if _hitstop_manager.has_method("get_shake_offset"):
-			trauma_offset += _hitstop_manager.call("get_shake_offset", 0.35)
-		if _hitstop_manager.has_method("get_shake_roll"):
-			trauma_roll += _hitstop_manager.call("get_shake_roll", 0.025)
+		trauma_offset += _hitstop_manager.get_shake_offset(0.35)
+		trauma_roll += _hitstop_manager.get_shake_roll(0.025)
 
 	if _shake_remaining > 0.0:
 		_shake_remaining = maxf(_shake_remaining - delta, 0.0)
