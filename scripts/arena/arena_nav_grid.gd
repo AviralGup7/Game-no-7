@@ -86,12 +86,23 @@ func build(half_extent: float, cell_size_value: float, obstacles: Array) -> void
 	_built = true
 
 
-## Mark every cell whose center falls inside `aabb` as blocked.
+## Mark every cell whose CENTER falls inside `aabb` as blocked.
+##
+## Naively converting the box corners to their containing cells is off by one:
+## cell_center(c) == (c+0.5)*cell_size - half, so the cell that merely CONTAINS
+## the max corner has its center up to one cell OUTSIDE the box. That overshoot
+## blocked one extra row/column per face, so a ray that cleared the wall by a
+## few tenths of a cell (e.g. "LOS open over the wall") was still reported as
+## intersecting a blocked cell. Mark exactly the cells whose centers lie inside.
 func _mark_blocked(aabb: AABB) -> void:
-	var min_c := _clamp_cell(to_cell(aabb.position))
-	var max_c := _clamp_cell(to_cell(aabb.end))
-	for z in range(min_c.y, max_c.y + 1):
-		for x in range(min_c.x, max_c.x + 1):
+	var c0 := _clamp_cell(Vector2i(
+		ceili((aabb.position.x + half) / cell_size - 0.5),
+		ceili((aabb.position.z + half) / cell_size - 0.5)))
+	var c1 := _clamp_cell(Vector2i(
+		floori((aabb.end.x + half) / cell_size - 0.5),
+		floori((aabb.end.z + half) / cell_size - 0.5)))
+	for z in range(c0.y, c1.y + 1):
+		for x in range(c0.x, c1.x + 1):
 			_blocked[z * width + x] = 1
 
 
