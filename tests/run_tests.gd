@@ -511,8 +511,39 @@ func _lethal_payload(source: Node) -> DamagePayload:
 	return payload
 
 
+## TEMP diagnostic: reports how a freshly-made enemy is wired right after
+## initialize() and through its first steps, surfaced via an ::error annotation
+## (visible on GitHub) because CI step logs/artifacts are not downloadable here.
+func _encounter_probe_debug() -> void:
+	var dbg := PackedStringArray()
+	var tgt := _FakeTarget.new()
+	root.add_child(tgt)
+	tgt.global_position = Vector3(1.0, 0.0, 0.0)
+	var e := _make_enemy(_basic_cfg(), Vector3.ZERO, tgt)
+	var m := e.get_node("EnemyStateMachine") as EnemyStateMachine
+	var reg := 0
+	for s in EnemyStateMachine.STATE_IDS:
+		if m.has_state(s):
+			reg += 1
+	dbg.append("registered=%d/%d" % [reg, EnemyStateMachine.STATE_IDS.size()])
+	dbg.append("current_after_init=%s" % String(m.get_current()))
+	dbg.append("alive=%s" % str(e.is_alive()))
+	dbg.append("ai_enabled=%s" % str(e._ai_enabled))
+	dbg.append("archetype=%s" % String(e.get_archetype_id()))
+	dbg.append("perc=%s can_engage=%s" % [e.get_perception().get_status_name(), str(e.get_perception().can_engage())])
+	dbg.append("reaction=%s vision=%s always=%s" % [str(e.get_perception().reaction_base), str(e.get_perception().vision_range), str(e.get_perception().always_aware)])
+	for i in range(6):
+		_step_enemy(e, 1.0 / 60.0)
+		dbg.append("step%d=%s" % [i, String(m.get_current())])
+	dbg.append("perc_after=%s can_engage_after=%s" % [e.get_perception().get_status_name(), str(e.get_perception().can_engage())])
+	print("::error title=ENCOUNTER_DEBUG::" + " ".join(dbg))
+	e.queue_free()
+	tgt.queue_free()
+
+
 func _run_enemy_encounter_integration() -> Array:
 	var results: Array = []
+	_encounter_probe_debug()
 
 	# --- State machine registers the full roster of states ------------------
 	var probe := _make_enemy(_basic_cfg(), Vector3(0, 0, 0), null)
