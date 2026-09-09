@@ -40,7 +40,7 @@ var _flow_target := Vector2i(-1, -1)
 var _built := false
 
 # Fixed 8-neighbor order: N, NE, E, SE, S, SW, W, NW (deterministic ties).
-const NEIGHBORS := [
+const NEIGHBORS: Array[Vector2i] = [
 	Vector2i(0, -1), Vector2i(1, -1), Vector2i(1, 0), Vector2i(1, 1),
 	Vector2i(0, 1), Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-1, -1),
 ]
