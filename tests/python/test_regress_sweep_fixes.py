@@ -36,10 +36,12 @@ class SweepFixTests(unittest.TestCase):
         self.assertIn("func _radius_of", txt)
         block = txt[txt.find("func _radius_of"):txt.find("func _radius_of")+600]
         self.assertIn("return 0.0", block)
-    def test_attack_controller_seeded_rng(self):
-        txt = read("scripts/player/attack_controller.gd")
+    def test_combat_seeded_rng(self):
+        # Seeded rolls moved with the combat path: WeaponInstance owns the RNG on
+        # the crit stream (legacy AttackController deleted with the sweep).
+        txt = read("scripts/weapons/weapon_instance.gd")
         self.assertIn("RngService", txt)
-        self.assertIn("_crit_roll_source", txt)
+        self.assertIn("STREAM_CRITS", txt)
     def test_boss_signal_order(self):
         txt = read("scripts/enemies/spawn_manager.gd")
         block = txt[txt.find("func _maybe_begin_boss_fight"):][:1200]

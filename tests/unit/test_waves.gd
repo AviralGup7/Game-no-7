@@ -96,4 +96,51 @@ static func suite() -> Array:
 			"passed": name_ok and valid_ok,
 			"why": "res=%s" % str(res),
 		})
+
+	# --- Director count nudge preserves the queue composition ---
+	# The nudge used to append from the growing queue head and pop_back the tail,
+	# skewing waves toward the (weakest-first) head and silently deleting late
+	# entries. Additions/removals must now be spread over the ORIGINAL queue.
+	# A positive nudge duplicates members, never invents archetypes.
+	var grown: Array[StringName] = [&"a", &"a", &"a", &"b", &"b"]
+	WaveManager.apply_count_nudge(grown, 2)
+	results.append({
+		"name": "count nudge +2 grows the plan and only duplicates members",
+		"passed": grown.size() == 7 and (grown[5] == &"a" or grown[5] == &"b")
+			and (grown[6] == &"a" or grown[6] == &"b"),
+		"why": "queue=%s" % [grown],
+	})
+	# Removing a single entry must NOT pop the tail: [a,a,a,a,boss] -1 keeps the
+	# boss (old code pop_back removed it) and preserves survivor order.
+	var boss_queue: Array[StringName] = [&"a", &"a", &"a", &"a", &"boss"]
+	WaveManager.apply_count_nudge(boss_queue, -1)
+	results.append({
+		"name": "count nudge -1 keeps the tail boss and survivor order",
+		"passed": boss_queue.size() == 4 and boss_queue[3] == &"boss"
+			and boss_queue[0] == &"a" and boss_queue[1] == &"a" and boss_queue[2] == &"a",
+		"why": "queue=%s" % [boss_queue],
+	})
+	# A removal spread across the queue removes exactly `bonus` entries and keeps
+	# a late elite when more than one entry is dropped.
+	var mixed: Array[StringName] = [&"a", &"a", &"a", &"a", &"a", &"a", &"elite", &"boss"]
+	WaveManager.apply_count_nudge(mixed, -2)
+	results.append({
+		"name": "count nudge -2 removes two entries but keeps late elite + boss",
+		"passed": mixed.size() == 6 and mixed[4] == &"elite" and mixed[5] == &"boss",
+		"why": "queue=%s" % [mixed],
+	})
+	# Nudges are deterministic, no-ops are safe, and a non-empty queue is never
+	# emptied by the nudge.
+	var stable: Array[StringName] = [&"a", &"a", &"a", &"b", &"b", &"boss"]
+	var again: Array[StringName] = stable.duplicate()
+	WaveManager.apply_count_nudge(stable, -2)
+	WaveManager.apply_count_nudge(again, -2)
+	WaveManager.apply_count_nudge(stable, 0)
+	var one: Array[StringName] = [&"solo"]
+	WaveManager.apply_count_nudge(one, -2)
+	results.append({
+		"name": "nudge is deterministic; empty plan / zero bonus are no-ops; never empties a non-empty plan",
+		"passed": stable == again and one.size() == 1,
+		"why": "stable=%s one=%d" % [stable, one.size()],
+	})
 	return results

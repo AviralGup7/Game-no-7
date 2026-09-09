@@ -97,9 +97,13 @@ class PlayerDeathIntegrationTests(unittest.TestCase):
     """Audit §25 — Test 4: death disables gameplay systems."""
 
     def test_player_death_disables_attacks(self):
-        txt = read("scripts/player/attack_controller.gd")
-        self.assertIn("set_attacks_enabled", txt)
-        self.assertIn("is_alive", txt)
+        txt = read("scripts/player/player.gd")
+        # Death gates every attack command: _can_combat refuses while dead and
+        # set_control_enabled(false) disables the WeaponManager attack path.
+        block = txt[txt.find("func _can_combat"):txt.find("func _can_combat") + 220]
+        self.assertIn("not _is_dead", block)
+        txt2 = read("scripts/weapons/weapon_manager.gd")
+        self.assertIn("func set_attacks_enabled", txt2)
     def test_player_has_health_died_signal(self):
         txt = read("scripts/player/health_component.gd")
         self.assertIn("signal died", txt)
@@ -161,13 +165,15 @@ class ContentLoaderRecursionTests(unittest.TestCase):
 class DeterminismAuditTests(unittest.TestCase):
     """Audit §21-22 — no gameplay system should call global RNG directly."""
 
-    def test_attack_controller_uses_injected_or_seeded_rng(self):
-        txt = read("scripts/player/attack_controller.gd")
-        # Must have injectable source and seeded fallback, not bare randf()
-        self.assertIn("_crit_roll_source", txt)
-        self.assertIn("RngService", txt)
-        # The final fallback randf() is only for no-seed headless; primary path is seeded
-        self.assertIn("seed_val", txt)
+    def test_combat_uses_injected_or_seeded_rng(self):
+        # Every gameplay roll routes through RngService on a named stream; the
+        # attack path is now WeaponInstance (legacy AttackController removed).
+        txt = read("scripts/weapons/weapon_instance.gd")
+        self.assertIn("_rng := RngService.new()", txt)
+        self.assertIn("STREAM_CRITS", txt)
+        txt2 = read("scripts/combat/critical_system.gd")
+        self.assertIn("RngService", txt2)
+        self.assertIn("STREAM_CRITS", txt2)
     def test_boss_not_using_global_randi(self):
         txt = read("scripts/enemies/boss_controller.gd")
         self.assertNotIn("randi() %", txt)

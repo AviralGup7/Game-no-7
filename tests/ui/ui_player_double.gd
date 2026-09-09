@@ -6,8 +6,8 @@ extends Player
 ##
 ## REQUIRED components are all present (see the required/optional table in
 ## player.gd / docs/ARCHITECTURE.md); genuinely optional presentation components
-## (PlayerFeedback, PlayerAudio, legacy AttackController) stay absent on purpose —
-## exactly the optionality the architecture allows.
+## (PlayerFeedback, PlayerAudio) stay absent on purpose — exactly the
+## optionality the architecture allows.
 
 func _ready() -> void:
 	_add_component("CharacterController", CharacterController.new())

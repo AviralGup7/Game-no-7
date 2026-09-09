@@ -1,9 +1,8 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
 [ext_resource type="Script" path="res://scripts/player/health_component.gd" id="3_hp"]
-[ext_resource type="Script" path="res://scripts/player/attack_controller.gd" id="4_atk"]
 [ext_resource type="Script" path="res://scripts/player/progression_component.gd" id="5_prog"]
 [ext_resource type="Script" path="res://scripts/player/targeting_component.gd" id="6_tgt"]
 [ext_resource type="Script" path="res://scripts/player/player_feedback.gd" id="7_fb"]
@@ -73,9 +72,6 @@ script = ExtResource("3_hp")
 
 [node name="CharacterController" type="Node" parent="."]
 script = ExtResource("2_cc")
-
-[node name="AttackController" type="Node" parent="."]
-script = ExtResource("4_atk")
 
 [node name="ProgressionComponent" type="Node" parent="."]
 script = ExtResource("5_prog")

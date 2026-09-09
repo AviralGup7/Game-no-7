@@ -6,7 +6,7 @@
 
 ## 1. Architecture State — VERIFIED
 - Runtime truth: autoloads `GameRoot(EventBus,ContentRegistry/ContentLoader,AudioManager/MusicManager,SaveManager,SceneRouter,RunAnalytics)`; core `RngService` salted `STREAM_*`; `Player` composition `CharacterController/HealthComponent/WeaponManager-Progression/Stamina/Experience/SkillController/StatusManager/DodgeController/Targeting`; enemies `EnemyBase/StateMachine/Navigator/Striker` + `SpawnManager/Ledger/Placer`; world `Arena/Decorator/Hazards/CameraRig`; UI `UiRoot/GameHud/SkillBar/UpgradePanel/BossBar/Minimap`; meta `MetaProgression/Achievements`.
-- Authoritative combat: `Player → WeaponManager → WeaponInstance → MeleeResolver/RangedResolver/ProjectilePool → DamagePayload → HealthComponent`. `AttackController/ComboChain` isolated as `LEGACY` fallback only when no `WeaponInstance`; `SkillController` requests dash intent, `CharacterController.apply_dash` performs movement.
+- Authoritative combat: `Player → WeaponManager → WeaponInstance → MeleeResolver/RangedResolver/ProjectilePool → DamagePayload → HealthComponent`. `WeaponManager` is the single attack authority (`AttackController`/`ComboChain` removed 2026-09-09, see Known Limitations); `SkillController` requests dash intent, `CharacterController.apply_dash` performs movement.
 - Determinism: gameplay RNG `RngService.STREAM_*` (arena `decorator/hazards`, AI jitter, drops, crits, waves, boss RNG `run_seed*31+hash`); cosmetic only `CameraRig` shake `randf_range`, `DamageNumber` jitter, `ProceduralSfx` fixed seeds.
 
 ## 2. Content Completeness — VERIFIED
@@ -91,7 +91,7 @@
 - **Device perf NOT YET DEVICE-VERIFIED** (§11) — no FPS/frame-time/CPU/GPU/RAM/draw-call measurement on Android hardware; static budgets only.
 - **Skill telegraph** via `EffectDirector` ring+burst + `SkillExecutor` damage shape; per-skill anticipation animation limited to `skill_cast_clips` `Spellcast_*` (no per-skill custom meshes).
 - **Footstep/equip/item_drop AUDIO RESERVED** — `footstep_concrete 3` files exist but not yet bound to locomotion; procedural fallback ensures silence-free.
-- **AttackController/ComboChain retained** as isolated legacy (not removed) — documented, no second authority, removable.
+- **AttackController/ComboChain retained** as isolated legacy (not removed) — documented, no second authority, removable. **RESOLVED (2026-09-09):** removed — both files deleted, `player.tscn` no longer carries the node, `Player._try_attack()` is WeaponManager-only.
 - **Long-session heavy load** (100 enemies + boss summons + simultaneous skills + heavy pickups) budget enforced but not device-measured.
 
 ## 17. Documentation Updated — VERIFIED

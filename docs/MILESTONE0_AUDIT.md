@@ -94,7 +94,7 @@ Menu, Setup, HUD (HP/Stamina/XP/Wave/Score/Combo/Currency/Weapon), SkillBar, Upg
 ## Marker classification (grep TODO/FIXME/PLACEHOLDER/HACK/STUB/DEBUG)
 - Zero TODO/FIXME/PLACEHOLDER in scripts/scenes (only `MAX_FAILED_ATTEMPTS=6` constant, not marker).
 - DEBUG: `damage_number_layer` reduced-motion jitter `randf_range(-12,12)` — KEEP (cosmetic, bounded).
-- Compatibility stubs: `AttackController`/`ComboChain` still present but isolated — **M3 will remove or document** if unused.
+- Compatibility stubs: `AttackController`/`ComboChain` still present but isolated — **M3 will remove or document** if unused. **RESOLVED (2026-09-09):** both removed; `WeaponManager` is the single attack authority.
 - `PRINT` diagnostics removed; only bounded `EventBus.report_info` remains — KEEP.
 
 ## Determinism audit

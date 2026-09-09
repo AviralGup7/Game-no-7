@@ -14,6 +14,17 @@ class DifficultyDirectorTests(unittest.TestCase):
         self.assertIn("is_finite(_now)",txt)
         self.assertIn("is_finite(float(t0))",txt)
 
+class WaveManagerNudgeTests(unittest.TestCase):
+    """Director count nudges must keep the wave plan proportional: the old code
+    appended `queue[i % queue.size()]` while the queue grew (skewing toward the
+    head) and popped the tail (deleting late elites/bosses)."""
+    def test_nudge_is_a_pure_spread_over_the_original_queue(self):
+        txt = read("scripts/waves/wave_manager.gd")
+        self.assertIn("static func apply_count_nudge", txt)
+        self.assertIn("_spread_position", txt)
+        self.assertNotIn("queue[i % queue.size()]", txt)
+        self.assertNotIn("queue.pop_back()", txt)
+
 class WaveConfigTests(unittest.TestCase):
     def test_validated_counts(self):
         txt=read("scripts/waves/wave_config.gd")
