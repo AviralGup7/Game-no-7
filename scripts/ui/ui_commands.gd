@@ -40,8 +40,7 @@ static func action(method: StringName, args: Array = []) -> bool:
 		return false
 	match method:
 		&"request_attack":
-			player.request_attack()
-			return true
+			return player.request_attack()
 		&"request_dodge":
 			return player.request_dodge()
 		&"request_weapon_switch":

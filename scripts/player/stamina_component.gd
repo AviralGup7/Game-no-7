@@ -47,7 +47,7 @@ func refresh_from_stats() -> void:
 	var frac := get_fraction()
 	_rebuild_from_stats()
 	_current = clampf(_max * frac, 0.0, _max)
-	stamina_changed.emit(_current, _max)
+	_emit_stamina()
 
 
 func _physics_process(delta: float) -> void:
@@ -60,6 +60,10 @@ func _physics_process(delta: float) -> void:
 	if _exhausted and _current >= _max * EXHAUST_REFILL_FRACTION:
 		_exhausted = false
 		recovered.emit()
+	_emit_stamina()
+
+
+func _emit_stamina() -> void:
 	stamina_changed.emit(_current, _max)
 	if EventBus != null:
 		EventBus.stamina_changed.emit(_current, _max)
@@ -85,9 +89,7 @@ func try_spend(amount: float) -> bool:
 		_current = 0.0
 		_exhausted = true
 		exhausted.emit()
-	stamina_changed.emit(_current, _max)
-	if EventBus != null:
-		EventBus.stamina_changed.emit(_current, _max)
+	_emit_stamina()
 	return true
 
 
@@ -98,15 +100,13 @@ func restore(amount: float) -> void:
 	if _exhausted and _current >= _max * EXHAUST_REFILL_FRACTION:
 		_exhausted = false
 		recovered.emit()
-	stamina_changed.emit(_current, _max)
+	_emit_stamina()
 
 
 func restore_full() -> void:
 	_current = _max
 	_exhausted = false
-	stamina_changed.emit(_current, _max)
-	if EventBus != null:
-		EventBus.stamina_changed.emit(_current, _max)
+	_emit_stamina()
 
 
 func can_spend(amount: float) -> bool:

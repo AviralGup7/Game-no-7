@@ -237,6 +237,11 @@ func _stop() -> void:
 
 func replay_next_run() -> void:
 	_stop()
+	if _bound_player != null and is_instance_valid(_bound_player):
+		if _bound_player.has_signal("attack_started") and _bound_player.attack_started.is_connected(notify_player_attacked):
+			_bound_player.attack_started.disconnect(notify_player_attacked)
+		if _bound_player.has_signal("dodged") and _bound_player.dodged.is_connected(notify_player_dodged):
+			_bound_player.dodged.disconnect(notify_player_dodged)
 	_bound_player = null
 	_did_dodge = false
 	_completed.clear()

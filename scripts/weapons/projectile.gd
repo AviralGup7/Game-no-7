@@ -103,8 +103,12 @@ func _physics_process(delta: float) -> void:
 
 
 func _face_travel() -> void:
-	if _visual != null and direction.length_squared() > 0.0001:
-		_visual.look_at(_visual.global_position + direction, Vector3.UP)
+	if _visual == null or direction.length_squared() <= 0.0001:
+		return
+	var up := Vector3.UP
+	if absf(direction.normalized().dot(up)) > 0.99:
+		up = Vector3.FORWARD
+	_visual.look_at(_visual.global_position + direction, up)
 
 
 func _apply_team_tint() -> void:

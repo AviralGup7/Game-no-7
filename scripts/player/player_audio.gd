@@ -24,7 +24,13 @@ func _ready() -> void:
 	var health := _player.get_node_or_null("HealthComponent") as HealthComponent
 	if health != null:
 		health.health_changed.connect(_on_health)
-	EventBus.projectile_fired.connect(_on_shot)
+	if EventBus != null and not EventBus.projectile_fired.is_connected(_on_shot):
+		EventBus.projectile_fired.connect(_on_shot)
+
+
+func _exit_tree() -> void:
+	if EventBus != null and EventBus.projectile_fired.is_connected(_on_shot):
+		EventBus.projectile_fired.disconnect(_on_shot)
 
 
 func _physics_process(delta: float) -> void:

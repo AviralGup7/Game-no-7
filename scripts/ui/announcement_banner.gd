@@ -37,8 +37,8 @@ func _ready() -> void:
 	_coach.add_theme_constant_override("outline_size", 6)
 	if EventBus != null and not EventBus.announcement.is_connected(_on_announcement):
 		EventBus.announcement.connect(_on_announcement)
-	EventBus.wave_completed.connect(func(wave: int, bonus: int) -> void:
-		announce("WAVE %d CLEARED / +%d SCORE" % [wave, bonus], &"victory"))
+	if EventBus != null and not EventBus.wave_completed.is_connected(_on_wave_cleared):
+		EventBus.wave_completed.connect(_on_wave_cleared)
 
 
 func set_reduced_motion(reduced: bool) -> void:
@@ -60,6 +60,10 @@ func announce(text: String, severity: StringName = &"info") -> void:
 
 func _on_announcement(_key: StringName, text: String, severity: StringName) -> void:
 	announce(text, severity)
+
+
+func _on_wave_cleared(wave: int, bonus: int) -> void:
+	announce("WAVE %d CLEARED / +%d SCORE" % [wave, bonus], &"victory")
 
 
 func _process(delta: float) -> void:

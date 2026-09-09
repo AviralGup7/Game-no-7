@@ -172,6 +172,8 @@ func _pin_visual_xz() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if _player == null:
+		return
 	_pin_visual_xz()
 	var plant := FootPlant.apply(_player, 0.14, _delta)
 	var want_dampen := absf(plant) > 0.06

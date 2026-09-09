@@ -107,5 +107,3 @@ func set_high_contrast(enabled: bool) -> void:
 	if joystick != null:
 		joystick.set_rest_alpha(1.0 if enabled else 0.75)
 	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.88
-	if joystick != null and not enabled:
-		joystick.set_rest_alpha(0.7)

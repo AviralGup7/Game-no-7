@@ -95,6 +95,15 @@ func _ready() -> void:
 		EventBus.enemy_killed.connect(_on_enemy_kill_xp)
 
 
+func _exit_tree() -> void:
+	if EventBus == null:
+		return
+	if EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
+		EventBus.enemy_killed.disconnect(_on_enemy_kill_heal)
+	if EventBus.enemy_killed.is_connected(_on_enemy_kill_xp):
+		EventBus.enemy_killed.disconnect(_on_enemy_kill_xp)
+
+
 ## Resolve every component reference ONCE, as its concrete type. A wrong script
 ## on a child node yields null here (the `as` cast never lies), which the
 ## required-component check then reports by name.
@@ -238,12 +247,13 @@ func clear_move_input() -> void:
 	_locomotion.clear_and_idle()
 
 
-func request_attack() -> void:
+func request_attack() -> bool:
 	if not _can_combat():
-		return
+		return false
 	_attack_buffer.clear()
 	if not _try_attack():
 		_attack_buffer.push(attack_buffer_seconds)
+	return true
 
 
 func _can_combat() -> bool:
