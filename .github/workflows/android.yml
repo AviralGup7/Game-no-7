@@ -114,11 +114,28 @@ jobs:
           echo "--- godot unit test log (last 120 lines) ---"
           tail -120 godot-unit.log
           echo "--- engine/script errors surfaced as annotations ---"
-          grep -hE 'SCRIPT ERROR:|Parse Error:|Invalid (call|get index|set index|access)|Cannot |Failed to load|not found|not declared|Res://|line [0-9]+' godot-unit.log \
-            | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort -u | head -80 \
-            | while IFS= read -r line; do
-                echo "::error title=godot engine::${line}"
-              done
+          python3 - godot-unit.log <<'PY'
+import re, sys
+path = sys.argv[1]
+lines = [l.rstrip("\n") for l in open(path, errors="replace")]
+seen = set()
+for i, ln in enumerate(lines):
+    if re.search(r"SCRIPT ERROR:|Parse Error:|Failed to load|Compile Error:|Invalid (call|get|set|access)|Cannot |not declared|Parse JSON failed", ln):
+        block = ln
+        # include a couple following lines (Godot prints "  at: res://...gd:N" under the error)
+        for j in range(i + 1, min(i + 4, len(lines))):
+            t = lines[j].strip()
+            if not t:
+                break
+            if re.search(r"at: res://|\.gd:", t) or re.search(r"ERROR:|SCRIPT ERROR:", t):
+                block += " " + t.strip()
+            else:
+                break
+        key = " ".join(block.split())
+        if key and key not in seen:
+            seen.add(key)
+            print("::error title=godot engine::" + key)
+PY
           exit "$code"
 
       # Real-node UI suite (screens, navigation, and the UiLayout geometry
