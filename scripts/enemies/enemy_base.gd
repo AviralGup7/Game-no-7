@@ -867,7 +867,7 @@ func set_elite(affixes: Array) -> void:
 	if _feedback != null:
 		_feedback.recolor(tint)
 	_apply_visual_scale((_config.visual_scale if _config != null else 1.0) * 1.12)
-	_roll_approach_offset()
+	# Keep the serial-rolled offset; re-rolling here would break run determinism.
 	# Behavior affix hooks: VAMPIRIC elites sustain off the damage they deal.
 	if EliteAffix.VAMPIRIC in _elite_affixes and not attack_hit.is_connected(_on_vampiric_hit):
 		attack_hit.connect(_on_vampiric_hit)

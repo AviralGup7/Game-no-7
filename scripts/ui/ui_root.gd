@@ -195,14 +195,16 @@ func _layout() -> void:
 	var skills: Rect2 = UiLayout.sanitize(plan["skills"], view)
 	_skill_bar.fit_touch_targets(skills.size)
 	_skill_bar.position = skills.position
-	# Apply after child minimum-size invalidations (e.g. rotating a wide tablet).
-	_skill_bar.set_deferred("size", skills.size)
+	_skill_bar.size = skills.size
 	if _numbers != null and _hud != null:
 		_numbers.set_hud_block(_hud.vitals_screen_rect())
 	if _numbers != null and _skill_bar != null:
-		_numbers.set_skill_block(Rect2(_skill_bar.global_position, _skill_bar.size))
-	if _numbers != null and _minimap != null and _minimap.visible:
-		_numbers.set_minimap_block(Rect2(_minimap.global_position, _minimap.size))
+		_numbers.set_skill_block(Rect2(_skill_bar.global_position, skills.size))
+	if _numbers != null:
+		if _minimap != null and _minimap.visible and _minimap_fits:
+			_numbers.set_minimap_block(Rect2(_minimap.global_position, _minimap.size))
+		else:
+			_numbers.set_minimap_block(Rect2())
 
 static func screen_for_state(state: StringName) -> StringName:
 	if state in [&"starting_run", &"loading", &"error"]: return &"status"
@@ -305,8 +307,17 @@ func _on_player_health_track(current: float, _maximum: float) -> void:
 	_bind_player_damage()
 
 
+var _bound_player: Node = null
+
+
 func _bind_player_damage() -> void:
 	var player := GameRoot.get_active_player() if GameRoot != null else null
+	if player == _bound_player and player != null and player.has_signal("damaged") and player.damaged.is_connected(_on_player_damaged):
+		return
+	if _bound_player != null and is_instance_valid(_bound_player) and _bound_player.has_signal("damaged"):
+		if _bound_player.damaged.is_connected(_on_player_damaged):
+			_bound_player.damaged.disconnect(_on_player_damaged)
+	_bound_player = player
 	if player == null or not player.has_signal("damaged"):
 		return
 	if not player.damaged.is_connected(_on_player_damaged):
@@ -326,7 +337,7 @@ func _on_player_damaged(result: DamageResult) -> void:
 		(player as Node3D).global_position + Vector3.UP * 1.4,
 		result.final_amount,
 		result.was_critical,
-		Color(1.0, 0.38, 0.12),
+		Color(1.0, 0.22, 0.08),
 		follow,
 		true
 	)

@@ -16,39 +16,55 @@ static func apply(body: CharacterBody3D, max_offset: float = 0.14, delta: float 
 		visual.position.y = 0.0
 	if model == null:
 		return 0.0
+	# Death clips own hip Y — do not snap the plant to 0 under a fade.
 	if body.has_method("is_alive") and not body.is_alive():
-		model.position.y = 0.0
-		return 0.0
+		return model.position.y
 	var world := body.get_world_3d()
 	if world == null or world.direct_space_state == null:
 		return 0.0
 	var dt := clampf(delta if is_finite(delta) and delta > 0.0 else 0.016, 0.008, 0.05)
 	var scale_y := visual.scale.y if visual != null else 1.0
 	var cap := max_offset * clampf(scale_y, 0.8, 2.2)
-	var from := body.global_position + Vector3.UP * 0.55
-	var to := body.global_position + Vector3.DOWN * 1.6
-	var query := PhysicsRayQueryParameters3D.create(from, to)
-	query.exclude = [body.get_rid()]
-	query.collision_mask = WORLD_MASK
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
-	query.hit_from_inside = true
-	var hit := world.direct_space_state.intersect_ray(query)
-	if hit.is_empty() or _skip_collider(hit.get("collider")):
+	var ground_y := _sample_ground(body, world)
+	if not is_finite(ground_y):
 		model.position.y = move_toward(model.position.y, 0.0, LERP_RATE * dt)
 		return model.position.y
-	var ground_y := float(hit.position.y)
-	var collider: Variant = hit.get("collider")
-	if collider is AnimatableBody3D:
-		var plat := collider as AnimatableBody3D
-		ground_y = maxf(ground_y, plat.global_position.y)
-		if plat is CharacterBody3D:
-			pass
-		ground_y += plat.constant_linear_velocity.y * dt
 	var target := clampf(ground_y - body.global_position.y, -cap, cap)
 	var alpha := clampf(1.0 - exp(-LERP_RATE * dt), 0.2, 0.85)
 	model.position.y = lerpf(model.position.y, target, alpha)
 	return model.position.y
+
+
+static func _sample_ground(body: CharacterBody3D, world: World3D) -> float:
+	var offsets := [Vector3.ZERO, Vector3(0.18, 0.0, 0.0), Vector3(-0.18, 0.0, 0.0)]
+	var best := INF
+	var hit_any := false
+	var dt := 0.016
+	for off in offsets:
+		var from := body.global_position + off + Vector3.UP * 0.55
+		var to := body.global_position + off + Vector3.DOWN * 1.6
+		var query := PhysicsRayQueryParameters3D.create(from, to)
+		query.exclude = [body.get_rid()]
+		query.collision_mask = WORLD_MASK
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		query.hit_from_inside = true
+		var hit := world.direct_space_state.intersect_ray(query)
+		if hit.is_empty() or _skip_collider(hit.get("collider")):
+			continue
+		hit_any = true
+		var gy := float(hit.position.y)
+		var collider: Variant = hit.get("collider")
+		if collider is AnimatableBody3D:
+			var plat := collider as AnimatableBody3D
+			gy = maxf(gy, plat.global_position.y)
+			gy += plat.constant_linear_velocity.y * dt
+			var rel := body.global_position - plat.global_position
+			var spin := plat.constant_angular_velocity
+			gy += spin.cross(rel).y * dt
+		if gy < best:
+			best = gy
+	return best if hit_any else INF
 
 
 static func _skip_collider(collider: Variant) -> bool:

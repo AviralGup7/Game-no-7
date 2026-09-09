@@ -64,6 +64,8 @@ func _gui_input(event: InputEvent) -> void:
 		elif _active and d.index != _touch_index:
 			InputTrace.record("drag_mismatch", "i=%d own=%d" % [d.index, _touch_index])
 	elif event is InputEventMouseButton:
+		if _touch_seen and not (event as InputEventMouseButton).pressed:
+			_touch_seen = false
 		if _touch_seen:
 			return
 		var mb := event as InputEventMouseButton
@@ -176,7 +178,11 @@ func _restore_rest_alpha() -> void:
 func _draw() -> void:
 	if not _active:
 		var center := size * 0.5
-		center.x = maxf(center.x, 8.0)
+		var inset := 8.0
+		if get_viewport() != null:
+			var safe := DisplayServer.get_display_safe_area()
+			inset = maxf(inset, float(safe.position.x) * 0.25)
+		center.x = maxf(center.x, inset)
 		var rest := minf(_safe_radius() * 0.8, minf(size.x, size.y) * 0.42)
 		if rest < 4.0:
 			return
@@ -188,7 +194,10 @@ func _draw() -> void:
 	var local_base := _base
 	var local_knob := _knob
 	var r := _safe_radius()
-	var knob_r := clampf(r * 0.34, 18.0, 34.0)
+	var scale_f := 1.0
+	if get_viewport() != null:
+		scale_f = clampf(get_viewport().get_visible_rect().size.x / 1080.0, 0.75, 2.0)
+	var knob_r := clampf(r * 0.34 * scale_f, 18.0, 48.0)
 	draw_circle(local_base, r, Color(0, 0, 0, 0.35))
 	draw_arc(local_base, r, 0, TAU, 48, Color(UiTheme.CYAN.r, UiTheme.CYAN.g, UiTheme.CYAN.b, 0.8), 3.0)
 	draw_circle(local_knob, knob_r, Color(1, 1, 1, 0.45))
@@ -201,7 +210,6 @@ func _notification(what: int) -> void:
 			InputTrace.record("pause_gate", "what=%d" % what)
 			cancel()
 		_resume_ignore = 0.08
-		modulate.a = 1.0
 		_restore_rest_alpha()
 		queue_redraw()
 

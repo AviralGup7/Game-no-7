@@ -152,7 +152,7 @@ func preview_bus_volume(bus_key: String, linear: float) -> void:
 		"master":
 			AudioServer.set_bus_volume_db(0, _db(linear))
 		"music":
-			AudioServer.set_bus_volume_db(_bus_index("Music"), _db(linear))
+			AudioServer.set_bus_volume_db(_bus_index("Music"), _db(linear) - _duck_db)
 		"sfx":
 			AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(linear))
 

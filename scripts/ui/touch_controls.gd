@@ -95,6 +95,8 @@ func _on_visibility_changed() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) and DisplayServer.virtual_keyboard_get_height() > 0:
+			return
 		cancel()
 
 func get_debug_snapshot() -> Dictionary:

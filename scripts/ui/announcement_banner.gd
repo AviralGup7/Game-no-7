@@ -110,7 +110,11 @@ func pending_count() -> int:
 
 
 func set_coach(message: String) -> void:
-	if _coach != null: _coach.text = message
+	if _coach == null:
+		return
+	_coach.text = message
+	_coach.scale = Vector2.ONE
+	_coach.position.y = size.y + 4.0
 
 func clear_pending() -> void:
 	_queue.clear()

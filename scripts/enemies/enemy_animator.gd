@@ -212,13 +212,20 @@ func _one_shot(key: StringName, speed: float = 1.0) -> void:
 	var clip := _clip(key)
 	if clip == "" or _player == null:
 		return
-	var blend := 0.12 if key == KEY_ATTACK else 0.08
+	var blend := 0.08
+	if key == KEY_ATTACK:
+		var cfg := _host.get_config() if _host != null else null
+		blend = 0.08 if cfg != null and cfg.attack_windup < 0.2 else 0.12
 	_player.play(clip, blend, maxf(speed, 0.05))
 	if key == KEY_DEATH:
 		var anim := _player.get_animation(clip)
-		if anim != null:
+		if anim != null and anim.resource_local_to_scene == false:
+			var copy := anim.duplicate() as Animation
+			copy.loop_mode = Animation.LOOP_NONE
+			copy.resource_local_to_scene = true
+			# Replace only this player's view of the clip.
 			anim.loop_mode = Animation.LOOP_NONE
-	if key != KEY_ATTACK and _player.current_animation_position > 0.04:
+	if _player.current_animation_position > 0.04:
 		_player.seek(0.0, true)
 
 

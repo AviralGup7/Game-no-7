@@ -131,7 +131,7 @@ func _exit_tree() -> void:
 
 ## Death / impact explosion at a world position (pooled, no autoload dependency).
 func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRIORITY_HIT) -> void:
-	if _reduced_motion() and priority < PRIORITY_CRITICAL:
+	if _reduced_motion() and priority < PRIORITY_SKILL:
 		return
 	var p := _claim_burst(priority)
 	if p == null:
@@ -140,6 +140,7 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRI
 	var mat := p.process_material as ParticleProcessMaterial
 	if mat != null:
 		mat.color = color
+	p.amount = 22
 	p.scale = Vector3.ONE * scale
 	p.restart()
 	_burst_prios[p] = priority
@@ -209,8 +210,12 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	if ring == null:
 		return
 	var grounded := at
-	grounded.y = _floor_y(at)
-	ring.global_position = grounded + Vector3(0.02, 0.02, 0.02)
+	var floor := _floor_hit(at)
+	grounded.y = float(floor.get("y", at.y))
+	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
+	var nrm: Vector3 = floor.get("normal", Vector3.UP)
+	if nrm.length_squared() > 0.01:
+		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 	if mi != null:
 		var mat := mi.material_override as StandardMaterial3D
@@ -218,11 +223,11 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 			if ResourceLoader.exists(RING_TEXTURE):
 				mat.albedo_texture = load(RING_TEXTURE)
 			var ink := _telegraph_color(color, priority)
-			var alpha := 0.92 if _high_contrast() else (0.85 if priority >= PRIORITY_BOSS else 0.45)
+			var alpha := 0.95 if _high_contrast() else (0.85 if priority >= PRIORITY_BOSS else 0.45)
 			mat.albedo_color = Color(ink, alpha)
 			mat.emission_enabled = true
 			mat.emission = ink
-			mat.emission_energy_multiplier = 1.4 if priority >= PRIORITY_BOSS else 0.35
+			mat.emission_energy_multiplier = (2.0 if _high_contrast() else 1.4) if priority >= PRIORITY_BOSS else (0.7 if _high_contrast() else 0.35)
 	var hold := 1.15 if priority >= PRIORITY_BOSS else 0.6
 	if _reduced_motion():
 		hold = 0.7 if priority >= PRIORITY_BOSS else 0.35
@@ -289,14 +294,18 @@ func _arena_origin() -> Vector3:
 
 
 func _floor_y(at: Vector3) -> float:
+	return float(_floor_hit(at).get("y", at.y))
+
+
+func _floor_hit(at: Vector3) -> Dictionary:
 	if not is_inside_tree() or get_world_3d() == null or get_world_3d().direct_space_state == null:
-		return at.y
+		return {"y": at.y, "normal": Vector3.UP}
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 4.0)
 	q.collide_with_areas = false
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
 	if hit.is_empty():
-		return at.y
-	return float(hit.position.y)
+		return {"y": at.y, "normal": Vector3.UP}
+	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:

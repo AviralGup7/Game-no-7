@@ -80,7 +80,11 @@ func _sphere_cast(from: Vector3, to: Vector3, radius: float, target: Node3D, wor
 	query.collision_mask = 1
 	query.margin = 0.02
 	if target != null and target is CollisionObject3D:
-		query.exclude = [target.get_rid()]
+		var skip: Array[RID] = [target.get_rid()]
+		var model := target.get_node_or_null("VisualRoot/CharacterModel")
+		if model is CollisionObject3D:
+			skip.append((model as CollisionObject3D).get_rid())
+		query.exclude = skip
 
 	var result := space.cast_motion(query)
 	if result.size() >= 2:

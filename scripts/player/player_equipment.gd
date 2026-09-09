@@ -192,13 +192,17 @@ func _process(delta: float) -> void:
 	_tick_ik(delta)
 	if _flash_left <= 0.0 and _string == null and (_ik == null or absf(_ik_value() - _ik_target) < 0.01):
 		_clear_flash()
-		set_process(false)
+		if _string == null:
+			set_process(false)
 
 
 func _place_bow_string(delta: float) -> void:
 	if _string == null or _nock_top == null or _nock_bot == null:
 		return
 	var shown := _model != null and _model.is_visible_in_tree()
+	var cam := get_viewport().get_camera_3d() if get_viewport() != null else null
+	if cam != null and _model != null and cam.is_position_behind(_model.global_position):
+		shown = false
 	_string.visible = shown
 	if _string_upper != null:
 		_string_upper.visible = shown
@@ -234,7 +238,8 @@ func _orient_segment(mesh: MeshInstance3D, from: Vector3, to: Vector3) -> void:
 	var cam := get_viewport().get_camera_3d() if get_viewport() != null else null
 	if cam != null:
 		var dist := cam.global_position.distance_to(mesh.global_position)
-		thick = clampf(dist * 0.012, 0.7, 1.8)
+		var fov := deg_to_rad(clampf(cam.fov, 30.0, 90.0))
+		thick = clampf(dist * 0.012 * tan(fov * 0.5) / tan(deg_to_rad(35.0)), 0.7, 2.0)
 	mesh.global_transform = Transform3D(Basis(x_axis, y_axis, z_axis).scaled(Vector3(thick, length, thick)), mesh.global_position)
 
 
@@ -284,7 +289,9 @@ func _setup_two_hand_ik(id: StringName) -> void:
 	_skeleton.add_child(ik)
 	_ik = ik
 	if ik.get("magnet") != null:
-		ik.set("magnet", 0.15)
+		ik.set("magnet", 0.08)
+	_apply_ik(0.0)
+	_ik_target = 1.0
 	if ik.has_method("start"):
 		ik.call("start")
 	set_process(true)
@@ -358,9 +365,10 @@ func _setup_bow_string(id: StringName) -> void:
 	_model.add_child(_nock_top)
 	_model.add_child(_nock_bot)
 	var aabb := _model_aabb(_model)
-	var limb_z := aabb.position.z + aabb.size.z * 0.85
-	_nock_top.position = Vector3(0.0, aabb.position.y + aabb.size.y * 0.92, limb_z)
-	_nock_bot.position = Vector3(0.0, aabb.position.y + aabb.size.y * 0.08, limb_z)
+	# After the 90° grip rotation, the limb runs along local Y; nocks sit on the far X of the AABB.
+	var limb := aabb.position.x + aabb.size.x * 0.92
+	_nock_top.position = Vector3(limb, aabb.position.y + aabb.size.y * 0.92, aabb.get_center().z)
+	_nock_bot.position = Vector3(limb, aabb.position.y + aabb.size.y * 0.08, aabb.get_center().z)
 	_string = _make_string_mesh("BowStringLower")
 	_string_upper = _make_string_mesh("BowStringUpper")
 	_string.top_level = true

@@ -26,6 +26,8 @@ var _banner: AnnouncementBanner = null
 var _practiced_all := true
 var _bus := EventBindings.new()
 var _resume_guard := 0.0
+var _did_dodge := false
+var _bound_player: Node = null
 
 
 func _ready() -> void:
@@ -60,9 +62,6 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 	_step_timer = 0.0
 	_show_current()
 	_bind_player_signals()
-
-
-var _bound_player: Node = null
 
 
 func _bind_player_signals() -> void:
@@ -137,7 +136,7 @@ func _process(delta: float) -> void:
 	_step_timer += delta
 	_poll_player_triggers()
 	if _step_timer >= STEP_TIMEOUT:
-		if _current_step() == STEP_WINDED and not _did_dodge:
+		if _current_step() == STEP_WINDED and not _did_dodge and _step_timer < STEP_TIMEOUT * 2.0:
 			return
 		_practiced_all = false
 		_complete_current()
@@ -155,7 +154,9 @@ func _poll_player_triggers() -> void:
 			if player.has_method("get_move_intent"):
 				intent = float(player.get_move_intent())
 			var axes := Vector2(Input.get_axis("move_left", "move_right"), Input.get_axis("move_up", "move_down"))
-			if axes.length() > 0.42 or intent > 0.4:
+			var analog := axes.length() > 0.42
+			var keys := axes.length() > 0.18 and axes.length() <= 0.42
+			if analog or keys or intent > 0.4:
 				_complete_current()
 		STEP_ATTACK:
 			_bind_player_signals()
@@ -236,10 +237,8 @@ func _stop() -> void:
 
 func replay_next_run() -> void:
 	_stop()
-	if _bound_player != null:
-		_bound_player = null
-		_bind_player_signals()
+	_bound_player = null
+	_did_dodge = false
 	_completed.clear()
 	SaveManager.set_tutorial_completed(false)
-ear()
-	SaveManager.set_tutorial_completed(false)
+

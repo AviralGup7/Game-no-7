@@ -348,6 +348,9 @@ func reset() -> void:
 	_reloading = false
 	_attack_clip = &""
 	_contact_aligned = false
+	var model := _player.get_node_or_null("VisualRoot/CharacterModel") as Node3D if _player != null else null
+	if model != null:
+		model.position.y = 0.0
 	CharacterVisuals.start_breathing(_character_visual())
 	_play(idle_clip, true)
 

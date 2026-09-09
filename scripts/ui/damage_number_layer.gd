@@ -111,7 +111,8 @@ func spawn_damage_number(world_pos: Vector3, amount: float, was_crit: bool = fal
 	label.text = str(CriticalSystem.display_value(amount, was_crit))
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2) if was_crit else color)
 	label.add_theme_font_size_override("font_size", int((22 * CRIT_SCALE if was_crit else 22) * _text_scale))
-	label.add_theme_constant_override("outline_size", 8)
+	label.add_theme_constant_override("outline_size", int(6.0 + _text_scale * 3.0))
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))
 	var jitter := Vector2(0 if _reduced_motion else randf_range(-12, 12), -8)
 	if was_crit:
 		jitter.x = clampf(jitter.x + 18.0, -28.0, 28.0)
@@ -256,8 +257,11 @@ func _unstick(pos: Vector2, player_owned: bool = false) -> Vector2:
 			if other.position.distance_to(p) < STACK_CELL:
 				var other_heal := bool(entry.get("heal", false))
 				var other_crit := bool(entry.get("crit", false))
-				if other_heal and other_crit:
-					p.x -= STACK_CELL * 1.4
+				if other_heal:
+					p.x -= STACK_CELL * 1.6
+					p.y -= 10.0
+				elif other_crit:
+					p.x += STACK_CELL * 0.6
 				if player_owned:
 					p.x -= STACK_CELL
 					p.y -= 18.0
@@ -279,6 +283,12 @@ func _avoid_hud(pos: Vector2) -> Vector2:
 	if _skill_block.size.x > 1.0 and _skill_block.grow(8.0).has_point(pos):
 		pos.y = _skill_block.position.y - 28.0
 	var vp := get_viewport_rect()
-	pos.x = clampf(pos.x, vp.position.x + 8.0, vp.end.x - 48.0)
-	pos.y = clampf(pos.y, vp.position.y + 8.0, vp.end.y - 32.0)
+	var pad := Vector2(8, 8)
+	if get_viewport() != null:
+		var safe := DisplayServer.get_display_safe_area()
+		if safe.size.x > 1.0:
+			pad.x = maxf(pad.x, float(safe.position.x))
+			pad.y = maxf(pad.y, float(safe.position.y))
+	pos.x = clampf(pos.x, vp.position.x + pad.x, vp.end.x - 48.0)
+	pos.y = clampf(pos.y, vp.position.y + pad.y, vp.end.y - 32.0)
 	return pos
