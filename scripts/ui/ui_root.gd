@@ -23,8 +23,10 @@ var _boss_bar: BossHealthBar
 var _boss_gate: Control
 var _banner: AnnouncementBanner
 var _numbers: DamageNumberLayer
+var _modal: UiModal
+# Handle to the modal's dialog kept so engine tests / input routing can still
+# reach it directly; all popup logic lives in UiModal.
 var _confirm: ConfirmationDialog
-var _confirm_command: Callable
 var _text_scale := 1.0
 var _banner_fits := true
 var _minimap_fits := true
@@ -59,7 +61,22 @@ func _mount(key: StringName, panel: Control) -> void:
 	_safe.add_child(panel)
 	panel.visible = false
 
+
+## Build + register a full-screen overlay through the shared scaffold. Returns the
+## centred content box so callers can drop screen widgets straight in. All floating
+## screens (settings / armory / status / pause) mount this way so they share one
+## scroll/centre/scrim structure instead of each hand-rolling it.
+func _mount_overlay(key: StringName, dim := 0.0) -> VBoxContainer:
+	var overlay := UiFactory.overlay(_safe, dim)
+	overlay.panel.name = String(key)
+	overlay.panel.visible = false
+	_screens[key] = overlay.panel
+	return overlay.box
+
 func _build_screens() -> void:
+	_modal = UiModal.new()
+	add_child(_modal)
+	_confirm = _modal.get_dialog()
 	_menu = MenuPanel.new()
 	_mount(&"main_menu", _menu)
 	_menu.navigate.connect(_navigate)
@@ -77,15 +94,10 @@ func _build_screens() -> void:
 	_mount(&"help", _help)
 	_help.close_requested.connect(_close_auxiliary)
 	for key in [&"settings", &"armory"]:
-		var panel := Control.new()
-		panel.set_anchors_preset(PRESET_FULL_RECT)
-		_mount(key, panel)
-		var box := UiFactory.center_box(panel)
-		UiFactory.title(String(key).to_upper(), box, 34)
-		UiFactory.label(
+		var box := _mount_overlay(key)
+		UiFactory.screen_header(box, "", String(key).to_upper(), 34,
 			"Changes apply immediately unless a button says otherwise." if key == &"settings"
-			else "Spend banked coins on permanent upgrades.", box, 18
-		).modulate = UiTheme.MUTED
+			else "Spend banked coins on permanent upgrades.")
 		if key == &"settings":
 			_settings = SettingsPanel.new()
 			box.add_child(_settings)
@@ -99,13 +111,10 @@ func _build_screens() -> void:
 	_upgrade.choice_pressed.connect(_choose_upgrade)
 	_upgrade.exit_requested.connect(func() -> void: _confirm_leave(GameRoot.request_main_menu))
 	_build_pause()
-	var status := Control.new()
-	status.set_anchors_preset(PRESET_FULL_RECT)
-	_mount(&"status", status)
-	var status_box := UiFactory.center_box(status)
-	UiFactory.label("LOADING", status_box, 18).modulate = UiTheme.CYAN
-	UiFactory.title("PREPARING THE ARENA", status_box, 34).name = "StatusTitle"
-	UiFactory.label("Please wait. If loading cannot complete, return to the menu.", status_box).modulate = UiTheme.MUTED
+	var status_box := _mount_overlay(&"status")
+	var status_header := UiFactory.screen_header(status_box, "LOADING", "PREPARING THE ARENA", 34,
+		"Please wait. If loading cannot complete, return to the menu.")
+	status_header.title.name = "StatusTitle"
 	# Static accent rule, not a progress indicator: the loader has no measurable
 	# progress to report, so it must not imply one.
 	var status_rule := ColorRect.new()
@@ -115,28 +124,14 @@ func _build_screens() -> void:
 	status_rule.mouse_filter = MOUSE_FILTER_IGNORE
 	status_box.add_child(status_rule)
 	UiFactory.button("MAIN MENU", status_box, 22).pressed.connect(func() -> void: GameRoot.request_main_menu())
-	_confirm = ConfirmationDialog.new()
-	_confirm.title = "LEAVE THIS STAND?"
-	_confirm.dialog_text = "Unfinished run progress will be lost. No end-of-run reward is granted."
-	_confirm.ok_button_text = "LEAVE RUN"
-	_confirm.cancel_button_text = "KEEP PLAYING"
-	_confirm.confirmed.connect(func() -> void:
-		UiFactory.play_press("LEAVE")
-		if _confirm_command.is_valid(): _confirm_command.call())
-	_confirm.canceled.connect(func() -> void: UiFactory.play_press("CANCEL"))
-	add_child(_confirm)
 
 func _build_pause() -> void:
-	var panel := Control.new()
-	panel.set_anchors_preset(PRESET_FULL_RECT)
-	_mount(&"paused", panel)
-	var box := UiFactory.center_box(panel)
-	UiFactory.label("TAKE A BREATH", box, 18).modulate = UiTheme.CYAN
-	UiFactory.title("PAUSED", box, 48)
-	UiFactory.label("Your run is frozen. Resume when you're ready.", box, 22).modulate = UiTheme.MUTED
+	var box := _mount_overlay(&"paused")
+	UiFactory.screen_header(box, "TAKE A BREATH", "PAUSED", 48,
+		"Your run is frozen. Resume when you're ready.")
 	# Resume is the primary action and gets the tallest target; the two
 	# destructive actions share a row at the bottom so they read as secondary.
-	var resume := UiFactory.button("RESUME RUN", box, 24, Vector2(260, 96))
+	var resume := UiFactory.primary("RESUME RUN", box, 24, Vector2(300, 104))
 	UiTheme.decorate(resume, "play")
 	resume.pressed.connect(func() -> void: GameRoot.request_resume())
 	UiFactory.button("HOW TO PLAY", box, 22).pressed.connect(func() -> void: _navigate(&"help"))
@@ -238,7 +233,7 @@ func _sync_from_state() -> void:
 		title.text = "ARENA UNAVAILABLE" if GameRoot.get_current_state() == GameRoot.State.ERROR else "PREPARING THE ARENA"
 
 func _on_state_changed(_previous: StringName, _current: StringName) -> void:
-	if _confirm != null: _confirm.hide()
+	if _modal != null: _modal.cancel_all()
 	_sync_from_state()
 
 func _navigate(screen: StringName) -> void:
@@ -271,26 +266,9 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _confirm_leave(command: Callable) -> void:
-	_confirm_command = command
-	_confirm.title = "LEAVE THIS STAND?"
-	_confirm.dialog_text = "Unfinished run progress will be lost. No end-of-run reward is granted."
-	_confirm.ok_button_text = "LEAVE RUN"
-	_confirm.cancel_button_text = "KEEP PLAYING"
-	_popup_confirm()
-
-## Size the modal from the live viewport and the text scale so the message never
-## clips at 200% text or overflows a small phone screen.
-func _popup_confirm() -> void:
-	var view := get_viewport_rect().size
-	var width := int(clampf(view.x * 0.8, 320.0, 560.0 * _text_scale))
-	var height := int(clampf(200.0 * _text_scale, 180.0, maxf(view.y * 0.8, 180.0)))
-	_confirm.min_size = Vector2i(mini(width, int(view.x)), mini(height, int(view.y)))
-	_confirm.popup_centered(_confirm.min_size)
-	for button in [_confirm.get_ok_button(), _confirm.get_cancel_button()]:
-		if button != null:
-			button.custom_minimum_size = Vector2(150, UiTheme.TOUCH_MIN)
-	_confirm.get_label().autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_confirm.get_ok_button().grab_focus.call_deferred()
+	_modal.confirm("LEAVE THIS STAND?",
+		"Unfinished run progress will be lost. No end-of-run reward is granted.",
+		"LEAVE RUN", "KEEP PLAYING", command)
 
 
 func _choose_upgrade(id: StringName) -> void:
@@ -346,9 +324,6 @@ func _request_quit() -> void:
 	if SaveManager.save_now():
 		get_tree().quit()
 		return
-	_confirm.title = "SAVE INCOMPLETE"
-	_confirm.dialog_text = "Progress could not be saved. Quit anyway, or cancel and retry?"
-	_confirm.ok_button_text = "QUIT ANYWAY"
-	_confirm.cancel_button_text = "CANCEL"
-	_confirm_command = func() -> void: get_tree().quit()
-	_popup_confirm()
+	_modal.confirm("SAVE INCOMPLETE",
+		"Progress could not be saved. Quit anyway, or cancel and retry?",
+		"QUIT ANYWAY", "CANCEL", func() -> void: get_tree().quit())
