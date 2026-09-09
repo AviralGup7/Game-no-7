@@ -290,8 +290,8 @@ func _discover() -> void:
 	var tree := get_tree()
 	var pn := tree.get_first_node_in_group(PLAYER_GROUP)
 	_player = pn if (pn is Node3D and is_instance_valid(pn)) else null
-	# has_group(): true when the group has >= 1 member (4.4 API; the 3.x
-	# has_node_in_group name was removed).
+	# has_group(): true when the group has >= 1 member — the 4.4 group probe
+	# (the 3.x query name was removed with the 4.0 rewrite).
 	_boss_live = tree.has_group(BossController.BOSS_GROUP)
 
 	var fresh: Array = []
