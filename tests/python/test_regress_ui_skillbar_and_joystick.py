@@ -35,6 +35,6 @@ class UISkillTests(unittest.TestCase):
     def test_arena_resolve_handles_dict_and_object(self):
         txt=read("scripts/arena/arena.gd")
         block = txt[txt.find("func _resolve_arena_id"):txt.find("func _resolve_arena_id") + 500]
-        self.assertIn("GameRoot.get_run()", block)
+        self.assertIn("gr.get_run()", block)
         self.assertIn("run.arena_id", block)
 if __name__=="__main__": unittest.main()

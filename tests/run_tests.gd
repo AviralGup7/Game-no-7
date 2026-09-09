@@ -58,8 +58,34 @@ var _integration_run := false
 
 
 func _initialize() -> void:
+	# SceneTree `--script` does not inject autoload *identifiers*, but the
+	# project's real autoload scripts can still live under /root/<Name> so
+	# gameplay code that looks them up by path (arena, StatusManager) compiles
+	# and runs. These are the real EventBus/GameRoot scripts, not test fakes.
+	_boot_project_autoloads()
 	# Unit suites are pure (no nodes) -> safe to run immediately.
 	_run_suites(UNIT_SUITES)
+
+
+func _boot_project_autoloads() -> void:
+	# Only EventBus: GameRoot/ContentRegistry _ready() pulls SaveManager and
+	# would halt the hermetic suite on content validation. Gameplay scripts that
+	# tests compile now look autoloads up by /root path and tolerate null.
+	var entries: Array = [
+		["EventBus", "res://scripts/core/event_bus.gd"],
+	]
+	for entry in entries:
+		var node_name: String = entry[0]
+		if root.get_node_or_null(node_name) != null:
+			continue
+		var script: GDScript = load(entry[1])
+		if script == null:
+			continue
+		var node: Node = script.new() as Node
+		if node == null:
+			continue
+		node.name = node_name
+		root.add_child(node)
 
 
 

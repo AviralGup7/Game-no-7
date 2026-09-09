@@ -1,3 +1,4 @@
+class_name GameRootService
 extends Node
 ## Autoload: GameRoot
 ## Owns global game state: the canonical state machine, the current RunState, pause
