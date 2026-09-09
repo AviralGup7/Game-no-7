@@ -1,5 +1,5 @@
 class_name EnemyConfig
-extends Resource
+extends ValidatedConfig
 
 ## Static, data-driven definition of one enemy archetype. Instances live under
 ## res://data/enemies/ and are loaded + validated by the ContentRegistry. Runtime
@@ -8,41 +8,41 @@ extends Resource
 @export var archetype_id: StringName = &""
 @export var display_name: String = ""
 @export var scene: PackedScene = null
-@export var max_health: float = 10.0
-@export var move_speed: float = 2.0
-@export var acceleration: float = 8.0
-@export var attack_damage: float = 5.0
-@export var attack_range: float = 1.5
-@export var attack_cooldown: float = 1.2
-@export var attack_windup: float = 0.35
-@export var score_value: int = 10
-@export var currency_value: int = 1
-@export var knockback_resistance: float = 0.0
+@export_range(0.0, 10000.0, 0.5) var max_health: float = 10.0
+@export_range(0.0, 30.0, 0.1) var move_speed: float = 2.0
+@export_range(0.0, 100.0, 0.5) var acceleration: float = 8.0
+@export_range(0.0, 10000.0, 0.5) var attack_damage: float = 5.0
+@export_range(0.1, 30.0, 0.1) var attack_range: float = 1.5
+@export_range(0.05, 60.0, 0.05) var attack_cooldown: float = 1.2
+@export_range(0.0, 10.0, 0.05) var attack_windup: float = 0.35
+@export_range(0, 100000) var score_value: int = 10
+@export_range(0, 10000) var currency_value: int = 1
+@export_range(0.0, 1.0, 0.01) var knockback_resistance: float = 0.0
 ## How far this enemy will first notice a target (0 => always alert).
 ## Kept for backward compatibility: when > 0 it overrides vision_range.
-@export var detect_range: float = 0.0
+@export_range(0.0, 100.0, 0.5) var detect_range: float = 0.0
 ## Perception (see EnemyPerception): sight range in world units when
 ## detect_range is 0. 0 with detect_range 0 => always aware (legacy behavior).
-@export var vision_range: float = 16.0
+@export_range(0.0, 100.0, 0.5) var vision_range: float = 16.0
 ## Field-of-view cone in degrees; 360 = omnidirectional sight.
-@export var vision_fov_degrees: float = 360.0
+@export_range(0.0, 360.0) var vision_fov_degrees: float = 360.0
 ## How far this enemy hears noise (hits, kills, player attacks); pulls it out
 ## of wandering idle into investigation even without line of sight.
-@export var hearing_range: float = 8.0
+@export_range(0.0, 100.0, 0.5) var hearing_range: float = 8.0
 ## Base stimulus-to-response delay in seconds (scaled per-enemy by the
 ## rolled personality). This is the "turning to look" beat before pursuit.
-@export var reaction_time: float = 0.2
+@export_range(0.0, 3.0, 0.01) var reaction_time: float = 0.2
 ## Seconds an engaged enemy keeps pressing toward a target it lost sight of.
-@export var memory_time: float = 3.0
+@export_range(0.0, 30.0, 0.1) var memory_time: float = 3.0
 ## Idle wander radius around the spawn spot (scaled by personality).
-@export var wander_radius: float = 2.2
+@export_range(0.0, 20.0, 0.1) var wander_radius: float = 2.2
 ## Chance per maneuver roll that a close-range chaser strafes instead of
 ## closing (skirmisher feel; 0 = always rushes).
-@export var strafe_chance: float = 0.22
+@export_range(0.0, 1.0, 0.01) var strafe_chance: float = 0.22
 ## Attack cooldown jitter in [-x, +x] so packs never swing on one clock.
-@export var attack_cd_jitter: float = 0.18
+@export_range(0.0, 1.0, 0.01) var attack_cd_jitter: float = 0.18
 ## Radius in which an ally being hit alerts this enemy (pack coordination).
-@export var alert_radius: float = 10.0
+@export_range(0.0, 100.0, 0.5) var alert_radius: float = 10.0
 ## Seconds spent in the "hurt" reaction after taking damage.
 @export var hurt_duration: float = 0.25
 ## World-space XZ radius used to keep enemies inside the arena bounds.
@@ -228,27 +228,3 @@ func validate() -> Array[String]:
 	if split_count > 0 and String(splits_into).is_empty():
 		problems.append("split_count > 0 requires splits_into")
 	return problems
-
-## Hardened: clamp config values loaded from JSON.
-func _validated_stats() -> void:
-	if not is_finite(max_health) or max_health <= 0.0:
-		max_health = 10.0
-	max_health = clampf(max_health, 1.0, 100000.0)
-	if not is_finite(move_speed) or move_speed < 0.0:
-		move_speed = 2.0
-	move_speed = clampf(move_speed, 0.0, 20.0)
-	if not is_finite(attack_damage) or attack_damage < 0.0:
-		attack_damage = 5.0
-	attack_damage = clampf(attack_damage, 0.0, 10000.0)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

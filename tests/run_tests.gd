@@ -33,6 +33,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_enemy_brain.gd",
 	"res://tests/unit/test_content_progression.gd",
 	"res://tests/unit/test_presentation_scripts.gd",
+	"res://tests/unit/test_game_modes.gd",
 ]
 
 ## Node3D-based suites: these build Node3D fixtures and assert on positions.
@@ -47,6 +48,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_arena_obstacles_node.gd",
+	"res://tests/unit/test_enemy_scene_inheritance.gd",
 ]
 
 var _failures: Array[String] = []
@@ -224,6 +226,13 @@ func _run_attack_combo_integration() -> Array:
 	atk.attack_windup = 0.1
 	atk.attack_cooldown = 0.6
 	atk.combo_chain_window = 0.35
+	# Chains only open on a LANDED hit (deep-bug-hunt batch 5), so the swing needs
+	# a real target: a Damageable dummy in the "enemies" group, in range of the
+	# body at the origin. Without it every chain assertion below would whiff.
+	var dummy := _ComboDummy.new()
+	root.add_child(dummy)
+	dummy.add_to_group("enemies")
+	dummy.global_position = Vector3(0, 0, -1.0)
 
 	var ok_step1 := (
 		atk.get_phase() == atk.PHASE_READY
@@ -364,6 +373,19 @@ func _run_attack_combo_integration() -> Array:
 		"why": "step=%d" % atk.get_combo_step(),
 	})
 
+	# Whiffs must never escalate the combo (batch-5 semantics): with the dummy
+	# gone, a resolved swing leaves the chain window closed.
+	root.remove_child(dummy)
+	dummy.free()
+	atk.set_attacks_enabled(true)
+	atk.request_attack()
+	atk.advance(atk.attack_windup)
+	results.append({
+		"name": "whiff (no target) does not open the chain window",
+		"passed": atk.get_phase() == atk.PHASE_RECOVERY and not atk.is_chain_ready(),
+		"why": "phase=%s chain=%s" % [str(atk.get_phase()), str(atk.is_chain_ready())],
+	})
+
 	root.remove_child(body)
 	body.queue_free()
 	return results
@@ -378,7 +400,17 @@ func _run_attack_combo_integration() -> Array:
 ## Autoload-free by construction (EventBus/AudioManager lookups null-guard).
 ## ===========================================================================
 
-class _FakeTarget extends Node3D:
+## Melee-combo stand-in: a Damageable in the "enemies" group that accepts every
+## hit and never dies, so chained swings always land.
+class _ComboDummy extends Damageable:
+	func apply_damage(_payload: DamagePayload) -> DamageResult:
+		var result := DamageResult.new()
+		result.accepted = true
+		result.final_amount = _payload.amount
+		return result
+
+
+class _FakeTarget extends Damageable:
 	## Damage-recording stand-in for the player.
 	var hits: Array = []
 	var alive := true

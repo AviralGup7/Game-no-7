@@ -21,11 +21,11 @@ var _regen_rate := DEFAULT_REGEN_PER_SECOND
 var _regen_delay := DEFAULT_REGEN_DELAY
 var _since_spend := 999.0
 var _exhausted := false
-var _progression: Node = null
+var _progression: ProgressionComponent = null
 
 
 func _ready() -> void:
-	_progression = get_parent().get_node_or_null("ProgressionComponent") if get_parent() != null else null
+	_progression = get_parent().get_node_or_null("ProgressionComponent") as ProgressionComponent if get_parent() != null else null
 	_rebuild_from_stats()
 	_current = _max
 
@@ -37,8 +37,8 @@ func _rebuild_from_stats() -> void:
 
 
 func _stat(key: StringName, fallback: float) -> float:
-	if _progression != null and _progression.has_method("get_stat"):
-		return float(_progression.call("get_stat", key, fallback))
+	if _progression != null:
+		return _progression.get_stat(key, fallback)
 	return fallback
 
 
@@ -140,10 +140,4 @@ func reset_for_new_run() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"current": _current, "max": _max, "exhausted": _exhausted, "regen": _regen_rate}
-
-## Hardened: validate stamina config.
-func _validated_stamina_config(v: float) -> float:
-	if not is_finite(v) or v <= 0.0:
-		return 100.0
-	return clampf(v, 1.0, 10000.0)
 

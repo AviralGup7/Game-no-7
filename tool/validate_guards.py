@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
-"""Validate that hardening guards exist across the codebase — 139/139 validated.
+"""Post-refactor guard contract for Last Stand: Arena.
 
-Checks for the 4000-line bug-hunt invariants:
-  - Every GDScript with _validated_* helper contains finite/clamp guards
-  - GameRoot.get_run Dictionary branches exist in main/meta/ui/waves
-  - EventBus/ContentRegistry null guards exist in player/progression/audio
-  - WeightedTable, CriticalSystem, DifficultyDirector finite guards
-  - Enemy states all have _validated_* helpers
-  - UI visuals have clamp helpers
+This tool replaces the original theater-enforcer, which "validated" the
+codebase by asserting that 139/139 `_validated_*` helpers existed — 141 of
+which turned out to be dead code (168 defined, 27 called). That layer was
+removed by the typed-architecture refactor (docs/REFACTOR_PLAN.md).
+
+What this tool pins now:
+  1. The guards that were REAL, inlined at their use sites (finite checks,
+     clamps, null guards on the hot paths).
+  2. @export_range editor enforcement on authored content configs.
+  3. The retirement itself: `func _validated_*` / `func _guarded_*` /
+     `func _safe_emit` must never come back.
+
+Architecture checks (no `.call("...")` / `has_method` duck typing, typed
+references resolve) live in tool/check_typed_arch.py.
 
 Run from repo root:
     python3 tool/validate_guards.py
-Exits non-zero if any hardening is missing.
+Exits non-zero if any real guard is missing or any theater returns.
 """
 from __future__ import annotations
 import pathlib
@@ -22,107 +29,86 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 FAILED = 0
 PASSED = 0
 
+
 def check(path: str, needle: str, msg: str = "") -> None:
     global FAILED, PASSED
     p = ROOT / path
     txt = p.read_text(encoding="utf-8", errors="ignore") if p.exists() else ""
     if needle in txt:
         PASSED += 1
-        print(f"OK {path}: {needle[:40]}")
+        print(f"OK   {path}: {needle[:48]}")
     else:
         FAILED += 1
         print(f"FAIL {path}: missing {needle!r} {msg}")
 
+
 def main() -> int:
-    print("=== validate_guards: checking 4000-line hardening ===")
+    global FAILED, PASSED
+    print("=== validate_guards: real-guard contract (post typed refactor) ===")
 
-    # Main GameRoot Dictionary guards
-    check("scripts/main/main.gd", "func _safe_run()", "main needs Dictionary-aware safe_run")
-    check("scripts/main/main.gd", "\"seed\" in run", "seed Dictionary branch")
-    check("scripts/main/main.gd", "\"arena_id\" in run", "arena_id Dictionary branch")
-    check("scripts/main/main.gd", "_safe_seed()", "uses safe seed")
-    check("scripts/main/main.gd", "_safe_arena_id()", "uses safe arena_id")
-    check("scripts/meta/achievements.gd", "func _safe_run()", "achievements safe_run")
-    check("scripts/meta/achievements.gd", "_selected_upgrade_count", "selected count helper")
-    check("scripts/meta/meta_progression.gd", "run is Dictionary", "meta Dictionary guard")
-    check("scripts/ui/run_summary_panel.gd", "has_method(\"summary\")", "summary guard")
-    check("scripts/ui/upgrade_panel.gd", "run is Dictionary", "upgrade panel guard")
-    check("scripts/waves/wave_manager.gd", "\"elapsed_seconds\" in run", "elapsed guard")
-
-    # Finite/clamp helpers
+    print("-- inlined runtime guards (hot paths) --")
     checks = [
-        ("scripts/utilities/weighted_table.gd", "is_finite(weight)"),
-        ("scripts/utilities/weighted_table.gd", "_validated_total"),
+        # Combat math.
         ("scripts/combat/critical_system.gd", "is_finite(base_chance)"),
-        ("scripts/combat/critical_system.gd", "_validated_crit_chance"),
-        ("scripts/waves/difficulty_director.gd", "is_finite(_now)"),
-        ("scripts/waves/difficulty_director.gd", "_validated_director_factor"),
-        ("scripts/enemies/boss_controller.gd", "phases.is_empty()"),
-        ("scripts/enemies/boss_controller.gd", "_validated_threshold"),
+        ("scripts/utilities/weighted_table.gd", "is_finite(weight)"),
+        ("scripts/utilities/weighted_table.gd", "clampf(weight"),
+        # Player vitals.
+        ("scripts/player/health_component.gd", "is_finite(float(payload.amount))"),
+        ("scripts/player/health_component.gd", "clampf(current_health / max_health, 0.0, 1.0)"),
+        ("scripts/player/health_component.gd", "clampf(_mitigate(amount, payload), 0.0, INF)"),
+        ("scripts/player/experience_component.gd", "clampf(mult, 0.0, 10.0)"),
+        ("scripts/player/stamina_component.gd", "clampf(_current / _max, 0.0, 1.0)"),
         ("scripts/player/progression_component.gd", "is_finite(base)"),
-        ("scripts/player/health_component.gd", "is_instance_valid(payload)"),
-        ("scripts/player/health_component.gd", "_validated_heal_amount"),
-        ("scripts/player/stamina_component.gd", "_validated_stamina_config"),
-        ("scripts/combat/area_damage.gd", "_validated_radial_args"),
-        ("scripts/combat/hitstop_manager.gd", "_validated_hitstop"),
-        ("scripts/combat/damage_payload.gd", "_validated_amount"),
-        ("scripts/combat/damage_result.gd", "_validated_final"),
-        ("scripts/weapons/projectile.gd", "is_finite(delta)"),
-        ("scripts/weapons/projectile.gd", "_validated_launch_dict"),
-        ("scripts/weapons/weapon_manager.gd", "_validated_weapon_id"),
-        ("scripts/core/run_state.gd", "_validated_restore_dict"),
-        ("scripts/core/run_state.gd", "clampi(currency + delta"),
-        ("scripts/utilities/rng_service.gd", "if salt < 0:"),
-        ("scripts/progression/upgrade_selector.gd", "_validated_pick_count"),
-        ("scripts/core/content_registry.gd", "_validated_archetype"),
-        ("scripts/core/event_bus.gd", "_safe_emit"),
-        ("scripts/enemies/enemy_base.gd", "is_instance_valid(_health)"),
-        ("scripts/enemies/enemy_base.gd", "_validated_knockback"),
-        ("scripts/enemies/enemy_state_machine.gd", "_validated_state_for_transition"),
-        ("scripts/ui/minimap.gd", "_validated_map_pos"),
-        ("scripts/ui/tutorial_manager.gd", "is_finite(delta)"),
-        ("scripts/status/status_manager.gd", "_validated_effects"),
-        ("scripts/skills/skill_controller.gd", "_validated_cooldown"),
-        ("scripts/pickups/pickup_manager.gd", "_validated_drop_pos"),
-        ("scripts/enemies/boss_phase_config.gd", "_validated_phase"),
-        ("scripts/enemies/enemy_locomotion.gd", "_validated_integration"),
-        ("scripts/enemies/enemy_navigator.gd", "_validated_target"),
-        ("scripts/enemies/enemy_state.gd", "_validated_host"),
-        ("scripts/enemies/enemy_striker.gd", "_validated_striker"),
-        ("scripts/enemies/spawn_ledger.gd", "_validated_archetype"),
-        ("scripts/enemies/spawn_manager.gd", "_validated_configure"),
-        ("scripts/enemies/spawn_placer.gd", "_validated_half"),
-        ("scripts/main/camera_profile.gd", "_validated_profile"),
-        ("scripts/meta/daily_challenge.gd", "_validated_daily_seed"),
-        ("scripts/pickups/pickup_config.gd", "_validated_pickup"),
-        ("scripts/player/attack_buffer.gd", "_validated_buffer_time"),
-        ("scripts/player/character_controller.gd", "_validated_input"),
-        ("scripts/player/combo_chain.gd", "_validated_combo_window"),
-        ("scripts/progression/upgrade_config.gd", "_validated_upgrade"),
-        ("scripts/save/save_schema.gd", "_validated_schema_version"),
-        ("scripts/save/settings_data.gd", "_validated_volume"),
-        ("scripts/status/status_effect_config.gd", "_validated_status"),
-        ("scripts/ui/achievement_gallery.gd", "_validated_gallery_index"),
-        ("scripts/ui/armory_panel.gd", "_validated_armory_cost"),
-        ("scripts/visuals/visual_mount.gd", "_validated_mount"),
-        ("scripts/waves/scoring.gd", "_validated_score_delta"),
-        ("scripts/waves/wave_spawn_entry.gd", "_validated_entry"),
-        ("scripts/weapons/projectile_pool.gd", "_validated_projectile"),
-        ("scripts/weapons/weapon_instance.gd", "_validated_config"),
+        # Enemies + waves.
+        ("scripts/enemies/enemy_base.gd", "is_finite(resisted.x)"),
+        ("scripts/waves/wave_planner.gd", "maxi(wave_number, 1)"),
+        ("scripts/waves/difficulty_director.gd", "is_finite(_now)"),
+        ("scripts/waves/scoring.gd", "maxi(int(round(raw)), 0)"),
+        # Systems.
+        ("scripts/pickups/pickup_manager.gd", "clampi(pool_size"),
+        ("scripts/audio/audio_manager.gd", "clampf(volume_db, -80.0, 6.0)"),
+        ("scripts/audio/audio_manager.gd", "clampf(pitch_scale, 0.1, 4.0)"),
+        ("scripts/save/settings_data.gd", "_clamp01"),
+        ("scripts/visuals/ring_fade.gd", "clampf(_elapsed / _duration, 0.0, 1.0)"),
     ]
     for path, needle in checks:
         check(path, needle)
 
-    # Count coverage
-    all_gd = list((ROOT / "scripts").rglob("*.gd"))
-    validated = sum(1 for p in all_gd if "_validated" in p.read_text(errors="ignore"))
-    print(f"\nValidated files: {validated}/{len(all_gd)}")
-    if validated < 100:
-        print(f"FAIL: expected >=100 validated files, got {validated}")
-        return 1
+    print("-- @export_range editor enforcement on content configs --")
+    export_checks = [
+        ("scripts/enemies/enemy_config.gd", "@export_range(0.0, 10000.0, 0.5) var max_health"),
+        ("scripts/enemies/enemy_config.gd", "@export_range(0.05, 60.0, 0.05) var attack_cooldown"),
+        ("scripts/weapons/weapon_config.gd", "@export_range(0.0, 10000.0, 0.5) var base_damage"),
+        ("scripts/weapons/weapon_config.gd", "@export_range(0.0, 1.0, 0.01) var crit_chance"),
+        ("scripts/waves/wave_config.gd", "@export_range(1, 60) var maximum_simultaneous_enemies"),
+        ("scripts/waves/wave_spawn_entry.gd", "@export_range(0.0, 1.0, 0.01) var elite_chance"),
+        ("scripts/skills/skill_config.gd", "@export_range(0.05, 300.0, 0.1) var cooldown"),
+        ("scripts/status/status_effect_config.gd", "@export_range(0.05, 300.0, 0.05) var duration"),
+        ("scripts/pickups/pickup_config.gd", "@export_range(0.0, 100.0, 0.1) var drop_weight"),
+        ("scripts/audio/audio_config.gd", "@export_range(-80.0, 6.0, 0.1) var volume_db"),
+        ("scripts/arena/arena_config.gd", "@export_range(0.0, 100.0, 0.1) var enemy_spawn_min_player_distance"),
+        ("scripts/enemies/boss_phase_config.gd", "@export_range(0.01, 1.0, 0.01) var threshold"),
+        ("scripts/player/health_component.gd", "@export_range(1.0, 100000.0, 1.0) var max_health"),
+    ]
+    for path, needle in export_checks:
+        check(path, needle)
+
+    print("-- the theater stays dead --")
+    theater = 0
+    for gd in (ROOT / "scripts").rglob("*.gd"):
+        txt = gd.read_text(encoding="utf-8", errors="ignore")
+        for pattern in (r"^\s*func _validated_", r"^\s*func _guarded_", r"^\s*func _safe_emit"):
+            if re.search(pattern, txt, re.M):
+                print(f"FAIL {gd.relative_to(ROOT)}: theater function returned ({pattern})")
+                FAILED += 1
+                theater += 1
+    if theater == 0:
+        PASSED += 1
+        print("OK   scripts/: no _validated_/_guarded_/_safe_emit functions")
 
     print(f"\nPassed {PASSED}, Failed {FAILED}")
     return 1 if FAILED else 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

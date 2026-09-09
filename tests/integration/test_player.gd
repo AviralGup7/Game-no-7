@@ -2,7 +2,7 @@ extends RefCounted
 ## Focused independent suite; no edit to the shared multi-agent test runner.
 ## godot --headless --path . --script res://tests/run_player_tests.gd
 
-class Target extends Node3D:
+class Target extends Damageable:
 	var alive := true
 	var hits := 0
 

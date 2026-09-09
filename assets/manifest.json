@@ -280,6 +280,38 @@
       "attribution": "Voluntary creator credit; preserve bundled notices (required for MIT).",
       "reviewed_on": "2026-09-08",
       "notes": "Only selected asset bytes imported; no code or plugins from the source repository."
+    },
+    "threejs-pbr": {
+      "name": "three.js example HDRI panorama sets and PBR sample assets",
+      "creator": "three.js authors (models/textures from Poly Haven, CC0)",
+      "source_url": "https://github.com/mrdoob/three.js/tree/2431a09f46f34c560bc8e44b33be0e567723d5b9/examples/textures/equirectangular",
+      "download_repository": "https://github.com/mrdoob/three.js",
+      "revision": "2431a09f46f34c560bc8e44b33be0e567723d5b9",
+      "license": "MIT",
+      "license_url": "https://opensource.org/license/mit",
+      "license_file": "ASSET_LICENSES/threejs-pbr.txt",
+      "commercial_use": true,
+      "compiled_redistribution": true,
+      "modification_permitted": true,
+      "attribution": "Bundle the MIT notice (required). HDRI panoramas are original Poly Haven CC0 captures; voluntary credit retained.",
+      "reviewed_on": "2026-09-08",
+      "notes": "Only listed equirectangular HDR panoramas and the MIT notice were imported; no code, demos or other assets."
+    },
+    "godot-hd-materials": {
+      "name": "Godot Material Testers HD photo PBR texture sets",
+      "creator": "Godot Engine contributors",
+      "source_url": "https://github.com/godotengine/godot-demo-projects/tree/0db80ca5fd22b9a40e05b9bc1e00af867fb7c712/3d/material_testers/test_materials",
+      "download_repository": "https://github.com/godotengine/godot-demo-projects",
+      "revision": "0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "license": "MIT",
+      "license_url": "https://opensource.org/license/mit",
+      "license_file": "ASSET_LICENSES/godot-hd-materials.txt",
+      "commercial_use": true,
+      "compiled_redistribution": true,
+      "modification_permitted": true,
+      "attribution": "Bundle the MIT notice (required); voluntary creator credit retained.",
+      "reviewed_on": "2026-09-08",
+      "notes": "Photo PBR texture sets (rock/brick/marble/wood/aluminium) plus the MIT notice; no code or plugins."
     }
   },
   "files": [
@@ -2724,6 +2756,193 @@
       "sha256": "53c7e3820b4ff34985b0a0752260651a7e0b6ce1c15494d52a967a95113e0fe7",
       "downloaded_on": "2026-09-08",
       "purpose": "Ranged enemy equipment / projectile missing from the original kit"
+    },
+    {
+      "pack": "threejs-pbr",
+      "path": "assets/textures/panorama/spruit_sunrise_1k.hdr",
+      "source_path": "examples/textures/equirectangular/spruit_sunrise_1k.hdr",
+      "url": "https://api.github.com/repos/mrdoob/three.js/contents/examples/textures/equirectangular/spruit_sunrise_1k.hdr?ref=2431a09f46f34c560bc8e44b33be0e567723d5b9",
+      "bytes": 1500948,
+      "git_blob_sha1": "8897536c654c45f201b4661728ebb2c786280f80",
+      "sha256": "38199a31e945906f6778431e989256a92d9d78b0cfc0f902accad9f5244bf50f",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Realistic daylight HDRI panorama for the default arena sky/IBL"
+    },
+    {
+      "pack": "threejs-pbr",
+      "path": "assets/textures/panorama/venice_sunset_1k.hdr",
+      "source_path": "examples/textures/equirectangular/venice_sunset_1k.hdr",
+      "url": "https://api.github.com/repos/mrdoob/three.js/contents/examples/textures/equirectangular/venice_sunset_1k.hdr?ref=2431a09f46f34c560bc8e44b33be0e567723d5b9",
+      "bytes": 1397783,
+      "git_blob_sha1": "048bb13a8bb240ded4609f398fc10c7b4d049a73",
+      "sha256": "0e72ed46b5316cb5fb67fc81ff85b024a09146fd89ef3811a8d2299647ada118",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Realistic sunset HDRI panorama for the Ember Crucible sky/IBL"
+    },
+    {
+      "pack": "threejs-pbr",
+      "path": "assets/textures/panorama/moonless_golf_1k.hdr",
+      "source_path": "examples/textures/equirectangular/moonless_golf_1k.hdr",
+      "url": "https://api.github.com/repos/mrdoob/three.js/contents/examples/textures/equirectangular/moonless_golf_1k.hdr?ref=2431a09f46f34c560bc8e44b33be0e567723d5b9",
+      "bytes": 1672754,
+      "git_blob_sha1": "cc60dc8624d02d0009394804eb33a149981d8922",
+      "sha256": "4f597078024bd81429431e872d466d8808653ad62a8bc8c61d8052af7466c3aa",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Realistic moonlit HDRI panorama for the Frost Hollow sky/IBL"
+    },
+    {
+      "pack": "threejs-pbr",
+      "path": "ASSET_LICENSES/threejs-pbr.txt",
+      "source_path": "LICENSE",
+      "url": "https://api.github.com/repos/mrdoob/three.js/contents/LICENSE?ref=2431a09f46f34c560bc8e44b33be0e567723d5b9",
+      "bytes": 1081,
+      "git_blob_sha1": "8ada2a5f982916b0ba4b7a0aa7de347587e745d7",
+      "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc",
+      "downloaded_on": "2026-09-08",
+      "purpose": "MIT copyright/permission notice for the three.js source repository"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/rock/rock_albedo.png",
+      "source_path": "3d/material_testers/test_materials/texture_rock_albedo.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_rock_albedo.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 642052,
+      "git_blob_sha1": "9a85866dc10a2f975d3376c65276e6c67836a184",
+      "sha256": "be7911918ec1d554e070f8f458020700df2a2f55ae508ab7413063c1bb160611",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo rock floor albedo"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/rock/rock_normal.png",
+      "source_path": "3d/material_testers/test_materials/texture_rock_normal.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_rock_normal.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 673240,
+      "git_blob_sha1": "ff81cb7968d98fcc38dfd032b35f5b3a0a8934c3",
+      "sha256": "6c5485439f7ac4aab8d3d58af930983f084f7d1480ac674844896a9c8eaeff74",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo rock normal map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/rock/rock_ao.png",
+      "source_path": "3d/material_testers/test_materials/texture_rock_ao.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_rock_ao.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 334645,
+      "git_blob_sha1": "52a5678b31956cbe10a39a47e135cfdfc6e7f81f",
+      "sha256": "ed2b0b2a95dae82b5ed7411709daa1d82f39fc0dc594517a499446f93e0362cd",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo rock ambient-occlusion map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/rock/rock_metal.png",
+      "source_path": "3d/material_testers/test_materials/texture_rock_metal.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_rock_metal.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 544967,
+      "git_blob_sha1": "0821f6e7e591fe17b729f4f4375045571b17bc04",
+      "sha256": "e8a673e708b8f61c879589ec69b7b697cb95d44d111206d77863b373e1baa495",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo rock metallic map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/brick/brick_albedo.jpg",
+      "source_path": "3d/material_testers/test_materials/texture_bricks.jpg",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_bricks.jpg?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 469043,
+      "git_blob_sha1": "75edb7693969f0d4f2f7db6710f9294d997f2997",
+      "sha256": "fce5acd91dbed00cc05798ae661d666f67a0cf2a1b3de48dbda57ade4b5ff811",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo aged-brick wall albedo"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/brick/brick_normal.jpg",
+      "source_path": "3d/material_testers/test_materials/texture_bricks_normal.jpg",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_bricks_normal.jpg?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 511852,
+      "git_blob_sha1": "5bd9f9f1ad053de720b53257b3f26a63ce52615e",
+      "sha256": "8418b9a014649cc120633aba9d7afb50a9594adfd0196bba8495d602fea6def7",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo aged-brick normal map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/brick/brick_ao.jpg",
+      "source_path": "3d/material_testers/test_materials/texture_bricks_ao.jpg",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_bricks_ao.jpg?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 151259,
+      "git_blob_sha1": "cd86bae29dd13eb16aa50146f5d8fdaf674ae251",
+      "sha256": "75be56696c45cbd086c92d7f631b5b194dea4b88825db1c978c2f5d010b6f06f",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo aged-brick ambient-occlusion map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/brick/brick_metal.jpg",
+      "source_path": "3d/material_testers/test_materials/texture_bricks_metal.jpg",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_bricks_metal.jpg?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 117466,
+      "git_blob_sha1": "a65075410611d4b655c22018596417e1907945e7",
+      "sha256": "3fb5f240097700b07f8b716f9953a924122a81ad6b17b30e13b5e4daa3a7a91e",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo aged-brick metallic map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/stone/marble_albedo.png",
+      "source_path": "3d/material_testers/test_materials/marble_albedo.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/marble_albedo.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 1546905,
+      "git_blob_sha1": "aeba458d79b0181f46a732ee4f802efa9e4982fd",
+      "sha256": "ead20d29a62650b1bf3d5fd7be0f41825cd0dd8b493bcfb7c3d235132b385765",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo polished-marble albedo for dais/pillar accents"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/wood/wood_albedo.png",
+      "source_path": "3d/material_testers/test_materials/texture_wood.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/texture_wood.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 457814,
+      "git_blob_sha1": "53b41c54d2130e4b8689dfc176cff5fe5202e51d",
+      "sha256": "1e31de7f42755178274f2ebd2cfaa9e7bd5512fdffe95849bb751d5afc79ef05",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo wood albedo for gates/beams/crates"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/metal/aluminium_albedo.png",
+      "source_path": "3d/material_testers/test_materials/aluminium_albedo.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/aluminium_albedo.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 162896,
+      "git_blob_sha1": "7ebcd07776c2943f741f50b9d1ac9dec940d5c04",
+      "sha256": "d9529ed7d02a7aea91e8331f2c32cee2f00989f89f44693ecdefa5002dccf9b7",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo brushed-aluminium albedo for gate banding/sconces"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "assets/textures/metal/aluminium_normal.png",
+      "source_path": "3d/material_testers/test_materials/aluminium_normal.png",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/3d/material_testers/test_materials/aluminium_normal.png?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 911876,
+      "git_blob_sha1": "b0bc96ceb35e9982dbb24abb8b864c48b9e58648",
+      "sha256": "86fd1be276ecacf4a73c43f412505d23463e6bc5d6128fa23e9d39ec785fa076",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Photo brushed-aluminium normal map"
+    },
+    {
+      "pack": "godot-hd-materials",
+      "path": "ASSET_LICENSES/godot-hd-materials.txt",
+      "source_path": "LICENSE.md",
+      "url": "https://api.github.com/repos/godotengine/godot-demo-projects/contents/LICENSE.md?ref=0db80ca5fd22b9a40e05b9bc1e00af867fb7c712",
+      "bytes": 1134,
+      "git_blob_sha1": "05519693673e35cc80bba699e69af3de1d9886d7",
+      "sha256": "0339177149b474f7ff676d32218ecb3a8f2538955610023c3769763720d09e4c",
+      "downloaded_on": "2026-09-08",
+      "purpose": "Mandatory MIT copyright and permission notice"
     }
   ]
 }

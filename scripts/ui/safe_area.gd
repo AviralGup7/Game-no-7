@@ -28,10 +28,3 @@ func refresh() -> void:
 	offset_top = margins.y
 	offset_right = -margins.z
 	offset_bottom = -margins.w
-
-## Hardened: clamp safe area insets.
-func _validated_inset(v: float) -> float:
-	if not is_finite(v) or v < 0.0:
-		return 0.0
-	return clampf(v, 0.0, 200.0)
-

@@ -1,4 +1,4 @@
-extends CharacterBody3D
+extends Damageable
 class_name EnemyBase
 
 ## Reusable enemy base. Owns lifecycle, damage intake, idempotent death + exactly-once
@@ -9,6 +9,14 @@ class_name EnemyBase
 ## Resistance-aware knockback and arena-bound clamping included; attacks damage the
 ## player through the existing HealthComponent/apply_damage interface.
 ##
+## TYPED COMPONENT ARCHITECTURE (see docs/ARCHITECTURE.md):
+##   REQUIRED : HealthComponent, EnemyStateMachine — every production scene and every
+##              test fixture provides both; a variant without them fails fast.
+##   OPTIONAL : EnemyFeedback, EnemyAudio, StatusManager, NavigationAgent3D — nullable
+##              typed references (minimal headless fixtures legitimately omit them).
+## The combat seam to the player is the Damageable protocol (apply_damage/is_alive),
+## shared with Player; no has_method()/.call() string dispatch anywhere.
+##
 ## Command surface for states/controllers (states NEVER reach into internals):
 ##   set_desired_move / face_target / face_direction / get_navigation_direction
 ##   set_move_override / clear_move_override   (telegraphs, charges, recoveries)
@@ -16,8 +24,8 @@ class_name EnemyBase
 ##   perform_enemy_attack / perform_dash_strike / detonate_self
 ##   try_begin_dash                             (cooldown-gated dash entry)
 ##   state_machine_change_to / force_state / get_state
-## EventBus/AudioManager are resolved lazily through the tree so the same code
-## runs in-game and in the autoload-free headless test harness.
+## EventBus is resolved lazily through the tree so the same code runs in-game and in
+## the autoload-free headless test harness (run_tests.gd is hermetic by design).
 
 signal initialized(archetype_id: StringName)
 signal state_changed(previous_state: StringName, current_state: StringName)
@@ -39,10 +47,15 @@ var _score_value: int = 0
 var _currency_value: int = 0
 var _run_seed: int = 0
 
-var _health: Node = null
-var _feedback: Node = null
-var _audio: Node = null
+## REQUIRED components.
+var _health: HealthComponent = null
 var _machine: EnemyStateMachine = null
+
+## OPTIONAL components (nullable by design; minimal fixtures omit them).
+var _feedback: EnemyFeedback = null
+var _audio: EnemyAudio = null
+var _status: StatusManager = null
+
 var _target: Node3D = null
 var _locomotion := EnemyLocomotion.new()
 var _navigator := EnemyNavigator.new()
@@ -112,28 +125,43 @@ func _ready() -> void:
 	add_to_group(TARGET_GROUP)
 	_pack.bind(self)
 	_connect_bus_signals()
-	_health = get_node_or_null("HealthComponent")
-	if _health != null and not is_instance_valid(_health):
-		_health = null
-	_feedback = get_node_or_null("EnemyFeedback")
-	if _feedback != null and not is_instance_valid(_feedback):
-		_feedback = null
-	_audio = get_node_or_null("EnemyAudio")
-	if _audio != null and not is_instance_valid(_audio):
-		_audio = null
-	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
-	if _machine != null and not is_instance_valid(_machine):
-		_machine = null
+	_resolve_components()
+	if not _check_required_components():
+		return
 	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
-	if _health != null and is_instance_valid(_health):
-		if _health.has_signal("damaged") and not _health.damaged.is_connected(_on_damaged):
-			_health.damaged.connect(_on_damaged)
-		if _health.has_signal("died") and not _health.died.is_connected(_on_died):
-			_health.died.connect(_on_died)
+	_health.damaged.connect(_on_damaged)
+	_health.died.connect(_on_died)
+
+
+## Resolve every component reference ONCE, as its concrete type. A wrong script on
+## a child node yields null here, which the required-component check reports by name.
+func _resolve_components() -> void:
+	_health = get_node_or_null("HealthComponent") as HealthComponent
+	_machine = get_node_or_null("EnemyStateMachine") as EnemyStateMachine
+	_feedback = get_node_or_null("EnemyFeedback") as EnemyFeedback
+	_audio = get_node_or_null("EnemyAudio") as EnemyAudio
+	_status = get_node_or_null("StatusManager") as StatusManager
+
+
+## Fail fast when a REQUIRED component is missing: debug/test builds assert on the
+## spot, release builds log once and stop processing instead of silently spawning a
+## non-functional enemy.
+func _check_required_components() -> bool:
+	var missing := PackedStringArray()
+	if _health == null:
+		missing.append("HealthComponent")
+	if _machine == null:
+		missing.append("EnemyStateMachine")
+	if missing.is_empty():
+		return true
+	push_error("EnemyBase requires components missing from its scene: %s — fix the enemy scene variant." % ", ".join(missing))
+	assert(false, "EnemyBase missing required components: %s" % ", ".join(missing))
+	set_physics_process(false)
+	return false
 
 
 ## Lazy, cached autoload lookup: identical to a direct reference in-game, null-safe
-## under the bare headless test SceneTree.
+## under the bare headless test SceneTree (run_tests.gd is autoload-free by design).
 func _eb() -> Node:
 	if not _event_bus_resolved:
 		_event_bus_resolved = true
@@ -189,8 +217,7 @@ func _physics_process(delta: float) -> void:
 	var target := get_move_target()
 	if _perception != null and target != null:
 		_perception.update(delta, global_position, _flat_forward(), target.global_position, true)
-	if _machine != null:
-		_machine.physics_update(delta)
+	_machine.physics_update(delta)
 	if _move_override_time <= 0.0:
 		_pack.apply_separation(delta)
 	var dir := desired_dir
@@ -242,10 +269,10 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	_poise_guard = false
 	_poise_damage = 0.0
 	_dash_cooldown_left = 0.0
-	if _health != null and _health.has_method("reset"):
-		_health.call("reset", config.max_health)
-	if _feedback != null and _feedback.has_method("recolor"):
-		_feedback.call("recolor", config.color_tint)
+	if _health != null:
+		_health.reset(config.max_health)
+	if _feedback != null:
+		_feedback.recolor(config.color_tint)
 	_apply_visual_scale(config.visual_scale)
 	# Presentation hook (Agent 4): mount the archetype's approved model under
 	# VisualRoot/CharacterModel. No gameplay effect; primitives remain if absent.
@@ -253,8 +280,7 @@ func initialize(config: EnemyConfig, target: Node3D, run_seed: int = 0) -> void:
 	# the same model via its own PackedScene (avoids double-model overlap).
 	if get_node_or_null("EnemyAnimator") == null and CharacterVisuals.has_model(config.archetype_id):
 		CharacterVisuals.mount(self, config.archetype_id)
-	if _machine != null:
-		_machine.force_state(&"idle")
+	_machine.force_state(&"idle")
 	_navigator.reset(target)
 	_home_pos = global_position
 	_pack.reset()
@@ -278,7 +304,7 @@ func _configure_perception(config: EnemyConfig) -> void:
 
 func apply_damage(payload: DamagePayload) -> DamageResult:
 	var result := DamageResult.new()
-	if _health == null or not _health.has_method("take_damage"):
+	if _health == null:
 		result.ignored_reason = &"no_health_component"
 		return result
 	if not _alive:
@@ -287,44 +313,35 @@ func apply_damage(payload: DamagePayload) -> DamageResult:
 	# Status mitigation/shields are an intake stage, but do not consume a shield
 	# for malformed or invulnerable hits that HealthComponent will reject.
 	var final_payload := payload
-	if payload != null and payload.is_valid() and not (_health.has_method("is_invulnerable") and bool(_health.call("is_invulnerable"))):
+	if payload != null and payload.is_valid() and not _health.is_invulnerable():
 		final_payload = _apply_status_intake(payload)
-	var taken: Variant = _health.call("take_damage", final_payload)
-	if taken is DamageResult:
-		var res := taken as DamageResult
-		_on_damage_applied(res, payload)
-		# Invulnerability, shields and dead-state rejection must not grant a
-		# status proc. Only an accepted hit is allowed to advance a build synergy.
-		if res.accepted and res.final_amount > 0.0:
-			_apply_payload_status(payload, res)
-		return res
-	result.ignored_reason = &"invalid_result"
-	return result
+	var res := _health.take_damage(final_payload)
+	_on_damage_applied(res, payload)
+	# Invulnerability, shields and dead-state rejection must not grant a
+	# status proc. Only an accepted hit is allowed to advance a build synergy.
+	if res.accepted and res.final_amount > 0.0:
+		_apply_payload_status(payload, res)
+	return res
 
 
 ## Projectile/melee riders: apply the payload's status effects to our manager.
 func _apply_payload_status(payload: DamagePayload, result: DamageResult = null) -> void:
 	if payload == null or payload.status_effects.is_empty():
 		return
-	var sm := _status_node()
-	if sm != null and sm.has_method("apply_effects"):
-		var applied: Variant = sm.call("apply_effects", payload.status_effects, payload.source)
-		if result != null and applied is Dictionary:
-			for raw_id in applied:
-				if int(applied[raw_id]) > 0:
-					result.status_effects_applied.append(StringName(String(raw_id)))
+	if _status == null:
+		return
+	var applied := _status.apply_effects(payload.status_effects, payload.source)
+	if result != null:
+		for raw_id in applied:
+			if int(applied[raw_id]) > 0:
+				result.status_effects_applied.append(StringName(String(raw_id)))
 
 
 func _apply_status_intake(payload: DamagePayload) -> DamagePayload:
-	var sm := _status_node()
-	if sm == null or payload == null:
+	if _status == null or payload == null:
 		return payload
-	var factor := 1.0
-	if sm.has_method("incoming_damage_factor"):
-		factor = float(sm.call("incoming_damage_factor"))
-	var amount := payload.amount * factor
-	if sm.has_method("absorb_direct"):
-		amount = float(sm.call("absorb_direct", amount))
+	var amount := payload.amount * _status.incoming_damage_factor()
+	amount = _status.absorb_direct(amount)
 	if is_equal_approx(amount, payload.amount):
 		return payload
 	return payload.with_amount(amount)
@@ -374,8 +391,8 @@ func apply_difficulty(hp_scale: float, damage_scale: float, speed_scale: float) 
 	_hp_scale = maxf(hp_scale, 1.0)
 	_damage_scale = maxf(damage_scale, 1.0)
 	_speed_scale = maxf(speed_scale, 1.0)
-	if _health != null and _health.has_method("reset"):
-		_health.call("reset", _scaled_max_health())
+	if _health != null:
+		_health.reset(_scaled_max_health())
 
 
 func _scaled_max_health() -> float:
@@ -409,7 +426,9 @@ func get_effective_attack_cooldown() -> float:
 func get_move_target() -> Node3D:
 	if _target == null or not is_instance_valid(_target):
 		return null
-	if _target.has_method("is_alive") and not bool(_target.call("is_alive")):
+	# Damageable is the explicit combat protocol: only a Damageable target has a
+	# meaningful alive check (a plain Node3D stand-in is treated as present).
+	if _target is Damageable and not (_target as Damageable).is_alive():
 		return null
 	return _target
 
@@ -635,53 +654,53 @@ func perform_dash_strike(contact_radius: float) -> bool:
 ## Lethal self-damage routed through the HealthComponent so the normal exactly-once
 ## death path fires (score payload, despawn, death-blast dispatch in SpawnManager).
 func detonate_self() -> void:
-	if not _alive or _health == null or not _health.has_method("take_damage"):
+	if not _alive or _health == null:
 		return
 	var payload := DamagePayload.new()
 	payload.amount = _current_health() + 999.0
 	payload.source = self
 	payload.source_id = _archetype_id
 	payload.damage_type = &"explosion"
-	_health.call("take_damage", payload)
+	_health.take_damage(payload)
 
 
 func _current_health() -> float:
-	if _health != null and _health.has_method("get_current"):
-		return maxf(float(_health.call("get_current")), 0.0)
+	if _health != null:
+		return maxf(_health.get_current(), 0.0)
 	return 0.0
 
 
 ## ---------- Feedback / audio hooks (tolerant when children are absent) ----------
 
 func play_attack_sound() -> void:
-	if _audio != null and _audio.has_method("play_attack"):
-		_audio.call("play_attack")
+	if _audio != null:
+		_audio.play_attack()
 
 
 func play_spawn_sound() -> void:
-	if _audio != null and _audio.has_method("play_spawn"):
-		_audio.call("play_spawn")
+	if _audio != null:
+		_audio.play_spawn()
 
 
 func play_windup_sound() -> void:
-	if _audio != null and _audio.has_method("play_windup"):
-		_audio.call("play_windup")
+	if _audio != null:
+		_audio.play_windup()
 
 
 func play_dash_sound() -> void:
-	if _audio != null and _audio.has_method("play_dash"):
-		_audio.call("play_dash")
+	if _audio != null:
+		_audio.play_dash()
 
 
 func play_explosion_sound() -> void:
-	if _audio != null and _audio.has_method("play_explosion"):
-		_audio.call("play_explosion")
+	if _audio != null:
+		_audio.play_explosion()
 
 
 ## Telegraph flash (melee windups, dash windups, fuses, boss tells).
 func play_telegraph_feedback() -> void:
-	if _feedback != null and _feedback.has_method("play_telegraph"):
-		_feedback.call("play_telegraph")
+	if _feedback != null:
+		_feedback.play_telegraph()
 
 
 func _locomotion_bounds() -> float:
@@ -713,6 +732,12 @@ func _on_damage_applied(result: DamageResult, payload: DamagePayload) -> void:
 	var cfg := _config
 	var resistance := cfg.knockback_resistance if cfg != null else 0.0
 	var resisted := payload.knockback * (1.0 - clampf(resistance, 0.0, 1.0))
+	# Runtime guard (replaces the dead _validated_knockback helper): a NaN/inf
+	# knockback must never reach the integrator, and runaway magnitudes are capped.
+	if not is_finite(resisted.x) or not is_finite(resisted.y) or not is_finite(resisted.z):
+		resisted = Vector3.ZERO
+	elif resisted.length_squared() > 10000.0:
+		resisted = resisted.normalized() * 100.0
 	_locomotion.add_knockback(resisted)
 
 
@@ -723,12 +748,12 @@ func _on_damaged(result: DamageResult) -> void:
 	var bus := _eb()
 	if bus != null:
 		bus.enemy_damaged.emit(self, result)
-	if result.was_critical and _feedback != null and _feedback.has_method("play_crit"):
-		_feedback.call("play_crit")
-	elif _feedback != null and _feedback.has_method("play_damaged"):
-		_feedback.call("play_damaged")
-	if _audio != null and _audio.has_method("play_hit"):
-		_audio.call("play_hit")
+	if result.was_critical and _feedback != null:
+		_feedback.play_crit()
+	elif _feedback != null:
+		_feedback.play_damaged()
+	if _audio != null:
+		_audio.play_hit()
 	if result.was_critical:
 		_juice_hitstop(0.04, 0.16)
 	if not _alive:
@@ -765,10 +790,10 @@ func _on_died() -> void:
 		# Exactly-once score payload.
 		bus.enemy_killed.emit(self, _archetype_id, _score_value, _currency_value)
 	despawn_requested.emit(self)
-	if _feedback != null and _feedback.has_method("play_died"):
-		_feedback.call("play_died")
-	if _audio != null and _audio.has_method("play_death"):
-		_audio.call("play_death")
+	if _feedback != null:
+		_feedback.play_died()
+	if _audio != null:
+		_audio.play_death()
 	_juice_hitstop(0.05, 0.2)
 	_fade_and_free()
 
@@ -780,10 +805,11 @@ func _juice_hitstop(duration: float, trauma: float) -> void:
 	for node in get_tree().get_nodes_in_group("hitstop_manager"):
 		if node == null or not is_instance_valid(node):
 			continue
-		if node.has_method("request_hitstop"):
-			node.call("request_hitstop", duration)
-		if node.has_method("add_trauma"):
-			node.call("add_trauma", trauma)
+		var manager := node as HitstopManager
+		if manager == null:
+			continue
+		manager.request_hitstop(duration)
+		manager.add_trauma(trauma)
 		break  # Only one manager owns the global time_scale; avoid stacking the freeze
 
 
@@ -809,8 +835,8 @@ func set_elite(affixes: Array) -> void:
 	var tint := Color.WHITE
 	for affix in _elite_affixes:
 		tint = tint.blend(EliteAffix.affix_tint(affix))
-	if _feedback != null and _feedback.has_method("recolor"):
-		_feedback.call("recolor", tint)
+	if _feedback != null:
+		_feedback.recolor(tint)
 	_apply_visual_scale((_config.visual_scale if _config != null else 1.0) * 1.12)
 	# Behavior affix hooks: VAMPIRIC elites sustain off the damage they deal.
 	if EliteAffix.VAMPIRIC in _elite_affixes and not attack_hit.is_connected(_on_vampiric_hit):
@@ -820,8 +846,8 @@ func set_elite(affixes: Array) -> void:
 func _on_vampiric_hit(_target: Node, result: DamageResult) -> void:
 	if result == null or not result.accepted or not _alive:
 		return
-	if _health != null and _health.has_method("heal"):
-		_health.call("heal", result.final_amount * EliteAffix.VAMPIRIC_HEAL_RATIO)
+	if _health != null:
+		_health.heal(result.final_amount * EliteAffix.VAMPIRIC_HEAL_RATIO)
 
 
 func is_elite() -> bool:
@@ -839,40 +865,32 @@ func apply_phase_modifiers(damage_mult: float, speed_mult: float) -> void:
 	_speed_scale *= maxf(speed_mult, 0.01)
 
 
-## StatusManager queries (tolerant when the scene has no StatusManager child).
-func _status_node() -> Node:
-	return get_node_or_null("StatusManager")
-
+## ---------- StatusManager queries (optional component; nullable typed ref) ----------
 
 func _is_status_stunned() -> bool:
-	var sm := _status_node()
-	return sm != null and sm.has_method("is_stunned") and bool(sm.call("is_stunned"))
+	return _status != null and _status.is_stunned()
 
 
 func _status_speed_factor() -> float:
-	var sm := _status_node()
-	if sm != null and sm.has_method("move_speed_factor"):
-		return clampf(float(sm.call("move_speed_factor")), 0.0, 2.0)
+	if _status != null:
+		return clampf(_status.move_speed_factor(), 0.0, 2.0)
 	return 1.0
 
 
 func get_health_fraction() -> float:
-	if _health != null and _health.has_method("get_health_ratio"):
-		return clampf(float(_health.call("get_health_ratio")), 0.0, 1.0)
+	if _health != null:
+		return clampf(_health.get_health_ratio(), 0.0, 1.0)
 	return 1.0 if _alive else 0.0
 
 
 func get_debug_snapshot() -> Dictionary:
-	var hp: Dictionary = {}
-	if _health != null and _health.has_method("get_debug_snapshot"):
-		hp = _health.call("get_debug_snapshot")
 	return {
 		"archetype": String(_archetype_id),
 		"state": String(get_state()),
 		"alive": _alive,
 		"death_handled": _death_handled,
 		"position": global_position,
-		"health": hp,
+		"health": _health.get_debug_snapshot() if _health != null else {},
 		"desired_dir": desired_dir,
 		"desired_speed": desired_speed,
 		"move_override": _move_override_time > 0.0,
@@ -883,12 +901,3 @@ func get_debug_snapshot() -> Dictionary:
 		"caution": roundf(_personality.caution * 100.0) / 100.0 if _personality != null else -1.0,
 		"fear_retreating": is_fear_retreating(),
 	}
-
-## Hardened: validate knockback vector before applying.
-func _validated_knockback(k: Vector3) -> Vector3:
-	if not is_finite(k.x) or not is_finite(k.y) or not is_finite(k.z):
-		return Vector3.ZERO
-	if k.length_squared() > 10000.0:
-		return k.normalized() * 100.0
-	return k
-

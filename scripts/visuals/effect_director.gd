@@ -493,15 +493,10 @@ func _make_sprite(path: String) -> QuadMesh:
 
 func _show_ring(ring: Node3D, duration: float) -> void:
 	ring.visible = true
-	if ring.has_method("trigger"):
-		ring.call("trigger", duration)
+	var fade := ring as RingFade
+	if fade != null:
+		fade.trigger(duration)
 
 
 func _has_particle_texture(path: String) -> bool:
 	return ResourceLoader.exists(path)
-
-## Hardened: clamp effect scale.
-func _validated_effect_scale(s: float) -> float:
-	if not is_finite(s) or s <= 0.0:
-		return 1.0
-	return clampf(s, 0.1, 10.0)

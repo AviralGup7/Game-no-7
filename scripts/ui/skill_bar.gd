@@ -58,14 +58,14 @@ func _locate_controller() -> void:
 	if _controller != null and is_instance_valid(_controller):
 		return
 	if GameRoot != null and GameRoot.get_active_player() != null:
-		var skills := (GameRoot.get_active_player() as Node).get_node_or_null("SkillController") as SkillController
+		var skills := GameRoot.get_active_player().get_skill_controller()
 		if skills != null:
 			bind_controller(skills)
 			return
 	if is_inside_tree():
 		var players := get_tree().get_nodes_in_group("player")
 		if not players.is_empty():
-			var skills2 := (players[0] as Node).get_node_or_null("SkillController") as SkillController
+			var skills2 := (players[0] as Player).get_skill_controller()
 			if skills2 != null:
 				bind_controller(skills2)
 
@@ -187,10 +187,4 @@ func fit_touch_targets(bar_size: Vector2) -> void:
 	for button in _buttons:
 		button.custom_minimum_size = Vector2(width, height)
 
-
-## Hardened: validate cooldown display.
-func _validated_skill_cd(cd: float) -> float:
-	if not is_finite(cd) or cd < 0.0:
-		return 0.0
-	return clampf(cd, 0.0, 60.0)
 

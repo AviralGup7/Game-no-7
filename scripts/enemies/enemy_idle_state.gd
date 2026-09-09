@@ -147,10 +147,3 @@ func _unaware_wander(host: EnemyBase, cfg: EnemyConfig, delta: float) -> void:
 static func host_set_still(host: EnemyBase) -> void:
 	if host != null:
 		host.set_desired_move(Vector3.ZERO, 0.0)
-
-
-## Hardened: clamp idle dwell.
-func _validated_idle_dwell(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 0.5
-	return clampf(d, 0.1, 5.0)

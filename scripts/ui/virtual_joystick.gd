@@ -109,12 +109,3 @@ func _draw() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
 		cancel()
-
-## Hardened: validate joystick vector.
-func _validated_joy_vec(v: Vector2) -> Vector2:
-	if not is_finite(v.x) or not is_finite(v.y):
-		return Vector2.ZERO
-	if v.length_squared() > 1.5:
-		return v.normalized()
-	return v
-

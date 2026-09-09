@@ -114,6 +114,219 @@ instead of overlapping each other.
 * Hazards intentionally stay walkable for the AI (kiting enemies through
   vents remains a player strategy).
 
+## [Unreleased] — Typed architecture overhaul (2026-09-09)
+
+Ends the duck-typing architecture: every component interaction is now a typed,
+direct method call. **~10,000 lines rewritten across Player, EnemyBase,
+GameRoot, all systems and every UI panel.**
+
+### Removed
+- **All 168 `_validated_*`/`_guarded_*` "validation theater" helpers** (141
+  were provably dead — defined, never called). The guards that were real are
+  inlined at their use sites; `docs/HARDENING.md` is marked SUPERSEDED.
+- **All duck typing in `scripts/`**: 308 `.call("...")` sites and 297
+  `has_method()` probes are gone (one sanctioned `has_method` assertion
+  remains in `test_harness.gd`, where probing IS the job). Dead branches
+  exposed by removed probes were deleted (GameRoot armory/arena-selection
+  probes that never existed, projectile `set_team_tint`, chase-state dead
+  clause, content-loader untyped registration).
+- **`run is Dictionary` probing everywhere** — `GameRoot.get_run()` is typed
+  (`RunState`); consumers read fields directly.
+- 5 pure-theater python test files; ~130 theater assertions stripped from the
+  rest (now pinned to real guards instead).
+
+### Added
+- `tool/check_typed_arch.py` — architecture gate: bans `.call("...")` string
+  dispatch and `has_method(` (allowlisted exception), verifies `as T` casts
+  and `Class.member()` calls resolve against declared `class_name`s +
+  extends chains (133 classes, 8 autoloads).
+- `scripts/core/validated_config.gd` — `ValidatedConfig` protocol base;
+  all content configs extend it and ContentLoader runs their `validate()`.
+- `class_name RingFade`; `HitstopManager`/`PerformanceMonitor`/`CameraRig`/
+  `CharacterController` typed casts in feedback/UI code.
+- Real `@export_range` editor enforcement on every authored content config
+  (replacing the `pass`-stub `_export_range_guard` documentation theater).
+- `docs/ARCHITECTURE.md` — the typed component model, autoload policy,
+  seams, and the enforcement gates.
+- Typed component accessors on Player (`get_health_component()`,
+  `get_weapon_manager()`, `get_skill_controller()`, …).
+
+### Changed
+- `UiCommands.action` is a closed typed dispatch (unknown command → warn +
+  false); TouchControls/SkillBar route through it.
+- `weapon_manager`/`attack_controller`/`skill_controller`/`dodge_controller`/
+  `stamina_component` resolve ProgressionComponent/StatusManager as typed
+  refs; status effects source from `EnemyBase.get_archetype_id()`.
+- SpawnManager's boss path is fully typed (`as BossController`, connect
+  `summon_requested` **before** `begin_fight`); arena/placer APIs take
+  `Arena` types; fake_arena test double now `extends Arena`.
+- `audio_manager` volume/pitch clamps inlined at the voice-claim site;
+  `event_bus` dead `_safe_emit`/`_guarded_*` wrappers removed.
+- `tool/validate_guards.py` rewritten: pins the real inlined guards +
+  @export_range contracts + theater-stays-dead (was: asserted 139/139
+  helpers exist).
+
+### Verified
+- `gdparse` over all scripts + tests; `gdlint` clean on changed files.
+- `tool/check_typed_arch.py`: clean. `tool/validate_guards.py`: exit 0.
+- `python3 -m unittest discover tests/python`: 353 tests, all passing.
+
+## [Unreleased] — Gameplay loop overhaul (2026-09-08)
+
+Structural content/design pass that breaks the single-mode grind loop. Code stays
+data-driven; modes, transforms, narrative and prestige are additive systems.
+
+### Game modes (`scripts/meta/game_mode.gd`)
+
+Five playable modes selectable from Run Setup:
+
+| Mode | Objective | Notes |
+|---|---|---|
+| **Standard** | Endless waves | Original loop, unchanged defaults |
+| **Boss Rush** | Slay 5 Warlords | No filler packs; elite-surge mutator; upgrade every wave |
+| **Survival** | Endure 5:00 | Dense packs; time-based victory; score ticks with life |
+| **Challenge** | Clear 12 waves | Fixed Gladius + glass/ember mutators; 1.5× score |
+| **Campaign** | Clear 15 scripted waves | Authored encounter beats + narrator lore; final dual Warlord |
+
+Victory ends the run cleanly (`RunState.victory`), banks a larger wallet cut, and
+shows a distinct summary banner. Retry preserves the mode.
+
+### Transformative upgrades (8 new cards + `BuildEffects`)
+
+Stat sticks remain, but new **transform** rarity cards change how you play:
+
+- **Storm Edge** — melee hits chain lightning
+- **Cinder Step / Glacial Step** — dodge leaves fire trail or frost nova
+- **Grave Pact** — kills summon temporary ally auras
+- **Thorn Mantle** — taking a hit detonates a thorn nova
+- **Reaper's Mark** — execute foes below 18% HP
+- **Blood Rite** — every 5th kill heals a burst
+- **Static Halo** — shocking aura pulses around you
+
+`UpgradeConfig.effect_tags` + `ProgressionComponent` effect tracking +
+`scripts/progression/build_effects.gd` runtime owner. Wired by Main on world build.
+
+### Arena differentiation
+
+Hazards now include **pressure plates** (player-triggered enemy blasts) and
+**orbiting movers**, with denser per-arena layouts. Mode pressure adds extra
+hazards for Boss Rush / Challenge / Survival / Campaign. Arena tags updated.
+
+### Narrative layer (`scripts/meta/narrator.gd`)
+
+Arena lore intros, mode intros, campaign beat sheet (15 scripted lines), enemy
+blurbs. Delivered through the existing announcement banner — no new UI chrome.
+
+### Prestige endgame (`scripts/meta/prestige.gd` + Armory UI)
+
+After ~60% armory completion, spend banked coins to prestige: permanent score/
+currency multipliers, titles (Unproven → Last Stand), unlockable cosmetics,
+challenge-tier ladder. Save schema v5 carries `prestige_rank` + victory/boss
+lifetime counters.
+
+### Tests
+
+`tests/unit/test_game_modes.gd` covers mode catalogue, victory conditions, spawn
+queues, narrator, prestige gates, effect tracking, RunState summary fields, and
+save migration.
+
+---
+
+## [Unreleased] — HD realism pass (2026-09-08)
+
+Presentation overhaul across the arena, sky, lighting, renderer settings and actor
+materials. **No gameplay, rig, animation, balance, save or input changes** — the
+same scenes, physics, spawns, navigation and HUD contract are preserved.
+
+### Assets (locked, provenance-kept)
+
+- **17 new checksum-locked downloads (+10.58 MiB, 239 files / 45.63 MiB total):
+  three Poly Haven CC0 HDRI panoramas** (spruit sunrise, venice sunset, moonless
+  golf — via the pinned, MIT-licensed three.js mirror) and **photo PBR sets from
+  Godot's Material Testers** (rock, aged brick, marble, wood, aluminium) at the
+  already-pinned `godot-demo-projects` revision. The downloader/validator now
+  support `.hdr` and `.jpg` with the same hash locks.
+- Five new arena materials under `assets/materials/` (rock floor, brick walls,
+  marble, wood, metal); `ASSET_LICENSES/` gains the three.js MIT and
+  Godot MIT notices.
+
+### Arena map — replaced
+
+- `scenes/arena/arena.tscn` is rebuilt: photo-PBR rock floor, aged-brick walls
+  with stone trims + marble cornices, corner towers with marble caps, an
+  iron-banded wooden gate, marble dais, boulders and 4 flickering torch sconces
+  (`scripts/arena/torch_flicker.gd`, deterministic, 4 omni lights, no shadows).
+- Collision, spawn points, pickup points, navigation floor and arena script
+  contract are unchanged; `Arena` themes still tint floor/walls by arena.
+
+### Sky, lighting and renderer
+
+- `arena.gd`: per-arena `PanoramaSkyMaterial` (IBL) with procedural fallback,
+  exposure/contrast adjustment, tuned fog, glow on emissives; landmarks use the
+  photo-rock/marble materials.
+- `project.godot`: 2× MSAA, 8× anisotropic filtering, 2048px high-quality PCF
+  directional shadows. Mobile renderer retained (SSAO/SSR off on purpose).
+
+### Actor + prop material pass
+
+- `scripts/visuals/hd_materials.gd` (`HdMaterials`) applies anisotropic filtering
+  and role-tuned roughness/metallic/specular to every mounted player/enemy model
+  (`CharacterVisuals`, `EnemyAnimator`) and every arena prop/decorator. Shallow
+  material duplicates; textures, rigs and animations untouched.
+- Rig inventory kept deliberately (combat clip coverage — see
+  `docs/ASSET_AUDIT.md` "Why not a photoreal rig swap").
+## [Unreleased] — Audit follow-ups: roster smoke, minimap robustness, dead facade (2026-09-08)
+
+Follow-up pass over the remaining small-but-real findings in
+`docs/QA_RELEASE_AUDIT.md`, plus hardening of the enemy-inheritance work:
+
+- **TestHarness startup smoke now covers all 8 enemy archetypes** (`_enemy_archetypes_ok`,
+  `_spawn_resources_ok`, `_kill_and_wave_scoring_configured` iterate a shared
+  `ENEMY_ARCHETYPE_IDS` const). They validated only basic/fast/heavy — the exact
+  "works for some enemies" blind spot the scene refactor closed on the scene side.
+- **`tests/unit/test_enemy_scene_inheritance.gd` upgraded to full-roster goldens**: every
+  archetype (not just the five refactored) now pins collision shape, body mesh, material
+  colour, nav distances, marker offsets and animator config against shipped values;
+  `path_height_tolerance` and the no-BossController-leak check included.
+- **Minimap arena lookup is layout-independent** (audit "fragile hardcoded path"):
+  `Arena` joins the `arena` group in `_ready`; `minimap._find_arena()` resolves through
+  `get_first_node_in_group` first and keeps the legacy `WorldRoot/Arena` path only as a
+  fallback. No behaviour change in main.tscn; the lookup now also survives renames and
+  hosts other than the current scene.
+- **GameRoot dead facade deleted** (audit "two sources of truth for best score/wave"):
+  zero-caller `get_best_score()`/`get_best_wave()` accessors removed; SaveManager remains
+  the single public read path (as pinned by the startup-stability guards) and GameRoot's
+  `_best_*` mirrors stay internal (run_ended fan-out + debug snapshot only).
+- **`tool/validate_resources.py` gained a file-local `SubResource` guard**: scenes that
+  `instance=` another scene must not reference the parent's sub-resource ids (the classic
+  hand-edit mistake on child scenes like the enemy archetypes); the editor's `[editable]`
+  cross-file pointer remains sanctioned. Behaviour-tested in
+  `test_regress_tooling_and_ci.py`; verified to flag and to clear real scenes.
+- **`audio_config.gd` comment fixed** (audit known-issue #4): AudioConfig instances live in
+  `res://data/audio/`; the referenced `res://data/audio_config/` directory does not exist.
+
+## [Unreleased] — Enemy scene inheritance overhaul (2026-09-08)
+
+Closes the audit's "highest-value structural cleanup left": **5 of 8 enemy archetype
+scenes were hand-copied full trees** of `enemy_base.tscn`, so any edit to the base
+(collision layers, shared child wiring) silently missed dasher/exploder/ranged/
+splitter/warlord — the exact mechanism behind audit bug P6-style "works for some
+enemies" divergence.
+
+- `dasher/exploder/ranged/splitter/warlord_enemy.tscn` are now true **child scenes** that
+  `instance=ExtResource("…/enemy_base.tscn")` and override only their archetype-specific
+  bits (collision shape/mesh/material, marker offsets, warlord nav distances) plus their
+  unique nodes (`EnemyAnimator` on all five, `BossController` + `BossPhaseConfig` plan on
+  warlord). 69–117-line copies → 38–85-line diffs; resolved trees verified byte-parity with
+  the pre-refactor scenes (values pinned in `test_archetype_overrides_pinned`).
+- Root nodes renamed `EnemyBase` → `<Archetype>Enemy`, matching basic/fast/heavy.
+- New guards keep it fixed: `tests/python/test_regress_enemy_scene_inheritance.py`
+  (static: inheritance contract, no re-declared shared nodes, per-archetype override
+  goldens) and `tests/unit/test_enemy_scene_inheritance.gd` (engine-side: instantiates all
+  8 scenes and asserts shared nodes are present, typed and script-wired identically).
+- `enemy_base.tscn` is now the single source of truth for all 8 archetypes: one edit lands
+  on the whole roster.
+
 ## [Unreleased] — UI/UX polish pass (2026-09-08)
 
 Presentation-only pass over the existing screens. **No new gameplay systems, no

@@ -5,10 +5,13 @@ signal back_requested()
 var _daily := false
 var _arena_ids: Array[StringName] = []
 var _weapon_ids: Array = []
+var _mode_ids: Array[StringName] = []
 var _arenas: OptionButton
 var _weapons: OptionButton
+var _modes: OptionButton
 var _arena_info: Label
 var _weapon_info: Label
+var _mode_info: Label
 var _daily_info: Label
 var _feedback: Label
 var _start: Button
@@ -19,8 +22,22 @@ func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	var body := UiFactory.center_box(self)
 	_heading = UiFactory.title("PREPARE YOUR STAND", body, 34)
-	UiFactory.label("01  ARENA     /     02  LOADOUT     /     03  ENTER", body, 18).modulate = UiTheme.CYAN
+	UiFactory.label("01  MODE     /     02  ARENA     /     03  LOADOUT", body, 18).modulate = UiTheme.CYAN
 	_daily_info = UiFactory.label("", body, 20)
+	# Mode card
+	var mode_card := UiFactory.card(body)
+	UiFactory.title("MODE", mode_card, 22)
+	_modes = OptionButton.new()
+	_modes.custom_minimum_size.y = UiTheme.TOUCH_MIN
+	mode_card.add_child(_modes)
+	_mode_ids = GameMode.all_mode_ids()
+	for id in _mode_ids:
+		_modes.add_item(GameMode.display_name(id))
+	_modes.item_selected.connect(func(_i: int) -> void:
+		UiFactory.play_press("OPTION")
+		_refresh_details())
+	_mode_info = UiFactory.label("", mode_card)
+	# Arena card
 	var arena_card := UiFactory.card(body)
 	UiFactory.title("ARENA INTEL", arena_card, 22)
 	_arenas = OptionButton.new()
@@ -66,6 +83,12 @@ func present(daily: bool = false) -> void:
 	var weapon: StringName = challenge.weapon if daily else &"gladius"
 	if not _arena_ids.is_empty(): _arenas.select(maxi(_arena_ids.find(ContentRegistry.get_selected_arena_id()), 0))
 	if not _weapon_ids.is_empty(): _weapons.select(maxi(_weapon_ids.find(weapon), 0))
+	if not _mode_ids.is_empty():
+		var pending := GameMode.MODE_STANDARD
+		if GameRoot != null:
+			pending = GameRoot.get_pending_mode()
+		_modes.select(maxi(_mode_ids.find(pending), 0))
+	_modes.disabled = daily
 	_daily_info.visible = daily
 	var mutators := PackedStringArray()
 	for id in challenge.mutators:
@@ -81,22 +104,48 @@ func _selected_arena_index() -> int:
 func _selected_weapon_index() -> int:
 	return clampi(_weapons.selected, 0, maxi(_weapon_ids.size() - 1, 0))
 
+func _selected_mode_index() -> int:
+	return clampi(_modes.selected, 0, maxi(_mode_ids.size() - 1, 0))
+
+func _selected_mode() -> StringName:
+	if _mode_ids.is_empty():
+		return GameMode.MODE_STANDARD
+	return _mode_ids[_selected_mode_index()]
+
 func _refresh_details() -> void:
 	if _arena_ids.is_empty() or _weapon_ids.is_empty():
 		_start.disabled = true
 		_feedback.text = "Content unavailable. Return to the menu and try again."
 		return
+	var mode_id := _selected_mode() if not _daily else GameMode.MODE_STANDARD
 	var arena := ContentRegistry.get_arena(_arena_ids[_selected_arena_index()])
 	var weapon := ContentRegistry.get_weapon(_weapon_ids[_selected_weapon_index()])
 	if arena == null or weapon == null:
 		_start.disabled = true
 		_feedback.text = "This content could not be loaded."
 		return
-	_arena_info.text = "%s\n%s  •  Unlock milestone: wave %d" % [arena.display_name,
-		" / ".join(arena.tags) if not arena.tags.is_empty() else "Classic survival", arena.unlock_wave]
+	_mode_info.text = "%s\n%s" % [GameMode.display_name(mode_id), GameMode.blurb(mode_id)]
+	var obj := GameMode.objective(mode_id)
+	var obj_line := ""
+	match obj:
+		GameMode.OBJECTIVE_SURVIVE_TIME:
+			obj_line = "Endure %d seconds" % int(GameMode.target_seconds(mode_id))
+		GameMode.OBJECTIVE_SLAY_BOSSES:
+			obj_line = "Slay %d bosses" % GameMode.max_waves(mode_id)
+		_:
+			var cap := GameMode.max_waves(mode_id)
+			obj_line = ("Clear %d waves" % cap) if cap > 0 else "Endless waves"
+	_mode_info.text += "\nObjective: %s  •  Score x%.2f" % [obj_line, GameMode.score_multiplier(mode_id)]
+	var lore := Narrator.arena_intro(arena.arena_id)
+	_arena_info.text = "%s\n%s\n%s  •  Unlock milestone: wave %d" % [
+		arena.display_name,
+		lore if not lore.is_empty() else (" / ".join(arena.tags) if not arena.tags.is_empty() else "Classic survival"),
+		" / ".join(arena.tags) if not arena.tags.is_empty() else "hazards live",
+		arena.unlock_wave]
 	_weapon_info.text = "%s\n%s  •  Damage %.1f  •  Reach %.1fm  •  Interval %.2fs" % [weapon.description,
 		String(weapon.kind).capitalize(), weapon.base_damage, weapon.range, weapon.swing_cooldown]
-	var starter: StringName = DailyChallenge.challenge_for_today().weapon if _daily else &"gladius"
+	var fixed := GameMode.fixed_weapon(mode_id)
+	var starter: StringName = DailyChallenge.challenge_for_today().weapon if _daily else (fixed if fixed != &"" else &"gladius")
 	var starter_config := ContentRegistry.get_weapon(starter)
 	if starter_config == null:
 		_start.disabled = true
@@ -104,9 +153,11 @@ func _refresh_details() -> void:
 		return
 	var supported := weapon.weapon_id == starter and not weapon.disabled
 	var current := arena.arena_id == ContentRegistry.get_selected_arena_id()
-	var selectable := current or GameRoot.has_method("request_arena_selection")
+	# Arena selection is not wired in this build (UiCommands.select_arena only
+	# accepts the already-selected arena); previews stay read-only.
+	var selectable := current
 	_start.disabled = not supported or not selectable
-	_feedback.text = "Starter: %s. Skills unlock as you gain XP; choose upgrades after waves." % starter_config.display_name
+	_feedback.text = "Starter: %s. Transform upgrades change how you fight — pick boldly." % starter_config.display_name
 	if not current and not selectable:
 		_feedback.text = "ARENA PREVIEW ONLY — arena selection is not available in this build. Choose the current arena to launch."
 	elif not supported:
@@ -132,12 +183,4 @@ func _launch() -> void:
 	if _daily:
 		GameRoot.start_daily_run()
 	else:
-		GameRoot.request_play()
-
-## Hardened: clamp run seed input.
-func _validated_setup_seed(s: int) -> int:
-	if s != 0:
-		return s
-	var r := randi()
-	return r if r != 0 else 1
-
+		GameRoot.request_play_mode(_selected_mode())

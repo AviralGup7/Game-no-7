@@ -7,6 +7,7 @@ const CAMERA_RIG_GROUP := &"camera_rig"
 
 @export var hit_flash_duration: float = 0.14
 @export var low_health_threshold: float = 0.25
+var _player: Player
 var _visual: Node3D
 var _health: HealthComponent
 var _meshes: Array[MeshInstance3D] = []
@@ -18,14 +19,17 @@ var _last_impact_frame := -1
 
 
 func _ready() -> void:
-	_visual = get_parent().get_node_or_null("VisualRoot") as Node3D
-	_health = get_parent().get_node_or_null("HealthComponent") as HealthComponent
+	_player = get_parent() as Player
+	_visual = _player.get_node_or_null("VisualRoot") as Node3D
+	# Direct node lookup, NOT _player.get_health_component(): children _ready()
+	# before their parent, so the Player has not resolved its component refs yet.
+	_health = _player.get_node_or_null("HealthComponent") as HealthComponent
 	_collect_meshes()
 	_overlay = StandardMaterial3D.new()
 	_overlay.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_overlay.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_overlay.no_depth_test = false
-	get_parent().respawned.connect(reset)
+	_player.respawned.connect(reset)
 
 
 ## Cache every rendered mesh for the hit-flash overlay. Re-run on respawn so
@@ -81,12 +85,10 @@ func play_impact_feedback(critical: bool = false) -> void:
 	if _reduced_motion() or _last_impact_frame == Engine.get_physics_frames():
 		return
 	_last_impact_frame = Engine.get_physics_frames()
-	var juice := get_tree().get_first_node_in_group("hitstop_manager")
+	var juice := get_tree().get_first_node_in_group("hitstop_manager") as HitstopManager
 	if juice != null:
-		if juice.has_method("request_hitstop"):
-			juice.call("request_hitstop", 0.035 if critical else 0.018)
-		if juice.has_method("add_trauma"):
-			juice.call("add_trauma", 0.14 if critical else 0.06)
+		juice.request_hitstop(0.035 if critical else 0.018)
+		juice.add_trauma(0.14 if critical else 0.06)
 	else:
 		_request_camera_shake(0.16 if critical else 0.08, 0.1)
 
@@ -104,9 +106,9 @@ func set_visual_flash_enabled(enabled: bool) -> void:
 func _request_camera_shake(amplitude: float, duration: float) -> void:
 	if _reduced_motion():
 		return
-	var cam := get_tree().get_first_node_in_group(String(CAMERA_RIG_GROUP))
-	if cam != null and cam.has_method("add_shake"):
-		cam.call("add_shake", amplitude, duration)
+	var cam := get_tree().get_first_node_in_group(String(CAMERA_RIG_GROUP)) as CameraRig
+	if cam != null:
+		cam.add_shake(amplitude, duration)
 
 
 func _request_vibration(duration_msec: int, _amplitude: int) -> void:
@@ -120,10 +122,3 @@ func _reduced_motion() -> bool:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"visual_found": _visual != null, "reduced_motion": _reduced_motion()}
-
-## Hardened: validate feedback intensity.
-func _validated_intensity(v: float) -> float:
-	if not is_finite(v) or v < 0.0:
-		return 0.0
-	return clampf(v, 0.0, 1.0)
-

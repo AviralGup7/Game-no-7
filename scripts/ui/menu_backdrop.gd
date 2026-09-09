@@ -15,10 +15,3 @@ func _draw() -> void:
 	draw_line(Vector2(24, 0), Vector2(24, size.y), Color(0.47, 0.87, 0.92, 0.18), 1)
 	draw_rect(Rect2(24, size.y * 0.15, 3, size.y * 0.22), UiTheme.GOLD)
 	draw_line(Vector2(size.x - 24, 0), Vector2(size.x - 24, size.y), Color(0.47, 0.87, 0.92, 0.18), 1)
-
-## Hardened: clamp backdrop alpha.
-func _validated_alpha(a: float) -> float:
-	if not is_finite(a):
-		return 1.0
-	return clampf(a, 0.0, 1.0)
-

@@ -31,6 +31,7 @@ class UISkillTests(unittest.TestCase):
         self.assertIn("if _elapsed > combo_chain_window:",txt)
     def test_arena_resolve_handles_dict_and_object(self):
         txt=read("scripts/arena/arena.gd")
-        self.assertIn("if run is Dictionary:",txt)
-        self.assertIn('elif run is Object and "arena_id" in run:',txt)
+        block = txt[txt.find("func _resolve_arena_id"):txt.find("func _resolve_arena_id") + 500]
+        self.assertIn("GameRoot.get_run()", block)
+        self.assertIn("run.arena_id", block)
 if __name__=="__main__": unittest.main()

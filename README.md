@@ -6,22 +6,24 @@ rendering).
 
 You fight waves of enemies in a compact arena. Enemies pursue and attack; you move
 with a virtual joystick, attack with a melee weapon, dodge, pick upgrades between
-waves, and chase a high score. When you fall, you see your run summary and can
-instantly restart.
+waves, and chase a high score. When you fall — or win — you see your run summary
+and can instantly restart.
 
-> **Project status — arena build-out + meta game (see `CHANGELOG.md`).** Beyond the
-> Phase 1–4 foundation (project config, combat, integrated run loop, deterministic
-> upgrade selection), the game now ships: 8 enemy archetypes (incl. splitter mites and
-> a 3-phase Warlord boss) with elites, 6 weapons in a 2-slot switchable loadout,
-> 5 active skills + 8 status effects, 7 wave mutators + adaptive difficulty director,
-> 3 arena configs with hazards, a meta game (banked-currency armory, 19 achievements,
-> playable daily challenge), full settings (volumes, remapping, accessibility), and
-> procedural audio fallback so the game is never silent. All content stays data-driven
-> (`.tres` under `res://data/`) and headless-tested. Enemies now fight like
-> individuals — perception (sight/hearing/reaction/memory), deterministic
-> personalities, maneuver-based pursuit, pack awareness — and nothing walks
-> through objects: a shared nav grid routes AI around the same obstacles (pillars,
-> central landmark) that physics collides with. See `docs/ENEMY_AI_RESEARCH.md`.
+> **Project status — gameplay loop overhaul (see `CHANGELOG.md`).** Beyond the
+> Phase 1–4 foundation and meta game, the loop now includes: **5 game modes**
+> (Standard, Boss Rush, Survival, Challenge, Campaign) with distinct objectives and
+> wave scripts; **8 transformative upgrades** (chain lightning melee, fire/frost
+> dodge trails, kill summons, thorn nova, execute, lifesteal burst, static aura);
+> **differentiated arenas** (pressure plates, orbiting movers, denser hazard grids);
+> a **narrator + campaign beat sheet**; and a **prestige endgame** (permanent score/
+> currency mults, titles, cosmetics). Still ships 8 enemy archetypes, switchable
+> weapons, skills, mutators, armory, achievements, and daily challenge — and
+> enemies now fight like individuals: perception (sight/hearing/reaction/memory),
+> deterministic personalities, maneuver-based pursuit, pack awareness. Nothing
+> walks through objects: a shared nav grid routes AI around the same obstacles
+> (pillars, central landmark) that physics collides with.
+> All content stays data-driven (`.tres` under `res://data/`) and headless-tested.
+> See `docs/ENEMY_AI_RESEARCH.md`.
 
 ---
 
@@ -66,18 +68,24 @@ godot --headless --path . --script res://tests/run_tests.gd
 ## Downloaded 3D asset kit
 
 The reviewed asset library now contains **9 rigged/animated character models,
-81 models total, detailed stone maps, UI/particle textures, 2 fonts, 29 sound
-effects and 2 music loops** (~35.05 MiB of locked downloads). All source files have
-pinned provenance, SHA-256 checksums and preserved licences.
+81 models total, photo-PBR arena texture sets, real HDRI panorama skies,
+UI/particle textures, 2 fonts, 29 sound effects and 2 music loops**
+(~45.63 MiB of locked downloads). All source files have pinned provenance,
+SHA-256 checksums and preserved licences.
 
-**Integrated:** detailed arena floor/wall materials, six distinct pickup models,
-the approved character + enemy models on the live actors, KayKit dungeon props and
-per-arena themes (Default / Ember Crucible / Frost Hollow), pooled death/wave/boss/
-status VFX, and the approved recorded SFX + music registered over the procedural
-fallback. See the [asset catalogue](docs/ASSET_CATALOG.md) and
+**Integrated — HD realism pass:** the arena was rebuilt with photo-PBR rock floor,
+aged-brick walls, marble dais/cornices, an iron-banded wooden gate, corner towers
+and flickering torch sconces; each arena gets its own real Poly Haven CC0 HDRI
+sky (sunrise / sunset / moonlit) with image-based lighting; 2× MSAA, 8×
+anisotropic filtering, high-quality PCF shadows and glow are enabled; every
+character, enemy and arena prop receives a role-tuned PBR material pass
+(`HdMaterials`). Earlier work — six pickup models, approved characters/enemies on
+live actors, KayKit dungeon props, per-arena themes, pooled VFX and registered
+SFX/music — remains. See the [asset catalogue](docs/ASSET_CATALOG.md) and
 [quality audit](docs/ASSET_AUDIT.md) for exact additions, replacement selections,
-upstream checks and limitations. Weapon hand-attachments and UI skinning remain
-future work.
+upstream checks and limitations. A photoreal animated character rig set (with
+combat-clip coverage) remains future work; the audit records the reviewed
+candidates and why they were not drop-in replacements.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check

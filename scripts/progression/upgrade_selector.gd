@@ -120,10 +120,3 @@ static func to_id_list(choices: Array) -> Array[StringName]:
 		if cfg != null:
 			out.append(cfg.upgrade_id)
 	return out
-
-## Hardened: validate candidate count before pick.
-func _validated_pick_count(n: int) -> int:
-	if n <= 0:
-		return 0
-	return mini(n, 3)
-

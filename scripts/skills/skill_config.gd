@@ -27,23 +27,23 @@ const VALID_BEHAVIORS := [BEHAVIOR_SLAM, BEHAVIOR_WHIRL, BEHAVIOR_DASH_STRIKE, B
 ## Input action that triggers this skill (skill_1..3 expected).
 @export var input_action: StringName = &"skill_1"
 ## Cooldown in seconds before upgrades.
-@export var cooldown: float = 12.0
+@export_range(0.05, 300.0, 0.1) var cooldown: float = 12.0
 ## Stamina cost (0 = free).
-@export var stamina_cost: float = 0.0
+@export_range(0.0, 100.0, 0.5) var stamina_cost: float = 0.0
 ## Damage multiplier applied to the caster's current weapon damage (0 = no damage).
-@export var damage_multiplier: float = 2.0
+@export_range(0.0, 100.0, 0.1) var damage_multiplier: float = 2.0
 ## Flat bonus damage added after the multiplier.
-@export var flat_damage: float = 0.0
+@export_range(0.0, 10000.0, 0.5) var flat_damage: float = 0.0
 ## Damage type passed into AreaDamage/projectiles.
 @export var damage_type: StringName = &"physical"
 ## Radius (radial skills) or half-width (line skills) in metres.
-@export var radius: float = 4.0
+@export_range(0.5, 60.0, 0.1) var radius: float = 4.0
 ## Length for line skills (dash distance / shockwave travel).
-@export var length: float = 6.0
+@export_range(0.5, 100.0, 0.1) var length: float = 6.0
 ## Knockback impulse.
-@export var knockback: float = 10.0
+@export_range(0.0, 200.0, 0.5) var knockback: float = 10.0
 ## Number of hits for multi-hit behaviors (whirl).
-@export var hit_count: int = 1
+@export_range(1, 50) var hit_count: int = 1
 ## Delay between multi-hits.
 @export var hit_interval: float = 0.2
 ## Status effects applied to victims.
@@ -120,27 +120,3 @@ func is_offensive() -> bool:
 
 func is_self_buff() -> bool:
 	return behavior in [BEHAVIOR_WARCRY, BEHAVIOR_HEAL_SURGE]
-
-## Hardened: clamp skill cooldown/damage.
-func _validated_skill_stats(damage: float = -1.0) -> void:
-	if damage < 0.0:
-		damage = flat_damage
-	if not is_finite(cooldown) or cooldown <= 0.0:
-		cooldown = 1.0
-	cooldown = clampf(cooldown, 0.05, 60.0)
-	if not is_finite(damage) or damage < 0.0:
-		damage = 10.0
-	damage = clampf(damage, 0.0, 10000.0)
-	flat_damage = damage
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

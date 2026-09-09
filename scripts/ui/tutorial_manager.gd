@@ -42,8 +42,8 @@ func bind_banner(banner: AnnouncementBanner) -> void:
 
 ## Has the player ever finished the tutorial (persisted flag)?
 func is_tutorial_done() -> bool:
-	if SaveManager != null and SaveManager.has_method("is_tutorial_completed"):
-		return bool(SaveManager.call("is_tutorial_completed"))
+	if SaveManager != null:
+		return SaveManager.is_tutorial_completed()
 	return _completed.get(&"finished", false)
 
 
@@ -104,8 +104,6 @@ func _process(delta: float) -> void:
 		return
 	if not is_finite(delta) or delta <= 0.0:
 		return
-	if GameRoot == null or not GameRoot.has_method("get_current_state"):
-		return
 	if GameRoot.get_current_state() not in [&"playing", &"wave_transition"]:
 		return
 	_step_timer += delta
@@ -116,14 +114,9 @@ func _process(delta: float) -> void:
 
 
 func _poll_player_triggers() -> void:
-	if GameRoot == null or not GameRoot.has_method("get_active_player"):
-		return
-	var player_check: Variant = GameRoot.get_active_player()
-	if player_check == null or not is_instance_valid(player_check as Object):
-		return
-	if GameRoot.get_active_player() == null:
-		return
 	var player := GameRoot.get_active_player()
+	if player == null or not is_instance_valid(player):
+		return
 	match _current_step():
 		STEP_MOVE:
 			if player is CharacterBody3D and (player as CharacterBody3D).velocity.length() > 1.0:
@@ -181,8 +174,8 @@ func _finish() -> void:
 	_active = false
 	if _banner != null: _banner.set_coach("")
 	_completed[&"finished"] = _practiced_all
-	if _practiced_all and SaveManager != null and SaveManager.has_method("set_tutorial_completed"):
-		SaveManager.call("set_tutorial_completed", true)
+	if _practiced_all and SaveManager != null:
+		SaveManager.set_tutorial_completed(true)
 	tutorial_finished.emit()
 
 
@@ -209,12 +202,3 @@ func replay_next_run() -> void:
 	_stop()
 	_completed.clear()
 	SaveManager.set_tutorial_completed(false)
-
-## Hardened: additional tutorial guards.
-func _validated_step_id(id: StringName) -> bool:
-	return id != &"" and id in [&"move",&"attack",&"dodge",&"skill",&"upgrade",&"survive"]
-func _validated_timer(t: float) -> float:
-	if not is_finite(t) or t < 0.0:
-		return 0.0
-	return clampf(t, 0.0, 100.0)
-

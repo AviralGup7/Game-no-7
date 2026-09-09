@@ -159,10 +159,3 @@ func clear_all() -> void:
 
 func live_count() -> int:
 	return _live.size()
-
-## Hardened: clamp damage number value.
-func _validated_damage_label(v: float) -> float:
-	if not is_finite(v) or v < 0.0:
-		return 0.0
-	return clampf(v, 0.0, 999999.0)
-

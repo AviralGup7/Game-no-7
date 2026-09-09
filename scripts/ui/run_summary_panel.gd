@@ -39,21 +39,17 @@ func _on_run_started(_id: int, _seed: int) -> void:
 	# run_started follows world construction, so keep weapon_equipped's value.
 	var player := GameRoot.get_active_player()
 	if is_instance_valid(player):
-		var manager := player.get_node_or_null("WeaponManager")
-		if manager != null and manager.has_method("active_weapon_id"):
-			_record_weapon(manager.call("active_weapon_id"))
+		_record_weapon(player.get_weapon_manager().active_weapon_id())
 
 func _record_weapon(id: StringName) -> void:
 	var cfg := ContentRegistry.get_weapon(id)
 	_weapon = cfg.display_name if cfg != null else String(id)
 
 func capture() -> void:
-	if GameRoot == null or not GameRoot.has_method("get_run"):
+	var run := GameRoot.get_run()
+	if run == null:
 		return
-	var run: Variant = GameRoot.call("get_run")
-	if run == null or not run.has_method("summary"):
-		return
-	_summary = (run.call("summary") as Dictionary).duplicate(true)
+	_summary = run.summary().duplicate(true)
 	_finish_capture.call_deferred(int(_summary.get("run_id", 0)))
 
 func _finish_capture(run_id: int) -> void:
@@ -90,29 +86,45 @@ func show_page(page: StringName) -> void:
 		UiFactory.focus_first.call_deferred(self)
 
 func _build_game_over() -> void:
-	UiFactory.label("THE ARENA REMEMBERS", _body, 18).modulate = UiTheme.GOLD
-	UiFactory.title("LAST STAND ENDED", _body, 44)
+	var victory := bool(_summary.get("victory", false))
+	UiFactory.label("THE ARENA REMEMBERS" if not victory else "THE STAND HOLDS", _body, 18).modulate = UiTheme.GOLD
+	UiFactory.title("VICTORY" if victory else "LAST STAND ENDED", _body, 44)
 	UiFactory.title(str(_summary.get("score", 0)), _body, 64)
-	UiFactory.label("SCORE  /  Wave %d  /  %s survived" % [_summary.get("current_wave", 0), duration(_summary.get("elapsed_seconds", 0.0))], _body, 22)
+	var mode_id := StringName(String(_summary.get("mode_id", "standard")))
+	UiFactory.label("%s  /  Wave %d  /  %s survived" % [
+		GameMode.display_name(mode_id), _summary.get("current_wave", 0),
+		duration(_summary.get("elapsed_seconds", 0.0))], _body, 22)
 	UiFactory.label("Personal best  %d" % SaveManager.get_best_score(), _body)
 	UiFactory.button("VIEW RUN SUMMARY", _body, 24).pressed.connect(func() -> void: show_page(&"run_summary"))
 
 func _build_summary() -> void:
 	UiFactory.title("YOUR RUN, IN REVIEW", _body, 34)
 	var arena := ContentRegistry.get_arena(StringName(_summary.get("arena_id", "")))
-	UiFactory.label("%s  /  %s" % [arena.display_name if arena != null else "Arena", "Daily challenge" if GameRoot.is_daily_run() else "Standard run"], _body)
+	var mode_id := StringName(String(_summary.get("mode_id", "standard")))
+	var mode_label := "Daily challenge" if GameRoot.is_daily_run() else GameMode.display_name(mode_id)
+	if bool(_summary.get("victory", false)):
+		mode_label += "  •  VICTORY"
+	UiFactory.label("%s  /  %s" % [arena.display_name if arena != null else "Arena", mode_label], _body)
 	var stats := UiFactory.card(_body)
-	UiFactory.label("SCORE  %d     KILLS  %d     WAVE  %d\nTIME  %s     RUN COINS  %d\nFINAL WEAPON  %s" % [
+	UiFactory.label("SCORE  %d     KILLS  %d     WAVE  %d\nBOSSES  %d     TIME  %s     RUN COINS  %d\nFINAL WEAPON  %s" % [
 		_summary.get("score", 0), _summary.get("kills", 0), _summary.get("current_wave", 0),
+		_summary.get("bosses_slain", 0),
 		duration(_summary.get("elapsed_seconds", 0.0)), _summary.get("currency", 0), _weapon], stats, 24)
 	UiFactory.label(performance(_summary), stats, 22)
 	UiFactory.title("UPGRADES KEPT THIS RUN", _body, 22)
 	var upgrades: Dictionary = _summary.get("selected_upgrades", {})
 	var lines := PackedStringArray()
+	var transforms := PackedStringArray()
 	for id in upgrades:
 		var cfg := ContentRegistry.get_upgrade(StringName(id))
-		lines.append("%s  ×%d" % [cfg.display_name if cfg != null else String(id), upgrades[id]])
-	UiFactory.label("\n".join(lines) if not lines.is_empty() else "No upgrades selected this run.", _body)
+		var label := "%s  ×%d" % [cfg.display_name if cfg != null else String(id), upgrades[id]]
+		if cfg != null and cfg.is_transformative():
+			transforms.append(label + "  [TRANSFORM]")
+		else:
+			lines.append(label)
+	if not transforms.is_empty():
+		UiFactory.label("TRANSFORMS\n" + "\n".join(transforms), _body, 20).modulate = UiTheme.CYAN
+	UiFactory.label("\n".join(lines) if not lines.is_empty() else ("No stat upgrades." if not transforms.is_empty() else "No upgrades selected this run."), _body)
 	UiFactory.label("Seed %s  •  Local run %s" % [_summary.get("seed", 0), _summary.get("run_id", 0)], _body, 16)
 	UiFactory.button("CONTINUE TO REWARDS", _body, 24).pressed.connect(func() -> void: show_page(&"meta_reward"))
 
@@ -134,14 +146,3 @@ func _build_rewards() -> void:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"page": _page, "summary": _summary.duplicate(true), "reward": _reward, "wallet": _bank_after}
-
-## Hardened: additional run summary validators.
-func _validated_duration(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 0.0
-	return clampf(d, 0.0, 9999.0)
-func _validated_score(s: int) -> int:
-	if s < 0:
-		return 0
-	return mini(s, 999999999)
-

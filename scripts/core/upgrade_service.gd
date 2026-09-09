@@ -12,14 +12,14 @@ extends RefCounted
 ## Deterministically choose the offered upgrades from run seed + wave + current
 ## stacks. Returns an empty list when nothing is eligible (caller continues to the
 ## next wave without touching state).
-static func choose_for_wave(run: RunState, player: Node, wave_number: int) -> Array[StringName]:
+static func choose_for_wave(run: RunState, player: Player, wave_number: int) -> Array[StringName]:
 	var empty: Array[StringName] = []
 	if run == null or ContentRegistry == null:
 		return empty
-	var prog := _progression_node_of(player)
+	var prog := _progression_of(player)
 	if prog == null:
 		return empty
-	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog.has_method("get_upgrade_stack_snapshot") else {}
+	var counts: Dictionary = prog.get_upgrade_stack_snapshot()
 	var pool: Array[UpgradeConfig] = []
 	for raw in ContentRegistry.get_all_upgrades().values():
 		pool.append(raw as UpgradeConfig)
@@ -33,7 +33,7 @@ static func choose_for_wave(run: RunState, player: Node, wave_number: int) -> Ar
 ## Validate a pick against the offered list + live progression state. Returns ""
 ## when the selection may proceed, otherwise the human-readable rejection reason
 ## (already reported as a warning).
-static func validate_selection(run: RunState, player: Node, upgrade_id: StringName) -> String:
+static func validate_selection(run: RunState, player: Player, upgrade_id: StringName) -> String:
 	var reason: String = ""
 	if run == null:
 		return "no run"
@@ -41,7 +41,7 @@ static func validate_selection(run: RunState, player: Node, upgrade_id: StringNa
 		reason = "Upgrade %s is not currently offered" % String(upgrade_id)
 		EventBus.report_warning(reason)
 		return reason
-	if player == null or not is_instance_valid(player) or not bool(player.call("is_alive")):
+	if player == null or not is_instance_valid(player) or not player.is_alive():
 		reason = "request_upgrade_selection: no live player"
 		EventBus.report_warning(reason)
 		return reason
@@ -50,8 +50,8 @@ static func validate_selection(run: RunState, player: Node, upgrade_id: StringNa
 		reason = "request_upgrade_selection: unknown upgrade %s" % String(upgrade_id)
 		EventBus.report_warning(reason)
 		return reason
-	var prog := _progression_node_of(player)
-	var counts: Dictionary = prog.call("get_upgrade_stack_snapshot") if prog != null and prog.has_method("get_upgrade_stack_snapshot") else {}
+	var prog := _progression_of(player)
+	var counts: Dictionary = prog.get_upgrade_stack_snapshot() if prog != null else {}
 	if not UpgradeSelector.is_eligible(cfg, run.current_wave, counts):
 		reason = "Upgrade %s is no longer selectable" % String(upgrade_id)
 		EventBus.report_warning(reason)
@@ -61,13 +61,13 @@ static func validate_selection(run: RunState, player: Node, upgrade_id: StringNa
 
 ## Apply a validated pick to the runtime ProgressionComponent and mirror the
 ## result into RunState. Returns false (with a warning) when application fails.
-static func apply_selection(run: RunState, player: Node, upgrade_id: StringName) -> bool:
+static func apply_selection(run: RunState, player: Player, upgrade_id: StringName) -> bool:
 	# Keep this method safe when called outside GameRoot as well. GameRoot normally
 	# performs the same validation before reaching here, but the service is the
 	# authoritative last gate against stale offers, future waves and invalid ids.
 	if not validate_selection(run, player, upgrade_id).is_empty():
 		return false
-	if player == null or not player.has_method("apply_upgrade") or not bool(player.call("apply_upgrade", upgrade_id)):
+	if player == null or not player.apply_upgrade(upgrade_id):
 		EventBus.report_warning("Upgrade %s could not be applied" % String(upgrade_id))
 		return false
 	_sync_run_from_progression(run, player)
@@ -75,28 +75,21 @@ static func apply_selection(run: RunState, player: Node, upgrade_id: StringName)
 	return true
 
 
-static func _progression_node_of(player: Node) -> Node:
+static func _progression_of(player: Player) -> ProgressionComponent:
 	if player == null or not is_instance_valid(player):
 		return null
-	return player.get_node_or_null("ProgressionComponent")
+	return player.get_progression_component()
 
 
 ## Mirror the runtime ProgressionComponent (source of truth) into the serializable
 ## RunState snapshot so game-over summaries/analytics see exactly what is applied.
 ## `active_modifiers` is owned by the mutator/director path — do not overwrite it
 ## with stat-modifier keys here; that would erase the wave-mutator record.
-static func _sync_run_from_progression(run: RunState, player: Node) -> void:
+static func _sync_run_from_progression(run: RunState, player: Player) -> void:
 	if run == null:
 		return
-	var prog := _progression_node_of(player)
+	var prog := _progression_of(player)
 	if prog == null:
 		return
-	if prog.has_method("get_upgrade_stack_snapshot"):
-		run.selected_upgrades = (prog.call("get_upgrade_stack_snapshot") as Dictionary).duplicate()
-
-## Hardened: validate upgrade pool before offering.
-func _validated_pool_size(n: int) -> int:
-	if n < 0:
-		return 0
-	return mini(n, 100)
+	run.selected_upgrades = prog.get_upgrade_stack_snapshot().duplicate()
 

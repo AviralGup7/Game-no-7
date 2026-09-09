@@ -1,5 +1,5 @@
 class_name PickupConfig
-extends Resource
+extends ValidatedConfig
 
 ## Data-driven pickup definition (health orb, coin cache, stamina brew, magnet,
 ## shield cell, XP gem...). Instances live under res://data/pickups/ and are
@@ -23,22 +23,22 @@ const VALID_EFFECTS := [EFFECT_HEAL, EFFECT_CURRENCY, EFFECT_STAMINA, EFFECT_XP,
 @export_range(0.1, 2.0) var visual_extent: float = 0.6
 @export var effect: StringName = EFFECT_HEAL
 ## Base effect magnitude (scaled by `level` at spawn time when > 0).
-@export var amount: float = 25.0
+@export_range(0.0, 10000.0, 0.5) var amount: float = 25.0
 ## How long the pickup lasts on the ground before expiring (0 = never).
-@export var lifetime: float = 20.0
+@export_range(1.0, 600.0, 0.5) var lifetime: float = 20.0
 ## Collection radius around the player.
-@export var collect_radius: float = 1.2
+@export_range(0.1, 10.0, 0.1) var collect_radius: float = 1.2
 ## Radius at which the pickup starts flying toward the player (0 = no magnet).
-@export var magnet_radius: float = 3.5
+@export_range(0.0, 50.0, 0.1) var magnet_radius: float = 3.5
 ## Magnet flight speed.
-@export var magnet_speed: float = 9.0
+@export_range(0.0, 50.0, 0.5) var magnet_speed: float = 9.0
 ## Visual tint for the fallback mesh.
 @export var tint: Color = Color.WHITE
 ## Bob amplitude / speed for the idle animation.
-@export var bob_amplitude: float = 0.15
-@export var bob_speed: float = 2.5
+@export_range(0.0, 2.0, 0.01) var bob_amplitude: float = 0.15
+@export_range(0.0, 20.0, 0.1) var bob_speed: float = 2.5
 ## Drop weight for the default drop table.
-@export var drop_weight: float = 1.0
+@export_range(0.0, 100.0, 0.1) var drop_weight: float = 1.0
 @export var min_wave: int = 1
 @export var disabled: bool = false
 @export var tags: Array[StringName] = []
@@ -73,24 +73,3 @@ func scaled_amount(level: int) -> float:
 	if level <= 1:
 		return amount
 	return amount * (1.0 + 0.25 * float(level - 1))
-
-## Hardened: clamp pickup config values.
-func _validated_pickup() -> void:
-	if not is_finite(amount) or amount < 0.0:
-		amount = 25.0
-	amount = clampf(amount, 0.0, 10000.0)
-	if not is_finite(lifetime) or lifetime <= 0.0:
-		lifetime = 10.0
-	lifetime = clampf(lifetime, 0.1, 120.0)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

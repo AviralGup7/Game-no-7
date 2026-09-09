@@ -151,16 +151,8 @@ func cfg_attack_range(host: EnemyBase) -> float:
 	return cfg.attack_range if cfg != null else 1.5
 
 
-## Hardened: clamp chase speed and validate target each frame.
-func _validated_chase(target: Node3D, speed: float) -> Dictionary:
-	if target == null or not is_instance_valid(target):
-		return {"valid": false, "speed": 0.0}
-	if not is_finite(speed) or speed < 0.0:
-		speed = 2.0
-	speed = clampf(speed, 0.0, 20.0)
-	if not target.is_inside_tree():
-		return {"valid": false, "speed": speed}
-	return {"valid": true, "speed": speed}
-
+## A chase target is any live, in-tree Node3D body. (The old expression ended in
+## `... or t is Node3D`, which made the has_method() clause dead code and even
+## let freed Node3Ds pass; this keeps the intended semantics only.)
 func _chase_is_target_valid(t: Node) -> bool:
-	return t != null and is_instance_valid(t) and t.is_inside_tree() and t.has_method("get_health_fraction") or t is Node3D
+	return t is Node3D and is_instance_valid(t) and t.is_inside_tree()

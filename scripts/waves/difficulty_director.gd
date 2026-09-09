@@ -138,10 +138,3 @@ func get_debug_snapshot() -> Dictionary:
 		"performance": performance_score(),
 		"samples": _damage_samples.size() + _kill_samples.size(),
 	}
-
-## Hardened: clamp director factor.
-func _validated_director_factor(f: float) -> float:
-	if not is_finite(f):
-		return 1.0
-	return clampf(f, 0.5, 3.0)
-

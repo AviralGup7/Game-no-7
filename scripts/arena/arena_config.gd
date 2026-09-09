@@ -8,12 +8,12 @@ extends Resource
 @export var arena_id: StringName = &"default_arena"
 @export var display_name: String = ""
 @export var scene: PackedScene = null
-@export var enemy_spawn_min_player_distance: float = 6.0
+@export_range(0.0, 100.0, 0.1) var enemy_spawn_min_player_distance: float = 6.0
 @export var default_camera_profile: StringName = &"default"
 @export var background_music_cue: StringName = &""
 @export var allowed_archetypes: Array[StringName] = []
 @export var tags: Array[StringName] = []
-@export var unlock_wave: int = 1
+@export_range(1, 1000) var unlock_wave: int = 1
 
 
 func validate() -> Array[String]:
@@ -25,21 +25,3 @@ func validate() -> Array[String]:
 	if enemy_spawn_min_player_distance < 0.0:
 		problems.append("enemy_spawn_min_player_distance cannot be negative")
 	return problems
-
-## Hardened: clamp arena size.
-func _validated_arena_half(h: float) -> float:
-	if not is_finite(h) or h <= 0.0:
-		return 24.0
-	return clampf(h, 4.0, 100.0)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

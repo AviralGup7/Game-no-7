@@ -5,25 +5,28 @@ extends RefCounted
 ## vector (virtual joystick, falling back to keyboard/controller actions), clamps
 ## the body inside the arena interior, and tracks move start/stop transitions.
 ## Player re-emits the move signals so its public signal contract is unchanged.
+##
+## Typed refs: `dodge` is nullable (headless fixtures bind without one), the
+## controller is the concrete CharacterController type.
 
 signal move_started
 signal move_stopped
 
 var _body: CharacterBody3D = null
-var _dodge: Node = null
-var _controller: Node = null
+var _dodge: DodgeController = null
+var _controller: CharacterController = null
 var _move_input := Vector2.ZERO
 var _using_actions := true
 var _bounds_half := -1.0   # -1 => no clamp (set by the scene owner / main)
 var _was_moving := false
 
 
-func bind(body: CharacterBody3D, dodge: Node, controller: Node) -> void:
+func bind(body: CharacterBody3D, dodge: DodgeController, controller: CharacterController) -> void:
 	_body = body
 	_dodge = dodge
 	_controller = controller
-	if _dodge != null and _dodge.has_method("set_bounds"):
-		_dodge.call("set_bounds", _bounds_half)
+	if _dodge != null:
+		_dodge.set_bounds(_bounds_half)
 
 
 func set_using_actions(enabled: bool) -> void:
@@ -52,8 +55,8 @@ func clear() -> void:
 ## Full stop: clear intent and settle the controller in place.
 func clear_and_idle() -> void:
 	clear()
-	if _controller != null and _controller.has_method("stop"):
-		_controller.call("stop")
+	if _controller != null:
+		_controller.stop()
 	elif _body != null:
 		_body.velocity.x = 0.0
 		_body.velocity.z = 0.0
@@ -62,8 +65,8 @@ func clear_and_idle() -> void:
 ## Set the arena interior half-extent for movement/bounds clamping; -1 disables it.
 func set_bounds(half: float) -> void:
 	_bounds_half = half
-	if _dodge != null and _dodge.has_method("set_bounds"):
-		_dodge.call("set_bounds", half)
+	if _dodge != null:
+		_dodge.set_bounds(half)
 
 
 func gather() -> Vector2:
@@ -97,10 +100,3 @@ func clamp_to_bounds() -> void:
 		_body.velocity.z = 0.0
 	if clamped != p:
 		_body.global_position = clamped
-
-## Hardened: clamp locomotion speed.
-func _validated_loco_speed(s: float) -> float:
-	if not is_finite(s) or s < 0.0:
-		return 5.0
-	return clampf(s, 0.0, 20.0)
-

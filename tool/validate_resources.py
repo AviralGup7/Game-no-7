@@ -3,7 +3,11 @@
 
 This is NOT a substitute for Godot's own importer; it catches common hand-authoring
 mistakes before CI/editor: load_steps mismatches, missing referenced res:// files,
-stale or duplicated script ids, and obviously unbalanced section headers.
+stale or duplicated script ids, obviously unbalanced section headers, and — for
+scenes that inherit another scene (`instance=ExtResource(...)`) — property values
+referencing `SubResource("id")` pools from the parent file. Sub-resource ids are
+file-local: a child scene must declare what it references (or edit the base), the
+editor's `[editable]` sections being the one sanctioned cross-file pointer.
 
 Run from the repository root:
     python3 tool/validate_resources.py
@@ -23,6 +27,8 @@ SUB_RE = re.compile(r"^\[sub_resource type=\"([^\"]+)\" id=\"([^\"]+)\"\]$")
 NODE_INSTANCE_RE = re.compile(r'^\[node[^\]]* instance=ExtResource\("([^"]+)"\)\]')
 NODE_RE = re.compile(r"^\[node ")
 EXTRES_USE_RE = re.compile(r'ExtResource\("([^"]+)"\)')
+SUBRES_USE_RE = re.compile(r'SubResource\("([^"]+)"\)')
+EDITABLE_SUB_RE = re.compile(r'^\[editable [^\]]*\bsub_resource="([^"]+)"')
 
 
 def load_steps_from(header_line: str) -> int | None:
@@ -42,6 +48,9 @@ def check_file(path: str, problems: list[str]) -> None:
         return
 
     ext_resources: dict[str, str] = {}
+    sub_ids: set[str] = set()
+    editable_sub_ids: set[str] = set()
+    instanced = False
     sub_count = 0
     header_load_steps = load_steps_from(first)
     inside_resource = False
@@ -67,8 +76,16 @@ def check_file(path: str, problems: list[str]) -> None:
                     problems.append(f"{rel}: malformed sub_resource line: {line}")
                 else:
                     sub_count += 1
+                    sub_ids.add(sm.group(2))
             elif line.startswith("[node ") or line.startswith("[editable"):
                 inside_resource = True
+                if NODE_INSTANCE_RE.match(line):
+                    instanced = True
+                else:
+                    em2 = EDITABLE_SUB_RE.match(line)
+                    if em2:
+                        # Sanctioned cross-file pointer: editing a base sub-resource.
+                        editable_sub_ids.add(em2.group(1))
             elif line.startswith("[resource]"):
                 inside_resource = True
 
@@ -80,6 +97,21 @@ def check_file(path: str, problems: list[str]) -> None:
     for rid in used_ids:
         if rid not in ext_resources:
             problems.append(f"{rel}: ExtResource(\"{rid}\") used but not declared")
+
+    # Inherited scenes: a SubResource("id") in a property must resolve inside THIS
+    # file. Referencing the parent scene's sub-resource id silently yields a broken
+    # (or missing) override — the classic hand-edit hazard on child scenes like the
+    # enemy archetypes that inherit enemy_base.tscn.
+    if instanced:
+        used_subs: set[str] = set()
+        for raw in lines:
+            used_subs.update(SUBRES_USE_RE.findall(raw))
+        for sid in sorted(used_subs):
+            if sid not in sub_ids and sid not in editable_sub_ids:
+                problems.append(
+                    f'{rel}: SubResource("{sid}") referenced but not declared in this file — '
+                    f"sub-resource ids are file-local; declare it here or edit the base scene"
+                )
 
     declared = len(ext_resources)
     expected_steps = declared + sub_count + 1

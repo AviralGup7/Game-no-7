@@ -108,23 +108,30 @@ func _volume_row(key: String) -> void:
 	_volume_labels[key] = label
 	var slider := _slider(0, 1, 0.01, value)
 	slider.value_changed.connect(func(amount: float) -> void:
-		_draft.call("set_" + key + "_volume", amount)
+		_set_volume_key(key, amount)
 		label.text = "%s  %d%%" % [key.capitalize(), int(amount * 100)]
 		_preview_volume(key, amount))
 
 
 ## Live mix preview: writes straight to the mixer bus without touching the saved
 ## SettingsData, so Back still discards while the player hears each change.
+## Typed volume setter dispatch — replaces the old "set_" + key + "_volume"
+## string-built call, which no tooling could verify.
+func _set_volume_key(key: String, amount: float) -> void:
+	match key:
+		"master": _draft.set_master_volume(amount)
+		"music": _draft.set_music_volume(amount)
+		"sfx": _draft.set_sfx_volume(amount)
+		_: push_warning("SettingsPanel: unknown volume key %s" % key)
+
 func _preview_volume(key: String, amount: float) -> void:
-	if AudioManager != null and AudioManager.has_method("preview_bus_volume"):
-		AudioManager.preview_bus_volume(key, amount)
+	AudioManager.preview_bus_volume(key, amount)
 
 
 ## Restore the saved mix after leaving without saving (ui_root calls this next
 ## to cancel_edit). After SAVE, the persisted settings are already live.
 func cancel_preview() -> void:
-	if AudioManager != null and AudioManager.has_method("apply_settings"):
-		AudioManager.apply_settings(SaveManager.get_settings())
+	AudioManager.apply_settings(SaveManager.get_settings())
 
 func _toggle(text: String, initial: bool, callback: Callable) -> void:
 	var row := HBoxContainer.new()
@@ -206,10 +213,4 @@ func _reset_draft() -> void:
 	SaveManager.reset_settings()
 	refresh()
 	_feedback.text = "Saved settings restored to defaults. Session-only bindings are unchanged."
-
-## Hardened: clamp volume sliders.
-func _validated_slider(v: float) -> float:
-	if not is_finite(v):
-		return 0.5
-	return clampf(v, 0.0, 1.0)
 

@@ -28,6 +28,7 @@ func _settle() -> void:
 func _run() -> void:
 	_meta = MetaProgression.new()
 	add_child(_meta)
+	GameRoot.set_world_builder(build_world)
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(1280, 720)
 	_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
@@ -223,10 +224,16 @@ func _test_hud_and_effects() -> void:
 	_ui._numbers.set_max_live(1)
 	_check("damage number pool has a floor", _ui._numbers._max_live == 4)
 	_ui._numbers.set_max_live(DamageNumberLayer.DEFAULT_POOL)
-	var boss := Node3D.new()
+	# Boss bar binds a typed EnemyBase (+BossController); give it the required
+	# minimal child set (HealthComponent + EnemyStateMachine), exactly like the
+	# encounter fixtures in run_tests.gd.
+	var boss := EnemyBase.new()
 	var hp := HealthComponent.new()
 	hp.name = "HealthComponent"
 	boss.add_child(hp)
+	var boss_machine := EnemyStateMachine.new()
+	boss_machine.name = "EnemyStateMachine"
+	boss.add_child(boss_machine)
 	add_child(boss)
 	EventBus.boss_spawned.emit(boss, &"warlord")
 	_check("boss event shows frame", _ui._boss_bar.visible)
@@ -337,6 +344,8 @@ func _test_armory_and_save() -> void:
 
 
 func build_world(_arena: StringName) -> void:
+	# Registered with GameRoot as the world-builder seam (Main does this at
+	# runtime; the UI harness substitutes its own typed Callable).
 	if is_instance_valid(_player):
 		_player.free()
 	_player = preload("res://tests/ui/ui_player_double.gd").new()
