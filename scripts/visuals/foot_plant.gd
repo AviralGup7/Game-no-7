@@ -36,13 +36,13 @@ static func apply(body: CharacterBody3D, max_offset: float = 0.14, delta: float 
 
 
 static func _sample_ground(body: CharacterBody3D, world: World3D) -> float:
-	var offsets := [Vector3.ZERO, Vector3(0.18, 0.0, 0.0), Vector3(-0.18, 0.0, 0.0)]
+	var offsets: Array[Vector3] = [Vector3.ZERO, Vector3(0.18, 0.0, 0.0), Vector3(-0.18, 0.0, 0.0)]
 	var best := INF
 	var hit_any := false
 	var dt := 0.016
 	for off in offsets:
-		var from := body.global_position + off + Vector3.UP * 0.55
-		var to := body.global_position + off + Vector3.DOWN * 1.6
+		var from: Vector3 = body.global_position + off + Vector3.UP * 0.55
+		var to: Vector3 = body.global_position + off + Vector3.DOWN * 1.6
 		var query := PhysicsRayQueryParameters3D.create(from, to)
 		query.exclude = [body.get_rid()]
 		query.collision_mask = WORLD_MASK

@@ -298,12 +298,23 @@ func _floor_y(at: Vector3) -> float:
 	return float(_floor_hit(at).get("y", at.y))
 
 
+func _world_3d() -> World3D:
+	if not is_inside_tree():
+		return null
+	var host := get_parent() as Node3D
+	if host != null:
+		return host.get_world_3d()
+	var vp := get_viewport()
+	return vp.world_3d if vp != null else null
+
+
 func _floor_hit(at: Vector3) -> Dictionary:
-	if not is_inside_tree() or get_world_3d() == null or get_world_3d().direct_space_state == null:
+	var world := _world_3d()
+	if world == null or world.direct_space_state == null:
 		return {"y": at.y, "normal": Vector3.UP}
 	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 4.0)
 	q.collide_with_areas = false
-	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	var hit: Dictionary = world.direct_space_state.intersect_ray(q)
 	if hit.is_empty():
 		return {"y": at.y, "normal": Vector3.UP}
 	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
