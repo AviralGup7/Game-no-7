@@ -1,5 +1,39 @@
 # Changelog
 
+## [Unreleased] — Audio playback engine rebuilt from the base up (2026-09-10)
+
+Third-round audit picked the audio engine: it shipped a fully data-driven
+`AudioConfig` schema the playback engine never read (per-cue voice caps,
+cooldown spam guard, per-play volume/pitch rolls, bus routing, the `music_layer`
+tag — all dead), started every SFX voice at full volume in sample zero, hard-
+stopped stolen voices (the step-function pop), left one hot cue able to
+monopolize all 16 voices, declared a "UI" bus that was never created, kept a
+dead hard-switching music path inside AudioManager, and ran a "4-layer
+intensity mixer" that was a volume nudge on a single bed. Rebuilt grounded in
+FMOD/Wwise voice-management practice and adaptive-music research (full
+write-up + sources in `docs/AUDIO_ENGINE.md`):
+
+- **The contract is live.** New pure `SfxPolicy` governs every play:
+  per-cue cooldown (silent suppression), per-cue voice cap with
+  middleware-"oldest" steal, all from config; `AudioConfig.for_cue()` ships
+  hand-tuned defaults (spam guards for footsteps/shots/hits, cap-1 for
+  one-shot feedback, UI-bus routing) and `register_cue` accepts per-cue
+  overrides. Per-play volume/pitch rolls are now actually applied.
+- **Click-safe voices.** Every start ramps in (12 ms); a stolen voice fades
+  out over 30 ms with a 1-t² shape before its player is reused — steals ride
+  a pending-claim queue so no live voice is ever hard-cut.
+- **Real vertical layering.** MusicManager now mixes optional intensity
+  stems (`music_<bed>_l2/_l3`) above the bed with asymmetric fades (up 0.6 s
+  / down 2.0 s), a 0.4 s dwell that stops heat flicker from machine-gunning
+  the stems, and phase-synced joins. No stems registered → v1 single-bed
+  behavior; stream swaps always fade-out → swap → fade-in.
+- **Housekeeping.** The phantom "UI" bus exists and routes; the dead parallel
+  music path (`play_music`/`stop_music`/`_music_player`) is gone; the fake
+  bed volume-nudge layer is replaced by real stem levels. Soak/stress seams
+  (`_sfx_pool`, `_cues`, `get_cue_stream`) and the v1 public API are
+  preserved.
+- New unit suite `tests/unit/test_audio_policy.gd` + Python shape guards.
+
 ## [Unreleased] — Minimap radar rebuilt from the base up (2026-09-09)
 
 The next-weakest subsystem audit picked the radar: v1 re-queried groups at
