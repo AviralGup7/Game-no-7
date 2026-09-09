@@ -1,5 +1,51 @@
 # Changelog
 
+## [Unreleased] — Prestige gets teeth: cosmetics, tiers, objectives (2026-09-09)
+
+Prestige, cosmetics, and challenge tiers were tables of IDs that never touched a
+run. This pass makes all three change play.
+
+### Challenge tiers scale the run
+
+`Prestige.CHALLENGE_TIERS` now carries `currency_mult` and `waves` per tier plus
+typed accessors (`challenge_tier_label/score_mult/currency_mult/mutator_count/
+waves`). `GameMode` reads the player's prestige tier for the Challenge mode via a
+new prestige-aware API (`scales_with_prestige`, `challenge_mutators`,
+`score_multiplier_for`, `currency_multiplier_for`, `max_waves_for`,
+`is_victory_wave_for`). The Challenge run's mutator SET is drawn by tier count
+from `CHALLENGE_MUTATOR_POOL` (tier 0 reproduces the historical
+`glass_cannon + ember_winds` pair), and its score/currency payout and wave cap
+grow with rank — Hard → Nightmare → Mythic → Last Stand are now genuinely harder,
+better-paying, longer runs. `WaveManager`, `RunScorekeeper`, `GameRoot`, and the
+run-setup preview all consult the tier; the scorekeeper skips the flat per-rank
+prestige bonus for Challenge so the tier payout isn't double-counted.
+
+### Cosmetics attach to the world
+
+New `Cosmetics` catalogue turns unlocked cosmetic IDs into applyable definitions
+(trail / aura / banner / title, highest rank worn). New `PlayerCosmetics` node
+mounts a coloured GPUParticles3D **trail** (ember/frost) and a rotating emissive
+**aura** ring + motes on the live hero; `ArenaDecorator.apply_prestige_banners`
+hangs unlocked **banners** on the arena walls in their colours; the run summary
+shows the prestige title + worn cosmetics. Main reads the persisted unlock list
+from `SaveManager` on every run build.
+
+### Objectives become real modes
+
+`OBJECTIVE_DEFEND_POINT` and `OBJECTIVE_COLLECT` (previously constants with zero
+implementations) are now the playable modes **Hold the Line** and **Relic Hunt**,
+driven by a new per-run `ObjectiveDirector`:
+* Hold the Line — a beacon at the arena centre drains while enemies stand in its
+  radius and self-repairs when clear; win on the mode timer, lose the instant it
+  falls.
+* Relic Hunt — slain foes drop `relic_shard` pickups on a deterministic cadence;
+  bank the quota to win.
+Both have endless spawn queues, HUD progress (`EventBus.objective_progress`), and
+resolve through `EventBus.objective_resolved` → GameRoot victory/game-over. Adds
+`RunState.objective_progress/objective_failed`, HUD objective line, Narrator
+intros, and the `relic_shard` pickup (catalogued; `drop_weight 0` so it never
+leaks into normal drop tables).
+
 ## [Unreleased] — Recheck, modularize, perfect (2026-09-09)
 
 Follow-up pass over the 2026-09-08 AI/collision work: full re-read of every

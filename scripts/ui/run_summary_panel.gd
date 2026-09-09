@@ -105,6 +105,10 @@ func _build_summary() -> void:
 	if bool(_summary.get("victory", false)):
 		mode_label += "  •  VICTORY"
 	UiFactory.label("%s  /  %s" % [arena.display_name if arena != null else "Arena", mode_label], _body)
+	# Prestige identity: rank title + worn cosmetic title / equipped cosmetics.
+	var prestige_line := _prestige_identity_line()
+	if not prestige_line.is_empty():
+		UiFactory.label(prestige_line, _body, 18).modulate = UiTheme.GOLD
 	var stats := UiFactory.card(_body)
 	UiFactory.label("SCORE  %d     KILLS  %d     WAVE  %d\nBOSSES  %d     TIME  %s     RUN COINS  %d\nFINAL WEAPON  %s" % [
 		_summary.get("score", 0), _summary.get("kills", 0), _summary.get("current_wave", 0),
@@ -127,6 +131,33 @@ func _build_summary() -> void:
 	UiFactory.label("\n".join(lines) if not lines.is_empty() else ("No stat upgrades." if not transforms.is_empty() else "No upgrades selected this run."), _body)
 	UiFactory.label("Seed %s  •  Local run %s" % [_summary.get("seed", 0), _summary.get("run_id", 0)], _body, 16)
 	UiFactory.button("CONTINUE TO REWARDS", _body, 24).pressed.connect(func() -> void: show_page(&"meta_reward"))
+
+## Prestige rank title + the cosmetics the player has earned (title / trail / aura
+## / banners). Empty for an unproven, cosmetic-less save so nothing is shown.
+func _prestige_identity_line() -> String:
+	if SaveManager == null:
+		return ""
+	var rank := SaveManager.get_prestige_rank()
+	var unlocked := SaveManager.get_unlocked_cosmetics()
+	var parts := PackedStringArray()
+	if rank > 0:
+		parts.append("Prestige %d — %s" % [rank, Prestige.title_for(rank)])
+	var title_id := Cosmetics.active_title(unlocked)
+	if title_id != &"":
+		parts.append("Title: %s" % Cosmetics.display_name(title_id))
+	var worn := PackedStringArray()
+	var trail_id := Cosmetics.active_trail(unlocked)
+	if trail_id != &"":
+		worn.append(Cosmetics.display_name(trail_id))
+	var aura_id := Cosmetics.active_aura(unlocked)
+	if aura_id != &"":
+		worn.append(Cosmetics.display_name(aura_id))
+	for banner_id in Cosmetics.active_banners(unlocked):
+		worn.append(Cosmetics.display_name(banner_id))
+	if not worn.is_empty():
+		parts.append("Cosmetics: " + ", ".join(worn))
+	return "   •   ".join(parts)
+
 
 func _build_rewards() -> void:
 	UiFactory.title("BUILD YOUR NEXT STAND", _body, 36)
