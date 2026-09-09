@@ -59,45 +59,7 @@ var _integration_run := false
 func _initialize() -> void:
 	# Unit suites are pure (no nodes) -> safe to run immediately.
 	_run_suites(UNIT_SUITES)
-	_dump_nav_debug()
 
-
-## TEMP diagnostic: dump the wall-grid footprint + flow/LOS/A* ground truth for
-## the failing test_nav_grid scenarios, surfaced as ::error annotations (visible
-## on GitHub) because CI step logs/artifacts are not downloadable here.
-func _dump_nav_debug() -> void:
-	var g := ArenaNavGrid.new()
-	g.build(12.0, 0.5, [{"pos": Vector3(6.0, 0.0, 0.0), "half_size": Vector3(2.0, 3.0, 1.0)}])
-	g.rebuild_flow_field(Vector3(11.0, 0.0, 0.0))
-	# Blocked-cell footprint map. z rows 18..30 (world z via cell_center),
-	# x cells 22..46. 'S' start (24,24), 'T' target (46,24), '#' blocked.
-	var lines := PackedStringArray()
-	for z in range(18, 31):
-		var r := "z%02d " % z
-		for x in range(22, 47):
-			var c := Vector2i(x, z)
-			if c == Vector2i(24, 24):
-				r += "S"
-			elif c == Vector2i(46, 24):
-				r += "T"
-			elif g.is_blocked_cell(c):
-				r += "#"
-			else:
-				r += "."
-		lines.append(r)
-	print("::error title=NAVDBG::blockmap\n" + "\n".join(lines))
-	var f0 := g.flow_field_direction(Vector3(0.0, 0.0, 0.0))
-	var f1 := g.flow_field_direction(Vector3(1.0, 0.0, 0.0))
-	var f2 := g.flow_field_direction(Vector3(2.0, 0.0, 0.0))
-	var f3 := g.flow_field_direction(Vector3(3.0, 0.0, 0.0))
-	var fn2 := g.flow_field_direction(Vector3(0.0, 0.0, -0.5))
-	var fp2 := g.flow_field_direction(Vector3(0.0, 0.0, 0.5))
-	print("::error title=NAVDBG::dir0=%s dir1=%s dir2=%s dir3=%s nz05=%s pz05=%s" % [str(f0), str(f1), str(f2), str(f3), str(fn2), str(fp2)])
-	var los_over := g.has_line_of_sight(Vector3(0.0, 0.0, 0.0), Vector3(10.0, 0.0, 5.0))
-	var los_thru := g.has_line_of_sight(Vector3(0.0, 0.0, 0.0), Vector3(10.0, 0.0, 0.0))
-	var los_hi := g.has_line_of_sight(Vector3(0.0, 0.0, 0.0), Vector3(11.0, 0.0, 6.0))
-	var path := g.find_path(Vector3(0.0, 0.0, 0.0), Vector3(11.0, 0.0, 0.0))
-	print("::error title=NAVDBG::los_over=%s los_thru=%s los_hi=%s path=%s" % [str(los_over), str(los_thru), str(los_hi), str(path)])
 
 
 ## Load each suite and fold its cases into the totals/failures.
@@ -162,8 +124,46 @@ func _process(_delta: float) -> bool:
 		for x in _failures:
 			report.store_string("FAIL  " + x + "\n")
 		report.close()
+	_dump_nav_diagnostics()
 	quit(0 if _failures.is_empty() else 1)
 	return false
+
+
+## TEMP diagnostic: dump ground-truth nav facts as ::error annotations right
+## before quit(), so they land in the last 120 log lines that CI echoes (the
+## raw step log / artifacts live on an unreachable blob store).
+func _dump_nav_diagnostics() -> void:
+	# --- Wall scenario (test_nav_grid._wall_grid) ---
+	var g := ArenaNavGrid.new()
+	g.build(12.0, 0.5, [{"pos": Vector3(6.0, 0.0, 0.0), "half_size": Vector3(2.0, 3.0, 1.0)}])
+	var fx := Vector2i.ZERO
+	var fz := Vector2i.ZERO
+	for z in range(48):
+		for x in range(48):
+			if g.is_blocked_cell(Vector2i(x, z)):
+				fx.x = mini(fx.x, x) if fx.x != 0 else x
+				fx.y = maxi(fx.y, x)
+				fz.x = mini(fz.x, z) if fz.x != 0 else z
+				fz.y = maxi(fz.y, z)
+	print("::error title=NAVDBG1::wall blocked x=%s z=%s center(8,25)=%s (blocked=%s) center(5,20)=%s" % [str(fx), str(fz), str(g.cell_center(Vector2i(8, 25))), str(g.is_blocked_cell(Vector2i(8, 25))), str(g.cell_center(Vector2i(5, 20)))])
+	g.rebuild_flow_field(Vector3(11.0, 0.0, 0.0))
+	var dirs := PackedStringArray()
+	for w in [Vector3(0.0, 0.0, 0.0), Vector3(0.5, 0.0, 0.0), Vector3(1.0, 0.0, 0.0), Vector3(2.0, 0.0, 0.0), Vector3(3.0, 0.0, 0.0)]:
+		dirs.append(str(g.flow_field_direction(w)))
+	print("::error title=NAVDBG1::flowdirs @x0..3 = %s" % ", ".join(dirs))
+	print("::error title=NAVDBG1::los_over=%s los_thru=%s" % [str(g.has_line_of_sight(Vector3(0, 0, 0), Vector3(10, 0, 5))), str(g.has_line_of_sight(Vector3(0, 0, 0), Vector3(10, 0, 0)))])
+	var path := g.find_path(Vector3(0, 0, 0), Vector3(11, 0, 0))
+	print("::error title=NAVDBG1::astar_path=%s" % str(path))
+	# --- default_arena layout: which obstacles sit near the gate (x~1.2, z~0)? ---
+	var layout := ArenaObstacles.layout_for(&"default_arena", 12.0)
+	var near := PackedStringArray()
+	for ob in layout:
+		var pos: Vector3 = ob["pos"]
+		var hs: Vector3 = ob["half_size"]
+		if absf(pos.z) < 2.0:
+			near.append("pos=%s hs=%s" % [str(pos), str(hs)])
+	print("::error title=NAVDBG1::default_arena near-gate obstacles: %s" % ", ".join(near))
+
 
 
 ## Deterministic combat integration: real HealthComponent damage/invuln/death +
