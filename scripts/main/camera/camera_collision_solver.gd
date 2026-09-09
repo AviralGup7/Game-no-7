@@ -75,7 +75,7 @@ func _sphere_cast(from: Vector3, to: Vector3, radius: float, target: Node3D, wor
 
 	var query := PhysicsShapeQueryParameters3D.new()
 	query.shape = sphere
-	query.transform = Transform3D(BASIS, from)
+	query.transform = Transform3D(Basis, from)
 	query.motion = to - from
 	query.collision_mask = 1
 	query.margin = 0.02

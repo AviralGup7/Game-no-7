@@ -355,7 +355,7 @@ func _update_look_at() -> void:
 	if absf(forward.dot(up)) > 0.99:
 		up = Vector3.FORWARD
 
-	var target_xform := Transform3D(BASIS, cam_origin).looking_at(look_target, up)
+	var target_xform := Transform3D(Basis, cam_origin).looking_at(look_target, up)
 	_camera.global_transform = target_xform
 
 
