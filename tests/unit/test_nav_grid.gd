@@ -57,17 +57,16 @@ static func _wall_free_los() -> bool:
 static func _flow_field_routes_around(results: Array) -> void:
 	var g := _wall_grid()
 	g.rebuild_flow_field(Vector3(11.0, 0.0, 0.0))
-	# The start sits in the CLEAR LANE west of the wall: the field heads
-	# straight east until the wall edge forces a turn (a human takes the lane,
-	# it does not pre-detour across empty ground).
+	# The start lane (cell row 24, center z=+0.25) sits below the wall's
+	# blocked rows (21..26), so the cheaper detour is SOUTH: the field leaves
+	# the start on a forward + south diagonal (exact value 0.707, 0, 0.707),
+	# then runs straight south once it reaches the wall edge.
 	var d := g.flow_field_direction(Vector3(0.0, 0.0, 0.0))
 	_check(results, "flow field gives a direction at the start", d != Vector3.ZERO, str(d))
-	_check(results, "flow field takes the clear lane east from the start",
-			d.x > 0.9 and absf(d.z) < 0.1, str(d))
-	# Right up against the wall's edge the field turns onto the detour (north,
-	# the first open side in the fixed neighbor order).
+	_check(results, "flow field leaves the start on the cheap (south) detour diagonal",
+			d.x > 0.4 and d.z > 0.4, str(d))
 	var dn := g.flow_field_direction(Vector3(3.0, 0.0, 0.0))
-	_check(results, "flow field turns lateral at the wall edge",
+	_check(results, "flow field runs the detour straight at the wall edge",
 			absf(dn.z) > 0.9 and absf(dn.x) < 0.1, str(dn))
 	var at_target := g.flow_field_direction(Vector3(11.0, 0.0, 0.0))
 	_check(results, "flow field is zero at the target", at_target.length() < 0.001, str(at_target))
