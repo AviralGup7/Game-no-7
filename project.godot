@@ -176,6 +176,17 @@ camera_reset={
 [physics]
 
 common/physics_ticks_per_second=60
+; Gameplay runs on a fixed 60 Hz tick; rendering does not (120 Hz panels, and the
+; PerformanceMonitor steps Engine.max_fps down to 30 when a device struggles).
+; Interpolation blends body transforms between ticks so the render rate can never
+; alias against the sim rate. Purely visual: simulation, determinism and every
+; _physics_process gameplay read stay on the fixed tick. The camera rig opts
+; itself OUT and reads the interpolated transform manually (see
+; CameraRig._configure_interpolation, docs/ARCHITECTURE.md "Timing contract").
+common/physics_interpolation=true
+; 6 steps/frame is a spiral-of-death brake, NOT extra time: a hitch longer than
+; 100 ms silently drops the remainder, so gameplay time can fall behind real time
+; while the frame recovers. Pinned by tests/python/test_regress_physics_timing_and_ccd.py.
 common/max_physics_steps_per_frame=6
 3d/default_gravity=18.0
 

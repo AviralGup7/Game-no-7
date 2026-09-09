@@ -75,6 +75,63 @@ An "interface" is an abstract base class others extend:
 - Enemy states (`EnemyState` subclasses) receive the typed host and call it
   directly.
 
+## Collision contract
+
+`scripts/core/collision_layers.gd` (`CollisionLayers`) owns every 3D layer and mask
+bit in the project. The bits themselves are authored as numbers in two `.tscn` files
+(Godot scenes cannot reference GDScript constants), so the contract is closed by
+`tests/python/test_regress_collision_contract.py`, which fails if:
+
+- a script assigns a numeric `collision_layer` / `collision_mask` again,
+- a scene's bits drift from the constants,
+- an enemy archetype re-declares collision instead of inheriting `enemy_base.tscn`,
+- one of the documented decisions flips (hero and enemies do not body-block; the
+  camera queries geometry only; pickups are polled, not detected).
+
+Two consequences worth knowing before you reach for a physics hitbox:
+
+- **Combat hits are math, not collision.** `MeleeResolver` / `AreaDamage` /
+  `CombatQuery` select victims by range + arc against a candidate list, and
+  `Pickup` collects by radius. The physics bodies exist for *locomotion* only. That
+  is deliberate (deterministic, headless-testable, no shape-authoring per weapon),
+  and it is why `PlayerAttack` / `EnemyAttack` / `Pickup` are declared but
+  unassigned: they are reserved so nothing else can take the bit while that is true.
+- **Bodies block, peers steer.** Arena geometry is hard (`move_and_slide`), enemy
+  crowding is soft (`EnemyPack` separation query, peers-only). Never move the
+  boundary between the two without moving the pinned test with it.
+
+## Timing contract (render tick vs physics tick)
+
+Simulation is fixed 60 Hz (`physics/common/physics_ticks_per_second`); rendering is
+not (120 Hz panels, and `PerformanceMonitor` steps `Engine.max_fps` down to 30 on a
+device that is struggling). Two rules keep that mismatch from showing up as judder:
+
+1. **Movement belongs in `_physics_process`.** Anything that integrates a body,
+   a pickup or a hazard moves there, so `physics/common/physics_interpolation=true`
+   can blend it for drawing. Gameplay reads (`global_position` inside
+   `_physics_process`) still see the exact tick value — interpolation is visual
+   only, so determinism is untouched.
+2. **A node written from `_process` must opt out.** The engine blends between
+   physics-tick snapshots, so a node whose transform is assigned during idle would
+   be smoothed twice and trail by a tick. `CameraRig`, its `Camera3D` and
+   `DamageNumberLayer` set `physics_interpolation_mode =
+   Node.PHYSICS_INTERPOLATION_MODE_OFF`, and the rig instead follows
+   `get_global_transform_interpolated()` — the interpolated *target*, an
+   un-interpolated camera. `tests/python/test_regress_physics_timing_and_ccd.py`
+   fails on any new `_process` transform writer without the opt-out.
+
+Teleports are the third case: pool re-entry (`Projectile.launch` / `pool_reset`,
+`Pickup.drop` / `pool_reset`), enemy spawn and split burst, and the non-finite
+position repairs in `CharacterController` / `PlayerLocomotion` all call
+`reset_physics_interpolation()` **after** writing the position (before is a no-op
+that still slides across the jump).
+
+Hot-path rule that came out of the same pass: **never allocate a query object per
+frame.** `PhysicsShapeQueryParameters3D` / `PhysicsRayQueryParameters3D` are read by
+the server at call time, so `CameraCollisionSolver` and `Projectile` build theirs
+once and mutate them; the camera additionally gates its spatial pass on a clock plus
+an arm-displacement test, so a 120 Hz panel does not pay 120 spring-arm solves.
+
 ## Autoload policy
 
 Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,
@@ -132,7 +189,7 @@ python3 tool/check_typed_arch.py   # architecture gate
 python3 tool/validate_guards.py    # real-guard contract
 ```
 
-`check_typed_arch.py` (133 project classes + 8 autoloads checked):
+`check_typed_arch.py` (every `class_name` in `scripts/` + the 8 autoloads checked):
 
 1. Bans string dispatch: `.call("...")` with a literal first argument, and
    `has_method(` — except one allowlisted assertion in `test_harness.gd`
@@ -153,6 +210,9 @@ Callable *references* are fine: `attack_buffer.tick(dt, player._try_attack)`,
 1. `gdparse` — syntax for every touched script.
 2. `tool/check_typed_arch.py` — duck-typing ban + typed-ref resolution.
 3. `tool/validate_guards.py` — real guards present, theater stays dead.
-4. `python3 -m unittest discover tests/python` — source-contract regressions.
+4. `python3 -m unittest discover tests/python` — source-contract regressions,
+   including `test_regress_collision_contract.py` (bits/decisions) and
+   `test_regress_physics_timing_and_ccd.py` (interpolation opt-outs, no per-frame
+   query allocation, swept projectile steps, teleport resets).
 5. CI (with Godot): `godot --headless --script res://tests/run_tests.gd` +
    `scripts/ui/run_ui_validation.sh`.

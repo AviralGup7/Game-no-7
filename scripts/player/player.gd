@@ -491,6 +491,9 @@ func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit:
 
 func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	global_transform = spawn_transform
+	# Run start is a teleport onto the arena's PlayerStart: snap the interpolation
+	# snapshots too, or the hero glides in from wherever the body was authored.
+	reset_physics_interpolation()
 	velocity = Vector3.ZERO
 	_is_dead = false
 	_control_enabled = false

@@ -282,6 +282,20 @@ internals:
 - Stable IDs as `StringName`; never magic numbers — put tuning in the relevant `.tres`.
 - Validate new content resources (`validate()` returns problems).
 - Prefer typed resources; keep large logic out of one script.
+- **Collision bits come from `CollisionLayers`** (`scripts/core/collision_layers.gd`),
+  for bodies *and* for queries. Do not write `collision_mask = 1` in a new script and
+  do not re-declare collision bits in an enemy archetype scene; the contract test
+  rejects both. If you need a new layer, add the constant, name it in
+  `[layer_names]`, and say what it changes in the class docblock.
+- **Move things in `_physics_process`.** A node whose transform is written from
+  `_process` must set `physics_interpolation_mode =
+  Node.PHYSICS_INTERPOLATION_MODE_OFF` (see `docs/ARCHITECTURE.md`, "Timing
+  contract"), and any teleport — pool re-entry, spawn placement, a repaired
+  transform — calls `reset_physics_interpolation()` *after* the position write.
+- **No per-frame allocations on the render path.** Reuse
+  `PhysicsShapeQueryParameters3D` / `PhysicsRayQueryParameters3D` (see
+  `EnemyPack._sep_query`, `CameraCollisionSolver`, `Projectile`) — the server reads
+  them at call time.
 
 ## 11. Add a game mode
 

@@ -65,8 +65,8 @@ func get_nav_grid() -> ArenaNavGrid:
 ## ---------- Interior obstacles (collision + nav, one source of truth) ----------
 
 ## Deterministic pillar/block set per arena (ArenaObstacles.layout_for). Every
-## entry becomes a StaticBody3D on collision_layer 1 — the SAME layer the
-## player (mask 1) and every enemy (mask 5) collide with — plus a stone mesh,
+## entry becomes a StaticBody3D on CollisionLayers.WORLD_STATIC — the one layer
+## both PLAYER_BODY_MASK and ENEMY_BODY_MASK collide with — plus a stone mesh,
 ## and is registered with the nav grid so AI routes around it instead of
 ## clipping through. Nothing can walk through objects anymore: physics for the
 ## bodies, nav grid for the intent.
@@ -272,8 +272,8 @@ func _add_landmark_collision(holder: Node3D, kind: String) -> void:
 		old.queue_free()
 	var body := StaticBody3D.new()
 	body.name = "Body"
-	body.collision_layer = 1
-	body.collision_mask = 0
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
 	var shape := CollisionShape3D.new()
 	var half := Vector3.ZERO
 	match kind:

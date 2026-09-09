@@ -174,6 +174,9 @@ func _apply_velocity(vel: Vector3) -> void:
 			0.0 if not is_finite(pos.y) else pos.y,
 			0.0 if not is_finite(pos.z) else clampf(pos.z, -1.0e4, 1.0e4))
 		after = Vector3.ZERO
+		# Recovering a poisoned transform is a teleport: the hero must be AT the
+		# repaired position on this frame, not interpolated towards it.
+		_owner_body.reset_physics_interpolation()
 	_owner_body.velocity = after
 
 

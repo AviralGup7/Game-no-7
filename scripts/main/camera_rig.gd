@@ -54,6 +54,10 @@ var _shake := CameraShakeController.new()
 var _mode := CameraModeController.new()
 
 var _hitstop_manager: Node = null
+## True when the project runs with `physics/common/physics_interpolation` on, so
+## the rig follows the INTERPOLATED player transform instead of the raw 60 Hz
+## physics-tick value. See _configure_interpolation().
+var _uses_interpolated_target := false
 
 
 func _ready() -> void:
@@ -62,6 +66,7 @@ func _ready() -> void:
 	if _camera != null:
 		_camera.make_current()
 		_camera.position = Vector3.ZERO
+	_configure_interpolation()
 
 	_profile = ContentRegistry.get_camera_profile(&"default") if ContentRegistry != null else null
 	if _profile == null:
@@ -115,6 +120,7 @@ func set_target(target: Node3D) -> void:
 		var initial_focus := _target.global_position + Vector3(0.0, _profile.look_height, 0.0)
 		_focus.setup(_profile, _velocity, initial_focus)
 		_apply_follow(1.0, 1.0)
+		_collision.invalidate_cache()
 		_has_snapped = true
 	else:
 		_has_snapped = false
@@ -151,6 +157,7 @@ func add_shake(amplitude: float, duration: float) -> void:
 
 
 func reset_transform() -> void:
+	_collision.invalidate_cache()
 	_shake.reset()
 	_auto_follow.reset()
 	_input.reset()
@@ -198,6 +205,8 @@ func get_debug_snapshot() -> Dictionary:
 			"mode": _mode.current_mode,
 			"enemy_count": _framing.get_enemy_count(),
 			"combat_boost": _framing.get_combat_distance_boost(),
+			"solver": _collision.get_debug_snapshot(),
+			"interpolated_target": _uses_interpolated_target,
 		}
 	return {
 		"enabled": _enabled,
@@ -220,6 +229,45 @@ func get_debug_snapshot() -> Dictionary:
 			"mode": _mode != null,
 		}
 	}
+
+
+# ------------------------------------------------------------------
+# Render-tick timing contract (physics interpolation)
+# ------------------------------------------------------------------
+
+## Bodies move in _physics_process (fixed 60 Hz) while this rig solves in
+## _process (render rate). With `physics/common/physics_interpolation` enabled the
+## engine blends body transforms between ticks for drawing, but a plain
+## `global_position` read still returns the stale tick value — so a camera that
+## follows at 60 Hz while the panel draws at 90/120 Hz shows every tick boundary
+## as a micro-stutter, and the adaptive QualityManager step down to Engine.max_fps
+## 30 (performance_monitor.gd) turns it into a hard 2:1 judder. Reading the
+## target's interpolated transform removes the mismatch.
+##
+## The rig itself must NOT be interpolated on top of that: it is written every
+## render frame, so letting the interpolation system blend it again would add a
+## tick of lag and re-introduce the jitter. Same for the Camera3D, whose transform
+## is assigned by _update_look_at(). Children of the rig (the camera, any rig
+## child) inherit OFF, which is what we want here.
+func _configure_interpolation() -> void:
+	_uses_interpolated_target = bool(ProjectSettings.get_setting(
+		"physics/common/physics_interpolation", false))
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+	if _camera != null:
+		_camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
+
+
+## The follow target for the render tick: the interpolated transform when the
+## engine is interpolating, the raw one otherwise (and always as a fallback when
+## the node is not in a tree — headless harnesses have no interpolation state).
+func _target_position_render() -> Vector3:
+	if _target == null:
+		return Vector3.ZERO
+	if _uses_interpolated_target and _target.is_inside_tree():
+		var xform := _target.get_global_transform_interpolated()
+		if CameraMath.is_finite_transform(xform):
+			return xform.origin
+	return _target.global_position
 
 
 # ------------------------------------------------------------------
@@ -263,10 +311,11 @@ func _process(delta: float) -> void:
 	delta = clampf(delta, 0.0, 0.1)
 	_test_hitstop_manager()
 	_mode.tick(delta)
+	# Advances the push-out hold AND the collision solver's query clock.
 	_collision.tick_recovery(delta)
 
-	# 1. Velocity
-	var curr_pos := _target.global_position
+	# 1. Velocity (interpolated: the rig solves per render frame, not per tick)
+	var curr_pos := _target_position_render()
 	# Teleport guard – snap if >10m
 	if _velocity.last_position.distance_squared_to(curr_pos) > 100.0:
 		_velocity.reset(curr_pos)
@@ -274,6 +323,9 @@ func _process(delta: float) -> void:
 		var snap_pos: Vector3 = _focus.focus_point + CameraMath.spherical_offset(_orbit_state.current_yaw, _orbit_state.current_pitch, _orbit_state.current_distance) + Vector3(0.0, _profile.height * 0.55, 0.0)
 		if CameraMath.is_finite_v3(snap_pos):
 			global_position = snap_pos
+		# A 10 m jump makes the last spring-arm query meaningless (it was cast in
+		# the arena region we just left): drop the cache so this frame re-casts.
+		_collision.invalidate_cache()
 		_has_snapped = false # force snap next frame
 
 	_velocity.tick(curr_pos, delta)

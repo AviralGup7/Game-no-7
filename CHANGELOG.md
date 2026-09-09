@@ -1,5 +1,74 @@
 # Changelog
 
+## [Unreleased] — Physics timing contract, collision contract, swept projectiles (2026-09-09)
+
+Architecture pass on the parts that touch physics — collision, camera, player,
+projectiles. No new physics engine: Godot's server already owns capsule motion, and
+the gaps were contracts and timing, not solvers. Full rationale in
+`docs/ARCHITECTURE.md` ("Collision contract", "Timing contract").
+
+- **`CollisionLayers` (`scripts/core/collision_layers.gd`) is now the only source of
+  3D bits.** 24 hand-written `collision_layer` / `collision_mask` numbers across
+  arena bodies, `EnemyPack` separation, the camera solver, the projectile pool and
+  the pickup pool became named constants, and the reserved-but-unassigned
+  `PlayerAttack` / `EnemyAttack` / `Pickup` layers are now documented as reserved
+  rather than left implied. New
+  `tests/python/test_regress_collision_contract.py` (15 checks) pins the bit layout to
+  `[layer_names]`, rejects any numeric assignment in `scripts/**`, pins
+  `player.tscn` (2/1) and `enemy_base.tscn` (4/5) to the constants, forbids
+  archetypes re-declaring collision, and asserts the four deliberate decisions
+  (no hero/enemy body-block, geometry-only camera, peers-only separation,
+  polled-not-detected pickups). `tests/unit/test_collision_layers.gd` is the
+  in-engine mirror (registered in `UNIT_SUITES`).
+- **Camera spring-arm stopped allocating on the frame-critical path.**
+  `CameraCollisionSolver.solve()` ran once per *render* frame and built a fresh
+  `SphereShape3D` + `PhysicsShapeQueryParameters3D` + one
+  `PhysicsRayQueryParameters3D` per whisker per frame — up to 6 RID-backed objects
+  handed to the physics server, scaling with panel refresh rate. Query objects are now
+  built once and mutated (the `EnemyPack._sep_query` pattern), and the whole spatial
+  pass is gated on a 1/60 s clock *and* a 0.4 m arm-displacement test, so a 120 Hz
+  panel halves the queries while `solve()` still applies the cached pullback to the
+  current arm direction (no added tracking latency). `recovery_timer` semantics, the
+  whisker fan, ground clearance and the fast-in/slow-out asymmetry are unchanged;
+  `use_sphere_cast` is now actually honoured (it was an authored profile field no code
+  read). `invalidate_cache()` forces a pass after a re-target, a rig reset and the
+  10 m teleport guard. `queries_last_pass` / `passes_total` reach the debug snapshot.
+- **Physics interpolation enabled; the camera opts out and reads the interpolated
+  target.** `physics/common/physics_interpolation=true` so the 60 Hz sim can never
+  alias against a 120 Hz panel or the `PerformanceMonitor` step-down to `Engine.max_fps`
+  30. `CameraRig` and its `Camera3D` set `PHYSICS_INTERPOLATION_MODE_OFF` (the rig is
+  written every render frame — double-smoothing it would add a tick of lag) and follow
+  `get_global_transform_interpolated()` instead of the stale tick value;
+  `DamageNumberLayer` opts out for the same reason. Every teleport now resets
+  interpolation after the write: `Projectile.launch/pool_reset`, `Pickup.drop/pool_reset`,
+  `SpawnManager` spawn placement and split burst, `PickupManager.magnet_burst`,
+  `Player.reset_for_new_run` (the run-start placement — reset lives on the actor, so a
+  future debug/menu spawner cannot forget it), and the non-finite position repairs in
+  `CharacterController` / `PlayerLocomotion`.
+  `tests/python/test_regress_physics_timing_and_ccd.py` (22 checks) pins all of it,
+  including a scan that fails on any new `_process` transform writer without an opt-out.
+- **Projectiles are swept, no longer point-sampled.** A `Projectile` assigns
+  `global_position` itself, so the server never integrates it and there is no CCD:
+  at `sunbow`'s 24 m/s that is 0.40 m of travel per tick against a 0.25 m detection
+  sphere, enough to skip a barrier or a dodging target. Each step now asks
+  `cast_motion` how far it may safely go, identifies the blocker with a short
+  `hit_from_inside` ray (cast_motion reports a fraction, not a collider), and loops up
+  to 4 segments so a piercing shot resolves every victim along the path instead of at
+  its endpoint. Swept and overlap contacts funnel through one `_resolve_hit()`, so the
+  two paths cannot disagree; `sweep_radius` is taken from the authored
+  `SphereShape3D`; `collide_with_bodies` only (volleys cannot shoot each other down);
+  the launcher body is ignored for the flight; and with no space, no tree or
+  `swept_collision = false` the shot falls back to the previous plain integration.
+
+Verification (no Godot binary in this sandbox — see the caveat below): `gdparse` clean
+on all 222 scripts/tests, `gdlint` clean on every touched file,
+`check_typed_arch.py` clean (164 classes), `validate_guards.py` 47/47,
+`python3 -m unittest discover -s tests/python` **502 tests OK**, and both new suites
+confirmed to fail on deliberately reverted code (mutated copies: opt-out removed →
+2 failures, extra `SphereShape3D.new()` → 1 failure). `--headless` runtime tests could
+not be executed here, so the GDScript suite (`tests/unit/test_collision_layers.gd`) is
+verified by parser + lint only and runs in CI.
+
 ## [Unreleased] — Real Godot 4.4.1 verification + log hygiene (2026-09-09)
 
 The handoff's open items are closed against a **real Godot 4.4.1-stable

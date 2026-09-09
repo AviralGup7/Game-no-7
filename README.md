@@ -32,6 +32,12 @@ and can instantly restart.
 - **Data-driven content.** New enemies, arenas, upgrades, weapons, cameras and audio
   are added as typed `.tres` resources under `res://data/`, discovered + validated by
   the `ContentRegistry` autoload. Core systems are not rewritten to add content.
+- **One collision contract.** Every 3D layer/mask bit comes from
+  `CollisionLayers` (`scripts/core/collision_layers.gd`) — bodies *and* spatial
+  queries — and `tests/python/test_regress_collision_contract.py` pins the authored
+  scene bits, the reserved layers and the deliberate no-body-block decision to it.
+  Movement integrates in `_physics_process` with `physics/common/physics_interpolation`
+  enabled, so the fixed 60 Hz tick can never alias against the render rate.
 - **Deterministic + testable.** Score, wave generation, upgrade selection, save
   validation and spawn logic expose pure/deterministic functions exercised headlessly.
 - **Graceful failure.** Missing optional assets, a corrupted save, or an invalid

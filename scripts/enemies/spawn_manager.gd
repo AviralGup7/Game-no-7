@@ -212,6 +212,10 @@ func _spawn_one() -> bool:
 	# point do not stack into one body.
 	instance.global_transform = point.global_transform
 	instance.global_position = point.global_position + _spawn_jitter()
+	# Freshly instantiated at a marker: reset interpolation so the body does not
+	# glide in from the scene origin over its first tick (and so the camera's
+	# spring arm is never asked to resolve an in-flight lerp).
+	instance.reset_physics_interpolation()
 	instance.set_bounds(SpawnPlacer.interior_half(_arena))
 	instance.initialize(config, _player as Node3D, _run_seed)
 	# Shared arena nav grid: the enemy's intent routes around the same
@@ -411,6 +415,7 @@ func _spawn_split_child(child_cfg: EnemyConfig, at: Vector3, index: int, total: 
 	var angle := TAU * float(index) / float(maxi(total, 1)) + _rng.randf_range(-0.35, 0.35)
 	var outward := Vector3(cos(angle), 0.0, sin(angle))
 	instance.global_position = at + outward * SPLIT_BURST_RADIUS
+	instance.reset_physics_interpolation()
 	instance.set_bounds(SpawnPlacer.interior_half(_arena))
 	instance.initialize(child_cfg, _player as Node3D, _run_seed)
 	instance.set_spawn_serial(_spawn_index)

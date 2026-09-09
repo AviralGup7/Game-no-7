@@ -2,7 +2,8 @@ class_name ArenaObstacles
 extends RefCounted
 
 ## Deterministic interior obstacle layouts per arena. Pure data + static math —
-## the Arena node turns each entry into a StaticBody3D (collision_layer 1, so
+## the Arena node turns each entry into a StaticBody3D (CollisionLayers
+## WORLD_STATIC, so
 ## BOTH the player and every enemy collide with it) + a stone mesh, and feeds
 ## the same entries to ArenaNavGrid so AI routes around what it cannot clip.
 ##
@@ -62,9 +63,9 @@ static func layout_for(arena_id: StringName, half: float) -> Array:
 	return out
 
 
-## Turn a layout into StaticBody3D nodes under `parent` (collision_layer 1 —
-## the world layer BOTH the player (mask 1) and every enemy (mask 5) collide
-## with) with a stone box mesh. Returns the number of bodies created.
+## Turn a layout into StaticBody3D nodes under `parent`, each on
+## CollisionLayers.WORLD_STATIC (the layer BOTH PLAYER_BODY_MASK and
+## ENEMY_BODY_MASK collide with) with a stone box mesh. Returns the number of bodies created.
 ## Deterministic function of (parent, layout, material) — no autoload access,
 ## so headless node tests can build the real obstacle set and assert on it.
 static func build_nodes(parent: Node3D, layout: Array, material: Material = null) -> int:
@@ -75,8 +76,8 @@ static func build_nodes(parent: Node3D, layout: Array, material: Material = null
 		var pos: Vector3 = ob.get("pos", Vector3.ZERO)
 		var body := StaticBody3D.new()
 		body.name = "Obstacle"
-		body.collision_layer = 1
-		body.collision_mask = 0
+		body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+		body.collision_mask = CollisionLayers.NO_LAYER
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = hs * 2.0

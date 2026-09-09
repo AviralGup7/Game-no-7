@@ -130,8 +130,8 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 		var body := StaticBody3D.new()
 		body.position = at
 		body.add_to_group("world_static")
-		body.collision_layer = 1
-		body.collision_mask = 0
+		body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+		body.collision_mask = CollisionLayers.NO_LAYER
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = Vector3(1.4, 4.0, 1.4)
