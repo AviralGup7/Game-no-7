@@ -101,6 +101,19 @@ instead of per query (12–40 concurrent enemies was churning GC every
   edge into a wall. Verified: blocked cells are identical at 0.5 m cell size,
   so existing nav-grid assertions are unaffected.
 
+### Audio content: recorded boss / calm / victory beds
+
+* Previously only the menu and combat loops shipped as recorded audio; the
+  boss, calm and victory beds shared the combat loop or fell back to
+  procedural pads. All five music states now ship distinct CC0 loops:
+  `arena_calm.ogg` (RandomMind — King's Feast), `arena_victory.ogg`
+  (RandomMind — Rejoicing) and `arena_boss.ogg` (Juhani Junkala / SubspaceAudio —
+  Evil3: Apocalypse), added to `assets/catalog.json` + `assets/manifest.json`
+  with checksum-locked provenance and a saved creator notice
+  (`ASSET_LICENSES/jrpg-evil.txt`). `AudioAssetIntegrator` now maps each music
+  state to its own bed instead of sharing the combat track; the combat loop
+  (`arena_gameplay.ogg`) is unchanged.
+
 ### Tests
 
 * `tests/unit/test_arena_obstacles_node.gd` (new, NODE_SUITES) —

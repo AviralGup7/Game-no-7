@@ -69,8 +69,8 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 The reviewed asset library now contains **9 rigged/animated character models,
 81 models total, photo-PBR arena texture sets, real HDRI panorama skies,
-UI/particle textures, 2 fonts, 29 sound effects and 2 music loops**
-(~45.63 MiB of locked downloads). All source files have pinned provenance,
+UI/particle textures, 2 fonts, 29 sound effects and 5 music loops**
+(~49.08 MiB of locked downloads). All source files have pinned provenance,
 SHA-256 checksums and preserved licences.
 
 **Integrated — HD realism pass:** the arena was rebuilt with photo-PBR rock floor,

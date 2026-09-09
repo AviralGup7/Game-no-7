@@ -113,3 +113,16 @@ cue-level record in `AUDIO_MANIFEST.md`.
 The shared notice provision does not allow unknown licences, unpinned downloads,
 missing notice files or licence-type mismatches. No paid tiers or application code
 from asset mirrors were downloaded.
+
+## 9 September music-bed pass (audio)
+
+Recorded CC0 loops now cover all five music states (previously only menu + combat
+shipped, and boss/calm/victory shared the combat loop or fell back to procedural
+pads). Two already-reviewed mirrors provided the new tracks, so provenance stays
+within the existing workflow: RandomMind's medieval loop set (`ashawkey/GlyphChess`,
+same pinned revision as the menu track) supplies `arena_calm.ogg` (King's Feast)
+and `arena_victory.ogg` (Rejoicing); Juhani Junkala / SubspaceAudio's **JRPG Music
+Pack #3 [Evil]** supplies `arena_boss.ogg` (Evil3 – Apocalypse) from Packt
+Publishing's official Godot 4 book repository at a pinned commit. Each original
+OpenGameArt page displays **CC0**, and the creator-written notice is saved under
+`ASSET_LICENSES/jrpg-evil.txt`. Details and the cue map live in `AUDIO_MANIFEST.md`.
