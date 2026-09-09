@@ -223,9 +223,11 @@ class HeadlessRunnerIsTheRealSuiteTests(unittest.TestCase):
 
     def test_runner_runs_integration_stages(self):
         txt = read("tests/run_tests.gd")
+        # _run_attack_combo_integration was removed with the legacy
+        # AttackController/ComboChain path; weapon combos are covered by
+        # tests/unit/test_weapons.gd instead.
         for stage in (
             "_run_combat_integration",
-            "_run_attack_combo_integration",
             "_run_enemy_encounter_integration",
             "_run_boss_integration",
             "_run_spawn_manager_integration",

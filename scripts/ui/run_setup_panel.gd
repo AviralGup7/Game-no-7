@@ -124,7 +124,11 @@ func _refresh_details() -> void:
 		_start.disabled = true
 		_feedback.text = "This content could not be loaded."
 		return
+	var rank := GameRoot.get_prestige_rank() if GameRoot != null else 0
 	_mode_info.text = "%s\n%s" % [GameMode.display_name(mode_id), GameMode.blurb(mode_id)]
+	# Challenge previews its live prestige tier (label + escalated cap/payout).
+	if GameMode.scales_with_prestige(mode_id):
+		_mode_info.text += "\nPrestige tier: %s" % GameMode.challenge_tier_label(mode_id, rank)
 	var obj := GameMode.objective(mode_id)
 	var obj_line := ""
 	match obj:
@@ -132,10 +136,14 @@ func _refresh_details() -> void:
 			obj_line = "Endure %d seconds" % int(GameMode.target_seconds(mode_id))
 		GameMode.OBJECTIVE_SLAY_BOSSES:
 			obj_line = "Slay %d bosses" % GameMode.max_waves(mode_id)
+		GameMode.OBJECTIVE_DEFEND_POINT:
+			obj_line = "Hold the point for %d seconds" % int(GameMode.target_seconds(mode_id))
+		GameMode.OBJECTIVE_COLLECT:
+			obj_line = "Gather %d relics" % GameMode.collect_target(mode_id)
 		_:
-			var cap := GameMode.max_waves(mode_id)
+			var cap := GameMode.max_waves_for(mode_id, rank)
 			obj_line = ("Clear %d waves" % cap) if cap > 0 else "Endless waves"
-	_mode_info.text += "\nObjective: %s  •  Score x%.2f" % [obj_line, GameMode.score_multiplier(mode_id)]
+	_mode_info.text += "\nObjective: %s  •  Score x%.2f" % [obj_line, GameMode.score_multiplier_for(mode_id, rank)]
 	var lore := Narrator.arena_intro(arena.arena_id)
 	_arena_info.text = "%s\n%s\n%s  •  Unlock milestone: wave %d" % [
 		arena.display_name,

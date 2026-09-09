@@ -143,9 +143,11 @@ import behavior or mobile frame time.
   browser smoke test sampled all 22 required clips, attached all nine weapons
   (including both dual-wield sockets), and loaded all three lighting environments
   with no page or resource errors. Desktop and narrow-screen layouts were inspected.
-- The full Python suite has **seven pre-existing camera/architecture failures**.
-  The same seven reproduce in an untouched archive of baseline commit
-  `aedf4d4818253a4ca847be4a7f879a2816452c63`; they are not suppressed here.
+- Initial verification reproduced **seven pre-existing camera/architecture
+  failures** in an untouched archive of baseline
+  `aedf4d4818253a4ca847be4a7f879a2816452c63`. After incorporating the subsequent
+  fixes from `main`, the complete Python suite passes **415/415 tests**. No
+  failure allowlist or test suppression was added.
 - **Native Godot/Android validation has not run locally**: the sandbox has no
   installed engine and official engine download hosts fail TLS. Added native
   gates are not presented as passed. No APK was built and no phone was profiled.

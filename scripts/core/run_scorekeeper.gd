@@ -79,19 +79,23 @@ func award_bonus(bonus: int) -> void:
 func _score_multiplier() -> float:
 	var base := 1.0 + _derived_stat(&"score_multiplier_add", 0.0)
 	# Mode + prestige multipliers stack multiplicatively on top of upgrade bonuses.
+	# For Challenge, the mode multiplier IS the prestige tier's payoff (score_multiplier_for),
+	# so the flat per-rank prestige bonus is skipped to avoid double-counting the rank.
 	if _run != null:
-		base *= GameMode.score_multiplier(_run.mode_id)
-		if GameRoot != null:
-			base *= Prestige.score_multiplier(GameRoot.get_prestige_rank())
+		var rank := GameRoot.get_prestige_rank() if GameRoot != null else 0
+		base *= GameMode.score_multiplier_for(_run.mode_id, rank)
+		if GameRoot != null and not GameMode.scales_with_prestige(_run.mode_id):
+			base *= Prestige.score_multiplier(rank)
 	return base
 
 
 func _currency_multiplier() -> float:
 	var base := 1.0 + _derived_stat(&"currency_multiplier_add", 0.0)
 	if _run != null:
-		base *= GameMode.currency_multiplier(_run.mode_id)
-		if GameRoot != null:
-			base *= Prestige.currency_multiplier(GameRoot.get_prestige_rank())
+		var rank := GameRoot.get_prestige_rank() if GameRoot != null else 0
+		base *= GameMode.currency_multiplier_for(_run.mode_id, rank)
+		if GameRoot != null and not GameMode.scales_with_prestige(_run.mode_id):
+			base *= Prestige.currency_multiplier(rank)
 	return base
 
 

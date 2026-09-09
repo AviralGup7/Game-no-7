@@ -12,16 +12,10 @@ export XDG_DATA_HOME="$TEST_DATA"
 for profile in fresh existing; do
   timeout 90s "$GODOT" --headless --path "$ROOT" res://tests/ui/ui_test_runner.tscn -- --isolated-ui-tests 2>&1 | tee "build/ui-tests-$profile.log"
   # Godot can return success despite script errors; treat these as failures too.
-  #
-  # KNOWN_FAILURES are pre-existing runtime bugs on `main` that are unrelated to
-  # the UI layer and are exercised incidentally by the UI test double. They are
-  # filtered so this gate reports UI regressions rather than failing on day one.
-  # Remove an entry as soon as its underlying bug is fixed:
-  #   * CombatLog.log()  -> run_scorekeeper.gd calls .log(); the class defines
-  #                         record(). Every run start/wave bonus errors.
-  #   * get_stat on Dictionary -> the UI player double returns a Dictionary where
-  #                         ProgressionComponent is expected.
-  KNOWN_FAILURES="Nonexistent function 'log' in base 'RefCounted \(CombatLog\)'|Invalid access to property or key '[a-z_]+' on a base object of type 'Dictionary'"
+  # The gate is strict: the two pre-existing bugs this suite used to surface are
+  # fixed (RunScorekeeper calls CombatLog.record(), not the nonexistent .log(),
+  # and the UI player double provides a real typed ProgressionComponent instead
+  # of a Dictionary), so no engine-level errors are allowed anymore.
 
   # 1. Every assertion must pass.
   if ! grep -Eq 'UI TESTS: [0-9]+ checks, 0 failed' "build/ui-tests-$profile.log"; then
@@ -29,9 +23,9 @@ for profile in fresh existing; do
     exit 1
   fi
 
-  # 2. No unexpected engine-level errors (Godot can exit 0 despite these).
+  # 2. No engine-level errors (Godot can exit 0 despite these).
   unexpected="$(grep -E 'SCRIPT ERROR:|Parse Error:|UI FAIL:|Failed to load script' \
-    "build/ui-tests-$profile.log" | grep -Ev "$KNOWN_FAILURES" || true)"
+    "build/ui-tests-$profile.log" || true)"
   if [ -n "$unexpected" ]; then
     echo "UI validation failed: unexpected errors ($profile):" >&2
     printf '%s\n' "$unexpected" >&2

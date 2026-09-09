@@ -5,8 +5,8 @@ extends RefCounted
 ## Given a wielder transform, a WeaponInstance and candidate targets, it selects
 ## victims inside range + arc (nearest-first, honouring max_targets) and builds
 ## per-target DamagePayloads with directional knockback. No tree access, no
-## autoloads: fully deterministic and headless-testable. The caller (usually
-## AttackController/WeaponManager) applies the payloads via `apply_damage`.
+## autoloads: fully deterministic and headless-testable. The caller
+## (WeaponManager) applies the payloads via `apply_damage`.
 
 const MAX_ARC_TARGETS_HARD_CAP := 32
 

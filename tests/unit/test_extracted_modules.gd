@@ -1,13 +1,12 @@
 extends RefCounted
 
 ## Headless unit tests for modules extracted during the large-file split:
-## ComboChain, SpawnLedger, SaveSchema, UiText, and DamagePayload.with_amount.
+## SpawnLedger, SaveSchema, UiText, and DamagePayload.with_amount.
 ## All are pure / autoload-independent, so they run in the headless harness.
 
 
 static func suite() -> Array:
 	var results: Array = []
-	_combo_chain(results)
 	_spawn_ledger(results)
 	_save_schema(results)
 	_ui_text(results)
@@ -17,35 +16,6 @@ static func suite() -> Array:
 
 static func _check(results: Array, name: String, passed: bool, why: String = "") -> void:
 	results.append({"name": name, "passed": passed, "why": why})
-
-
-# --- ComboChain ---
-
-static func _combo_chain(results: Array) -> void:
-	var chain := ComboChain.new()
-	_check(results, "chain starts neutral", chain.step() == 0 and not chain.is_chain_ready())
-	chain.begin(1)
-	_check(results, "begin(1) opens step 1", chain.step() == 1)
-	chain.open_chain()
-	_check(results, "open_chain allows chaining", chain.is_chain_ready())
-	_check(results, "try_chain offers step 2", chain.try_chain(3) == 2)
-	chain.begin(2)
-	chain.begin(3)
-	chain.open_chain()
-	_check(results, "try_chain refuses past max steps", chain.try_chain(3) == 0)
-	chain.expire()
-	_check(results, "expire closes the window", not chain.is_chain_ready())
-	_check(results, "try_chain refuses after expiry", chain.try_chain(3) == 0)
-	chain.finish()
-	_check(results, "finish resets to neutral", chain.step() == 0 and not chain.is_chain_ready())
-	var mults: Array[float] = [1.0, 1.2, 1.6]
-	chain.begin(2)
-	_check(results, "damage factor follows step", is_equal_approx(chain.damage_factor(mults), 1.2))
-	_check(results, "knockback factor follows step", is_equal_approx(chain.knockback_factor(mults), 1.2))
-	chain.begin(9)
-	_check(results, "factor past table falls back to 1.0", is_equal_approx(chain.damage_factor(mults), 1.0))
-	chain.reset()
-	_check(results, "step 0 factor is 1.0", is_equal_approx(chain.damage_factor(mults), 1.0))
 
 
 # --- SpawnLedger ---

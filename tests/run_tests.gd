@@ -62,6 +62,7 @@ func _initialize() -> void:
 	_run_suites(UNIT_SUITES)
 
 
+
 ## Load each suite and fold its cases into the totals/failures.
 func _run_suites(paths: Array) -> void:
 	for path in paths:
@@ -91,12 +92,6 @@ func _process(_delta: float) -> bool:
 	for c in combat:
 		if not bool(c.get("passed", false)):
 			_failures.append("combat :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
-
-	var combos := _run_attack_combo_integration()
-	_total += combos.size()
-	for c in combos:
-		if not bool(c.get("passed", false)):
-			_failures.append("attack :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
 	var encounter := _run_enemy_encounter_integration()
 	_total += encounter.size()
@@ -219,187 +214,6 @@ func _run_combat_integration() -> Array:
 	return results
 
 
-## Deterministic light-melee combo integration: a real AttackController (a plain child
-## node with no autoload deps) driven by explicit advance() steps and request_attack()
-## presses. No physics frames, no timers, no audio. Verifies chain escalation, the
-## timing window, the max-step cap, and full reset.
-
-func _run_attack_combo_integration() -> Array:
-	var results: Array = []
-	var body := CharacterBody3D.new()
-	root.add_child(body)
-	var atk := AttackController.new()
-	body.add_child(atk)  # _ready caches the CharacterBody3D owner
-	atk.can_crit = false
-	atk.combo_steps = 3
-	atk.attack_windup = 0.1
-	atk.attack_cooldown = 0.6
-	atk.combo_chain_window = 0.35
-	# Chains only open on a LANDED hit (deep-bug-hunt batch 5), so the swing needs
-	# a real target: a Damageable dummy in the "enemies" group, in range of the
-	# body at the origin. Without it every chain assertion below would whiff.
-	var dummy := _ComboDummy.new()
-	root.add_child(dummy)
-	dummy.add_to_group("enemies")
-	dummy.global_position = Vector3(0, 0, -1.0)
-
-	var ok_step1 := (
-		atk.get_phase() == atk.PHASE_READY
-		and atk.request_attack()
-		and atk.get_phase() == atk.PHASE_WINDUP
-		and atk.get_combo_step() == 1
-	)
-	results.append({
-		"name": "fresh READY accepts first swing at combo step 1",
-		"passed": ok_step1,
-		"why": "phase=%s step=%d" % [str(atk.get_phase()), atk.get_combo_step()],
-	})
-
-	results.append({
-		"name": "request during WINDUP rejected (no mid-windup chain)",
-		"passed": not atk.request_attack(),
-		"why": "",
-	})
-
-	atk.advance(atk.attack_windup)
-	var hit_opens := (
-		atk.get_phase() == atk.PHASE_RECOVERY
-		and atk.is_chain_ready()
-		and atk.get_combo_step() == 1
-	)
-	results.append({
-		"name": "swing resolves into RECOVERY with chain window open",
-		"passed": hit_opens,
-		"why": "phase=%s" % str(atk.get_phase()),
-	})
-
-	var chained_step2 := (
-		atk.request_attack()
-		and atk.get_phase() == atk.PHASE_WINDUP
-		and atk.get_combo_step() == 2
-	)
-	results.append({
-		"name": "chain within window advances to step 2 without waiting the cooldown",
-		"passed": chained_step2,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	atk.advance(atk.attack_windup)
-	var step2_opens := (
-		atk.get_phase() == atk.PHASE_RECOVERY
-		and atk.get_combo_step() == 2
-		and atk.is_chain_ready()
-	)
-	results.append({
-		"name": "step 2 hit reopens the chain window",
-		"passed": step2_opens,
-		"why": "phase=%s" % str(atk.get_phase()),
-	})
-
-	var chained_step3 := (
-		atk.request_attack()
-		and atk.get_combo_step() == 3
-		and atk.get_phase() == atk.PHASE_WINDUP
-	)
-	results.append({
-		"name": "chain again reaches final step 3",
-		"passed": chained_step3,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	var capped_windup := (
-		not atk.request_attack()
-		and atk.get_combo_step() == 3
-		and atk.get_phase() == atk.PHASE_WINDUP
-	)
-	results.append({
-		"name": "no chain at max steps while still winding up",
-		"passed": capped_windup,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	atk.advance(atk.attack_windup)
-	var capped := (
-		atk.get_phase() == atk.PHASE_RECOVERY
-		and atk.get_combo_step() == 3
-		and not atk.request_attack()
-	)
-	results.append({
-		"name": "step 3 resolves, then capped (cannot chain at max)",
-		"passed": capped,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	atk.advance(atk.attack_cooldown)
-	var reset_after_chain := (
-		atk.get_phase() == atk.PHASE_READY
-		and atk.get_combo_step() == 0
-		and atk.is_attack_ready()
-	)
-	results.append({
-		"name": "combo resets to READY / step 0 once the chain ends",
-		"passed": reset_after_chain,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	# Timing-window lapse: a late press cannot chain, and after the cooldown the combo
-	# resets so the next swing is a fresh step 1.
-	atk.request_attack()
-	atk.advance(atk.attack_windup)  # step-1 recovery, window open
-	atk.advance(atk.combo_chain_window + 0.05)  # window lapses while still in recovery
-	var late_press_blocked := (
-		not atk.is_chain_ready()
-		and not atk.request_attack()
-		and atk.get_combo_step() == 1
-	)
-	results.append({
-		"name": "late press after the window lapses cannot chain",
-		"passed": late_press_blocked,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	atk.advance(atk.attack_cooldown)
-	var reset_after_lapse := (
-		atk.get_phase() == atk.PHASE_READY
-		and atk.get_combo_step() == 0
-	)
-	results.append({
-		"name": "after lapse + cooldown returns to READY and resets step",
-		"passed": reset_after_lapse,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	# Disabling the controller must clear any in-progress combo.
-	atk.request_attack()
-	atk.set_attacks_enabled(false)
-	var disable_resets := (
-		atk.get_phase() == atk.PHASE_READY
-		and atk.get_combo_step() == 0
-	)
-	results.append({
-		"name": "set_attacks_enabled(false) resets phase + combo",
-		"passed": disable_resets,
-		"why": "step=%d" % atk.get_combo_step(),
-	})
-
-	# Whiffs must never escalate the combo (batch-5 semantics): with the dummy
-	# gone, a resolved swing leaves the chain window closed.
-	root.remove_child(dummy)
-	dummy.free()
-	atk.set_attacks_enabled(true)
-	atk.request_attack()
-	atk.advance(atk.attack_windup)
-	results.append({
-		"name": "whiff (no target) does not open the chain window",
-		"passed": atk.get_phase() == atk.PHASE_RECOVERY and not atk.is_chain_ready(),
-		"why": "phase=%s chain=%s" % [str(atk.get_phase()), str(atk.is_chain_ready())],
-	})
-
-	root.remove_child(body)
-	body.queue_free()
-	return results
-
-
 ## ===========================================================================
 ## Enemy encounter integration (Agent 2 scope): real EnemyBase nodes driven by
 ## explicit physics steps — state transitions, melee timing + whiff rule, poise,
@@ -408,16 +222,6 @@ func _run_attack_combo_integration() -> Array:
 ## (burst, failed-spawn accounting, splitter burst children, no false clears).
 ## Autoload-free by construction (EventBus/AudioManager lookups null-guard).
 ## ===========================================================================
-
-## Melee-combo stand-in: a Damageable in the "enemies" group that accepts every
-## hit and never dies, so chained swings always land.
-class _ComboDummy extends Damageable:
-	func apply_damage(_payload: DamagePayload) -> DamageResult:
-		var result := DamageResult.new()
-		result.accepted = true
-		result.final_amount = _payload.amount
-		return result
-
 
 class _FakeTarget extends Damageable:
 	## Damage-recording stand-in for the player.

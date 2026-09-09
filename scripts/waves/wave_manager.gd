@@ -150,6 +150,13 @@ func _run_mode() -> StringName:
 	return GameMode.MODE_STANDARD
 
 
+## Player's prestige tier, consulted for prestige-scaling modes (Challenge).
+func _prestige_rank() -> int:
+	if GameRoot != null:
+		return GameRoot.get_prestige_rank()
+	return 0
+
+
 func _launch_wave(wave_number: int) -> void:
 	if _spawn == null:
 		EventBus.report_warning("WaveManager has no spawn manager")
@@ -180,7 +187,7 @@ func _launch_wave(wave_number: int) -> void:
 func _announce_wave(wave_number: int) -> void:
 	var mode_id := _run_mode()
 	var text := "Wave %d" % wave_number
-	var cap := GameMode.max_waves(mode_id)
+	var cap := GameMode.max_waves_for(mode_id, _prestige_rank())
 	if cap > 0:
 		text = "Wave %d / %d" % [wave_number, cap]
 	var severity := &"info"
@@ -205,7 +212,8 @@ func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
 			EventBus.wave_mutator_applied.emit(id, wave_number)
 		return
 	# Mode-forced mutators (challenge / boss rush) apply for the whole run.
-	var mode_forced := GameMode.forced_mutators(_run_mode())
+	# Challenge scales its set by prestige tier; other modes keep authored lists.
+	var mode_forced := GameMode.challenge_mutators(_run_mode(), _prestige_rank())
 	if not mode_forced.is_empty():
 		_active_mutators = mode_forced.duplicate()
 		for id in _active_mutators:
@@ -239,13 +247,50 @@ func _push_scaling_to_spawner(wave_number: int, _cfg: WaveConfig) -> void:
 
 func _apply_director_count_nudge(queue: Array[StringName]) -> void:
 	var bonus := int(_director.next_wave_multipliers().get("count_bonus", 0))
+	apply_count_nudge(queue, bonus)
+
+
+## Deterministic spawn-count nudge for one resolved queue. Additions/removals are
+## spread evenly across the ORIGINAL queue instead of appending its first entries
+## or popping its tail, which skewed the wave toward head archetypes (weakest
+## first) and silently dropped the late-wave elites/boss it was meant to keep.
+## Pure + headless-testable; a +2 nudge on [a,a,a,a,b,b] adds queue[2], queue[4]
+## (one of each third), and a -1 nudge removes the middle entry, never the boss.
+static func apply_count_nudge(queue: Array[StringName], bonus: int) -> void:
+	var n := queue.size()
+	if n <= 0 or bonus == 0:
+		return
 	if bonus > 0:
+		# Duplicate the entry at each evenly-spaced pick position of the ORIGINAL
+		# queue (spacing divides the queue into bonus+1 equal segments).
 		for i in range(bonus):
-			if not queue.is_empty():
-				queue.append(queue[i % queue.size()])
-	elif bonus < 0:
-		for i in range(mini(-bonus, queue.size() - 1)):
-			queue.pop_back()
+			queue.append(queue[_spread_position(i, bonus, n)])
+		return
+	# Negative: remove `drop` entries, but never empty a non-empty plan. Removing
+	# evenly spaced original positions (instead of popping the tail) preserves
+	# late-wave entries like elites/bosses.
+	var drop := mini(-bonus, n - 1)
+	if drop <= 0:
+		return
+	var drop_positions: Dictionary = {}
+	for i in range(drop):
+		drop_positions[_spread_position(i, drop, n)] = true
+	var survivors: Array[StringName] = []
+	for idx in range(n):
+		if not drop_positions.has(idx):
+			survivors.append(queue[idx])
+	queue.clear()
+	for idn in survivors:
+		queue.append(idn)
+
+
+## The i-th (0-based) of `k` evenly-spaced positions in an `n`-long sequence:
+## the sequence is split into k+1 equal segments and one position per segment is
+## chosen, so picks can never cluster at the head or the tail.
+static func _spread_position(i: int, k: int, n: int) -> int:
+	if n <= 0:
+		return 0
+	return mini((i + 1) * n / (k + 1), n - 1)
 
 
 func _on_all_cleared() -> void:
@@ -263,15 +308,17 @@ func _complete_current_wave() -> void:
 	_phase = PHASE_COMPLETED
 	var cfg := _wave_config(_current_wave)
 	var bonus := cfg.completion_bonus
-	# Mode score multiplier folds into the wave completion bonus.
-	bonus = int(round(float(bonus) * GameMode.score_multiplier(_run_mode())))
+	# Mode score multiplier folds into the wave completion bonus (prestige-scaled
+	# for Challenge, so a Last Stand tier pays out on its escalated curve).
+	bonus = int(round(float(bonus) * GameMode.score_multiplier_for(_run_mode(), _prestige_rank())))
 	# Completion bonus is centralized in GameRoot (exactly-once via EventBus.wave_completed).
 	EventBus.wave_completed.emit(_current_wave, bonus)
 	EventBus.report_info("Wave %d completed (bonus %d)" % [_current_wave, bonus])
 	AudioManager.play_sfx(&"wave_completed", -7.0)
 	_tick_director_clock()
-	# Mode win condition: finishing the cap wave ends the run in victory.
-	if GameMode.is_victory_wave(_run_mode(), _current_wave):
+	# Mode win condition: finishing the cap wave ends the run in victory
+	# (Challenge's cap grows with prestige tier).
+	if GameMode.is_victory_wave_for(_run_mode(), _current_wave, _prestige_rank()):
 		if GameRoot != null:
 			GameRoot.declare_victory()
 		stop()

@@ -35,6 +35,11 @@ var equipped_skills: Array[StringName] = []
 var build_archetypes: Array[StringName] = []
 var completed_objectives: Array[StringName] = []
 var run_statistics: Dictionary = {}
+## Objective-mode live progress. `objective_progress` is the mode-specific counter
+## (relics banked for Collect, or beacon-health percent for Defend); GameMode /
+## the objective director interpret it. Runtime-only, mirrored into summaries.
+var objective_progress: int = 0
+var objective_failed: bool = false
 
 
 func reset() -> void:
@@ -62,6 +67,8 @@ func reset() -> void:
 	build_archetypes.clear()
 	completed_objectives.clear()
 	run_statistics.clear()
+	objective_progress = 0
+	objective_failed = false
 
 
 ## Add a score delta and update state. Guards against negative drift.
@@ -147,6 +154,8 @@ func summary() -> Dictionary:
 		"elapsed_seconds": elapsed_seconds,
 		"player_alive": player_alive,
 		"victory": victory,
+		"objective_progress": objective_progress,
+		"objective_failed": objective_failed,
 		"selected_upgrades": selected_upgrades.duplicate(),
 		"active_modifiers": active_modifiers.duplicate(),
 		"completed_objectives": completed_objectives.duplicate(),

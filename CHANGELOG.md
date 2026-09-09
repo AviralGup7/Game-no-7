@@ -19,10 +19,119 @@
   the existing three.js viewer's missing core dependency.
 - Validation scope: both new models pass Khronos with no errors/warnings, focused
   tests and changed-script lint pass, output rebuilds are byte-identical. The full
-  Python suite retains seven verified baseline camera failures. Native Godot and
-  device review remain pending (engine download unavailable locally).
+  Python suite passes 415/415 after incorporating the subsequent fixes from
+  `main`. Native Godot CI and device review remain required (the engine is
+  unavailable locally).
 - This is authored PBR armored art, not a photoreal scanned human or a replacement
   of the entire enemy roster. See `docs/HERO_FIDELITY.md` for remaining limits.
+
+## [Unreleased] — Prestige gets teeth: cosmetics, tiers, objectives (2026-09-09)
+
+Prestige, cosmetics, and challenge tiers were tables of IDs that never touched a
+run. This pass makes all three change play.
+
+### Challenge tiers scale the run
+
+`Prestige.CHALLENGE_TIERS` now carries `currency_mult` and `waves` per tier plus
+typed accessors (`challenge_tier_label/score_mult/currency_mult/mutator_count/
+waves`). `GameMode` reads the player's prestige tier for the Challenge mode via a
+new prestige-aware API (`scales_with_prestige`, `challenge_mutators`,
+`score_multiplier_for`, `currency_multiplier_for`, `max_waves_for`,
+`is_victory_wave_for`). The Challenge run's mutator SET is drawn by tier count
+from `CHALLENGE_MUTATOR_POOL` (tier 0 reproduces the historical
+`glass_cannon + ember_winds` pair), and its score/currency payout and wave cap
+grow with rank — Hard → Nightmare → Mythic → Last Stand are now genuinely harder,
+better-paying, longer runs. `WaveManager`, `RunScorekeeper`, `GameRoot`, and the
+run-setup preview all consult the tier; the scorekeeper skips the flat per-rank
+prestige bonus for Challenge so the tier payout isn't double-counted.
+
+### Cosmetics attach to the world
+
+New `Cosmetics` catalogue turns unlocked cosmetic IDs into applyable definitions
+(trail / aura / banner / title, highest rank worn). New `PlayerCosmetics` node
+mounts a coloured GPUParticles3D **trail** (ember/frost) and a rotating emissive
+**aura** ring + motes on the live hero; `ArenaDecorator.apply_prestige_banners`
+hangs unlocked **banners** on the arena walls in their colours; the run summary
+shows the prestige title + worn cosmetics. Main reads the persisted unlock list
+from `SaveManager` on every run build.
+
+### Objectives become real modes
+
+`OBJECTIVE_DEFEND_POINT` and `OBJECTIVE_COLLECT` (previously constants with zero
+implementations) are now the playable modes **Hold the Line** and **Relic Hunt**,
+driven by a new per-run `ObjectiveDirector`:
+* Hold the Line — a beacon at the arena centre drains while enemies stand in its
+  radius and self-repairs when clear; win on the mode timer, lose the instant it
+  falls.
+* Relic Hunt — slain foes drop `relic_shard` pickups on a deterministic cadence;
+  bank the quota to win.
+Both have endless spawn queues, HUD progress (`EventBus.objective_progress`), and
+resolve through `EventBus.objective_resolved` → GameRoot victory/game-over. Adds
+`RunState.objective_progress/objective_failed`, HUD objective line, Narrator
+intros, and the `relic_shard` pickup (catalogued; `drop_weight 0` so it never
+leaks into normal drop tables).
+
+## [Unreleased] — Smaller product-debt cleanup (2026-09-09)
+
+Follow-up on the remaining QA_RELEASE_AUDIT debt items that were not part of any
+feature pass: fail-loud content loading, deletion of the legacy melee path, an
+unbiased wave-director count nudge, and a strict (allowlist-free) UI gate.
+
+### Content loading now halts on broken content (debug/test)
+
+`ContentRegistry._ready()` already reported validation problems but then kept
+running, so a corrupt `.tres` under `res://data/` could silently ship a game
+missing enemies/weapons/upgrades. It now halts in debug/test builds (push_error
++ assert) and still reports every problem in release builds before continuing
+with the degraded-but-usable tables. Cleaned up alongside: the write-only
+`_validation_dirty` flag and the unreachable duplicate-id loop in `validate_all()`
+(ContentLoader rejects duplicate ids at load time) were deleted; both startup and
+`validate_all()` now share one error-reporting path.
+
+### Legacy `AttackController`/`ComboChain` removed (M3 cleanup)
+
+`Player._try_attack()` has used the `WeaponManager → WeaponInstance →
+MeleeResolver/RangedResolver` path as its single authority since the typed
+architecture overhaul; the `AttackController` fallback only ever ran when no
+`WeaponInstance` was equipped, which production scenes never hit. Both files are
+deleted, the `player.tscn` node and its `ext_resource` are gone, and `player.gd`
+no longer resolves/ticks/resets the legacy controller; the vestigial
+`Player.attack_hit` signal + handler (never emitted by the weapon path) and
+`build_effects.gd`'s legacy wiring to it were removed too. Comments in
+`combat_query.gd`, `character_controller.gd`, `player_animation.gd`,
+`melee_resolver.gd`, `weapon_manager.gd` and the UI player double were updated;
+docs (`ARCHITECTURE`, `EXTENDING`, plus RESOLVED markers on the audit summaries)
+now describe `WeaponManager` as the single attack authority. The GDScript
+integration suites that drove the legacy class directly were removed/updated
+(`run_tests.gd` combo stage, `test_player.gd` legacy-recovery scenario), and the
+Python regression guards that read the deleted files were retargeted to the
+canonical combat code or inverted into “must stay deleted” guards.
+
+### Wave-director count nudge no longer skews spawn composition
+
+`WaveManager._apply_director_count_nudge` appended `queue[i % queue.size()]`
+while the queue grew (sampling from the head) and used `pop_back()` to trim
+(dropping the tail). Because spawn queues order weak-to-strong, that over-copied
+the weakest front entries and silently deleted late elites/bosses on a down
+nudge. The logic is now a pure, headless-testable
+`WaveManager.apply_count_nudge(queue, bonus)` that spreads additions/removals
+evenly across the ORIGINAL queue. New unit coverage in `tests/unit/test_waves.gd`
+(boss preserved on −1, late entries kept on −2, deterministic, never empties a
+non-empty plan) plus a structural guard in
+`tests/python/test_regress_wave_systems.py`.
+
+### UI validation gate is strict again (allowlist deleted)
+
+The `KNOWN_FAILURES` filter in `scripts/ui/run_ui_validation.sh` masked two
+pre-existing runtime bugs surfaced by the UI suite: `RunScorekeeper` calling the
+nonexistent `CombatLog.log()` (fixed on `main` — the API is `record`, which the
+scorekeeper has used since the runtime-verification pass) and the UI player
+double exposing a Dictionary where a typed `ProgressionComponent` is expected
+(the double now builds a real `Player` with real typed components). Both
+underlying bugs are fixed in this tree, so the allowlist and its rationale
+comment were deleted: any `SCRIPT ERROR` / `Parse Error` / `UI FAIL` now fails
+the gate again. The suite re-runs in CI (fresh + existing save profiles) to
+confirm no masked errors remain.
 
 ## [Unreleased] — Recheck, modularize, perfect (2026-09-09)
 
@@ -62,6 +171,19 @@ instead of per query (12–40 concurrent enemies was churning GC every
   (the enemy capsule radius) so the path centerline never steers a body's
   edge into a wall. Verified: blocked cells are identical at 0.5 m cell size,
   so existing nav-grid assertions are unaffected.
+
+### Audio content: recorded boss / calm / victory beds
+
+* Previously only the menu and combat loops shipped as recorded audio; the
+  boss, calm and victory beds shared the combat loop or fell back to
+  procedural pads. All five music states now ship distinct CC0 loops:
+  `arena_calm.ogg` (RandomMind — King's Feast), `arena_victory.ogg`
+  (RandomMind — Rejoicing) and `arena_boss.ogg` (Juhani Junkala / SubspaceAudio —
+  Evil3: Apocalypse), added to `assets/catalog.json` + `assets/manifest.json`
+  with checksum-locked provenance and a saved creator notice
+  (`ASSET_LICENSES/jrpg-evil.txt`). `AudioAssetIntegrator` now maps each music
+  state to its own bed instead of sharing the combat track; the combat loop
+  (`arena_gameplay.ogg`) is unchanged.
 
 ### Tests
 

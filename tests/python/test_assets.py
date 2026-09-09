@@ -272,7 +272,7 @@ class FormatTests(AssetTestCase):
             self.assertEqual(validator.main(), 0)
 
     def test_music_loops_are_real_vorbis_not_preview_html(self):
-        for name in ("arena_menu", "arena_gameplay"):
+        for name in ("arena_menu", "arena_gameplay", "arena_calm", "arena_boss", "arena_victory"):
             info = validator.ogg_info(ROOT / f"assets/audio/music/{name}.ogg")
             self.assertGreater(info["duration_seconds"], 10)
             self.assertEqual(info["channels"], 2)

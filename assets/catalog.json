@@ -1031,6 +1031,39 @@
    "sample_rate": 44100,
    "duration_seconds": 123.42859410430839,
    "suggested_volume_db": -4.0
+  },
+  "arena_calm": {
+   "bus": "Music",
+   "loop": true,
+   "files": [
+    "assets/audio/music/arena_calm.ogg"
+   ],
+   "channels": 2,
+   "sample_rate": 44100,
+   "duration_seconds": 80.74965986394558,
+   "suggested_volume_db": -16.0
+  },
+  "arena_boss": {
+   "bus": "Music",
+   "loop": true,
+   "files": [
+    "assets/audio/music/arena_boss.ogg"
+   ],
+   "channels": 2,
+   "sample_rate": 44100,
+   "duration_seconds": 58.53659863945578,
+   "suggested_volume_db": -8.0
+  },
+  "arena_victory": {
+   "bus": "Music",
+   "loop": true,
+   "files": [
+    "assets/audio/music/arena_victory.ogg"
+   ],
+   "channels": 2,
+   "sample_rate": 44100,
+   "duration_seconds": 41.795918367346935,
+   "suggested_volume_db": -10.0
   }
  },
  "effects": {
@@ -1147,6 +1180,10 @@
   "coin_cache": {
    "model": "assets/pickups/rpg/Coin_Star.glb",
    "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "relic_shard": {
+   "model": "assets/pickups/rpg/Crystal1.glb",
+   "status": "integrated; Relic Hunt objective drop, spawned by ObjectiveDirector"
   }
  },
  "gameplay_skills": {

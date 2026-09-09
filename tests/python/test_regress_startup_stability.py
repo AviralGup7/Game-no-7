@@ -49,6 +49,23 @@ class AutoloadOrderTests(unittest.TestCase):
              "GameRoot", "SceneRouter", "RunAnalytics", "TestHarness"})
 
 
+class ContentRegistryHaltTests(unittest.TestCase):
+    """Bad .tres content must halt debug/test startup instead of silently
+    shipping a game with missing enemies/weapons/upgrades."""
+
+    def test_ready_halts_in_debug_on_validation_errors(self) -> None:
+        txt = read("scripts/core/content_registry.gd")
+        block = txt[txt.find("func _ready()"):txt.find("func _ready()") + 1600]
+        self.assertIn("if not _validation_errors.is_empty():", block)
+        self.assertIn("_surface_validation_errors()", block)
+        self.assertIn("OS.is_debug_build()", block)
+        self.assertIn("assert(false", block)
+
+    def test_write_only_dirty_flag_gone(self) -> None:
+        txt = read("scripts/core/content_registry.gd")
+        self.assertNotIn("_validation_dirty", txt)
+
+
 class PlayerVisualFallbackTests(unittest.TestCase):
     """RC1: the player keeps a scene-authored primitive visual as fallback."""
 

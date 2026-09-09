@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-09-08",
+  "reviewed_on": "2026-09-09",
   "sources": {
     "adventurers": {
       "name": "KayKit Adventurers 1.0",
@@ -195,7 +195,7 @@
       "notes": "Original OGA page explicitly licenses the track CC0. Ogg conversion from AureaFUNSoft/SomniumRevise; only this track and its source notice are selected. Conversion settings are upstream, not recreated locally."
     },
     "menu-music": {
-      "name": "Medieval: The Old Tower Inn (loop)",
+      "name": "RandomMind medieval loop music (menu, calm, victory beds)",
       "creator": "RandomMind",
       "source_url": "https://opengameart.org/content/medieval-the-old-tower-inn",
       "download_repository": "https://github.com/ashawkey/GlyphChess",
@@ -208,7 +208,23 @@
       "modification_permitted": true,
       "attribution": "None required; voluntary credit retained.",
       "reviewed_on": "2026-09-07",
-      "notes": "Original OGA page explicitly licenses the full and loop versions CC0. Ogg loop conversion from ashawkey/GlyphChess. The retained upstream credits mention other tracks that are not included."
+      "notes": "RandomMind medieval loop set: Old Tower Inn (menu), King's Feast (calm), Rejoicing (victory). Each original OGA page licenses the full and loop versions CC0; loop Ogg conversions from ashawkey/GlyphChess. The retained upstream credits list the selected tracks; Minstrel Dance is referenced in those credits but not included."
+    },
+    "jrpg-evil": {
+      "name": "JRPG Music Pack #3 [Evil]",
+      "creator": "Juhani Junkala / SubspaceAudio",
+      "source_url": "https://opengameart.org/content/jrpg-pack-3-evil",
+      "download_repository": "https://github.com/PacktPublishing/Game-Development-Patterns-with-Godot-4",
+      "revision": "1b68c8c840b692df9d8cb206cc726fe2d1194919",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_file": "ASSET_LICENSES/jrpg-evil.txt",
+      "commercial_use": true,
+      "compiled_redistribution": true,
+      "modification_permitted": true,
+      "attribution": "None required; voluntary credit retained.",
+      "reviewed_on": "2026-09-09",
+      "notes": "Original OGA page licenses the pack CC0; the creator's bundled INFO.txt states CC0 ('do anything you want with these tunes'). Only Evil3 - Apocalypse.ogg (boss bed) and that notice are selected from Packt Publishing's official Godot 4 book repository."
     },
     "quaternius-notice": {
       "name": "Quaternius original CC0 notice",
@@ -2415,6 +2431,50 @@
       "sha256": "ed9030df020ec03826e737a4939730188444ae53fd24c67d6e6de7217806bd2a",
       "downloaded_on": "2026-09-07",
       "purpose": "Looping medieval menu music"
+    },
+    {
+      "pack": "menu-music",
+      "path": "assets/audio/music/arena_calm.ogg",
+      "source_path": "music/Loop_Kings_Feast.ogg",
+      "url": "https://api.github.com/repos/ashawkey/GlyphChess/contents/music/Loop_Kings_Feast.ogg?ref=e6c64da60a6cf17d86761f0fd3c274974e43ed0b",
+      "bytes": 1089114,
+      "git_blob_sha1": "cedd4005a47f166f4d42bf0fdd514877bfcec00a",
+      "sha256": "40c2abfd260a3ae48583b83a466075e705e68cce1b0535e9f146939c95443b94",
+      "downloaded_on": "2026-09-09",
+      "purpose": "Looping medieval calm music (between-wave bed)"
+    },
+    {
+      "pack": "menu-music",
+      "path": "assets/audio/music/arena_victory.ogg",
+      "source_path": "music/Loop_Rejoicing.ogg",
+      "url": "https://api.github.com/repos/ashawkey/GlyphChess/contents/music/Loop_Rejoicing.ogg?ref=e6c64da60a6cf17d86761f0fd3c274974e43ed0b",
+      "bytes": 629577,
+      "git_blob_sha1": "baf636bfd12e319f8448815d0838dbea7f21f15d",
+      "sha256": "932be1cfcf3ccc3b36abf2b3ddd80426c3bbbbe84b4d6e24e60f0beb3bf012ed",
+      "downloaded_on": "2026-09-09",
+      "purpose": "Looping medieval victory music (run-end bed)"
+    },
+    {
+      "pack": "jrpg-evil",
+      "path": "assets/audio/music/arena_boss.ogg",
+      "source_path": "12.cross-fading-with-service-locator/01.start/Assets/JRPG Music Pack #3 [Evil] by Juhani Junkala/Evil3 - Apocalypse.ogg",
+      "url": "https://api.github.com/repos/PacktPublishing/Game-Development-Patterns-with-Godot-4/contents/12.cross-fading-with-service-locator/01.start/Assets/JRPG%20Music%20Pack%20%233%20%5BEvil%5D%20by%20Juhani%20Junkala/Evil3%20-%20Apocalypse.ogg?ref=1b68c8c840b692df9d8cb206cc726fe2d1194919",
+      "bytes": 1896283,
+      "git_blob_sha1": "6400efb9da8a6f150664b7e8df5ebccaf5557294",
+      "sha256": "e0174e05bdab72559c4ed12e23632638dca4076a1ae4557e8311959dc5a94bd3",
+      "downloaded_on": "2026-09-09",
+      "purpose": "Looping boss-fight music (boss bed)"
+    },
+    {
+      "pack": "jrpg-evil",
+      "path": "ASSET_LICENSES/jrpg-evil.txt",
+      "source_path": "12.cross-fading-with-service-locator/01.start/Assets/JRPG Music Pack #3 [Evil] by Juhani Junkala/INFO.txt",
+      "url": "https://api.github.com/repos/PacktPublishing/Game-Development-Patterns-with-Godot-4/contents/12.cross-fading-with-service-locator/01.start/Assets/JRPG%20Music%20Pack%20%233%20%5BEvil%5D%20by%20Juhani%20Junkala/INFO.txt?ref=1b68c8c840b692df9d8cb206cc726fe2d1194919",
+      "bytes": 501,
+      "git_blob_sha1": "eff8248288c6aee43f3db9ccd8be748828b55474",
+      "sha256": "0f80ba371b1c5b87875ea009b865a3d47f6cbc20f5d83cfd05c8836e76ac0c53",
+      "downloaded_on": "2026-09-09",
+      "purpose": "Original creator's CC0 licence notice"
     },
     {
       "pack": "quaternius-notice",

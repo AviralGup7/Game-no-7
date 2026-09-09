@@ -19,6 +19,8 @@
    - Player REQUIRED: HealthComponent, CharacterController, ProgressionComponent, TargetingComponent,
      DodgeController, StaminaComponent, ExperienceComponent, WeaponManager, StatusManager.
    - Player OPTIONAL: SkillController, PlayerFeedback, PlayerAudio, AttackController (legacy fallback).
+     **RESOLVED (2026-09-09):** the `AttackController`/`ComboChain` fallback was removed — `WeaponManager`
+     is the single attack authority and `Player._try_attack()` no longer resolves the legacy node.
    - EnemyBase REQUIRED: HealthComponent, EnemyStateMachine (all production + test paths provide them).
    - EnemyBase OPTIONAL: EnemyFeedback, EnemyAudio, StatusManager, NavigationAgent3D (tests omit them).
    - Failure = `push_error` + `assert` (debug fail-fast) + disable processing (release degrades loudly, once).

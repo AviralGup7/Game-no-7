@@ -14,6 +14,8 @@ const MODE_BOSS_RUSH := &"boss_rush"
 const MODE_SURVIVAL := &"survival"
 const MODE_CHALLENGE := &"challenge"
 const MODE_CAMPAIGN := &"campaign"
+const MODE_DEFEND := &"defend"
+const MODE_COLLECT := &"collect"
 
 const OBJECTIVE_CLEAR_WAVES := &"clear_waves"
 const OBJECTIVE_SURVIVE_TIME := &"survive_time"
@@ -70,7 +72,7 @@ const CATALOG := {
 	},
 	MODE_CHALLENGE: {
 		"display_name": "Challenge Run",
-		"blurb": "Fixed Gladius loadout, harsh mutators, finish wave 12 or die trying.",
+		"blurb": "Fixed Gladius loadout, harsh mutators, clear the tier or die trying.",
 		"objective": OBJECTIVE_CLEAR_WAVES,
 		"score_mult": 1.5,
 		"currency_mult": 1.4,
@@ -78,6 +80,8 @@ const CATALOG := {
 		"target_seconds": 0.0,
 		"boss_interval": 6,
 		"upgrade_every": 2,
+		# Base-tier signature; the live set is chosen by prestige tier via
+		# challenge_mutators() (this list is the tier-0 pair, see below).
 		"forced_mutators": [&"glass_cannon", &"ember_winds"],
 		"fixed_weapon": &"gladius",
 		"narrator_id": &"challenge",
@@ -97,6 +101,38 @@ const CATALOG := {
 		"fixed_weapon": &"",
 		"narrator_id": &"campaign",
 		"unlock_prestige": 0,
+	},
+	MODE_DEFEND: {
+		"display_name": "Hold the Line",
+		"blurb": "Guard the beacon at the arena's heart. If it falls, the run ends — survive the timer to win.",
+		"objective": OBJECTIVE_DEFEND_POINT,
+		"score_mult": 1.4,
+		"currency_mult": 1.3,
+		"max_waves": 0,  # ends on the clock / beacon death, not a wave cap
+		"target_seconds": 240.0,
+		"boss_interval": 8,
+		"upgrade_every": 3,
+		"forced_mutators": [],
+		"fixed_weapon": &"",
+		"narrator_id": &"standard",
+		"unlock_prestige": 0,
+		"collect_target": 0,
+	},
+	MODE_COLLECT: {
+		"display_name": "Relic Hunt",
+		"blurb": "Slain foes drop relics. Bank enough before the horde overruns you.",
+		"objective": OBJECTIVE_COLLECT,
+		"score_mult": 1.3,
+		"currency_mult": 1.35,
+		"max_waves": 0,  # ends when the relic quota is met, not a wave cap
+		"target_seconds": 0.0,
+		"boss_interval": 8,
+		"upgrade_every": 3,
+		"forced_mutators": [&"bounty_hunt"],
+		"fixed_weapon": &"",
+		"narrator_id": &"standard",
+		"unlock_prestige": 0,
+		"collect_target": 20,
 	},
 }
 
@@ -143,6 +179,11 @@ static func target_seconds(mode_id: StringName) -> float:
 	return float(def(mode_id).get("target_seconds", 0.0))
 
 
+## Relic quota for OBJECTIVE_COLLECT modes (0 for every other mode).
+static func collect_target(mode_id: StringName) -> int:
+	return maxi(int(def(mode_id).get("collect_target", 0)), 0)
+
+
 static func upgrade_every(mode_id: StringName) -> int:
 	return maxi(int(def(mode_id).get("upgrade_every", 2)), 1)
 
@@ -160,6 +201,68 @@ static func forced_mutators(mode_id: StringName) -> Array[StringName]:
 
 static func fixed_weapon(mode_id: StringName) -> StringName:
 	return StringName(String(def(mode_id).get("fixed_weapon", "")))
+
+
+## ---------- Challenge prestige tiers ----------
+## The Challenge run reads the player's prestige tier (Prestige.challenge_tier)
+## so a higher rank is a harsher, better-paying, longer run — not the same fixed
+## Gladius + 2 mutators every time. The mutator SET is drawn deterministically
+## from this ordered pool (first N by tier count), so tier 0 reproduces the
+## historical [glass_cannon, ember_winds] pair and each step adds pressure.
+const CHALLENGE_MUTATOR_POOL: Array[StringName] = [
+	&"glass_cannon", &"ember_winds", &"iron_hide", &"volatile_mix", &"elite_surge",
+]
+
+
+## Whether this mode's run parameters scale with prestige tier.
+static func scales_with_prestige(mode_id: StringName) -> bool:
+	return validated(mode_id) == MODE_CHALLENGE
+
+
+## Deterministic mutator set for the Challenge run at `prestige_rank`. Non-challenge
+## modes keep their authored forced_mutators regardless of rank.
+static func challenge_mutators(mode_id: StringName, prestige_rank: int) -> Array[StringName]:
+	if not scales_with_prestige(mode_id):
+		return forced_mutators(mode_id)
+	var count := Prestige.challenge_tier_mutator_count(prestige_rank)
+	var out: Array[StringName] = []
+	for i in range(mini(count, CHALLENGE_MUTATOR_POOL.size())):
+		out.append(CHALLENGE_MUTATOR_POOL[i])
+	return out
+
+
+## Prestige-aware wrappers. Callers with a live run pass GameRoot.get_prestige_rank();
+## the rank is only consulted for modes that scale (Challenge today).
+static func score_multiplier_for(mode_id: StringName, prestige_rank: int) -> float:
+	if scales_with_prestige(mode_id):
+		return Prestige.challenge_tier_score_mult(prestige_rank)
+	return score_multiplier(mode_id)
+
+
+static func currency_multiplier_for(mode_id: StringName, prestige_rank: int) -> float:
+	if scales_with_prestige(mode_id):
+		return Prestige.challenge_tier_currency_mult(prestige_rank)
+	return currency_multiplier(mode_id)
+
+
+static func max_waves_for(mode_id: StringName, prestige_rank: int) -> int:
+	if scales_with_prestige(mode_id):
+		return Prestige.challenge_tier_waves(prestige_rank)
+	return max_waves(mode_id)
+
+
+static func is_victory_wave_for(mode_id: StringName, wave_number: int, prestige_rank: int) -> bool:
+	var cap := max_waves_for(mode_id, prestige_rank)
+	if cap <= 0:
+		return false
+	return wave_number >= cap
+
+
+## Label shown in the run-setup preview / announcements for the active tier.
+static func challenge_tier_label(mode_id: StringName, prestige_rank: int) -> String:
+	if scales_with_prestige(mode_id):
+		return Prestige.challenge_tier_label(prestige_rank)
+	return display_name(mode_id)
 
 
 static func objective(mode_id: StringName) -> StringName:
@@ -200,6 +303,10 @@ static func spawn_queue(mode_id: StringName, wave_number: int, seed: int) -> Arr
 		MODE_CHALLENGE:
 			# Challenge uses the extended planner but is capped by max_waves.
 			return []
+		MODE_DEFEND:
+			return _defend_queue(w, seed)
+		MODE_COLLECT:
+			return _collect_queue(w, seed)
 		_:
 			return []
 
@@ -216,6 +323,24 @@ static func _boss_rush_queue(wave_number: int) -> Array[StringName]:
 		out.append(&"ranged")
 		out.append(&"dasher")
 	return out
+
+
+## Hold the Line: steady pressure that ramps with time; the run ends on the clock
+## or when the beacon dies, so waves keep coming (no early soft start).
+static func _defend_queue(wave_number: int, seed: int) -> Array[StringName]:
+	var base := WavePlanner.extended_queue_for_wave(maxi(wave_number + 1, 2), seed)
+	# Enemies converge on the beacon; a heavy every third wave threatens it directly.
+	if wave_number % 3 == 0:
+		base.append(&"heavy")
+	return base
+
+
+## Relic Hunt: dense, drop-rich packs so relics fall steadily; endless until quota.
+static func _collect_queue(wave_number: int, seed: int) -> Array[StringName]:
+	var base := WavePlanner.extended_queue_for_wave(maxi(wave_number + 2, 3), seed)
+	if wave_number % 4 == 0:
+		base.append(&"ranged")
+	return base
 
 
 static func _survival_queue(wave_number: int, seed: int) -> Array[StringName]:
@@ -268,8 +393,9 @@ static func wants_upgrade(mode_id: StringName, wave_number: int) -> bool:
 	return wave_number % every == 0
 
 
-## Objective progress string for HUD / summary.
-static func objective_label(mode_id: StringName, wave: int, elapsed: float, bosses_slain: int) -> String:
+## Objective progress string for HUD / summary. `progress` carries mode-specific
+## live state (relics collected, beacon fraction) so this stays pure and typed.
+static func objective_label(mode_id: StringName, wave: int, elapsed: float, bosses_slain: int, progress: int = 0) -> String:
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
 			var target := target_seconds(mode_id)
@@ -278,6 +404,12 @@ static func objective_label(mode_id: StringName, wave: int, elapsed: float, boss
 		OBJECTIVE_SLAY_BOSSES:
 			var cap := max_waves(mode_id)
 			return "Bosses  %d / %d" % [bosses_slain, cap]
+		OBJECTIVE_DEFEND_POINT:
+			var target_d := target_seconds(mode_id)
+			var left_d := maxf(target_d - elapsed, 0.0)
+			return "Hold  %d:%02d  •  Beacon %d%%" % [int(left_d) / 60, int(left_d) % 60, clampi(progress, 0, 100)]
+		OBJECTIVE_COLLECT:
+			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:
 			var cap2 := max_waves(mode_id)
 			if cap2 > 0:

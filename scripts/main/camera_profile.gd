@@ -137,7 +137,7 @@ func validate() -> Array[String]:
 		problems.append("min/max pitch invalid")
 	return problems
 
-func _validated_profile() -> void:
+func _clamp_profile_fields() -> void:
 	if not is_finite(field_of_view) or field_of_view <= 0.0:
 		field_of_view = 75.0
 	field_of_view = clampf(field_of_view, 10.0, 120.0)

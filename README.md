@@ -69,8 +69,8 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 The reviewed asset library contains **9 downloaded rigged/animated character models,
 81 downloaded models, photo-PBR arena texture sets, real HDRI panorama skies,
-UI/particle textures, 2 fonts, 29 sound effects and 2 music loops**
-(~45.63 MiB of locked downloads), plus the **Arena Warden hero and PBR gladius**
+UI/particle textures, 2 fonts, 29 sound effects and 5 music loops**
+(~49.08 MiB of locked downloads), plus the **Arena Warden hero and PBR gladius**
 (~4.93 MiB of checksum-locked authored assets). All source files have pinned provenance,
 SHA-256 checksums and preserved licences.
 

@@ -48,8 +48,8 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
-# LEGACY ISOLATED: AttackController not used for animation timing.
-# Authoritative timing is WeaponInstance (windup/cooldown/reload) only.
+# Animation timing is driven only by WeaponInstance (windup/cooldown/reload);
+# there is no legacy attack-controller timing path anymore.
 
 
 func _ready() -> void:
