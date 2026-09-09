@@ -45,3 +45,13 @@ were taken from the asset redistribution repositories.
   treated as asset provenance.
 - `godot-stone.txt`: **MIT** copyright and permission notice from Godot's official
   demo repository. Mandatory retention for the three downloaded stone textures.
+
+## Additions — 9 September 2026
+
+- `jrpg-evil.txt`: the creator-written `INFO.txt` bundled with Juhani Junkala /
+  SubspaceAudio's **JRPG Music Pack #3 [Evil]** inside Packt Publishing's official
+  Godot 4 book repository. It states the tracks are released under **CC0** (“do
+  anything you want with these tunes”). The original OpenGameArt page
+  (https://opengameart.org/content/jrpg-pack-3-evil) displays **License(s): CC0**.
+  Only `Evil3 - Apocalypse.ogg` (the boss bed) and this notice were selected; no
+  book code or other pack tracks were imported.

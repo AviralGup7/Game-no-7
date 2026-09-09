@@ -22,19 +22,21 @@ extends RefCounted
 ## Catalog path (source of truth for cue -> file mappings).
 const CATALOG_PATH := "res://assets/catalog.json"
 
-## Map MusicManager's state cues onto the two approved, looping music tracks.
-## Only a menu loop and one combat loop ship in the approved library, so all
-## combat-adjacent states share the combat track (menu keeps the menu track).
+## Map MusicManager's state cues onto the approved, looping music tracks. Each
+## state bed now ships its own recorded loop: menu (tavern), calm (feast),
+## battle (orchestral combat), boss (evil apocalypse) and victory (rejoicing).
 const MUSIC_STATE_CUES := {
 	&"music_menu": &"arena_menu",
-	&"music_calm": &"arena_gameplay",
+	&"music_calm": &"arena_calm",
 	&"music_battle": &"arena_gameplay",
-	&"music_boss": &"arena_gameplay",
-	&"music_victory": &"arena_gameplay",
+	&"music_boss": &"arena_boss",
+	&"music_victory": &"arena_victory",
 }
 
 ## Cues that are pure music tracks (never SFX), pulled verbatim from the catalog.
-const MUSIC_CUES: Array[StringName] = [&"arena_menu", &"arena_gameplay"]
+const MUSIC_CUES: Array[StringName] = [
+	&"arena_menu", &"arena_gameplay", &"arena_calm", &"arena_boss", &"arena_victory",
+]
 
 var _registered_sfx := 0
 var _registered_music := 0

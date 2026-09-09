@@ -1,7 +1,10 @@
 # Audio manifest — Last Stand: Arena
 
-Reviewed **2026-09-07** for the current melee arena-survival loop. Only clearly
-licensed recordings are accepted; no ripped audio, paid packs, or voice cloning.
+Reviewed **2026-09-07** for the current melee arena-survival loop; **music-bed
+content pass 2026-09-09** added recorded loops for the boss, calm and victory
+states (previously those states shared the combat loop or fell back to
+procedural pads). Only clearly licensed recordings are accepted; no ripped
+audio, paid packs, or voice cloning.
 
 ## Approved sources
 
@@ -11,13 +14,16 @@ licensed recordings are accepted; no ripped audio, paid packs, or voice cloning.
 | Impact Sounds 1.0 | Kenney | https://kenney.nl/assets/impact-sounds | `Boyquotes/kenney-impact-sounds-for-godot` | CC0-1.0 |
 | Interface Sounds 1.0 | Kenney | https://kenney.nl/assets/interface-sounds | `Calinou/kenney-interface-sounds` | CC0-1.0 |
 | Epic Boss Battle [Seamlessly Looping] | Juhani Junkala / SubspaceAudio | https://opengameart.org/content/boss-battle-music | `AureaFUNSoft/SomniumRevise` (Ogg conversion) | CC0-1.0 |
-| Medieval: The Old Tower Inn (loop version) | RandomMind | https://opengameart.org/content/medieval-the-old-tower-inn | `ashawkey/GlyphChess` (Ogg conversion) | CC0-1.0 |
+| Medieval loop set (Old Tower Inn, King's Feast, Rejoicing) | RandomMind | https://opengameart.org/content/medieval-the-old-tower-inn | `ashawkey/GlyphChess` (Ogg conversion) | CC0-1.0 |
+| JRPG Music Pack #3 [Evil] | Juhani Junkala / SubspaceAudio | https://opengameart.org/content/jrpg-pack-3-evil | `PacktPublishing/Game-Development-Patterns-with-Godot-4` (Ogg) | CC0-1.0 |
 
 The original creator pages explicitly license these assets **CC0**. Personal and
 commercial use, modification, and redistribution in source and compiled games are
-permitted; attribution is not required. Credit is retained voluntarily. The two
-music mirrors identify the original works; only those tracks and their source
-notices are selected, not any other music or game code from those repositories.
+permitted; attribution is not required. Credit is retained voluntarily. The music
+mirrors identify the original works; only the selected tracks and their source
+notices are used, not any other music or game code from those repositories. The
+JRPG pack's creator-written `INFO.txt` (saved under `ASSET_LICENSES/`) states CC0
+(“do anything you want with these tunes”).
 
 Exact immutable revisions, download URLs, local paths, original names, acquisition
 dates, sizes, and per-file SHA-256 checksums are in `assets/manifest.json`. Source
@@ -61,11 +67,12 @@ See `THIRD_PARTY_ASSETS.md` for shared asset policy and restore/verification com
 Since the environment/presentation pass these cues are **live**: `AudioAssetIntegrator`
 (`scripts/audio/audio_asset_integrator.gd`) reads the authoritative
 `assets/catalog.json` cue map at startup and registers every approved SFX variant
-(one `AudioStreamRandomizer` pool per cue) plus the two looping music tracks onto
+(one `AudioStreamRandomizer` pool per cue) plus the five looping music tracks onto
 the existing state cues, taking precedence over `ProceduralSfx` fallback. State
-mapping: `music_menu` → `arena_menu.ogg`; `music_calm` / `music_battle` /
-`music_boss` / `music_victory` → `arena_gameplay.ogg` (the approved library ships one
-menu loop and one combat loop, so combat-adjacent states share the combat track).
+mapping: `music_menu` → `arena_menu.ogg` (tavern); `music_calm` → `arena_calm.ogg`
+(feast); `music_battle` → `arena_gameplay.ogg` (orchestral combat); `music_boss` →
+`arena_boss.ogg` (evil apocalypse); `music_victory` → `arena_victory.ogg` (rejoicing).
+Each state bed is a distinct recorded loop — no state shares another state's track.
 
 Paths below are relative to `assets/audio/`. Every file is in the checksum lock.
 The full variant lists, intended buses, loop flags, and suggested gains are in
@@ -101,18 +108,23 @@ at runtime. No source audio bytes are duplicated or changed.
 | `item_drop` | `sfx/rpg/drop_leather.ogg` | Item drop (reserve) |
 | `arena_menu` | `music/arena_menu.ogg` | Menu music — 49.95 s, stereo 44.1 kHz, loop-ready |
 | `arena_gameplay` | `music/arena_gameplay.ogg` | Combat music — 123.43 s, stereo 44.1 kHz, loop-ready |
+| `arena_calm` | `music/arena_calm.ogg` | Calm between-wave music — 80.75 s, stereo 44.1 kHz, loop-ready |
+| `arena_boss` | `music/arena_boss.ogg` | Boss-fight music — 58.54 s, stereo 44.1 kHz, loop-ready |
+| `arena_victory` | `music/arena_victory.ogg` | Victory music — 41.80 s, stereo 44.1 kHz, loop-ready |
 
 ### Mixer / import notes
 
-All 31 files decode successfully and contain non-silent audio. A few of the
+All 34 files decode successfully and contain non-silent audio. A few of the
 original RPG Vorbis files decode with peaks above 0 dBFS, so they should not be
 played together at full gain. Source audio was deliberately **not normalized or
 re-encoded**. Start SFX around −8 dB (footsteps lower), then mix on the target
-device; the two music sources also have different loudness. Suggested gains are
+device; the five music sources also have different loudness. Suggested gains are
 now applied by PlayerAudio for player cues; other systems retain their own gains.
 
-Enable **Loop** on the two music streams in Godot and audition their transitions.
-Leave SFX non-looping. Wrap clips/variants in `AudioStreamRandomizer` resources
-named after these cue IDs under `data/audio/` so the existing `ContentRegistry`
-can discover them; then connect menu/wave/UI events that currently have no call
-site. Downloaded music and `catalog.json` alone do not start playback.
+Enable **Loop** on the five music streams in Godot and audition their transitions
+(`AudioAssetIntegrator` forces Ogg looping at runtime, so a non-looping import
+flag is still corrected). Leave SFX non-looping. Wrap clips/variants in
+`AudioStreamRandomizer` resources named after these cue IDs under `data/audio/`
+so the existing `ContentRegistry` can discover them; then connect menu/wave/UI
+events that currently have no call site. Downloaded music and `catalog.json`
+alone do not start playback.

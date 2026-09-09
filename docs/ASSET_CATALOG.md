@@ -2,8 +2,8 @@
 
 Reviewed **8 September 2026** · Godot 4.4.1 · 3D third-person · Android
 
-**239 checksum-locked files, 45.63 MiB: 81 models, 87 PNGs, 4 JPGs, 3 HDRIs,
-31 audio clips, 2 fonts, 14 binary mesh dependencies and 17 licence/credit notices.**
+**243 checksum-locked files, 49.08 MiB: 81 models, 87 PNGs, 4 JPGs, 3 HDRIs,
+34 audio clips, 2 fonts, 14 binary mesh dependencies and 18 licence/credit notices.**
 
 See [the audit](ASSET_AUDIT.md) for additions, online comparisons and limitations.
 The machine-readable role map is [`assets/catalog.json`](../assets/catalog.json);
@@ -38,10 +38,11 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
   - **Pooled VFX** (`EffectDirector`): GPU bursts + ground rings for enemy spawn /
     death, wave start/completion, pickups, boss spawn/slain and status effects.
   - **Recorded audio registered** (`AudioAssetIntegrator`): the approved SFX variants
-    (pooled randomizers) and the two looping music tracks mapped onto the existing
+    (pooled randomizers) and the five looping music tracks mapped onto the existing
     `music_menu/calm/battle/boss/victory` cues, taking precedence over the procedural
-    fallback.
-- **Integrated since review:** weapon *attachment* visuals (9 weapons handslot.r/l + ModelVisual extent + PlayerEquipment equip), UI skinning (Kenney HUD/status), and skill VFX (EffectDirector distinct tints/textures/radii + PlayerAnimation). **Still pending:** per-arena bespoke art variants (themes + decorator cover; no unique arena meshes) and recorded boss music (library ships only menu+combat loops; boss uses procedural fallback).
+    fallback. Each state bed is a distinct recorded loop: tavern (menu), feast (calm),
+    orchestral combat (battle), evil apocalypse (boss) and rejoicing (victory).
+- **Integrated since review:** weapon *attachment* visuals (9 weapons handslot.r/l + ModelVisual extent + PlayerEquipment equip), UI skinning (Kenney HUD/status), and skill VFX (EffectDirector distinct tints/textures/radii + PlayerAnimation). **Still pending:** per-arena bespoke art variants (themes + decorator cover; no unique arena meshes). Recorded boss/calm/victory music was previously pending; all five music beds now ship as recorded CC0 loops.
 - Existing source art remains available; preferred equipment/reward selections
   replace old choices in the catalogue, not by destructive source-file overwrites.
 
@@ -105,7 +106,7 @@ bottle/crystal shapes help identification independently of tint.
 - Existing 55 UI PNGs, 15 particle PNGs and Rajdhani Regular/Bold remain. Every
   upgrade has an icon assignment. No font version change was available in the
   pinned source repository.
-- Existing 29 SFX and two Ogg music loops remain, with cue mapping in the catalogue
+- Existing 29 SFX and five Ogg music loops remain, with cue mapping in the catalogue
   and provenance in `AUDIO_MANIFEST.md`. Source clips are not new event wiring.
 
 ## Verification

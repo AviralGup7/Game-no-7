@@ -47,11 +47,15 @@ func _test_audio() -> void:
 			AudioManager.get_cue_stream(cue) is AudioStreamOggVorbis)
 	for cue in ProceduralSfx.SFX_CUES:
 		_check("SFX still available: " + String(cue), AudioManager.has_cue(cue))
+	# Every state bed now ships its own recorded loop (menu / calm / battle /
+	# boss / victory) instead of the combat loop being shared by all of them.
 	var battle := AudioManager.get_cue_stream(&"music_battle")
-	_check("combat music states share one compressed stream",
-		battle == AudioManager.get_cue_stream(&"music_boss")
-		and battle == AudioManager.get_cue_stream(&"music_victory")
-		and battle == AudioManager.get_cue_stream(&"music_calm"))
+	var boss := AudioManager.get_cue_stream(&"music_boss")
+	var victory := AudioManager.get_cue_stream(&"music_victory")
+	var calm := AudioManager.get_cue_stream(&"music_calm")
+	_check("combat music states ship distinct recorded loops",
+		battle != boss and battle != victory and battle != calm
+		and boss != victory and boss != calm and victory != calm)
 	# The pure unit suite still tests deterministic synthesis of every fallback.
 	var fallback := ProceduralSfx.make_sfx(&"enemy_hit")
 	_check("fallback synthesis remains available", fallback != null and fallback.data.size() > 0)
