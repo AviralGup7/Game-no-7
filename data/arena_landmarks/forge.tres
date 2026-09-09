@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArenaLandmarkConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/arena_landmark_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+landmark_id = &"forge"
+kind = &"forge"
+shape = &"cylinder"
+footprint_half = Vector3(1.9, 0.7, 1.9)
+position = Vector3(0, 0, 0)
+rotation_degrees = Vector3(0, 0, 0)
+scale = 1.0
+material_tint = Color(0.32, 0.26, 0.24)
+material_roughness = 0.8
+accent_color = Color(1, 0.42, 0.1)
+emissive_energy = 4.5
+light_color = Color(1, 0.42, 0.1)
+light_energy = 2.2
+light_range = 8.0
+light_offset_y = 1.2

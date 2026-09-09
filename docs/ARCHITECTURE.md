@@ -264,6 +264,69 @@ comment saying it was capped at 3. Now both the initial duration and every re-ap
 through the ceiling.
 
 
+## The authored world (theme, landmark, obstacles)
+
+An arena's *identity* — what the sky looks like, what stands in the middle, what you can hide
+behind — was the last place where content lived as code. Three tables keyed by arena id string
+decided it: `Arena.THEMES` (colour/energy presets per id), `Arena.PANORAMA_SKIES` (the HDRI per
+id) and `ArenaObstacles.layout_for()`'s `match String(arena_id)` (hand-tuned pillar
+coordinates, with a `_:` arm handing any arena nobody added *The Pit's* layout). Obstacles then
+travelled between systems as `{"pos", "half_size", "kind"}` Dictionaries, read with
+`.get("pos", Vector3.ZERO)`. Every one of those failed the same way: **wrong was identical to
+missing**, and both looked like success.**
+
+Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
+
+| Field | Type | Replaces |
+| --- | --- | --- |
+| `theme` | `ArenaThemeConfig` (`data/arena_themes/<arena_id>.tres`) | `THEMES` + `PANORAMA_SKIES` |
+| `landmark` | `ArenaLandmarkConfig` (`data/arena_landmarks/<name>.tres`) | the `match kind` + `_:` arms in `_spawn_landmark` / `_add_landmark_collision` |
+| `obstacle_layout` | `Array[ArenaObstaclePlacement]` | the `match String(arena_id)` table and its Dictionary records |
+
+Four structural rules carry the rest:
+
+1. **One vector, three consumers.** `ArenaObstaclePlacement.footprint()` and
+   `ArenaLandmarkConfig.footprint()` (both `footprint_half * scale`) are *the* geometry: the
+   collision body, the box mesh and the nav-grid blocker are all derived from it. Before this,
+   the landmark's collision shape and its nav footprint were two hand-written numbers per kind
+   that could disagree — and the landmark's `_hd_marble_mat` helper, which nothing called, was
+   a third. `ArenaNavGrid.build()` takes `Array[AABB]` rather than (pos, half_size) pairs,
+   because a misread of exactly that convention had already shifted every blocked cell once
+   (the bug its old comment recorded).
+2. **Silence is authored, never inherited.** `theme = null` means "keep the scene's look";
+   `landmark = null` means an open floor; an empty `obstacle_layout` means
+   `ArenaObstacles.fallback_layout()` (The Pit's pattern, the only place that still scales to
+   the floor — it exists to serve an arena whose size nobody knows). An unknown landmark `kind`
+   is a `push_error` plus *nothing built* (no mesh, no body, no blocker) instead of the old
+   quiet obelisk, and `validate()` refuses it at load, so the runtime branch is unreachable for
+   shipped data.
+3. **Authored means validated.** `theme`/`landmark` are hard resource references, not ids, so
+   there is no table to keep in sync with a folder — and a reference that goes stale is a
+   `[ext_resource] referenced nonexistent resource` parse error at import, which CI greps for.
+   (This is the shape Unity settled on for the same problem: a Volume's `PostProcessProfile` is
+   a shareable asset of look settings whose *absent* overrides defer to the scene, exactly what
+   `theme = null` and a per-field default do here.) Because themes are not registry rows,
+   `ArenaConfig.validate()` calls `theme.validate()` and `landmark.validate()` itself —
+   including a cross-check neither can do alone: a placement centre inside the landmark's
+   footprint is refused, since it draws nothing, is still solid, and blocks the AI away from a
+   wall nobody can see.
+4. **Absolutes, not proportions.** An authored obstacle position is in *that arena's* metres
+   and is never rescaled; only the fallback scales. That is a deliberate behaviour change from
+   the deleted table, which multiplied whichever arena fell through to `_:` by
+   `half / 12.0` — so a bigger floor silently got a bigger *pattern* of cover than it was
+   designed around.
+
+What stays code is what must: the silhouettes (`ArenaLandmark` builds a forge's basin, a
+crystal cluster's prisms, an obelisk's shaft — mesh construction is not a thing a `.tres` can
+express), the material recipes, and the geometry that turns a footprint into a body. One
+per-arena branch remains on purpose: `ArenaDecorator.decorate()` still matches the arena id to
+choose its prop scatter, because that scatter is seeded from the id and re-keying it would move
+every brazier and banner in a shipped arena — a change nobody can sign off without a running
+game. `tests/python/test_regress_arena_world_data.py` pins that to exactly one `match
+String(arena_id)` in `scripts/arena/`, audits every shipped theme/landmark/obstacle number
+against the values the tables held, and fails if a Dictionary record comes back.
+
+
 ## Autoload policy
 
 Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,

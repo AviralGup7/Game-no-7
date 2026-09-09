@@ -1,5 +1,76 @@
 # Changelog
 
+## [Unreleased] — The arena's authored world: theme, landmark, cover (2026-09-09)
+
+Fourth architecture pass, same method: find the weak subsystem, read it fully, check it
+against how the engine and the industry do it, rebuild, then pin the weak design out. The
+target was the arena's *identity*: `scripts/arena/arena.gd` and its two helpers. Everything
+about how an arena looks and what stands in it lived in code that branched on the arena id
+string, so a new arena `.tres` could not fail — it just quietly got someone else's arena.
+
+- **`THEMES` and `PANORAMA_SKIES` are gone; the look is a resource.** `arena.gd` held
+  `const THEMES := { "ember_crucible": { "sun_color": Color(…), … }, … }` and applied it with
+  fourteen `preset.get("…")` reads — four of them wrapped in `float()` — so every key had a
+  name-based fallback, and the six numbers every arena shared (ambient energy, the glow triple,
+  fog-sky-affect, tone map) were welded into `_apply_sky_and_light`. It is `ArenaThemeConfig`
+  (`data/arena_themes/<arena_id>.tres`) now, referenced from `ArenaConfig.theme` by hard
+  resource path: every look number is authored, all of them range-enforced, and a NaN channel /
+  a fog density that hides the far half of the floor / a `user://` HDRI is refused at load.
+  `apply_theme()` no longer takes an id and can no longer `return` silently on a table miss;
+  `theme == null` is the one authored way to keep the scene's own look. `@export var config_path`
+  was deleted unread — no scene set it and nothing had ever loaded it.
+- **The landmark builds nothing instead of defaulting to an obelisk.** Two `match kind`
+  statements with `_:` arms chose the silhouette and hard-coded its geometry, light and colours;
+  the collision body and the nav-grid footprint were two hand-written numbers per kind that
+  could disagree; and `_hd_marble_mat` was dead code. `ArenaLandmarkConfig` authors
+  `kind`/`shape`/`footprint_half`/tint/emissive/one point light, and `ArenaLandmark` (new, 204
+  lines) builds the silhouette from them; `arena.gd` went 533 → 354. `footprint_half` is now
+  *both* the body and the blocker (`footprint_half * scale`), so physics and AI intent cannot
+  drift apart, and an unrecognised `kind` is a `push_error` plus nothing built — no mesh, no
+  body, no phantom blocker.
+- **Obstacle layouts are authored, and stop being a Dictionary record.**
+  `ArenaObstacles.layout_for(arena_id, half)` was `match String(arena_id)` emitting
+  `{"pos", "half_size", "kind"}`, read back with `.get("pos", Vector3.ZERO)` by the collision
+  builder *and* by `ArenaNavGrid.build` — which is exactly how a footprint convention had
+  already been misread once (the grid's old comment records it). `ArenaConfig.obstacle_layout`
+  is an `Array[ArenaObstaclePlacement]` with a `mirror` (the same vocabulary `HazardPlacement`
+  uses, pinned against the two drifting apart), positions are in *that arena's* metres and are
+  never rescaled, and the geometry crosses API boundaries as `Array[AABB]`. The records' `kind`
+  field disappeared rather than getting a job: nothing had ever read it. An arena that authors no
+  layout still gets The Pit's pattern via `fallback_layout(half)`, now the only place that scales
+  by the floor size.
+- **New cross-check:** an obstacle whose centre lands inside the landmark footprint is a load
+  error (`ArenaConfig._obstacle_landmark_overlap`) — it draws nothing, is still solid, and blocks
+  the AI away from a wall nobody can see.
+- **Docs that lied are fixed.** `docs/EXTENDING.md` §3 promised "additional arenas = a new scene
+  + an ArenaConfig" while three files keyed behaviour on the id; §3 is now an eight-step
+  authoring guide, `docs/ARCHITECTURE.md` gained "The authored world", and `GODOT_HANDOFF.md`
+  item 4 stopped telling the next engineer to grep a table for obstacle boxes. The one remaining
+  arena-id branch is `ArenaDecorator.decorate()`'s prop scatter — seeded from the id, so
+  re-keying it would move every brazier and banner in a shipped arena, which needs a running
+  game to sign off. It is pinned to exactly one `match String(arena_id)` so it cannot spread.
+- **Tests.** New `tests/unit/test_arena_world.gd` (15 cases: mirror math against the hazard
+  vocabulary, footprint derivation, shared-resource safety, fallback identity, every shipped
+  theme/landmark/obstacle number, all validation rules, the refusal path, footprint→grid
+  blocking) and `tests/python/test_regress_arena_world_data.py` (32 checks: the id tables pinned
+  out, the Dictionary records pinned out, the type contract, every shipped number audited
+  against the deleted tables, and the docs). `test_arena_obstacles_node.gd` now asserts the theme
+  actually reached the live `WorldEnvironment` and sun — `apply_theme`'s silent return was the
+  whole bug — and that the landmark's body *is* the authored footprint. Four stale pins were
+  re-pointed at the new design (the `THEMES` milestone check, the per-arena panorama check, and
+  the ember 8.5 m / gate-literal hardening checks): all four now assert the guarantee against the
+  data the game loads instead of the expression that used to produce it. The re-pin of the hazard
+  placement-expansion check also fixed a scoping bug of our own — it scanned every `mirror` in
+  the arena file and started counting the new obstacles as hazards (17 for an 11-hazard arena).
+- **Verified by mutation, not by inspection:** 43/43 injected regressions were caught — tables
+  returning, key-bags returning, `pos` misread as the min corner, expansion writing through a
+  shared resource, the fallback skipping `expand`, the silent landmark default, a deleted
+  validator rule, a reworded message, a shrunken colour-audit list, a deleted range hint, and
+  drift in every shipped colour, footprint and coordinate.
+- Gates at this commit: 598 python tests (from 566), `check_typed_arch` clean (174 classes, from
+  170), `validate_guards` 61 (from 53), `validate_resources` 143 files (from 137), assets OK,
+  `gdparse`/`gdlint` clean on every touched file.
+
 ## [Unreleased] — Status effects: the read path became a cached fold (2026-09-09)
 
 Third architecture pass. Same method as the previous two: find the subsystem whose cost is

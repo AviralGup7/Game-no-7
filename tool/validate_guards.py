@@ -90,6 +90,17 @@ def main() -> int:
         # guards this subsystem exists to keep. They used to be pinned by requiring
         # `func _hazard_emission(h: Dictionary)` to exist, which pinned the *shape* of a
         # weak design (an untyped Dictionary record) rather than the safety property.
+        # Arena world authoring (theme / landmark / obstacles). These four are the guards that
+        # turn an authored mistake into a no-op instead of a broken world: a non-finite blocker
+        # is skipped rather than poisoning the grid, a landmark that was refused (unknown kind)
+        # says so instead of quietly building the default silhouette, and a footprint that was
+        # never built must not block cells the player can walk into.
+        ("scripts/arena/arena_nav_grid.gd", "if not (is_finite(p.x) and is_finite(p.z) and is_finite(s.x) and is_finite(s.z)):"),
+        ("scripts/arena/arena_landmark.gd", 'push_error("ArenaLandmark: kind'),
+        ("scripts/arena/arena.gd", "if landmark_box.has_area():"),
+        # A device without the imported .hdr must still get the theme's procedural sky, not a
+        # load error: ResourceLoader.exists is what keeps the panorama a soft reference.
+        ("scripts/arena/arena.gd", "if not theme.panorama_path.is_empty() and ResourceLoader.exists(theme.panorama_path):"),
         ("scripts/arena/hazard_instance.gd", "if marker == null or not is_instance_valid(marker):"),
         ("scripts/arena/arena_hazards.gd", "if not instance.position_is_sane():"),
         ("scripts/arena/arena_hazards.gd", "if not is_finite(delta) or delta <= 0.0:"),
@@ -115,6 +126,13 @@ def main() -> int:
         ("scripts/arena/hazard_config.gd", "@export_range(0.25, 12.0, 0.05) var radius"),
         ("scripts/arena/hazard_config.gd", "@export_range(0.0, 60.0, 0.05) var period"),
         ("scripts/arena/hazard_placement.gd", "@export_range(0.0, 1.0, 0.01) var phase_jitter"),
+        # The authored world: fog past a readable density, a landmark scaled into a wall, an
+        # obstacle flattened to a plane and a zero-energy sun are all inspector-visible mistakes
+        # the ranges below make undraggable.
+        ("scripts/arena/arena_theme_config.gd", "@export_range(0.0, 0.2, 0.001) var fog_density"),
+        ("scripts/arena/arena_theme_config.gd", "@export_range(0.2, 3.0, 0.01) var brightness"),
+        ("scripts/arena/arena_landmark_config.gd", "@export_range(0.25, 4.0, 0.05) var scale"),
+        ("scripts/arena/arena_obstacle_placement.gd", "@export_range(0.05, 8.0, 0.05) var half_size_x"),
         ("scripts/enemies/boss_phase_config.gd", "@export_range(0.01, 1.0, 0.01) var threshold"),
         ("scripts/player/health_component.gd", "@export_range(1.0, 100000.0, 1.0) var max_health"),
     ]

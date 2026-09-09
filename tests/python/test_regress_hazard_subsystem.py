@@ -92,12 +92,29 @@ class LayoutsAreDataTests(unittest.TestCase):
 
     def test_placement_expansion_keeps_the_shipped_hazard_counts(self):
         """Mirror expansion is the only reason the .tres files are shorter than the old
-        hand-listed layouts: 6/5/6 authored placements still build 11/9/10 hazards."""
+        hand-listed layouts: 6/5/6 authored placements still build 11/9/10 hazards.
+
+        The mirrors are read from the placement blocks the hazard_layout line actually
+        references, not from the whole file. The first version of this check scanned every
+        `mirror = &"…"` line in the arena and so started counting a hazard for every *obstacle*
+        the moment `ArenaConfig.obstacle_layout` moved into the same file (it read 17 for an
+        11-hazard arena). A data test that cannot tell one authored layout from another is not
+        a guard: scope it to the reference list.
+        """
         expected = {"default_arena": 11, "ember_crucible": 9, "frost_hollow": 10}
+        expansion = {"none": 1, "x": 2, "z": 2, "rot180": 2, "both": 4}
         for arena_id, wanted in expected.items():
             text = read(f"data/arenas/{arena_id}.tres")
-            placements = re.findall(r'mirror = &"(\w+)"', text)
-            total = sum({"none": 1, "x": 2, "z": 2, "rot180": 2, "both": 4}[m] for m in placements)
+            refs = re.search(r"hazard_layout = Array\[HazardPlacement\]\(\[(.*?)\]\)", text, re.S)
+            self.assertIsNotNone(refs, f"{arena_id}.tres must author a hazard_layout")
+            total = 0
+            for rid in re.findall(r'SubResource\("([^"]+)"\)', refs.group(1)):
+                block = re.search(
+                    r'\[sub_resource type="Resource" id="%s"\]\n(.*?)(?=\n\[|\Z)' % re.escape(rid),
+                    text, re.S)
+                self.assertIsNotNone(block, f"{arena_id}: hazard placement {rid} is referenced but undefined")
+                mirror = re.search(r'mirror = &"(\w+)"', block.group(1))
+                total += expansion[mirror.group(1) if mirror else "none"]
             self.assertEqual(total, wanted,
                              f"{arena_id}: placements expand to {total} hazards, expected {wanted}")
 

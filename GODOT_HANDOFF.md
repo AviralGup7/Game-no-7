@@ -76,9 +76,12 @@ above/below the `GDScript tests: N total, N failed` summary.
    and one waypoint lands inside the slab. Check agent-margin inset and
    corner-cutting rule in `_astar`/`find_path`.
 4. **ember_crucible layout (item 6) and gate gap (item 7):** Inspect actual
-   obstacle boxes from `ArenaObstacles.layout_for("ember_crucible"|"default_arena")`
-   vs the #26 layout. Determine if the geometry fixture is wrong or the test
-   asserts an outdated #26 contract. Do NOT move obstacles arbitrarily.
+   obstacle boxes: they are authored data now (`obstacle_layout` in
+   `res://data/arenas/<arena>.tres`, mirrors expanded by `ArenaObstacles.expand`),
+   not a per-arena table in `arena_obstacles.gd`. Determine if the geometry fixture is wrong
+   or the test asserts an outdated #26 contract. Do NOT move obstacles arbitrarily —
+   `tests/python/test_regress_top5_hardening.py` reads the same .tres and asserts the
+   jitter-proof spawn clearance and the gate throat.
 
 ## AUTOLOAD blocker (resolve too)
 

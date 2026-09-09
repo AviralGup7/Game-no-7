@@ -46,6 +46,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_game_modes.gd",
 	"res://tests/unit/test_collision_layers.gd",
 	"res://tests/unit/test_hazards.gd",
+	"res://tests/unit/test_arena_world.gd",
 ]
 
 ## Node3D-based suites: these build Node3D fixtures and assert on positions.

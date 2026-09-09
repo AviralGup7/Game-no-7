@@ -27,7 +27,10 @@ no soft-lock on missing content.
 - **combat/** — area_damage radial args, hitstop time_scale restore, payload
   deep duplicate, result final clamp, critical finite+RNG guard, query radius
   clamp, log entry validation
-- **arena/** — half clamp, config clamp, decorator seed, hazards damage clamp
+- **arena/** — half clamp, config clamp, decorator seed, hazards damage clamp, and the
+  authored world: a theme's colour channels and a landmark's footprint are finite-checked at
+  load, a non-finite nav blocker is skipped rather than blocking a row, and a landmark kind
+  with no builder builds nothing (it no longer defaults to an obelisk)
 - **audio/** — volume clamp, fade clamp, cue validation, procedural pitch clamp,
   asset integrator cue/stream guard
 - **core/** — run_state currency/score clamp, restore dict filter, content
@@ -98,6 +101,9 @@ no soft-lock on missing content.
 - `test_regress_remaining_risks` — exhaustive sweep
 - `test_regress_export_ranges_and_scoring` — export ranges
 - `test_regress_tooling_and_ci` — CI split pipeline
+- `test_regress_arena_world_data` — the arena's theme/landmark/obstacle data, the death of the
+  id-keyed tables and Dictionary records, and every shipped look number audited against the
+  values the deleted tables held
 
 ## CI split (was monolith)
 

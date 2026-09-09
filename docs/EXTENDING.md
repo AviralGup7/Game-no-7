@@ -82,15 +82,56 @@ so a `1.0` resistance floors at 0, never negative damage.
 
 ## 3. Add a new arena
 
+An arena is a scene plus one `.tres`. The scene provides geometry and markers; the
+`ArenaConfig` provides gameplay *and* the world — hazards, look, centrepiece, cover. Nothing
+in `scripts/arena/` knows your arena's id (the one documented exception is the prop scatter,
+step 7).
+
 1. Create `res://scenes/arena/<name>_arena.tscn` following the canonical arena tree:
    `PlayerStart`, `SpawnPoints`/markers in group `enemy_spawn_point`, colliders,
-   environment. `arena.gd` handles marker discovery generically.
+   `Lighting/Sun`, a `WorldEnvironment` named `Environment`, floor/wall meshes, and a
+   `Geometry` parent if you want the theme to tint them. `arena.gd` handles marker discovery
+   generically and builds obstacles/landmark/nav floor at `_ready()`.
 2. Create `res://data/arenas/<name>.tres` (`class ArenaConfig`) pointing at the scene,
    with a `default_camera_profile` and `background_music_cue`. Author its hazards in the
    same file (`hazard_layout`, see §11) — an arena that authors none still gets the four
    compass vents `ArenaHazards.fallback_layout_positions()` describes, so a new level is
    never hazard-less just because nobody got to it.
-3. Unlock it via `SaveManager.unlock_arena("<name>")` (or ship pre-unlocked).
+3. **Author its look** as `res://data/arena_themes/<arena_id>.tres` (`ArenaThemeConfig`) and
+   point `theme` at it. Copy a shipped file and change numbers: sky/horizon/ground colours,
+   `panorama_path` (a `res://` `.hdr`; a soft *path*, not an `ExtResource`, so a device without
+   that import still gets your procedural sky), fog colour + density, sun colour + energy,
+   ambient colour + energy, `brightness`/`contrast`, the glow triple, and the floor/wall tints
+   with `floor_node_path` + `wall_node_prefix` naming what to tint. `theme_id` must equal the
+   file name; `theme = null` is a valid choice meaning "keep the scene's own look".
+4. **Author its centrepiece** as `res://data/arena_landmarks/<name>.tres`
+   (`ArenaLandmarkConfig`) and point `landmark` at it. `kind` selects the silhouette
+   `ArenaLandmark` knows (`obelisk`, `forge`, `crystal`); `shape` (`box` or `cylinder`) +
+   `footprint_half` are the collision body *and* the nav blocker — one vector, so physics and
+   AI cannot disagree — and the rest is tint, roughness, accent colour, `emissive_energy` and
+   one authored `OmniLight3D` (`light_*`). A `kind` with no builder is refused at load and
+   builds nothing at runtime rather than quietly becoming an obelisk. `landmark = null` is an
+   open floor.
+5. **Author its cover** by appending `ArenaObstaclePlacement` entries to `obstacle_layout`:
+   `position` in *this arena's* metres, three `half_size_*`, and `mirror` (`"x"`, `"z"`,
+   `"rot180"`, `"both"`) — the same vocabulary `hazard_layout` uses, so "a pillar on each
+   flank" is one line. Positions are never rescaled to the floor size; an arena that authors no
+   layout at all gets `ArenaObstacles.fallback_layout(half)` (The Pit's corner ring and gate,
+   scaled). A placement whose centre lands inside the landmark footprint is a validation error.
+6. Restart/refresh: `ContentLoader` registers the arena and `ArenaConfig.validate()` reaches
+   `theme.validate()` / `landmark.validate()` and every placement, so a bad colour channel, a
+   fog density that hides the far half of the floor, an unknown landmark kind, a flat box and
+   an obstacle buried in the centrepiece are all startup errors. The look and the cover are
+   referenced by hard resource reference, so a renamed or moved `.tres` is an editor error,
+   not a runtime miss.
+7. **The one remaining per-arena branch**: `ArenaDecorator.decorate()` still matches the arena
+   id to choose its prop clutter (braziers vs ice shards vs the stone circle). That scatter is
+   seeded from the id, so moving it to data would move every prop in a shipped arena — a visual
+   change no headless test can sign off. A new arena gets the default coliseum decoration until
+   someone adds a composition there. `tests/python/test_regress_arena_world_data.py` pins it to
+   exactly one `match String(arena_id)` in the file and fails if a second one appears anywhere
+   in `scripts/arena/`.
+8. Unlock it via `SaveManager.unlock_arena("<name>")` (or ship pre-unlocked).
 
 ## 4. Add a new weapon
 

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArenaLandmarkConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/arena_landmark_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+landmark_id = &"obelisk"
+kind = &"obelisk"
+shape = &"box"
+footprint_half = Vector3(0.55, 2.3, 0.55)
+position = Vector3(0, 0, 0)
+rotation_degrees = Vector3(0, 0, 0)
+scale = 1.0
+material_tint = Color(0.6, 0.56, 0.5)
+material_roughness = 0.78
+accent_color = Color(0.85, 0.75, 0.45)
+emissive_energy = 1.2
+light_color = Color(0.85, 0.75, 0.45)
+light_energy = 1.1
+light_range = 6.0
+light_offset_y = 2.0

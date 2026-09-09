@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArenaConfig" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="ArenaConfig" load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/arena/arena_config.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_scene"]
@@ -7,6 +7,9 @@
 [ext_resource type="Resource" path="res://data/hazards/pressure_plate.tres" id="5_cfg"]
 [ext_resource type="Resource" path="res://data/hazards/ember_mover.tres" id="6_cfg"]
 [ext_resource type="Resource" path="res://data/hazards/heal_ward.tres" id="7_cfg"]
+[ext_resource type="Script" path="res://scripts/arena/arena_obstacle_placement.gd" id="8_obs"]
+[ext_resource type="Resource" path="res://data/arena_themes/ember_crucible.tres" id="9_theme"]
+[ext_resource type="Resource" path="res://data/arena_landmarks/forge.tres" id="10_landmark"]
 
 [sub_resource type="Resource" id="hz1"]
 script = ExtResource("3_placement")
@@ -38,6 +41,30 @@ config = ExtResource("7_cfg")
 position = Vector3(7, 0, 7)
 mirror = &"none"
 
+[sub_resource type="Resource" id="ob1"]
+script = ExtResource("8_obs")
+position = Vector3(8, 0, 0)
+half_size_x = 0.8
+half_size_y = 1.5
+half_size_z = 0.8
+mirror = &"x"
+
+[sub_resource type="Resource" id="ob2"]
+script = ExtResource("8_obs")
+position = Vector3(0, 0, 8)
+half_size_x = 0.8
+half_size_y = 1.5
+half_size_z = 0.8
+mirror = &"z"
+
+[sub_resource type="Resource" id="ob3"]
+script = ExtResource("8_obs")
+position = Vector3(8, 0, 8)
+half_size_x = 0.7
+half_size_y = 1.15
+half_size_z = 0.7
+mirror = &"both"
+
 [resource]
 script = ExtResource("1_script")
 arena_id = &"ember_crucible"
@@ -49,4 +76,7 @@ background_music_cue = &"music_battle"
 allowed_archetypes = Array[StringName]([])
 tags = Array[StringName]([&"fire", &"hazards", &"vents", &"plates", &"movers"])
 hazard_layout = Array[HazardPlacement]([SubResource("hz1"), SubResource("hz2"), SubResource("hz3"), SubResource("hz4"), SubResource("hz5")])
+theme = ExtResource("9_theme")
+landmark = ExtResource("10_landmark")
+obstacle_layout = Array[ArenaObstaclePlacement]([SubResource("ob1"), SubResource("ob2"), SubResource("ob3")])
 unlock_wave = 1
