@@ -80,7 +80,17 @@ const MIN_SAMPLES_FOR_DECISION := 30
 ## game's design frame budget.
 const UNCAPPED_BUDGET_FPS := 60.0
 
-var _ring: PackedFloat32Array = PackedFloat32Array(RING_SIZE)
+## Zeroed RING_SIZE sample ring. Godot 4.4 has no PackedFloat32Array(int)
+## constructor, so make_ring() resizes an empty array. The member starts
+## empty on purpose (constructor-time expressions stay trivially safe); the
+## first push_frame_time() lazily sizes it via _clear_ring().
+static func make_ring() -> PackedFloat32Array:
+	var r := PackedFloat32Array()
+	r.resize(RING_SIZE)
+	return r
+
+
+var _ring: PackedFloat32Array = PackedFloat32Array()
 var _head := 0
 var _filled := 0
 var _sum := 0.0
@@ -170,8 +180,9 @@ func get_tier() -> int:
 	return _tier
 
 
-func get_tier_name() -> String:
-	match _tier:
+func get_tier_name(idx: int = -1) -> String:
+	var i := _tier if idx < 0 else clampi(idx, 0, TIER_ULTRA)
+	match i:
 		TIER_ULTRA:
 			return "ultra"
 		TIER_HIGH:
@@ -213,6 +224,8 @@ func process_tick(delta: float) -> void:
 func push_frame_time(ms: float) -> void:
 	if not is_finite(ms) or ms < MIN_SAMPLE_MS or ms > MAX_SAMPLE_MS:
 		return
+	if _ring.size() != RING_SIZE:
+		_clear_ring()
 	if _filled < RING_SIZE:
 		_ring[_head] = ms
 		_filled += 1
@@ -419,7 +432,7 @@ func get_min_fps() -> float:
 
 
 func _clear_ring() -> void:
-	_ring = PackedFloat32Array(RING_SIZE)
+	_ring = make_ring()
 	_head = 0
 	_filled = 0
 	_sum = 0.0
@@ -564,8 +577,15 @@ func get_debug_snapshot() -> Dictionary:
 		"hitches": int(stats["hitches"]),
 		"warmup": _now_ms() < _warmup_until_msec,
 		"auto_scale": _auto_scale,
-		"total_memory_mb": OS.get_total_memory_mb(),
+		"static_memory_mb": _static_memory_mb(),
 	}
+
+
+## Debug telemetry: engine static memory, in MB. Typed call on purpose — 4.4
+## has no system-total-RAM getter, and string dispatch is banned by the
+## typed-architecture gate.
+static func _static_memory_mb() -> int:
+	return int(float(OS.get_static_memory_usage()) / 1048576.0)
 
 
 func _now_ms() -> int:

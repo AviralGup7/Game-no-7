@@ -116,7 +116,7 @@ static func for_cue(cue_id: StringName) -> AudioConfig:
 	cfg.cue_id = cue_id
 	cfg.bus = &"SFX"
 	cfg.max_voices = DEFAULT_MAX_VOICES
-	var tuned := _TUNED.get(String(cue_id))
+	var tuned: Variant = _TUNED.get(String(cue_id))
 	if tuned == null:
 		return cfg
 	cfg.bus = tuned[0]

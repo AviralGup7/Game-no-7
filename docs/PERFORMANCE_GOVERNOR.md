@@ -115,9 +115,11 @@ the [research log](#research-log).
   be a useful second actuator, but resolution scaling blurs text/UI on small
   phone screens and the current knobs (fps cap, MSAA, shadows, particles,
   live-enemy count) already cover the budget. Kept out to avoid scope creep.
-- **Memory-based initial tier.** `OS.get_total_memory_mb()` is exposed in the
-  debug snapshot as telemetry; it does not gate behaviour (the governor
-  measures, and persistence learns, what the device actually does).
+- **Memory-based initial tier.** Engine memory (`OS.get_static_memory_usage()`,
+  in MB) is exposed in the debug snapshot as telemetry; it does not gate
+  behaviour (the governor measures, and persistence learns, what the device
+  actually does). 4.4 has no total-system-RAM getter, and string dispatch is
+  banned by the typed gate, so the probe stays on the typed engine API.
 
 ---
 

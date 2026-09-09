@@ -33,6 +33,9 @@ write-up + sources in `docs/AUDIO_ENGINE.md`):
   (`_sfx_pool`, `_cues`, `get_cue_stream`) and the v1 public API are
   preserved.
 - New unit suite `tests/unit/test_audio_policy.gd` + Python shape guards.
+- **4.4.1 compatibility.** `AudioConfig.for_cue()` annotates its dict lookup
+  `: Variant` — the CI runtime suite treats "inferred from Variant" as an
+  error, and the sandbox's `gdparse` doesn't type-check against the engine.
 
 ## [Unreleased] — Minimap radar rebuilt from the base up (2026-09-09)
 
@@ -62,6 +65,8 @@ sources in `docs/MINIMAP_RADAR.md`):
   140×140 minimum, `Arena.ARENA_GROUP` lookup with legacy path fallback in
   `_find_arena()`, shared group constants; help-panel legend updated to the
   new vocabulary.
+- **4.4.1 compatibility.** World→map projection goes through a `world_xz()`
+  helper (`Vector2(p.x, p.z)`) because `Vector3.xz` is not a 4.4 member.
 
 ## [Unreleased] — Performance governor rebuilt from the base up (2026-09-09)
 
@@ -115,6 +120,13 @@ sources in `docs/PERFORMANCE_GOVERNOR.md`):
   `tests/python/test_regress_performance_governor.py`. Existing pins kept:
   `Engine.max_fps` teardown restore, single `_exit_tree`, no-op-free
   `_apply_tier_to_engine`, damage-budget numbers, 5 s cooldown semantics.
+- **4.4.1 compatibility.** The sample ring is built by a `make_ring()`
+  factory (4.4 has no `PackedFloat32Array(int)` constructor) and lazily sized
+  on first push; `get_tier_name()` takes an optional tier index; debug
+  telemetry uses the typed `OS.get_static_memory_usage()` (4.4 has no
+  total-RAM getter, and string dispatch is gate-banned); `test_save.gd` now
+  pins that `ultra` is a valid preset and that a truly invalid quality is
+  still ignored.
 
 ## [Unreleased] — Solid decoration + touch-button dispatch hardening (2026-09-09)
 

@@ -106,9 +106,12 @@ class OpeningTierFromSaveTests(unittest.TestCase):
         self.assertIn('"/root/EventBus"', code)
         self.assertIn("as EventBusService", code)
         self.assertIn("bus.report_info(text)", code)
-        # String dispatch is banned by the typed-architecture gate.
-        self.assertNotIn("has_method(", code)
-        self.assertNotIn(".call(\"", code)
+        # String dispatch is banned by the typed-architecture gate — no
+        # exceptions. Debug telemetry uses the typed
+        # OS.get_static_memory_usage() (4.4 has no total-RAM getter).
+        self.assertNotIn(".has_method(", code)
+        self.assertNotIn('.call("', code)
+        self.assertIn("OS.get_static_memory_usage()", code)
 
     def test_governor_rebuild_suite_registered(self):
         self.assertIn("res://tests/unit/test_performance_monitor.gd", read(RUNNER))
@@ -184,7 +187,13 @@ class GovernorAlgorithmTests(unittest.TestCase):
 
     def test_ring_is_o1_per_frame(self):
         txt = read(MONITOR)
-        self.assertIn("PackedFloat32Array(RING_SIZE)", txt)
+        # 4.4 has no PackedFloat32Array(int) constructor, so the ring is built
+        # via resize; the O(1) contract is the modulo head, not a growing FIFO.
+        self.assertIn("static func make_ring() -> PackedFloat32Array:", txt)
+        self.assertIn("r.resize(RING_SIZE)", txt)
+        self.assertNotIn("PackedFloat32Array(RING_SIZE)", txt)
+        # The ring starts empty (4.4-safe) and is lazily sized on first push.
+        self.assertIn("if _ring.size() != RING_SIZE:", txt)
         self.assertIn("(_head + 1) % RING_SIZE", txt)
         # The old per-frame FIFO pop made every frame O(n).
         self.assertNotIn("remove_at(0)", txt)

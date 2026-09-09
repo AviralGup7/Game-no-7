@@ -249,7 +249,7 @@ func _cache_player() -> void:
 		_last_player_px = Vector2.ZERO
 		_last_facing = Vector2.ZERO
 		return
-	var xz := _finite_xz(_player.global_position.xz)
+	var xz := _finite_xz(world_xz(_player.global_position))
 	_last_player_px = project_to_map(xz, c, r, _cached_half)
 	_last_facing = _facing_2d()
 
@@ -261,7 +261,7 @@ func _animating(now_ms: int) -> bool:
 	if _player != null and is_instance_valid(_player):
 		var c := size * 0.5
 		var r := _map_radius()
-		var xz := _finite_xz(_player.global_position.xz)
+		var xz := _finite_xz(world_xz(_player.global_position))
 		var px := project_to_map(xz, c, r, _cached_half)
 		if px.distance_squared_to(_last_player_px) > 0.25:
 			return true
@@ -297,7 +297,7 @@ func _discover() -> void:
 	for e in tree.get_nodes_in_group(EnemyBase.TARGET_GROUP):
 		if not (e is EnemyBase) or not is_instance_valid(e):
 			continue
-		var xz := (e as EnemyBase).global_position.xz
+		var xz := world_xz((e as EnemyBase).global_position)
 		if not (is_finite(xz.x) and is_finite(xz.y)):
 			continue
 		var kind := &"enemy"
@@ -310,7 +310,7 @@ func _discover() -> void:
 	for p in tree.get_nodes_in_group(Pickup.PICKUP_GROUP):
 		if not (p is Pickup) or not is_instance_valid(p) or not (p as Pickup).is_active():
 			continue
-		var xz := (p as Pickup).global_position.xz
+		var xz := world_xz((p as Pickup).global_position)
 		if not (is_finite(xz.x) and is_finite(xz.y)):
 			continue
 		var urgency := 0.0
@@ -365,6 +365,12 @@ func _finite_xz(v: Vector2) -> Vector2:
 	return v if (is_finite(v.x) and is_finite(v.y)) else Vector2.ZERO
 
 
+## World XZ of a Node3D position (Vector3.xz is not available on this engine
+## version, so project explicitly).
+static func world_xz(p: Vector3) -> Vector2:
+	return Vector2(p.x, p.z)
+
+
 # ---------------------------------------------------------------------------
 # Rendering
 # ---------------------------------------------------------------------------
@@ -387,7 +393,7 @@ func _draw() -> void:
 
 	if _player == null or not is_instance_valid(_player):
 		return
-	var xz := _finite_xz(_player.global_position.xz)
+	var xz := _finite_xz(world_xz(_player.global_position))
 	var pc := project_to_map(xz, c, r, _cached_half)
 	var facing := _facing_2d()
 
