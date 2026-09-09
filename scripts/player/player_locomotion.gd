@@ -38,6 +38,12 @@ func uses_actions() -> bool:
 
 
 func set_move_input(input_vector: Vector2) -> void:
+	# Boundary between UI (VirtualJoystick / Input.get_axis) and gameplay. A stick
+	# sample that is NaN/inf here would otherwise be latched for the rest of the run,
+	# because gather() only re-reads the keyboard when _move_input is exactly zero.
+	if not is_finite(input_vector.x) or not is_finite(input_vector.y):
+		_move_input = Vector2.ZERO
+		return
 	_move_input = input_vector
 	if _move_input.length_squared() > 1.0:
 		_move_input = _move_input.normalized()
@@ -75,9 +81,11 @@ func gather() -> Vector2:
 		var x := Input.get_axis("move_left", "move_right")
 		var y := Input.get_axis("move_up", "move_down")
 		v = Vector2(x, y)
-		if v.length_squared() > 1.0:
+		if not is_finite(v.x) or not is_finite(v.y):
+			v = Vector2.ZERO
+		elif v.length_squared() > 1.0:
 			v = v.normalized()
-	return v
+	return v if is_finite(v.x) and is_finite(v.y) else Vector2.ZERO
 
 
 func track(move: Vector2) -> void:
@@ -93,6 +101,16 @@ func clamp_to_bounds() -> void:
 		return
 	var limit := maxf(_bounds_half - 0.5, 0.0)
 	var p := _body.global_position
+	if not (is_finite(p.x) and is_finite(p.y) and is_finite(p.z)):
+		# Last line of defence: a non-finite body transform poisons the physics AABB and
+		# the renderer's scene cull, so it is repaired on every finite axis and the
+		# velocity is zeroed rather than allowed to compound into the next frame.
+		_body.global_position = Vector3(
+			0.0 if not is_finite(p.x) else clampf(p.x, -limit, limit),
+			0.0 if not is_finite(p.y) else p.y,
+			0.0 if not is_finite(p.z) else clampf(p.z, -limit, limit))
+		_body.velocity = Vector3.ZERO
+		return
 	var clamped := Vector3(clampf(p.x, -limit, limit), p.y, clampf(p.z, -limit, limit))
 	if clamped.x != p.x and _body.velocity.x * p.x > 0.0:
 		_body.velocity.x = 0.0

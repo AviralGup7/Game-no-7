@@ -236,20 +236,38 @@ func _inside(pos: Vector3, center: Vector3, radius: float) -> bool:
 
 func _tick_vent(h: Dictionary, victims: Array, delta: float) -> void:
 	h["timer"] = float(h["timer"]) + delta
-	var marker: Node3D = h["node"]
-	var disc: MeshInstance3D = marker.get_meta("disc")
-	var mat := disc.material_override as StandardMaterial3D
-	if float(h["timer"]) >= VENT_PERIOD - VENT_TELEGRAPH:
+	# Visuals are optional (see _hazard_emission): a freed marker must never skip the
+	# hazard's gameplay, and must never be dereferenced blindly either.
+	var mat := _hazard_emission(h)
+	if float(h["timer"]) >= VENT_PERIOD - VENT_TELEGRAPH and mat != null:
 		# Telegraph: pulse bright.
 		var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() / 60.0)
 		mat.emission_energy_multiplier = 0.4 + pulse * 1.6
 	if float(h["timer"]) >= VENT_PERIOD:
 		h["timer"] = 0.0
-		mat.emission_energy_multiplier = 0.4
+		if mat != null:
+			mat.emission_energy_multiplier = 0.4
 		var center: Vector3 = h["pos"]
+		if not is_finite(center.x) or not is_finite(center.y) or not is_finite(center.z):
+			# A non-finite epicentre would push NaN knockback into every victim body.
+			return
 		AreaDamage.apply_radial(victims, center, VENT_RADIUS, VENT_DAMAGE, self, &"fire_vent", 6.0, false, AreaDamage.FALLOFF_NONE)
 		_apply_burn(victims, center)
 		hazard_triggered.emit(KIND_VENT, center)
+
+
+## Emission material of a hazard's visual marker, or null when the visual is gone. The
+## marker belongs to the arena, so a world rebuild frees it while the hazard record is
+## still ticking; every per-frame tick dereferences it. Reading it through one helper
+## keeps the glow optional instead of a per-frame crash on a stale reference.
+func _hazard_emission(h: Dictionary) -> StandardMaterial3D:
+	var marker: Node3D = h.get("node")
+	if marker == null or not is_instance_valid(marker) or not marker.has_meta("disc"):
+		return null
+	var disc: MeshInstance3D = marker.get_meta("disc")
+	if disc == null or not is_instance_valid(disc):
+		return null
+	return disc.material_override as StandardMaterial3D
 
 
 func _apply_burn(victims: Array, center: Vector3) -> void:
@@ -321,7 +339,6 @@ func _tick_ichor(h: Dictionary, victims: Array) -> void:
 func _tick_plate(h: Dictionary, victims: Array, delta: float) -> void:
 	h["timer"] = float(h.get("timer", 0.0)) + delta
 	var center: Vector3 = h["pos"]
-	var marker: Node3D = h.get("node")
 	var player_on := false
 	for v in victims:
 		if v is Node and (v as Node).is_in_group("player") and v is Node3D:
@@ -329,11 +346,9 @@ func _tick_plate(h: Dictionary, victims: Array, delta: float) -> void:
 				player_on = true
 				break
 	# Visual: brighten when armed / player is on it.
-	if marker != null and is_instance_valid(marker) and marker.has_meta("disc"):
-		var disc: MeshInstance3D = marker.get_meta("disc")
-		var mat := disc.material_override as StandardMaterial3D
-		if mat != null:
-			mat.emission_energy_multiplier = 1.6 if player_on else 0.5
+	var mat := _hazard_emission(h)
+	if mat != null:
+		mat.emission_energy_multiplier = 1.6 if player_on else 0.5
 	if not player_on:
 		return
 	if float(h.get("timer", 0.0)) < PLATE_COOLDOWN:
