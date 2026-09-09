@@ -89,10 +89,13 @@ func pick_best_target(candidates: Array) -> Node:
 		var dot := facing.dot(to_target / dist) if dist > 0.0001 else 1.0
 		var favor := clampf((dot - cone) / maxf(1.0 - cone, 0.001), 0.0, 1.0)
 		var score := -dist + favor * clampf(aim_assist_strength, 0.0, 1.0)
-		if c == sticky:
-			score += sticky_bonus
 		if score > best_score:
 			best_score = score
+			best = c
+		elif c == sticky and not is_equal_approx(score, best_score) and score + sticky_bonus > best_score:
+			# Stickiness may keep a slightly worse lock, but never override a true tie
+			# (tests and lock-on both require input-order determinism on equal scores).
+			best_score = score + sticky_bonus
 			best = c
 	if best != null:
 		_sticky = best
