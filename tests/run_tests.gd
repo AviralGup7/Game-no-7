@@ -115,6 +115,14 @@ func _process(_delta: float) -> bool:
 		var joined := "\n".join(_failures).replace("\n", "%0A")
 		print("::error title=GDScript test failures (%d)::%s" % [_failures.size(), joined])
 	print("========================================")
+	# Also write the full report to a file: CI uploads *.log artifacts, so the
+	# complete failure list is retrievable even when step output is truncated.
+	var report := FileAccess.open("res://godot-test-report.log", FileAccess.WRITE)
+	if report != null:
+		report.store_string("GDScript tests: %d total, %d failed\n" % [_total, _failures.size()])
+		for x in _failures:
+			report.store_string("FAIL  " + x + "\n")
+		report.close()
 	quit(0 if _failures.is_empty() else 1)
 	return false
 
