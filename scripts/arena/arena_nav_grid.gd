@@ -75,7 +75,12 @@ func build(half_extent: float, cell_size_value: float, obstacles: Array) -> void
 		var hs: Vector3 = ob.get("half_size", Vector3.ONE * 0.5)
 		if not is_finite(pos.x) or not is_finite(pos.z):
 			continue
-		var aabb := AABB(pos, hs * 2.0).grow(AGENT_MARGIN)
+		# pos is the obstacle CENTER (see layout_for / tests). AABB(min, size),
+		# so the box spans pos ± hs. Treating pos as the min corner (AABB(pos,
+		# hs*2)) silently shifted every footprint by +half on each axis, which
+		# blocked the wrong cells (e.g. a wall at x∈[4,8] becoming x∈[5.75,10.75]).
+		var min_corner := pos - hs
+		var aabb := AABB(min_corner, hs * 2.0).grow(AGENT_MARGIN)
 		_mark_blocked(aabb)
 		obstacle_count += 1
 	_built = true
