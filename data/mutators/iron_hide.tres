@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"iron_hide"
+display_name = "Iron Hide"
+description = "Enemies are much tougher but slower."
+severity = &"major"
+roll_order = 1
+min_wave = 1
+hp_mult = 1.6
+speed_mult = 0.85
+score_mult = 1.25

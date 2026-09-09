@@ -1,7 +1,9 @@
 extends RefCounted
 
-## Headless unit tests for the DifficultyDirector (adaptive scoring) and
-## WaveMutators (definitions, combine, deterministic rolls).
+## Headless unit tests for the DifficultyDirector (adaptive scoring) and WaveMutators
+## (authored configs, the typed fold, deterministic rolls). The director's multiplier set is a
+## `WaveModifiers` record now rather than a Dictionary, so this file reads fields; the richer
+## fold/selection coverage lives in `test_wave_mutators.gd`.
 
 static func suite() -> Array:
 	var results: Array = []
@@ -16,8 +18,7 @@ static func suite() -> Array:
 	var mult_dom := dom.next_wave_multipliers()
 	results.append({
 		"name": "Director rewards domination within bounds",
-		"passed": perf_dom > 0.0 and float(mult_dom["hp_mult"]) > 1.0
-			and float(mult_dom["hp_mult"]) <= 1.25,
+		"passed": perf_dom > 0.0 and mult_dom.hp_mult > 1.0 and mult_dom.hp_mult <= 1.25,
 		"why": "perf=%.2f" % perf_dom,
 	})
 
@@ -44,22 +45,36 @@ static func suite() -> Array:
 		"why": "",
 	})
 
-	# --- Mutators: known definitions validate ---
-	var all_known := true
-	for m in WaveMutators.ALL:
-		var d := WaveMutators.definition(StringName(String(m)))
-		if float(d.get("hp_mult", 0.0)) <= 0.0:
+	# --- Director: the knobs a struggling player should NOT get are absent when perf <= 0 ---
+	results.append({
+		"name": "Director hands the record's score/elite bonus to nobody while hurting",
+		"passed": is_equal_approx(hurt.next_wave_multipliers().score_mult, 1.0)
+			and is_equal_approx(hurt.next_wave_multipliers().elite_bonus, 0.0)
+			and hurt.next_wave_multipliers().count_bonus < 0,
+		"why": "score=%s elite=%s count=%s" % [hurt.next_wave_multipliers().score_mult,
+				hurt.next_wave_multipliers().elite_bonus, hurt.next_wave_multipliers().count_bonus],
+	})
+
+	# --- Mutators: every authored id resolves to a validated, non-neutral config ---
+	var ids := WaveMutators.ordered_ids()
+	var all_known := not ids.is_empty()
+	for m in ids:
+		var cfg := WaveMutators.resolve(m)
+		if cfg == null or not cfg.validate().is_empty() or cfg.is_neutral():
 			all_known = false
-	results.append({"name": "WaveMutators all definitions sane", "passed": all_known and WaveMutators.is_known(WaveMutators.SWIFT_HORDE) and not WaveMutators.is_known(&"nope"), "why": ""})
+	results.append({
+		"name": "WaveMutators: authored data is complete, unknown ids resolve to nothing",
+		"passed": all_known and WaveMutators.is_known(&"swift_horde") and not WaveMutators.is_known(&"nope"),
+		"why": "%d mutators" % ids.size(),
+	})
 
 	# --- Mutators: combine math ---
-	var combo := WaveMutators.combine([WaveMutators.SWIFT_HORDE, WaveMutators.IRON_HIDE])
+	var combo := WaveMutators.combine([&"swift_horde", &"iron_hide"])
 	results.append({
 		"name": "WaveMutators combine multiplies + maxes severity",
-		"passed": is_equal_approx(float(combo["hp_mult"]), 0.85 * 1.6)
-			and is_equal_approx(float(combo["speed_mult"]), 1.3 * 0.85)
-			and String(combo["severity"]) == "major",
-		"why": str(combo),
+		"passed": is_equal_approx(combo.hp_mult, 0.85 * 1.6) and is_equal_approx(combo.speed_mult, 1.3 * 0.85)
+			and combo.severity == WaveMutatorConfig.SEVERITY_MAJOR,
+		"why": str(combo.debug_dictionary()),
 	})
 
 	# --- Mutators: rolls deterministic + wave-gated ---
@@ -76,7 +91,7 @@ static func suite() -> Array:
 	# --- Mutators: banner text ---
 	results.append({
 		"name": "WaveMutators banner text lists names",
-		"passed": WaveMutators.banner_text([]) == "" and WaveMutators.banner_text([WaveMutators.SWIFT_HORDE]).contains("Swift"),
+		"passed": WaveMutators.banner_text([]) == "" and WaveMutators.banner_text([&"swift_horde"]).contains("Swift"),
 		"why": "",
 	})
 

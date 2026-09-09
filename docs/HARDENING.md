@@ -130,16 +130,26 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 
 ## How to add a new system
 
-1. Add `@export_range` or `clampf` + `is_finite` at the top of any public
-   method that takes float/int from JSON or user input.
-2. Add a `_validated_*` helper and assert it in `test_regress_*.py`.
+1. Put the numbers in a `@export_range` on a `ValidatedConfig` subclass, and say what is wrong
+   in `validate()`. Bounds in a `_validated_*`-style wrapper are the theater this file used to
+   recommend: they re-ran on every call, they could not see a missing field, and
+   `tool/validate_guards.py` now fails the build if one comes back ("no
+   `_validated_`/`_guarded_`/`_safe_emit` functions"). Load-time validation reports the whole
+   list once, in the right order of severity.
+2. A field must have a reader. When a value crosses a boundary, cross it as a typed field on a
+   record (`WaveModifiers`, `DamagePayload`) rather than a Dictionary key: a key nobody reads is
+   invisible, and `tests/python/test_regress_wave_mutators.py` is the shape of the gate that
+   catches it (one `READERS` table, one assertion per field).
 3. Run `python3 -m unittest discover -s tests/python -v` and
    `python3 tool/validate_guards.py` — both must be green before push.
-4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py`.
+4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py &&
+   python3 tool/check_typed_arch.py`.
 
 ## Metrics
 
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 502 (was 95) — all green
-- Validated files: 139/139 (was 85) — 502 tests
+- Tests: 635 python + the headless Godot suites (was 95) — all green
+- Validated files: 151/151 (was 85)
+- Guard needles: 99 (was 61) — each one an inlined guard, a bounded export, or an absence
+  (the wave-mutator pass added 38, half of them "this Dictionary shape must not come back")

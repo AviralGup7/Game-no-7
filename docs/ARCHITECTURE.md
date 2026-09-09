@@ -327,6 +327,45 @@ String(arena_id)` in `scripts/arena/`, audits every shipped theme/landmark/obsta
 against the values the tables held, and fails if a Dictionary record comes back.
 
 
+## Wave rules (mutators, the director, and the one folded record)
+
+A wave's difficulty is the product of three sources, and for as long as each of them handed the
+next one a Dictionary, the boundaries were where the game lost features. `WaveMutators` held the
+seven shipped mutators as a `match` over hand-written Dictionaries ending in a **neutral**
+fallback for unknown ids; `SpawnManager` had two Dictionary records (`_difficulty` for the plan,
+`_wave_mods` for modifiers) and its setter copied four named keys, keeping "missing keys default
+to neutral; unknown keys are ignored"; the director's `next_wave_multipliers()` returned a record
+whose `score_mult` nobody read. Grepped key by key, that meant `currency_mult`,
+`player_damage_mult`, `score_mult`, `burn_tick` and the folded `severity` were computed and
+discarded — three of seven mutators advertised on their banner more than they did, and
+`RunState.active_modifiers`, which the save and the run summary both read, was never written by
+anyone.
+
+Now: mutators are `WaveMutatorConfig` resources under `res://data/mutators/` (registered by
+`ContentLoader`, referenced by id from `WaveConfig.arena_modifier_ids`, `GameMode.forced_mutators`
+and the challenge pool — all four checked at load). The fold's result is one typed value object,
+`WaveModifiers`, built by `WaveManager._fold_modifiers()` in a documented order — plan scalars,
+then the director's bounded nudge, then the mutators — and bounded once by `clamp_bounds()`.
+`SpawnManager`, `RunScorekeeper`, `WeaponManager` and the banner read fields off it; the only
+Dictionaries left in the pipeline are `WavePlanner.calculate_difficulty_scalars()`'s (a
+test-pinned scalar function, absorbed by `apply_plan_scalars`) and `debug_dictionary()`, which
+exists for the debug snapshot. Clamping lives on the record rather than in each consumer, so a
+consumer cannot forget it, and `WaveMutators` holds no numbers: selection and resolution only,
+with the pool's order authored as `roll_order` because the daily challenge's mutator pair is
+`pop_at(index)` over that order.
+
+The wave's status (Ember Winds) is an ordinary `StatusEffectConfig` stamped through
+`StatusManager.apply_effect()` — a mutator does not get its own damage path, and `DoT →
+DamagePayload → take_damage` stays the only route a status can hurt by. Multipliers are never
+saved: `RunState` keeps the ids (`active_modifiers`, serialized) plus a live, transient
+`modifiers` record that `reset()` clears, so a resumed run re-derives the numbers for the wave it
+is about to launch instead of replaying a stale fold.
+
+`tests/python/test_regress_wave_mutators.py` mirrors the shipped mutator numbers, scans every
+consumed key for a reader, pins the fold order, and refuses the old shapes;
+`tests/unit/test_wave_mutators.gd` covers the arithmetic and the refusal paths headlessly.
+
+
 ## Autoload policy
 
 Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,

@@ -110,6 +110,57 @@ def main() -> int:
     for path, needle in checks:
         check(path, needle)
 
+    print("-- wave rules: authored mutators, one folded record, no Dictionary channels --")
+    wave_checks = [
+        ("scripts/enemies/spawn_manager.gd", "var _wave: WaveModifiers = WaveModifiers.neutral()"),
+        ("scripts/enemies/spawn_manager.gd", "func set_wave_modifiers(mods: WaveModifiers) -> void"),
+        ("scripts/enemies/spawn_manager.gd", "manager.apply_effect(_wave.status_effect, _wave.status_stacks, self)"),
+        ("scripts/enemies/spawn_manager.gd", "_wave.elite_bonus"),
+        ("scripts/enemies/spawn_manager.gd", "_wave.explode_chance"),
+        ("scripts/waves/wave_manager.gd", "WaveMutators.fold_into(mods, _active_mutators)"),
+        ("scripts/waves/wave_manager.gd", "apply_count_nudge(queue, _wave_mods.count_bonus)"),
+        ("scripts/waves/wave_manager.gd", "run.set_wave_modifiers(mods)"),
+        ("scripts/waves/difficulty_director.gd", "func next_wave_multipliers() -> WaveModifiers"),
+        ("scripts/waves/wave_modifiers.gd", "func clamp_bounds() -> void"),
+        ("scripts/waves/wave_modifiers.gd", "func fold_mutator(cfg: WaveMutatorConfig) -> void"),
+        ("scripts/core/run_scorekeeper.gd", "_run.modifiers.score_mult"),
+        ("scripts/core/run_scorekeeper.gd", "_run.modifiers.currency_mult"),
+        ("scripts/weapons/weapon_manager.gd", "run.modifiers.player_damage_mult"),
+        ("scripts/core/run_state.gd", "active_modifiers = modifiers.mutator_ids.duplicate()"),
+        ("scripts/core/content_loader.gd", '_load_typed(&"res://data/mutators", &"mutators", tables, errors)'),
+        ("scripts/core/content_loader.gd", "no WaveMutatorConfig resources"),
+        ("scripts/core/content_registry.gd", "func get_wave_mutator(mutator_id: StringName) -> WaveMutatorConfig"),
+    ]
+    for path, needle in wave_checks:
+        check(path, needle)
+    # The absences are the same length as the presence list, because the shapes below are what
+    # made five authored knobs silently unreadable; a "cleanup" that reintroduces one must fail
+    # this file, not only the python suite (see tests/python/test_regress_wave_mutators.py).
+    wave_absences = [
+        ("scripts/enemies/spawn_manager.gd", "_wave_mods"),
+        ("scripts/enemies/spawn_manager.gd", "var _difficulty"),
+        ("scripts/enemies/spawn_manager.gd", '_difficulty.get('),
+        ("scripts/waves/wave_manager.gd", "set_difficulty_scalars("),
+        ("scripts/waves/wave_mutators.gd", "match mutator_id"),
+        ("scripts/waves/wave_mutators.gd", "static func definition("),
+        ("scripts/waves/wave_mutators.gd", '"hp_mult"'),
+        ("scripts/waves/wave_mutator_config.gd", "func _definition"),
+        ("scripts/core/run_scorekeeper.gd", '_wave_mods.get("'),
+        ("scripts/weapons/weapon_manager.gd", '_wave_mods.get("'),
+        ("scripts/meta/daily_challenge.gd", "WaveMutators.ALL"),
+        ("scripts/save/save_schema.gd", "hp_mult"),
+    ]
+    for path, needle in wave_absences:
+        txt = (ROOT / path).read_text(encoding="utf-8", errors="ignore")
+        # Comments may name the banned shape on purpose (every file here explains what it replaced).
+        body = "\n".join(l for l in txt.splitlines() if not l.lstrip().startswith("#"))
+        if needle in body:
+            FAILED += 1
+            print(f"FAIL {path}: reintroduced {needle!r}")
+        else:
+            PASSED += 1
+            print(f"OK   {path}: no {needle[:40]!r}")
+
     print("-- @export_range editor enforcement on content configs --")
     export_checks = [
         ("scripts/enemies/enemy_config.gd", "@export_range(0.0, 10000.0, 0.5) var max_health"),
@@ -133,6 +184,16 @@ def main() -> int:
         ("scripts/arena/arena_theme_config.gd", "@export_range(0.2, 3.0, 0.01) var brightness"),
         ("scripts/arena/arena_landmark_config.gd", "@export_range(0.25, 4.0, 0.05) var scale"),
         ("scripts/arena/arena_obstacle_placement.gd", "@export_range(0.05, 8.0, 0.05) var half_size_x"),
+        # Wave mutators: every knob is a bounded export, so "elite bonus 40%" or a multiplier of
+        # 0 is unauthorisable in the editor rather than clamped away after the fact.
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.05, 8.0, 0.05) var hp_mult"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.1, 8.0, 0.05) var score_mult"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.1, 8.0, 0.05) var currency_mult"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.1, 8.0, 0.05) var player_damage_mult"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.0, 0.5, 0.01) var elite_bonus"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0.0, 1.0, 0.01) var explode_chance"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(0, 64) var roll_order"),
+        ("scripts/waves/wave_mutator_config.gd", "@export_range(1, 1000) var min_wave"),
         ("scripts/enemies/boss_phase_config.gd", "@export_range(0.01, 1.0, 0.01) var threshold"),
         ("scripts/player/health_component.gd", "@export_range(1.0, 100000.0, 1.0) var max_health"),
     ]

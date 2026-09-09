@@ -848,6 +848,47 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 		"why": "scaled=%s pristine=%s" % [str(scaled_ok), str(cfg_pristine)],
 	})
 
+	# --- A wave's folded record reaches the arena: scaling AND the status it carries ----------
+	# The static suites prove the fold; this proves the fold arrives. Ember Winds' `burn_tick` was
+	# unread for as long as the record was a Dictionary, so there was literally no live path to
+	# assert on. The fake player here is not a Damageable, which is also under test: stamping must
+	# skip what cannot hold a status instead of calling a method it never declared.
+	var ember := WaveModifiers.neutral()
+	ember.hp_mult = 1.6
+	ember.damage_mult = 1.5
+	ember.speed_mult = 0.85
+	ember.explode_chance = 1.0
+	ember.severity = WaveMutatorConfig.SEVERITY_MAJOR
+	ember.status_effect = load("res://data/status/ember_air.tres") as StatusEffectConfig
+	ember.status_stacks = 2
+	ember.status_targets_enemies = true
+	ember.status_targets_player = true
+	sm.set_wave_modifiers(ember)
+	spawned_nodes.clear()
+	var ember_queue: Array[StringName] = [&"basic"]
+	sm.queue_wave(ember_queue, 5, 0.2, 8)
+	var stamped: EnemyBase = spawned_nodes[0] if not spawned_nodes.is_empty() else null
+	var stamped_manager := stamped.get_status_manager() if stamped != null else null
+	var record_ok := stamped != null and stamped_manager != null \
+		and stamped_manager.has_effect(&"ember_air") \
+		and stamped_manager.stack_count(&"ember_air") == 2 \
+		and is_equal_approx(stamped.get_health_fraction(), 1.0) \
+		and is_equal_approx(stamped.get_effective_attack_damage(), cfg_basic.attack_damage * 1.5) \
+		and stamped.get_health_component() != null \
+		and is_equal_approx(stamped.get_health_component().get_max(), cfg_basic.max_health * 1.6)
+	# Volatile Mix at 100%: the fold's chance must actually detonate (one explosion, no crash).
+	var blast_before := sm.get_active_count()
+	if stamped != null:
+		stamped.apply_damage(_lethal_payload(stamped))
+	var consumed_the_chance := sm.get_active_count() <= blast_before and sm.get_defeated_count() >= 1
+	sm.clear()
+	sm.set_wave_modifiers(WaveModifiers.neutral())
+	results.append({
+		"name": "the wave's folded record scales spawns and stamps its status",
+		"passed": record_ok and consumed_the_chance,
+		"why": "record=%s blasts=%s" % [str(record_ok), str(consumed_the_chance)],
+	})
+
 	timer.stop()
 	sm.clear()
 	sm.queue_free()

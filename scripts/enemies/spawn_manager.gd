@@ -44,9 +44,11 @@ var _max_simultaneous := 12
 var _current_wave := 0
 var _configured := false
 var _run_seed := 0
-var _difficulty := {"hp": 1.0, "damage": 1.0, "speed": 1.0}
-## Wave-modifier multipliers (mutators + director). Neutral by default.
-var _wave_mods := {"hp_mult": 1.0, "damage_mult": 1.0, "speed_mult": 1.0, "score_mult": 1.0, "elite_bonus": 0.0, "explode_chance": 0.0}
+## This wave's folded rule set (plan scalars × director nudge × mutators, plus the elite bonus,
+## volatile chance and status stamp). One typed record owned by WaveManager, neutral until a wave
+## starts. It replaces two Dictionary channels that each had to agree on a key vocabulary: the
+## spawner dropped the keys it did not list, so half of what a mutator promised died here.
+var _wave: WaveModifiers = WaveModifiers.neutral()
 var _spawn_index := 0
 ## Optional test/tooling seam: a Callable(StringName) -> EnemyConfig. When invalid,
 ## the ContentRegistry autoload is used (normal game path).
@@ -146,25 +148,41 @@ func get_failed_count() -> int:
 	return _ledger.failed_count()
 
 
+## Plan-only entry point (tests, tooling, and anything that knows the wave number but not the
+## mutators): folds `WavePlanner.calculate_difficulty_scalars()`'s output into the current record.
+## WaveManager does not use it — it hands over a fully folded record instead, because the old
+## habit of pushing the plan and the modifiers through two setters is exactly how the director's
+## nudge and the mutators stopped multiplying together in one place.
 func set_difficulty_scalars(scalars: Dictionary) -> void:
-	_difficulty = {
-		"hp": float(scalars.get("hp", 1.0)),
-		"damage": float(scalars.get("damage", 1.0)),
-		"speed": float(scalars.get("speed", 1.0)),
-	}
+	_wave.apply_plan_scalars(scalars)
 
 
-## Wave-modifier multipliers from mutators + director (see WaveMutators.combine).
-## Missing keys default to neutral; unknown keys are ignored.
-func set_wave_modifiers(mods: Dictionary) -> void:
-	for key in ["hp_mult", "damage_mult", "speed_mult", "score_mult"]:
-		_wave_mods[key] = maxf(float(mods.get(key, 1.0)), 0.01)
-	_wave_mods["elite_bonus"] = clampf(float(mods.get("elite_bonus", 0.0)), 0.0, 0.5)
-	_wave_mods["explode_chance"] = clampf(float(mods.get("explode_chance", 0.0)), 0.0, 1.0)
+## The authoritative channel: the whole folded wave, once per wave start.
+func set_wave_modifiers(mods: WaveModifiers) -> void:
+	_wave = mods if mods != null else WaveModifiers.neutral()
 
 
-func get_wave_modifiers() -> Dictionary:
-	return _wave_mods.duplicate()
+func get_wave_modifiers() -> WaveModifiers:
+	return _wave
+
+
+## Ember Winds' promise, kept: the mutator's status rides the spawn event, so the arena's air is
+## lit for every enemy that enters and for the player for as long as the wave is arriving.
+## Attribution follows the hazard convention (source = the spawner) and the DoT itself runs
+## through StatusManager -> DamagePayload, never a bespoke damage call here.
+func _stamp_wave_status(target: Node) -> void:
+	if _wave == null or _wave.status_effect == null or target == null:
+		return
+	# `Damageable` is the type that owns a status manager (Player and EnemyBase both extend it), so
+	# anything else that ends up in `_player`/`_active` — a fake in a harness, a prop — is skipped
+	# rather than called on. This is the same resolution rule `ArenaHazards` uses for its victims.
+	var damageable := target as Damageable
+	if damageable == null:
+		return
+	var manager := damageable.get_status_manager()
+	if manager == null:
+		return
+	manager.apply_effect(_wave.status_effect, _wave.status_stacks, self)
 
 
 func is_spawning() -> bool:
@@ -255,17 +273,19 @@ func _spawn_jitter() -> Vector3:
 ## Combined wave-difficulty + mutator/director scaling in one call so the shared
 ## EnemyConfig is never mutated.
 func _apply_spawn_scaling(instance: EnemyBase, _config: EnemyConfig) -> void:
-	var hp: float = float(_difficulty.get("hp", 1.0)) * float(_wave_mods.get("hp_mult", 1.0))
-	var dmg: float = float(_difficulty.get("damage", 1.0)) * float(_wave_mods.get("damage_mult", 1.0))
-	var spd: float = float(_difficulty.get("speed", 1.0)) * float(_wave_mods.get("speed_mult", 1.0))
-	instance.apply_difficulty(hp, dmg, spd)
+	var scaled := _wave.enemy_scaling()
+	instance.apply_difficulty(scaled.x, scaled.y, scaled.z)
+	if _wave.status_targets_enemies:
+		_stamp_wave_status(instance)
+	if _wave.status_targets_player:
+		_stamp_wave_status(_player)
 
 
 ## Elite roll: config-gated, wave-gated, chance-boosted by mutators/director.
 func _maybe_make_elite(instance: EnemyBase, config: EnemyConfig) -> void:
 	if not EliteAffix.elite_allowed(config, _current_wave):
 		return
-	var chance: float = EliteAffix.elite_chance(_current_wave) + float(_wave_mods.get("elite_bonus", 0.0))
+	var chance: float = EliteAffix.elite_chance(_current_wave) + _wave.elite_bonus
 	if _rng.randf() > chance:
 		return
 	var affixes := EliteAffix.roll_affixes(config.archetype_id, _current_wave, _run_seed, _spawn_index)
@@ -278,10 +298,11 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 		return
 	var combo := EliteAffix.combine(affixes)
 	# Re-scale on top of wave scaling (multiplicative, config untouched).
-	instance.apply_difficulty(
-		float(_difficulty.get("hp", 1.0)) * float(_wave_mods.get("hp_mult", 1.0)) * EliteAffix.ELITE_HP_MULT * float(combo["hp"]),
-		float(_difficulty.get("damage", 1.0)) * float(_wave_mods.get("damage_mult", 1.0)) * EliteAffix.ELITE_DAMAGE_MULT * float(combo["damage"]),
-		float(_difficulty.get("speed", 1.0)) * float(_wave_mods.get("speed_mult", 1.0)) * float(combo["speed"]))
+	var scaled := _wave.enemy_scaling(
+		EliteAffix.ELITE_HP_MULT * float(combo["hp"]),
+		EliteAffix.ELITE_DAMAGE_MULT * float(combo["damage"]),
+		float(combo["speed"]))
+	instance.apply_difficulty(scaled.x, scaled.y, scaled.z)
 	instance.set_elite(affixes)
 	elite_spawned.emit(instance, affixes)
 	var bus := _eb()
@@ -370,7 +391,10 @@ func _dispatch_death_effects(enemy: Node) -> void:
 		volatile = true
 	if EliteAffix.VOLATILE in base.get_elite_affixes():
 		volatile = true
-	if not volatile and float(_wave_mods.get("explode_chance", 0.0)) > 0.0 and _rng.randf() < float(_wave_mods.get("explode_chance", 0.0)):
+	# The draw only happens when the wave can actually explode, so a neutral wave consumes no RNG
+	# here and the death-effect order stays what every replay of the seed already assumes.
+	var explode_chance := _wave.explode_chance
+	if not volatile and explode_chance > 0.0 and _rng.randf() < explode_chance:
 		volatile = true
 	if volatile:
 		_detonate(base, pos, config)
@@ -501,7 +525,9 @@ func get_debug_snapshot() -> Dictionary:
 	snap["max_simultaneous"] = _max_simultaneous
 	snap["interval"] = _spawn_interval
 	snap["configured"] = _configured
-	snap["wave_mods"] = _wave_mods.duplicate()
+	# The one place this system still speaks Dictionary, because the snapshot is a debug surface
+	# that gets printed, diffed and (in tests) poked at by key.
+	snap["wave_mods"] = _wave.debug_dictionary()
 	return snap
 
 

@@ -87,8 +87,15 @@ func present(daily: bool = false) -> void:
 	_modes.disabled = daily
 	_daily_info.visible = daily
 	var mutators := PackedStringArray()
+	# The card has room for names; the *rules* are a tooltip, following skill_bar's pattern.
+	# `WaveMutatorConfig.description` is authored copy, so it is shown rather than left in the
+	# inspector — a mutator whose promise nobody reads can quietly stop being kept (see HARDENING).
+	var mutator_notes := PackedStringArray()
 	for id in challenge.mutators:
 		mutators.append(WaveMutators.display_name(id))
+		mutator_notes.append("%s — %s" % [WaveMutators.display_name(id), WaveMutators.description(id)])
+	if not mutator_notes.is_empty():
+		_daily_info.tooltip_text = "\n".join(mutator_notes)
 	_daily_info.text = "%s UTC  •  Fixed starter / shared seed\n%s\nOffline challenge — no online leaderboard." % [challenge.label, "  +  ".join(mutators)]
 	_refresh_details()
 

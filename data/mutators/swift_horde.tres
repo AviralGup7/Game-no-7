@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"swift_horde"
+display_name = "Swift Horde"
+description = "Enemies are 30% faster but 15% frailer."
+severity = &"minor"
+roll_order = 0
+min_wave = 1
+hp_mult = 0.85
+speed_mult = 1.3
+score_mult = 1.1

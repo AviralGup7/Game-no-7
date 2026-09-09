@@ -32,7 +32,10 @@ static func seed_for_today() -> int:
 ## Two fixed mutators for the day's run (deterministic, distinct).
 static func mutators_for_stamp(stamp: int) -> Array[StringName]:
 	var rng := RngService.make_generator(seed_for_stamp(stamp), RngService.STREAM_WAVES)
-	var pool: Array = WaveMutators.ALL.duplicate()
+	# The pool's ORDER is the contract: popping by index out of the roll order is what makes a
+	# stamp's pair reproducible forever. It comes from `roll_order` in res://data/mutators/ now, so
+	# renumbering a mutator is a deliberate act, not a side effect of a file being renamed.
+	var pool: Array = WaveMutators.ordered_ids().duplicate()
 	var out: Array[StringName] = []
 	for i in range(2):
 		if pool.is_empty():

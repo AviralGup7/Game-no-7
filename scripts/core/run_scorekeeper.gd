@@ -78,6 +78,10 @@ func award_bonus(bonus: int) -> void:
 
 func _score_multiplier() -> float:
 	var base := 1.0 + _derived_stat(&"score_multiplier_add", 0.0)
+	# The wave's own rules (mutators + the director's reward for dominating). Six of the seven
+	# shipped mutators advertise a score multiplier and `WaveMutators.combine` folded one for years
+	# that nobody read, so the banner promised more points and the score never moved.
+	base *= _wave_score_mult()
 	# Mode + prestige multipliers stack multiplicatively on top of upgrade bonuses.
 	# For Challenge, the mode multiplier IS the prestige tier's payoff (score_multiplier_for),
 	# so the flat per-rank prestige bonus is skipped to avoid double-counting the rank.
@@ -91,12 +95,28 @@ func _score_multiplier() -> float:
 
 func _currency_multiplier() -> float:
 	var base := 1.0 + _derived_stat(&"currency_multiplier_add", 0.0)
+	base *= _wave_currency_mult()
 	if _run != null:
 		var rank := GameRoot.get_prestige_rank() if GameRoot != null else 0
 		base *= GameMode.currency_multiplier_for(_run.mode_id, rank)
 		if GameRoot != null and not GameMode.scales_with_prestige(_run.mode_id):
 			base *= Prestige.currency_multiplier(rank)
 	return base
+
+
+## The wave's own multipliers, read off RunState's live record. Null-tolerant by design: the
+## scorekeeper also runs headless (upgrades, tests) with no wave manager and no run, and a missing
+## record has to mean "this wave adds nothing", never "the score is zero".
+func _wave_score_mult() -> float:
+	if _run == null or _run.modifiers == null:
+		return 1.0
+	return maxf(_run.modifiers.score_mult, 0.0)
+
+
+func _wave_currency_mult() -> float:
+	if _run == null or _run.modifiers == null:
+		return 1.0
+	return maxf(_run.modifiers.currency_mult, 0.0)
 
 
 func _derived_stat(key: StringName, base: float) -> float:

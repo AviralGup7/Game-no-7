@@ -34,6 +34,11 @@ var _wave_completed_flag := false
 var _awaiting_upgrade := false
 ## Active mutators for the current wave (ids).
 var _active_mutators: Array[StringName] = []
+## The current wave's folded rules: plan scalars × director nudge × mutators, plus the elite bonus,
+## volatile chance, status stamp, severity and count adjustment. Built ONCE per wave by
+## `_fold_modifiers` and read by the spawner push, the banner and the run mirror. It replaces three
+## Dictionary hand-offs that each re-implemented (or, five times over, forgot) the same keys.
+var _wave_mods: WaveModifiers = WaveModifiers.neutral()
 ## Forced mutator set (daily challenge): when non-empty, replaces the normal
 ## resolve every wave so the whole run shares one deterministic pair.
 var _forced_mutators: Array[StringName] = []
@@ -68,6 +73,7 @@ func start_run(seed: int) -> void:
 	_phase = PHASE_PREPARING
 	_awaiting_upgrade = false
 	_active_mutators.clear()
+	_wave_mods = WaveModifiers.neutral()
 	_wire_director()
 	_launch_next_wave()
 
@@ -77,6 +83,7 @@ func stop() -> void:
 	_awaiting_upgrade = false
 	_phase = PHASE_PREPARING
 	_active_mutators.clear()
+	_wave_mods = WaveModifiers.neutral()
 	if _transition_timer != null:
 		_transition_timer.stop()
 	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
@@ -162,6 +169,10 @@ func _launch_wave(wave_number: int) -> void:
 		EventBus.report_warning("WaveManager has no spawn manager")
 		return
 	var cfg := _wave_config(wave_number)
+	# Mutators resolve FIRST: the count nudge below and the banner both read the folded record, so
+	# the wave's rules have to exist before anything else asks what the wave is.
+	_resolve_mutators(wave_number, cfg)
+	_fold_modifiers(wave_number)
 	var queue := _wave_queue(wave_number, cfg)
 	_apply_director_count_nudge(queue)
 	if queue.is_empty():
@@ -172,8 +183,10 @@ func _launch_wave(wave_number: int) -> void:
 	_wave_completed_flag = false
 	_phase = PHASE_SPAWNING
 	_last_delay = cfg.transition_delay
-	_resolve_mutators(wave_number, cfg)
-	_push_scaling_to_spawner(wave_number, cfg)
+	# The run only hears about a wave that is actually launching: an empty plan aborts above, and
+	# a save written after that must not carry mutators the player never faced.
+	_mirror_to_run(_wave_mods)
+	_push_scaling_to_spawner()
 	_spawn.queue_wave(queue, wave_number, cfg.spawn_interval, cfg.maximum_simultaneous_enemies)
 	GameRoot.record_current_wave(wave_number)
 	EventBus.wave_started.emit(wave_number, _planned_count)
@@ -193,7 +206,10 @@ func _announce_wave(wave_number: int) -> void:
 	var severity := &"info"
 	if not _active_mutators.is_empty():
 		text += " — " + WaveMutators.banner_text(_active_mutators)
-		severity = &"warning"
+		# "major" is authored on the mutator (WaveMutatorConfig.severity) and folded into the wave's
+		# record; it used to be folded too, but nothing downstream ever looked at the folded value,
+		# so every mutator shouted at the same volume and a Glass Cannon wave read like a footnote.
+		severity = &"danger" if _wave_mods.severity == WaveMutatorConfig.SEVERITY_MAJOR else &"warning"
 	if wave_number % 10 == 0 or (cap > 0 and wave_number >= cap):
 		severity = &"danger"
 	EventBus.announcement.emit(&"wave_started", text, severity)
@@ -231,23 +247,42 @@ func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
 		EventBus.wave_mutator_applied.emit(id, wave_number)
 
 
-func _push_scaling_to_spawner(wave_number: int, _cfg: WaveConfig) -> void:
-	var scalars := WavePlanner.calculate_difficulty_scalars(wave_number)
-	var director_mods := _director.next_wave_multipliers()
-	# Director nudges fold into the difficulty scalars (bounded ±25% by design).
-	scalars["hp"] = float(scalars["hp"]) * float(director_mods["hp_mult"])
-	scalars["damage"] = float(scalars["damage"]) * float(director_mods["damage_mult"])
-	scalars["speed"] = float(scalars["speed"]) * float(director_mods["speed_mult"])
-	_spawn.set_difficulty_scalars(scalars)
-	# Mutators ride the dedicated wave-modifier channel (plus director elites).
-	var mods := WaveMutators.combine(_active_mutators)
-	mods["elite_bonus"] = float(mods.get("elite_bonus", 0.0)) + float(director_mods.get("elite_bonus", 0.0))
-	_spawn.set_wave_modifiers(mods)
+## The whole wave's rules, folded once. Order matters and is deliberate: the plan's own per-wave
+## scalars, then the director's bounded adaptive nudge, then the mutators — so a mutator is always
+## applied on top of the difficulty the wave already had, exactly as the two Dictionary channels
+## combined before (the multiplication is unchanged; what changed is that every key now reaches the
+## consumer instead of being dropped by a setter that only knew four names). Bounds are applied once
+## here, so no consumer has to remember its own clamp.
+func _fold_modifiers(wave_number: int) -> void:
+	var mods := WaveModifiers.neutral()
+	mods.apply_plan_scalars(WavePlanner.calculate_difficulty_scalars(wave_number))
+	mods.fold_director(_director.next_wave_multipliers())
+	WaveMutators.fold_into(mods, _active_mutators)
+	_wave_mods = mods
 
 
+func _push_scaling_to_spawner() -> void:
+	if _spawn == null:
+		return
+	_spawn.set_wave_modifiers(_wave_mods)
+
+
+## The count rides the same folded record as the difficulty, so the wave a struggling player gets
+## fewer of cannot also be the one whose mutators made everything faster.
 func _apply_director_count_nudge(queue: Array[StringName]) -> void:
-	var bonus := int(_director.next_wave_multipliers().get("count_bonus", 0))
-	apply_count_nudge(queue, bonus)
+	apply_count_nudge(queue, _wave_mods.count_bonus)
+
+
+## Publish the wave's rules where the run summary, the save and the UI can see them.
+## `RunState.active_modifiers` used to be cleared, duplicated and serialized but never WRITTEN, so
+## every run summary in the game reported "no mutators" — including runs played under three of
+## them. The typed record is live-only (never saved): saving ids and re-resolving them is the
+## scheme, and multipliers drift with the wave they were folded for.
+func _mirror_to_run(mods: WaveModifiers) -> void:
+	var run := GameRoot.get_run() if GameRoot != null else null
+	if run == null:
+		return
+	run.set_wave_modifiers(mods)
 
 
 ## Deterministic spawn-count nudge for one resolved queue. Additions/removals are

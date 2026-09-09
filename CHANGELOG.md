@@ -1,5 +1,73 @@
 # Changelog
 
+## [Unreleased] — The wave's rules became data, and one typed record (2026-09-09)
+
+Fifth architecture pass, same method: rank `scripts/` by structural weakness, read the winner
+fully, check it against how the engine and the industry model the problem, rebuild, pin the weak
+design out. The target was the wave-mutator subsystem — the smallest file in the ranking
+(`scripts/waves/wave_mutators.gd`, 155 lines) and the one whose Dictionary boundaries had the
+widest blast radius (`SpawnManager`, `WaveManager`, `DifficultyDirector`, `RunScorekeeper`,
+`WeaponManager`, `RunState`, the daily challenge and the run-summary panel).
+
+- **Mutators are `WaveMutatorConfig` resources now.** `definition()` was a `match mutator_id`
+  over seven hand-written Dictionaries, and its last line returned a *neutral* Dictionary for any
+  id it did not recognise — an unknown mutator was not an error, it was a wave that announced a
+  modifier and applied nothing. The seven shipped ones are `res://data/mutators/<id>.tres`,
+  registered by `ContentLoader` (151 validated files, up from 143), and their ids are checked at
+  load wherever they are referenced: `WaveConfig.arena_modifier_ids`, `GameMode.forced_mutators`,
+  `GameMode.CHALLENGE_MUTATOR_POOL`, and each mutator's `status_effect_id`. A mutator whose every
+  knob is neutral is refused outright: that is a banner line, not a rule.
+- **Five authored knobs started working.** Grepping every key against every consumer found
+  `currency_mult` (Bounty Hunt's entire "double currency" pitch) and `player_damage_mult` (Glass
+  Cannon's "take +25%") dropped by `set_wave_modifiers`, which copied four named keys and
+  documented "unknown keys are ignored"; `score_mult` copied but read by nobody, though six of
+  seven mutators advertised richer kills; `burn_tick` — Ember Winds' whole mechanic — read by
+  nobody, so it was a banner and a signal; and the director's own `score_mult`, so "dominating
+  players get richer waves" was a comment. They now fold into `RunScorekeeper` (score and
+  currency, beside the upgrade/mode/prestige multipliers), `WeaponManager` (player damage, beside
+  the status factor, refreshed on the wave seam `set_current_wave`), and the arena itself
+  (Ember Winds stamps a real `StatusEffectConfig`, `data/status/ember_air.tres` at 1.5/s, through
+  `StatusManager.apply_effect` on enemies as they spawn and on the player while a wave arrives).
+  `severity` finally escalates the wave banner: `minor` warns, `major` is `danger`.
+- **One typed record per wave instead of three Dictionaries.** `WaveModifiers` is what
+  `WaveManager._fold_modifiers()` produces once per wave — plan scalars, then the
+  `DifficultyDirector`'s bounded nudge, then the mutators, then `clamp_bounds()` — and what
+  `SpawnManager`, `RunScorekeeper`, `WeaponManager` and `RunState` read field by field.
+  `SpawnManager`'s `_difficulty` and `_wave_mods` are gone (8 string-keyed reads removed),
+  `DifficultyDirector.next_wave_multipliers()` returns the record, and the only Dictionaries left
+  in the pipeline are `WavePlanner.calculate_difficulty_scalars()`'s (a test-pinned scalar
+  function, absorbed by `apply_plan_scalars`) and `debug_dictionary()` at the debug-snapshot
+  boundary. Stacking rules are authored per field in `WaveMutatorConfig.FOLD`
+  (`multiply`/`add`/`max`) because "how do two modifiers combine" has no generic answer; the
+  bounds live with the fold, so a consumer cannot forget its clamp.
+- **`RunState.active_modifiers` is written.** It was cleared, duplicated, serialized and shown in
+  the run summary — and never assigned, so every summary in the game reported no mutators.
+  `set_wave_modifiers()` publishes it from the folded record at each wave launch (ids only:
+  multipliers are re-derived per wave and stay out of the save), and the daily card now tooltips
+  each mutator's `description` instead of leaving that field in the inspector.
+- **Selection stayed deterministic, and got smaller.** `roll_for_wave` keeps its
+  `(seed, STREAM_WAVES + wave * 7)` stream, its 4/8-wave shape and its pool order — which is
+  authored as `roll_order` now, because `DailyChallenge.mutators_for_stamp()` pops indices out of
+  that list and `GameMode` indexes its own challenge pool; `min_wave` replaced
+  `if wave < 6: pool.erase(GLASS_CANNON)`. Ties in `roll_order` are a startup error, and the
+  unknown-id path warns instead of neutralising.
+- **Pinned out:** `tests/python/test_regress_wave_mutators.py` (43 checks: mirrors every shipped
+  number, refuses `match mutator_id`/`definition()`/Dictionary multiplier records in `scripts/`,
+  requires every field of the record and every field of the config to have a reader, pins the
+  fold order, the roll stream, the registry wiring and the doc text),
+  `tests/unit/test_wave_mutators.gd` (15 headless cases: fold arithmetic, bounds, targets, the
+  neutral refusal, roll gating, the run mirror) and `tool/validate_guards.py` 61 → 99 needles.
+  641 python tests green (was 598), and 38 of 38 reintroduced defects caught by a mutation pass over a scratch copy. Two live-stage additions in `tests/integration_stages.gd` assert the
+  folded record reaches a spawned enemy's health, damage *and* status list — a path that could
+  not exist before, because nothing stamped anything.
+- **Docs that lied:** `docs/EXTENDING.md` §11 described "`WaveMutators` (`ALL`,
+  `resolve_for_wave`, per-id `apply_to_wave_mods` scalars)" — a method name that never existed and
+  an `ALL` const that does not any more; rewritten as "add a mutator without touching code".
+  `docs/ARCHITECTURE.md` gained "Wave rules (mutators, the director, and the one folded record)".
+  `docs/HARDENING.md` told contributors to "add a `_validated_*` helper", the exact pattern its
+  own gate rejects; that section now says what replaced it (load-time `validate()`, typed records,
+  "a field must have a reader").
+
 ## [Unreleased] — The arena's authored world: theme, landmark, cover (2026-09-09)
 
 Fourth architecture pass, same method: find the weak subsystem, read it fully, check it

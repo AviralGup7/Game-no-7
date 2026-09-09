@@ -25,6 +25,7 @@ static func load_all() -> Dictionary:
 		&"waves": {},
 		&"hazards": {},
 		&"hazard_modes": {},
+		&"mutators": {},
 	}
 	_load_typed(&"res://data/enemies", &"enemies", tables, errors)
 	_load_typed(&"res://data/upgrades", &"upgrades", tables, errors)
@@ -37,6 +38,7 @@ static func load_all() -> Dictionary:
 	_load_typed(&"res://data/waves", &"waves", tables, errors)
 	_load_typed(&"res://data/hazards", &"hazards", tables, errors)
 	_load_typed(&"res://data/hazard_modes", &"hazard_modes", tables, errors)
+	_load_typed(&"res://data/mutators", &"mutators", tables, errors)
 	_validate_references(tables, errors)
 	var audio := _load_audio_streams(errors)
 	var first_arena := &""
@@ -106,6 +108,45 @@ static func _validate_references(tables: Dictionary, errors: Array[String]) -> v
 			errors.append("hazard %s re-stamps %s every %.2fs but the effect only lasts %.2fs" % [
 				String(hazard.hazard_id), String(hazard.status_effect_id), hazard.victim_cooldown, effect.duration,
 			])
+	# Wave mutators. This table used to be a `match` inside WaveMutators that returned a NEUTRAL
+	# definition for any id it did not recognise, so every authored reference below was a way to
+	# ship a banner line that changed nothing. They are startup errors now.
+	var mutators: Dictionary = tables[&"mutators"]
+	if mutators.is_empty():
+		errors.append("no WaveMutatorConfig resources under res://data/mutators — waves cannot resolve modifiers")
+	var roll_orders := {}
+	for raw in mutators.values():
+		var mutator := raw as WaveMutatorConfig
+		if mutator == null:
+			continue
+		if mutator.has_status() and not statuses.has(mutator.status_effect_id):
+			errors.append("mutator %s references unknown status %s" % [
+				String(mutator.mutator_id), String(mutator.status_effect_id),
+			])
+		if mutator.roll_order in roll_orders:
+			# Ties are resolved by id, so a collision is not undefined behaviour — it silently
+			# reshuffles the daily challenge's pool. That is still an authoring mistake.
+			errors.append("mutators %s and %s both claim roll_order %d (the daily pool order is authored)" % [
+				String(roll_orders[mutator.roll_order]), String(mutator.mutator_id), mutator.roll_order,
+			])
+		else:
+			roll_orders[mutator.roll_order] = mutator.mutator_id
+	for raw in (tables[&"waves"] as Dictionary).values():
+		var wave := raw as WaveConfig
+		if wave == null:
+			continue
+		for mutator_id in wave.arena_modifier_ids:
+			if not mutators.has(mutator_id):
+				errors.append("wave %d declares unknown mutator %s" % [
+					wave.wave_number, String(mutator_id),
+				])
+	for mode_id in GameMode.CATALOG.keys():
+		for mutator_id in GameMode.forced_mutators(StringName(String(mode_id))):
+			if not mutators.has(mutator_id):
+				errors.append("game mode %s forces unknown mutator %s" % [String(mode_id), String(mutator_id)])
+	for mutator_id in GameMode.CHALLENGE_MUTATOR_POOL:
+		if not mutators.has(mutator_id):
+			errors.append("challenge mutator pool references unknown mutator %s" % String(mutator_id))
 
 
 static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, errors: Array[String]) -> void:
@@ -150,6 +191,12 @@ static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, 
 					errors.append("Not a StatusEffectConfig: %s" % path)
 				else:
 					_register_resource(tables[&"status"], StringName(effect.effect_id), effect, path, errors)
+			&"mutators":
+				var mutator := res as WaveMutatorConfig
+				if mutator == null:
+					errors.append("Not a WaveMutatorConfig: %s" % path)
+				else:
+					_register_resource(tables[&"mutators"], StringName(mutator.mutator_id), mutator, path, errors)
 			&"hazards":
 				var hazard := res as HazardConfig
 				if hazard == null:

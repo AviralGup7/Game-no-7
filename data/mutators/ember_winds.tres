@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"ember_winds"
+display_name = "Ember Winds"
+description = "Burning air: everything takes fire ticks."
+severity = &"major"
+roll_order = 6
+min_wave = 1
+score_mult = 1.2
+status_effect_id = &"ember_air"
+status_stacks = 1
+status_targets = &"all"

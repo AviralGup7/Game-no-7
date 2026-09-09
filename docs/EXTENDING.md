@@ -291,12 +291,40 @@ take precedence — procedural fill never overwrites a registered cue.)
    interval. A `trigger_radius` wider than the effect radius, a telegraph longer than the
    period, a beneficial hazard that also deals damage, a proximity pulse that cannot
    re-arm, and a fully transparent marker on a live hazard are all startup errors.
-6. Mutators are static data + logic in `WaveMutators` (`ALL`, `resolve_for_wave`,
-   per-id `apply_to_wave_mods` scalars): add the id, its display name/banner
-   text, and its scalar block. `WaveManager` resolves them per wave (authored
-   declarations win, the `DifficultyDirector` may veto into a breather, daily
-   runs force one pair); `SpawnManager` reads the resulting wave mods at spawn.
-   Past the authored waves the planner scales endlessly.
+6. **Add a mutator without touching code.** `res://data/mutators/<id>.tres` is a
+   `WaveMutatorConfig`, and the file name *is* the id (`validate()` refuses a mismatch, so a
+   renamed file cannot be registered under a stale key). Author `display_name` and
+   `description` (the daily card shows the name and tooltips the description), `severity`
+   (`minor`/`major` — a major mutator escalates its wave banner to `danger`), `roll_order`
+   (position in the deterministic pool: `DailyChallenge.mutators_for_stamp()` pops indices out
+   of that order, so renumbering silently changes what a past date offered), `min_wave` (Glass
+   Cannon's "wave 6+" is authored, not an `if` in the roller), the six `*_mult` knobs,
+   `elite_bonus`, `explode_chance`, and optionally `status_effect_id` + `status_targets`
+   (`none`/`enemies`/`player`/`all`) + `status_stacks` — Ember Winds' burning air is just a
+   `StatusEffectConfig` stamped through the status manager. Every field has a reader and
+   `tests/python/test_regress_wave_mutators.py` fails if one loses it; a mutator whose knobs are
+   all neutral is refused at load, because the alternative is a banner that promises a rule and
+   applies nothing.
+7. **Say how it stacks.** `WaveMutatorConfig.FOLD` names the rule per field (`multiply` for
+   stats, `add` for chances meant to accumulate, `max` for one-shot flags), because there is no
+   generic answer to "how do two modifiers combine" and an order-of-operations decision made in
+   one consumer's loop is invisible to the next. `WaveModifiers.fold_mutator` iterates that
+   table, and `clamp_bounds()` bounds the whole folded set once (multipliers floor at 0.01 and
+   cap at 8.0, elite bonus at 0.5, chances at 1.0, the count nudge at ±2) so no consumer has to
+   remember its own clamp. Each consumer then reads a typed field: `SpawnManager`
+   (hp/damage/speed/elite/volatile/status at spawn), `RunScorekeeper` (score and currency),
+   `WeaponManager` (player damage), `WaveManager` (severity, spawn-count nudge, the run mirror).
+   `RunState.active_modifiers` carries the *ids* into the save and the run summary; multipliers
+   are derived per wave and never serialized.
+8. **`WaveMutators` selects, nothing else**: `ordered_ids()`, `resolve()`, `resolve_status()`,
+   `roll_for_wave()`, `resolve_for_wave()`, `fold_into()`, `display_name()`, `description()`,
+   `banner_text()`. It has no mutator numbers and no id list. `WaveManager` resolves each wave
+   (authored `arena_modifier_ids` win; generated waves roll — none before wave 4, one from 4, a
+   second from 8 — and `DifficultyDirector` may veto into a breather or spice one up; daily and
+   challenge runs force a set), folds plan scalars → director → mutators once per wave into one
+   record, and hands that record over. Past the authored waves the planner scales endlessly.
+   A new *mechanic* (something the fold cannot express, e.g. a knockback on spawn) is the only
+   case that adds a field to `WaveMutatorConfig` + `WaveModifiers.FOLD_FIELDS` + a reader.
 
 
 ## 12. Add meta / achievements / dailies

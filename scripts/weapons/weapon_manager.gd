@@ -123,6 +123,10 @@ func equip_by_id(weapon_id: StringName, slot: int = 0, bypass_wave_gate: bool = 
 
 func set_current_wave(wave_number: int) -> void:
 	_current_wave = maxi(wave_number, 1)
+	# The wave's rules are part of a weapon's derived stats (Glass Cannon's "you hit harder" side),
+	# so a wave change is an external stat change and refreshes them. Damage numbers that only
+	# update on the next upgrade pick are the kind of thing a player reads as a bug.
+	refresh_derived_stats()
 
 
 func get_current_wave() -> int:
@@ -188,6 +192,15 @@ func refresh_derived_stats() -> void:
 			_apply_derived_stats(inst)
 
 
+## Outgoing-damage multiplier from the current wave's mutators, clamped by whoever folded it
+## (`WaveModifiers.clamp_bounds`). Neutral when no wave is running.
+func _wave_damage_mult() -> float:
+	var run := GameRoot.get_run() if GameRoot != null else null
+	if run == null or run.modifiers == null:
+		return 1.0
+	return maxf(run.modifiers.player_damage_mult, 0.0)
+
+
 func _apply_derived_stats(inst: WeaponInstance) -> void:
 	var prog := _progression()
 	var status_damage := 1.0
@@ -195,7 +208,10 @@ func _apply_derived_stats(inst: WeaponInstance) -> void:
 		var status := _owner_body.get_node_or_null("StatusManager") as StatusManager
 		if status != null:
 			status_damage = maxf(status.outgoing_damage_factor(), 0.0)
-	inst.damage_multiplier = _stat(prog, &"attack_damage_multiplier", 1.0) * status_damage
+	# `player_damage_mult` is the mutator half of outgoing damage: authored on the mutator, folded
+	# into the wave's record, and read here beside the status factor rather than in a second place
+	# the enemy's incoming `damage_mult` could be mistaken for it.
+	inst.damage_multiplier = _stat(prog, &"attack_damage_multiplier", 1.0) * status_damage * _wave_damage_mult()
 	inst.cooldown_multiplier = _stat(prog, &"attack_cooldown_multiplier", 1.0)
 	inst.range_bonus = _stat(prog, &"attack_range_add", 0.0)
 	inst.knockback_multiplier = _stat(prog, &"knockback_multiplier", 1.0)
