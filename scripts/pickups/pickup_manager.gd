@@ -107,28 +107,22 @@ func _config_of(pickup_id: StringName) -> PickupConfig:
 	return ContentRegistry.get_pickup(pickup_id)
 
 
-func _player() -> Node3D:
+func _player() -> Player:
 	if GameRoot != null:
-		var pl: Variant = GameRoot.get_active_player()
+		var pl := GameRoot.get_active_player()
 		if pl is Node3D:
 			return pl
 	if is_inside_tree():
 		var players := get_tree().get_nodes_in_group("player")
 		if not players.is_empty():
-			return players[0] as Node3D
+			return players[0] as Player
 	return null
 
 
 func _on_enemy_killed(enemy: Node, archetype_id: StringName, _score: int, _currency: int) -> void:
-	var wave := 1
-	if GameRoot != null and GameRoot.has_method("get_run"):
-		var run: Variant = GameRoot.call("get_run")
-		if run != null:
-			if run is Dictionary:
-				wave = maxi(int((run as Dictionary).get("current_wave", 1)), 1)
-			elif "current_wave" in run:
-				wave = maxi(int((run as Variant).current_wave), 1)
-	var is_elite := enemy != null and enemy.has_method("is_elite") and bool(enemy.call("is_elite"))
+	var run := GameRoot.get_run()
+	var wave := maxi(run.current_wave, 1) if run != null else 1
+	var is_elite := enemy is EnemyBase and (enemy as EnemyBase).is_elite()
 	var is_boss := enemy != null and enemy.is_in_group("boss")
 	var ids := _drop_table.roll_drops(archetype_id, wave, is_elite, is_boss, _luck_bonus, _rng)
 	if ids.is_empty():
@@ -170,58 +164,39 @@ func _on_collected(pickup: Pickup, collector: Node) -> void:
 
 
 func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
-	if AudioManager != null:
-		AudioManager.play_sfx(&"pickup", -8.0)
+	AudioManager.play_sfx(&"pickup", -8.0)
 	var amount := cfg.scaled_amount(level)
+	var player := collector as Player
 	match cfg.effect:
 		PickupConfig.EFFECT_HEAL:
-			var hp := (collector as Node).get_node_or_null("HealthComponent") if collector is Node else null
-			if hp != null and hp.has_method("heal"):
-				hp.call("heal", amount)
+			if player != null:
+				player.get_health_component().heal(amount)
 		PickupConfig.EFFECT_CURRENCY:
-			if GameRoot != null and GameRoot.has_method("get_run"):
-				var run_c: Variant = GameRoot.call("get_run")
-				if run_c != null:
-					if run_c is Dictionary:
-						(run_c as Dictionary)["currency"] = maxi(int((run_c as Dictionary).get("currency", 0)) + int(round(amount)), 0)
-						if EventBus != null:
-							EventBus.currency_changed.emit(int((run_c as Dictionary).get("currency", 0)), int(round(amount)))
-					elif run_c is Object and (run_c as Object).has_method("add_currency"):
-						run_c.call("add_currency", int(round(amount)))
-						if EventBus != null and "currency" in run_c:
-							EventBus.currency_changed.emit(int((run_c as Object).get("currency")), int(round(amount)))
+			var run_c := GameRoot.get_run()
+			if run_c != null:
+				run_c.add_currency(int(round(amount)))
+				EventBus.currency_changed.emit(run_c.currency, int(round(amount)))
 		PickupConfig.EFFECT_SCORE:
-			if GameRoot != null and GameRoot.has_method("get_run"):
-				var run_s: Variant = GameRoot.call("get_run")
-				if run_s != null:
-					if run_s is Dictionary:
-						(run_s as Dictionary)["score"] = maxi(int((run_s as Dictionary).get("score", 0)) + int(round(amount)), 0)
-						if EventBus != null:
-							EventBus.score_changed.emit(int((run_s as Dictionary).get("score", 0)), int(round(amount)))
-					elif run_s is Object and (run_s as Object).has_method("add_score"):
-						run_s.call("add_score", int(round(amount)))
-						if EventBus != null and "score" in run_s:
-							EventBus.score_changed.emit(int((run_s as Object).get("score")), int(round(amount)))
+			var run_s := GameRoot.get_run()
+			if run_s != null:
+				run_s.add_score(int(round(amount)))
+				EventBus.score_changed.emit(run_s.score, int(round(amount)))
 		PickupConfig.EFFECT_STAMINA:
-			if collector != null and collector.has_method("restore_stamina"):
-				collector.call("restore_stamina", amount)
+			if player != null:
+				player.restore_stamina(amount)
 		PickupConfig.EFFECT_XP:
-			if collector != null and collector.has_method("add_xp"):
-				collector.call("add_xp", amount)
+			if player != null:
+				player.add_xp(amount)
 		PickupConfig.EFFECT_SHIELD:
-			var sm := (collector as Node).get_node_or_null("StatusManager") if collector is Node else null
-			if sm == null and ContentRegistry != null:
-				pass  # shield without a StatusManager is a no-op (tolerant)
-			elif sm != null and sm.has_method("apply_effects") and ContentRegistry != null:
+			if player != null:
 				var shield_cfg: StatusEffectConfig = ContentRegistry.get_status_effect(&"guard")
-				if shield_cfg != null and sm.has_method("apply_effect"):
-					sm.call("apply_effect", shield_cfg, 1, collector)
+				if shield_cfg != null:
+					player.get_status_manager().apply_effect(shield_cfg, 1, player)
 		PickupConfig.EFFECT_MAGNET:
 			magnet_burst()
 		PickupConfig.EFFECT_CLEANSE:
-			var sm2 := (collector as Node).get_node_or_null("StatusManager") if collector is Node else null
-			if sm2 != null and sm2.has_method("cleanse_all"):
-				sm2.call("cleanse_all", true)
+			if player != null:
+				player.get_status_manager().cleanse_all(true)
 
 
 func _on_release_requested(p: Pickup) -> void:
@@ -241,11 +216,4 @@ func live_count() -> int:
 
 func get_debug_snapshot() -> Dictionary:
 	return {"live": _live.size(), "idle": _idle.size(), "dry_streak": _drop_table.dry_streak()}
-
-## Hardened: clamp drop position to arena bounds.
-func _validated_drop_pos(pos: Vector3, half: float) -> Vector3:
-	if not is_finite(pos.x) or not is_finite(pos.z):
-		return Vector3.ZERO
-	half = clampf(half, 4.0, 100.0)
-	return Vector3(clampf(pos.x, -half, half), pos.y, clampf(pos.z, -half, half))
 

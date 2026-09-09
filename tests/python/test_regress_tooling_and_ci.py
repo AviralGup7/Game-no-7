@@ -33,7 +33,6 @@ class CIPipelineTests(unittest.TestCase):
         txt = read(".github/workflows/android.yml")
         self.assertIn("needs: build-android", txt)
         self.assertIn("softprops/action-gh-release", txt)
-
 class ValidateResourcesTests(unittest.TestCase):
     def test_validate_resources_exists(self):
         txt = read("tool/validate_resources.py")
@@ -48,15 +47,14 @@ class ValidateResourcesTests(unittest.TestCase):
         txt = read("tool/validate_assets.py")
         self.assertIn("glTF", txt)
         self.assertIn("bufferView", txt)
-
 class ScriptHardeningCoverageTests(unittest.TestCase):
-    def test_at_least_85_validated(self):
-        # quick coverage: count files with _validated
-        import pathlib
-        root = ROOT / "scripts"
-        gds = list(root.rglob("*.gd"))
-        validated = sum(1 for p in gds if "_validated" in p.read_text(errors="ignore"))
-        self.assertGreaterEqual(validated, 85, f"only {validated} files have _validated, expected >=85")
+    def test_typed_architecture_gate(self):
+        # The _validated_* coverage metric is retired with the theater itself.
+        # Its replacement is the typed-architecture gate.
+        import subprocess, sys
+        r = subprocess.run([sys.executable, str(ROOT / "tool" / "check_typed_arch.py")],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, f"check_typed_arch failed:\n{r.stdout}")
     def test_no_bare_GameRoot_get_run_in_main(self):
         txt = read("scripts/main/main.gd")
         # main should use _safe_seed/_safe_arena_id, not bare GameRoot.get_run().seed
@@ -67,36 +65,85 @@ class ScriptHardeningCoverageTests(unittest.TestCase):
         txt = read("scripts/audio/audio_manager.gd")
         self.assertIn("EventBus", txt)
         # we hardened with _validated_volume
-        self.assertIn("_validated_volume", txt)
-
 class ScoringAndWaveTests(unittest.TestCase):
-    def test_scoring_validated(self):
-        self.assertIn("_validated_score_delta", read("scripts/waves/scoring.gd"))
     def test_wave_spawn_entry_count(self):
         txt = read("scripts/waves/wave_spawn_entry.gd")
-        self.assertIn("archetype_id == &\"\"", txt)
-    def test_wave_mutators_weight(self):
-        self.assertIn("_validated_mutator_weight", read("scripts/waves/wave_mutators.gd"))
+        self.assertIn("String(archetype_id).is_empty()", txt)
 
-class SaveTests(unittest.TestCase):
-    def test_save_schema_exists(self):
-        txt = read("scripts/save/save_schema.gd")
-        self.assertIn("_validated_schema_version", txt)
-    def test_settings_data_exists(self):
-        txt = read("scripts/save/settings_data.gd")
-        self.assertIn("_validated_volume", txt)
 
-class PerformanceAndRngTests(unittest.TestCase):
-    def test_performance_monitor(self):
-        self.assertIn("_validated_sample", read("scripts/utilities/performance_monitor.gd"))
-    def test_rng_chance(self):
-        self.assertIn("_validated_chance", read("scripts/utilities/rng_service.gd"))
-    def test_weighted_total(self):
-        self.assertIn("_validated_total", read("scripts/utilities/weighted_table.gd"))
+class ValidateResourcesInheritedSubResourceTests(unittest.TestCase):
+    """Behaviour test for the file-local SubResource guard on inherited scenes.
 
-class VisualMountTests(unittest.TestCase):
-    def test_visual_mount(self):
-        self.assertIn("_validated_mount", read("scripts/visuals/visual_mount.gd"))
+    A child scene (one with `instance=ExtResource(base)`) may only reference
+    SubResource ids it declares itself; ids are file-local and pointing at the
+    parent's pool silently breaks the override. The enemy archetype scenes are
+    the motivating pattern (they all inherit enemy_base.tscn now), and the
+    guard must accept the editor's [editable] cross-file pointer as sanctioned.
+    Asserted as behaviour on synthetic fixtures, not as pinned tool source text.
+    """
+
+    BASE = """[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://s.gd" id="1_s"]
+
+[sub_resource type="BoxShape3D" id="Shape_base"]
+size = Vector3(1, 1, 1)
+
+[node name="Base" type="Node3D"]
+script = ExtResource("1_s")
+"""
+    CHILD_TMPL = """[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://base.tscn" id="1_base"]
+
+[sub_resource type="BoxShape3D" id="Shape_own"]
+size = Vector3(2, 2, 2)
+
+[node name="Child" instance=ExtResource("1_base")]
+
+[node name="Collider" type="CollisionShape3D" parent="."]
+shape = SubResource("{ref}")
+"""
+    EDITABLE_CHILD = (CHILD_TMPL.format(ref="Shape_base") +
+"""
+[editable name="Shape_base" path="shape" sub_resource="Shape_base" instance=ExtResource("1_base")]
+""")
+
+    def _check(self, text: str) -> list[str]:
+        import sys
+        import tempfile
+        from unittest.mock import patch
+        sys.path.insert(0, str(ROOT))
+        from tool import validate_resources
+        with tempfile.TemporaryDirectory() as td:
+            tdp = pathlib.Path(td)
+            (tdp / "s.gd").write_text("extends Node\n")
+            (tdp / "base.tscn").write_text(self.BASE)
+            child = tdp / "child.tscn"
+            child.write_text(text)
+            problems: list[str] = []
+            with patch.object(validate_resources, "ROOT", str(tdp)):
+                validate_resources.check_file(str(child), problems)
+            return problems
+
+    def test_local_sub_resource_reference_is_accepted(self):
+        self.assertEqual(self._check(self.CHILD_TMPL.format(ref="Shape_own")), [])
+
+    def test_cross_file_sub_resource_reference_is_flagged(self):
+        problems = self._check(self.CHILD_TMPL.format(ref="Shape_base"))
+        self.assertEqual(len(problems), 1, msg=str(problems))
+        self.assertIn("file-local", problems[0])
+
+    def test_editable_pointer_is_accepted(self):
+        self.assertEqual(self._check(self.EDITABLE_CHILD), [])
+
+    def test_real_enemy_scenes_pass_the_validator(self):
+        import subprocess, sys
+        rc = subprocess.run(
+            [sys.executable, "tool/validate_resources.py"],
+            cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(rc.returncode, 0, msg=rc.stdout + rc.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

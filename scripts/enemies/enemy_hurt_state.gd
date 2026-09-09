@@ -32,10 +32,3 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 			host.state_machine_change_to(&"idle")
 		else:
 			host.state_machine_change_to(&"chase")
-
-## Hardened: clamp hurt duration.
-func _validated_hurt_time(t: float) -> float:
-	if not is_finite(t) or t <= 0.0:
-		return 0.2
-	return clampf(t, 0.05, 2.0)
-

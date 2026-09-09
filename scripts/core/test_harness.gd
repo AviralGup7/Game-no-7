@@ -52,8 +52,17 @@ func _player_scene_loads() -> bool:
 ## Phase 3 loop checks — deterministic, system-presence/config based (no live run
 ## required, matching the coarse diagnostic intent of the other smoke items).
 
+## All eight shipped archetypes (see data/enemies/). The smoke checks below must
+## cover the FULL roster, not just the three that existed in Phase 2 — a config or
+## scene broken only for dasher/exploder/ranged/splitter/warlord is exactly the
+## "works for some enemies" class the scene-inheritance refactor closed.
+const ENEMY_ARCHETYPE_IDS: Array[StringName] = [
+	&"basic", &"fast", &"heavy", &"dasher", &"exploder", &"ranged", &"splitter", &"warlord",
+]
+
+
 func _enemy_archetypes_ok() -> bool:
-	for id in [&"basic", &"fast", &"heavy"]:
+	for id in ENEMY_ARCHETYPE_IDS:
 		var cfg: EnemyConfig = ContentRegistry.get_enemy(id)
 		if cfg == null or cfg.scene == null or not cfg.validate().is_empty():
 			return false
@@ -61,11 +70,13 @@ func _enemy_archetypes_ok() -> bool:
 
 
 func _spawn_resources_ok() -> bool:
-	return ResourceLoader.exists("res://scenes/enemies/spawn_manager.tscn") \
-		and ResourceLoader.exists("res://scripts/enemies/spawn_manager.gd") \
-		and ResourceLoader.exists("res://scenes/enemies/basic_enemy.tscn") \
-		and ResourceLoader.exists("res://scenes/enemies/fast_enemy.tscn") \
-		and ResourceLoader.exists("res://scenes/enemies/heavy_enemy.tscn")
+	if not (ResourceLoader.exists("res://scenes/enemies/spawn_manager.tscn") \
+			and ResourceLoader.exists("res://scripts/enemies/spawn_manager.gd")):
+		return false
+	for id in ENEMY_ARCHETYPE_IDS:
+		if not ResourceLoader.exists("res://scenes/enemies/%s_enemy.tscn" % String(id)):
+			return false
+	return true
 
 
 func _combat_resources_ok() -> bool:
@@ -75,8 +86,7 @@ func _combat_resources_ok() -> bool:
 
 
 func _kill_and_wave_scoring_configured() -> bool:
-	var ids := [&"basic", &"fast", &"heavy"]
-	for id in ids:
+	for id in ENEMY_ARCHETYPE_IDS:
 		var cfg: EnemyConfig = ContentRegistry.get_enemy(id)
 		if cfg == null or cfg.score_value <= 0 or cfg.currency_value <= 0:
 			return false
@@ -146,6 +156,10 @@ func _upgrade_selection_deterministic() -> bool:
 	return true
 
 
+## Deliberate has_method PROBE (not dispatch): this harness asserts the GameRoot
+## API exists, so a deleted/renamed method fails the check loudly. This is the
+## one sanctioned has_method site in scripts/ (allowlisted in
+## tool/check_typed_arch.py).
 func _progression_commands_ok() -> bool:
 	if GameRoot == null:
 		return false
@@ -223,10 +237,3 @@ func get_test_snapshot() -> Dictionary:
 			"selected_upgrades": run.selected_upgrades.duplicate(),
 		},
 	}
-
-## Hardened: validate harness seed.
-func _validated_harness_seed(s: int) -> int:
-	if s == 0:
-		return 1
-	return s
-

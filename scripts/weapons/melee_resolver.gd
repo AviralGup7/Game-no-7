@@ -55,20 +55,20 @@ static func _is_valid_target(c: Variant) -> bool:
 		return false
 	if not (c is Node3D):
 		return false
-	if not c.has_method("apply_damage"):
+	# Damageable is the explicit combat protocol (Player/EnemyBase share it).
+	var damageable := c as Damageable
+	if damageable == null:
 		return false
-	if c.has_method("is_alive") and not bool(c.call("is_alive")):
-		return false
-	return true
+	return damageable.is_alive()
 
 
 ## Extra reach granted by bulky targets (reads EnemyConfig.bounds_radius when
 ## available; 0 otherwise).
 static func _target_radius(c: Variant) -> float:
-	if c != null and (c as Node).has_method("get_config"):
-		var cfg: Variant = (c as Node).call("get_config")
-		if cfg is EnemyConfig:
-			return (cfg as EnemyConfig).bounds_radius
+	if c is EnemyBase:
+		var cfg := (c as EnemyBase).get_config()
+		if cfg != null:
+			return cfg.bounds_radius
 	return 0.0
 
 
@@ -122,8 +122,11 @@ static func resolve_and_apply(origin: Vector3, facing: Vector3, candidates: Arra
 		var payload: DamagePayload = entry["payload"]
 		if not payload.is_valid():
 			continue
-		var result: Variant = target.call("apply_damage", payload)
-		if result is DamageResult and (result as DamageResult).accepted:
+		var damageable := target as Damageable
+		if damageable == null:
+			continue
+		var result := damageable.apply_damage(payload)
+		if result.accepted:
 			applied.append({"target": target, "result": result})
 	return applied
 
@@ -131,23 +134,4 @@ static func resolve_and_apply(origin: Vector3, facing: Vector3, candidates: Arra
 ## Count how many candidates WOULD be hit (for UI telegraphs / AI decisions).
 static func count_threatened(origin: Vector3, facing: Vector3, candidates: Array, weapon: WeaponInstance) -> int:
 	return select_targets(origin, facing, candidates, weapon).size()
-
-## Hardened: validate melee hit before applying.
-func _validated_melee(victims: Array, damage: float, range_val: float) -> Dictionary:
-	if not is_finite(damage) or damage < 0.0:
-		damage = 5.0
-	damage = clampf(damage, 0.0, 999999.0)
-	if not is_finite(range_val) or range_val <= 0.0:
-		range_val = 1.5
-	range_val = clampf(range_val, 0.1, 10.0)
-	var clean: Array = []
-	for v in victims:
-		if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
-			clean.append(v)
-	return {"victims": clean, "damage": damage, "range_val": range_val}
-func _melee_has_valid_target(victims: Array) -> bool:
-	for v in victims:
-		if v != null and is_instance_valid(v):
-			return true
-	return false
 

@@ -31,7 +31,7 @@ const SPAWN_JITTER_RADIUS := 1.2
 const SPLIT_BURST_RADIUS := 0.9
 const SPLIT_BURST_PUSH := 3.0
 
-var _arena: Node3D = null
+var _arena: Arena = null
 var _player: Node = null
 var _container: Node3D = null
 var _rng := RandomNumberGenerator.new()
@@ -70,7 +70,7 @@ func _eb() -> Node:
 	return _event_bus
 
 
-func configure(arena: Node3D, player: Node, container: Node3D, run_seed: int = 0) -> void:
+func configure(arena: Arena, player: Node, container: Node3D, run_seed: int = 0) -> void:
 	_arena = arena
 	_player = player
 	_container = container
@@ -91,9 +91,12 @@ func _resolve_enemy_config(archetype_id: StringName) -> EnemyConfig:
 			return provided
 		return null
 	if is_inside_tree():
+		# Deliberate autoload-optional seam: the hermetic headless harness runs
+		# without autoloads (tests inject _content_provider instead). When the
+		# node exists it IS ContentRegistry; see docs/ARCHITECTURE.md.
 		var registry := get_node_or_null("/root/ContentRegistry")
-		if registry != null and registry.has_method("get_enemy"):
-			return registry.call("get_enemy", archetype_id)
+		if registry != null:
+			return registry.get_enemy(archetype_id)
 	return null
 
 
@@ -270,8 +273,7 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 		float(_difficulty.get("hp", 1.0)) * float(_wave_mods.get("hp_mult", 1.0)) * EliteAffix.ELITE_HP_MULT * float(combo["hp"]),
 		float(_difficulty.get("damage", 1.0)) * float(_wave_mods.get("damage_mult", 1.0)) * EliteAffix.ELITE_DAMAGE_MULT * float(combo["damage"]),
 		float(_difficulty.get("speed", 1.0)) * float(_wave_mods.get("speed_mult", 1.0)) * float(combo["speed"]))
-	if instance.has_method("set_elite"):
-		instance.call("set_elite", affixes)
+	instance.set_elite(affixes)
 	elite_spawned.emit(instance, affixes)
 	var bus := _eb()
 	if bus != null:
@@ -279,15 +281,14 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 
 
 func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
-	var boss := instance.get_node_or_null("BossController")
+	var boss := instance.get_node_or_null("BossController") as BossController
 	if boss == null:
 		return
 	# Connect summons BEFORE begin_fight so an immediate emit during initialization
 	# is not lost; boss summons participate in authoritative SpawnLedger accounting.
-	if boss.has_signal("summon_requested") and not boss.summon_requested.is_connected(_on_boss_summon_requested):
+	if not boss.summon_requested.is_connected(_on_boss_summon_requested):
 		boss.summon_requested.connect(_on_boss_summon_requested)
-	if boss.has_method("begin_fight"):
-		boss.call("begin_fight", _run_seed)
+	boss.begin_fight(_run_seed)
 
 
 func _on_boss_summon_requested(archetype_id: StringName, count: int) -> void:
@@ -358,7 +359,7 @@ func _dispatch_death_effects(enemy: Node) -> void:
 	var volatile := false
 	if config != null and config.explodes_on_death:
 		volatile = true
-	if base.has_method("get_elite_affixes") and EliteAffix.VOLATILE in base.call("get_elite_affixes"):
+	if EliteAffix.VOLATILE in base.get_elite_affixes():
 		volatile = true
 	if not volatile and float(_wave_mods.get("explode_chance", 0.0)) > 0.0 and _rng.randf() < float(_wave_mods.get("explode_chance", 0.0)):
 		volatile = true
@@ -463,8 +464,8 @@ static func filter_spawn_points(points: Array, player_position: Vector3, min_dis
 func deactivate_all() -> void:
 	_prune_active()
 	for enemy in _active:
-		if is_instance_valid(enemy) and enemy.has_method("set_ai_enabled"):
-			enemy.call("set_ai_enabled", false)
+		if is_instance_valid(enemy):
+			enemy.set_ai_enabled(false)
 
 
 func clear() -> void:
@@ -496,16 +497,4 @@ func get_debug_snapshot() -> Dictionary:
 
 func _hash_seed(run_seed: int, wave_number: int) -> int:
 	return (run_seed * 31 + wave_number * 17) & 0x7FFFFFFF
-
-## Hardened: validate spawn manager config and active prune.
-func _validated_configure(arena: Node3D, player: Node, container: Node3D) -> bool:
-	if arena == null or not is_instance_valid(arena):
-		return false
-	if player == null or not is_instance_valid(player):
-		return false
-	return true
-func _validated_rng_seed(s: int) -> int:
-	if s == 0:
-		return 1
-	return s
 

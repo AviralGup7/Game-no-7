@@ -92,10 +92,3 @@ func get_debug_snapshot() -> Dictionary:
 func set_high_contrast(enabled: bool) -> void:
 	if joystick != null: joystick.modulate.a = 1.0 if enabled else 0.75
 	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.95
-
-## Hardened: clamp touch deadzone.
-func _validated_touch_deadzone(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 0.2
-	return clampf(d, 0.05, 1.0)
-

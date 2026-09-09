@@ -1,3 +1,13 @@
+> **STATUS: SUPERSEDED — the `_validated_*` layer described below was removed
+> by the typed-architecture refactor** (see docs/REFACTOR_PLAN.md). Measured, not
+> guessed: 168 of these helpers were defined and only 27 were ever called — 141
+> were dead code ("validation theater") that this doc nonetheless counted as
+> coverage. The guards that were *real* were inlined at their use sites and are
+> pinned by `tool/validate_guards.py` (real-guard contract) and
+> `tool/check_typed_arch.py` (bans `.call("...")`/`has_method` duck typing and
+> verifies typed references resolve). The historical list below is kept for
+> context only — `func _validated_*` no longer exists anywhere in scripts/.
+
 # Hardening — 4000-line Bug Hunt
 
 This document describes the systematic hardening applied across the 4000-line
@@ -106,7 +116,8 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 
 - `tool/validate_resources.py` — load_steps + ext_resource existence
 - `tool/validate_assets.py` — GLB/PNG/OGG integrity, checksum lock, deps
-- `tool/validate_guards.py` — asserts 139/139 validated helpers exist
+- `tool/validate_guards.py` — pins the real inlined guards (post-refactor contract)
+- `tool/check_typed_arch.py` — typed-architecture gate (no duck typing; refs resolve)
 - `scripts/download_assets.py --verify` — offline checksum lock verification
 
 ## How to add a new system

@@ -34,8 +34,9 @@ static func apply_radial(candidates: Array, origin: Vector3, radius: float, dama
 		if knock_up:
 			kb.y = knockback * 0.5
 		payload.knockback = kb
-		var result: Variant = c.call("apply_damage", payload)
-		if result is DamageResult and (result as DamageResult).accepted:
+		var damageable := c as Damageable
+		var result := damageable.apply_damage(payload)
+		if result.accepted:
 			victims.append(c)
 		if victims.size() >= MAX_VICTIMS_HARD_CAP:
 			break
@@ -65,8 +66,9 @@ static func apply_line(candidates: Array, origin: Vector3, direction: Vector3, l
 			continue
 		var payload := _payload(damage, source, source_id, damage_type, (c as Node3D).global_position)
 		payload.knockback = dir * knockback
-		var result: Variant = c.call("apply_damage", payload)
-		if result is DamageResult and (result as DamageResult).accepted:
+		var damageable := c as Damageable
+		var result := damageable.apply_damage(payload)
+		if result.accepted:
 			victims.append(c)
 		if victims.size() >= MAX_VICTIMS_HARD_CAP:
 			break
@@ -90,8 +92,9 @@ static func apply_ring(candidates: Array, origin: Vector3, inner_radius: float, 
 		var payload := _payload(damage, source, source_id, damage_type, pos)
 		var dir := offset.normalized() if offset.length_squared() > 0.0001 else Vector3.FORWARD
 		payload.knockback = Vector3(dir.x * knockback, 0.0, dir.z * knockback)
-		var result: Variant = c.call("apply_damage", payload)
-		if result is DamageResult and (result as DamageResult).accepted:
+		var damageable := c as Damageable
+		var result := damageable.apply_damage(payload)
+		if result.accepted:
 			victims.append(c)
 		if victims.size() >= MAX_VICTIMS_HARD_CAP:
 			break
@@ -112,8 +115,8 @@ static func apply_chain(candidates: Array, origin: Vector3, initial_radius: floa
 		if next == null:
 			break
 		var payload := _payload(dealt, source, source_id, damage_type, (next as Node3D).global_position)
-		var result: Variant = (next as Node).call("apply_damage", payload)
-		if result is DamageResult and (result as DamageResult).accepted:
+		var result := (next as Damageable).apply_damage(payload)
+		if result.accepted:
 			victims.append(next)
 		pool.erase(next)
 		from = (next as Node3D).global_position
@@ -163,39 +166,18 @@ static func _damageable(c: Variant) -> bool:
 		return false
 	if not (c is Node3D):
 		return false
-	if not (c as Node).has_method("apply_damage"):
+	# Damageable is the explicit combat protocol (Player/EnemyBase share it).
+	var damageable := c as Damageable
+	if damageable == null:
 		return false
-	if (c as Node).has_method("is_alive") and not bool((c as Node).call("is_alive")):
-		return false
-	return true
+	return damageable.is_alive()
 
 
 static func _radius_of(c: Variant) -> float:
-	if c == null or not is_instance_valid(c):
-		return 0.0
-	if (c as Node).has_method("get_config"):
-		var cfg: Variant = (c as Node).call("get_config")
-		if cfg is EnemyConfig:
-			return (cfg as EnemyConfig).bounds_radius
+	if c is EnemyBase:
+		var cfg := (c as EnemyBase).get_config()
+		if cfg != null:
+			return cfg.bounds_radius
 	return 0.0
 
-## Hardened: clamp radius/damage and ignore invalid victims to prevent NaN/physics errors.
-static func _validated_radial_args(victims: Array, at: Vector3, radius: float, damage: float) -> Dictionary:
-	if not is_finite(radius) or radius <= 0.0:
-		radius = 1.0
-	radius = clampf(radius, 0.1, 50.0)
-	if not is_finite(damage) or damage < 0.0:
-		damage = 0.0
-	damage = clampf(damage, 0.0, 999999.0)
-	var clean: Array = []
-	for v in victims:
-		if v != null and is_instance_valid(v) and v.has_method("apply_damage"):
-			clean.append(v)
-	if not is_finite(at.x) or not is_finite(at.y) or not is_finite(at.z):
-		at = Vector3.ZERO
-	return {"victims": clean, "at": at, "radius": radius, "damage": damage}
-
-## Hardened: area damage export guard second layer.
-func _export_range_guard_area() -> void:
-	pass
 

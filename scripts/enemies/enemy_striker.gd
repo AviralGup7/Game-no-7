@@ -59,14 +59,14 @@ func _strike(host: EnemyBase, target: Node3D, damage: float, knockback: float) -
 	payload.damage_type = &"physical"
 	payload.knockback = dir * knockback
 	payload.hit_position = host.global_position
-	if not target.has_method("apply_damage"):
+	# Damageable is the explicit combat protocol shared by Player/EnemyBase (and
+	# test doubles): a target that is not Damageable cannot take a hit.
+	var damageable := target as Damageable
+	if damageable == null:
 		return false
-	var result: Variant = target.call("apply_damage", payload)
-	if result is DamageResult:
-		var res := result as DamageResult
-		host.attack_hit.emit(target, res)
-		return res.accepted
-	return false
+	var res := damageable.apply_damage(payload)
+	host.attack_hit.emit(target, res)
+	return res.accepted
 
 
 func _knockback_strength(host: EnemyBase) -> float:
@@ -85,18 +85,4 @@ func _wall_between(host: EnemyBase, target: Node3D) -> bool:
 	var query := PhysicsRayQueryParameters3D.create(from, to, 0b0001)
 	var hit := space.intersect_ray(query)
 	return not hit.is_empty()
-
-## Hardened: validate striker execution.
-func _validated_striker(host: Node) -> bool:
-	if host == null or not is_instance_valid(host):
-		return false
-	if not host.is_inside_tree():
-		return false
-	if not host.has_method("get_effective_attack_damage"):
-		return false
-	return true
-func _validated_damage(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 5.0
-	return clampf(d, 0.0, 10000.0)
 

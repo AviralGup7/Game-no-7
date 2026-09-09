@@ -9,8 +9,8 @@ var _name_label: Label = null
 var _phase_label: Label = null
 var _bar: ProgressBar = null
 var _ghost: ProgressBar = null
-var _boss: Node = null
-var _health: Node = null
+var _boss: EnemyBase = null
+var _health: HealthComponent = null
 var _ghost_value := 1.0
 var _reduced_motion := false
 var _health_label: Label
@@ -97,10 +97,11 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 
 
 func _boss_name(boss: Node) -> String:
-	if boss != null and boss.has_method("get_config"):
-		var cfg: Variant = boss.call("get_config")
-		if cfg != null and not String(cfg.get("display_name")).is_empty():
-			return String(cfg.get("display_name"))
+	var enemy := boss as EnemyBase
+	if enemy != null:
+		var cfg := enemy.get_config()
+		if cfg != null and not String(cfg.display_name).is_empty():
+			return String(cfg.display_name)
 	return "Boss"
 
 
@@ -114,10 +115,10 @@ func _on_health_changed(current: float, maximum: float) -> void:
 func _on_phase_changed(boss: Node, phase: int, max_phases: int) -> void:
 	if boss != _boss:
 		return
-	var controller := (boss as Node).get_node_or_null("BossController") if boss is Node else null
+	var controller := (boss as Node).get_node_or_null("BossController") as BossController if boss is Node else null
 	var pname := ""
-	if controller != null and controller.has_method("phase_name"):
-		pname = String(controller.call("phase_name"))
+	if controller != null:
+		pname = String(controller.phase_name())
 	_phase_label.text = "Phase %d/%d — %s" % [phase + 1, max_phases, pname]
 
 
@@ -183,10 +184,4 @@ func set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
 	if value and _bar != null:
 		_ghost_value = float(_bar.value)
-
-## Hardened: clamp boss fraction.
-func _validated_boss_fraction(f: float) -> float:
-	if not is_finite(f):
-		return 0.0
-	return clampf(f, 0.0, 1.0)
 

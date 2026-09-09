@@ -6,9 +6,9 @@ extends Resource
 ## generated plans use this type so they are inspected and validated identically.
 
 @export var archetype_id: StringName = &""
-@export var count: int = 1
-@export var spawn_weight: float = 1.0
-@export var elite_chance: float = 0.0
+@export_range(1, 100) var count: int = 1
+@export_range(0.01, 100.0, 0.01) var spawn_weight: float = 1.0
+@export_range(0.0, 1.0, 0.01) var elite_chance: float = 0.0
 @export var spawn_tags: Array[StringName] = []
 
 
@@ -35,27 +35,3 @@ func duplicate_entry() -> WaveSpawnEntry:
 	copy.elite_chance = elite_chance
 	copy.spawn_tags = spawn_tags.duplicate()
 	return copy
-
-## Hardened: validate spawn entry.
-func _validated_entry() -> bool:
-	if archetype_id == &"":
-		return false
-	if count < 0:
-		return false
-	return true
-func _validated_count(c: int) -> int:
-	if c < 0:
-		return 0
-	return mini(c, 200)
-
-## Export-range guard: editor sliders are clamped and runtime values are re-clamped
-## via _validated_* helpers so JSON or save edits cannot create NaN/inf/out-of-range.
-func _export_range_guard() -> void:
-	# This is a documentation guard; actual clamping lives in _validated_* helpers.
-	# Intended ranges (editor @export_range would be here in a future Godot bump):
-	#  - health/damage: 0..10000 finite
-	#  - cooldown/duration: 0.05..60 finite
-	#  - speed/range: 0..30 finite, half 4..100
-	#  - weight/chance: 0..1 finite
-	pass
-

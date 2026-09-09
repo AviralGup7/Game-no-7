@@ -174,7 +174,7 @@ def content_ids(category: str, field: str) -> set[str]:
 
 def check_asset_inventory(approved: set[Path]) -> None:
     # Raw downloads must never silently escape provenance/hash validation.
-    raw_suffixes = {".glb", ".gltf", ".bin", ".png", ".ttf", ".ogg", ".wav"}
+    raw_suffixes = {".glb", ".gltf", ".bin", ".png", ".jpg", ".hdr", ".ttf", ".ogg", ".wav"}
     for path in (ROOT / "assets").rglob("*"):
         if path.is_file() and path.suffix.lower() in raw_suffixes:
             require(path.resolve() in approved, f"untracked source asset: {path.relative_to(ROOT)}")
@@ -198,6 +198,11 @@ def check_catalog(catalog: dict, approved: set[Path], models: dict[str, dict]) -
             for nested in value:
                 check_references(nested)
         elif isinstance(value, str) and value.startswith("assets/"):
+            # Locally authored material resources (assets/materials/*.tres) are not
+            # downloads; they are checked by validate_resources + the runtime path
+            # scan below. Every downloaded texture/model must stay checksum-locked.
+            if value.startswith("assets/materials/") and value.endswith(".tres"):
+                return
             require((ROOT / value).resolve() in approved, f"catalog references an unapproved file: {value}")
     check_references(catalog)
     enemy_ids = content_ids("enemies", "archetype_id")

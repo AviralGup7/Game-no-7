@@ -43,11 +43,13 @@ static func find_targets_in_arc(
 static func is_valid_target(target: Node) -> bool:
 	if not is_instance_valid(target):
 		return false
-	if target.has_method("is_alive") and not bool(target.call("is_alive")):
-		return false
 	if not target is Node3D:
 		return false
-	return true
+	# Damageable protocol: an alive check only exists on combat entities.
+	var damageable := target as Damageable
+	if damageable == null:
+		return true
+	return damageable.is_alive()
 
 
 ## Optional second pass so knockback/feedback can read per-hit geometry.
@@ -55,10 +57,4 @@ static func build_hit_offset(origin: Vector3, target: Node) -> Vector3:
 	if target is Node3D:
 		return (target.global_position - origin) * Vector3(1, 0, 1)
 	return Vector3.ZERO
-
-## Hardened: validate query radius.
-func _validated_query_radius(r: float) -> float:
-	if not is_finite(r) or r <= 0.0:
-		return 5.0
-	return clampf(r, 0.1, 50.0)
 

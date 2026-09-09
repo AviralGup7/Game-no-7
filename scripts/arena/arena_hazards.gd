@@ -32,6 +32,19 @@ var _arena_half := 12.0
 var _rng := RngService.new()
 
 
+const KIND_PLATE := &"plate"       # player-triggerable pressure plate (damages enemies)
+const KIND_MOVER := &"mover"       # slowly orbiting spike hazard
+
+const PLATE_DAMAGE := 22.0
+const PLATE_RADIUS := 2.0
+const PLATE_COOLDOWN := 6.0
+const MOVER_DAMAGE := 10.0
+const MOVER_RADIUS := 1.4
+const MOVER_SPEED := 1.1
+
+var _mode_id: StringName = &"standard"
+
+
 func configure(arena_id: StringName, arena_half: float, seed: int, ambient_burn: bool = false) -> void:
 	_arena_half = arena_half
 	_rng.reseed(seed + hash(String(arena_id)))
@@ -41,6 +54,28 @@ func configure(arena_id: StringName, arena_half: float, seed: int, ambient_burn:
 		_ignite_all_vents()
 
 
+## Mode-specific denser layouts (boss rush / challenge get extra pressure).
+func apply_mode_pressure(mode_id: StringName) -> void:
+	_mode_id = mode_id
+	match mode_id:
+		GameMode.MODE_BOSS_RUSH:
+			_add(KIND_PLATE, Vector3(0, 0, 0))
+			_add(KIND_SPIKES, Vector3(3, 0, 3))
+			_add(KIND_SPIKES, Vector3(-3, 0, -3))
+		GameMode.MODE_CHALLENGE:
+			_add(KIND_VENT, Vector3(0, 0, 5))
+			_add(KIND_VENT, Vector3(0, 0, -5))
+			_add(KIND_PLATE, Vector3(5, 0, 0))
+			_add(KIND_PLATE, Vector3(-5, 0, 0))
+		GameMode.MODE_SURVIVAL:
+			_add(KIND_MOVER, Vector3(4, 0, 4))
+			_add(KIND_MOVER, Vector3(-4, 0, -4))
+		GameMode.MODE_CAMPAIGN:
+			_add(KIND_PLATE, Vector3(0, 0, 0))
+			_add(KIND_HEAL, Vector3(7, 0, 0))
+			_add(KIND_HEAL, Vector3(-7, 0, 0))
+
+
 func set_enabled(enabled: bool) -> void:
 	_enabled = enabled
 
@@ -48,21 +83,41 @@ func set_enabled(enabled: bool) -> void:
 func _layout_defaults(arena_id: StringName) -> void:
 	match String(arena_id):
 		"ember_crucible":
+			# Dense fire grid + player-triggerable center plate + orbiting embers.
 			_add(KIND_VENT, Vector3(5, 0, 5))
 			_add(KIND_VENT, Vector3(-5, 0, -5))
 			_add(KIND_VENT, Vector3(-5, 0, 5))
 			_add(KIND_VENT, Vector3(5, 0, -5))
-			_add(KIND_HEAL, Vector3(0, 0, 0))
+			_add(KIND_VENT, Vector3(0, 0, 7))
+			_add(KIND_VENT, Vector3(0, 0, -7))
+			_add(KIND_PLATE, Vector3(0, 0, 0))
+			_add(KIND_MOVER, Vector3(6, 0, 0))
+			_add(KIND_HEAL, Vector3(7, 0, 7))
 		"frost_hollow":
+			# Slowing corridors, dual heal pockets, frost plate, orbiting ichor.
 			_add(KIND_ICHOR, Vector3(4, 0, 0))
 			_add(KIND_ICHOR, Vector3(-4, 0, 0))
+			_add(KIND_ICHOR, Vector3(0, 0, 5))
+			_add(KIND_ICHOR, Vector3(0, 0, -5))
+			_add(KIND_ICHOR, Vector3(6, 0, 6))
+			_add(KIND_ICHOR, Vector3(-6, 0, -6))
 			_add(KIND_HEAL, Vector3(0, 0, 4))
 			_add(KIND_HEAL, Vector3(0, 0, -4))
+			_add(KIND_PLATE, Vector3(0, 0, 0))
+			_add(KIND_MOVER, Vector3(0, 0, 7))
 		_:
+			# The Pit: spike cross, vents on flanks, pressure plates, a mover.
 			_add(KIND_VENT, Vector3(6, 0, 0))
 			_add(KIND_VENT, Vector3(-6, 0, 0))
 			_add(KIND_SPIKES, Vector3(0, 0, 6))
+			_add(KIND_SPIKES, Vector3(0, 0, -6))
+			_add(KIND_SPIKES, Vector3(4, 0, 4))
+			_add(KIND_SPIKES, Vector3(-4, 0, -4))
+			_add(KIND_PLATE, Vector3(3, 0, -3))
+			_add(KIND_PLATE, Vector3(-3, 0, 3))
+			_add(KIND_MOVER, Vector3(0, 0, 0))
 			_add(KIND_HEAL, Vector3(0, 0, -6))
+			_add(KIND_HEAL, Vector3(0, 0, 6))
 
 
 func add_hazard(kind: StringName, at: Vector3) -> void:
@@ -108,6 +163,10 @@ func _radius_of(kind: StringName) -> float:
 			return 2.8
 		KIND_SPIKES:
 			return SPIKE_HALF_WIDTH
+		KIND_PLATE:
+			return PLATE_RADIUS
+		KIND_MOVER:
+			return MOVER_RADIUS
 	return 2.0
 
 
@@ -122,6 +181,10 @@ func _color_of(kind: StringName, alpha: float) -> Color:
 			c = Color(0.4, 1.0, 0.5)
 		KIND_ICHOR:
 			c = Color(0.5, 0.3, 0.9)
+		KIND_PLATE:
+			c = Color(1.0, 0.85, 0.2)
+		KIND_MOVER:
+			c = Color(0.9, 0.2, 0.55)
 	c.a = alpha
 	return c
 
@@ -150,6 +213,10 @@ func _physics_process(delta: float) -> void:
 				_tick_heal(h, victims, delta)
 			KIND_ICHOR:
 				_tick_ichor(h, victims)
+			KIND_PLATE:
+				_tick_plate(h, victims, delta)
+			KIND_MOVER:
+				_tick_mover(h, victims, delta)
 
 
 func _gather_victims() -> Array:
@@ -186,16 +253,14 @@ func _tick_vent(h: Dictionary, victims: Array, delta: float) -> void:
 
 
 func _apply_burn(victims: Array, center: Vector3) -> void:
-	if ContentRegistry == null or not ContentRegistry.has_method("get_status_effect"):
-		return
 	var burn: StatusEffectConfig = ContentRegistry.get_status_effect(&"burn")
 	if burn == null:
 		return
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, VENT_RADIUS):
-			var sm := (v as Node).get_node_or_null("StatusManager")
-			if sm != null and sm.has_method("apply_effect"):
-				sm.call("apply_effect", burn, 1, self)
+			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			if sm != null:
+				sm.apply_effect(burn, 1, self)
 
 
 func _tick_spikes(h: Dictionary, victims: Array) -> void:
@@ -215,14 +280,16 @@ func _tick_spikes(h: Dictionary, victims: Array) -> void:
 			if float((v as Node).get_meta(key, 0.0)) > now:
 				continue
 			(v as Node).set_meta(key, now + 1.0)
-			if (v as Node).has_method("apply_damage"):
+			# Damageable protocol: only combat entities take spike damage.
+			var damageable := v as Damageable
+			if damageable != null:
 				var payload := DamagePayload.new()
 				payload.amount = SPIKE_DAMAGE
 				payload.source = self
 				payload.source_id = &"spike_strip"
 				payload.hit_position = (v as Node3D).global_position
 				if payload.is_valid():
-					(v as Node).call("apply_damage", payload)
+					damageable.apply_damage(payload)
 
 
 func _tick_heal(h: Dictionary, victims: Array, delta: float) -> void:
@@ -231,9 +298,9 @@ func _tick_heal(h: Dictionary, victims: Array, delta: float) -> void:
 		if not (v is Node) or not (v as Node).is_in_group("player"):
 			continue
 		if _inside((v as Node3D).global_position, center, HEAL_RADIUS):
-			var hp := (v as Node).get_node_or_null("HealthComponent")
-			if hp != null and hp.has_method("heal"):
-				hp.call("heal", HEAL_PER_SECOND * delta)
+			var hp := (v as Node).get_node_or_null("HealthComponent") as HealthComponent
+			if hp != null:
+				hp.heal(HEAL_PER_SECOND * delta)
 
 
 func _tick_ichor(h: Dictionary, victims: Array) -> void:
@@ -245,9 +312,69 @@ func _tick_ichor(h: Dictionary, victims: Array) -> void:
 		return
 	for v in victims:
 		if v is Node3D and _inside((v as Node3D).global_position, center, 2.8):
-			var sm := (v as Node).get_node_or_null("StatusManager")
-			if sm != null and sm.has_method("apply_effect"):
-				sm.call("apply_effect", slow, 1, self)
+			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			if sm != null:
+				sm.apply_effect(slow, 1, self)
+
+
+## Pressure plate: when the player stands on it, detonate a blast that hurts enemies only.
+func _tick_plate(h: Dictionary, victims: Array, delta: float) -> void:
+	h["timer"] = float(h.get("timer", 0.0)) + delta
+	var center: Vector3 = h["pos"]
+	var marker: Node3D = h.get("node")
+	var player_on := false
+	for v in victims:
+		if v is Node and (v as Node).is_in_group("player") and v is Node3D:
+			if _inside((v as Node3D).global_position, center, PLATE_RADIUS):
+				player_on = true
+				break
+	# Visual: brighten when armed / player is on it.
+	if marker != null and is_instance_valid(marker) and marker.has_meta("disc"):
+		var disc: MeshInstance3D = marker.get_meta("disc")
+		var mat := disc.material_override as StandardMaterial3D
+		if mat != null:
+			mat.emission_energy_multiplier = 1.6 if player_on else 0.5
+	if not player_on:
+		return
+	if float(h.get("timer", 0.0)) < PLATE_COOLDOWN:
+		return
+	h["timer"] = 0.0
+	var enemies: Array = []
+	for v in victims:
+		if v is Node and (v as Node).is_in_group("enemies"):
+			enemies.append(v)
+	AreaDamage.apply_radial(
+		enemies, center, PLATE_RADIUS + 1.5, PLATE_DAMAGE, self, &"pressure_plate",
+		8.0, false, AreaDamage.FALLOFF_NONE
+	)
+	hazard_triggered.emit(KIND_PLATE, center)
+
+
+## Orbiting hazard: circles the arena origin, damaging anyone it passes through.
+func _tick_mover(h: Dictionary, victims: Array, delta: float) -> void:
+	var angle := float(h.get("angle", 0.0)) + MOVER_SPEED * delta
+	h["angle"] = angle
+	var radius := clampf(_arena_half * 0.55, 4.0, 10.0)
+	var pos := Vector3(cos(angle) * radius, 0.05, sin(angle) * radius)
+	h["pos"] = pos
+	var marker: Node3D = h.get("node")
+	if marker != null and is_instance_valid(marker):
+		marker.position = pos
+	# Throttled contact damage.
+	h["tick"] = float(h.get("tick", 0.0)) + delta
+	if float(h["tick"]) < 0.35:
+		return
+	h["tick"] = 0.0
+	for v in victims:
+		var body := v as Damageable
+		if body != null and _inside(body.global_position, pos, MOVER_RADIUS):
+			var payload := DamagePayload.new()
+			payload.amount = MOVER_DAMAGE
+			payload.source = self
+			payload.source_id = &"moving_hazard"
+			payload.hit_position = body.global_position
+			if payload.is_valid():
+				body.apply_damage(payload)
 
 
 func _clear() -> void:
@@ -267,10 +394,4 @@ func get_debug_snapshot() -> Dictionary:
 	for h in _hazards:
 		kinds.append(String(h["kind"]))
 	return {"count": _hazards.size(), "kinds": kinds}
-
-## Hardened: clamp hazard damage.
-func _validated_hazard_damage(d: float) -> float:
-	if not is_finite(d) or d < 0.0:
-		return 5.0
-	return clampf(d, 0.0, 1000.0)
 

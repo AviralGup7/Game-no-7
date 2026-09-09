@@ -23,8 +23,9 @@ var _tick_accrual: float = 0.0
 func _init(cfg: StatusEffectConfig = null, applied_stacks: int = 1, from: Node = null) -> void:
 	config = cfg
 	source = from
-	if from != null and from.has_method("get_archetype_id"):
-		source_id = from.call("get_archetype_id")
+	var archetype_source := from as EnemyBase
+	if archetype_source != null:
+		source_id = archetype_source.get_archetype_id()
 	elif from != null:
 		source_id = StringName(from.name)
 	stacks = maxi(applied_stacks, 1)
@@ -67,8 +68,9 @@ func reapply(extra_stacks: int = 1, from: Node = null, duration_mult: float = 1.
 		return
 	if from != null:
 		source = from
-	if from != null and from.has_method("get_archetype_id"):
-		source_id = from.call("get_archetype_id")
+	var archetype_source := from as EnemyBase
+	if archetype_source != null:
+		source_id = archetype_source.get_archetype_id()
 	elif from != null:
 		source_id = StringName(from.name)
 	set_power_modifiers(duration_mult, dot_mult, hot_mult)
@@ -168,10 +170,3 @@ func get_debug_snapshot() -> Dictionary:
 		"duration_multiplier": duration_multiplier,
 		"dot_multiplier": dot_multiplier,
 	}
-
-## Hardened: clamp status duration.
-func _validated_duration(d: float) -> float:
-	if not is_finite(d) or d <= 0.0:
-		return 1.0
-	return clampf(d, 0.05, 60.0)
-

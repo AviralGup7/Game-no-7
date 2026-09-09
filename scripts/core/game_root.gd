@@ -38,8 +38,12 @@ var _score := RunScorekeeper.new()
 var _best_score: int = 0
 var _best_wave: int = 0
 var _paused := false
-var _active_player: Node = null
+var _active_player: Player = null
+## World-build seam (registered by Main / test harnesses; see _call_build_world).
+var _world_builder: Callable = Callable()
 var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standard.
+var _pending_mode: StringName = GameMode.MODE_STANDARD
+var _prestige_rank: int = 0
 
 
 func _ready() -> void:
@@ -48,6 +52,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_best_score = SaveManager.get_best_score()
 	_best_wave = SaveManager.get_best_wave()
+	_prestige_rank = SaveManager.get_prestige_rank()
 	_score.bind(_current_run, _player_derived_stat)
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 	EventBus.wave_started.connect(_on_wave_started)
@@ -61,6 +66,9 @@ func _process(delta: float) -> void:
 	if not _paused and _current_state in [State.PLAYING, State.WAVE_TRANSITION] and _current_run.player_alive:
 		_current_run.elapsed_seconds += delta
 		_score.tick_combo()
+		# Survival mode: victory on the clock, not on a wave cap.
+		if GameMode.is_survival_victory(_current_run.mode_id, _current_run.elapsed_seconds):
+			_declare_victory()
 
 
 func get_current_state() -> StringName:
@@ -71,20 +79,21 @@ func get_run() -> RunState:
 	return _current_run
 
 
-func get_best_score() -> int:
-	return _best_score
+# NOTE: no get_best_score()/get_best_wave() accessors here on purpose. The save
+# store (SaveManager) is the single source of truth for persisted bests — the
+# startup-stability fix routed menu_panel, run_summary_panel and the UI test
+# runner directly at it because GameRoot only mirrored them at _ready. The
+# _best_score/_best_wave mirrors below stay internal: they exist to report the
+# run's best through the run_ended fan-out and the debug snapshot, not as a
+# public read path.
 
 
-func get_best_wave() -> int:
-	return _best_wave
-
-
-func get_active_player() -> Node:
+func get_active_player() -> Player:
 	return _active_player
 
 
-func set_active_player(node: Node) -> void:
-	_active_player = node
+func set_active_player(player: Player) -> void:
+	_active_player = player
 
 
 func is_paused() -> bool:
@@ -115,6 +124,17 @@ func request_play() -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
 		return
 	_daily = {}
+	if _pending_mode == &"":
+		_pending_mode = GameMode.MODE_STANDARD
+	transition_to(State.STARTING_RUN)
+
+
+## Start a run in a specific game mode (standard / boss rush / survival / ...).
+func request_play_mode(mode_id: StringName) -> void:
+	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
+		return
+	_daily = {}
+	_pending_mode = GameMode.validated(mode_id)
 	transition_to(State.STARTING_RUN)
 
 
@@ -125,6 +145,7 @@ func start_daily_run() -> void:
 	if DailyChallenge == null:
 		return
 	_daily = DailyChallenge.challenge_for_today()
+	_pending_mode = GameMode.MODE_STANDARD
 	transition_to(State.STARTING_RUN)
 
 
@@ -136,14 +157,60 @@ func get_daily_challenge() -> Dictionary:
 	return _daily
 
 
-## Starter weapon for the current run (daily loadout or the default gladius).
+func set_pending_mode(mode_id: StringName) -> void:
+	_pending_mode = GameMode.validated(mode_id)
+
+
+func get_pending_mode() -> StringName:
+	return _pending_mode
+
+
+func get_run_mode() -> StringName:
+	return _current_run.mode_id if _current_run != null else GameMode.MODE_STANDARD
+
+
+func get_prestige_rank() -> int:
+	return _prestige_rank
+
+
+func set_prestige_rank(rank: int) -> void:
+	_prestige_rank = clampi(rank, 0, Prestige.MAX_PRESTIGE)
+
+
+## Starter weapon for the current run (mode fixed loadout > daily > gladius).
 func get_daily_weapon() -> StringName:
+	var mode_weapon := GameMode.fixed_weapon(_pending_mode if _current_run == null else _current_run.mode_id)
+	if mode_weapon != &"":
+		return mode_weapon
 	if _daily.is_empty():
 		return &"gladius"
 	return StringName(String(_daily.get("weapon", "gladius")))
 
 
+## Called by WaveManager when a mode's win condition is met (wave cap or survival clock).
+func declare_victory() -> void:
+	_declare_victory()
+
+
+func _declare_victory() -> void:
+	if _current_run.victory:
+		return
+	if _current_state not in [State.PLAYING, State.WAVE_TRANSITION, State.UPGRADE_SELECTION]:
+		return
+	_current_run.victory = true
+	_current_run.completed_objectives.append(&"mode_victory")
+	Narrator.announce_victory(_current_run.mode_id)
+	# Survival/time modes earn a flat completion bonus scaled by mode score mult.
+	var bonus := int(500.0 * GameMode.score_multiplier(_current_run.mode_id))
+	if bonus > 0:
+		_score.award_bonus(bonus)
+	transition_to(State.GAME_OVER)
+
+
 func request_restart() -> void:
+	# Keep the same mode (and daily card) so "Retry" replays what the player just ran.
+	if _current_run != null and _current_run.mode_id != &"":
+		_pending_mode = GameMode.validated(_current_run.mode_id)
 	# Restart must succeed from any gameplay state. If direct transition is illegal
 	# (e.g. future states), fall back through MAIN_MENU so the canonical path still runs.
 	if not transition_to(State.STARTING_RUN):
@@ -177,11 +244,10 @@ func request_resume() -> void:
 		transition_to(_resume_state)
 
 
-## UI tick for pause/resume. Guarded like the other optional-cue paths so bare
-## headless drivers without the audio autoload never fail.
+## UI tick for pause/resume. AudioManager is a project autoload like GameRoot
+## itself: whenever this code runs, the audio singleton exists — no theater guards.
 func _click(cue_id: StringName) -> void:
-	if AudioManager != null and AudioManager.has_method("play_sfx"):
-		AudioManager.play_sfx(cue_id, -10.0)
+	AudioManager.play_sfx(cue_id, -10.0)
 
 
 func request_game_over() -> void:
@@ -229,10 +295,8 @@ func _apply_state(new_state: StringName) -> bool:
 func _sync_player_control() -> void:
 	if _active_player == null or not is_instance_valid(_active_player):
 		return
-	if not _active_player.has_method("set_control_enabled"):
-		return
 	var enabled := _current_state in [State.PLAYING, State.WAVE_TRANSITION]
-	_active_player.call("set_control_enabled", enabled)
+	_active_player.set_control_enabled(enabled)
 
 
 func _on_state_entered(previous: StringName, current: StringName) -> void:
@@ -271,18 +335,20 @@ func _start_new_run() -> void:
 		var ds := int(_daily.get("seed", _current_run.seed))
 		_current_run.seed = ds if ds != 0 else 1
 	_current_run.arena_id = arena_id
+	_current_run.mode_id = GameMode.validated(_pending_mode)
 	_current_run.elapsed_seconds = 0.0
 	_score.reset_run(_current_run)
-	EventBus.report_info("Starting run %d in arena %s (seed %d)%s" % [_current_run.run_id, String(arena_id), _current_run.seed,
+	EventBus.report_info("Starting run %d mode=%s arena=%s seed=%d%s" % [
+		_current_run.run_id, String(_current_run.mode_id), String(arena_id), _current_run.seed,
 		(" [" + String(_daily.get("label", "Daily")) + "]") if not _daily.is_empty() else ""])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
-	var main := _get_main()
-	if main != null and main.has_method("build_world") and _active_player == null:
+	if _world_builder.is_valid() and _active_player == null:
 		EventBus.report_error("Failed to build world or spawn player for arena %s" % String(arena_id))
 		transition_to(State.ERROR)
 		return
 	EventBus.run_started.emit(_current_run.run_id, _current_run.seed)
+	Narrator.announce_run_start(_current_run.mode_id, arena_id)
 	if not _daily.is_empty():
 		var muts: Array = _daily.get("mutators", [])
 		var names: PackedStringArray = PackedStringArray()
@@ -290,18 +356,20 @@ func _start_new_run() -> void:
 			names.append(WaveMutators.display_name(StringName(String(m))))
 		EventBus.announcement.emit(&"daily", "%s — mutators: %s" % [
 			String(_daily.get("label", "Daily")), ", ".join(names)], &"warning")
+	elif _current_run.mode_id != GameMode.MODE_STANDARD:
+		EventBus.announcement.emit(&"mode", "%s — %s" % [
+			GameMode.display_name(_current_run.mode_id), GameMode.blurb(_current_run.mode_id)], &"info")
 	transition_to(State.PLAYING)
 
 
 func _call_build_world(arena_id: StringName) -> void:
-	# Locate the Main scene root (composition anchor). If not present (headless tests
-	# that drive systems directly), building is skipped gracefully.
-	var main := _get_main()
-	if main == null:
-		EventBus.report_warning("Main scene not present; skipping world build (headless/direct use)")
+	# World-build seam: Main registers itself as the builder at startup; headless
+	# UI harnesses register their own. A typed Callable reference (NOT string
+	# dispatch) keeps the contract explicit — see docs/ARCHITECTURE.md.
+	if _world_builder.is_valid():
+		_world_builder.call(arena_id)
 		return
-	if main.has_method("build_world"):
-		main.call("build_world", arena_id)
+	EventBus.report_warning("No world builder registered; skipping world build (headless/direct use)")
 
 
 func _finalize_run() -> void:
@@ -314,11 +382,8 @@ func _finalize_run() -> void:
 	# The save store owns the authoritative bests (it loads from disk before
 	# GameRoot in the autoload order — see project.godot note); adopt them after
 	# recording so the emitted best is never a stale startup cache.
-	if SaveManager != null:
-		if SaveManager.has_method("get_best_score"):
-			_best_score = maxi(_best_score, SaveManager.get_best_score())
-		if SaveManager.has_method("get_best_wave"):
-			_best_wave = maxi(_best_wave, SaveManager.get_best_wave())
+	_best_score = maxi(_best_score, SaveManager.get_best_score())
+	_best_wave = maxi(_best_wave, SaveManager.get_best_wave())
 	RunAnalytics.record_run_end(summary)
 	EventBus.run_ended.emit(_current_run.score, _current_run.current_wave, _best_score)
 	# The run-end sting fires exactly once with the run_ended fan-out (the music
@@ -327,10 +392,9 @@ func _finalize_run() -> void:
 	_set_paused(false)
 
 
-func _get_main() -> Node:
-	if get_tree() == null or get_tree().current_scene == null:
-		return null
-	return get_tree().current_scene
+## Register the run-world builder (Main at runtime; a test harness headlessly).
+func set_world_builder(builder: Callable) -> void:
+	_world_builder = builder
 
 
 func _next_run_id() -> int:
@@ -343,17 +407,13 @@ func _next_run_id() -> int:
 func record_current_wave(wave_number: int) -> void:
 	_current_run.current_wave = maxi(wave_number, 0)
 	if _active_player != null and is_instance_valid(_active_player):
-		var prog := _active_player.get_node_or_null("ProgressionComponent")
-		if prog != null and prog.has_method("set_current_wave"):
-			prog.call("set_current_wave", maxi(wave_number, 1))
-		var weapons := _active_player.get_node_or_null("WeaponManager")
-		if weapons != null and weapons.has_method("set_current_wave"):
-			weapons.call("set_current_wave", maxi(wave_number, 1))
-		var skills := _active_player.get_node_or_null("SkillController")
-		if skills != null and skills.has_method("set_current_wave"):
-			skills.call("set_current_wave", maxi(wave_number, 1))
-		if skills != null and skills.has_method("unlock_available"):
-			skills.call("unlock_available")
+		var player := _active_player
+		player.get_progression_component().set_current_wave(maxi(wave_number, 1))
+		player.get_weapon_manager().set_current_wave(maxi(wave_number, 1))
+		var skills := player.get_skill_controller()
+		if skills != null:
+			skills.set_current_wave(maxi(wave_number, 1))
+			skills.unlock_available()
 
 
 func _on_wave_started(wave_number: int, _planned: int) -> void:
@@ -441,12 +501,10 @@ func _player_derived_stat(key: StringName, base: float) -> float:
 	var player := _active_player
 	if player == null or not is_instance_valid(player):
 		return base
-	if not player.has_method("get_progression_snapshot"):
+	var prog := player.get_progression_component()
+	if prog == null:
 		return base
-	var prog := player.get_node_or_null("ProgressionComponent")
-	if prog == null or not prog.has_method("get_stat"):
-		return base
-	return float(prog.call("get_stat", key, base))
+	return prog.get_stat(key, base)
 
 
 ## ---------- Snapshots / diagnostics ----------
@@ -454,8 +512,7 @@ func _player_derived_stat(key: StringName, base: float) -> float:
 func _sync_run_build_mirror() -> void:
 	if _active_player == null or not is_instance_valid(_active_player):
 		return
-	if _active_player.has_method("get_build_snapshot"):
-		_current_run.set_build_snapshot(_active_player.call("get_build_snapshot"))
+	_current_run.set_build_snapshot(_active_player.get_build_snapshot())
 
 
 func get_debug_snapshot() -> Dictionary:
@@ -466,11 +523,4 @@ func get_debug_snapshot() -> Dictionary:
 		"best_wave": _best_wave,
 		"run": _current_run.summary(),
 	}
-
-## Hardened: validate run seed before starting.
-func _validated_seed(s: int) -> int:
-	if s == 0:
-		var r := randi()
-		return r if r != 0 else 1
-	return s
 

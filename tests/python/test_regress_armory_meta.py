@@ -20,8 +20,7 @@ class ArmoryMetaTests(unittest.TestCase):
         self.assertIn("func apply_all_to_run() -> void:\n\tif GameRoot == null or GameRoot.get_active_player() == null:",txt)
         loop_section=txt.split("func apply_all_to_run")[1].split("func ")[0]
         self.assertIn("for item_id in _ranks:",loop_section)
-        self.assertIn('prog.call("add_permanent_bonus"',loop_section)
-        self.assertNotIn("if GameRoot == null or GameRoot.get_active_player() == null:\n\t\t\treturn",loop_section)
+        self.assertIn("prog.add_permanent_bonus(",loop_section)
     def test_achievements_flawless_wiring(self):
         txt=read("scripts/meta/achievements.gd")
         self.assertIn("_player_health",txt)

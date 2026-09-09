@@ -51,10 +51,3 @@ static func overkill_bonus(dealt: float, remaining_hp: float) -> int:
 static func display_value(damage: float, was_crit: bool) -> int:
 	var v := int(round(damage))
 	return maxi(v, 2) if was_crit else maxi(v, 1)
-
-## Hardened: clamp crit chance inputs.
-func _validated_crit_chance(c: float) -> float:
-	if not is_finite(c):
-		return 0.0
-	return clampf(c, 0.0, 1.0)
-

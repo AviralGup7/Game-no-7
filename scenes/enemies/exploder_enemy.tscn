@@ -1,72 +1,43 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://scripts/enemies/enemy_base.gd" id="1_base"]
-[ext_resource type="Script" path="res://scripts/player/health_component.gd" id="2_hp"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_feedback.gd" id="3_fb"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_audio.gd" id="4_aud"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_state_machine.gd" id="5_machine"]
-[ext_resource type="Script" path="res://scripts/status/status_manager.gd" id="6_status"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="7_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/monsters/Demon.gltf" id="8_model"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
+[ext_resource type="PackedScene" path="res://assets/characters/monsters/Demon.gltf" id="3_model"]
 
-[sub_resource type="SphereShape3D" id="SphereShape_body"]
+[sub_resource type="SphereShape3D" id="SphereShape_exploder"]
 radius = 0.55
 
-[sub_resource type="SphereMesh" id="SphereMesh_body"]
+[sub_resource type="SphereMesh" id="SphereMesh_exploder"]
 radius = 0.5
 height = 1.0
 
-[sub_resource type="StandardMaterial3D" id="Mat_enemy"]
+[sub_resource type="StandardMaterial3D" id="Mat_exploder"]
 albedo_color = Color(1, 0.3, 0.15, 1)
 roughness = 0.4
 emission_enabled = true
 emission = Color(1, 0.3, 0.15, 1)
 emission_energy_multiplier = 0.4
 
-[node name="EnemyBase" type="CharacterBody3D"]
-collision_layer = 4
-collision_mask = 5
-script = ExtResource("1_base")
+[node name="ExploderEnemy" instance=ExtResource("1_base")]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-shape = SubResource("SphereShape_body")
+shape = SubResource("SphereShape_exploder")
 
-[node name="VisualRoot" type="Node3D" parent="."]
-
-[node name="CharacterModel" type="Node3D" parent="VisualRoot"]
-
-[node name="Body" type="MeshInstance3D" parent="VisualRoot/CharacterModel"]
+[node name="Body" parent="VisualRoot/CharacterModel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-mesh = SubResource("SphereMesh_body")
-surface_material_override/0 = SubResource("Mat_enemy")
+mesh = SubResource("SphereMesh_exploder")
+surface_material_override/0 = SubResource("Mat_exploder")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="VisualRoot"]
-
-[node name="TargetingOrigin" type="Marker3D" parent="."]
+[node name="TargetingOrigin" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
 
-[node name="AttackOrigin" type="Marker3D" parent="."]
+[node name="AttackOrigin" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, -0.5)
 
-[node name="HealthComponent" type="Node" parent="."]
-script = ExtResource("2_hp")
-
-[node name="EnemyFeedback" type="Node" parent="."]
-script = ExtResource("3_fb")
-
-[node name="EnemyAudio" type="Node" parent="."]
-script = ExtResource("4_aud")
-
-[node name="EnemyStateMachine" type="Node" parent="."]
-script = ExtResource("5_machine")
-
-[node name="StatusManager" type="Node" parent="."]
-script = ExtResource("6_status")
-
 [node name="EnemyAnimator" type="Node" parent="."]
-script = ExtResource("7_animator")
-model_scene = ExtResource("8_model")
+script = ExtResource("2_animator")
+model_scene = ExtResource("3_model")
 model_extent = 1.9
 yaw_offset_degrees = 180.0
 animation_map = {
@@ -76,10 +47,3 @@ animation_map = {
 "hurt": "HitReact",
 "death": "Death"
 }
-
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
-path_desired_distance = 1.5
-target_desired_distance = 1.2
-path_height_tolerance = 0.6
-
-[node name="ModifierReceiver" type="Node" parent="."]

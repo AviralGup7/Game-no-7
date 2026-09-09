@@ -153,37 +153,28 @@ func _meter(parent: Control, color: Color) -> ProgressBar:
 	return meter
 
 func seed_from_run() -> void:
-	if GameRoot == null or not GameRoot.has_method("get_run"):
-		return
-	var run: Variant = GameRoot.call("get_run")
+	var run := GameRoot.get_run()
 	if run == null:
 		return
-	if run is Dictionary:
-		set_score(int((run as Dictionary).get("score", 0)))
-		set_currency(int((run as Dictionary).get("currency", 0)))
-		set_wave(int((run as Dictionary).get("current_wave", 1)))
-		set_combo(int((run as Dictionary).get("combo", 0)))
-	else:
-		if "score" in run: set_score(int((run as Object).get("score")))
-		if "currency" in run: set_currency(int((run as Object).get("currency")))
-		if "current_wave" in run: set_wave(int((run as Object).get("current_wave")))
-		if "combo" in run: set_combo(int((run as Object).get("combo")))
+	set_score(run.score)
+	set_currency(run.currency)
+	set_wave(run.current_wave)
+	set_combo(run.combo)
 	_toast_label.visible = false
-	var player: Node = GameRoot.call("get_active_player") as Node if GameRoot.has_method("get_active_player") else null
+	var player := GameRoot.get_active_player()
 	if is_instance_valid(_experience) and _experience.xp_changed.is_connected(_on_xp):
 		_experience.xp_changed.disconnect(_on_xp)
 	_experience = null
 	if not is_instance_valid(player): return
-	var hp := (player as Node).get_node_or_null("HealthComponent")
+	var hp := player.get_health_component()
 	if hp != null: set_health(hp.current_health, hp.max_health)
-	var stamina := player.get_node_or_null("StaminaComponent")
+	var stamina := player.get_stamina_component()
 	if stamina != null: set_stamina(stamina.get_current(), stamina.get_max())
-	_experience = player.get_node_or_null("ExperienceComponent") as ExperienceComponent
+	_experience = player.get_experience_component()
 	if _experience != null:
 		_experience.xp_changed.connect(_on_xp)
 		_on_xp(_experience.get_xp(), _experience.get_level(), _experience.get_xp(), ExperienceComponent.xp_for_level(_experience.get_level()))
-	var weapons := player.get_node_or_null("WeaponManager")
-	if weapons != null: set_weapon(weapons.active_weapon_id())
+	set_weapon(player.get_weapon_manager().active_weapon_id())
 
 func set_health(current: float, maximum: float) -> void:
 	_last_hp = current
@@ -278,7 +269,7 @@ func _relabel() -> void:
 func _refresh_weapon() -> void:
 	var player := GameRoot.get_active_player()
 	if not is_instance_valid(player): return
-	var manager := player.get_node_or_null("WeaponManager") as WeaponManager
+	var manager := player.get_weapon_manager()
 	if manager == null: return
 	var active := manager.active_instance()
 	if active == null or active.config == null:
@@ -292,10 +283,4 @@ func _refresh_weapon() -> void:
 		var item := manager.slot_instance(index)
 		slots.append(item.config.display_name if item != null and item.config != null else "Empty")
 	_weapon_label.tooltip_text = "Loadout: %s\nSwitch: %s" % [" / ".join(slots), UiCommands.binding(&"switch_weapon")]
-
-## Hardened: clamp HUD fractions.
-func _validated_hud_fraction(f: float) -> float:
-	if not is_finite(f):
-		return 0.0
-	return clampf(f, 0.0, 1.0)
 

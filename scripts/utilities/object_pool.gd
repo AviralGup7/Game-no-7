@@ -112,12 +112,3 @@ func get_debug_snapshot() -> Dictionary:
 		"total_created": _total_created,
 		"max_size": _max_size,
 	}
-
-## Hardened: validate pool size and instance.
-func _validated_pool_size(n: int) -> int:
-	if n < 1:
-		return 1
-	return mini(n, 128)
-func _validated_instance(inst: Node) -> bool:
-	return inst != null and is_instance_valid(inst)
-

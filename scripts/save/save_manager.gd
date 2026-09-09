@@ -91,6 +91,9 @@ func record_run_completed(summary: Dictionary) -> void:
 	ls.total_kills = int(ls.total_kills) + int(summary.get("kills", 0))
 	ls.total_time_seconds = float(ls.total_time_seconds) + float(summary.get("elapsed_seconds", 0.0))
 	ls.highest_combo = maxi(int(ls.highest_combo), int(summary.get("best_combo", 0)))
+	if bool(summary.get("victory", false)):
+		ls.victories = int(ls.get("victories", 0)) + 1
+	ls.bosses_slain = int(ls.get("bosses_slain", 0)) + int(summary.get("bosses_slain", 0))
 	# Persist only the normalized, id-based build mirror. ProgressionComponent,
 	# WeaponManager and SkillController remain the live runtime authorities.
 	var build_value: Variant = summary.get("build", {})
@@ -185,6 +188,26 @@ func set_meta_ranks(ranks: Dictionary) -> void:
 	mark_dirty()
 
 
+func get_prestige_rank() -> int:
+	return clampi(int(_save.get("prestige_rank", 0)), 0, Prestige.MAX_PRESTIGE)
+
+
+func set_prestige_rank(rank: int) -> void:
+	_save.prestige_rank = clampi(rank, 0, Prestige.MAX_PRESTIGE)
+	mark_dirty()
+
+
+func unlock_cosmetic(cosmetic_id: String) -> void:
+	var list: Array = _save.progression.unlocked_cosmetics
+	if cosmetic_id not in list:
+		list.append(cosmetic_id)
+		mark_dirty()
+
+
+func get_unlocked_cosmetics() -> Array:
+	return (_save.progression.get("unlocked_cosmetics", []) as Array).duplicate()
+
+
 func mark_dirty() -> void:
 	_dirty = true
 	if _debounce != null:
@@ -268,34 +291,3 @@ func _apply_validated(data: Dictionary) -> void:
 		_save.last_run_build = SaveSchema.default_run_build()
 	_settings.from_dict(_save.settings)
 	_save.settings = _settings.to_dict()
-
-## Hardened: validate currency before persisting.
-func _validated_currency(v: int) -> int:
-	if v < 0:
-		return 0
-	if v > 999999999:
-		return 999999999
-	return v
-
-## Hardened: validate save dict.
-func _validated_save_dict(d: Dictionary) -> Dictionary:
-	if d == null or d.is_empty():
-		return {}
-	var out: Dictionary = {}
-	for k in d.keys():
-		var v:Variant = d[k]
-		if v is float and not is_finite(float(v)):
-			continue
-		if k is String and str(k).is_empty():
-			continue
-		out[k] = v
-	return out
-
-## Hardened: clamp save version.
-func _validated_save_version(v: int) -> int:
-	if v < 1:
-		return 1
-	if v > 100:
-		return 100
-	return v
-

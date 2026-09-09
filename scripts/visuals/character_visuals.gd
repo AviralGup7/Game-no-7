@@ -54,8 +54,11 @@ static func _report_mount_issue(message: String) -> void:
 	var loop := Engine.get_main_loop()
 	if loop is SceneTree:
 		eb = (loop as SceneTree).root.get_node_or_null("/root/EventBus")
-	if eb != null and eb.has_method("report_diagnostic"):
-		eb.call("report_diagnostic", message, &"warning")
+	# /root/EventBus is the EventBus autoload by construction; the tree lookup
+	# (not the global identifier) keeps this static usable in the autoload-free
+	# headless harness.
+	if eb != null:
+		eb.report_diagnostic(message, &"warning")
 
 
 ## Mount the approved model for `role` under `body`'s VisualRoot/CharacterModel.
@@ -130,6 +133,9 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 	_hide_primitive(mount)
 	_add_ground_shadow(mount)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
+	# HD material pass: anisotropic filtering + role-tuned roughness/metallic so the
+	# approved art reads realistically under the new panormaic lighting.
+	HdMaterials.polish(instance as Node3D, role)
 	# Subtle breathing bob keeps the hero alive even when idle (pure visual, no gameplay).
 	if role == &"player":
 		start_breathing(wrapper)
@@ -259,10 +265,3 @@ static func _bounds(node: Node, parent_xform: Transform3D) -> Variant:
 		else:
 			out = (out as AABB).merge(child_bounds as AABB)
 	return out
-
-## Hardened: validate model id before mounting.
-func _validated_model_id(id: StringName) -> bool:
-	if id == &"" or id == &"uninitialized":
-		return false
-	return has_model(id)
-

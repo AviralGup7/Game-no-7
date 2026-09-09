@@ -1,1168 +1,1186 @@
 {
-  "schema_version": 1,
-  "game": "Last Stand: Arena",
-  "target": "Godot 4.4.1 / Android / 3D third-person",
-  "integration_status": "All 9 weapons (PlayerEquipment socket), 8 skills (EffectDirector distinct VFX + animation + audio), 8 enemies/3 arenas/6 pickups integrated; verified bounds/grounding/pools/audio; device perf NOT YET DEVICE-VERIFIED.",
-  "characters": {
-    "player": {
-      "model": "assets/characters/adventurers/Knight.glb",
-      "intended_scene": "scenes/player/player.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 76,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walking_A",
-        "run": "Running_A",
-        "attack": "1H_Melee_Attack_Slice_Horizontal",
-        "hurt": "Hit_A",
-        "death": "Death_A",
-        "dodge_forward": "Dodge_Forward",
-        "dodge_backward": "Dodge_Backward",
-        "dodge_left": "Dodge_Left",
-        "dodge_right": "Dodge_Right"
-      },
-      "available_animations": [
-        "1H_Melee_Attack_Chop",
-        "1H_Melee_Attack_Slice_Diagonal",
-        "1H_Melee_Attack_Slice_Horizontal",
-        "1H_Melee_Attack_Stab",
-        "1H_Ranged_Aiming",
-        "1H_Ranged_Reload",
-        "1H_Ranged_Shoot",
-        "1H_Ranged_Shooting",
-        "2H_Melee_Attack_Chop",
-        "2H_Melee_Attack_Slice",
-        "2H_Melee_Attack_Spin",
-        "2H_Melee_Attack_Spinning",
-        "2H_Melee_Attack_Stab",
-        "2H_Melee_Idle",
-        "2H_Ranged_Aiming",
-        "2H_Ranged_Reload",
-        "2H_Ranged_Shoot",
-        "2H_Ranged_Shooting",
-        "Block",
-        "Block_Attack",
-        "Block_Hit",
-        "Blocking",
-        "Cheer",
-        "Death_A",
-        "Death_A_Pose",
-        "Death_B",
-        "Death_B_Pose",
-        "Dodge_Backward",
-        "Dodge_Forward",
-        "Dodge_Left",
-        "Dodge_Right",
-        "Dualwield_Melee_Attack_Chop",
-        "Dualwield_Melee_Attack_Slice",
-        "Dualwield_Melee_Attack_Stab",
-        "Hit_A",
-        "Hit_B",
-        "Idle",
-        "Interact",
-        "Jump_Full_Long",
-        "Jump_Full_Short",
-        "Jump_Idle",
-        "Jump_Land",
-        "Jump_Start",
-        "Lie_Down",
-        "Lie_Idle",
-        "Lie_Pose",
-        "Lie_StandUp",
-        "PickUp",
-        "Running_A",
-        "Running_B",
-        "Running_Strafe_Left",
-        "Running_Strafe_Right",
-        "Sit_Chair_Down",
-        "Sit_Chair_Idle",
-        "Sit_Chair_Pose",
-        "Sit_Chair_StandUp",
-        "Sit_Floor_Down",
-        "Sit_Floor_Idle",
-        "Sit_Floor_Pose",
-        "Sit_Floor_StandUp",
-        "Spellcast_Long",
-        "Spellcast_Raise",
-        "Spellcast_Shoot",
-        "Spellcasting",
-        "T-Pose",
-        "Throw",
-        "Unarmed_Idle",
-        "Unarmed_Melee_Attack_Kick",
-        "Unarmed_Melee_Attack_Punch_A",
-        "Unarmed_Melee_Attack_Punch_B",
-        "Unarmed_Pose",
-        "Use_Item",
-        "Walking_A",
-        "Walking_B",
-        "Walking_Backwards",
-        "Walking_C"
-      ],
-      "weapon": "assets/weapons/adventurers/sword_1handed.gltf",
-      "shield": "assets/weapons/adventurers/shield_badge.gltf",
-      "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l",
-      "required_bones": [
-        "handslot.l",
-        "handslot.r"
-      ],
-      "source_triangles": 6952
-    },
-    "basic": {
-      "model": "assets/characters/skeletons/Skeleton_Minion.glb",
-      "intended_scene": "scenes/enemies/basic_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 95,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walking_A",
-        "run": "Running_A",
-        "attack": "1H_Melee_Attack_Slice_Horizontal",
-        "hurt": "Hit_A",
-        "death": "Death_A",
-        "dodge_forward": "Dodge_Forward",
-        "dodge_backward": "Dodge_Backward",
-        "dodge_left": "Dodge_Left",
-        "dodge_right": "Dodge_Right"
-      },
-      "available_animations": [
-        "1H_Melee_Attack_Chop",
-        "1H_Melee_Attack_Jump_Chop",
-        "1H_Melee_Attack_Slice_Diagonal",
-        "1H_Melee_Attack_Slice_Horizontal",
-        "1H_Melee_Attack_Stab",
-        "1H_Ranged_Aiming",
-        "1H_Ranged_Reload",
-        "1H_Ranged_Shoot",
-        "1H_Ranged_Shooting",
-        "2H_Melee_Attack_Chop",
-        "2H_Melee_Attack_Slice",
-        "2H_Melee_Attack_Spin",
-        "2H_Melee_Attack_Spinning",
-        "2H_Melee_Attack_Stab",
-        "2H_Melee_Idle",
-        "2H_Ranged_Aiming",
-        "2H_Ranged_Reload",
-        "2H_Ranged_Shoot",
-        "2H_Ranged_Shooting",
-        "Block",
-        "Block_Attack",
-        "Block_Hit",
-        "Blocking",
-        "Cheer",
-        "Death_A",
-        "Death_A_Pose",
-        "Death_B",
-        "Death_B_Pose",
-        "Death_C_Pose",
-        "Death_C_Skeletons",
-        "Death_C_Skeletons_Resurrect",
-        "Dodge_Backward",
-        "Dodge_Forward",
-        "Dodge_Left",
-        "Dodge_Right",
-        "Dualwield_Melee_Attack_Chop",
-        "Dualwield_Melee_Attack_Slice",
-        "Dualwield_Melee_Attack_Stab",
-        "Hit_A",
-        "Hit_B",
-        "Idle",
-        "Idle_B",
-        "Idle_Combat",
-        "Interact",
-        "Jump_Full_Long",
-        "Jump_Full_Short",
-        "Jump_Idle",
-        "Jump_Land",
-        "Jump_Start",
-        "Lie_Down",
-        "Lie_Idle",
-        "Lie_Pose",
-        "Lie_StandUp",
-        "PickUp",
-        "Running_A",
-        "Running_B",
-        "Running_C",
-        "Running_Strafe_Left",
-        "Running_Strafe_Right",
-        "Sit_Chair_Down",
-        "Sit_Chair_Idle",
-        "Sit_Chair_Pose",
-        "Sit_Chair_StandUp",
-        "Sit_Floor_Down",
-        "Sit_Floor_Idle",
-        "Sit_Floor_Pose",
-        "Sit_Floor_StandUp",
-        "Skeleton_Inactive_Standing_Pose",
-        "Skeletons_Awaken_Floor",
-        "Skeletons_Awaken_Floor_Long",
-        "Skeletons_Awaken_Standing",
-        "Skeletons_Inactive_Floor_Pose",
-        "Spawn_Air",
-        "Spawn_Ground",
-        "Spawn_Ground_Skeletons",
-        "Spellcast_Long",
-        "Spellcast_Raise",
-        "Spellcast_Shoot",
-        "Spellcast_Summon",
-        "Spellcasting",
-        "T-Pose",
-        "Taunt",
-        "Taunt_Longer",
-        "Throw",
-        "Unarmed_Idle",
-        "Unarmed_Melee_Attack_Kick",
-        "Unarmed_Melee_Attack_Punch_A",
-        "Unarmed_Melee_Attack_Punch_B",
-        "Unarmed_Pose",
-        "Use_Item",
-        "Walking_A",
-        "Walking_B",
-        "Walking_Backwards",
-        "Walking_C",
-        "Walking_D_Skeletons"
-      ],
-      "weapon": "assets/weapons/skeletons/Skeleton_Blade.gltf",
-      "shield": "assets/weapons/skeletons/Skeleton_Shield_Small_A.gltf",
-      "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l",
-      "required_bones": [
-        "handslot.l",
-        "handslot.r"
-      ],
-      "source_triangles": 5288
-    },
-    "fast": {
-      "model": "assets/characters/skeletons/Skeleton_Rogue.glb",
-      "intended_scene": "scenes/enemies/fast_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 95,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walking_A",
-        "run": "Running_A",
-        "attack": "1H_Melee_Attack_Stab",
-        "hurt": "Hit_A",
-        "death": "Death_A",
-        "dodge_forward": "Dodge_Forward",
-        "dodge_backward": "Dodge_Backward",
-        "dodge_left": "Dodge_Left",
-        "dodge_right": "Dodge_Right"
-      },
-      "available_animations": [
-        "1H_Melee_Attack_Chop",
-        "1H_Melee_Attack_Jump_Chop",
-        "1H_Melee_Attack_Slice_Diagonal",
-        "1H_Melee_Attack_Slice_Horizontal",
-        "1H_Melee_Attack_Stab",
-        "1H_Ranged_Aiming",
-        "1H_Ranged_Reload",
-        "1H_Ranged_Shoot",
-        "1H_Ranged_Shooting",
-        "2H_Melee_Attack_Chop",
-        "2H_Melee_Attack_Slice",
-        "2H_Melee_Attack_Spin",
-        "2H_Melee_Attack_Spinning",
-        "2H_Melee_Attack_Stab",
-        "2H_Melee_Idle",
-        "2H_Ranged_Aiming",
-        "2H_Ranged_Reload",
-        "2H_Ranged_Shoot",
-        "2H_Ranged_Shooting",
-        "Block",
-        "Block_Attack",
-        "Block_Hit",
-        "Blocking",
-        "Cheer",
-        "Death_A",
-        "Death_A_Pose",
-        "Death_B",
-        "Death_B_Pose",
-        "Death_C_Pose",
-        "Death_C_Skeletons",
-        "Death_C_Skeletons_Resurrect",
-        "Dodge_Backward",
-        "Dodge_Forward",
-        "Dodge_Left",
-        "Dodge_Right",
-        "Dualwield_Melee_Attack_Chop",
-        "Dualwield_Melee_Attack_Slice",
-        "Dualwield_Melee_Attack_Stab",
-        "Hit_A",
-        "Hit_B",
-        "Idle",
-        "Idle_B",
-        "Idle_Combat",
-        "Interact",
-        "Jump_Full_Long",
-        "Jump_Full_Short",
-        "Jump_Idle",
-        "Jump_Land",
-        "Jump_Start",
-        "Lie_Down",
-        "Lie_Idle",
-        "Lie_Pose",
-        "Lie_StandUp",
-        "PickUp",
-        "Running_A",
-        "Running_B",
-        "Running_C",
-        "Running_Strafe_Left",
-        "Running_Strafe_Right",
-        "Sit_Chair_Down",
-        "Sit_Chair_Idle",
-        "Sit_Chair_Pose",
-        "Sit_Chair_StandUp",
-        "Sit_Floor_Down",
-        "Sit_Floor_Idle",
-        "Sit_Floor_Pose",
-        "Sit_Floor_StandUp",
-        "Skeleton_Inactive_Standing_Pose",
-        "Skeletons_Awaken_Floor",
-        "Skeletons_Awaken_Floor_Long",
-        "Skeletons_Awaken_Standing",
-        "Skeletons_Inactive_Floor_Pose",
-        "Spawn_Air",
-        "Spawn_Ground",
-        "Spawn_Ground_Skeletons",
-        "Spellcast_Long",
-        "Spellcast_Raise",
-        "Spellcast_Shoot",
-        "Spellcast_Summon",
-        "Spellcasting",
-        "T-Pose",
-        "Taunt",
-        "Taunt_Longer",
-        "Throw",
-        "Unarmed_Idle",
-        "Unarmed_Melee_Attack_Kick",
-        "Unarmed_Melee_Attack_Punch_A",
-        "Unarmed_Melee_Attack_Punch_B",
-        "Unarmed_Pose",
-        "Use_Item",
-        "Walking_A",
-        "Walking_B",
-        "Walking_Backwards",
-        "Walking_C",
-        "Walking_D_Skeletons"
-      ],
-      "weapon": "assets/weapons/adventurers/dagger.gltf",
-      "shield": null,
-      "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l",
-      "required_bones": [
-        "handslot.l",
-        "handslot.r"
-      ],
-      "source_triangles": 5278
-    },
-    "heavy": {
-      "model": "assets/characters/skeletons/Skeleton_Warrior.glb",
-      "intended_scene": "scenes/enemies/heavy_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 95,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walking_A",
-        "run": "Running_A",
-        "attack": "1H_Melee_Attack_Chop",
-        "hurt": "Hit_A",
-        "death": "Death_A",
-        "dodge_forward": "Dodge_Forward",
-        "dodge_backward": "Dodge_Backward",
-        "dodge_left": "Dodge_Left",
-        "dodge_right": "Dodge_Right"
-      },
-      "available_animations": [
-        "1H_Melee_Attack_Chop",
-        "1H_Melee_Attack_Jump_Chop",
-        "1H_Melee_Attack_Slice_Diagonal",
-        "1H_Melee_Attack_Slice_Horizontal",
-        "1H_Melee_Attack_Stab",
-        "1H_Ranged_Aiming",
-        "1H_Ranged_Reload",
-        "1H_Ranged_Shoot",
-        "1H_Ranged_Shooting",
-        "2H_Melee_Attack_Chop",
-        "2H_Melee_Attack_Slice",
-        "2H_Melee_Attack_Spin",
-        "2H_Melee_Attack_Spinning",
-        "2H_Melee_Attack_Stab",
-        "2H_Melee_Idle",
-        "2H_Ranged_Aiming",
-        "2H_Ranged_Reload",
-        "2H_Ranged_Shoot",
-        "2H_Ranged_Shooting",
-        "Block",
-        "Block_Attack",
-        "Block_Hit",
-        "Blocking",
-        "Cheer",
-        "Death_A",
-        "Death_A_Pose",
-        "Death_B",
-        "Death_B_Pose",
-        "Death_C_Pose",
-        "Death_C_Skeletons",
-        "Death_C_Skeletons_Resurrect",
-        "Dodge_Backward",
-        "Dodge_Forward",
-        "Dodge_Left",
-        "Dodge_Right",
-        "Dualwield_Melee_Attack_Chop",
-        "Dualwield_Melee_Attack_Slice",
-        "Dualwield_Melee_Attack_Stab",
-        "Hit_A",
-        "Hit_B",
-        "Idle",
-        "Idle_B",
-        "Idle_Combat",
-        "Interact",
-        "Jump_Full_Long",
-        "Jump_Full_Short",
-        "Jump_Idle",
-        "Jump_Land",
-        "Jump_Start",
-        "Lie_Down",
-        "Lie_Idle",
-        "Lie_Pose",
-        "Lie_StandUp",
-        "PickUp",
-        "Running_A",
-        "Running_B",
-        "Running_C",
-        "Running_Strafe_Left",
-        "Running_Strafe_Right",
-        "Sit_Chair_Down",
-        "Sit_Chair_Idle",
-        "Sit_Chair_Pose",
-        "Sit_Chair_StandUp",
-        "Sit_Floor_Down",
-        "Sit_Floor_Idle",
-        "Sit_Floor_Pose",
-        "Sit_Floor_StandUp",
-        "Skeleton_Inactive_Standing_Pose",
-        "Skeletons_Awaken_Floor",
-        "Skeletons_Awaken_Floor_Long",
-        "Skeletons_Awaken_Standing",
-        "Skeletons_Inactive_Floor_Pose",
-        "Spawn_Air",
-        "Spawn_Ground",
-        "Spawn_Ground_Skeletons",
-        "Spellcast_Long",
-        "Spellcast_Raise",
-        "Spellcast_Shoot",
-        "Spellcast_Summon",
-        "Spellcasting",
-        "T-Pose",
-        "Taunt",
-        "Taunt_Longer",
-        "Throw",
-        "Unarmed_Idle",
-        "Unarmed_Melee_Attack_Kick",
-        "Unarmed_Melee_Attack_Punch_A",
-        "Unarmed_Melee_Attack_Punch_B",
-        "Unarmed_Pose",
-        "Use_Item",
-        "Walking_A",
-        "Walking_B",
-        "Walking_Backwards",
-        "Walking_C",
-        "Walking_D_Skeletons"
-      ],
-      "weapon": "assets/weapons/skeletons/Skeleton_Axe.gltf",
-      "shield": "assets/weapons/skeletons/Skeleton_Shield_Large_A.gltf",
-      "right_hand_bone": "handslot.r",
-      "left_hand_bone": "handslot.l",
-      "required_bones": [
-        "handslot.l",
-        "handslot.r"
-      ],
-      "source_triangles": 5934
-    },
-    "ranged": {
-      "model": "assets/characters/skeletons/Skeleton_Mage.glb",
-      "intended_scene": "scenes/enemies/ranged_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 95,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walking_A",
-        "run": "Running_A",
-        "attack": "Spellcast_Shoot",
-        "hurt": "Hit_A",
-        "death": "Death_A"
-      },
-      "available_animations": [
-        "1H_Melee_Attack_Chop",
-        "1H_Melee_Attack_Jump_Chop",
-        "1H_Melee_Attack_Slice_Diagonal",
-        "1H_Melee_Attack_Slice_Horizontal",
-        "1H_Melee_Attack_Stab",
-        "1H_Ranged_Aiming",
-        "1H_Ranged_Reload",
-        "1H_Ranged_Shoot",
-        "1H_Ranged_Shooting",
-        "2H_Melee_Attack_Chop",
-        "2H_Melee_Attack_Slice",
-        "2H_Melee_Attack_Spin",
-        "2H_Melee_Attack_Spinning",
-        "2H_Melee_Attack_Stab",
-        "2H_Melee_Idle",
-        "2H_Ranged_Aiming",
-        "2H_Ranged_Reload",
-        "2H_Ranged_Shoot",
-        "2H_Ranged_Shooting",
-        "Block",
-        "Block_Attack",
-        "Block_Hit",
-        "Blocking",
-        "Cheer",
-        "Death_A",
-        "Death_A_Pose",
-        "Death_B",
-        "Death_B_Pose",
-        "Death_C_Pose",
-        "Death_C_Skeletons",
-        "Death_C_Skeletons_Resurrect",
-        "Dodge_Backward",
-        "Dodge_Forward",
-        "Dodge_Left",
-        "Dodge_Right",
-        "Dualwield_Melee_Attack_Chop",
-        "Dualwield_Melee_Attack_Slice",
-        "Dualwield_Melee_Attack_Stab",
-        "Hit_A",
-        "Hit_B",
-        "Idle",
-        "Idle_B",
-        "Idle_Combat",
-        "Interact",
-        "Jump_Full_Long",
-        "Jump_Full_Short",
-        "Jump_Idle",
-        "Jump_Land",
-        "Jump_Start",
-        "Lie_Down",
-        "Lie_Idle",
-        "Lie_Pose",
-        "Lie_StandUp",
-        "PickUp",
-        "Running_A",
-        "Running_B",
-        "Running_C",
-        "Running_Strafe_Left",
-        "Running_Strafe_Right",
-        "Sit_Chair_Down",
-        "Sit_Chair_Idle",
-        "Sit_Chair_Pose",
-        "Sit_Chair_StandUp",
-        "Sit_Floor_Down",
-        "Sit_Floor_Idle",
-        "Sit_Floor_Pose",
-        "Sit_Floor_StandUp",
-        "Skeleton_Inactive_Standing_Pose",
-        "Skeletons_Awaken_Floor",
-        "Skeletons_Awaken_Floor_Long",
-        "Skeletons_Awaken_Standing",
-        "Skeletons_Inactive_Floor_Pose",
-        "Spawn_Air",
-        "Spawn_Ground",
-        "Spawn_Ground_Skeletons",
-        "Spellcast_Long",
-        "Spellcast_Raise",
-        "Spellcast_Shoot",
-        "Spellcast_Summon",
-        "Spellcasting",
-        "T-Pose",
-        "Taunt",
-        "Taunt_Longer",
-        "Throw",
-        "Unarmed_Idle",
-        "Unarmed_Melee_Attack_Kick",
-        "Unarmed_Melee_Attack_Punch_A",
-        "Unarmed_Melee_Attack_Punch_B",
-        "Unarmed_Pose",
-        "Use_Item",
-        "Walking_A",
-        "Walking_B",
-        "Walking_Backwards",
-        "Walking_C",
-        "Walking_D_Skeletons"
-      ],
-      "required_bones": [
-        "handslot.l",
-        "handslot.r"
-      ],
-      "source_triangles": 4588
-    },
-    "dasher": {
-      "model": "assets/characters/creatures/Rat.glb",
-      "intended_scene": "scenes/enemies/dasher_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 6,
-      "animations": {
-        "idle": "RatArmature|Rat_Idle",
-        "walk": "RatArmature|Rat_Walk",
-        "run": "RatArmature|Rat_Run",
-        "attack": "RatArmature|Rat_Attack",
-        "death": "RatArmature|Rat_Death"
-      },
-      "available_animations": [
-        "RatArmature|Rat_Attack",
-        "RatArmature|Rat_Death",
-        "RatArmature|Rat_Idle",
-        "RatArmature|Rat_Jump",
-        "RatArmature|Rat_Run",
-        "RatArmature|Rat_Walk"
-      ],
-      "required_bones": [],
-      "source_triangles": 4004
-    },
-    "splitter": {
-      "model": "assets/characters/creatures/Spider.glb",
-      "intended_scene": "scenes/enemies/splitter_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 5,
-      "animations": {
-        "idle": "SpiderArmature|Spider_Idle",
-        "walk": "SpiderArmature|Spider_Walk",
-        "run": "SpiderArmature|Spider_Walk",
-        "attack": "SpiderArmature|Spider_Attack",
-        "death": "SpiderArmature|Spider_Death"
-      },
-      "available_animations": [
-        "SpiderArmature|Spider_Attack",
-        "SpiderArmature|Spider_Death",
-        "SpiderArmature|Spider_Idle",
-        "SpiderArmature|Spider_Jump",
-        "SpiderArmature|Spider_Walk"
-      ],
-      "required_bones": [],
-      "source_triangles": 2712
-    },
-    "exploder": {
-      "model": "assets/characters/monsters/Demon.gltf",
-      "intended_scene": "scenes/enemies/exploder_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 14,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walk",
-        "run": "Run",
-        "attack": "Punch",
-        "hurt": "HitReact",
-        "death": "Death"
-      },
-      "available_animations": [
-        "Death",
-        "Duck",
-        "HitReact",
-        "Idle",
-        "Jump",
-        "Jump_Idle",
-        "Jump_Land",
-        "No",
-        "Punch",
-        "Run",
-        "Walk",
-        "Wave",
-        "Weapon",
-        "Yes"
-      ],
-      "required_bones": [],
-      "source_triangles": 6712
-    },
-    "warlord": {
-      "model": "assets/characters/monsters/BlueDemon.gltf",
-      "intended_scene": "scenes/enemies/warlord_enemy.tscn",
-      "intended_mount": "VisualRoot/CharacterModel",
-      "animation_count": 14,
-      "animations": {
-        "idle": "Idle",
-        "walk": "Walk",
-        "run": "Run",
-        "attack": "Punch",
-        "hurt": "HitReact",
-        "death": "Death"
-      },
-      "available_animations": [
-        "Death",
-        "Duck",
-        "HitReact",
-        "Idle",
-        "Jump",
-        "Jump_Idle",
-        "Jump_Land",
-        "No",
-        "Punch",
-        "Run",
-        "Walk",
-        "Wave",
-        "Weapon",
-        "Yes"
-      ],
-      "required_bones": [],
-      "source_triangles": 5800
-    }
+ "schema_version": 1,
+ "game": "Last Stand: Arena",
+ "target": "Godot 4.4.1 / Android / 3D third-person",
+ "integration_status": "HD realism pass: photo PBR arena shell (rock/brick/marble/wood/metal), Poly Haven CC0 HDRI panorama skies per arena, 2x MSAA + anisotropic filtering + PCF shadows, glow/fog/tonemap post, flickering torch lights, and an anisotropic/roughness/metallic material pass on every character, enemy and arena prop. All 9 weapons, 8 skills, 8 enemies/3 arenas/6 pickups behaviour unchanged; device perf NOT YET DEVICE-VERIFIED.",
+ "characters": {
+  "player": {
+   "model": "assets/characters/adventurers/Knight.glb",
+   "intended_scene": "scenes/player/player.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 76,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walking_A",
+    "run": "Running_A",
+    "attack": "1H_Melee_Attack_Slice_Horizontal",
+    "hurt": "Hit_A",
+    "death": "Death_A",
+    "dodge_forward": "Dodge_Forward",
+    "dodge_backward": "Dodge_Backward",
+    "dodge_left": "Dodge_Left",
+    "dodge_right": "Dodge_Right"
+   },
+   "available_animations": [
+    "1H_Melee_Attack_Chop",
+    "1H_Melee_Attack_Slice_Diagonal",
+    "1H_Melee_Attack_Slice_Horizontal",
+    "1H_Melee_Attack_Stab",
+    "1H_Ranged_Aiming",
+    "1H_Ranged_Reload",
+    "1H_Ranged_Shoot",
+    "1H_Ranged_Shooting",
+    "2H_Melee_Attack_Chop",
+    "2H_Melee_Attack_Slice",
+    "2H_Melee_Attack_Spin",
+    "2H_Melee_Attack_Spinning",
+    "2H_Melee_Attack_Stab",
+    "2H_Melee_Idle",
+    "2H_Ranged_Aiming",
+    "2H_Ranged_Reload",
+    "2H_Ranged_Shoot",
+    "2H_Ranged_Shooting",
+    "Block",
+    "Block_Attack",
+    "Block_Hit",
+    "Blocking",
+    "Cheer",
+    "Death_A",
+    "Death_A_Pose",
+    "Death_B",
+    "Death_B_Pose",
+    "Dodge_Backward",
+    "Dodge_Forward",
+    "Dodge_Left",
+    "Dodge_Right",
+    "Dualwield_Melee_Attack_Chop",
+    "Dualwield_Melee_Attack_Slice",
+    "Dualwield_Melee_Attack_Stab",
+    "Hit_A",
+    "Hit_B",
+    "Idle",
+    "Interact",
+    "Jump_Full_Long",
+    "Jump_Full_Short",
+    "Jump_Idle",
+    "Jump_Land",
+    "Jump_Start",
+    "Lie_Down",
+    "Lie_Idle",
+    "Lie_Pose",
+    "Lie_StandUp",
+    "PickUp",
+    "Running_A",
+    "Running_B",
+    "Running_Strafe_Left",
+    "Running_Strafe_Right",
+    "Sit_Chair_Down",
+    "Sit_Chair_Idle",
+    "Sit_Chair_Pose",
+    "Sit_Chair_StandUp",
+    "Sit_Floor_Down",
+    "Sit_Floor_Idle",
+    "Sit_Floor_Pose",
+    "Sit_Floor_StandUp",
+    "Spellcast_Long",
+    "Spellcast_Raise",
+    "Spellcast_Shoot",
+    "Spellcasting",
+    "T-Pose",
+    "Throw",
+    "Unarmed_Idle",
+    "Unarmed_Melee_Attack_Kick",
+    "Unarmed_Melee_Attack_Punch_A",
+    "Unarmed_Melee_Attack_Punch_B",
+    "Unarmed_Pose",
+    "Use_Item",
+    "Walking_A",
+    "Walking_B",
+    "Walking_Backwards",
+    "Walking_C"
+   ],
+   "weapon": "assets/weapons/adventurers/sword_1handed.gltf",
+   "shield": "assets/weapons/adventurers/shield_badge.gltf",
+   "right_hand_bone": "handslot.r",
+   "left_hand_bone": "handslot.l",
+   "required_bones": [
+    "handslot.l",
+    "handslot.r"
+   ],
+   "source_triangles": 6952
   },
-  "upgrade_icons": {
-    "adrenaline": "assets/ui/upgrades/hourglass.png",
-    "arcane_surge": "assets/ui/upgrades/crown_a.png",
-    "bloodlust": "assets/ui/upgrades/skull.png",
-    "broad_sweep": "assets/ui/upgrades/arrow_horizontal.png",
-    "chain_reaction": "assets/ui/upgrades/exploding.png",
-    "critical_edge": "assets/ui/upgrades/sword.png",
-    "deep_quiver": "assets/ui/upgrades/bow.png",
-    "devastating_crit": "assets/ui/upgrades/skull.png",
-    "field_medic": "assets/ui/upgrades/flask_full.png",
-    "fleetfoot": "assets/ui/upgrades/pawn_up.png",
-    "force": "assets/ui/upgrades/hand.png",
-    "fortified": "assets/ui/upgrades/shield.png",
-    "glass_cannon": "assets/ui/upgrades/skull.png",
-    "haste": "assets/ui/upgrades/hourglass.png",
-    "hunter": "assets/ui/upgrades/award.png",
-    "iron_wall": "assets/ui/upgrades/shield.png",
-    "last_stand": "assets/ui/upgrades/suit_hearts_broken.png",
-    "marked_prey": "assets/ui/icons/target.png",
-    "power": "assets/ui/upgrades/sword.png",
-    "quartermaster": "assets/ui/upgrades/pouch.png",
-    "reach": "assets/ui/upgrades/arrow_horizontal.png",
-    "repeater": "assets/ui/upgrades/bow.png",
-    "scavenger": "assets/ui/upgrades/pouch.png",
-    "scholar": "assets/ui/upgrades/award.png",
-    "stamina_reservoir": "assets/ui/upgrades/hourglass.png",
-    "status_attunement": "assets/ui/upgrades/flask_full.png",
-    "swift": "assets/ui/upgrades/pawn_up.png",
-    "toxicology": "assets/ui/upgrades/flask_full.png",
-    "vitality": "assets/ui/upgrades/suit_hearts.png",
-    "volatile_core": "assets/ui/upgrades/exploding.png"
+  "basic": {
+   "model": "assets/characters/skeletons/Skeleton_Minion.glb",
+   "intended_scene": "scenes/enemies/basic_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 95,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walking_A",
+    "run": "Running_A",
+    "attack": "1H_Melee_Attack_Slice_Horizontal",
+    "hurt": "Hit_A",
+    "death": "Death_A",
+    "dodge_forward": "Dodge_Forward",
+    "dodge_backward": "Dodge_Backward",
+    "dodge_left": "Dodge_Left",
+    "dodge_right": "Dodge_Right"
+   },
+   "available_animations": [
+    "1H_Melee_Attack_Chop",
+    "1H_Melee_Attack_Jump_Chop",
+    "1H_Melee_Attack_Slice_Diagonal",
+    "1H_Melee_Attack_Slice_Horizontal",
+    "1H_Melee_Attack_Stab",
+    "1H_Ranged_Aiming",
+    "1H_Ranged_Reload",
+    "1H_Ranged_Shoot",
+    "1H_Ranged_Shooting",
+    "2H_Melee_Attack_Chop",
+    "2H_Melee_Attack_Slice",
+    "2H_Melee_Attack_Spin",
+    "2H_Melee_Attack_Spinning",
+    "2H_Melee_Attack_Stab",
+    "2H_Melee_Idle",
+    "2H_Ranged_Aiming",
+    "2H_Ranged_Reload",
+    "2H_Ranged_Shoot",
+    "2H_Ranged_Shooting",
+    "Block",
+    "Block_Attack",
+    "Block_Hit",
+    "Blocking",
+    "Cheer",
+    "Death_A",
+    "Death_A_Pose",
+    "Death_B",
+    "Death_B_Pose",
+    "Death_C_Pose",
+    "Death_C_Skeletons",
+    "Death_C_Skeletons_Resurrect",
+    "Dodge_Backward",
+    "Dodge_Forward",
+    "Dodge_Left",
+    "Dodge_Right",
+    "Dualwield_Melee_Attack_Chop",
+    "Dualwield_Melee_Attack_Slice",
+    "Dualwield_Melee_Attack_Stab",
+    "Hit_A",
+    "Hit_B",
+    "Idle",
+    "Idle_B",
+    "Idle_Combat",
+    "Interact",
+    "Jump_Full_Long",
+    "Jump_Full_Short",
+    "Jump_Idle",
+    "Jump_Land",
+    "Jump_Start",
+    "Lie_Down",
+    "Lie_Idle",
+    "Lie_Pose",
+    "Lie_StandUp",
+    "PickUp",
+    "Running_A",
+    "Running_B",
+    "Running_C",
+    "Running_Strafe_Left",
+    "Running_Strafe_Right",
+    "Sit_Chair_Down",
+    "Sit_Chair_Idle",
+    "Sit_Chair_Pose",
+    "Sit_Chair_StandUp",
+    "Sit_Floor_Down",
+    "Sit_Floor_Idle",
+    "Sit_Floor_Pose",
+    "Sit_Floor_StandUp",
+    "Skeleton_Inactive_Standing_Pose",
+    "Skeletons_Awaken_Floor",
+    "Skeletons_Awaken_Floor_Long",
+    "Skeletons_Awaken_Standing",
+    "Skeletons_Inactive_Floor_Pose",
+    "Spawn_Air",
+    "Spawn_Ground",
+    "Spawn_Ground_Skeletons",
+    "Spellcast_Long",
+    "Spellcast_Raise",
+    "Spellcast_Shoot",
+    "Spellcast_Summon",
+    "Spellcasting",
+    "T-Pose",
+    "Taunt",
+    "Taunt_Longer",
+    "Throw",
+    "Unarmed_Idle",
+    "Unarmed_Melee_Attack_Kick",
+    "Unarmed_Melee_Attack_Punch_A",
+    "Unarmed_Melee_Attack_Punch_B",
+    "Unarmed_Pose",
+    "Use_Item",
+    "Walking_A",
+    "Walking_B",
+    "Walking_Backwards",
+    "Walking_C",
+    "Walking_D_Skeletons"
+   ],
+   "weapon": "assets/weapons/skeletons/Skeleton_Blade.gltf",
+   "shield": "assets/weapons/skeletons/Skeleton_Shield_Small_A.gltf",
+   "right_hand_bone": "handslot.r",
+   "left_hand_bone": "handslot.l",
+   "required_bones": [
+    "handslot.l",
+    "handslot.r"
+   ],
+   "source_triangles": 5288
   },
-  "audio_cues": {
-    "player_step": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/footstep_concrete_000.ogg"
-      ],
-      "suggested_volume_db": -16.0
-    },
-    "player_switch": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/draw_knife_1.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_shot": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/knife_slice_2.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_reload": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/cloth_2.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_low_health": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -12.0
-    },
-    "player_attack": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/knife_slice.ogg",
-        "assets/audio/sfx/rpg/knife_slice_2.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_hurt": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_punch_medium_000.ogg",
-        "assets/audio/sfx/impact/impact_punch_medium_001.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_dodge": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/cloth_1.ogg",
-        "assets/audio/sfx/rpg/cloth_2.ogg",
-        "assets/audio/sfx/rpg/cloth_3.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "player_death": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "enemy_attack": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/chop.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "enemy_hit": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_wood_medium_000.ogg",
-        "assets/audio/sfx/impact/impact_generic_light_000.ogg",
-        "assets/audio/sfx/impact/impact_generic_light_001.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "enemy_death": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_wood_heavy_000.ogg",
-        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "enemy_spawn": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/open_001.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "upgrade_select": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/confirmation_001.wav",
-        "assets/audio/sfx/interface/confirmation_002.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "pickup": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/handle_coins.ogg",
-        "assets/audio/sfx/rpg/handle_coins_2.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "wave_started": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_bell_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "game_over": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/error_006.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "ui_confirm": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/click_001.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "ui_back": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/back_001.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "footstep": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/footstep_concrete_000.ogg",
-        "assets/audio/sfx/impact/footstep_concrete_001.ogg",
-        "assets/audio/sfx/impact/footstep_concrete_002.ogg",
-        "assets/audio/sfx/impact/footstep_concrete_003.ogg"
-      ],
-      "suggested_volume_db": -16.0
-    },
-    "equip": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/draw_knife_1.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "item_drop": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/drop_leather.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "skill_cast": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/knife_slice.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "skill_ready": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/confirmation_001.wav"
-      ],
-      "suggested_volume_db": -10.0
-    },
-    "level_up": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/rpg/handle_coins.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "wave_completed": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/interface/confirmation_002.wav"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "boss_spawned": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "boss_phase_changed": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "boss_slain": {
-      "bus": "SFX",
-      "loop": false,
-      "files": [
-        "assets/audio/sfx/impact/impact_wood_heavy_000.ogg"
-      ],
-      "suggested_volume_db": -8.0
-    },
-    "arena_menu": {
-      "bus": "Music",
-      "loop": true,
-      "files": [
-        "assets/audio/music/arena_menu.ogg"
-      ],
-      "channels": 2,
-      "sample_rate": 44100,
-      "duration_seconds": 49.95138321995465,
-      "suggested_volume_db": -16.0
-    },
-    "arena_gameplay": {
-      "bus": "Music",
-      "loop": true,
-      "files": [
-        "assets/audio/music/arena_gameplay.ogg"
-      ],
-      "channels": 2,
-      "sample_rate": 44100,
-      "duration_seconds": 123.42859410430839,
-      "suggested_volume_db": -4.0
-    }
+  "fast": {
+   "model": "assets/characters/skeletons/Skeleton_Rogue.glb",
+   "intended_scene": "scenes/enemies/fast_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 95,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walking_A",
+    "run": "Running_A",
+    "attack": "1H_Melee_Attack_Stab",
+    "hurt": "Hit_A",
+    "death": "Death_A",
+    "dodge_forward": "Dodge_Forward",
+    "dodge_backward": "Dodge_Backward",
+    "dodge_left": "Dodge_Left",
+    "dodge_right": "Dodge_Right"
+   },
+   "available_animations": [
+    "1H_Melee_Attack_Chop",
+    "1H_Melee_Attack_Jump_Chop",
+    "1H_Melee_Attack_Slice_Diagonal",
+    "1H_Melee_Attack_Slice_Horizontal",
+    "1H_Melee_Attack_Stab",
+    "1H_Ranged_Aiming",
+    "1H_Ranged_Reload",
+    "1H_Ranged_Shoot",
+    "1H_Ranged_Shooting",
+    "2H_Melee_Attack_Chop",
+    "2H_Melee_Attack_Slice",
+    "2H_Melee_Attack_Spin",
+    "2H_Melee_Attack_Spinning",
+    "2H_Melee_Attack_Stab",
+    "2H_Melee_Idle",
+    "2H_Ranged_Aiming",
+    "2H_Ranged_Reload",
+    "2H_Ranged_Shoot",
+    "2H_Ranged_Shooting",
+    "Block",
+    "Block_Attack",
+    "Block_Hit",
+    "Blocking",
+    "Cheer",
+    "Death_A",
+    "Death_A_Pose",
+    "Death_B",
+    "Death_B_Pose",
+    "Death_C_Pose",
+    "Death_C_Skeletons",
+    "Death_C_Skeletons_Resurrect",
+    "Dodge_Backward",
+    "Dodge_Forward",
+    "Dodge_Left",
+    "Dodge_Right",
+    "Dualwield_Melee_Attack_Chop",
+    "Dualwield_Melee_Attack_Slice",
+    "Dualwield_Melee_Attack_Stab",
+    "Hit_A",
+    "Hit_B",
+    "Idle",
+    "Idle_B",
+    "Idle_Combat",
+    "Interact",
+    "Jump_Full_Long",
+    "Jump_Full_Short",
+    "Jump_Idle",
+    "Jump_Land",
+    "Jump_Start",
+    "Lie_Down",
+    "Lie_Idle",
+    "Lie_Pose",
+    "Lie_StandUp",
+    "PickUp",
+    "Running_A",
+    "Running_B",
+    "Running_C",
+    "Running_Strafe_Left",
+    "Running_Strafe_Right",
+    "Sit_Chair_Down",
+    "Sit_Chair_Idle",
+    "Sit_Chair_Pose",
+    "Sit_Chair_StandUp",
+    "Sit_Floor_Down",
+    "Sit_Floor_Idle",
+    "Sit_Floor_Pose",
+    "Sit_Floor_StandUp",
+    "Skeleton_Inactive_Standing_Pose",
+    "Skeletons_Awaken_Floor",
+    "Skeletons_Awaken_Floor_Long",
+    "Skeletons_Awaken_Standing",
+    "Skeletons_Inactive_Floor_Pose",
+    "Spawn_Air",
+    "Spawn_Ground",
+    "Spawn_Ground_Skeletons",
+    "Spellcast_Long",
+    "Spellcast_Raise",
+    "Spellcast_Shoot",
+    "Spellcast_Summon",
+    "Spellcasting",
+    "T-Pose",
+    "Taunt",
+    "Taunt_Longer",
+    "Throw",
+    "Unarmed_Idle",
+    "Unarmed_Melee_Attack_Kick",
+    "Unarmed_Melee_Attack_Punch_A",
+    "Unarmed_Melee_Attack_Punch_B",
+    "Unarmed_Pose",
+    "Use_Item",
+    "Walking_A",
+    "Walking_B",
+    "Walking_Backwards",
+    "Walking_C",
+    "Walking_D_Skeletons"
+   ],
+   "weapon": "assets/weapons/adventurers/dagger.gltf",
+   "shield": null,
+   "right_hand_bone": "handslot.r",
+   "left_hand_bone": "handslot.l",
+   "required_bones": [
+    "handslot.l",
+    "handslot.r"
+   ],
+   "source_triangles": 5278
   },
-  "effects": {
-    "melee_spark": "assets/effects/kenney/spark_01.png",
-    "heavy_hit": "assets/effects/kenney/spark_04.png",
-    "dodge_dust": "assets/effects/kenney/dirt_01.png",
-    "spawn_ring": "assets/effects/kenney/circle_05.png",
-    "spawn_magic": "assets/effects/kenney/magic_01.png",
-    "death_smoke": "assets/effects/kenney/smoke_03.png",
-    "torch_flame": "assets/effects/kenney/flame_01.png",
-    "pickup_glow": "assets/effects/kenney/light_01.png",
-    "upgrade_burst": "assets/effects/kenney/star_04.png",
-    "weapon_trail": "assets/effects/kenney/trace_01.png"
+  "heavy": {
+   "model": "assets/characters/skeletons/Skeleton_Warrior.glb",
+   "intended_scene": "scenes/enemies/heavy_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 95,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walking_A",
+    "run": "Running_A",
+    "attack": "1H_Melee_Attack_Chop",
+    "hurt": "Hit_A",
+    "death": "Death_A",
+    "dodge_forward": "Dodge_Forward",
+    "dodge_backward": "Dodge_Backward",
+    "dodge_left": "Dodge_Left",
+    "dodge_right": "Dodge_Right"
+   },
+   "available_animations": [
+    "1H_Melee_Attack_Chop",
+    "1H_Melee_Attack_Jump_Chop",
+    "1H_Melee_Attack_Slice_Diagonal",
+    "1H_Melee_Attack_Slice_Horizontal",
+    "1H_Melee_Attack_Stab",
+    "1H_Ranged_Aiming",
+    "1H_Ranged_Reload",
+    "1H_Ranged_Shoot",
+    "1H_Ranged_Shooting",
+    "2H_Melee_Attack_Chop",
+    "2H_Melee_Attack_Slice",
+    "2H_Melee_Attack_Spin",
+    "2H_Melee_Attack_Spinning",
+    "2H_Melee_Attack_Stab",
+    "2H_Melee_Idle",
+    "2H_Ranged_Aiming",
+    "2H_Ranged_Reload",
+    "2H_Ranged_Shoot",
+    "2H_Ranged_Shooting",
+    "Block",
+    "Block_Attack",
+    "Block_Hit",
+    "Blocking",
+    "Cheer",
+    "Death_A",
+    "Death_A_Pose",
+    "Death_B",
+    "Death_B_Pose",
+    "Death_C_Pose",
+    "Death_C_Skeletons",
+    "Death_C_Skeletons_Resurrect",
+    "Dodge_Backward",
+    "Dodge_Forward",
+    "Dodge_Left",
+    "Dodge_Right",
+    "Dualwield_Melee_Attack_Chop",
+    "Dualwield_Melee_Attack_Slice",
+    "Dualwield_Melee_Attack_Stab",
+    "Hit_A",
+    "Hit_B",
+    "Idle",
+    "Idle_B",
+    "Idle_Combat",
+    "Interact",
+    "Jump_Full_Long",
+    "Jump_Full_Short",
+    "Jump_Idle",
+    "Jump_Land",
+    "Jump_Start",
+    "Lie_Down",
+    "Lie_Idle",
+    "Lie_Pose",
+    "Lie_StandUp",
+    "PickUp",
+    "Running_A",
+    "Running_B",
+    "Running_C",
+    "Running_Strafe_Left",
+    "Running_Strafe_Right",
+    "Sit_Chair_Down",
+    "Sit_Chair_Idle",
+    "Sit_Chair_Pose",
+    "Sit_Chair_StandUp",
+    "Sit_Floor_Down",
+    "Sit_Floor_Idle",
+    "Sit_Floor_Pose",
+    "Sit_Floor_StandUp",
+    "Skeleton_Inactive_Standing_Pose",
+    "Skeletons_Awaken_Floor",
+    "Skeletons_Awaken_Floor_Long",
+    "Skeletons_Awaken_Standing",
+    "Skeletons_Inactive_Floor_Pose",
+    "Spawn_Air",
+    "Spawn_Ground",
+    "Spawn_Ground_Skeletons",
+    "Spellcast_Long",
+    "Spellcast_Raise",
+    "Spellcast_Shoot",
+    "Spellcast_Summon",
+    "Spellcasting",
+    "T-Pose",
+    "Taunt",
+    "Taunt_Longer",
+    "Throw",
+    "Unarmed_Idle",
+    "Unarmed_Melee_Attack_Kick",
+    "Unarmed_Melee_Attack_Punch_A",
+    "Unarmed_Melee_Attack_Punch_B",
+    "Unarmed_Pose",
+    "Use_Item",
+    "Walking_A",
+    "Walking_B",
+    "Walking_Backwards",
+    "Walking_C",
+    "Walking_D_Skeletons"
+   ],
+   "weapon": "assets/weapons/skeletons/Skeleton_Axe.gltf",
+   "shield": "assets/weapons/skeletons/Skeleton_Shield_Large_A.gltf",
+   "right_hand_bone": "handslot.r",
+   "left_hand_bone": "handslot.l",
+   "required_bones": [
+    "handslot.l",
+    "handslot.r"
+   ],
+   "source_triangles": 5934
   },
-  "arena": {
-    "floor": "assets/environment/dungeon/floor_tile_large.glb",
-    "floor_detail": "assets/environment/dungeon/floor_tile_small_broken_A.glb",
-    "wall": "assets/environment/dungeon/wall.glb",
-    "wall_corner": "assets/environment/dungeon/wall_corner.glb",
-    "wall_end": "assets/environment/dungeon/wall_endcap.glb",
-    "entrance": "assets/environment/dungeon/wall_doorway.glb",
-    "column": "assets/environment/dungeon/pillar_decorated.glb",
-    "torch": "assets/environment/dungeon/torch_lit.glb",
-    "crate": "assets/environment/dungeon/box_large.glb",
-    "barrel": "assets/environment/dungeon/barrel_large.glb",
-    "rubble": "assets/environment/dungeon/rubble_large.glb",
-    "player_banner": "assets/environment/dungeon/banner_blue.glb",
-    "enemy_banner": "assets/environment/dungeon/banner_red.glb",
-    "future_spike_hazard": "assets/environment/dungeon/floor_tile_big_spikes.glb"
+  "ranged": {
+   "model": "assets/characters/skeletons/Skeleton_Mage.glb",
+   "intended_scene": "scenes/enemies/ranged_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 95,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walking_A",
+    "run": "Running_A",
+    "attack": "Spellcast_Shoot",
+    "hurt": "Hit_A",
+    "death": "Death_A"
+   },
+   "available_animations": [
+    "1H_Melee_Attack_Chop",
+    "1H_Melee_Attack_Jump_Chop",
+    "1H_Melee_Attack_Slice_Diagonal",
+    "1H_Melee_Attack_Slice_Horizontal",
+    "1H_Melee_Attack_Stab",
+    "1H_Ranged_Aiming",
+    "1H_Ranged_Reload",
+    "1H_Ranged_Shoot",
+    "1H_Ranged_Shooting",
+    "2H_Melee_Attack_Chop",
+    "2H_Melee_Attack_Slice",
+    "2H_Melee_Attack_Spin",
+    "2H_Melee_Attack_Spinning",
+    "2H_Melee_Attack_Stab",
+    "2H_Melee_Idle",
+    "2H_Ranged_Aiming",
+    "2H_Ranged_Reload",
+    "2H_Ranged_Shoot",
+    "2H_Ranged_Shooting",
+    "Block",
+    "Block_Attack",
+    "Block_Hit",
+    "Blocking",
+    "Cheer",
+    "Death_A",
+    "Death_A_Pose",
+    "Death_B",
+    "Death_B_Pose",
+    "Death_C_Pose",
+    "Death_C_Skeletons",
+    "Death_C_Skeletons_Resurrect",
+    "Dodge_Backward",
+    "Dodge_Forward",
+    "Dodge_Left",
+    "Dodge_Right",
+    "Dualwield_Melee_Attack_Chop",
+    "Dualwield_Melee_Attack_Slice",
+    "Dualwield_Melee_Attack_Stab",
+    "Hit_A",
+    "Hit_B",
+    "Idle",
+    "Idle_B",
+    "Idle_Combat",
+    "Interact",
+    "Jump_Full_Long",
+    "Jump_Full_Short",
+    "Jump_Idle",
+    "Jump_Land",
+    "Jump_Start",
+    "Lie_Down",
+    "Lie_Idle",
+    "Lie_Pose",
+    "Lie_StandUp",
+    "PickUp",
+    "Running_A",
+    "Running_B",
+    "Running_C",
+    "Running_Strafe_Left",
+    "Running_Strafe_Right",
+    "Sit_Chair_Down",
+    "Sit_Chair_Idle",
+    "Sit_Chair_Pose",
+    "Sit_Chair_StandUp",
+    "Sit_Floor_Down",
+    "Sit_Floor_Idle",
+    "Sit_Floor_Pose",
+    "Sit_Floor_StandUp",
+    "Skeleton_Inactive_Standing_Pose",
+    "Skeletons_Awaken_Floor",
+    "Skeletons_Awaken_Floor_Long",
+    "Skeletons_Awaken_Standing",
+    "Skeletons_Inactive_Floor_Pose",
+    "Spawn_Air",
+    "Spawn_Ground",
+    "Spawn_Ground_Skeletons",
+    "Spellcast_Long",
+    "Spellcast_Raise",
+    "Spellcast_Shoot",
+    "Spellcast_Summon",
+    "Spellcasting",
+    "T-Pose",
+    "Taunt",
+    "Taunt_Longer",
+    "Throw",
+    "Unarmed_Idle",
+    "Unarmed_Melee_Attack_Kick",
+    "Unarmed_Melee_Attack_Punch_A",
+    "Unarmed_Melee_Attack_Punch_B",
+    "Unarmed_Pose",
+    "Use_Item",
+    "Walking_A",
+    "Walking_B",
+    "Walking_Backwards",
+    "Walking_C",
+    "Walking_D_Skeletons"
+   ],
+   "required_bones": [
+    "handslot.l",
+    "handslot.r"
+   ],
+   "source_triangles": 4588
   },
-  "pickups": {
-    "currency": "assets/pickups/dungeon/coin.glb",
-    "currency_stack": "assets/pickups/dungeon/coin_stack_small.glb",
-    "reward_chest": "assets/pickups/rpg/Chest_Closed.glb",
-    "rare_reward_chest": "assets/pickups/rpg/Chest_Ingots.glb",
-    "health_bottle": "assets/pickups/dungeon/bottle_A_labeled_green.glb",
-    "future_key": "assets/pickups/dungeon/key.glb"
+  "dasher": {
+   "model": "assets/characters/creatures/Rat.glb",
+   "intended_scene": "scenes/enemies/dasher_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 6,
+   "animations": {
+    "idle": "RatArmature|Rat_Idle",
+    "walk": "RatArmature|Rat_Walk",
+    "run": "RatArmature|Rat_Run",
+    "attack": "RatArmature|Rat_Attack",
+    "death": "RatArmature|Rat_Death"
+   },
+   "available_animations": [
+    "RatArmature|Rat_Attack",
+    "RatArmature|Rat_Death",
+    "RatArmature|Rat_Idle",
+    "RatArmature|Rat_Jump",
+    "RatArmature|Rat_Run",
+    "RatArmature|Rat_Walk"
+   ],
+   "required_bones": [],
+   "source_triangles": 4004
   },
-  "fonts": {
-    "body": "assets/fonts/rajdhani/Rajdhani-Regular.ttf",
-    "heading": "assets/fonts/rajdhani/Rajdhani-Bold.ttf"
+  "splitter": {
+   "model": "assets/characters/creatures/Spider.glb",
+   "intended_scene": "scenes/enemies/splitter_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 5,
+   "animations": {
+    "idle": "SpiderArmature|Spider_Idle",
+    "walk": "SpiderArmature|Spider_Walk",
+    "run": "SpiderArmature|Spider_Walk",
+    "attack": "SpiderArmature|Spider_Attack",
+    "death": "SpiderArmature|Spider_Death"
+   },
+   "available_animations": [
+    "SpiderArmature|Spider_Attack",
+    "SpiderArmature|Spider_Death",
+    "SpiderArmature|Spider_Idle",
+    "SpiderArmature|Spider_Jump",
+    "SpiderArmature|Spider_Walk"
+   ],
+   "required_bones": [],
+   "source_triangles": 2712
   },
-  "gameplay_weapons": {
-    "gladius": {
-      "model": "assets/weapons/medieval/Sword_Golden.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "sentinel_spear": {
-      "model": "assets/weapons/medieval/Spear.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "stormhammer": {
-      "model": "assets/weapons/medieval/Hammer_Double.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "sunbow": {
-      "model": "assets/weapons/medieval/Bow_Golden.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "twinfangs": {
-      "model": "assets/weapons/medieval/Dagger.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "warreaxe": {
-      "model": "assets/weapons/medieval/Axe_Double.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "ember_scepter": {
-      "model": "assets/weapons/skeletons/Skeleton_Staff.gltf",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "moonlance": {
-      "model": "assets/weapons/medieval/Spear.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    },
-    "venom_chain": {
-      "model": "assets/weapons/medieval/Dagger.glb",
-      "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
-    }
+  "exploder": {
+   "model": "assets/characters/monsters/Demon.gltf",
+   "intended_scene": "scenes/enemies/exploder_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 14,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "run": "Run",
+    "attack": "Punch",
+    "hurt": "HitReact",
+    "death": "Death"
+   },
+   "available_animations": [
+    "Death",
+    "Duck",
+    "HitReact",
+    "Idle",
+    "Jump",
+    "Jump_Idle",
+    "Jump_Land",
+    "No",
+    "Punch",
+    "Run",
+    "Walk",
+    "Wave",
+    "Weapon",
+    "Yes"
+   ],
+   "required_bones": [],
+   "source_triangles": 6712
   },
-  "gameplay_pickups": {
-    "health_orb": {
-      "model": "assets/pickups/rpg/Heart.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    },
-    "stamina_brew": {
-      "model": "assets/pickups/rpg/Potion1_Filled.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    },
-    "antidote": {
-      "model": "assets/pickups/rpg/Potion3_Filled.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    },
-    "xp_gem": {
-      "model": "assets/pickups/rpg/Crystal1.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    },
-    "magnet_core": {
-      "model": "assets/pickups/rpg/Crystal2.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    },
-    "coin_cache": {
-      "model": "assets/pickups/rpg/Coin_Star.glb",
-      "status": "integrated; pooled visual, original collection radius preserved"
-    }
-  },
-  "gameplay_skills": {
-    "bladestorm": {
-      "texture": "assets/effects/kenney/trace_01.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "phantom_rush": {
-      "texture": "assets/effects/kenney/smoke_03.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "seismic_slam": {
-      "texture": "assets/effects/kenney/dirt_01.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "frost_nova_skill": {
-      "texture": "assets/effects/kenney/circle_05.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "warcry_skill": {
-      "texture": "assets/effects/kenney/magic_01.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "chain_lightning": {
-      "texture": "assets/effects/kenney/magic_03.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "mending_light": {
-      "texture": "assets/effects/kenney/flare_01.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    },
-    "shatterwave": {
-      "texture": "assets/effects/kenney/circle_01.png",
-      "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
-    }
-  },
-  "gameplay_arenas": {
-    "default_arena": {
-      "floor_albedo": "assets/textures/stone/stone_albedo.png",
-      "floor_normal": "assets/textures/stone/stone_normal.png",
-      "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
-    },
-    "ember_crucible": {
-      "floor_albedo": "assets/textures/stone/stone_albedo.png",
-      "floor_normal": "assets/textures/stone/stone_normal.png",
-      "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
-    },
-    "frost_hollow": {
-      "floor_albedo": "assets/textures/stone/stone_albedo.png",
-      "floor_normal": "assets/textures/stone/stone_normal.png",
-      "floor_ao": "assets/textures/stone/stone_ao.png",
-      "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
-    }
+  "warlord": {
+   "model": "assets/characters/monsters/BlueDemon.gltf",
+   "intended_scene": "scenes/enemies/warlord_enemy.tscn",
+   "intended_mount": "VisualRoot/CharacterModel",
+   "animation_count": 14,
+   "animations": {
+    "idle": "Idle",
+    "walk": "Walk",
+    "run": "Run",
+    "attack": "Punch",
+    "hurt": "HitReact",
+    "death": "Death"
+   },
+   "available_animations": [
+    "Death",
+    "Duck",
+    "HitReact",
+    "Idle",
+    "Jump",
+    "Jump_Idle",
+    "Jump_Land",
+    "No",
+    "Punch",
+    "Run",
+    "Walk",
+    "Wave",
+    "Weapon",
+    "Yes"
+   ],
+   "required_bones": [],
+   "source_triangles": 5800
   }
+ },
+ "upgrade_icons": {
+  "adrenaline": "assets/ui/upgrades/hourglass.png",
+  "arcane_surge": "assets/ui/upgrades/crown_a.png",
+  "blood_rite": "assets/ui/upgrades/suit_hearts.png",
+  "bloodlust": "assets/ui/upgrades/skull.png",
+  "broad_sweep": "assets/ui/upgrades/arrow_horizontal.png",
+  "chain_reaction": "assets/ui/upgrades/exploding.png",
+  "cinder_step": "assets/ui/upgrades/fire.png",
+  "critical_edge": "assets/ui/upgrades/sword.png",
+  "deep_quiver": "assets/ui/upgrades/bow.png",
+  "devastating_crit": "assets/ui/upgrades/skull.png",
+  "field_medic": "assets/ui/upgrades/flask_full.png",
+  "fleetfoot": "assets/ui/upgrades/pawn_up.png",
+  "force": "assets/ui/upgrades/hand.png",
+  "fortified": "assets/ui/upgrades/shield.png",
+  "glacial_step": "assets/ui/upgrades/pawn_skip.png",
+  "glass_cannon": "assets/ui/upgrades/skull.png",
+  "grave_pact": "assets/ui/upgrades/skull.png",
+  "haste": "assets/ui/upgrades/hourglass.png",
+  "hunter": "assets/ui/upgrades/award.png",
+  "iron_wall": "assets/ui/upgrades/shield.png",
+  "last_stand": "assets/ui/upgrades/suit_hearts_broken.png",
+  "marked_prey": "assets/ui/icons/target.png",
+  "power": "assets/ui/upgrades/sword.png",
+  "quartermaster": "assets/ui/upgrades/pouch.png",
+  "reach": "assets/ui/upgrades/arrow_horizontal.png",
+  "reaper_mark": "assets/ui/icons/target.png",
+  "repeater": "assets/ui/upgrades/bow.png",
+  "scavenger": "assets/ui/upgrades/pouch.png",
+  "scholar": "assets/ui/upgrades/award.png",
+  "stamina_reservoir": "assets/ui/upgrades/hourglass.png",
+  "static_halo": "assets/ui/upgrades/crown_a.png",
+  "status_attunement": "assets/ui/upgrades/flask_full.png",
+  "storm_edge": "assets/ui/upgrades/sword.png",
+  "swift": "assets/ui/upgrades/pawn_up.png",
+  "thorn_mantle": "assets/ui/upgrades/shield.png",
+  "toxicology": "assets/ui/upgrades/flask_full.png",
+  "vitality": "assets/ui/upgrades/suit_hearts.png",
+  "volatile_core": "assets/ui/upgrades/exploding.png"
+ },
+ "audio_cues": {
+  "player_step": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/footstep_concrete_000.ogg"
+   ],
+   "suggested_volume_db": -16.0
+  },
+  "player_switch": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/draw_knife_1.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_shot": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/knife_slice_2.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_reload": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/cloth_2.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_low_health": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -12.0
+  },
+  "player_attack": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/knife_slice.ogg",
+    "assets/audio/sfx/rpg/knife_slice_2.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_hurt": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_punch_medium_000.ogg",
+    "assets/audio/sfx/impact/impact_punch_medium_001.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_dodge": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/cloth_1.ogg",
+    "assets/audio/sfx/rpg/cloth_2.ogg",
+    "assets/audio/sfx/rpg/cloth_3.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "player_death": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "enemy_attack": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/chop.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "enemy_hit": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_wood_medium_000.ogg",
+    "assets/audio/sfx/impact/impact_generic_light_000.ogg",
+    "assets/audio/sfx/impact/impact_generic_light_001.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "enemy_death": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_wood_heavy_000.ogg",
+    "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "enemy_spawn": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/open_001.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "upgrade_select": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/confirmation_001.wav",
+    "assets/audio/sfx/interface/confirmation_002.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "pickup": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/handle_coins.ogg",
+    "assets/audio/sfx/rpg/handle_coins_2.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "wave_started": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_bell_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "game_over": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/error_006.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "ui_confirm": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/click_001.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "ui_back": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/back_001.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "footstep": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/footstep_concrete_000.ogg",
+    "assets/audio/sfx/impact/footstep_concrete_001.ogg",
+    "assets/audio/sfx/impact/footstep_concrete_002.ogg",
+    "assets/audio/sfx/impact/footstep_concrete_003.ogg"
+   ],
+   "suggested_volume_db": -16.0
+  },
+  "equip": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/draw_knife_1.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "item_drop": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/drop_leather.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "skill_cast": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/knife_slice.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "skill_ready": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/confirmation_001.wav"
+   ],
+   "suggested_volume_db": -10.0
+  },
+  "level_up": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/rpg/handle_coins.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "wave_completed": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/interface/confirmation_002.wav"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "boss_spawned": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_soft_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "boss_phase_changed": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_punch_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "boss_slain": {
+   "bus": "SFX",
+   "loop": false,
+   "files": [
+    "assets/audio/sfx/impact/impact_wood_heavy_000.ogg"
+   ],
+   "suggested_volume_db": -8.0
+  },
+  "arena_menu": {
+   "bus": "Music",
+   "loop": true,
+   "files": [
+    "assets/audio/music/arena_menu.ogg"
+   ],
+   "channels": 2,
+   "sample_rate": 44100,
+   "duration_seconds": 49.95138321995465,
+   "suggested_volume_db": -16.0
+  },
+  "arena_gameplay": {
+   "bus": "Music",
+   "loop": true,
+   "files": [
+    "assets/audio/music/arena_gameplay.ogg"
+   ],
+   "channels": 2,
+   "sample_rate": 44100,
+   "duration_seconds": 123.42859410430839,
+   "suggested_volume_db": -4.0
+  }
+ },
+ "effects": {
+  "melee_spark": "assets/effects/kenney/spark_01.png",
+  "heavy_hit": "assets/effects/kenney/spark_04.png",
+  "dodge_dust": "assets/effects/kenney/dirt_01.png",
+  "spawn_ring": "assets/effects/kenney/circle_05.png",
+  "spawn_magic": "assets/effects/kenney/magic_01.png",
+  "death_smoke": "assets/effects/kenney/smoke_03.png",
+  "torch_flame": "assets/effects/kenney/flame_01.png",
+  "pickup_glow": "assets/effects/kenney/light_01.png",
+  "upgrade_burst": "assets/effects/kenney/star_04.png",
+  "weapon_trail": "assets/effects/kenney/trace_01.png"
+ },
+ "arena": {
+  "floor": "assets/environment/dungeon/floor_tile_large.glb",
+  "floor_detail": "assets/environment/dungeon/floor_tile_small_broken_A.glb",
+  "wall": "assets/environment/dungeon/wall.glb",
+  "wall_corner": "assets/environment/dungeon/wall_corner.glb",
+  "wall_end": "assets/environment/dungeon/wall_endcap.glb",
+  "entrance": "assets/environment/dungeon/wall_doorway.glb",
+  "column": "assets/environment/dungeon/pillar_decorated.glb",
+  "torch": "assets/environment/dungeon/torch_lit.glb",
+  "crate": "assets/environment/dungeon/box_large.glb",
+  "barrel": "assets/environment/dungeon/barrel_large.glb",
+  "rubble": "assets/environment/dungeon/rubble_large.glb",
+  "player_banner": "assets/environment/dungeon/banner_blue.glb",
+  "enemy_banner": "assets/environment/dungeon/banner_red.glb",
+  "future_spike_hazard": "assets/environment/dungeon/floor_tile_big_spikes.glb",
+  "hd_base": {
+   "floor_material": "assets/materials/arena_floor_rock.tres",
+   "wall_material": "assets/materials/arena_wall_brick.tres",
+   "marble_material": "assets/materials/arena_marble.tres",
+   "wood_material": "assets/materials/arena_wood.tres",
+   "metal_material": "assets/materials/arena_metal.tres",
+   "panorama_default": "assets/textures/panorama/spruit_sunrise_1k.hdr",
+   "panorama_ember": "assets/textures/panorama/venice_sunset_1k.hdr",
+   "panorama_frost": "assets/textures/panorama/moonless_golf_1k.hdr"
+  }
+ },
+ "pickups": {
+  "currency": "assets/pickups/dungeon/coin.glb",
+  "currency_stack": "assets/pickups/dungeon/coin_stack_small.glb",
+  "reward_chest": "assets/pickups/rpg/Chest_Closed.glb",
+  "rare_reward_chest": "assets/pickups/rpg/Chest_Ingots.glb",
+  "health_bottle": "assets/pickups/dungeon/bottle_A_labeled_green.glb",
+  "future_key": "assets/pickups/dungeon/key.glb"
+ },
+ "fonts": {
+  "body": "assets/fonts/rajdhani/Rajdhani-Regular.ttf",
+  "heading": "assets/fonts/rajdhani/Rajdhani-Bold.ttf"
+ },
+ "gameplay_weapons": {
+  "gladius": {
+   "model": "assets/weapons/medieval/Sword_Golden.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "sentinel_spear": {
+   "model": "assets/weapons/medieval/Spear.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "stormhammer": {
+   "model": "assets/weapons/medieval/Hammer_Double.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "sunbow": {
+   "model": "assets/weapons/medieval/Bow_Golden.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "twinfangs": {
+   "model": "assets/weapons/medieval/Dagger.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "warreaxe": {
+   "model": "assets/weapons/medieval/Axe_Double.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "ember_scepter": {
+   "model": "assets/weapons/skeletons/Skeleton_Staff.gltf",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "moonlance": {
+   "model": "assets/weapons/medieval/Spear.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  },
+  "venom_chain": {
+   "model": "assets/weapons/medieval/Dagger.glb",
+   "status": "integrated; PlayerEquipment socket handslot.r/l + ModelVisual extent + animation + VFX + audio"
+  }
+ },
+ "gameplay_pickups": {
+  "health_orb": {
+   "model": "assets/pickups/rpg/Heart.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "stamina_brew": {
+   "model": "assets/pickups/rpg/Potion1_Filled.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "antidote": {
+   "model": "assets/pickups/rpg/Potion3_Filled.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "xp_gem": {
+   "model": "assets/pickups/rpg/Crystal1.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "magnet_core": {
+   "model": "assets/pickups/rpg/Crystal2.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  },
+  "coin_cache": {
+   "model": "assets/pickups/rpg/Coin_Star.glb",
+   "status": "integrated; pooled visual, original collection radius preserved"
+  }
+ },
+ "gameplay_skills": {
+  "bladestorm": {
+   "texture": "assets/effects/kenney/trace_01.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "phantom_rush": {
+   "texture": "assets/effects/kenney/smoke_03.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "seismic_slam": {
+   "texture": "assets/effects/kenney/dirt_01.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "frost_nova_skill": {
+   "texture": "assets/effects/kenney/circle_05.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "warcry_skill": {
+   "texture": "assets/effects/kenney/magic_01.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "chain_lightning": {
+   "texture": "assets/effects/kenney/magic_03.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "mending_light": {
+   "texture": "assets/effects/kenney/flare_01.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  },
+  "shatterwave": {
+   "texture": "assets/effects/kenney/circle_01.png",
+   "status": "integrated; SkillExecutor behavior + EffectDirector distinct tint/radius/burst + PlayerAnimation + audio + camera"
+  }
+ },
+ "gameplay_arenas": {
+  "default_arena": {
+   "floor_albedo": "assets/textures/stone/stone_albedo.png",
+   "floor_normal": "assets/textures/stone/stone_normal.png",
+   "floor_ao": "assets/textures/stone/stone_ao.png",
+   "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
+  },
+  "ember_crucible": {
+   "floor_albedo": "assets/textures/stone/stone_albedo.png",
+   "floor_normal": "assets/textures/stone/stone_normal.png",
+   "floor_ao": "assets/textures/stone/stone_ao.png",
+   "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
+  },
+  "frost_hollow": {
+   "floor_albedo": "assets/textures/stone/stone_albedo.png",
+   "floor_normal": "assets/textures/stone/stone_normal.png",
+   "floor_ao": "assets/textures/stone/stone_ao.png",
+   "status": "integrated; Arena THEMES distinct fog/sky/landmark (forge/crystal/obelisk) + decorator clutter, nav floor precomputed"
+  }
+ }
 }

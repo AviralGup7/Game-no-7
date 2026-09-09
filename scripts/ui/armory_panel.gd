@@ -67,10 +67,64 @@ func refresh() -> void:
 	if meta == null:
 		_wallet_label.text = "Armory unavailable"
 		return
-	_wallet_label.text = "Banked coins: %d" % meta.get_wallet()
+	var prestige_line := ""
+	var rank := meta.get_prestige_rank()
+	var title := meta.prestige_title()
+	var cost := meta.prestige_cost()
+	var verdict := meta.can_prestige()
+	prestige_line = "  •  %s (P%d)" % [title, rank]
+	_wallet_label.text = "Banked coins: %d%s" % [meta.get_wallet(), prestige_line]
+	# Prestige row sits above the shop list.
+	_rows.add_child(_make_prestige_row(meta, rank, cost, verdict))
 	for item_id in MetaProgression.ARMORY:
 		_rows.add_child(_make_row(meta, StringName(String(item_id))))
 	UiTheme.apply_text_scale(_rows, SaveManager.get_settings().text_scale)
+
+
+func _make_prestige_row(meta: MetaProgression, rank: int, cost: int, verdict: StringName) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", UiTheme.SPACE_M)
+	var info := VBoxContainer.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var name := Label.new()
+	name.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.MAX_PRESTIGE, Prestige.title_for(rank)]
+	name.add_theme_font_size_override("font_size", 22)
+	info.add_child(name)
+	var blurb := Label.new()
+	blurb.text = "+%.0f%% score / +%.0f%% banked coins permanently. Resets armory stat ranks; keeps unlocks." % [
+		Prestige.SCORE_BONUS_PER_RANK * 100.0, Prestige.CURRENCY_BONUS_PER_RANK * 100.0]
+	blurb.add_theme_font_size_override("font_size", 18)
+	blurb.modulate = UiTheme.MUTED
+	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(blurb)
+	row.add_child(info)
+	var buy := Button.new()
+	buy.custom_minimum_size = Vector2(180, UiTheme.TOUCH_MIN)
+	buy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	match verdict:
+		&"ok":
+			buy.text = "PRESTIGE  %d" % cost
+			buy.pressed.connect(func() -> void:
+				UiFactory.play_press("PRESTIGE")
+				if meta.perform_prestige():
+					_feedback.text = "Prestige %d — %s" % [meta.get_prestige_rank(), meta.prestige_title()]
+					AudioManager.play_sfx(&"upgrade_select", -8.0)
+				else:
+					_feedback.text = "Prestige declined."
+				refresh())
+		&"maxed":
+			buy.text = "MAX PRESTIGE"
+			buy.disabled = true
+		&"armory_incomplete":
+			buy.text = "ARMORY 60%+"
+			buy.disabled = true
+			buy.tooltip_text = "Unlock more armory ranks first (%.0f%% complete)." % (meta.armory_completion() * 100.0)
+		_:
+			buy.text = "%d" % cost
+			buy.disabled = true
+			buy.tooltip_text = "Need %d banked coins" % maxi(cost - meta.get_wallet(), 0)
+	row.add_child(buy)
+	return row
 
 
 func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
@@ -136,12 +190,3 @@ func _on_buy(meta: MetaProgression, item_id: StringName) -> void:
 	else:
 		_feedback.text = "Purchase declined. Balance or availability changed."
 	refresh()
-
-## Hardened: validate armory purchase.
-func _validated_armory_cost(cost: int, have: int) -> bool:
-	if cost < 0 or have < 0:
-		return false
-	return have >= cost
-func _validated_item(id: StringName) -> bool:
-	return id != &""
-
