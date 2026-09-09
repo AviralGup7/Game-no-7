@@ -130,10 +130,17 @@ class ResponsiveScreenTests(unittest.TestCase):
         self.assertIn("_row.vertical = size.x < 560.0", txt)
 
     def test_confirm_dialog_is_sized_from_the_viewport(self):
-        txt = read("scripts/ui/ui_root.gd")
-        self.assertIn("func _popup_confirm()", txt)
+        # Modal sizing/focus moved out of ui_root into the UiModal controller; the
+        # guard now pins the location so it is not re-inlined or hardcoded.
+        txt = read("scripts/ui/ui_modal.gd")
+        self.assertIn("class_name UiModal", txt)
+        self.assertIn("func confirm(", txt)
+        self.assertIn("func _present()", txt)
         self.assertIn("AUTOWRAP_WORD_SMART", txt)
         self.assertNotIn("popup_centered(Vector2i(500, 220))", txt)
+        root = read("scripts/ui/ui_root.gd")
+        self.assertIn("_modal.confirm(", root)
+        self.assertIn("_confirm = _modal.get_dialog()", root)
 
     def test_center_box_measure_is_capped_for_readability(self):
         txt = read("scripts/ui/ui_factory.gd")

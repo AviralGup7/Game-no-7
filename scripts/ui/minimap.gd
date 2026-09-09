@@ -22,6 +22,7 @@ var _player: Node3D = null
 var _enemies: Array = []
 var _pickups: Array = []
 var _north_up := true
+var _cached_arena: Arena = null
 
 
 func _ready() -> void:
@@ -52,11 +53,15 @@ func _process(delta: float) -> void:
 func _refresh_targets() -> void:
 	if not is_inside_tree():
 		return
-	var world_arena := _find_arena() as Arena
+	var world_arena := _cached_arena
+	if world_arena == null or not is_instance_valid(world_arena):
+		world_arena = _find_arena()
+		_cached_arena = world_arena
 	if world_arena != null:
 		arena_half = world_arena.get_interior_half()
-	var players := get_tree().get_nodes_in_group("player")
-	_player = players[0] as Node3D if not players.is_empty() else null
+	if _player == null or not is_instance_valid(_player):
+		var players := get_tree().get_nodes_in_group("player")
+		_player = players[0] as Node3D if not players.is_empty() else null
 	_enemies = get_tree().get_nodes_in_group("enemies")
 	_pickups = get_tree().get_nodes_in_group(Pickup.PICKUP_GROUP)
 

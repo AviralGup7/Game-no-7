@@ -44,6 +44,22 @@ static func spherical_offset(yaw: float, pitch: float, distance: float) -> Vecto
 		cos(yaw) * horiz
 	)
 
+## Finiteness gate for every vector the rig is about to write into a Node3D.
+## A single NaN in a Camera3D transform makes the projection/cull matrices invalid,
+## which is unrecoverable mid-frame on mobile; callers must reject it, not clamp it.
+static func is_finite_v3(v: Vector3) -> bool:
+	return is_finite(v.x) and is_finite(v.y) and is_finite(v.z)
+
+
+static func is_finite_transform(xform: Transform3D) -> bool:
+	if not is_finite_v3(xform.origin):
+		return false
+	for axis in [xform.basis.x, xform.basis.y, xform.basis.z]:
+		if not is_finite_v3(axis):
+			return false
+	return true
+
+
 static func sanitize_vec(v: Vector3) -> Vector3:
 	if not is_finite(v.x) or not is_finite(v.y) or not is_finite(v.z):
 		return Vector3.ZERO

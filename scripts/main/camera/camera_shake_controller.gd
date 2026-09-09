@@ -7,6 +7,7 @@ extends RefCounted
 
 var _profile: CameraProfile = null
 var _camera: Camera3D = null
+var _non_finite_reported := false
 var _noise := FastNoiseLite.new()
 var _breath_noise := FastNoiseLite.new()
 var _shake_time := 0.0
@@ -89,10 +90,31 @@ func tick(delta: float, reduced_motion: bool, speed: float = 0.0, is_colliding: 
 		trauma_offset = Vector3.ZERO
 		trauma_roll = 0.0
 
-	_camera.position = _base_local + trauma_offset
+	# This runs after the rig's look-at pass, so it is the last writer of the camera
+	# transform in the frame: a non-finite offset/roll here would survive into every
+	# following frame (and out of it into unproject_position() in the HUD).
+	if not CameraMath.is_finite_v3(trauma_offset):
+		_report_bad_shake()
+		trauma_offset = Vector3.ZERO
+	if not is_finite(trauma_roll):
+		_report_bad_shake()
+		trauma_roll = 0.0
+
+	var next_local := _base_local + trauma_offset
+	if CameraMath.is_finite_v3(next_local):
+		_camera.position = next_local
 
 	if absf(trauma_roll) > 0.0001:
-		_camera.global_transform = _camera.global_transform.rotated_local(Vector3.FORWARD, trauma_roll)
+		var rolled := _camera.global_transform.rotated_local(Vector3.FORWARD, trauma_roll)
+		if CameraMath.is_finite_transform(rolled):
+			_camera.global_transform = rolled
+
+func _report_bad_shake() -> void:
+	if _non_finite_reported:
+		return
+	_non_finite_reported = true
+	push_warning("CameraShakeController: ignored a non-finite shake sample; camera held steady.")
+
 
 func reset() -> void:
 	_shake_remaining = 0.0

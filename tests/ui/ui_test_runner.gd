@@ -40,6 +40,12 @@ func _run() -> void:
 	_check("fresh or restored save is readable", SaveManager.get_settings() != null)
 	_check("menu reads persisted record", _ui._menu._records.text.contains(str(SaveManager.get_best_score())))
 	_check("no menu damage overlay", not _ui._numbers.visible)
+	# Modularisation smoke: the HUD vitals are a dedicated UiGauges dock and the
+	# confirm modal is a wired UiModal controller.
+	_check("hud gauges dock is a real component", is_instance_valid(_ui._hud._gauges) and _ui._hud._gauges is UiGauges)
+	_check("gauges expose wired meters",
+		_ui._hud._gauges.health_bar != null and _ui._hud._gauges.stamina_bar != null and _ui._hud._gauges.xp_bar != null)
+	_check("modal controller wired to dialog", is_instance_valid(_ui._modal) and _ui._confirm != null)
 	_check("unknown states fail to status screen", _ui.screen_for_state(&"unknown") == &"status")
 	for state in [&"starting_run", &"loading", &"error"]:
 		_check("status mapping " + String(state), _ui.screen_for_state(state) == &"status")
@@ -66,6 +72,7 @@ func _run() -> void:
 	_ui._navigate(&"settings")
 	await _settle()
 	_check("settings keeps canonical pause state", _screen() == "settings" and GameRoot.get_current_state() == GameRoot.State.PAUSED)
+	_check("floating screen mounts through shared overlay", _ui._screens[&"settings"].mouse_filter == Control.MOUSE_FILTER_STOP)
 	var previous := SaveManager.get_settings().to_dict().duplicate(true)
 	_ui._settings._draft.set_master_volume(0.17)
 	_check("settings uses a copy", is_equal_approx(SaveManager.get_settings().master_volume, float(previous.master_volume)))
@@ -199,11 +206,11 @@ func _test_hud_and_effects() -> void:
 	EventBus.player_health_changed.emit(18, 100)
 	EventBus.stamina_changed.emit(42, 100)
 	EventBus.wave_progressed.emit(3, 7, 12)
-	_check("health has numeric low warning", _ui._hud._hp_label.text.contains("LOW HEALTH") and is_equal_approx(_ui._hud._hp_bar.value, 0.18))
-	_check("stamina numeric and bar match", _ui._hud._stamina_label.text.contains("42") and is_equal_approx(_ui._hud._stamina_bar.value, 0.42))
+	_check("health has numeric low warning", _ui._hud._gauges.health_caption.text.contains("LOW HP") and is_equal_approx(_ui._hud._gauges.health_bar.value, 0.18))
+	_check("stamina numeric and bar match", _ui._hud._gauges.stamina_caption.text.contains("42") and is_equal_approx(_ui._hud._gauges.stamina_bar.value, 0.42))
 	_check("wave progress displayed", (_ui._hud._wave_label.text.contains("7 of 12") or _ui._hud._wave_label.text.contains("7/12")))
 	_ui._hud._on_xp(15, 2, 15, 60)
-	_check("XP bar displays component progress", is_equal_approx(_ui._hud._xp_bar.value, 0.25))
+	_check("XP bar displays component progress", is_equal_approx(_ui._hud._gauges.xp_bar.value, 0.25))
 	_ui._banner.clear_all()
 	_ui._banner.announce("Duplicate")
 	_ui._banner.announce("Duplicate")

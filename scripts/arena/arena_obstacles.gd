@@ -33,10 +33,12 @@ static func layout_for(arena_id: StringName, half: float) -> Array:
 			_add(out, Vector3(-8.0 * s, 0.0, 0.0), pillar, "pillar")
 			_add(out, Vector3(0.0, 0.0, 8.0 * s), pillar, "pillar")
 			_add(out, Vector3(0.0, 0.0, -8.0 * s), pillar, "pillar")
-			_add(out, Vector3(8.5 * s, 0.0, 8.5 * s), block, "block")
-			_add(out, Vector3(-8.5 * s, 0.0, 8.5 * s), block, "block")
-			_add(out, Vector3(8.5 * s, 0.0, -8.5 * s), block, "block")
-			_add(out, Vector3(-8.5 * s, 0.0, -8.5 * s), block, "block")
+			# Corners at 8.0 (was 8.5) keep a jitter-proof gap to axis spawns at ±11
+			# without sitting on the (±5,±5) vents.
+			_add(out, Vector3(8.0 * s, 0.0, 8.0 * s), block, "block")
+			_add(out, Vector3(-8.0 * s, 0.0, 8.0 * s), block, "block")
+			_add(out, Vector3(8.0 * s, 0.0, -8.0 * s), block, "block")
+			_add(out, Vector3(-8.0 * s, 0.0, -8.0 * s), block, "block")
 		"frost_hollow":
 			# Corner pillars + staggered mid pillars create two interleaved
 			# lanes; clears ichor pools (±4,0) and heal circles (0,±4) r 2.5.
@@ -55,8 +57,8 @@ static func layout_for(arena_id: StringName, half: float) -> Array:
 			_add(out, Vector3(-6.5 * s, 0.0, 6.5 * s), pillar, "pillar")
 			_add(out, Vector3(6.5 * s, 0.0, -6.5 * s), pillar, "pillar")
 			_add(out, Vector3(-6.5 * s, 0.0, -6.5 * s), pillar, "pillar")
-			_add(out, Vector3(3.0 * s, 0.0, 0.0), block, "block")
-			_add(out, Vector3(-3.0 * s, 0.0, 0.0), block, "block")
+			_add(out, Vector3(3.6 * s, 0.0, 0.0), block, "block")
+			_add(out, Vector3(-3.6 * s, 0.0, 0.0), block, "block")
 	return out
 
 

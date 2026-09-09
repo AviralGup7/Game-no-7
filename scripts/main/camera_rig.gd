@@ -38,6 +38,7 @@ var _camera: Camera3D = null
 var _enabled := false
 var _reduced_motion := false
 var _has_snapped := false
+var _non_finite_reported := false
 
 # Modules
 var _input := CameraInputHandler.new()
@@ -270,7 +271,9 @@ func _process(delta: float) -> void:
 	if _velocity.last_position.distance_squared_to(curr_pos) > 100.0:
 		_velocity.reset(curr_pos)
 		_focus.snap_to(curr_pos + Vector3(0.0, _profile.look_height, 0.0))
-		global_position = _focus.focus_point + CameraMath.spherical_offset(_orbit_state.current_yaw, _orbit_state.current_pitch, _orbit_state.current_distance) + Vector3(0.0, _profile.height * 0.55, 0.0)
+		var snap_pos: Vector3 = _focus.focus_point + CameraMath.spherical_offset(_orbit_state.current_yaw, _orbit_state.current_pitch, _orbit_state.current_distance) + Vector3(0.0, _profile.height * 0.55, 0.0)
+		if CameraMath.is_finite_v3(snap_pos):
+			global_position = snap_pos
 		_has_snapped = false # force snap next frame
 
 	_velocity.tick(curr_pos, delta)
@@ -299,7 +302,7 @@ func _process(delta: float) -> void:
 	if not _has_snapped:
 		weight = 1.0
 		_has_snapped = true
-	global_position = global_position.lerp(collided_pos, weight)
+	_apply_follow_position(collided_pos, weight)
 
 	# 8. Look at – with lock-on support
 	_update_look_at()
@@ -321,7 +324,7 @@ func _apply_follow(weight: float, delta_for_fov: float = 0.016) -> void:
 	_focus.tick(_target.global_position, delta_for_fov, _reduced_motion)
 	var desired := _framing.calculate_desired_position(_focus.focus_point, _orbit_state)
 	var collided := _collision.solve(_focus.focus_point, desired, _orbit_state, _target, get_world_3d())
-	global_position = global_position.lerp(collided, clampf(weight, 0.0, 1.0))
+	_apply_follow_position(collided, weight)
 	_update_look_at()
 	_fov.tick(delta_for_fov, _velocity, _framing, _mode, _camera, _reduced_motion)
 
@@ -347,6 +350,15 @@ func _update_look_at() -> void:
 	else:
 		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
 
+	if not CameraMath.is_finite_v3(cam_origin) or not CameraMath.is_finite_v3(look_target):
+		# Never hand Transform3D.looking_at() a NaN: the resulting basis is non-
+		# orthonormal and the Camera3D would keep that transform for every frame after.
+		_report_bad_camera_frame()
+		return
+	if cam_origin.distance_squared_to(look_target) < 0.0004:
+		# Coincident eye and target (a hard snap, zero follow distance at a wall) makes
+		# looking_at() degenerate; keep the previous orientation instead.
+		return
 	var forward := (look_target - cam_origin).normalized()
 	if forward.length_squared() < 0.0001:
 		return
@@ -356,7 +368,33 @@ func _update_look_at() -> void:
 		up = Vector3.FORWARD
 
 	var target_xform := Transform3D(Basis(), cam_origin).looking_at(look_target, up)
+	if not CameraMath.is_finite_transform(target_xform):
+		_report_bad_camera_frame()
+		return
 	_camera.global_transform = target_xform
+
+
+## Single writer for the rig's follow position. Rejects a non-finite solver result and
+## a non-finite smoothing weight (both turn `lerp` into NaN that then latches forever),
+## so a bad physics-frame can never put the camera – and with it the whole movement
+## basis that reads the camera yaw – into a NaN transform.
+func _apply_follow_position(next_pos: Vector3, weight: float) -> void:
+	if not CameraMath.is_finite_v3(next_pos):
+		_report_bad_camera_frame()
+		return
+	var w := 1.0 if not is_finite(weight) else clampf(weight, 0.0, 1.0)
+	var next := global_position.lerp(next_pos, w)
+	if not CameraMath.is_finite_v3(next):
+		_report_bad_camera_frame()
+		return
+	global_position = next
+
+
+func _report_bad_camera_frame() -> void:
+	if _non_finite_reported:
+		return
+	_non_finite_reported = true
+	push_warning("CameraRig: ignored a non-finite camera frame (follow position or look-at target); orientation held.")
 
 
 func _update_lock_on_target() -> void:

@@ -146,34 +146,41 @@ func _wire_events() -> void:
 	if _wired or EventBus == null:
 		return
 	_wired = true
-	if not EventBus.enemy_spawned.is_connected(_on_enemy_spawned):
-		EventBus.enemy_spawned.connect(_on_enemy_spawned)
-	if not EventBus.enemy_killed.is_connected(_on_enemy_killed):
-		EventBus.enemy_killed.connect(_on_enemy_killed)
-	if not EventBus.enemy_damaged.is_connected(_on_enemy_damaged):
-		EventBus.enemy_damaged.connect(_on_enemy_damaged)
-	if not EventBus.wave_started.is_connected(_on_wave_started):
-		EventBus.wave_started.connect(_on_wave_started)
-	if not EventBus.wave_completed.is_connected(_on_wave_completed):
-		EventBus.wave_completed.connect(_on_wave_completed)
-	if not EventBus.pickup_collected.is_connected(_on_pickup_collected):
-		EventBus.pickup_collected.connect(_on_pickup_collected)
-	if not EventBus.pickup_spawned.is_connected(_on_pickup_spawned):
-		EventBus.pickup_spawned.connect(_on_pickup_spawned)
-	if not EventBus.status_applied.is_connected(_on_status_applied):
-		EventBus.status_applied.connect(_on_status_applied)
-	if not EventBus.boss_spawned.is_connected(_on_boss_spawned):
-		EventBus.boss_spawned.connect(_on_boss_spawned)
-	if not EventBus.boss_slain.is_connected(_on_boss_slain):
-		EventBus.boss_slain.connect(_on_boss_slain)
-	if not EventBus.projectile_fired.is_connected(_on_projectile_fired):
-		EventBus.projectile_fired.connect(_on_projectile_fired)
-	if not EventBus.skill_cast.is_connected(_on_skill_cast):
-		EventBus.skill_cast.connect(_on_skill_cast)
-	if not EventBus.player_leveled_up.is_connected(_on_player_leveled_up):
-		EventBus.player_leveled_up.connect(_on_player_leveled_up)
-	if not EventBus.weapon_equipped.is_connected(_on_weapon_equipped):
-		EventBus.weapon_equipped.connect(_on_weapon_equipped)
+	# is_connected is enforced inside EventBus.bind (no duplicate listeners).
+	EventBus.bind(self, EventBus.enemy_spawned, _on_enemy_spawned)
+	EventBus.bind(self, EventBus.enemy_killed, _on_enemy_killed)
+	EventBus.bind(self, EventBus.enemy_damaged, _on_enemy_damaged)
+	EventBus.bind(self, EventBus.wave_started, _on_wave_started)
+	EventBus.bind(self, EventBus.wave_completed, _on_wave_completed)
+	EventBus.bind(self, EventBus.pickup_collected, _on_pickup_collected)
+	EventBus.bind(self, EventBus.pickup_spawned, _on_pickup_spawned)
+	EventBus.bind(self, EventBus.status_applied, _on_status_applied)
+	EventBus.bind(self, EventBus.boss_spawned, _on_boss_spawned)
+	EventBus.bind(self, EventBus.boss_slain, _on_boss_slain)
+	EventBus.bind(self, EventBus.projectile_fired, _on_projectile_fired)
+	EventBus.bind(self, EventBus.skill_cast, _on_skill_cast)
+	EventBus.bind(self, EventBus.player_leveled_up, _on_player_leveled_up)
+	EventBus.bind(self, EventBus.weapon_equipped, _on_weapon_equipped)
+
+
+func _exit_tree() -> void:
+	if EventBus == null:
+		return
+	EventBus.unbind(EventBus.enemy_spawned, _on_enemy_spawned)
+	EventBus.unbind(EventBus.enemy_killed, _on_enemy_killed)
+	EventBus.unbind(EventBus.enemy_damaged, _on_enemy_damaged)
+	EventBus.unbind(EventBus.wave_started, _on_wave_started)
+	EventBus.unbind(EventBus.wave_completed, _on_wave_completed)
+	EventBus.unbind(EventBus.pickup_collected, _on_pickup_collected)
+	EventBus.unbind(EventBus.pickup_spawned, _on_pickup_spawned)
+	EventBus.unbind(EventBus.status_applied, _on_status_applied)
+	EventBus.unbind(EventBus.boss_spawned, _on_boss_spawned)
+	EventBus.unbind(EventBus.boss_slain, _on_boss_slain)
+	EventBus.unbind(EventBus.projectile_fired, _on_projectile_fired)
+	EventBus.unbind(EventBus.skill_cast, _on_skill_cast)
+	EventBus.unbind(EventBus.player_leveled_up, _on_player_leveled_up)
+	EventBus.unbind(EventBus.weapon_equipped, _on_weapon_equipped)
+	_wired = false
 
 
 func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:

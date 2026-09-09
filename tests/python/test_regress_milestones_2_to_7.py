@@ -77,7 +77,8 @@ class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
         self.assertIn("is_connected", txt)
         # Player and EffectDirector use is_connected guards
         self.assertIn("is_connected", read("scripts/player/player.gd"))
-        self.assertIn("is_connected", read("scripts/visuals/effect_director.gd"))
+        director = read("scripts/visuals/effect_director.gd")
+        self.assertIn("is_connected", director)
 class Milestone4_AudioAndPolish(unittest.TestCase):
     def test_audio_mapping_documented(self):
         txt = read("scripts/audio/procedural_sfx.gd")

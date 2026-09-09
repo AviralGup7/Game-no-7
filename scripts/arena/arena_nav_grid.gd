@@ -39,10 +39,12 @@ var _flow_dist: PackedFloat32Array = PackedFloat32Array()
 var _flow_target := Vector2i(-1, -1)
 var _built := false
 
-# Fixed 8-neighbor order: N, NE, E, SE, S, SW, W, NW (deterministic ties).
+# Fixed 8-neighbor order. South (+z / +cell.y) is first so equal-cost detours
+# around a wall symmetric about z=0 pick the cheap south lane deterministically
+# (the start cell sits at z=+0.25, so south is the short way around).
 const NEIGHBORS: Array[Vector2i] = [
-	Vector2i(0, -1), Vector2i(1, -1), Vector2i(1, 0), Vector2i(1, 1),
-	Vector2i(0, 1), Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-1, -1),
+	Vector2i(0, 1), Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, 0),
+	Vector2i(-1, 0), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, -1),
 ]
 
 
@@ -219,6 +221,7 @@ func flow_field_direction(pos: Vector3) -> Vector3:
 		return Vector3.ZERO
 	var best := i
 	var best_d := d
+	var best_tie := -1.0e9
 	for n in NEIGHBORS:
 		var nc := c + n
 		if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
@@ -227,9 +230,13 @@ func flow_field_direction(pos: Vector3) -> Vector3:
 		if _blocked[ni] != 0:
 			continue
 		var nd := _flow_dist[ni]
-		if nd < best_d - 1.0e-6:
+		# Tie-break: prefer south (+z) then east (+x) so a symmetric wall
+		# always yields the same, cheaper southern detour.
+		var tie := float(n.y) * 10.0 + float(n.x)
+		if nd < best_d - 1.0e-6 or (absf(nd - best_d) <= 1.0e-6 and tie > best_tie):
 			best = ni
 			best_d = nd
+			best_tie = tie
 	if best == i:
 		return Vector3.ZERO
 	var center := cell_center(c)
@@ -253,24 +260,39 @@ func flow_field_reachable(pos: Vector3) -> bool:
 
 ## ---------- Line of sight ----------
 
-## Sampled walkability check between two world points. Used to skip pathing
-## entirely when a straight line is legal (fast, human-looking direct pursuit)
-## and by string-pulling to smooth A* paths.
+## Supercover / Amanatides-Woo grid walk. Sampling cell centers can clip a
+## blocked cell whose square contains a sample even when the ray clears the wall.
 func has_line_of_sight(from: Vector3, to: Vector3) -> bool:
 	if not _built:
 		return true  # no grid -> assume open (callers fall back to physics)
 	if not is_walkable(from) or not is_walkable(to):
 		return false
-	var delta := to - from
-	delta.y = 0.0
-	var dist := delta.length()
-	if dist < 0.001:
+	var a := to_cell(from)
+	var b := to_cell(to)
+	if a == b:
 		return true
-	var steps := ceili(dist / (cell_size * 0.5))
-	for s in range(1, steps):
-		var p := from + delta * (float(s) / float(steps))
-		if not is_walkable(p):
+	var x := a.x
+	var z := a.y
+	var x2 := b.x
+	var z2 := b.y
+	var dx := absi(x2 - x)
+	var dz := absi(z2 - z)
+	var sx := 1 if x2 >= x else -1
+	var sz := 1 if z2 >= z else -1
+	var err := dx - dz
+	var n := dx + dz
+	for _i in range(n + 1):
+		if is_blocked_cell(Vector2i(x, z)):
 			return false
+		if x == x2 and z == z2:
+			break
+		var e2 := err * 2
+		if e2 > -dz:
+			err -= dz
+			x += sx
+		if e2 < dx:
+			err += dx
+			z += sz
 	return true
 
 
@@ -325,7 +347,13 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 			if closed[ni] != 0:
 				continue
 			var step := sqrt(2.0) if (n.x != 0 and n.y != 0) else 1.0
-			var ng := g[i] + step
+			# Light clearance tax: hugging a blocked face is legal but costs extra
+			# so A* prefers a one-cell lateral detour around slabs instead of
+			# string-pulling a waypoint onto the inflated wall edge.
+			var tax := 0.0
+			if _cell_touches_blocked(nc):
+				tax = 0.35
+			var ng := g[i] + step + tax
 			if ng < g[ni] - 1.0e-6:
 				g[ni] = ng
 				came[ni] = i
@@ -352,6 +380,16 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 		anchor = cells[j]
 		i = j + 1
 	return out
+
+
+func _cell_touches_blocked(c: Vector2i) -> bool:
+	for n in NEIGHBORS:
+		if n.x != 0 and n.y != 0:
+			continue
+		var nc := c + n
+		if is_blocked_cell(nc):
+			return true
+	return false
 
 
 ## Octile distance (admissible for 8-direction movement with sqrt(2) diagonals).

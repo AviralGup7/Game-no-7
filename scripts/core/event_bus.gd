@@ -1,3 +1,4 @@
+class_name EventBusService
 extends Node
 ## Autoload: EventBus — hardened lifecycle (M3)
 ## Cross-system signals only. Gameplay objects should prefer direct references for
@@ -55,6 +56,28 @@ signal objective_progress(label: String, progress: int, target: int)
 ## Emitted when an objective-mode win/lose condition resolves (defend timer met,
 ## relic quota banked, beacon destroyed). GameRoot decides victory vs game over.
 signal objective_resolved(mode_id: StringName, success: bool)
+
+
+## Bind `cb` to `sig` and automatically disconnect when `host` leaves the tree.
+## Autoload signals otherwise outlive per-run nodes if a future RefCounted or
+## autoload subscriber is added. Production nodes still free their connections
+## on teardown; this makes the contract explicit.
+func bind(host: Node, sig: Signal, cb: Callable) -> void:
+	if host == null or not is_instance_valid(host):
+		return
+	if not sig.is_connected(cb):
+		sig.connect(cb)
+	if not host.tree_exiting.is_connected(_unbind.bind(sig, cb)):
+		host.tree_exiting.connect(_unbind.bind(sig, cb), CONNECT_ONE_SHOT)
+
+
+func unbind(sig: Signal, cb: Callable) -> void:
+	_unbind(sig, cb)
+
+
+func _unbind(sig: Signal, cb: Callable) -> void:
+	if sig.is_connected(cb):
+		sig.disconnect(cb)
 
 
 ## Convenience: post a diagnostic without callers needing the severity constant.

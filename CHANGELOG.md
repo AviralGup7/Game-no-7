@@ -38,6 +38,44 @@ runtime** (built from the official source tag in-sandbox; see
   hero runtime (148/0), UI validation (2189/0 ×2 profiles), asset imports
   (209 resources, 0 failures).
 
+## [Unreleased] — Joystick movement no longer kills the run (2026-09-09)
+
+Fixed the reproducible device crash where the app died a few steps after driving the
+hero with the on-screen joystick. Cause: the movement chain had no finiteness boundary,
+so one non-finite analog/camera value was integrated into `CharacterBody3D` and lerped
+into the camera rig, where it latched (a NaN lerp never decays, and the locomotion input
+only refreshes when it reads as exactly zero) — physics/rendering then aborted frames
+later, far from the bad frame.
+
+- One choke point for motion: `CharacterController._apply_velocity()` sanitises velocity
+  in and out and repairs a non-finite body position per axis instead of propagating it;
+  `tick()` refuses non-finite input and any non-positive/non-finite delta; yaw writes are
+  whole-and-validated; `set_move_speed()` clamps instead of letting `inf` through.
+- Camera rig: a single `_apply_follow_position()` writer rejects a non-finite solver
+  result *and* a non-finite smoothing weight; `_update_look_at()` rejects non-finite and
+  coincident eye/target frames and validates the built transform before it reaches the
+  `Camera3D` (new `CameraMath.is_finite_v3/is_finite_transform` gate).
+- Input chain: `VirtualJoystick` no longer divides by a degenerate radius, drops
+  non-finite press/drag samples and never hands out a bad `get_value()`;
+  `TouchControls` publishes a neutral stick instead of latching garbage;
+  `PlayerLocomotion` validates both input hand-offs and repairs a poisoned transform in
+  `clamp_to_bounds()`. The stick also accepts mouse drags, so this path is now
+  reproducible in the editor without a touch device.
+- Camera transform writers closed end to end: the shake pass (the frame's last writer)
+  and the FOV controller now reject non-finite samples instead of committing them.
+- Collateral defects in the same path: `PlayerAnimation._length()` could dereference a
+  null/non-finite animation resource and feed `speed_scale`; `ArenaHazards` per-frame
+  ticks dereferenced arena-owned visuals without validity checks (now a shared
+  `_hazard_emission()` helper — the vent still damages when its glow is gone).
+- Refusals log once per process (name the boundary that caught it) so a silent guard
+  never hides the source. No balance, input-map or scene changes.
+- Tests: new `tests/unit/test_locomotion_nan.gd` (headless, tree-free by design) +
+  `tests/python/test_regress_locomotion_nan.py`; 13 new needles in the real-guard
+  contract (`tool/validate_guards.py`: 45/45). Python suite 436 passing. See
+  `docs/MOVEMENT_STABILITY.md` for the mechanism, the limits of this pass and how to
+  confirm on a device (Godot is unavailable locally, so native CI + a phone run remain
+  the verification step).
+
 ## [Unreleased] — Hero character fidelity (2026-09-09)
 
 - Replace the live KayKit hero mesh with the project-authored **Arena Warden**:

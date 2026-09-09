@@ -14,6 +14,27 @@ static func make_panel(parent: Control, panel_name: String) -> Control:
 	panel.visible = false
 	return panel
 
+
+## Build a complete full-screen overlay root: a full-rect, click-blocking Control
+## that owns a scrollable centred column ready for screen content. Optional
+## translucent scrim dims whatever sits behind it (menus over gameplay). Returns
+## `{panel, box, scrim}` so callers can style the backdrop or drop into the box.
+## This is the single scaffold every floating screen should mount through.
+static func overlay(parent: Control, dim: float = 0.0) -> Dictionary:
+	var panel := Control.new()
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	parent.add_child(panel)
+	var scrim: ColorRect = null
+	if dim > 0.0:
+		scrim = ColorRect.new()
+		scrim.color = Color(0, 0, 0, clampf(dim, 0.0, 1.0))
+		scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
+		scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		panel.add_child(scrim)
+	var box := center_box(panel)
+	return {"panel": panel, "box": box, "scrim": scrim}
+
 static func center_box(panel: Control) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -65,6 +86,43 @@ static func button(text: String, parent: Node, font_size: int, min_size: Vector2
 	return b
 
 
+## A high-emphasis gold action button (the single strongest CTA on a screen).
+## Dark text on gold keeps the contrast legible and reads instantly as "do this".
+static func primary(text: String, parent: Node, font_size: int, min_size: Vector2 = Vector2(260, 104)) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = Vector2(maxf(min_size.x, 220), maxf(min_size.y, UiTheme.TOUCH_MIN))
+	b.add_theme_font_size_override("font_size", font_size)
+	b.mouse_filter = Control.MOUSE_FILTER_STOP
+	var gold := Color(UiTheme.GOLD)
+	var ink := Color(0.10, 0.07, 0.02)
+	var normal := UiTheme.control(Color(gold.r, gold.g, gold.b, 0.96), Color(1.0, 0.86, 0.55),
+		1, Color(gold.r, gold.g, gold.b, 0.35), UiTheme.RADIUS)
+	normal.content_margin_left = 26
+	normal.content_margin_right = 26
+	normal.content_margin_top = 12
+	normal.content_margin_bottom = 12
+	b.add_theme_stylebox_override("normal", normal)
+	var hover := UiTheme.control(Color(1.0, 0.84, 0.55), Color(1.0, 0.92, 0.68), 1,
+		Color(1.0, 0.8, 0.45, 0.5), UiTheme.RADIUS)
+	hover.content_margin_left = 26
+	hover.content_margin_right = 26
+	hover.content_margin_top = 12
+	hover.content_margin_bottom = 12
+	b.add_theme_stylebox_override("hover", hover)
+	var pressed := UiTheme.control(Color(0.85, 0.66, 0.30), Color(0.4, 0.28, 0.06), 1,
+		Color(0, 0, 0, 0.0), UiTheme.RADIUS)
+	pressed.content_margin_top = 13  # press "sinks" by shifting text down
+	pressed.content_margin_bottom = 11
+	b.add_theme_stylebox_override("pressed", pressed)
+	b.add_theme_color_override("font_color", ink)
+	b.add_theme_color_override("font_hover_color", ink)
+	b.add_theme_color_override("font_pressed_color", Color(0.25, 0.16, 0.03))
+	parent.add_child(b)
+	b.pressed.connect(func() -> void: UiFactory.play_press(b.text))
+	return b
+
+
 ## Shared press tick for factory buttons AND hand-built buttons (upgrade cards,
 ## armory rows, dialogs). Back/dismiss-style captions get `ui_back`, everything
 ## else gets `ui_confirm`. Failure-safe: silence when audio is unavailable.
@@ -112,9 +170,126 @@ static func card(parent: Node) -> VBoxContainer:
 	panel.add_child(body)
 	return body
 
+
+## A labelled catalogue picker: a raised card with a section title, a touch-sized
+## OptionButton and a description line. Returns a handle so callers can populate
+## the dropdown and bind description text. Used by every "choose one of N"
+## selection screen so they all look and behave identically.
+static func select_card(parent: Node, title_text: String) -> Dictionary:
+	var body := card(parent)
+	UiFactory.title(title_text, body, 22)
+	var option := OptionButton.new()
+	option.custom_minimum_size.y = UiTheme.TOUCH_MIN
+	option.mouse_filter = Control.MOUSE_FILTER_STOP
+	body.add_child(option)
+	var desc := UiFactory.label("", body, 20)
+	return {"body": body, "option": option, "desc": desc}
+
+
 static func focus_first(panel: Control) -> void:
 	for child in panel.find_children("*", "BaseButton", true, false):
 		if child.is_visible_in_tree() and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
 			child.grab_focus()
 			return
+
+
+# ---------------------------------------------------------------------------
+# Reusable chrome primitives — the shared visual vocabulary every screen is
+# composed from, so screens stay consistent without re-defining their own look.
+# ---------------------------------------------------------------------------
+
+## A short uppercase accent "eyebrow" line that labels a screen or section.
+static func kicker(text: String, parent: Node, color: Color = UiTheme.CYAN,
+		font_size: int = 18) -> Label:
+	var l := Label.new()
+	l.text = text.to_upper()
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_font_override("font", UiTheme.BOLD)
+	l.modulate = color
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(l)
+	return l
+
+
+## A crisp centered accent divider (gold by default) used to anchor hero
+## typography above body content.
+static func hairline(parent: Node, color: Color = UiTheme.GOLD,
+		thickness: int = 2, width: float = 180.0) -> ColorRect:
+	var rule := ColorRect.new()
+	rule.color = color
+	rule.custom_minimum_size = Vector2(width, thickness)
+	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(rule)
+	return rule
+
+
+## Standard full-screen hero: optional eyebrow, a title (returned so callers can
+## rename / re-tint it) and an optional muted subtitle. Keeps the typography of
+## every floating menu (pause, status, settings, armory, summary) identical.
+static func screen_header(parent: Node, eyebrow: String = "", title_text: String = "",
+		title_size: int = 34, subtitle: String = "") -> Dictionary:
+	var out: Dictionary = {}
+	if not eyebrow.is_empty():
+		out["kicker"] = kicker(eyebrow, parent)
+	if not title_text.is_empty():
+		var t := UiFactory.title(title_text, parent, title_size)
+		out["title"] = t
+	if not subtitle.is_empty():
+		var s := UiFactory.label(subtitle, parent, 20)
+		s.modulate = UiTheme.MUTED
+		out["subtitle"] = s
+	return out
+
+
+## A ready-to-wire status gauge (ProgressBar 0..1) in the design-system metre
+## style. Callers bind its value; tint per meter (health / stamina / xp / …).
+static func gauge(parent: Node, color: Color, height: float = 16.0) -> ProgressBar:
+	var meter := ProgressBar.new()
+	meter.custom_minimum_size.y = height
+	meter.max_value = 1
+	meter.show_percentage = false
+	meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = color
+	fill.set_corner_radius_all(UiTheme.RADIUS_SM)
+	fill.content_margin_top = 0
+	fill.content_margin_bottom = 0
+	fill.content_margin_left = 0
+	fill.content_margin_right = 0
+	meter.add_theme_stylebox_override("fill", fill)
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color(0.02, 0.04, 0.07, 0.9)
+	bg.border_color = UiTheme.EDGE_SOFT
+	bg.set_border_width_all(1)
+	bg.set_corner_radius_all(UiTheme.RADIUS_SM)
+	bg.content_margin_top = 0
+	bg.content_margin_bottom = 0
+	meter.add_theme_stylebox_override("background", bg)
+	parent.add_child(meter)
+	return meter
+
+
+## A labelled metric block (a header line above a gauge) that panels reuse for
+## health / stamina / level bars without re-arranging rows by hand.
+static func metric(parent: Node, caption: String, color: Color,
+		initial_value := 0.0) -> Dictionary:
+	var box := VBoxContainer.new()
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_theme_constant_override("separation", 3)
+	parent.add_child(box)
+	var cap := Label.new()
+	cap.text = caption
+	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	cap.autowrap_mode = TextServer.AUTOWRAP_OFF
+	cap.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	cap.add_theme_font_size_override("font_size", 15)
+	cap.modulate = Color.WHITE
+	cap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(cap)
+	var bar := gauge(box, color)
+	bar.value = initial_value
+	return {"container": box, "caption": cap, "bar": bar}
 
