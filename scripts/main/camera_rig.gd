@@ -389,20 +389,29 @@ func _apply_follow_position(next_pos: Vector3, weight: float) -> void:
 	if not CameraMath.is_finite_v3(next):
 		_report_bad_camera_frame()
 		return
-	next = _clamp_inside_arena(next)
+	next = _keep_camera_inside_arena(next)
 	global_position = next
 
 
-func _clamp_inside_arena(pos: Vector3) -> Vector3:
+func _arena_camera_half() -> float:
 	var tree := get_tree()
 	if tree == null:
-		return pos
+		return -1.0
 	var arena := tree.get_first_node_in_group("arena") as Arena
 	if arena == null:
+		return -1.0
+	return maxf(arena.get_interior_half() - 1.35, 2.0)
+
+
+## Shorten the boom toward the focus so the eye never sits in/through a wall.
+func _keep_camera_inside_arena(pos: Vector3) -> Vector3:
+	var half := _arena_camera_half()
+	if half < 0.0:
 		return pos
-	var half := maxf(arena.get_interior_half() - 1.35, 2.0)
-	pos.x = clampf(pos.x, -half, half)
-	pos.z = clampf(pos.z, -half, half)
+	var focus := _focus.focus_point if _focus != null else pos
+	if not CameraMath.is_finite_v3(focus):
+		focus = pos
+	pos = CameraMath.shorten_arm_to_box(focus, pos, half)
 	if not is_finite(pos.y):
 		pos.y = 3.0
 	else:

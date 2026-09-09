@@ -36,13 +36,43 @@ static func right_from_yaw(yaw: float) -> Vector3:
 	return Vector3(cos(yaw), 0.0, -sin(yaw))
 
 static func spherical_offset(yaw: float, pitch: float, distance: float) -> Vector3:
+	if not is_finite(yaw) or not is_finite(pitch) or not is_finite(distance):
+		return Vector3.ZERO
 	var horiz := distance * cos(pitch)
 	var vert := distance * sin(pitch)
-	return Vector3(
+	var offset := Vector3(
 		sin(yaw) * horiz,
 		vert,
 		cos(yaw) * horiz
 	)
+	return offset if is_finite_v3(offset) else Vector3.ZERO
+
+
+## Pull `cam` toward `focus` until XZ sits inside a square of half-extent `half`.
+## Used so the boom never crosses the arena walls into the HDRI skybox, even when
+## collision queries miss (origin already inside a collider, or no World3D).
+static func shorten_arm_to_box(focus: Vector3, cam: Vector3, half: float) -> Vector3:
+	if not is_finite_v3(focus) or not is_finite_v3(cam) or not is_finite(half):
+		return focus + Vector3(0.0, 2.4, 0.0)
+	half = maxf(half, 0.5)
+	if absf(cam.x) <= half and absf(cam.z) <= half:
+		return cam
+	var dir := cam - focus
+	var lo := 0.0
+	var hi := 1.0
+	for _i in 12:
+		var mid := (lo + hi) * 0.5
+		var p := focus + dir * mid
+		if absf(p.x) <= half and absf(p.z) <= half:
+			lo = mid
+		else:
+			hi = mid
+	var fitted := focus + dir * lo
+	if not is_finite_v3(fitted):
+		return Vector3(clampf(focus.x, -half, half), focus.y + 2.4, clampf(focus.z, -half, half))
+	fitted.x = clampf(fitted.x, -half, half)
+	fitted.z = clampf(fitted.z, -half, half)
+	return fitted
 
 ## Finiteness gate for every vector the rig is about to write into a Node3D.
 ## A single NaN in a Camera3D transform makes the projection/cull matrices invalid,

@@ -74,6 +74,7 @@ func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, 
 		result = from + Vector3(0.0, 2.4, 0.0)
 
 	result = _enforce_ground_clearance(result, from, world)
+	result = _pull_out_of_overlap(result, from, target, world)
 	return result
 
 func tick_recovery(delta: float) -> void:
@@ -178,3 +179,31 @@ func _enforce_ground_clearance(cam_pos: Vector3, focus: Vector3, world: World3D)
 		cam_pos.y = lerpf(cam_pos.y, min_allowed, 0.5)
 
 	return cam_pos
+
+
+## If the eye ended inside a collider (cast_motion reports 0/1 when already overlapping),
+## walk it back toward the focus until the probe is clear or we sit on the player.
+func _pull_out_of_overlap(cam_pos: Vector3, from: Vector3, target: Node3D, world: World3D) -> Vector3:
+	if world == null or _profile == null:
+		return cam_pos
+	var space := world.direct_space_state
+	if space == null:
+		return cam_pos
+	var sphere := SphereShape3D.new()
+	sphere.radius = maxf(_profile.collision_radius, 0.08)
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = sphere
+	query.collision_mask = 1
+	query.margin = 0.02
+	if target != null and target is CollisionObject3D:
+		query.exclude = [target.get_rid()]
+	var pos := cam_pos
+	for _step in 8:
+		query.transform = Transform3D(Basis(), pos)
+		var hits := space.intersect_shape(query, 1)
+		if hits.is_empty():
+			return pos
+		pos = pos.lerp(from, 0.28)
+		if pos.distance_squared_to(from) < 0.16:
+			return from + Vector3(0.0, 1.6, 0.0)
+	return pos
