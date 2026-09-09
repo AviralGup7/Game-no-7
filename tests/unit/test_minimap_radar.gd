@@ -152,8 +152,13 @@ static func suite() -> Array:
 		"passed": eased and (t2[1] as Dictionary)["born_ms"] == 1000,
 		"why": str(p21),
 	})
-	# Entity 1 vanished: fades at 1/0.35 per second, holds last position.
-	var t3 := Minimap.advance_tracks(t2, live2, 0.175, 1275)
+	# Entity 1 vanished (absent from the live roster): fades at
+	# delta/fade_seconds per step and holds its last seen position.
+	var live3: Array = [
+		{"id": 2, "xz": Vector2(0.0, 3.0), "kind": &"elite", "blink": 0.0},
+		{"id": 3, "xz": Vector2(1.0, 1.0), "kind": &"pickup", "blink": 1.0},
+	]
+	var t3 := Minimap.advance_tracks(t2, live3, 0.175, 1275)
 	var a3 := float((t3[1] as Dictionary)["alpha"])
 	var hold: bool = (t3[1] as Dictionary)["pos"] == p21
 	results.append({
@@ -161,17 +166,17 @@ static func suite() -> Array:
 		"passed": absf(a3 - 0.5) < 1.0e-3 and hold,
 		"why": "alpha=%f pos=%s" % [a3, str((t3[1] as Dictionary)["pos"])],
 	})
-	var t4 := Minimap.advance_tracks(t3, live2, 0.175, 1450)
+	var t4 := Minimap.advance_tracks(t3, live3, 0.2, 1475)
 	results.append({
 		"name": "advance_tracks drops stale tracks once faded out",
 		"passed": not t4.has(1) and t4.size() == 2,
 		"why": str(t4.keys()),
 	})
 	# Re-spawn of a just-faded id gets a fresh track (new ping).
-	var t5 := Minimap.advance_tracks(t4, live2, 0.016, 1466)
+	var t5 := Minimap.advance_tracks(t4, live2, 0.016, 1491)
 	results.append({
 		"name": "advance_tracks respawned entity is a fresh track (new born_ms)",
-		"passed": t5.has(1) and int((t5[1] as Dictionary)["born_ms"]) == 1466 \
+		"passed": t5.has(1) and int((t5[1] as Dictionary)["born_ms"]) == 1491 \
 			and (t5[1] as Dictionary)["pos"] == Vector2(4.0, 0.0),
 		"why": str(t5.get(1, {})),
 	})
