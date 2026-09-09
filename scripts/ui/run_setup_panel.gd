@@ -24,27 +24,20 @@ func _ready() -> void:
 	_heading = UiFactory.title("PREPARE YOUR STAND", body, 34)
 	UiFactory.label("01  MODE     /     02  ARENA     /     03  LOADOUT", body, 18).modulate = UiTheme.CYAN
 	_daily_info = UiFactory.label("", body, 20)
-	# Mode card
-	var mode_card := UiFactory.card(body)
-	UiFactory.title("MODE", mode_card, 22)
-	_modes = OptionButton.new()
-	_modes.custom_minimum_size.y = UiTheme.TOUCH_MIN
-	mode_card.add_child(_modes)
+
+	# Mode picker.
+	var mode := UiFactory.select_card(body, "MODE")
+	_modes = mode.option
+	_mode_info = mode.desc
 	_mode_ids = GameMode.all_mode_ids()
 	for id in _mode_ids:
 		_modes.add_item(GameMode.display_name(id))
-	_modes.item_selected.connect(func(_i: int) -> void:
-		UiFactory.play_press("OPTION")
-		_refresh_details())
-	_mode_info = UiFactory.label("", mode_card)
-	# Arena card
-	var arena_card := UiFactory.card(body)
-	UiFactory.title("ARENA INTEL", arena_card, 22)
-	_arenas = OptionButton.new()
-	_arenas.custom_minimum_size.y = UiTheme.TOUCH_MIN
-	arena_card.add_child(_arenas)
-	_arena_info = UiFactory.label("", arena_card)
-	# Discover supplied arena resources rather than maintaining a duplicate list.
+	_modes.item_selected.connect(_on_option_picked)
+
+	# Arena picker — discover supplied arena resources rather than keeping a list.
+	var arena := UiFactory.select_card(body, "ARENA INTEL")
+	_arenas = arena.option
+	_arena_info = arena.desc
 	for raw_file in DirAccess.get_files_at("res://data/arenas"):
 		var file := raw_file.trim_suffix(".remap")
 		if file.ends_with(".tres"):
@@ -52,28 +45,31 @@ func _ready() -> void:
 			if config != null and config.arena_id not in _arena_ids:
 				_arena_ids.append(config.arena_id)
 				_arenas.add_item(config.display_name)
-	_arenas.item_selected.connect(func(_i: int) -> void:
-		UiFactory.play_press("OPTION")
-		_refresh_details())
-	var weapon_card := UiFactory.card(body)
-	UiFactory.title("LOADOUT INTEL", weapon_card, 22)
-	_weapons = OptionButton.new()
-	_weapons.custom_minimum_size.y = UiTheme.TOUCH_MIN
-	weapon_card.add_child(_weapons)
+	_arenas.item_selected.connect(_on_option_picked)
+
+	# Weapon (starter loadout) picker.
+	var weapon := UiFactory.select_card(body, "LOADOUT INTEL")
+	_weapons = weapon.option
+	_weapon_info = weapon.desc
 	_weapon_ids = ContentRegistry.get_all_weapon_ids()
 	_weapon_ids.sort()
 	for id in _weapon_ids:
 		_weapons.add_item(ContentRegistry.get_weapon(id).display_name)
-	_weapons.item_selected.connect(func(_i: int) -> void:
-		UiFactory.play_press("OPTION")
-		_refresh_details())
-	_weapon_info = UiFactory.label("", weapon_card)
+	_weapons.item_selected.connect(_on_option_picked)
+
 	_feedback = UiFactory.label("", body, 20)
 	_feedback.modulate = UiTheme.GOLD
-	_start = UiFactory.button("ENTER ARENA", body, 24)
+	_start = UiFactory.primary("ENTER ARENA", body, 24, Vector2(300, 104))
 	UiTheme.decorate(_start, "play")
 	_start.pressed.connect(_launch)
 	UiFactory.button("BACK", body, 20).pressed.connect(func() -> void: back_requested.emit())
+
+
+## Every OptionButton refresh on the same live details line when the player picks
+## a different mode / arena / loadout.
+func _on_option_picked(_index: int) -> void:
+	UiFactory.play_press("OPTION")
+	_refresh_details()
 
 func present(daily: bool = false) -> void:
 	_daily = daily

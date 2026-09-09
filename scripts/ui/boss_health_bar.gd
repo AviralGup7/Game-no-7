@@ -57,6 +57,10 @@ func _ready() -> void:
 			EventBus.run_ended.connect(_on_run_ended)
 
 
+## Build one layered meter bar. Because the ghost + live fill must stack inside
+## a fixed-height Control, they use full-rect anchoring here (the HUD's simple
+## gauges use UiFactory.gauge instead). The fill still reuses the shared
+## UiTheme.bar styling token so boss/HUD meters read identically.
 func _make_bar(fill: Color) -> ProgressBar:
 	var bar := ProgressBar.new()
 	bar.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -67,12 +71,9 @@ func _make_bar(fill: Color) -> ProgressBar:
 	bar.value = 1.0
 	var bg := StyleBoxFlat.new()
 	bg.bg_color = Color(0, 0, 0, 0.55)
-	bg.set_corner_radius_all(4)
+	bg.set_corner_radius_all(UiTheme.RADIUS_SM)
 	bar.add_theme_stylebox_override("background", bg)
-	var fg := StyleBoxFlat.new()
-	fg.bg_color = fill
-	fg.set_corner_radius_all(4)
-	bar.add_theme_stylebox_override("fill", fg)
+	bar.add_theme_stylebox_override("fill", UiTheme.bar(fill))
 	return bar
 
 
