@@ -14,12 +14,23 @@ Verified across the codebase (autoloads, gameplay, UI, save, meta, audio, VFX):
   internal storage. This requires no `READ`/`WRITE_EXTERNAL_STORAGE` permission.
 - **No device hardware is accessed.** The game does not use the microphone, camera,
   GPS/location, sensors (gyro/accelerometer), Bluetooth, contacts, or notifications.
-- **Haptics are opt-in and permission-free by design.** The game does call
+- **Haptics are opt-in and currently inert on Android.** The game does call
   `Input.vibrate_handheld()` (attack button feedback in `touch_action_button.gd`, hit
   feedback in `player_feedback.gd`), gated behind the user's `vibration_enabled`
-  setting. On Android, `VIBRATE` is a *normal* (non-dangerous) permission that Godot
-  adds automatically when the feature is used — it is never prompted for at runtime and
-  does not change the "no runtime permissions" posture above. Do not add it manually.
+  setting. **Correction to an earlier revision of this doc:** Godot does *not* add
+  `VIBRATE` automatically. Verified against the pinned 4.4.1 engine source,
+  `platform/android/export/export_plugin.cpp` emits `android.permission.VIBRATE` only
+  when the export preset sets `permissions/vibrate` (line 945), and this project's
+  `export_presets.cfg` declares no `permissions/*` at all. `Godot.kt` additionally
+  gates the call behind `requestPermission("VIBRATE")`, which cannot succeed for a
+  permission absent from the manifest. Net effect: no crash and no prompt, but the
+  device never vibrates.
+  Enabling haptics on device is a deliberate product decision — it means adding
+  `permissions/vibrate=true` to the preset and accepting one more (normal,
+  non-dangerous) permission in the installer listing, which the guards in
+  `tests/python/test_android_permissions.py` currently forbid. `touch_action_button.gd`
+  keeps the call off non-handheld platforms and strictly *after* the gameplay command
+  is emitted, so haptics can never take the button down with them.
 - **Rendering/output only.** Camera is virtual; audio is output-only.
 
 Declaring unneeded permissions (especially `INTERNET`, storage, or vibration) is

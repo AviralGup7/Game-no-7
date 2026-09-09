@@ -47,7 +47,12 @@ static func action(method: StringName, args: Array = []) -> bool:
 		&"request_weapon_switch":
 			return player.request_weapon_switch()
 		&"request_skill":
-			return player.request_skill(int(args[0]) if not args.is_empty() else 0)
+			# A non-numeric arg would raise inside int() and abort the dispatch;
+			# an out-of-range slot is simply declined by the controller.
+			var slot := 0
+			if not args.is_empty() and (args[0] is int or args[0] is float):
+				slot = int(args[0])
+			return player.request_skill(slot)
 		_:
 			push_warning("UiCommands.action: unknown player command %s" % String(method))
 			return false
