@@ -230,6 +230,10 @@ func set_move_input(input_vector: Vector2) -> void:
 	_locomotion.set_move_input(input_vector)
 
 
+func get_move_intent() -> float:
+	return _locomotion.gather().length()
+
+
 func clear_move_input() -> void:
 	_locomotion.clear_and_idle()
 

@@ -14,6 +14,8 @@ var _buses_ready := false
 ## True while the OS has backgrounded the app (Android home/recents). Combines
 ## with the player's mute setting so audio never plays behind other apps.
 var _background_muted := false
+var _duck_left := 0.0
+var _duck_db := 0.0
 
 ## cue_id -> AudioStream (registered content; may be empty while audio is added).
 var _cues: Dictionary = {}
@@ -70,9 +72,39 @@ func apply_settings(settings: SettingsData) -> void:
 		return
 	var master_db := _db(settings.master_volume)
 	AudioServer.set_bus_volume_db(0, master_db)
-	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume))
+	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume) - _duck_db)
+	# Combat duck never touches SFX — hits must stay readable under a boss tell.
 	AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(settings.sfx_volume))
 	AudioServer.set_bus_mute(0, settings.muted or _background_muted)
+
+
+## Briefly duck Music under a combat cue so hits/crits/dodges read on a phone speaker.
+func duck_music(seconds: float = 0.12, amount_db: float = 4.0) -> void:
+	if not is_finite(seconds) or seconds <= 0.0:
+		return
+	# Combat ducks stay short; a boss tell (>=0.4s) may hold up to 1.1s without
+	# letting stacked 0.12s hits extend the mute.
+	if seconds >= 0.4:
+		_duck_left = minf(maxf(_duck_left, seconds), 1.1)
+	elif _duck_left > 0.35:
+		# Hit during a boss tell: deepen the duck, keep the tell's remaining time.
+		pass
+	else:
+		_duck_left = minf(maxf(_duck_left, seconds), 0.35)
+	_duck_db = maxf(_duck_db, clampf(amount_db, 0.0, 12.0))
+	apply_settings(_settings)
+
+
+func _process(delta: float) -> void:
+	if _duck_left <= 0.0:
+		return
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	_duck_left -= delta
+	if _duck_left <= 0.0:
+		_duck_left = 0.0
+		_duck_db = 0.0
+		apply_settings(_settings)
 
 
 func _db(linear: float) -> float:

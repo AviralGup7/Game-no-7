@@ -250,6 +250,12 @@ func _process(delta: float) -> void:
 
 
 ## Position every HUD element from the shared layout solution (safe-area local).
+func vitals_screen_rect() -> Rect2:
+	if _vitals_scrim == null:
+		return Rect2()
+	return _vitals_scrim.get_global_rect()
+
+
 func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	if _top == null: return
 	_compact = bool(plan.get("compact", false)) or SaveManager.get_settings().text_scale > 1.3

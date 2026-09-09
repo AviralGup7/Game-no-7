@@ -29,8 +29,9 @@ func _ready() -> void:
 	# every resize, so it can never land on top of the announcement text.
 	_coach = UiFactory.label("", self, 20)
 	_coach.set_anchors_preset(PRESET_BOTTOM_WIDE)
-	_coach.offset_top = -46
-	_coach.offset_bottom = 0
+	_coach.offset_top = 4
+	_coach.offset_bottom = 40
+	_coach.position.y = size.y + 4.0
 	_coach.modulate = UiTheme.CYAN
 	_coach.add_theme_color_override("font_outline_color", Color.BLACK)
 	_coach.add_theme_constant_override("outline_size", 6)

@@ -209,6 +209,7 @@ func _physics_process(delta: float) -> void:
 		desired_dir = Vector3.ZERO
 		desired_speed = 0.0
 		_locomotion.integrate(self, Vector3.ZERO, 0.0, 1.0, delta, false)
+		FootPlant.apply(self, 0.16, delta)
 		return
 	if not _bus_connected:
 		_connect_bus_signals()  # the bus may appear after _ready (test harness)
@@ -226,6 +227,7 @@ func _physics_process(delta: float) -> void:
 		dir = _move_override_dir
 		speed = _move_override_speed
 	_locomotion.integrate(self, dir, speed, _status_speed_factor(), delta)
+	FootPlant.apply(self, 0.16, delta)
 
 
 func _decay_timers(delta: float) -> void:
@@ -510,7 +512,7 @@ func _roll_approach_offset() -> void:
 		return
 	var rng := RngService.make_generator(_run_seed, RngService.STREAM_AI + _spawn_serial * 7 + 3)
 	var angle := rng.randf_range(-PI, PI)
-	var radius := rng.randf_range(0.0, 1.6)
+	var radius := rng.randf_range(0.55, 2.1) if is_elite() else rng.randf_range(0.0, 1.6)
 	_approach_offset = Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
 
 
@@ -701,6 +703,33 @@ func play_explosion_sound() -> void:
 func play_telegraph_feedback() -> void:
 	if _feedback != null:
 		_feedback.play_telegraph()
+	_show_attack_telegraph_ring()
+
+
+## Ground ring in the same yellow/red language as bosses so grunt/heavy windups
+## read at 30 FPS on sand arenas, not only as a mesh flash.
+func _show_attack_telegraph_ring() -> void:
+	if not is_inside_tree():
+		return
+	var director := get_tree().get_first_node_in_group("effect_director") as EffectDirector
+	if director == null:
+		return
+	var radius := 1.35
+	var cfg := _config
+	if cfg != null:
+		radius = clampf(cfg.attack_range * 0.85, 1.1, 3.4)
+		if cfg.visual_scale > 1.15:
+			radius *= 1.25
+	var is_boss := get_node_or_null("BossController") != null
+	if not director.try_telegraph(is_boss):
+		return
+	var prio := EffectDirector.PRIORITY_BOSS if is_boss else EffectDirector.PRIORITY_SPAWN
+	if is_boss:
+		director.ring_at(global_position, Color(1.0, 0.95, 0.15), radius + 0.45, prio)
+		director.ring_at(global_position, Color(0.95, 0.08, 0.08), radius, prio)
+	else:
+		# One ring: yellow-red ink so it still reads on sand without a second disc.
+		director.ring_at(global_position, Color(1.0, 0.55, 0.08), radius, prio)
 
 
 func _locomotion_bounds() -> float:
@@ -838,6 +867,7 @@ func set_elite(affixes: Array) -> void:
 	if _feedback != null:
 		_feedback.recolor(tint)
 	_apply_visual_scale((_config.visual_scale if _config != null else 1.0) * 1.12)
+	_roll_approach_offset()
 	# Behavior affix hooks: VAMPIRIC elites sustain off the damage they deal.
 	if EliteAffix.VAMPIRIC in _elite_affixes and not attack_hit.is_connected(_on_vampiric_hit):
 		attack_hit.connect(_on_vampiric_hit)

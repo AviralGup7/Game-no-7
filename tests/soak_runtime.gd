@@ -1,5 +1,7 @@
 extends SceneTree
 ## Launcher for the soak stability run (release verification).
+## In-game counterpart: RuntimeSoak logs `[LastStand][soak]` every 5s (FPS,
+## enemy count, wave, HP) so a 10-minute fight has a paper trail without APK.
 ## The main --script compiles before autoloads register, so this file
 ## references nothing and defers to soak_runtime_inner.gd once live.
 ##   godot --headless --path . --script res://tests/soak_runtime.gd

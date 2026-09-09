@@ -63,6 +63,11 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 func _process(_delta: float) -> void:
 	if not is_visible_in_tree():
 		return
+	if get_tree() != null and get_tree().paused:
+		if _last_value != Vector2.ZERO:
+			UiCommands.move(Vector2.ZERO)
+			_last_value = Vector2.ZERO
+		return
 	var value := joystick.get_value()
 	if not is_finite(value.x) or not is_finite(value.y):
 		# Never forward a poisoned sample to the player: it would be latched into
@@ -97,5 +102,10 @@ func get_debug_snapshot() -> Dictionary:
 
 
 func set_high_contrast(enabled: bool) -> void:
-	if joystick != null: joystick.modulate.a = 1.0 if enabled else 0.75
-	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.95
+	if joystick != null and joystick.has_method("set_rest_alpha"):
+		joystick.set_rest_alpha(1.0 if enabled else 0.75)
+	elif joystick != null:
+		joystick.modulate.a = 1.0 if enabled else 0.75
+	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.88
+	if joystick != null and not enabled:
+		joystick.set_rest_alpha(0.7)

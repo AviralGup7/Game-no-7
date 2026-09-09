@@ -82,9 +82,14 @@ func play_attack_feedback(shake_amp: float = 0.15, duration: float = 0.12) -> vo
 
 
 func play_impact_feedback(critical: bool = false) -> void:
-	if _reduced_motion() or _last_impact_frame == Engine.get_physics_frames():
+	if _last_impact_frame == Engine.get_physics_frames():
 		return
 	_last_impact_frame = Engine.get_physics_frames()
+	_request_vibration(40 if critical else 18, 140 if critical else 70)
+	if AudioManager != null:
+		AudioManager.duck_music(0.18 if critical else 0.1, 6.0 if critical else 3.5)
+	if _reduced_motion():
+		return
 	var juice := get_tree().get_first_node_in_group("hitstop_manager") as HitstopManager
 	if juice != null:
 		juice.request_hitstop(0.035 if critical else 0.018)
@@ -94,6 +99,9 @@ func play_impact_feedback(critical: bool = false) -> void:
 
 
 func play_dodge_feedback() -> void:
+	_request_vibration(12, 50)
+	if AudioManager != null:
+		AudioManager.duck_music(0.08, 2.5)
 	_request_camera_shake(0.08, 0.1)
 
 

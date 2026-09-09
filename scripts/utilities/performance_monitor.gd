@@ -193,6 +193,20 @@ func max_damage_numbers() -> int:
 			return 10
 
 
+## Live-enemy budget used by WaveManager so high waves cannot spawn unbounded
+## crowds on a LOW/MEDIUM phone. Independent of authored wave caps (takes min).
+func max_simultaneous_enemies() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 28
+		TIER_HIGH:
+			return 22
+		TIER_MEDIUM:
+			return 16
+		_:
+			return 10
+
+
 func get_debug_snapshot() -> Dictionary:
 	return {
 		"tier": get_tier_name(),

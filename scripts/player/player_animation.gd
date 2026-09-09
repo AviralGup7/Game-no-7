@@ -48,6 +48,9 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
+var _bus := EventBindings.new()
+var _ik_dampen := false
+var _ik_dampen_hold := 0.0
 # Animation timing is driven only by WeaponInstance (windup/cooldown/reload);
 # there is no legacy attack-controller timing path anymore.
 
@@ -91,16 +94,36 @@ func _bind_animation() -> bool:
 		var library := _animation.get_animation_library(library_name).duplicate() as AnimationLibrary
 		for clip in [idle_clip, walk_clip, run_clip]:
 			if library.has_animation(clip):
-				var loop := library.get_animation(clip).duplicate() as Animation
-				loop.loop_mode = Animation.LOOP_LINEAR
-				library.remove_animation(clip)
-				library.add_animation(clip, loop)
+			var loop := library.get_animation(clip).duplicate() as Animation
+			loop.loop_mode = Animation.LOOP_LINEAR
+			_lock_hip_xz(loop)
+			library.remove_animation(clip)
+			library.add_animation(clip, loop)
 		_animation.remove_animation_library(library_name)
 		_animation.add_animation_library(library_name, library)
 	_animation.animation_finished.connect(_on_finished)
+	_animation.root_motion_track = NodePath()
 	_locked = false
 	_play(idle_clip)
 	return true
+
+
+static func _lock_hip_xz(anim: Animation) -> void:
+	if anim == null:
+		return
+	for i in range(anim.get_track_count()):
+		if anim.track_get_type(i) != Animation.TYPE_POSITION_3D:
+			continue
+		var path := String(anim.track_get_path(i)).to_lower()
+		if "hips" not in path and "pelvis" not in path and "root" not in path:
+			continue
+		for k in range(anim.track_get_key_count(i)):
+			var value: Variant = anim.track_get_key_value(i, k)
+			if value is Vector3:
+				var v := value as Vector3
+				v.x = 0.0
+				v.z = 0.0
+				anim.track_set_key_value(i, k, v)
 
 
 ## Gameplay signals stay connected even when no rig is mounted, so a late mount
@@ -117,15 +140,44 @@ func _connect_combat_signals() -> void:
 		_weapons.attack_resolved.connect(_on_contact)
 		_weapons.weapon_switched_local.connect(_on_switch)
 	if EventBus != null:
-		if not EventBus.skill_cast.is_connected(_on_skill_cast):
-			EventBus.skill_cast.connect(_on_skill_cast)
-		if not EventBus.player_leveled_up.is_connected(_on_level_up):
-			EventBus.player_leveled_up.connect(_on_level_up)
-		if not EventBus.boss_slain.is_connected(_on_boss_victory):
-			EventBus.boss_slain.connect(_on_boss_victory)
+		_bus.bind(EventBus.skill_cast, _on_skill_cast)
+		_bus.bind(EventBus.player_leveled_up, _on_level_up)
+		_bus.bind(EventBus.boss_slain, _on_boss_victory)
+
+
+func _exit_tree() -> void:
+	_bus.unbind_all()
+
+
+func _pin_visual_xz() -> void:
+	if _player == null:
+		return
+	var visual := _player.get_node_or_null("VisualRoot") as Node3D
+	if visual != null:
+		visual.position.x = 0.0
+		visual.position.z = 0.0
+	var model := _player.get_node_or_null("VisualRoot/CharacterModel") as Node3D
+	if model != null:
+		model.position.x = 0.0
+		model.position.z = 0.0
 
 
 func _physics_process(_delta: float) -> void:
+	_pin_visual_xz()
+	var plant := FootPlant.apply(_player, 0.14, _delta)
+	var want_dampen := absf(plant) > 0.06
+	if want_dampen == _ik_dampen:
+		_ik_dampen_hold = 0.0
+	else:
+		_ik_dampen_hold += _delta
+		if _ik_dampen_hold >= 0.2:
+			_ik_dampen = want_dampen
+			_ik_dampen_hold = 0.0
+	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
+	if equipment != null and equipment.has_method("set_slope_ik_dampen"):
+		equipment.set_slope_ik_dampen(_ik_dampen)
+	elif equipment == null:
+		_ik_dampen_hold = 0.0
 	if _animation == null:
 		return
 	if _dead:
@@ -146,6 +198,8 @@ func _physics_process(_delta: float) -> void:
 	_reloading = reloading
 	if _locked:
 		return
+	if _hold_bow_draw(inst):
+		return
 	var speed := Vector2(_player.velocity.x, _player.velocity.z).length()
 	var clip := idle_clip if speed < 0.15 else (walk_clip if speed < 3.0 else run_clip)
 	var playback := 1.0
@@ -153,6 +207,27 @@ func _physics_process(_delta: float) -> void:
 		var stride := walk_cycle_distance if clip == walk_clip else run_cycle_distance
 		playback = clampf(speed * _length(clip) / maxf(stride, 0.1), 0.08, 2.8)
 	_play(clip, false, playback)
+
+
+## Sunbow: freeze on the nocked frame of 2H_Ranged_Shoot (or Aiming if present)
+## while the string is held, then the attack clip plays the release.
+func _hold_bow_draw(inst: WeaponInstance) -> bool:
+	if inst == null or inst.config == null:
+		return false
+	if inst.config.weapon_id != &"sunbow":
+		return false
+	if not inst.config.is_ranged():
+		return false
+	var aim := &"2H_Ranged_Aiming"
+	if _animation != null and _animation.has_animation(aim):
+		_play(aim, false, 0.15)
+		return true
+	_play(ranged_clip, false, 0.01)
+	if _animation != null and _animation.current_animation == String(ranged_clip):
+		var hold := _length(ranged_clip) * 0.28
+		if _animation.current_animation_position > hold + 0.02:
+			_animation.seek(hold, true)
+	return true
 
 
 func _on_attack() -> void:
@@ -242,11 +317,24 @@ func _on_boss_victory(_boss_id: StringName) -> void:
 func _on_death() -> void:
 	_dead = true
 	_locked = true
+	_ik_dampen = false
+	_ik_dampen_hold = 0.0
+	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
+	if equipment != null and equipment.has_method("reset_ik_dampen"):
+		equipment.reset_ik_dampen()
+	var model := _player.get_node_or_null("VisualRoot/CharacterModel") as Node3D if _player != null else null
+	if model != null:
+		model.position.y = 0.0
 	CharacterVisuals.stop_breathing(_character_visual())
 	_play(death_clip, true)
 
 
 func _on_switch(_old: StringName, _new: StringName) -> void:
+	_ik_dampen = false
+	_ik_dampen_hold = 0.0
+	var equipment := _player.get_node_or_null("PlayerEquipment") if _player != null else null
+	if equipment != null and equipment.has_method("reset_ik_dampen"):
+		equipment.reset_ik_dampen()
 	if not _dead:
 		_locked = false
 		_reloading = false
