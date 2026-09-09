@@ -129,25 +129,38 @@ static func _paths_equal(a: PackedVector3Array, b: PackedVector3Array) -> bool:
 	return true
 
 
+## Expands an arena's authored placements exactly as ArenaHazards does at build time.
+static func _hazard_centers(arena_id: String) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	var path := "res://data/arenas/%s.tres" % arena_id
+	if not ResourceLoader.exists(path):
+		return out
+	var arena := load(path) as ArenaConfig
+	if arena == null:
+		return out
+	for placement in arena.hazard_layout:
+		if placement == null:
+			continue
+		for at in placement.mirrored_positions():
+			out.append(at)
+	return out
+
+
 static func _obstacle_layouts(results: Array) -> void:
 	var ids := ["default_arena", "ember_crucible", "frost_hollow"]
 	var spawn_points := [Vector3(11, 0, 0), Vector3(-11, 0, 0), Vector3(0, 11, 0), Vector3(0, -11, 0)]
-	# Hazard CENTERS per arena, mirrored from ArenaHazards._layout_defaults.
-	# Hazards are allowed to sit beside obstacles by design (a vent on the lane
-	# next to a pillar); the constraint is that no hazard CENTER is buried
-	# inside a solid obstacle box, which would mask the hazard's effect area.
-	var hazards := {
-		"default_arena": [Vector3(6, 0, 0), Vector3(-6, 0, 0), Vector3(0, 0, 6), Vector3(0, 0, -6),
-			Vector3(4, 0, 4), Vector3(-4, 0, -4), Vector3(3, 0, -3), Vector3(-3, 0, 3),
-			Vector3(0, 0, 0), Vector3(0, 0, -6), Vector3(0, 0, 6)],
-		"ember_crucible": [Vector3(5, 0, 5), Vector3(-5, 0, -5), Vector3(-5, 0, 5), Vector3(5, 0, -5),
-			Vector3(0, 0, 7), Vector3(0, 0, -7), Vector3(0, 0, 0), Vector3(6, 0, 0), Vector3(7, 0, 7)],
-		"frost_hollow": [Vector3(4, 0, 0), Vector3(-4, 0, 0), Vector3(0, 0, 5), Vector3(0, 0, -5),
-			Vector3(6, 0, 6), Vector3(-6, 0, -6), Vector3(0, 0, 4), Vector3(0, 0, -4),
-			Vector3(0, 0, 0), Vector3(0, 0, 7)],
-	}
+	# Hazard CENTERS come from the arena's authored layout — the same .tres ArenaHazards
+	# builds from, mirrors expanded. This list used to be hand-copied out of
+	# ArenaHazards._layout_defaults, which meant it silently stopped testing anything the
+	# moment a layout moved; the layouts themselves are pinned against the OLD hand-tuned
+	# coordinates in tests/unit/test_hazards.gd, so the data cannot drift unnoticed either.
+	# Hazards are allowed to sit beside obstacles by design (a vent on the lane next to a
+	# pillar); the constraint is that no hazard CENTER is buried inside a solid obstacle
+	# box, which would mask the hazard's effect area.
 	var half := 12.0
 	for id in ids:
+		_check(results, "%s: hazard layout is authored data the game can read" % id,
+			_hazard_centers(id).size() >= 9, "centers=%d" % _hazard_centers(id).size())
 		var layout := ArenaObstacles.layout_for(StringName(id), half)
 		_check(results, "%s: layout is non-empty" % id, layout.size() > 0, "size=%d" % layout.size())
 		if layout.is_empty():
@@ -164,7 +177,7 @@ static func _obstacle_layouts(results: Array) -> void:
 			for sp in spawn_points:
 				if pos.distance_to(sp) < foot + 1.2 + 0.5:
 					spawn_clear = false  # jitter 1.2 + 0.5 safety
-			for hz in hazards[id]:
+			for hz in _hazard_centers(id):
 				var hp: Vector3 = hz
 				if absf(hp.x - pos.x) < hs.x and absf(hp.z - pos.z) < hs.z:
 					hazard_buried = true  # hazard center inside the solid box

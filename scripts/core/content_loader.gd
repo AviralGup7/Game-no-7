@@ -23,6 +23,8 @@ static func load_all() -> Dictionary:
 		&"status": {},
 		&"pickups": {},
 		&"waves": {},
+		&"hazards": {},
+		&"hazard_modes": {},
 	}
 	_load_typed(&"res://data/enemies", &"enemies", tables, errors)
 	_load_typed(&"res://data/upgrades", &"upgrades", tables, errors)
@@ -33,6 +35,8 @@ static func load_all() -> Dictionary:
 	_load_typed(&"res://data/status", &"status", tables, errors)
 	_load_typed(&"res://data/pickups", &"pickups", tables, errors)
 	_load_typed(&"res://data/waves", &"waves", tables, errors)
+	_load_typed(&"res://data/hazards", &"hazards", tables, errors)
+	_load_typed(&"res://data/hazard_modes", &"hazard_modes", tables, errors)
 	_validate_references(tables, errors)
 	var audio := _load_audio_streams(errors)
 	var first_arena := &""
@@ -80,6 +84,28 @@ static func _validate_references(tables: Dictionary, errors: Array[String]) -> v
 		for exclusion in upgrade.exclusions:
 			if not upgrades.has(exclusion):
 				errors.append("upgrade %s references unknown exclusion %s" % [String(upgrade.upgrade_id), String(exclusion)])
+	# Hazards: the status a disc stamps has to exist, and a throttled field must re-stamp
+	# it before it lapses (otherwise the pool "blinks" the slow on and off, which reads as
+	# a bug in a game where kiting through hazards is a real tactic). A hazard config with
+	# no authored status is a different kind of problem, so this table being empty is too.
+	var hazards: Dictionary = tables[&"hazards"]
+	if hazards.is_empty():
+		errors.append("no HazardConfig resources under res://data/hazards — arenas cannot build a layout")
+	for raw in hazards.values():
+		var hazard := raw as HazardConfig
+		if hazard == null:
+			continue
+		if not hazard.has_status():
+			continue
+		if not statuses.has(hazard.status_effect_id):
+			errors.append("hazard %s references unknown status %s" % [String(hazard.hazard_id), String(hazard.status_effect_id)])
+			continue
+		var effect: StatusEffectConfig = statuses.get(hazard.status_effect_id)
+		if effect != null and hazard.victim_cooldown > 0.0 and not effect.is_permanent() \
+				and effect.duration <= hazard.victim_cooldown:
+			errors.append("hazard %s re-stamps %s every %.2fs but the effect only lasts %.2fs" % [
+				String(hazard.hazard_id), String(hazard.status_effect_id), hazard.victim_cooldown, effect.duration,
+			])
 
 
 static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, errors: Array[String]) -> void:
@@ -124,6 +150,18 @@ static func _load_typed(dir_path: String, kind: StringName, tables: Dictionary, 
 					errors.append("Not a StatusEffectConfig: %s" % path)
 				else:
 					_register_resource(tables[&"status"], StringName(effect.effect_id), effect, path, errors)
+			&"hazards":
+				var hazard := res as HazardConfig
+				if hazard == null:
+					errors.append("Not a HazardConfig: %s" % path)
+				else:
+					_register_resource(tables[&"hazards"], StringName(hazard.hazard_id), hazard, path, errors)
+			&"hazard_modes":
+				var hazard_mode := res as HazardModeLayout
+				if hazard_mode == null:
+					errors.append("Not a HazardModeLayout: %s" % path)
+				else:
+					_register_resource(tables[&"hazard_modes"], StringName(hazard_mode.mode_id), hazard_mode, path, errors)
 			&"pickups":
 				var pickup := res as PickupConfig
 				if pickup == null:

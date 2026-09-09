@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="HazardConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+hazard_id = &"spike_bed"
+display_name = "Spike Bed"
+description = "Standing damage on a per-victim cooldown, so crossing it costs one hit rather than one hit per frame."
+mechanic = &"field"
+trigger = &"periodic"
+radius = 1.2
+period = 0.0
+damage = 8.0
+falloff = &"none"
+victim_cooldown = 1.0
+scan_interval = 0.05
+source_id = &"spike_strip"
+marker_color = Color(0.8, 0.8, 0.85, 0.35)
+marker_emission = 0.4
+marker_emission_armed = 0.9
+tags = Array[StringName]([&"terrain"])

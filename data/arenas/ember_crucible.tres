@@ -1,7 +1,42 @@
-[gd_resource type="Resource" script_class="ArenaConfig" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ArenaConfig" load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/arena/arena_config.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_scene"]
+[ext_resource type="Script" path="res://scripts/arena/hazard_placement.gd" id="3_placement"]
+[ext_resource type="Resource" path="res://data/hazards/fire_vent.tres" id="4_cfg"]
+[ext_resource type="Resource" path="res://data/hazards/pressure_plate.tres" id="5_cfg"]
+[ext_resource type="Resource" path="res://data/hazards/ember_mover.tres" id="6_cfg"]
+[ext_resource type="Resource" path="res://data/hazards/heal_ward.tres" id="7_cfg"]
+
+[sub_resource type="Resource" id="hz1"]
+script = ExtResource("3_placement")
+config = ExtResource("4_cfg")
+position = Vector3(5, 0, 5)
+mirror = &"both"
+
+[sub_resource type="Resource" id="hz2"]
+script = ExtResource("3_placement")
+config = ExtResource("4_cfg")
+position = Vector3(0, 0, 7)
+mirror = &"z"
+
+[sub_resource type="Resource" id="hz3"]
+script = ExtResource("3_placement")
+config = ExtResource("5_cfg")
+position = Vector3(0, 0, 0)
+mirror = &"none"
+
+[sub_resource type="Resource" id="hz4"]
+script = ExtResource("3_placement")
+config = ExtResource("6_cfg")
+position = Vector3(6, 0, 0)
+mirror = &"none"
+
+[sub_resource type="Resource" id="hz5"]
+script = ExtResource("3_placement")
+config = ExtResource("7_cfg")
+position = Vector3(7, 0, 7)
+mirror = &"none"
 
 [resource]
 script = ExtResource("1_script")
@@ -13,4 +48,5 @@ default_camera_profile = &"default"
 background_music_cue = &"music_battle"
 allowed_archetypes = Array[StringName]([])
 tags = Array[StringName]([&"fire", &"hazards", &"vents", &"plates", &"movers"])
+hazard_layout = Array[HazardPlacement]([SubResource("hz1"), SubResource("hz2"), SubResource("hz3"), SubResource("hz4"), SubResource("hz5")])
 unlock_wave = 1

@@ -2,7 +2,7 @@ class_name ContentRegistryService
 extends Node
 ## Autoload: ContentRegistry
 ## Owns the live content tables and exposes enemy / upgrade / arena / weapon /
-## camera / audio / skill / status / pickup / wave definitions. Scanning +
+## camera / audio / skill / status / pickup / wave / hazard definitions. Scanning +
 ## typed registration moved to ContentLoader; this node adopts the loaded tables,
 ## keeps arena selection, and registers audio cues. Optional content that is
 ## MISSING is tolerated (diagnostics + fallback), but content that is present and
@@ -23,6 +23,8 @@ var _skills: Dictionary = {}         # StringName -> SkillConfig
 var _status: Dictionary = {}         # StringName -> StatusEffectConfig
 var _pickups: Dictionary = {}        # StringName -> PickupConfig
 var _waves: Dictionary = {}          # int wave_number -> WaveConfig
+var _hazards: Dictionary = {}        # StringName hazard_id -> HazardConfig
+var _hazard_modes: Dictionary = {}   # StringName mode_id -> HazardModeLayout
 var _audio_cues: Dictionary = {}     # StringName -> AudioStream
 var _selected_arena: StringName = &"default_arena"
 var _validation_errors: Array[String] = []
@@ -30,9 +32,9 @@ var _validation_errors: Array[String] = []
 
 func _ready() -> void:
 	refresh_all()
-	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras, %d weapons, %d skills, %d status, %d pickups, %d waves" % [
+	EventBus.report_info("ContentRegistry ready: %d enemies, %d upgrades, %d arenas, %d cameras, %d weapons, %d skills, %d status, %d pickups, %d waves, %d hazards" % [
 		_enemies.size(), _upgrades.size(), _arenas.size(), _cameras.size(),
-		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size()
+		_weapons.size(), _skills.size(), _status.size(), _pickups.size(), _waves.size(), _hazards.size()
 	])
 	# Surface broken content at startup. Bad data should scream — and in debug /
 	# test builds it must STOP the process, not leave the game running with
@@ -67,6 +69,8 @@ func refresh_all() -> void:
 	_status = tables[&"status"]
 	_pickups = tables[&"pickups"]
 	_waves = tables[&"waves"]
+	_hazards = tables[&"hazards"]
+	_hazard_modes = tables[&"hazard_modes"]
 	_validation_errors = loaded["errors"]
 	var first_arena: StringName = loaded.get("first_arena", &"")
 	if _selected_arena == &"" and first_arena != &"":
@@ -179,6 +183,27 @@ func has_authored_wave(wave_number: int) -> bool:
 
 func get_all_waves() -> Dictionary:
 	return _waves
+
+
+## One authored hazard behaviour ("fire_vent", "spike_bed", ...). HazardConfig resources
+## are shared data: ArenaHazards keeps per-placement timers in HazardInstance precisely so
+## it never writes to these.
+func get_hazard(hazard_id: StringName) -> HazardConfig:
+	return _hazards.get(hazard_id)
+
+
+func get_all_hazards() -> Dictionary:
+	return _hazards
+
+
+## Extra hazards a game mode appends to whatever the arena authored (may be null: a mode
+## with no pressure file is normal, not an error).
+func get_hazard_mode_layout(mode_id: StringName) -> HazardModeLayout:
+	return _hazard_modes.get(mode_id)
+
+
+func get_all_hazard_mode_layouts() -> Dictionary:
+	return _hazard_modes
 
 
 func get_selected_arena_id() -> StringName:

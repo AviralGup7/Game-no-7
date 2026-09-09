@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="HazardConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+hazard_id = &"pressure_plate"
+display_name = "Pressure Plate"
+description = "Armed by the player only, then detonates a wider blast that hurts enemies. Bait a chase across it."
+mechanic = &"pulse"
+trigger = &"proximity"
+radius = 3.5
+trigger_radius = 2.0
+period = 6.0
+telegraph = 0.0
+fire_cooldown = 6.0
+damage = 22.0
+falloff = &"none"
+knockback = 8.0
+affects_player = false
+proximity_needs_player = true
+source_id = &"pressure_plate"
+marker_color = Color(1, 0.85, 0.2, 0.35)
+marker_emission = 0.5
+marker_emission_armed = 1.6
+tags = Array[StringName]([&"player_tool", &"anti_crowd"])

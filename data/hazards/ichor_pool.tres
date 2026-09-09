@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="HazardConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+hazard_id = &"ichor_pool"
+display_name = "Ichor Pool"
+description = "Applies the slow status while anything stands in it. The speed change belongs to the status, so a pool never needs a second number for it."
+mechanic = &"field"
+trigger = &"periodic"
+radius = 2.8
+period = 0.0
+victim_cooldown = 0.25
+scan_interval = 0.05
+status_effect_id = &"slow"
+status_stacks = 1
+source_id = &"ichor_pool"
+marker_color = Color(0.5, 0.3, 0.9, 0.32)
+marker_emission = 0.4
+marker_emission_armed = 0.9
+tags = Array[StringName]([&"control", &"status"])

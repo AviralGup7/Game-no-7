@@ -86,7 +86,10 @@ so a `1.0` resistance floors at 0, never negative damage.
    `PlayerStart`, `SpawnPoints`/markers in group `enemy_spawn_point`, colliders,
    environment. `arena.gd` handles marker discovery generically.
 2. Create `res://data/arenas/<name>.tres` (`class ArenaConfig`) pointing at the scene,
-   with a `default_camera_profile` and `background_music_cue`.
+   with a `default_camera_profile` and `background_music_cue`. Author its hazards in the
+   same file (`hazard_layout`, see §11) — an arena that authors none still gets the four
+   compass vents `ArenaHazards.fallback_layout_positions()` describes, so a new level is
+   never hazard-less just because nobody got to it.
 3. Unlock it via `SaveManager.unlock_arena("<name>")` (or ship pre-unlocked).
 
 ## 4. Add a new weapon
@@ -201,16 +204,46 @@ take precedence — procedural fill never overwrites a registered cue.)
 
 ## 11. Add arena hazards / mutators
 
-1. Hazards: extend the per-arena `match` in `ArenaHazards.configure(...)` with a
-   branch for the new `arena_id` (field layout, tick damage, visuals); shared
-   tick/damage logic stays in `ArenaHazards`. Field tuning lives in the branch,
-   not the arena `.tres`.
-2. Mutators are static data + logic in `WaveMutators` (`ALL`, `resolve_for_wave`,
+1. **A hazard that reuses a mechanic is one `.tres`.** Copy `res://data/hazards/spike_bed.tres`,
+   give it a `hazard_id`, and set the numbers. `mechanic` is `"pulse"` (a discrete burst) or
+   `"field"` (applies while you stand in it); `trigger` is `"periodic"` (fires on `period`,
+   with optional `telegraph` warning time) or `"proximity"` (fires when a victim enters
+   `trigger_radius`, then re-arms on `fire_cooldown`). A field that travels gets
+   `orbit_radius_fraction`; a field that heals gets `heal_per_second`; a pool that slows
+   names a `status_effect_id` and lets the status own the speed number. Nothing under
+   `scripts/` changes, and `radius` is used for the visual disc *and* the hitbox, so they
+   cannot drift. The file name must equal the `hazard_id`: the loader keys the table by id.
+2. **Place it in an arena.** Append a `HazardPlacement` to `hazard_layout` in
+   `res://data/arenas/<arena>.tres`: `config` (a hard reference to the hazard `.tres`),
+   `position`, and optionally `mirror` (`"x"`, `"z"`, `"rot180"`, `"both"`),
+   `radius_override`, `phase_jitter`. `mirror` is why the shipped layouts read as six
+   lines instead of eleven coordinates — "a vent on each flank" is one placement with
+   `mirror = &"x"`. `phase_jitter` staggers a row of periodic hazards; at 0 they fire
+   together, which is sometimes the point.
+3. **Add pressure to a game mode** (optional) in `res://data/hazard_modes/<mode_id>.tres`
+   (`mode_id` must match the file name and name a real `GameMode`). Mode layouts are
+   *appended* to the arena's own, so a mode can raise the heat without rewriting a level.
+4. **A genuinely new mechanic is the only case that touches code.** Add the id to
+   `HazardConfig.VALID_MECHANICS` and a branch in `ArenaHazards._physics_process`; the
+   validator refuses any `mechanic` outside that list, and
+   `tests/python/test_regress_hazard_subsystem.py` requires the two lists to agree, so a
+   mechanic nothing implements cannot be authored. (The pre-rebuild system had six
+   per-kind tick functions and no such check, which is how "add a kind, forget a branch,
+   the hazard silently does nothing" was possible.)
+5. **All of it is validated at load**, not at first contact: `HazardConfig.validate()`,
+   `HazardPlacement.validate()` and `ArenaConfig.validate()` run through
+   `ContentLoader._register_resource()`, and `ContentLoader._validate_references()`
+   additionally checks that a hazard's status exists and outlives its own re-stamp
+   interval. A `trigger_radius` wider than the effect radius, a telegraph longer than the
+   period, a beneficial hazard that also deals damage, a proximity pulse that cannot
+   re-arm, and a fully transparent marker on a live hazard are all startup errors.
+6. Mutators are static data + logic in `WaveMutators` (`ALL`, `resolve_for_wave`,
    per-id `apply_to_wave_mods` scalars): add the id, its display name/banner
    text, and its scalar block. `WaveManager` resolves them per wave (authored
    declarations win, the `DifficultyDirector` may veto into a breather, daily
    runs force one pair); `SpawnManager` reads the resulting wave mods at spawn.
    Past the authored waves the planner scales endlessly.
+
 
 ## 12. Add meta / achievements / dailies
 

@@ -9,6 +9,9 @@ extends RefCounted
 const FALLOFF_NONE := &"none"        # full damage everywhere in the shape
 const FALLOFF_LINEAR := &"linear"    # scales down toward the edge
 const FALLOFF_SWEET_SPOT := &"sweet" # bonus at the rim (skill-shot rings)
+## The falloff vocabulary, so content validation can reject a typo instead of
+## silently getting linear scaling (HazardConfig.validate() reads this list).
+const VALID_FALLOFFS := [FALLOFF_NONE, FALLOFF_LINEAR, FALLOFF_SWEET_SPOT]
 const MAX_VICTIMS_HARD_CAP := 48
 
 
@@ -174,10 +177,11 @@ static func _damageable(c: Variant) -> bool:
 
 
 static func _radius_of(c: Variant) -> float:
-	if c is EnemyBase:
-		var cfg := (c as EnemyBase).get_config()
-		if cfg != null:
-			return cfg.bounds_radius
+	# One seam, so a hazard's spatial pre-filter and this loop can never disagree about
+	# how much padding a body gets (Damageable.get_hit_radius()).
+	var damageable := c as Damageable
+	if damageable != null:
+		return damageable.get_hit_radius()
 	return 0.0
 
 

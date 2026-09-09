@@ -251,8 +251,10 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	var hazards := ArenaHazards.new()
 	hazards.name = "ArenaHazards"
 	arena.add_child(hazards)
+	# The layout itself is authored: ArenaConfig.hazard_layout for the arena, plus the
+	# game mode's own HazardModeLayout. Neither call needs a new code path when a designer
+	# adds a hazard or an arena (docs/EXTENDING.md).
 	hazards.configure(arena_id, half, seed)
-	# Dense arena layouts + pressure plates + moving hazards for differentiation.
 	var mode_id := GameMode.MODE_STANDARD
 	if GameRoot != null:
 		mode_id = GameRoot.get_run_mode()

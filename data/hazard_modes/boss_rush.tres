@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="HazardModeLayout" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_mode_layout.gd" id="1_mode"]
+[ext_resource type="Script" path="res://scripts/arena/hazard_placement.gd" id="2_placement"]
+[ext_resource type="Resource" path="res://data/hazards/pressure_plate.tres" id="h_pressure_plate"]
+[ext_resource type="Resource" path="res://data/hazards/spike_bed.tres" id="h_spike_bed"]
+
+[sub_resource type="Resource" id="hz1"]
+script = ExtResource("2_placement")
+config = ExtResource("h_pressure_plate")
+position = Vector3(0, 0, 0)
+mirror = &"none"
+
+[sub_resource type="Resource" id="hz2"]
+script = ExtResource("2_placement")
+config = ExtResource("h_spike_bed")
+position = Vector3(3, 0, 3)
+mirror = &"rot180"
+
+[resource]
+script = ExtResource("1_mode")
+mode_id = &"boss_rush"
+display_name = "Boss Rush Pressure"
+extra_placements = Array[HazardPlacement]([SubResource("hz1"), SubResource("hz2")])

@@ -1,5 +1,93 @@
 # Changelog
 
+## [Unreleased] — Arena hazards rebuilt: authored, typed, spatially indexed (2026-09-09)
+
+Second architecture pass, chosen by measurement rather than taste: the arena hazard
+subsystem was the one place where *content was code* and where the hot path did per-tick
+work the rest of the project had already designed out. Rationale now in
+`docs/ARCHITECTURE.md` ("Arena hazards"); the authoring workflow is `docs/EXTENDING.md` §11.
+
+- **Layouts and tuning became data.** `ArenaHazards._layout_defaults()` matched on
+  `String(arena_id)` and hand-placed eleven/twelve hazards per arena, so adding a fourth
+  arena meant editing the hazard system — and `ArenaObstacles` documented itself as
+  "hand-tuned against" that function. Now: `HazardConfig extends ValidatedConfig`
+  (`res://data/hazards/*.tres`, six authored hazards) + `HazardPlacement` on
+  `ArenaConfig.hazard_layout` (with a `mirror` that expands one line into a symmetric set)
+  + `HazardModeLayout` (`res://data/hazard_modes/*.tres`) replacing the four
+  `apply_mode_pressure` match arms. All three are validated at load through
+  `ContentLoader`, and the arena `.tres` files carry the exact hazard sets the deleted code
+  produced (11 / 9 / 10, pinned in `tests/unit/test_hazards.gd`).
+- **Six code paths collapsed into two mechanics.** `pulse` (periodic or proximity-armed
+  detonation) and `field` (applies while you stand in it, throttled per victim), with
+  travel as a property rather than a `_tick_mover` branch. `match h["kind"]` over an
+  untyped Dictionary is gone: the mechanic is a validated id, an unknown one is a load
+  error, and the runtime fall-through `push_error`s instead of silently doing nothing.
+- **Typed per-hazard state.** `HazardInstance` (`RefCounted`) replaces the
+  `{kind, pos, timer, node}` + lazily-created `{angle, tick}` records, so `h["timer"]`
+  typos become compile-checked field access, and `_radius_of()` / `_color_of()` — which
+  re-declared the same tuning a third and fourth time (the ichor radius was a bare `2.8`
+  in two places, the plate blast a `+ 1.5` in the tick) — are gone. Mutable state lives on
+  the instance, never on a shared config resource.
+- **The visual stopped being metadata.** `HazardMarker` is built from the same radius the
+  gameplay uses and exposes `set_pulse()` / `set_center()`; the marker reference is read
+  through one guarded accessor (`HazardInstance.visual()`), replacing
+  `set_meta("disc")` / `get_meta("disc")` round trips and the per-victim
+  `set_meta("spike_cd_…")` cooldown keys (metadata is serialized with the scene, and
+  godot#79222 measured a real frame-rate cost for `set_meta`/`get_meta` at this volume).
+- **One shared snapshot + a uniform grid, on the game clock.** Victims used to be gathered
+  into a fresh Array, `.filter()`-ed through a lambda into a second Array, then scanned by
+  every hazard: ~460 distance tests plus two allocations and 42 lambda calls per 60 Hz
+  tick at 40 enemies, with `_tick_spikes` additionally doing an O(n) `_hazards.find(h)`
+  *per victim*. Now `_require_victims()` builds one lazy snapshot per tick
+  (`RadiusSpatialIndex`: `PackedInt32Array` heads + next-links, rebuilt in place, sized
+  from the largest query radius) and each hazard queries the few entities near it at its
+  own `scan_interval` — a periodic vent queries nothing between bursts. Timers accumulate
+  `delta` on `_game_time` instead of `Time.get_ticks_msec()`: at the hitstop manager's
+  0.05x a 1 s spike immunity used to be spent in ~50 ms of game time, and the vent
+  telegraph pulsed on wall clock while the world stood still. Heal now integrates over the
+  time a field actually covered, so scan cadence changes cost, not total.
+- **New typed seams that other systems can use.** `Damageable.get_status_manager()`,
+  `get_health_component()` and `get_hit_radius()` replace
+  `get_node_or_null("StatusManager") as StatusManager` on hazard paths, and `AreaDamage`
+  pads bodies through the same `get_hit_radius()` so a hazard's spatial pre-filter can
+  never disagree with the damage it hands off. `AreaDamage.VALID_FALLOFFS` lets content
+  validate its own `falloff` name.
+- **Dead knob removed:** `configure(..., ambient_burn)` was never passed `true` (the
+  "Ember Winds" mutator delivers its fire ticks via `burn_tick`, not via hazards). It is
+  now an explicit `ignite_pulses()`, tested, and available to the mutator path.
+- **Validation reachability gap found and half-closed.** `ContentLoader` runs `validate()`
+  only on resources that are a `ValidatedConfig`; `ArenaConfig` had one but did not extend
+  it, so arena validation ran in the CI harness and never at load. Converted (authored
+  hazard layouts make that load-bearing). Five other config types (`SkillConfig`,
+  `StatusEffectConfig`, `WeaponConfig`, `AudioConfig`, `BossPhaseConfig`) still extend
+  `Resource` — converting each is one line, but `ContentRegistry` *halts startup* on a
+  validation error in debug builds, so each needs a real run proving the shipped `.tres`
+  files pass. Pinned as a shrink-only list in the new suite.
+- **Tests.** New `tests/unit/test_hazards.gd` (pure: validation rules, mirror expansion,
+  layout parity with the old hand-tuned coordinates, cooldown/burst arithmetic, grid vs
+  brute force, capacity overflow counting) and `tests/unit/test_hazards_live.gd`
+  (in-tree fixtures, tick-by-tick: both teams hit once per period, throttled fields,
+  player-armed plate, 100 Hz vs 60 Hz heal totals equal, freed markers, group/dead-body
+  filtering, NaN epicentre). New `tests/python/test_regress_hazard_subsystem.py` (28
+  checks; verified to fail on ten mutations, including a re-added wall clock, re-added
+  metadata, a re-added arena `match`, a mechanic losing its arm, an AoE call handed the
+  whole arena, and a reassigned bucket store). `tests/unit/test_nav_grid.gd` now reads
+  hazard centres from the arena `.tres` instead of a hand-copied mirror of the deleted
+  function. `tool/validate_guards.py` hazard needle moved from "a `Dictionary` signature
+  exists" to the two guards that matter; 53/53 pass.
+- **Caveats.** No Godot binary in this environment, so the GDScript suites are
+  static-verified (gdparse/gdlint/check_typed_arch/validate_resources) and the behaviour
+  tests themselves run in CI; the timing numbers in the live suite are written to tolerate
+  float accumulation but a first CI run should be read carefully. Gameplay-visible
+  changes are intentional and few: movers now orbit the position they were authored at
+  (they used to ignore it and circle the arena centre), a mover with no room to circle
+  stays put instead of clipping the wall, spike beds and vents now respect the shared
+  body-padding rule at the rim (a big enemy is caught a hair earlier, like every other
+  AoE in the game), and an ichor pool re-stamps its slow at 0.25 s instead of every tick
+  (so the slow may linger up to a quarter second after you leave). Roll back the whole
+  subsystem by restoring `scripts/arena/arena_hazards.gd` at this commit's parent; the
+  arena `.tres` `hazard_layout` lines and `data/hazards*` directories are additive.
+
 ## [Unreleased] — Physics timing contract, collision contract, swept projectiles (2026-09-09)
 
 Architecture pass on the parts that touch physics — collision, camera, player,

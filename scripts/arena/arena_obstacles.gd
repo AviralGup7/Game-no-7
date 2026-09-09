@@ -7,10 +7,13 @@ extends RefCounted
 ## BOTH the player and every enemy collide with it) + a stone mesh, and feeds
 ## the same entries to ArenaNavGrid so AI routes around what it cannot clip.
 ##
-## Layouts are hand-tuned against each arena's hazard layout (see
-## ArenaHazards._layout_defaults) and its spawn markers: every obstacle keeps a
-## comfortable clearance from spawn points, player start, hazard footprints and
-## the central landmark so no actor can ever spawn or path onto them.
+## Layouts are hand-tuned against each arena's hazard layout — now authored data in
+## ArenaConfig.hazard_layout (see docs/ARCHITECTURE.md "Arena hazards") rather than a
+## function in the hazard system — and against its spawn markers: every obstacle keeps a
+## comfortable clearance from spawn points, player start, hazard footprints and the central
+## landmark so no actor can ever spawn or path onto them. tests/unit/test_nav_grid.gd
+## checks that clearance from the SAME data the game loads, so this coupling is enforced
+## rather than remembered.
 
 ## Entry shape: {"pos": Vector3(center), "half_size": Vector3(half extent), "kind": StringName}
 ## kind "pillar" = full stone column, "block" = low rubble wall.

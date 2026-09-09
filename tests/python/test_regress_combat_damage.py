@@ -29,10 +29,26 @@ class CombatDamageTests(unittest.TestCase):
         self.assertIn("_hitstop_left = maxf(_hitstop_left, duration)",txt)
         self.assertIn("MAX_HITSTOP_SECONDS",txt)
     def test_arena_hazards_stable_spike_key(self):
-        txt=read("scripts/arena/arena_hazards.gd")
-        self.assertIn("stable_id",txt)
-        self.assertIn('spike_cd_%s" % stable_id',txt)
-        self.assertNotIn('h.hash()',txt)
+        """Field throttling must key on a stable identity and live on the hazard.
+
+        The throttle used to be a per-victim string key in node metadata
+        ("spike_cd_<hazard index>_<quantised position>"), because a hazard record was an
+        untyped Dictionary whose own hash folded in volatile fields (timer, marker).
+        Metadata is serialized with the scene and slow to touch (godot#79222), so the
+        rebuild moved the table onto the typed HazardInstance, keyed by the victim's
+        object id. What must NOT come back: any hazard record hashing, and any per-victim
+        metadata write on the tick path.
+        """
+        hazards = read("scripts/arena/arena_hazards.gd")
+        instance = read("scripts/arena/hazard_instance.gd")
+        self.assertIn("var _victim_ready: Dictionary[int, float] = {}", instance)
+        self.assertIn("func victim_ready(victim_id: int, now: float) -> bool:", instance)
+        self.assertIn("var key := victim.get_instance_id()", hazards)
+        self.assertIn("instance.stamp_victim(key, _game_time)", hazards)
+        for text, name in ((hazards, "arena_hazards.gd"), (instance, "hazard_instance.gd")):
+            self.assertNotIn("set_meta(", text, f"{name} must not touch victim metadata")
+            self.assertNotIn("get_meta(", text, f"{name} must not read node metadata")
+            self.assertNotIn(".hash()", text, f"{name} must not key on a Dictionary hash")
     def test_ranged_resolver_clamps_spread(self):
         txt=read("scripts/weapons/ranged_resolver.gd")
         self.assertIn("maxf(spread_degrees, 0.0)",txt)

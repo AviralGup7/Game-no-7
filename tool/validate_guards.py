@@ -86,7 +86,14 @@ def main() -> int:
         ("scripts/main/camera_rig.gd", "if cam_origin.distance_squared_to(look_target) < 0.0004:"),
         ("scripts/main/camera/camera_shake_controller.gd", "if CameraMath.is_finite_transform(rolled):"),
         ("scripts/main/camera/camera_fov_controller.gd", "func _bounded(fov: float) -> float:"),
-        ("scripts/arena/arena_hazards.gd", "func _hazard_emission(h: Dictionary) -> StandardMaterial3D:"),
+        # Arena hazards: the optional visual and the non-finite epicentre are the two
+        # guards this subsystem exists to keep. They used to be pinned by requiring
+        # `func _hazard_emission(h: Dictionary)` to exist, which pinned the *shape* of a
+        # weak design (an untyped Dictionary record) rather than the safety property.
+        ("scripts/arena/hazard_instance.gd", "if marker == null or not is_instance_valid(marker):"),
+        ("scripts/arena/arena_hazards.gd", "if not instance.position_is_sane():"),
+        ("scripts/arena/arena_hazards.gd", "if not is_finite(delta) or delta <= 0.0:"),
+        ("scripts/utilities/radius_spatial_index.gd", "clampi(cell, 0, cells_x - 1)"),
         ("scripts/player/player_animation.gd", "if anim == null or not is_finite(anim.length) or anim.length <= 0.0:"),
     ]
     for path, needle in checks:
@@ -105,6 +112,9 @@ def main() -> int:
         ("scripts/pickups/pickup_config.gd", "@export_range(0.0, 100.0, 0.1) var drop_weight"),
         ("scripts/audio/audio_config.gd", "@export_range(-80.0, 6.0, 0.1) var volume_db"),
         ("scripts/arena/arena_config.gd", "@export_range(0.0, 100.0, 0.1) var enemy_spawn_min_player_distance"),
+        ("scripts/arena/hazard_config.gd", "@export_range(0.25, 12.0, 0.05) var radius"),
+        ("scripts/arena/hazard_config.gd", "@export_range(0.0, 60.0, 0.05) var period"),
+        ("scripts/arena/hazard_placement.gd", "@export_range(0.0, 1.0, 0.01) var phase_jitter"),
         ("scripts/enemies/boss_phase_config.gd", "@export_range(0.01, 1.0, 0.01) var threshold"),
         ("scripts/player/health_component.gd", "@export_range(1.0, 100000.0, 1.0) var max_health"),
     ]

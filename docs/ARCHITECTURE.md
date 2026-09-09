@@ -132,6 +132,79 @@ the server at call time, so `CameraCollisionSolver` and `Projectile` build their
 once and mutate them; the camera additionally gates its spatial pass on a clock plus
 an arm-displacement test, so a 120 Hz panel does not pay 120 spring-arm solves.
 
+## Arena hazards (the reference example of "content, not code")
+
+`ArenaHazards` is the subsystem this project's one rule was most often broken against, so
+it is documented in full and pinned from both sides. It models **two mechanics**, and
+everything else about a hazard is authored data:
+
+| Field on `HazardConfig` | Mechanic | Examples |
+| --- | --- | --- |
+| `pulse` + `trigger = periodic` | detonates on a period, with optional `telegraph` | fire vent |
+| `pulse` + `trigger = proximity` | detonates when something steps on it, then re-arms on `fire_cooldown` | pressure plate |
+| `field` | applies while a victim stands in it, throttled per victim by `victim_cooldown` | spike bed, healing ward, ichor pool |
+| `field` + `orbit_radius_fraction` | the same field, travelling a circle around its authored position | ember mover |
+
+Three structural decisions carry the rest:
+
+1. **Authored data, typed all the way down.** Behaviour lives in
+   `res://data/hazards/*.tres` (`HazardConfig extends ValidatedConfig`), placement in
+   `ArenaConfig.hazard_layout` (`HazardPlacement`, with a `mirror` that expands one line
+   into a symmetric set), and per-mode pressure in `res://data/hazard_modes/*.tres`. No
+   arena id, no radius and no damage number appears in the hazard system's source —
+   `tests/python/test_regress_hazard_subsystem.py` fails if one comes back. Per-placement
+   *mutable* state never lives on a config (resources are shared between every placement
+   of a kind); it lives in `HazardInstance`, a typed `RefCounted` record.
+2. **Polled math, once per tick, shared by every hazard.** No Area3D volumes: combat,
+   pickups and the minimap all read positions from the tree, and a physics-monitoring
+   volume per disc costs more on a phone than the squared-distance test it replaces — and
+   cannot be tested headless. What changed is *how often*: `_physics_process` now takes one
+   victim snapshot (positions, team bits, per-body hit padding via
+   `Damageable.get_hit_radius()`) lazily — only if a hazard actually wants victims this
+   tick — and buckets it into `RadiusSpatialIndex`, a uniform grid whose buckets are two
+   `PackedInt32Array`s (head per cell, next per element), so a rebuild is a fill, not an
+   allocation. A grid rather than a quadtree because the contents move: rehashing is O(n)
+   and a tree rebuild is O(n log n) with cells that churn every tick. Cell size follows
+   the ~2×-largest-query-radius rule so a query visits a handful of buckets. The storage split is deliberate: `Array[Node3D]` for the gameplay references (typed arrays
+   are for objects) and `Packed*Array` for the raw numeric buffers — flat contiguous ints
+   for the linked lists, flat contiguous vectors for positions — because that is where
+   GDScript keeps its cache locality and pays no per-element `Variant` overhead.
+
+   Eleven hazards
+   over forty enemies used to be ~460 distance tests *plus two fresh Arrays and a lambda
+   filter* every 60 Hz tick; it is now one bucketing pass plus an O(nearby) visit per
+   hazard, and a periodic vent scans nothing at all between its bursts.
+3. **Game time, not wall time.** `HazardInstance` timers accumulate `delta` on the
+   node's own `_game_time`. They previously compared `Time.get_ticks_msec()` against
+   gameplay intervals, which meant a 1 s spike immunity could be spent during a hitstop
+   that scales the world to 0.05x, and a vent's telegraph shimmer ran ahead of the burst
+   it was warning about. Heal is *integrated* over the time a field actually covered, so
+   changing a hazard's `scan_interval` changes its cost and not its total. See "Timing
+   contract" above.
+
+Optional visuals follow the same discipline: `HazardMarker` is built from the same radius
+the gameplay uses (one number, so the disc and the hitbox cannot disagree), and the only
+way gameplay reaches it is `HazardInstance.visual()`, which validates the reference before
+returning it. Node metadata carries no gameplay state at all — the old per-victim
+`set_meta("spike_cd_…")` cooldown keys were slow in the hot path and got serialized into
+the scene.
+
+**Known gap, deliberately not papered over.** `ContentLoader._register_resource()` runs
+`validate()` only on resources that *are* a `ValidatedConfig`. `ArenaConfig` now is (an
+authored hazard layout is worthless if nothing checks it), but `SkillConfig`,
+`StatusEffectConfig`, `WeaponConfig`, `AudioConfig` and `BossPhaseConfig` still extend
+`Resource`, so their `validate()` runs in the CI harness and not at load. Converting them
+is one line each, and it cannot be done blind: `ContentRegistry` **halts startup** on a
+validation error in a debug build, so each conversion needs one real (or CI) run proving
+the shipped `.tres` files pass. `test_regress_hazard_subsystem.py` pins that list as a
+set that may only shrink.
+
+Coverage: `tests/unit/test_hazards.gd` (pure — validation, mirror expansion, layout parity
+with the coordinates the deleted code hand-tuned, cooldown/burst arithmetic, grid vs brute
+force), `tests/unit/test_hazards_live.gd` (in-tree fixtures driven tick by tick — who gets
+hit, how often, on which clock, with the marker freed), and the python suite above.
+
+
 ## Autoload policy
 
 Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,

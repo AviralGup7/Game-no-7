@@ -45,6 +45,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_presentation_scripts.gd",
 	"res://tests/unit/test_game_modes.gd",
 	"res://tests/unit/test_collision_layers.gd",
+	"res://tests/unit/test_hazards.gd",
 ]
 
 ## Node3D-based suites: these build Node3D fixtures and assert on positions.
@@ -61,6 +62,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_hero_rig.gd",
 	"res://tests/unit/test_arena_obstacles_node.gd",
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
+	"res://tests/unit/test_hazards_live.gd",
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"
