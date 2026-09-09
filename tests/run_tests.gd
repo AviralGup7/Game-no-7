@@ -124,79 +124,8 @@ func _process(_delta: float) -> bool:
 		for x in _failures:
 			report.store_string("FAIL  " + x + "\n")
 		report.close()
-	_dump_nav_diagnostics()
 	quit(0 if _failures.is_empty() else 1)
 	return false
-
-
-## TEMP diagnostic: dump ground-truth nav facts as ::error annotations right
-## before quit(), so they land in the last 120 log lines that CI echoes (the
-## raw step log / artifacts live on an unreachable blob store).
-func _dump_nav_diagnostics() -> void:
-	var g := ArenaNavGrid.new()
-	g.build(12.0, 0.5, [{"pos": Vector3(6.0, 0.0, 0.0), "half_size": Vector3(2.0, 3.0, 1.0)}])
-	# LOS ray dissection for the failing "over the wall" case.
-	var fb: Vector3 = Vector3(0, 0, 0)
-	var tb: Vector3 = Vector3(10, 0, 5)
-	var walk_fb := g.is_walkable(fb)
-	var walk_tb := g.is_walkable(tb)
-	var first_bad := Vector3(999, 0, 999)
-	var delta := tb - fb
-	delta.y = 0.0
-	var dist := delta.length()
-	var steps := ceili(dist / (g.cell_size * 0.5))
-	for s in range(1, steps):
-		var p := fb + delta * (float(s) / float(steps))
-		if not g.is_walkable(p):
-			first_bad = p
-			break
-	print("::error title=NAVDBG2::los_over walk_from=%s walk_to=%s first_blocked=%s steps=%d" % [str(walk_fb), str(walk_tb), str(first_bad), steps])
-	# Cell of key LOS points.
-	print("::error title=NAVDBG2::cell(to(10,5))=%s blocked=%s cell(from)=%s" % [str(g.to_cell(Vector3(10,0,5))), str(g.is_blocked_cell(g.to_cell(Vector3(10,0,5)))), str(g.to_cell(Vector3(0,0,0)))])
-	# Wall blocked cell extents (cx/cz) precisely.
-	var minx := 999; var maxx := -1; var minz := 999; var maxz := -1
-	for z in range(48):
-		for x in range(48):
-			if g.is_blocked_cell(Vector2i(x, z)):
-				minx = mini(minx, x); maxx = maxi(maxx, x)
-				minz = mini(minz, z); maxz = maxi(maxz, z)
-	print("::error title=NAVDBG2::ALLblocked cx=%d..%d cz=%d..%d" % [minx, maxx, minz, maxz])
-	# Wall-only cells (ignore boundary ring by checking near origin region).
-	var wallrows := PackedStringArray()
-	for z in range(18, 30):
-		var row := ""
-		for x in range(28, 45):
-			row += "#" if g.is_blocked_cell(Vector2i(x, z)) else "."
-		wallrows.append("z%d[%s]" % [z, row])
-	print("::error title=NAVDBG2::wallmap (z18..29, x28..44) %s" % " ".join(wallrows))
-	# Flow: distance at the two symmetric side cells from the start cell.
-	g.rebuild_flow_field(Vector3(11, 0, 0))
-	var c_start := g.to_cell(Vector3(0, 0, 0))
-	print("::error title=NAVDBG2::start_cell=%s" % str(c_start))
-	var north := Vector2i(c_start.x, c_start.y - 1)
-	var south := Vector2i(c_start.x, c_start.y + 1)
-	if g.is_blocked_cell(north): print("::error title=NAVDBG2::north cell blocked")
-	if g.is_blocked_cell(south): print("::error title=NAVDBG2::south cell blocked")
-	# default_arena gate probe: full obstacle list + what blocks (1.2,0,0).
-	var layout := ArenaObstacles.layout_for(&"default_arena", 12.0)
-	var items := PackedStringArray()
-	for ob in layout:
-		var pos: Vector3 = ob["pos"]
-		var hs: Vector3 = ob["half_size"]
-		items.append("c%s hs(%s,%s)" % [str(pos), str(hs.x), str(hs.z)])
-	print("::error title=NAVDBG2::default_arena obstacles count=%d: %s" % [layout.size(), ", ".join(items)])
-	# ember_crucible obstacles near spawn points.
-	var ecl := ArenaObstacles.layout_for(&"ember_crucible", 12.0)
-	var ecl_items := PackedStringArray()
-	for ob in ecl:
-		var pos: Vector3 = ob["pos"]
-		var hs: Vector3 = ob["half_size"]
-		var foot := maxf(hs.x, hs.z)
-		for sp in [Vector3(11, 0, 0), Vector3(-11, 0, 0), Vector3(0, 11, 0), Vector3(0, -11, 0)]:
-			if pos.distance_to(sp) < foot + 1.7:
-				ecl_items.append("pos%s hs(%s,%s) dist_to_spawn=%.2f" % [str(pos), str(hs.x), str(hs.z), pos.distance_to(sp)])
-	print("::error title=NAVDBG2::ember_crucible near-spawn count=%d: %s" % [layout.size(), ", ".join(ecl_items)])
-
 
 
 ## Deterministic combat integration: real HealthComponent damage/invuln/death +
