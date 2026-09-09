@@ -205,6 +205,65 @@ force), `tests/unit/test_hazards_live.gd` (in-tree fixtures driven tick by tick 
 hit, how often, on which clock, with the marker freed), and the python suite above.
 
 
+## Status effects (the fold cache)
+
+`StatusManager` is a per-entity component, and its answers are the most-queried numbers in
+the game after position: `move_speed_factor()` and `is_stunned()` are read by the player *and*
+by every enemy on every physics tick, `incoming_damage_factor()` and `absorb_direct()` on
+every hit. All five of them — speed, outgoing damage, incoming damage, stun/root, shield
+pool — are folds over the entity's active effects.
+
+Before the rebuild each read *recomputed the fold*: a walk of an untyped `Dictionary`, an
+`as StatusEffect` cast per element, a `pow()` per axis; roughly 80 walks per tick at a full
+wave, plus (inside the tick) a `.keys().duplicate()` per entity and a re-run of the config's
+14-rule authoring audit per effect. Every one of those costs was spent re-deriving values
+that change a few times per second at most.
+
+Now: **derive once, invalidate on change.**
+
+- `_effects` is `Dictionary[StringName, StatusEffect]`, so a read is a field fetch and a
+  mis-cast is not expressible. It stays runtime-only: Godot 4.4 cannot serialise a typed
+  Dictionary whose values are Resources inside a `.tres` (godot#100889) and will not accept
+  one assigned from `JSON.parse_string` (godot#97137), so it must never become an `@export`
+  or a save field.
+- The fold runs lazily behind `_aggregates_dirty` — the Dirty Flag pattern, which is what
+  Godot itself does for a body's global transform and what Unreal's GameplayEffects does
+  with a per-attribute aggregator (`FOnAggregatorDirty`), rather than re-evaluating per
+  frame. The flag is set by exactly the four events that can change a fold: an application
+  (which may add stacks), a removal, an absorbed shield layer, and the tick in which
+  `remaining` crosses zero. `StatusEffect.reapply()` returns whether it changed anything a
+  fold depends on, so a duration-only refresh — a weapon that re-applies burn every swing —
+  costs nothing at read time.
+- `get_debug_snapshot()` exposes `recomputes` and `aggregate_reads`, and
+  `tests/unit/test_status_manager.gd` asserts 90 reads cost one fold. A cache with no
+  observable counter is a cache nobody can test, and a cache that is never refuted is how
+  you get a stale stun.
+- A shield layer lives on the `StatusEffect` that grants it. There used to be a second
+  Dictionary keyed by effect id, re-summed with `.values()` on every apply, removal and hit.
+- An idle manager is not ticked at all: `set_physics_process(false)` while the table is
+  empty. With 40 enemies alive, "no effects" is the common state and used to cost a
+  `_physics_process` call plus an `is_empty()` test anyway.
+- Authoring is validated at load (`StatusEffectConfig extends ValidatedConfig`, so
+  `ContentLoader` audits every `data/status/*.tres` and `ContentRegistry` halts on a
+  problem) and once per application for a config built in code. The per-tick variant guarded
+  "an old save with bad numbers"; status state has never been serialized.
+
+Two existing semantics the fold has to preserve, both pinned by tests: the multiplicative
+axes *include* an effect that expired this tick but has not been removed yet (that is what
+the per-read scans did, and it self-corrects inside the same tick), while the stun/root
+locks *exclude* it — a stale lock freezing the player one extra frame is the bug the old
+code guarded against. And because a listener can `cleanse_all()` from `HealthComponent.damaged`
+mid-tick (the Purge pickup path), the tick iterates a reused scratch array rather than the
+live Dictionary — erasing while iterating is undefined in Godot — and re-checks `has(id)`.
+
+`StatusEffect.SOFT_LOCK_CAP_SECONDS` is the companion to `validate()`'s rule that a
+*permanent* stun/root is illegal: `validate()` refuses duration 0, the cap refuses a long
+one. The comment claiming that hard stop existed before the rebuild, but it was written as a
+`maxf` floor, so `duration = 30` next to `stuns = true` was a 30-second freeze with a
+comment saying it was capped at 3. Now both the initial duration and every re-apply go
+through the ceiling.
+
+
 ## Autoload policy
 
 Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,

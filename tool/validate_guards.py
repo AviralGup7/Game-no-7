@@ -108,7 +108,7 @@ def main() -> int:
         ("scripts/waves/wave_config.gd", "@export_range(1, 60) var maximum_simultaneous_enemies"),
         ("scripts/waves/wave_spawn_entry.gd", "@export_range(0.0, 1.0, 0.01) var elite_chance"),
         ("scripts/skills/skill_config.gd", "@export_range(0.05, 300.0, 0.1) var cooldown"),
-        ("scripts/status/status_effect_config.gd", "@export_range(0.05, 300.0, 0.05) var duration"),
+        ("scripts/status/status_effect_config.gd", "@export_range(0.0, 300.0, 0.05) var duration"),
         ("scripts/pickups/pickup_config.gd", "@export_range(0.0, 100.0, 0.1) var drop_weight"),
         ("scripts/audio/audio_config.gd", "@export_range(-80.0, 6.0, 0.1) var volume_db"),
         ("scripts/arena/arena_config.gd", "@export_range(0.0, 100.0, 0.1) var enemy_spawn_min_player_distance"),

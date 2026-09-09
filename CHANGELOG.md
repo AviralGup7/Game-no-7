@@ -1,5 +1,90 @@
 # Changelog
 
+## [Unreleased] — Status effects: the read path became a cached fold (2026-09-09)
+
+Third architecture pass. Same method as the previous two: find the subsystem whose cost is
+paid most often, check it against how the engine actually works, rebuild the weak part, and
+pin the weak design out. This time the target was `scripts/status/` — the per-entity
+component that movement, AI, damage and the HUD query dozens of times per frame. Rationale
+in `docs/ARCHITECTURE.md` ("Status effects"); authoring notes in `docs/EXTENDING.md` §10.
+
+- **The five derived numbers are folded once, not per read.** `move_speed_factor()`,
+  `outgoing_damage_factor()`, `incoming_damage_factor()`, `is_stunned()`/`is_rooted()` and
+  `shield_remaining()` used to re-walk an untyped `Dictionary`, cast each value with
+  `as StatusEffect` and call `pow()` per effect per axis — ~80 walks per physics tick at a
+  full wave, because `player.gd` and `enemy_base.gd` ask every tick and every hit asks
+  twice more. They are field reads on a fold that is recomputed lazily when
+  `_aggregates_dirty` is set by exactly the four things that can change it: an application,
+  a removal, an absorbed shield layer, and the tick in which `remaining` crosses zero
+  (`StatusEffect.reapply()` now returns whether it changed anything a fold depends on, so a
+  duration-only refresh — burn re-applied every swing — costs nothing). This is the Dirty
+  Flag pattern, the same mechanism Godot uses for a body's global transform and Unreal's
+  GameplayEffects uses for attribute aggregators, chosen over re-evaluating per frame.
+- **The tick stopped allocating.** `_effects.keys().duplicate()` per entity per frame (two
+  Arrays; `keys()` already returns a fresh one, so the `.duplicate()` was pure waste) became
+  two reused scratch arrays guarded by a `_ticking` re-entrancy flag — guarded because
+  `HealthComponent.damaged` → `cleanse_all()` from a listener is a real path here (Purge
+  pickup), and erasing while iterating a Dictionary is undefined per the Godot docs. The
+  per-effect `fx.config.validate()` inside the tick is gone: it re-ran a 14-rule authoring
+  audit 60 times a second per effect to catch "an old save with bad numbers", and status
+  state has never been serialized (SaveManager has no status path).
+- **Typed table, and the shield layer moved home.** `Dictionary[StringName, StatusEffect]`
+  replaces `Dictionary` + casts (runtime-only on purpose: 4.4 cannot serialize a typed
+  Dictionary of Resources in a `.tres`, godot#100889, nor accept one from
+  `JSON.parse_string`, godot#97137). The parallel `_shield_layers` Dictionary keyed by
+  effect id — written on every application, erased on every removal, re-summed from
+  `.values()` on every absorbed hit — is now `StatusEffect.shield_layer`, so `absorb_direct()`
+  is one allocation-free walk and `_sync_shield_pool()` disappeared. `_power_for` returns a
+  `Vector2` pair instead of a `Dictionary` record with three string lookups per application.
+- **An idle component is not ticked.** `set_physics_process(false)` while the table is empty
+  (the repo's own convention: `enemy_base`, `pickup`, `player_feedback`, `projectile`),
+  because with 40 enemies alive "no effects" is the most common state and used to cost a
+  `_physics_process` call plus an `is_empty()` test anyway.
+- **Real defect fixed, not just moved:** the `SOFT_LOCK_CAP_SECONDS` "hard stop" for
+  stun/root durations was written as a `maxf` floor, so an authored `duration = 30` with
+  `stuns = true` froze the player for 30 s under a comment claiming it was capped at 3.
+  Initial duration, `set_power_modifiers` and all three stack-mode branches now route through
+  the ceiling. Shipped data is unaffected (`stun.tres` is 1.5 s); no shipped effect is
+  permanent, and none uses `roots`.
+- **`StatusEffectConfig` now extends `ValidatedConfig`**, so its audit runs at load through
+  `ContentLoader` and `ContentRegistry` turns a bad `.tres` into a startup error. This is the
+  first conversion off the documented "needs a real run to prove the shipped files pass"
+  list — the proof was built without a binary instead: `tests/python/test_regress_status_hot_path.py` (35 checks)
+  mirrors all 14 rules in python, reads its defaults and rule text out of the GDScript class
+  so the mirror cannot drift, and audits every `data/status/*.tres`. The remaining four
+  (`SkillConfig`, `WeaponConfig`, `AudioConfig`, `BossPhaseConfig`) stay listed, still
+  pinned as a shrink-only set. Related inconsistency fixed while there:
+  `duration`'s `@export_range` minimum of 0.05 made "0 = permanent until cleansed" — which
+  `validate()` and `is_permanent()` both define — unauthorisable in the inspector (guard
+  needle re-pinned, same fix as `HazardConfig.period`).
+- **Behaviour preserved deliberately**, and pinned so the cache cannot be quietly wrong: the
+  multiplicative axes still include an effect that expired this tick but has not been removed
+  yet (what the per-read scans did; it self-corrects in the same tick), the stun/root locks
+  still exclude it, `ADD` shields still grant only newly acquired capacity, `absorb_direct()`
+  still consumes layers in stable insertion order and still clamps a hit to 10k, DoT/HoT
+  still route through `HealthComponent` with the authored `dot_type` and caster attribution,
+  and all three signals still fire from the same points.
+- **Tests.** New `tests/unit/test_status_manager.gd` (live, in-tree fixtures over a real
+  `HealthComponent`, tick driven by hand at 1/8 s so DoT arithmetic is binary-exact): 90 reads
+  cost one fold, a fold is not done eagerly, the cache refolds exactly once after an
+  application, expiry releases the entity *in the tick it expires*, the scratch arrays come
+  back empty, `cleanse_all()` from a damage signal mid-tick neither crashes nor leaves a
+  stale fold, remove-during-removal is idempotent, shield pools cannot outlive their effect,
+  a 5 s hitch is one DoT quanta, HoT totals are tick-rate independent, and a NaN/Inf authored
+  factor cannot reach movement (60 assertions across 15 cases). New `tests/python/test_regress_status_hot_path.py` (35
+  checks: shipped-data audit, mirror-coverage link, hot-path bans, invalidation completeness,
+  type contract, behaviour parity, docs consistency). 566 python tests OK; 53/53 guard
+  needles; typed-arch and resource gates clean.
+- **Caveats.** No Godot binary in this environment: the GDScript suite is static-verified
+  (gdparse/gdlint/check_typed_arch) and executes in CI, so its first run should be read
+  carefully. Two pins had to move because they asserted the weak design, not the behaviour:
+  `test_regress_foundational_guards.test_status_has_instance_valid` (per-tick
+  `is_instance_valid(fx)` walk → typed, exclusively-owned table) and
+  `test_regress_top5_hardening.test_status_manager_looks_up_bus_by_path` (kept as-is by
+  preserving the accessor name `_event_bus()`; the lookup is now resolved once in `_ready`
+  instead of on every application and every expiry). `weapon_manager.gd`'s pins on
+  `as StatusManager` / `apply_effects(` are untouched: the public API did not change.
+
 ## [Unreleased] — Arena hazards rebuilt: authored, typed, spatially indexed (2026-09-09)
 
 Second architecture pass, chosen by measurement rather than taste: the arena hazard

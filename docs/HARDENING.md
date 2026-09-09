@@ -51,7 +51,9 @@ no soft-lock on missing content.
   chance clamp, config value/lifetime clamp
 - **save/** — currency clamp, save dict filter, schema version, settings
   volume/sensitivity
-- **status/** — manager effects filter + finite delta + is_instance_valid,
+- **status/** — manager effects filter + finite delta + a typed effect table
+  (the per-tick `is_instance_valid(fx)` walk is replaced by `Dictionary[StringName,
+  StatusEffect]`, which the manager owns exclusively),
   effect duration clamp, config duration/tick clamp, permanent stun/root/shield rejected, stun/root capped 3s even with 10× duration multiplier, tick hitch guard 64 ticks + 60 cap, move/damage pow NaN→1.0 0..10, DOT/HOT 0..10000
 - **skills/** — controller cooldown, config stats, executor cast pos, instance
   cast pos

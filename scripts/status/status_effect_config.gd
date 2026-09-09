@@ -1,10 +1,19 @@
 class_name StatusEffectConfig
-extends Resource
+extends ValidatedConfig
 
 ## Data-driven status effect definition (burn, bleed, slow, stun, shock,
 ## weaken, regen, shield...). Instances live under res://data/status/ and are
 ## discovered by ContentRegistry. Runtime state per affected entity lives in
 ## StatusEffect instances owned by a StatusManager component.
+##
+## Extends ValidatedConfig so this audit runs at load (ContentLoader._register_resource()
+## validates any ValidatedConfig, and ContentRegistry turns a problem into a startup
+## error) instead of being re-run for every active effect on every physics tick, which is
+## what StatusManager used to do to guard against "bad numbers from an old save" — a path
+## that does not exist, because status state is never serialized.
+##
+## validate() still runs once per application (StatusManager.apply_effect) so a config
+## built in code is held to the same rules as one authored in the editor.
 
 const STACK_REFRESH := &"refresh"    # re-apply refreshes duration, keeps stacks
 const STACK_ADD := &"add"            # re-apply adds a stack up to max_stacks
@@ -15,8 +24,11 @@ const VALID_STACK_MODES := [STACK_REFRESH, STACK_ADD, STACK_RESET]
 @export var display_name: String = ""
 @export var icon: Texture2D = null
 @export var is_harmful: bool = true
-## Base duration in seconds (0 = permanent until cleansed).
-@export_range(0.05, 300.0, 0.05) var duration: float = 4.0
+## Base duration in seconds (0 = permanent until cleansed). The minimum is 0, not
+## 0.05, because validate() and is_permanent() both define 0 as "permanent": a floor
+## above it made the supported case unauthorisable in the inspector (same fix as
+## HazardConfig.period).
+@export_range(0.0, 300.0, 0.05) var duration: float = 4.0
 @export_range(1, 20) var max_stacks: int = 1
 @export var stack_mode: StringName = STACK_REFRESH
 ## Damage-over-time per second per stack (0 = none).

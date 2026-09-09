@@ -191,12 +191,25 @@ take precedence — procedural fill never overwrites a registered cue.)
    `unlock_wave`/`input_action`. `SkillController` owns slots, unlock gates and
    cooldowns; `SkillExecutor` sends damage through `AreaDamage`, status through
    `StatusManager`, and shockwaves through `ProjectilePool`.
-2. New statuses are `StatusEffectConfig` resources under `res://data/status/` with
-   `effect_id`, duration, max stacks, `stack_mode` (`refresh`, `add`, `reset`), DoT/HoT,
-   speed/damage factors, `stuns`/`roots`, `shield_amount`, and tint. The registry
-   validates cross-resource ids, and `StatusManager.apply_effect(...)` copies caster
-   duration/status power into runtime `StatusEffect` instances without mutating the
-   shared `.tres`. Cleansing and expiry remove unspent shield layers.
+2. A new status is **one `StatusEffectConfig` resource** under `res://data/status/` — no
+   code. `effect_id` (which must equal the file name), duration (`0` = permanent until
+   cleansed), `max_stacks`, `stack_mode` (`refresh`, `add`, `reset`), DoT/HoT and their
+   cadence, `move_speed_factor` / `damage_factor` / `received_damage_factor`,
+   `stuns`/`roots`, `shield_amount`, tint and tags. Every axis is data, so there is nothing
+   to branch on: `StatusManager` folds whatever is active into five cached numbers and
+   `AreaDamage`/hazards/AI read them.
+   The registry validates cross-resource ids (a weapon or skill naming a status that does
+   not exist is a startup error), and `validate()` itself refuses the authoring traps that
+   would break the game loop: a permanent stun or root, a permanent shield, a zero
+   `tick_interval`, an unknown `dot_type`/`stack_mode`, a negative factor. That audit runs
+   at load, because `StatusEffectConfig extends ValidatedConfig` — not per tick, which is
+   what it used to cost.
+   `StatusManager.apply_effect(...)` copies caster duration/status power into runtime
+   `StatusEffect` instances without mutating the shared `.tres` (resources are shared;
+   one `status_damage_multiplier` stat scales DoT and HoT together by design). Cleansing and
+   expiry remove unspent shield layers; `add` grants only the newly acquired capacity, so
+   refreshing at max stacks cannot farm shield. A stun/root longer than
+   `StatusEffect.SOFT_LOCK_CAP_SECONDS` (3 s) is capped on apply *and* re-apply.
 3. `SkillController.set_current_wave()` and `unlock_skill()` are the public gate for
    ordinary runtime unlocks; both the resource's level and wave gates must be met.
    `unlock_available()` reconciles a level-up and a later wave-up. `get_assigned_skill_ids()` is the serialization mirror;

@@ -63,6 +63,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_arena_obstacles_node.gd",
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
 	"res://tests/unit/test_hazards_live.gd",
+	"res://tests/unit/test_status_manager.gd",
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"

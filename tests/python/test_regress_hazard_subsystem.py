@@ -390,11 +390,17 @@ class ValidationReachabilityTests(unittest.TestCase):
         self.assertIn('tables[&"arenas"], StringName(arena.arena_id)', loader.replace(" ", " ").replace("\t", " "))
 
     def test_unvalidated_config_types_are_a_known_list_not_a_growing_one(self):
-        """Five other config types still extend Resource, so their validate() only runs in
-        the CI harness — never at load. That is a known gap, deliberately listed: entries
-        may only be removed after the shipped .tres files for that table are proven to pass
-        in a real run, because ContentRegistry HALTS startup on a validation error. A new
-        config type with a validate() must either join ValidatedConfig or appear here."""
+        """Four config types still extend Resource, so their validate() only runs in the CI
+        harness — never at load. That is a known gap, deliberately listed: entries may only
+        be removed after the shipped .tres files for that table are proven to pass, because
+        ContentRegistry HALTS startup on a validation error. A new config type with a
+        validate() must either join ValidatedConfig or appear here.
+
+        StatusEffectConfig left this list in the status rebuild: no Godot binary exists in CI,
+        so the proof was built differently — tests/python/test_regress_status_hot_path.py
+        mirrors its validate() rules in python and audits every data/status/*.tres with the
+        class's own defaults. ArenaConfig had no such mirror when it converted, because a
+        hazard layout is only reachable through a scene that a run would exercise anyway."""
         offenders = set()
         for path in sorted((ROOT / "scripts").rglob("*_config.gd")):
             text = path.read_text(encoding="utf-8")
@@ -410,7 +416,6 @@ class ValidationReachabilityTests(unittest.TestCase):
             "scripts/audio/audio_config.gd",
             "scripts/enemies/boss_phase_config.gd",
             "scripts/skills/skill_config.gd",
-            "scripts/status/status_effect_config.gd",
             "scripts/weapons/weapon_config.gd",
         }, "a new config type with validate() must extend ValidatedConfig (or be added here, "
            "with the shipped .tres files proven to pass in a real run)")
