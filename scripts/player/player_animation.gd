@@ -130,14 +130,21 @@ static func _lock_hip_xz(anim: Animation) -> void:
 func _connect_combat_signals() -> void:
 	if _player == null:
 		return
-	_player.attack_started.connect(_on_attack)
-	_player.dodged.connect(_on_dodge)
-	_player.damaged.connect(_on_hurt)
-	_player.died.connect(_on_death)
-	_player.respawned.connect(reset)
+	if not _player.attack_started.is_connected(_on_attack):
+		_player.attack_started.connect(_on_attack)
+	if not _player.dodged.is_connected(_on_dodge):
+		_player.dodged.connect(_on_dodge)
+	if not _player.damaged.is_connected(_on_hurt):
+		_player.damaged.connect(_on_hurt)
+	if not _player.died.is_connected(_on_death):
+		_player.died.connect(_on_death)
+	if not _player.respawned.is_connected(reset):
+		_player.respawned.connect(reset)
 	if _weapons != null:
-		_weapons.attack_resolved.connect(_on_contact)
-		_weapons.weapon_switched_local.connect(_on_switch)
+		if not _weapons.attack_resolved.is_connected(_on_contact):
+			_weapons.attack_resolved.connect(_on_contact)
+		if not _weapons.weapon_switched_local.is_connected(_on_switch):
+			_weapons.weapon_switched_local.connect(_on_switch)
 	if EventBus != null:
 		if not EventBus.skill_cast.is_connected(_on_skill_cast):
 			EventBus.skill_cast.connect(_on_skill_cast)
@@ -248,13 +255,13 @@ func _on_attack() -> void:
 	_contact_aligned = false
 	var step := 1
 	var windup := 0.12
-	if inst != null:
+	if inst != null and inst.config != null:
 		step = inst.combo_step
 		windup = inst.config.windup
 	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"1H_Melee_Attack_Chop"
-	if inst != null and inst.config.is_ranged() and not inst.config.is_melee():
+	if inst != null and inst.config != null and inst.config.is_ranged() and not inst.config.is_melee():
 		_attack_clip = ranged_clip
-	if inst != null and weapon_attack_clips.has(inst.config.weapon_id):
+	if inst != null and inst.config != null and weapon_attack_clips.has(inst.config.weapon_id):
 		_attack_clip = weapon_attack_clips[inst.config.weapon_id]
 	_locked = true
 	_play(_attack_clip, true, _length(_attack_clip) * contact_fraction / maxf(windup, 0.01))

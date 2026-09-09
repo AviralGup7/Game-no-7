@@ -41,7 +41,10 @@ static func project_to_map(world_xz: Vector2, center_px: Vector2, radius_px: flo
 
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree(): return
+	if not is_inside_tree() or not is_visible_in_tree():
+		return
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_accum += delta
 	if _accum < UPDATE_INTERVAL:
 		return

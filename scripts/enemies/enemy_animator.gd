@@ -42,11 +42,11 @@ func _ready() -> void:
 	_mount_model()
 	if _host == null:
 		return
-	if _host.has_signal("state_changed"):
+	if _host.has_signal("state_changed") and not _host.state_changed.is_connected(_on_state_changed):
 		_host.state_changed.connect(_on_state_changed)
-	if _host.has_signal("attack_started"):
+	if _host.has_signal("attack_started") and not _host.attack_started.is_connected(_on_attack_started):
 		_host.attack_started.connect(_on_attack_started)
-	if _host.has_signal("died"):
+	if _host.has_signal("died") and not _host.died.is_connected(_on_died):
 		_host.died.connect(_on_died)
 	if EventBus != null and not EventBus.status_applied.is_connected(_on_status_applied):
 		EventBus.status_applied.connect(_on_status_applied)

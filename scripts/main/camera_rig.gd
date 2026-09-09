@@ -252,6 +252,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # ------------------------------------------------------------------
 
 func _process(delta: float) -> void:
+	if not is_inside_tree():
+		return
 	if not _enabled or _target == null:
 		return
 	if not is_instance_valid(_target):
@@ -517,5 +519,22 @@ func _on_boss_slain_shake(_boss_id: StringName) -> void:
 
 func _on_player_death_shake() -> void:
 	add_shake(0.9, 0.7)
+
+
+func _exit_tree() -> void:
+	if EventBus == null:
+		return
+	if EventBus.skill_cast.is_connected(_on_skill_shake):
+		EventBus.skill_cast.disconnect(_on_skill_shake)
+	if EventBus.enemy_killed.is_connected(_on_kill_shake):
+		EventBus.enemy_killed.disconnect(_on_kill_shake)
+	if EventBus.wave_completed.is_connected(_on_wave_shake):
+		EventBus.wave_completed.disconnect(_on_wave_shake)
+	if EventBus.boss_spawned.is_connected(_on_boss_shake):
+		EventBus.boss_spawned.disconnect(_on_boss_shake)
+	if EventBus.boss_slain.is_connected(_on_boss_slain_shake):
+		EventBus.boss_slain.disconnect(_on_boss_slain_shake)
+	if EventBus.player_died.is_connected(_on_player_death_shake):
+		EventBus.player_died.disconnect(_on_player_death_shake)
 
 

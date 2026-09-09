@@ -129,8 +129,10 @@ func _ready() -> void:
 	if not _check_required_components():
 		return
 	_navigator.bind(get_node_or_null("NavigationAgent3D") as NavigationAgent3D)
-	_health.damaged.connect(_on_damaged)
-	_health.died.connect(_on_died)
+	if not _health.damaged.is_connected(_on_damaged):
+		_health.damaged.connect(_on_damaged)
+	if not _health.died.is_connected(_on_died):
+		_health.died.connect(_on_died)
 
 
 ## Resolve every component reference ONCE, as its concrete type. A wrong script on
@@ -200,6 +202,8 @@ func set_ai_enabled(enabled: bool) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_run_time += delta
 	if _config == null or not _alive or not _ai_enabled:
 		return
@@ -538,7 +542,10 @@ func face_direction(dir: Vector3) -> void:
 	var visual := get_node_or_null("VisualRoot") as Node3D
 	if visual == null:
 		return
-	var flat := Vector3(dir.x, 0.0, dir.z).normalized()
+	var flat := Vector3(dir.x, 0.0, dir.z)
+	if flat.length_squared() < 0.0001:
+		return
+	flat = flat.normalized()
 	visual.look_at(visual.global_position + flat, Vector3.UP)
 
 

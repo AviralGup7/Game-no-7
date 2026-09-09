@@ -60,7 +60,7 @@ func set_xp_multiplier(mult: float) -> void:
 
 ## Add XP (kills, gems). Returns the number of level-ups triggered.
 func add_xp(amount: float) -> int:
-	if amount <= 0.0 or _level >= MAX_LEVEL:
+	if not is_finite(amount) or amount <= 0.0 or _level >= MAX_LEVEL:
 		return 0
 	_xp += int(round(amount * _xp_multiplier))
 	var ups := 0
@@ -112,12 +112,15 @@ func _on_level_up() -> void:
 	leveled_up.emit(_level)
 	if EventBus != null:
 		EventBus.player_leveled_up.emit(_level, _xp)
-	AudioManager.play_sfx(&"level_up", -8.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"level_up", -8.0)
 
 
 func _unlock_skills_for_level() -> void:
 	var skills := _owner_body.get_node_or_null("SkillController") as SkillController if _owner_body != null and is_instance_valid(_owner_body) else null
 	if skills == null:
+		return
+	if ContentRegistry == null:
 		return
 	for cfg in ContentRegistry.get_all_skill_configs():
 		var sc := cfg as SkillConfig

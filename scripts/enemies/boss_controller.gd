@@ -147,7 +147,8 @@ func begin_fight(run_seed: int = 0) -> void:
 	if bus != null:
 		bus.boss_spawned.emit(_host, _host.get_archetype_id())
 		bus.announcement.emit(&"boss_spawned", "%s has entered the arena!" % _display_name(), &"danger")
-	AudioManager.play_sfx(&"boss_spawned", -6.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_spawned", -6.0)
 
 
 func _display_name() -> String:
@@ -158,6 +159,8 @@ func _display_name() -> String:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if _host == null or not _host.is_alive():
 		return
 	if not _announced_intro:
@@ -220,7 +223,8 @@ func _advance_to(index: int) -> void:
 	if bus != null:
 		bus.boss_phase_changed.emit(_host, _phase, _phases.size())
 		bus.announcement.emit(&"boss_phase", "%s: %s!" % [_display_name(), phase_name()], &"warning")
-	AudioManager.play_sfx(&"boss_phase_changed", -7.0, 1.0 + 0.08 * _phase)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_phase_changed", -7.0, 1.0 + 0.08 * _phase)
 	# A short pause before the phase's first ability so the change is felt.
 	_ability_cooldown = 0.8
 
@@ -377,7 +381,8 @@ func _on_boss_died() -> void:
 	if bus != null:
 		bus.boss_slain.emit(_host.get_archetype_id() if _host != null else &"boss")
 		bus.announcement.emit(&"boss_slain", "%s defeated!" % _display_name(), &"victory")
-	AudioManager.play_sfx(&"boss_slain", -6.0)
+	if AudioManager != null:
+		AudioManager.play_sfx(&"boss_slain", -6.0)
 
 
 func get_debug_snapshot() -> Dictionary:

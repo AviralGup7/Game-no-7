@@ -68,12 +68,14 @@ func begin_tracking() -> void:
 	EventBus.game_state_changed.connect(_on_state_changed)
 	# Fresh launch boots straight into the menu with no transition firing, so
 	# seed the menu bed here; every later state arrives via game_state_changed.
-	if GameRoot.get_current_state() == &"main_menu" and _players.size() == 2:
+	if GameRoot != null and GameRoot.get_current_state() == &"main_menu" and _players.size() == 2:
 		request_state(STATE_MENU)
 
 
 func request_state(state: StringName) -> void:
 	if state == _state:
+		return
+	if _players.is_empty():
 		return
 	var old := _state
 	_state = state
@@ -103,6 +105,8 @@ func _cue_for_state() -> StringName:
 ## Arena configs may override the calm/battle bed via background_music_cue;
 ## unknown or missing ids fall back to the default cue for the state.
 func _arena_cue(fallback: StringName) -> StringName:
+	if GameRoot == null or ContentRegistry == null or AudioManager == null:
+		return fallback
 	var run := GameRoot.get_run()
 	if run != null and run.arena_id != &"":
 		var arena: ArenaConfig = ContentRegistry.get_arena(run.arena_id)
@@ -114,7 +118,7 @@ func _arena_cue(fallback: StringName) -> StringName:
 func _play_cue_on_active() -> void:
 	var cue := _cue_for_state()
 	var player := _players[_active_index]
-	if cue == &"" or not AudioManager.has_cue(cue):
+	if cue == &"" or AudioManager == null or not AudioManager.has_cue(cue):
 		player.stop()
 		player.stream = null
 		if cue != &"":

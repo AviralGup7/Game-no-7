@@ -69,7 +69,9 @@ func _facing_forward() -> Vector3:
 	if _owner_node == null:
 		return Vector3.FORWARD
 	var b := _owner_node.global_transform.basis
-	return -b.z.normalized() if b.z.length_squared() > 0.0 else Vector3.FORWARD
+	var f := -b.z
+	f.y = 0.0
+	return f.normalized() if f.length_squared() > 0.0001 else Vector3.FORWARD
 
 
 func get_debug_snapshot() -> Dictionary:

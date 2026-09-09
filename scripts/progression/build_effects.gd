@@ -246,8 +246,10 @@ func _try_burn_near(victims: Array, center: Vector3, radius: float) -> void:
 			d.y = 0.0
 			if d.length_squared() <= r2:
 				var enemy := v as EnemyBase
-				if enemy != null:
-					enemy.get_status_manager().apply_effect(burn, 1, _player)
+			if enemy != null:
+				var sm := enemy.get_node_or_null("StatusManager") as StatusManager
+				if sm != null:
+					sm.apply_effect(burn, 1, _player)
 
 
 func _apply_frost_nova(pos: Vector3) -> void:
@@ -269,8 +271,10 @@ func _apply_frost_nova(pos: Vector3) -> void:
 			d.y = 0.0
 			if d.length_squared() <= 9.0:
 				var enemy := v as EnemyBase
-				if enemy != null:
-					enemy.get_status_manager().apply_effect(slow, 1, _player)
+			if enemy != null:
+				var sm := enemy.get_node_or_null("StatusManager") as StatusManager
+				if sm != null:
+					sm.apply_effect(slow, 1, _player)
 
 
 func _thorn_nova(pos: Vector3) -> void:

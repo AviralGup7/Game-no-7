@@ -257,6 +257,8 @@ func _tint_geometry(root_path: String, floor_tint: Color, wall_tint: Color) -> v
 			tint = wall_tint
 		else:
 			continue
+		if mi.mesh == null:
+			continue
 		var base := mi.mesh.material as StandardMaterial3D
 		var dup: StandardMaterial3D = (base.duplicate(true) if base != null else StandardMaterial3D.new())
 		dup.albedo_color = tint

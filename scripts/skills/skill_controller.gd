@@ -164,6 +164,8 @@ func is_slot_ready(slot: int) -> bool:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_tick_cooldowns(delta)
 	_executor.tick(delta, _enemies())
 	if not _enabled:

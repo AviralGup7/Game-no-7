@@ -77,7 +77,12 @@ func _knockback_strength(host: EnemyBase) -> float:
 
 
 func _wall_between(host: EnemyBase, target: Node3D) -> bool:
-	var space := host.get_world_3d().direct_space_state
+	if host == null or not host.is_inside_tree() or target == null:
+		return false
+	var world := host.get_world_3d()
+	if world == null:
+		return false
+	var space := world.direct_space_state
 	if space == null:
 		return false
 	var from := host.global_position + Vector3(0, 0.8, 0)

@@ -48,7 +48,7 @@ func _ready() -> void:
 
 ## Called by the owning player each physics step while control is enabled.
 func tick(delta: float) -> void:
-	if _body == null or delta <= 0.0:
+	if _body == null or not is_finite(delta) or delta <= 0.0:
 		return
 	if _cooldown_remaining > 0.0:
 		_cooldown_remaining = maxf(_cooldown_remaining - delta, 0.0)
@@ -111,6 +111,9 @@ func request(direction_world: Vector3) -> bool:
 	var dir := Vector3(direction_world.x, 0.0, direction_world.z)
 	if dir.length_squared() < 0.0001:
 		dir = -_body.global_transform.basis.z
+		dir.y = 0.0
+	if dir.length_squared() < 0.0001:
+		dir = Vector3.FORWARD
 	dir = dir.normalized()
 	_dir = dir
 	_speed = _burst_speed()
