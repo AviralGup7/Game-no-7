@@ -141,7 +141,9 @@ func _whisker_check(from: Vector3, to: Vector3, orbit: CameraOrbitState, target:
 	for i in range(_profile.whisker_count):
 		var angle_offset := deg_to_rad(_profile.whisker_angle_deg) * (i + 1) * (1 if i % 2 == 0 else -1)
 		var test_yaw := yaw + angle_offset
-		var test_dir := Vector3(sin(test_yaw) * cos(pitch), sin(pitch), cos(test_yaw) * cos(pitch)).normalized()
+		var pitch_nudge := deg_to_rad(6.0) * (1 if i % 2 == 0 else -1)
+		var test_pitch := clampf(pitch + pitch_nudge, -1.2, 1.4)
+		var test_dir := Vector3(sin(test_yaw) * cos(test_pitch), sin(test_pitch), cos(test_yaw) * cos(test_pitch)).normalized()
 		var test_to := from + test_dir * base_dist
 
 		var q := PhysicsRayQueryParameters3D.create(from, test_to)

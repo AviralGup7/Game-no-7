@@ -359,7 +359,7 @@ func _apply_settings(settings: SettingsData) -> void:
 		var monitor := node as PerformanceMonitor
 		if monitor == null:
 			continue
-		var tier_idx := [&"low", &"medium", &"high"].find(settings.graphics_quality)
+		var tier_idx := [&"low", &"medium", &"high", &"ultra"].find(settings.graphics_quality)
 		if tier_idx < 0:
 			tier_idx = 2  # high is the default when save carries an unknown/legacy value
 		monitor.set_tier(tier_idx)

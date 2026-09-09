@@ -64,7 +64,8 @@ func tick(delta: float, reduced_motion: bool, speed: float = 0.0, is_colliding: 
 		trauma_roll += _hitstop_manager.get_shake_roll(0.025)
 
 	if _shake_remaining > 0.0:
-		_shake_remaining = maxf(_shake_remaining - delta, 0.0)
+		var decay := _profile.shake_decay if _profile != null else 1.6
+		_shake_remaining = maxf(_shake_remaining - delta * maxf(decay, 0.2), 0.0)
 		var fade := _shake_remaining / maxf(_shake_remaining + 0.12, 0.001)
 		fade = clampf(fade, 0.0, 1.0)
 		var strength := _shake_amplitude * fade

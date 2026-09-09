@@ -53,7 +53,9 @@ static func spherical_offset(yaw: float, pitch: float, distance: float) -> Vecto
 ## collision queries miss (origin already inside a collider, or no World3D).
 static func shorten_arm_to_box(focus: Vector3, cam: Vector3, half: float) -> Vector3:
 	if not is_finite_v3(focus) or not is_finite_v3(cam) or not is_finite(half):
-		return focus + Vector3(0.0, 2.4, 0.0)
+		if is_finite_v3(focus):
+			return focus + Vector3(0.0, 2.4, 0.0)
+		return Vector3(0.0, 2.4, 0.0)
 	half = maxf(half, 0.5)
 	if absf(cam.x) <= half and absf(cam.z) <= half:
 		return cam

@@ -45,6 +45,8 @@ static func action(method: StringName, args: Array = []) -> bool:
 			return player.request_dodge()
 		&"request_weapon_switch":
 			return player.request_weapon_switch()
+		&"request_lock_on":
+			return player.request_lock_on()
 		&"request_skill":
 			return player.request_skill(int(args[0]) if not args.is_empty() else 0)
 		_:
