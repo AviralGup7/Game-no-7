@@ -239,6 +239,11 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 
 	var perf := PerformanceMonitor.new()
 	perf.name = "PerformanceMonitor"
+	# The player's saved graphics quality is the run's opening tier (the
+	# governor may still auto-scale from there; a fresh save carries "medium").
+	# The session FPS cap (Settings) survives tier changes.
+	perf.configure(_initial_quality_tier(), maxi(int(Engine.max_fps), 0))
+	perf.set_persist_tier_callable(_persist_quality_tier)
 	_world_root.add_child(perf)
 
 	var decorator := ArenaDecorator.new()
@@ -288,6 +293,31 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 		_meta.apply_all_to_run()
 	_apply_player_cosmetics(player)
 	player.rebuild_derived_stats()
+
+
+## Map the saved graphics quality to the governor's opening tier. Unknown or
+## legacy values fall back to MEDIUM (the save schema default).
+func _initial_quality_tier() -> int:
+	if SaveManager == null:
+		return PerformanceMonitor.TIER_MEDIUM
+	var quality := SaveManager.get_settings().graphics_quality
+	var idx := [&"low", &"medium", &"high", &"ultra"].find(quality)
+	return idx if idx >= 0 else PerformanceMonitor.TIER_MEDIUM
+
+
+## Governor seam: persist an auto-scaled tier into the save so the next launch
+## opens at the tier this device already proved it can hold. Dedupes against
+## the current value; SaveManager owns the debounced atomic write.
+func _persist_quality_tier(tier_name: String) -> void:
+	if SaveManager == null:
+		return
+	var current := SaveManager.get_settings()
+	if String(current.graphics_quality) == tier_name:
+		return
+	var next := SettingsData.new()
+	next.from_dict(current.to_dict())
+	next.set_graphics_quality(StringName(tier_name))
+	SaveManager.save_settings(next)
 
 
 ## Attach the prestige-unlocked body cosmetics (trail / aura) to the live hero.

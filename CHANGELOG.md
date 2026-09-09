@@ -1,5 +1,58 @@
 # Changelog
 
+## [Unreleased] — Performance governor rebuilt from the base up (2026-09-09)
+
+The audit found the weakest subsystem: the adaptive-quality monitor. It
+averaged **FPS** (a nonlinear transform) against **absolute** 45/57 fps
+thresholds, O(n) every frame, started every run at a hardcoded HIGH tier,
+never persisted what auto-scaling found, let every unrelated settings save
+re-assert the saved tier (clobbering the auto-scaled one), and shipped an
+unreachable "ultra" tier — the settings schema silently dropped it, so the
+`ui_root` ultra branch was dead code. Rebuilt as a frame-time governor,
+grounded in published adaptive-quality-scaling practice (full write-up +
+sources in `docs/PERFORMANCE_GOVERNOR.md`):
+
+- **Frame time, relative budgets.** Decisions run on frame time against the
+  current tier's *own* budget (`1000 / target_fps`). A healthy 30 fps capped
+  tier reads as healthy, not failing — absolute rules misread capped tiers and
+  cascade to the floor with no way back up (the engine's own cap forbids the
+  frame times the upgrade rule would demand).
+- **p95 + hitches, not just the mean.** Nearest-rank p95 over a 240-sample
+  ring (O(1) push; percentiles computed at the 0.5 s decision cadence only),
+  with hitches = frames beyond 2× budget. Two downgrade gates: *sustained*
+  (avg ≥ 1.15×, p95 ≥ 1.35×, two consecutive bad ticks) and *spiky* (≥ 2
+  hitches, p95 ≥ 1.5×).
+- **Hysteresis.** Downgrade fast, upgrade cautiously: an upgrade needs 15 s of
+  stability since the last tier change plus a clean window; a 5 s cooldown
+  separates steps (the pre-existing contract); a 3 s warmup absorbs run-start
+  load spikes; the sample window clears on every tier change so no decision
+  runs on stale samples.
+- **Rate-capped tiers hide headroom.** At the cap, frames pin to the limiter
+  even on fast hardware, so the upgrade gate there tests flat pacing (p95
+  ≤ 1.1× budget, zero hitches) instead of average headroom the cap forbids.
+- **The save round-trips.** `SettingsData` now accepts **ultra** (four
+  presets), the settings panel offers all four tiers, `main.gd` opens each run
+  at the saved quality, and an auto-scaled tier is persisted through an
+  injected `Callable` seam (`main.gd` wires it to `SaveManager`) so a slow
+  device reboots at the tier it already proved it can hold. `ui_root` applies
+  a saved quality **only when it changed**, so saving a volume can no longer
+  clobber the auto-scaled tier; auto tier changes also refresh the
+  damage-number budget via `quality_tier_changed`.
+- **Real actuators + session-cap survival.** MSAA now actually follows the
+  tier (LOW off, MEDIUM 2×, HIGH/ULTRA 4× — 4× is the mobile-safe ceiling)
+  via `Viewport.msaa_3d`, restored from the project setting on teardown like
+  the fps cap already was. The player's Settings FPS cap survives tier
+  changes: the governor may lower `Engine.max_fps`, never raise it above the
+  choice.
+- **Tested.** New deterministic unit suite
+  `tests/unit/test_performance_monitor.gd` (pinned clock, synthetic frame
+  times: warmup, floor/ceiling, hysteresis, cooldown, session cap, p95 math,
+  ring cap, artifact dropping, spiky gate, hitch-blocked upgrade + recovery)
+  registered in `run_tests.gd`; static guards in
+  `tests/python/test_regress_performance_governor.py`. Existing pins kept:
+  `Engine.max_fps` teardown restore, single `_exit_tree`, no-op-free
+  `_apply_tier_to_engine`, damage-budget numbers, 5 s cooldown semantics.
+
 ## [Unreleased] — Solid decoration + touch-button dispatch hardening (2026-09-09)
 
 Player-reported: *"character crossing through objects"* and *"crash on clicking the

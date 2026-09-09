@@ -47,7 +47,9 @@ func refresh() -> void:
 	_section("PERFORMANCE")
 	var quality := OptionButton.new()
 	quality.custom_minimum_size.y = UiTheme.TOUCH_MIN
-	var tiers := [&"low", &"medium", &"high"]
+	# All four governor tiers are user-reachable; the auto-scaler may still
+	# adjust from the saved choice and persists what it settles on.
+	var tiers := [&"low", &"medium", &"high", &"ultra"]
 	for tier in tiers: quality.add_item("Quality: " + String(tier).capitalize())
 	var q_idx := tiers.find(_draft.graphics_quality)
 	if q_idx < 0:

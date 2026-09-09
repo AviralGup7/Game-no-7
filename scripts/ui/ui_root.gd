@@ -32,6 +32,10 @@ var _banner_fits := true
 var _minimap_fits := true
 var _boss_fits := true
 var _last_player_hp := -1.0
+## Last graphics quality value actually applied to a live monitor. Seeded
+## empty so the boot-time _apply_settings call registers the saved value
+## without touching a (not yet existing) monitor.
+var _last_applied_quality: StringName = &""
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -355,16 +359,45 @@ func _apply_settings(settings: SettingsData) -> void:
 		var hitstop := node as HitstopManager
 		if hitstop != null:
 			hitstop.set_reduced_motion(settings.reduced_motion)
-	for node in get_tree().get_nodes_in_group("performance_monitor"):
+	var monitors := get_tree().get_nodes_in_group("performance_monitor")
+	for node in monitors:
 		var monitor := node as PerformanceMonitor
 		if monitor == null:
 			continue
-		var tier_idx := [&"low", &"medium", &"high", &"ultra"].find(settings.graphics_quality)
+		_watch_monitor_budget(monitor)
+	# Graphics quality is applied only when it actually changed: saving any
+	# other setting (volume, toggles) must not re-assert the saved tier and
+	# clobber a tier the auto-scale governor has already found this run.
+	var quality := settings.graphics_quality
+	if quality != _last_applied_quality:
+		_last_applied_quality = quality
+		var tier_idx := [&"low", &"medium", &"high", &"ultra"].find(quality)
 		if tier_idx < 0:
 			tier_idx = 2  # high is the default when save carries an unknown/legacy value
-		monitor.set_tier(tier_idx)
-		_numbers.set_max_live(monitor.max_damage_numbers())
+		for node in monitors:
+			var monitor := node as PerformanceMonitor
+			if monitor == null:
+				continue
+			monitor.set_tier(tier_idx)
+			_numbers.set_max_live(monitor.max_damage_numbers())
 	_layout.call_deferred()
+
+
+## Keep the damage-number budget in step with AUTO tier changes (the governor
+## emits quality_tier_changed; user-driven changes arrive via settings_changed).
+func _watch_monitor_budget(monitor: PerformanceMonitor) -> void:
+	if monitor.quality_tier_changed.is_connected(_on_monitor_tier_changed):
+		return
+	monitor.quality_tier_changed.connect(_on_monitor_tier_changed)
+
+
+func _on_monitor_tier_changed(_old_tier: int, _new_tier: int) -> void:
+	var monitors := get_tree().get_nodes_in_group("performance_monitor")
+	if monitors.is_empty():
+		return
+	var monitor := monitors[0] as PerformanceMonitor
+	if monitor != null:
+		_numbers.set_max_live(monitor.max_damage_numbers())
 
 func get_announcement_banner() -> AnnouncementBanner: return _banner
 func loc(key: StringName) -> String: return UiText.lookup(key)
