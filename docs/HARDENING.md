@@ -152,6 +152,18 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
   `AudioStreamRandomizer.randomization_type` in all nine `data/audio/*.tres`, and
   `Environment.background_sky` in `arena.tscn` + `arena.gd`); unknown members on Object-derived
   receivers are reported as `[unsafe]` warnings, matching the engine's UNSAFE_PROPERTY_ACCESS
+- `tool/check_scene_paths.py` — scene-path contract gate: the game's own tree contract, the
+  sibling of the engine-API gate. Every string-literal `get_node`/`get_node_or_null` in
+  `scripts/` and `tests/` is resolved against the actual `.tscn` node hierarchies plus
+  runtime `.name = "..."` assignments and autoloads; scene-authored `NodePath(...)` properties
+  are resolved relative to the node carrying them; every `[node parent="..."]` is verified
+  instance-aware (the enemy-variant pattern instances `enemy_base.tscn` and overrides nodes
+  inside its subtree); `get_node("P") as T` is checked against the declared node class via the
+  ClassDB inheritance in `tool/godot_api_manifest.json`. A renamed/removed node is a runtime
+  error per the pinned engine's own `Node.get_node` docs, and no syntax gate can see it —
+  its first run found one already: `projectile.gd` looked up a `"Trail"` child that exists in
+  no scene and no code, wrote it to a member nothing ever read, and had done so on every
+  headless run without a peep
 - `scripts/download_assets.py --verify` — offline checksum lock verification
 
 ## How to add a new system
@@ -169,7 +181,8 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 3. Run `python3 -m unittest discover -s tests/python -v` and
    `python3 tool/validate_guards.py` — both must be green before push.
 4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py &&
-   python3 tool/check_typed_arch.py && python3 tool/check_engine_api.py`.
+   python3 tool/check_typed_arch.py && python3 tool/check_engine_api.py &&
+   python3 tool/check_scene_paths.py`.
 
 ## Metrics
 

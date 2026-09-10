@@ -83,6 +83,11 @@ python3 tool/validate_resources.py
 # `python3 tool/build_api_manifest.py` when GODOT_VERSION changes.
 python3 tool/check_engine_api.py
 
+# Scene-path contract gate (offline, stdlib-only): every get_node / NodePath
+# literal is resolved against the actual scene trees; a renamed or removed
+# node fails the build instead of the runtime.
+python3 tool/check_scene_paths.py
+
 # Content/data registry validation runs at startup and via TestHarness.
 # Headless unit tests:
 godot --headless --path . --script res://tests/run_tests.gd

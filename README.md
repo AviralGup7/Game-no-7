@@ -80,6 +80,10 @@ python3 tool/check_engine_api.py                 # engine-API contract: every ty
                                                  # access + .tscn/.tres property checked against
                                                  # the pinned Godot's own ClassDB
                                                  # (tool/godot_api_manifest.json)
+python3 tool/check_scene_paths.py                # scene-path contract: every get_node/NodePath
+                                                 # literal resolved against the actual .tscn node
+                                                 # trees (+ runtime names, autoloads); `as` casts
+                                                 # checked against declared node classes
 ```
 
 ---

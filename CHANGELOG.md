@@ -1,5 +1,47 @@
 # Changelog
 
+## [Unreleased] — The scene-path contract became a gate: the tree's own node names, pinned offline (2026-09-10)
+
+Second pass of the same question — *what is the weakest section of an all-green tree?* — after the
+engine-API gate pinned the ClassDB. This time the answer is the game's **own** tree contract: the
+scripts navigate scenes through string-literal lookups — `get_tree().current_scene
+.get_node("WorldRoot")`, `player.get_node("WeaponManager")`, `shot.get_node("Visual/Mesh") as
+MeshInstance3D` — and the pinned engine's own docs (4.4.1-stable `Node.get_node`) say a missing
+path "generates an error and returns null". A renamed or removed node is therefore a runtime crash
+(or, for `get_node_or_null`, a permanently dead lookup), and nothing offline could see it:
+gdparse/gdlint have no scene awareness, and the headless suites only exercise the paths their flows
+happen to touch. The ecosystem tools that do validate scenes (godot_doctor, the engine's own
+regression project) all require a Godot binary, which this project's offline gates deliberately do
+not depend on.
+
+- **The gate is `tool/check_scene_paths.py`** — stdlib-only, hermetic, wired into CI's
+  `validate-resources` stage. It indexes every `.tscn` node hierarchy (types, attached scripts,
+  instantiated sub-scenes resolved recursively — the enemy-variant pattern instances
+  `enemy_base.tscn` and overrides nodes inside its subtree, which a naive per-file check
+  mis-reports), every runtime `.name = "..."` assignment, and the autoloads, then resolves every
+  string-literal `get_node`/`get_node_or_null` in `scripts/` and `tests/` against that universe.
+  Severity follows the engine gate's phantom model: a path that exists nowhere fails the build
+  (hard lookups crash; soft ones are dead code); scene-authored `NodePath(...)` properties — the
+  arena torches' `light = NodePath("Light")` — are resolved relative to the node carrying them;
+  every `[node parent="..."]` is verified instance-aware; and `get_node("P") as T` is checked
+  against the declared node class via the ClassDB inheritance chain in
+  `tool/godot_api_manifest.json`, because `as` silently yields null on a mismatch. `%UniqueName`
+  references are checked against `unique_name_in_owner = true` from day one (none exist yet).
+- **First-run finding, fixed:** `scripts/weapons/projectile.gd` looked up a `"Trail"` child that
+  exists in no scene and no code, wrote it to a `_trail` member nothing ever read — a feature
+  stub orphaned somewhere in the projectile rebuild, exercised on every headless run without a
+  peep because `get_node_or_null` never complains. Removed (projectiles are built by the pool
+  with only a Visual node; cosmetic trails attach to the player, not to shots).
+- **The gate is pinned by tests.** `tests/python/test_regress_scene_path_contract.py` (24 tests):
+  the tree runs clean with all 18 scenes and the real contract indexed (`WorldRoot`, `UIRoot/UI`,
+  `WeaponManager`, the runtime-named managers, the autoloads), and one synthetic negative per
+  error class proves each is still caught: hard and soft phantoms, orphan parents, instance-subtree
+  attachments both legal and broken, dead `NodePath` properties, impossible casts (engine-typed
+  node vs script class included), and `%UniqueName` without a unique flag. 820 python tests green
+  (was 796).
+- Docs: HARDENING tooling + checklist, EXTENDING conventions, BUILD validation list, README
+  offline-gate commands.
+
 ## [Unreleased] — The engine contract became a gate: twelve phantom references exorcised offline (2026-09-10)
 
 The question this pass asked: *what is the weakest section of a tree where all 770 python tests,

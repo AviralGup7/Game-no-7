@@ -446,6 +446,16 @@ internals:
   the manifest (`python3 tool/build_api_manifest.py`) and answering the gate's
   findings — never by weakening the gate. When the CI `GODOT_VERSION` moves, the
   manifest moves with it (the regression test fails the drift).
+- **Node paths are a contract too.** `tool/check_scene_paths.py` resolves every
+  string-literal `get_node`/`get_node_or_null` against the `.tscn` trees, the
+  runtime `.name = "..."` assignments and the autoloads, verifies every
+  scene-authored `NodePath(...)` property, and checks `get_node("P") as T`
+  casts against the declared node class. Renaming a node means answering the
+  gate (rename everywhere, or attach the node under its old path); a lookup
+  that resolves nowhere is a hard error because a hard `get_node` errors at
+  runtime and an `or_null` one is dead code. Nodes a variant scene adds into
+  an instantiated base scene's subtree are legal and understood (the
+  enemy-variant pattern).
 
 ## 13. Add a game mode
 

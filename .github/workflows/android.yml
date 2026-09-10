@@ -70,6 +70,16 @@ jobs:
         shell: bash
         run: python3 tool/check_engine_api.py
 
+      # Scene-path contract gate: every string-literal get_node / NodePath
+      # property is resolved against the actual .tscn node trees (plus
+      # runtime `.name =` assignments and autoloads), and `as` casts after
+      # scene-resolved lookups are checked against the declared node class.
+      # Catches renamed/removed nodes offline — a runtime-error class no
+      # syntax gate can see. Hermetic: stdlib-only, no Godot binary.
+      - name: Scene path contract gate
+        shell: bash
+        run: python3 tool/check_scene_paths.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |
