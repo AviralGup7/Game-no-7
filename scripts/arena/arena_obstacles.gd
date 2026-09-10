@@ -68,6 +68,16 @@ static func fallback_layout(half: float) -> Array[ArenaObstaclePlacement]:
 
 ## The blockers handed to ArenaNavGrid. AABBs, not key-bags: the grid's job is "which cells are
 ## covered", and an AABB cannot be read with the wrong convention.
+## Whether a footprint box actually removes cells from the nav grid. Written out rather than borrowed
+## from the engine type for two reasons: `AABB` has no `has_area()` (it spells it `has_volume()`, and
+## calling the wrong one is a *parse* error that fails the whole script, so the arena does not load at
+## all), and neither word means what a nav grid needs. The grid is a 2D coverage map: a box's height
+## cannot block a cell, while a box with no x or z extent covers nothing however tall it is. A
+## non-finite size fails both comparisons, which is the same refusal `ArenaNavGrid.build` applies.
+static func blocks_nav(box: AABB) -> bool:
+	return box.size.x > 0.0 and box.size.z > 0.0
+
+
 static func footprints(entries: Array[ArenaObstaclePlacement]) -> Array[AABB]:
 	var out: Array[AABB] = []
 	for e in entries:

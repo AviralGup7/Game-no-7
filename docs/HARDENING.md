@@ -169,7 +169,7 @@ file count and the guard-needle count from the tools themselves rather than trus
 
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 765 python + the headless Godot suites (was 95) — all green. The two branches merged in
+- Tests: 766 python + the headless Godot suites (was 95) — all green. The two branches merged in
   `main` brought their own suites (`test_regress_systems_completion`, `test_regress_solid_props_and
   _buttons`, the camera-containment and minimap sweeps), which is most of that growth; the run-
   definition pass added `test_regress_run_modes`.
@@ -177,7 +177,9 @@ file count and the guard-needle count from the tools themselves rather than trus
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call)
 - Validated files: 159/159 (was 85, then 151: +7 authored game modes, +1 prestige ladder)
-- Guard needles: 184 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
-  guard, a bounded export, or an absence
+- Guard needles: 186 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
+  guard, a bounded export, or an absence; the merge of `main` added nine, of which one refuses
+  an engine member that does not exist (`.has_area()` on an `AABB`, a parse error that took two
+  passes to surface because another parse error was masking it)
   (the wave-mutator pass added 38, the run-definition pass 76, most of both saying "this Dictionary
   shape must not come back")

@@ -277,7 +277,7 @@ func _build_navigation_floor() -> void:
 	var blockers: Array[AABB] = ArenaObstacles.footprints(_obstacles)
 	if _landmark != null:
 		var landmark_box := _landmark.footprint()
-		if landmark_box.has_area():
+		if ArenaObstacles.blocks_nav(landmark_box):
 			blockers.append(landmark_box)
 	# Solid decoration props are obstacles too: physics blocks their bodies, this blocks the AI's
 	# intent through them, from the same footprints — one list, so the two cannot disagree.
@@ -291,12 +291,11 @@ func _build_navigation_floor() -> void:
 ## safe to call before any decoration exists (rebuilds with the current set).
 func register_decoration_blockers(blockers: Array[AABB]) -> void:
 	# A copy, not a reference: `ArenaDecorator.reset()` clears and refills its own list, and a nav
-	# rebuild must never observe a half-populated one. The Y extent is whatever the prop's box is —
-	# `ArenaNavGrid.build` reads x and z only, drops a non-finite box, and a footprint with no area
-	# blocks nothing, which is the same `has_area()` rule the landmark uses above.
+	# rebuild must never observe a half-populated one. The Y extent is whatever the prop's box is, and
+	# `blocks_nav` is the same rule the landmark above uses: the grid reads x and z, not height.
 	_decoration_blockers.clear()
 	for foot in blockers:
-		if foot.has_area():
+		if ArenaObstacles.blocks_nav(foot):
 			_decoration_blockers.append(foot)
 	_rebuild_navigation_floor()
 

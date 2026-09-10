@@ -97,7 +97,7 @@ def main() -> int:
         # never built must not block cells the player can walk into.
         ("scripts/arena/arena_nav_grid.gd", "if not (is_finite(p.x) and is_finite(p.z) and is_finite(s.x) and is_finite(s.z)):"),
         ("scripts/arena/arena_landmark.gd", 'push_error("ArenaLandmark: kind'),
-        ("scripts/arena/arena.gd", "if landmark_box.has_area():"),
+        ("scripts/arena/arena.gd", "if ArenaObstacles.blocks_nav(landmark_box):"),
         # A device without the imported .hdr must still get the theme's procedural sky, not a
         # load error: ResourceLoader.exists is what keeps the panorama a soft reference.
         ("scripts/arena/arena.gd", "if not theme.panorama_path.is_empty() and ResourceLoader.exists(theme.panorama_path):"),
@@ -163,6 +163,7 @@ def main() -> int:
 
     print("-- run definitions: modes, the prestige ladder, and the arena's own voice --")
     meta_checks = [
+	("scripts/arena/arena_obstacles.gd", "static func blocks_nav(box: AABB) -> bool:"),
 	("scripts/meta/narrator.gd", "static func note_enemy_spawned(archetype_id: StringName) -> void"),
 	("scripts/meta/narrator.gd", "static var _seen_archetypes: Dictionary[StringName, bool] = {}"),
 	("scripts/meta/narrator.gd", 'return cfg.blurb if cfg != null else ""'),
@@ -210,6 +211,7 @@ def main() -> int:
     # And the shapes that made the mode layer untrustworthy are refused here too: a Dictionary
     # catalogue, an id-keyed fallback, a per-mode queue builder, a table the loader cannot see.
     meta_absences = [
+	("scripts/arena/arena.gd", ".has_area("),
 	("scripts/meta/narrator.gd", "const ENEMY_BLURBS"),
     	('scripts/meta/game_mode.gd', 'const CATALOG'),
     	('scripts/meta/game_mode.gd', 'static func def('),

@@ -35,13 +35,29 @@ shape had to absorb the other side's feature rather than duplicate it.
   (their own test pinned the numeric text, so it now pins the named constants and the contract gate
   stopped having an exception); the wave manager took `main`'s live-enemy cap inside this branch's
   authored spawn queue rather than next to it.
-- **Docs stop lying about both branches.** `HARDENING.md`'s counts are re-derived by
-  `DocCountTests` and did drift (192 scripts, 184 guard needles, 765 python tests); the
-  `arena.gd` line count in `ARCHITECTURE.md` was pinned to whatever the current file is, which conflates
-  a frozen measurement with a live one, so it now records both: what the rebuild deleted (533 → 354)
-  and what the file measures today (420, the delta being features).
+- **Docs stop lying about both branches.** `HARDENING.md`'s counts are re-derived by `DocCountTests`
+  and did drift (192 scripts, 186 guard needles, 766 python tests); the `arena.gd` line count in
+  `ARCHITECTURE.md` was pinned to whatever the current file is, which conflates a frozen measurement
+  with a live one, so it now records both: what the rebuild deleted (533 → 354) and what the file
+  measures today (419, the delta being features).
+- **The headless run then found two bugs of this branch's own, which is why it exists.** `arena.gd`
+  asked an `AABB` for `has_area()` — that member belongs to `Rect2`; the engine spells the box one
+  `has_volume()` — in the landmark nav rule phase 5 added, again in `tests/unit/test_arena_world.gd`,
+  and once more in the decoration seam this merge touched. `wave_modifiers.gd` inferred a `bool` with
+  `:=` from a comparison on a `Variant`. Both are *parse* errors: the script never loads, and the
+  arena scene is gone. They survived two passes because an earlier parse error
+  (`arena_theme_config.gd`'s `NodePath` default) stopped the compiler resolving types downstream — fix
+  one and the next file in the chain starts reporting. `gdparse`/`gdlint` are a syntax check with no
+  ClassDB and cannot see this class of defect at all.
+  The fix is a name, not a repetition: `ArenaObstacles.blocks_nav(box: AABB)` is now the single answer
+  to "does this footprint remove cells" (x and z only — a nav grid has no use for height, and a
+  non-finite size fails the comparison, matching what `ArenaNavGrid.build` refuses), asked by the
+  landmark and the props alike; `is_chance` is declared `: bool`; and `tests/run_tests.gd` now fails a
+  suite whose `reload_failed` is set or which returns no cases, because a suite that cannot compile
+  used to contribute zero cases and zero failures — which is exactly how the identical mistake in
+  `test_arena_world.gd` stayed silent.
 
-Gates on the merged tree: 765 python tests, `validate_guards.py` 184/0, `validate_resources.py`
+Gates on the merged tree: 766 python tests, `validate_guards.py` 186/0, `validate_resources.py`
 159/159, `check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file the merge touched.
 
 ## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)

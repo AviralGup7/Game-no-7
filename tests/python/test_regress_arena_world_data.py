@@ -315,8 +315,30 @@ class RecordTypesAreGoneTests(unittest.TestCase):
         arena = code(ARENA_GD)
         self.assertIn("ArenaObstacles.footprints(_obstacles)", arena,
                       "the nav blockers must come from the same typed placements as the bodies")
-        self.assertIn("landmark_box.has_area()", arena,
+        self.assertIn("ArenaObstacles.blocks_nav(landmark_box)", arena,
                       "a landmark that was refused must not block cells it does not occupy")
+
+    def test_the_one_nav_block_rule_and_no_invented_engine_members(self):
+        # `.has_area()` is a Rect2 member; on an `AABB` the engine spells it `has_volume()`. Asking an
+        # AABB for the wrong one is not a runtime miss but a *parse* error, and it sat in this tree for
+        # two passes because while another script in the dependency chain failed to parse, the compiler
+        # stopped resolving types here and reported nothing. The question now has one named answer that
+        # both nav callers ask, and the member it replaced is banned from coming back.
+        obstacles = code(OBSTACLES_GD)
+        self.assertIn("static func blocks_nav(box: AABB) -> bool:", obstacles)
+        self.assertIn("return box.size.x > 0.0 and box.size.z > 0.0", obstacles)
+        arena = code(ARENA_GD)
+        self.assertEqual(arena.count("ArenaObstacles.blocks_nav("), 2,
+                         "the landmark and the decoration props must ask the same function")
+        for rel in (ARENA_GD, OBSTACLES_GD, BUILDER_GD, NAV_GD):
+            self.assertNotIn(".has_area(", code(rel),
+                             f"{rel} asks an AABB for the Rect2 member again")
+        suite = code("tests/unit/test_arena_world.gd")
+        self.assertNotIn(".has_area(", suite, "the suite invented the same member")
+        # A suite that cannot compile used to contribute zero cases and zero failures.
+        runner = code("tests/run_tests.gd")
+        self.assertIn("if script.reload_failed:", runner)
+        self.assertIn("Suite ran no cases", runner)
 
     def test_the_geometry_derivation_lives_on_the_type(self):
         """One derivation of "the box this object occupies", used by nav and by the grid."""

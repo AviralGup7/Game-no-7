@@ -511,12 +511,12 @@ static func _refused_kind_builds_nothing(results: Array) -> void:
 	_check(results, "an unbuildable kind creates no children",
 			holder.get_child_count() == 0, "children=%d" % holder.get_child_count())
 	_check(results, "an unbuildable kind blocks no cells",
-			not holder.footprint().has_area(), str(holder.footprint()))
+			ArenaObstacles.blocks_nav(holder.footprint()), str(holder.footprint()))
 	holder.free()
 	var no_cfg := ArenaLandmark.new()
 	no_cfg.build(null)
 	_check(results, "no landmark config means an empty holder, not a default object",
-			no_cfg.get_child_count() == 0 and not no_cfg.footprint().has_area())
+			no_cfg.get_child_count() == 0 and not ArenaObstacles.blocks_nav(no_cfg.footprint()))
 	no_cfg.free()
 
 

@@ -128,7 +128,11 @@ func clamp_bounds() -> void:
 		var value := float(get(field))
 		if not is_finite(value):
 			push_error("WaveModifiers: %s is not finite before clamping" % field)
-			var is_chance := field == "elite_bonus" or field == "explode_chance"
+			# `: bool`, not `:=`: FOLD_FIELDS is an untyped Array, so `field` is Variant and a comparison
+			# on it has no static type — `:=` then fails the *parse* of the whole file, which is how this
+			# line reached a headless run. The value it branches on is authored data, so the question is
+			# worth asking out loud rather than inferring.
+			var is_chance: bool = field == "elite_bonus" or field == "explode_chance"
 			if value > 0.0:
 				set(field, WaveMutatorConfig.CHANCE_MAX if is_chance else WaveMutatorConfig.MULT_CEIL)
 			elif value < 0.0:
