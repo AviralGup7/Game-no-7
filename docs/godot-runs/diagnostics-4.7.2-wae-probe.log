@@ -1,23 +1,85 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 treat_warnings_as_errors=true
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
-[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:36)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:132)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:76)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:80)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:82)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:83)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:84)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:85)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:86)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:87)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:88)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:89)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:124)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:137)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:138)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:139)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:140)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:141)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:142)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:143)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:144)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:145)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:171)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:370)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:662)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/player_feedback.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/player.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/game_root.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+ERROR: Failed to instantiate an autoload, script 'res://scripts/core/content_registry.gd' does not inherit from 'Node'.
+   at: start (main/main.cpp:4539)
 [diagnostic] GameRoot ready
 [diagnostic] RunAnalytics ready (offline only)

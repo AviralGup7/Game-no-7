@@ -16,8 +16,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -73,8 +75,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -107,8 +111,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -132,8 +138,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -159,8 +167,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -186,8 +196,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -217,8 +229,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -281,8 +295,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -307,8 +323,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -339,8 +357,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -358,44 +378,20 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/core/content_loader.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:113)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/meta/game_mode.gd:64)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_mode_layout.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/core/content_loader.gd:0)
-ERROR: Failed to load script "res://scripts/core/content_loader.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_loader.gd:285)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "cam" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/core/content_loader.gd:285)
+ERROR: Failed to load script "res://scripts/core/content_loader.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/content_registry.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
-ERROR: Failed to load script "res://scripts/core/content_registry.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
+ERROR: Failed to load script "res://scripts/core/content_registry.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/event_bindings.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -500,8 +496,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with erro
 ===== res://scripts/enemies/enemy_attack_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -530,8 +528,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "
 ===== res://scripts/enemies/enemy_base.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -549,8 +549,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "C
 ===== res://scripts/enemies/enemy_chase_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -575,8 +577,10 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/enemies/enemy_dash_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -598,8 +602,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_dash_state.gd" with er
 ===== res://scripts/enemies/enemy_dead_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -627,8 +633,10 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/enemies/enemy_fuse_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -650,8 +658,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_fuse_state.gd" with er
 ===== res://scripts/enemies/enemy_hurt_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -673,8 +683,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_hurt_state.gd" with er
 ===== res://scripts/enemies/enemy_idle_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -702,8 +714,10 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/enemies/enemy_pack.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -729,8 +743,10 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/enemies/enemy_ranged_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -752,8 +768,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_ranged_state.gd" with 
 ===== res://scripts/enemies/enemy_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -773,8 +791,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_state.gd" with error "
 ===== res://scripts/enemies/enemy_state_machine.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -796,8 +816,10 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with
 ===== res://scripts/enemies/enemy_striker.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -820,8 +842,10 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/enemies/spawn_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -857,48 +881,226 @@ ERROR: Failed to load script "res://scripts/enemies/spawn_placer.gd" with error 
 ===== res://scripts/main/camera/camera_auto_follow_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:11)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:14)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:18)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "toward_gate" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:76)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "suppression" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:84)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "follow_speed" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_auto_follow_controller.gd:92)
+ERROR: Failed to load script "res://scripts/main/camera/camera_auto_follow_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_collision_solver.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_collision_solver.gd:60)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_collision_solver.gd:85)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_collision_solver.gd:93)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "min_y" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_collision_solver.gd:344)
+ERROR: Failed to load script "res://scripts/main/camera/camera_collision_solver.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_focus_tracker.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:10)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:13)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:19)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "predictive" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:29)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "horiz_smooth" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:37)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "vert_smooth" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_focus_tracker.gd:38)
+ERROR: Failed to load script "res://scripts/main/camera/camera_focus_tracker.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_fov_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:8)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:11)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:17)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "base_fov" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:25)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "smoothing" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:40)
+SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+          at: GDScript::reload (res://scripts/main/camera/camera_fov_controller.gd:26)
+ERROR: Failed to load script "res://scripts/main/camera/camera_fov_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_framing_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_framing_controller.gd:11)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_framing_controller.gd:19)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_framing_controller.gd:23)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "interval" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_framing_controller.gd:73)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "radius" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_framing_controller.gd:78)
+ERROR: Failed to load script "res://scripts/main/camera/camera_framing_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_input_handler.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:14)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:17)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:21)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "dead" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:59)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "yaw_deg" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:65)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "pitch_deg" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_input_handler.gd:66)
+ERROR: Failed to load script "res://scripts/main/camera/camera_input_handler.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_math.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/main/camera/camera_mode_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:19)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:20)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:33)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:38)
+ERROR: Failed to load script "res://scripts/main/camera/camera_mode_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_orbit_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:12)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:15)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:22)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "base_dist" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:58)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "yaw_smooth" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:69)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "pitch_smooth" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:70)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "dist_smooth" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:82)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_controller.gd:98)
+ERROR: Failed to load script "res://scripts/main/camera/camera_orbit_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_orbit_state.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_state.gd:15)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_orbit_state.gd:26)
+ERROR: Failed to load script "res://scripts/main/camera/camera_orbit_state.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_shake_controller.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_shake_controller.gd:8)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_shake_controller.gd:20)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_shake_controller.gd:33)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "decay" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_shake_controller.gd:67)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "freq" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera/camera_shake_controller.gd:73)
+ERROR: Failed to load script "res://scripts/main/camera/camera_shake_controller.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera/camera_velocity_tracker.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/main/camera_profile.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Unexpected "Indent" in class body.
+          at: GDScript::reload (res://scripts/main/camera_profile.gd:58)
+ERROR: Failed to load script "res://scripts/main/camera_profile.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/camera_rig.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:36)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:132)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
           at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
-ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:76)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:80)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:82)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:83)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:84)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:85)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:86)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:87)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:88)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:89)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:124)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:137)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:138)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:139)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:140)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:141)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:142)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:143)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:144)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:145)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:171)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:370)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:662)
+ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/main.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -917,8 +1119,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -969,9 +1173,59 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/player/player_equipment.gd:119)
 ERROR: Failed to load script "res://scripts/player/player_equipment.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:36)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:132)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
           at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
-ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:76)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:80)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:82)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:83)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:84)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:85)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:86)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:87)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:88)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:89)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:124)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:137)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:138)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:139)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:140)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:141)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:142)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:143)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:144)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:145)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:171)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:370)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:662)
+ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:136)
@@ -981,9 +1235,13 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/spawn_manager.gd:0)
 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://scripts/main/main.gd:28)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/main.gd:186)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+          at: GDScript::reload (res://scripts/main/main.gd:186)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+          at: GDScript::reload (res://scripts/main/main.gd:188)
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/meta/achievements.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -1090,8 +1348,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1119,8 +1379,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1202,8 +1464,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1295,8 +1559,10 @@ ERROR: Failed to load script "res://scripts/skills/skill_executor.gd" with error
 ===== res://scripts/status/status_effect.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1327,8 +1593,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1374,8 +1642,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1431,8 +1701,10 @@ SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:136)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1623,8 +1895,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1703,8 +1977,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1730,8 +2006,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1753,8 +2031,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1778,8 +2058,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1804,8 +2086,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1858,8 +2142,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1956,8 +2242,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2004,8 +2292,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2027,8 +2317,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2058,8 +2350,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2090,6 +2384,49 @@ ERROR: Failed to load script "res://tests/unit/test_audio_policy.gd" with error 
 ===== res://tests/unit/test_camera_arena_containment.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://tests/unit/test_camera_modules.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:40)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:40)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:50)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:83)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:83)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:90)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:92)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:126)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:126)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:129)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:138)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:138)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:145)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:155)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:178)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:178)
+SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:182)
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:207)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_camera_modules.gd:207)
+ERROR: Failed to load script "res://tests/unit/test_camera_modules.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_character_visuals.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2105,33 +2442,11 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/unit/test_configs.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:113)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://tests/unit/test_configs.gd:0)
-ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_configs.gd:35)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "c" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_configs.gd:35)
+ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_content_progression.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -2223,8 +2538,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2256,8 +2573,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2290,8 +2609,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2325,8 +2646,10 @@ SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:136)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2354,8 +2677,10 @@ SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:136)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2390,8 +2715,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2470,8 +2797,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2483,8 +2812,10 @@ ERROR: Failed to load script "res://tests/unit/test_status_manager.gd" with erro
 ===== res://tests/unit/test_status_skills.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2510,6 +2841,14 @@ SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
           at: GDScript::reload (res://scripts/player/targeting_component.gd:27)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/meta/narrator.gd:72)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:19)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:20)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:33)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/main/camera/camera_mode_controller.gd:38)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2551,8 +2890,10 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
+SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.

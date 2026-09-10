@@ -1,19 +1,42 @@
 ########## diag-import.log
+     20 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+      6 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
       1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
       1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
       1 SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
+      1 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "REGULAR" constant because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "BOLD" constant because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry.gd' is not compiling.
 
 ########## diag-tests.log
      66 ERROR: Parameter "data.tree" is null.
+     14 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+     11 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+     10 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      8 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      6 SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      4 WARNING: [diagnostic] SFX cue unavailable: boss_spawned
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       3 ERROR: Parameter "material" is null.
+      2 WARNING: [diagnostic] SFX cue unavailable: boss_phase_changed
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 WARNING: [diagnostic] SFX cue unavailable: boss_slain
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -22,25 +45,44 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "c" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
+      1 ERROR: Failed to load script "res://tests/unit/test_systems_completion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_camera_modules.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/core/content_registry.gd' does not inherit from 'Node'.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    351 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    183 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-     95 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     80 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    332 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    148 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+    126 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+     90 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+     78 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+     23 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+     18 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-      4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+      9 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      6 SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      4 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      3 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      3 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      3 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
@@ -54,10 +96,35 @@
       2 ERROR: Failed to load script "res://scripts/player/player.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/player/experience_component.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
-      2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
+      2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Parse error".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
+      1 SCRIPT ERROR: Parse Error: Unexpected "Indent" in class body.
+      1 SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "yaw_smooth" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "yaw_deg" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "vert_smooth" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "toward_gate" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "suppression" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "smoothing" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "radius" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "predictive" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pitch_smooth" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pitch_deg" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "min_y" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "interval" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "horiz_smooth" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "freq" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "follow_speed" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "dist_smooth" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "decay" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "dead" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "cam" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "c" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "base_fov" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "base_dist" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
@@ -82,7 +149,8 @@
       1 ERROR: Failed to load script "res://tests/unit/test_director_mutators.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_decorator_collision.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_content_progression.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_camera_modules.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://tests/unit/test_audio_policy.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_arena_world.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_arena_obstacles_node.gd" with error "Compilation failed".
@@ -149,7 +217,18 @@
       1 ERROR: Failed to load script "res://scripts/meta/game_mode.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/meta/daily_challenge.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/meta/achievements.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera_profile.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_shake_controller.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_orbit_state.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_orbit_controller.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_mode_controller.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_input_handler.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_framing_controller.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_fov_controller.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_focus_tracker.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_collision_solver.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_auto_follow_controller.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/enemies/spawn_placer.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_striker.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with error "Compilation failed".
@@ -176,8 +255,8 @@
       1 ERROR: Failed to load script "res://scripts/core/run_scorekeeper.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/run_analytics.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/game_root.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/core/content_registry.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/core/content_loader.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/core/content_registry.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/core/content_loader.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/combat/damageable.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/combat/combat_query.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/combat/area_damage.gd" with error "Compilation failed".
@@ -197,14 +276,52 @@
       1 ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilation failed".
 
 ########## diag-editor.log
+     10 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+      6 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry.gd' is not compiling.
 
 ########## diag-wae-import.log
+     10 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+      6 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry.gd' is not compiling.
 
 ########## diag-wae-tests.log
      66 ERROR: Parameter "data.tree" is null.
+     14 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+     11 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+     10 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      8 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      6 SCRIPT ERROR: Parse Error: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      4 WARNING: [diagnostic] SFX cue unavailable: boss_spawned
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       3 ERROR: Parameter "material" is null.
+      2 WARNING: [diagnostic] SFX cue unavailable: boss_phase_changed
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 WARNING: [diagnostic] SFX cue unavailable: boss_slain
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -213,31 +330,181 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "c" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
+      1 ERROR: Failed to load script "res://tests/unit/test_systems_completion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_camera_modules.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/core/content_registry.gd' does not inherit from 'Node'.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
 
 ########## diag-wae-probe.log
+     10 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+      5 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/core/content_registry.gd' does not inherit from 'Node'.
 
 ########## diag-lsp.txt
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:98:24: ERROR: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_configs.gd:35:11: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_configs.gd:35:11: ERROR: Cannot infer the type of "c" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:83:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:83:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:40:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:40:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:207:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:207:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:178:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:178:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:138:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:138:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:126:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:126:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:61:17: ERROR: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/main.gd:186:11: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:89:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:88:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:87:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:86:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:85:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:84:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:83:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:82:2: ERROR: Could not resolve external class member "setup_from_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:80:2: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:76:14: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:662:10: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:370:23: ERROR: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:36:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:145:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:144:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:143:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:142:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:141:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:140:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:139:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:138:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:137:2: ERROR: Could not resolve external class member "set_profile".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:132:32: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:124:3: ERROR: Could not resolve external class member "setup".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_profile.gd:58:63: ERROR: Expected end of file.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_profile.gd:58:1: ERROR: Unexpected "Indent" in class body.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:8:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:73:15: ERROR: Cannot infer the type of "freq" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:67:16: ERROR: Cannot infer the type of "decay" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:33:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:20:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_state.gd:26:40: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_state.gd:15:32: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:98:2: ERROR: Could not resolve external class member "snap_to_facing".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:82:21: ERROR: Cannot infer the type of "dist_smooth" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:70:22: ERROR: Cannot infer the type of "pitch_smooth" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:69:20: ERROR: Cannot infer the type of "yaw_smooth" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:58:19: ERROR: Cannot infer the type of "base_dist" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:22:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:15:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:12:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:38:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:33:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:20:20: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:19:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:66:19: ERROR: Cannot infer the type of "pitch_deg" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:65:17: ERROR: Cannot infer the type of "yaw_deg" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:59:14: ERROR: Cannot infer the type of "dead" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:21:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:17:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:14:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:78:18: ERROR: Cannot infer the type of "radius" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:73:18: ERROR: Cannot infer the type of "interval" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:23:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:19:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:11:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:8:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:40:19: ERROR: Cannot infer the type of "smoothing" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:26:2: ERROR: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:25:18: ERROR: Cannot infer the type of "base_fov" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:17:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:11:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:38:21: ERROR: Cannot infer the type of "vert_smooth" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:37:22: ERROR: Cannot infer the type of "horiz_smooth" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:29:20: ERROR: Cannot infer the type of "predictive" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:19:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:13:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:10:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:93:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:85:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:60:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:344:15: ERROR: Cannot infer the type of "min_y" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:92:22: ERROR: Cannot infer the type of "follow_speed" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:84:23: ERROR: Cannot infer the type of "suppression" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:76:22: ERROR: Cannot infer the type of "toward_gate" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:18:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:14:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:11:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/content_registry.gd:263:27: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/content_registry.gd:126:49: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/content_loader.gd:285:20: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/content_loader.gd:285:16: ERROR: Cannot infer the type of "cam" variable because the value doesn't have a set type.
 
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
+     10 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
+      9 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
+      6 SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Unexpected "Indent" in class body.
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
+      1 SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
       1 ERROR: LSP: Failed to parse script: res://tests/unit/test_save.gd
+      1 ERROR: LSP: Failed to parse script: res://tests/unit/test_configs.gd
+      1 ERROR: LSP: Failed to parse script: res://tests/unit/test_camera_modules.gd
       1 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/main.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera_rig.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera_profile.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_shake_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_orbit_state.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_orbit_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_mode_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_input_handler.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_framing_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_fov_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_focus_tracker.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_collision_solver.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_auto_follow_controller.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/core/content_registry.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/core/content_loader.gd
       1 ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/main/camera_profile.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry.gd' is not compiling.
 
