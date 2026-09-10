@@ -447,7 +447,13 @@ func _content_registry() -> ContentRegistryService:
 
 
 func _autoload_node(node_name: String) -> Node:
-	var tree := get_tree()
+	# Node.get_tree() on a node that is not inside the tree returns null AND logs
+	# an engine error ("Parameter \"data.tree\" is null"). Check membership first
+	# so detached instances (headless fixtures, unanchored components) never spam
+	# that error; the main-loop fallback below still resolves the autoloads.
+	var tree: SceneTree = null
+	if is_inside_tree():
+		tree = get_tree()
 	if tree == null:
 		tree = Engine.get_main_loop() as SceneTree
 	if tree == null or tree.root == null:
