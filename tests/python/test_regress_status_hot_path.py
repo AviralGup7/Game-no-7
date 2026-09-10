@@ -386,7 +386,8 @@ class TypeContractTests(unittest.TestCase):
         effect = read(EFFECT)
         # Same guards the pre-rebuild subsystem shipped, pinned verbatim so a "cleanup"
         # cannot silently widen them (they are what bounds a hitch and a paused world).
-        self.assertIn("active_delta = minf(delta, remaining)", effect)
+        self.assertIn("var frame := minf(delta, MAX_PAYOUT_DELTA)", effect)
+        self.assertIn("active_delta = minf(frame, remaining)", effect)
         self.assertIn("remaining = maxf(remaining - delta, 0.0)", effect)
         self.assertIn("var budget := 64", effect)
         self.assertIn("_tick_accrual = 0.0", effect)

@@ -159,6 +159,34 @@ about), `validate_resources.py` 159/159 (with the two new checks verified agains
 Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
 `check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
 
+- **A sixth headless round: three items left, all of them behaviour, and one still open on purpose.**
+  With every suite compiling, the headless job reported three failures instead of nine, and the shape
+  of the remaining three said the parse-error cascade had finally ended.
+- **A DoT hitch clamp that was documented but not implemented.** `test_status_manager.gd`'s
+  "one huge frame is clamped to 0.5 s of DoT, not the whole gap" reported `quanta=1 total=16.0`:
+  `StatusEffect.tick()` bounded a frame at 64 *ticks* and at the effect's remaining duration, which
+  for a 4-second burn is the same thing — so a 5-second frame paid out four seconds of damage in one
+  payload. The expiry clock deliberately keeps running on the real delta (a hitch must not stretch a
+  status's life); only the payout is capped, by the new `MAX_PAYOUT_DELTA`.
+- **`rank 8 means tier 3` — a number in a comment again.** The payout check hard-coded
+  `challenge_tiers[0]` for a rank-0 run and `challenge_tiers[3]` for rank 8. The ladder's rows unlock
+  at 0/2/4/6/8, so rank 8 selects the fifth; and the harness boots no `GameRoot`, so the run it scores
+  is a *standard* one, whose payout must ignore the ladder entirely. The check now asserts that
+  property directly and derives the rung through `tier_index_for_rank`, comparing the row's own
+  `unlock_rank` against the rank rather than trusting an index — the second time this branch wrote a
+  number from memory where the file had the answer.
+- **One check is instrumented, not guessed.** "the wave's folded record scales spawns and stamps its
+  status" reported a bare `record=false` across five sub-assertions, and reading the spawn, stamping,
+  stacking, flooring and config-sharing paths in turn produced seven plausible causes and no evidence.
+  The check now names each clause and prints the numbers behind it (`stacks=`, `max=`, `atk=`), which
+  is the difference between the next run answering the question and another round of reading.
+- `docs/ARCHITECTURE.md`'s description of the payout stage followed the rewrite; the two python mirrors
+  that pinned `active_delta = minf(delta, remaining)` and `challenge_tiers[3]` now pin the new shapes —
+  a mirror that pins an old line is a liability, not a test.
+
+Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
+
 ## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)
 
 Sixth architecture pass, same method: rank `scripts/` by structural weakness, read the winner fully,

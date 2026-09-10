@@ -1014,9 +1014,13 @@ class LiveRunDefinitionStageTests(Bans, unittest.TestCase):
         txt = code(STAGES_GD)
         # A cold `Prestige.ladder()` is the only way this harness exercises the content-folder path.
         self.assertIn("Prestige.forget_ladder()", txt)
-        self.assertIn("ladder.challenge_tiers[0]", txt)
-        self.assertIn("ladder.challenge_tiers[3]", txt)
-        self.assertIn("run.score == want_zero", txt)
+        # The stage selects the rung through the ladder's own rule and checks the selection against the
+        # rows, rather than naming `challenge_tiers[3]` for rank 8 — which is the assertion that was
+        # wrong about the data (the rungs unlock at 0/2/4/6/8) and cost a CI round to find out.
+        self.assertIn("ladder.tier_index_for_rank(8)", txt)
+        self.assertIn("rung.unlock_rank <= 8", txt)
+        self.assertIn("ladder.challenge_tiers[selected + 1].unlock_rank > 8", txt)
+        self.assertIn("run.score == want_standard", txt)
         self.assertIn("GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 8)", txt)
         self.assertIn("GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8), 1.0", txt)
 

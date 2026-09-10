@@ -129,15 +129,28 @@ func _apply_source_id(from: Node) -> void:
 		source_id = StringName(from.name)
 
 
+## The most game time a single frame may convert into DoT/HoT ticks. Chosen to match the tick cadence
+## every shipped status uses (0.5 s), so no authored effect can be paid out faster than once per frame
+## at the arena's physics rate, and a hitch costs one tick rather than the whole gap.
+const MAX_PAYOUT_DELTA := 0.5
+
+
 ## Advance time. Returns the number of full ticks that elapsed this step. Tick
 ## accrual is capped to the portion of this frame during which the effect was
-## active, preventing a large frame from dealing damage after expiry.
+## active, and to `MAX_PAYOUT_DELTA`, which is what keeps a 5-second frame from being paid as the
+## whole gap of damage.
 func tick(delta: float) -> int:
 	if config == null or delta <= 0.0 or not is_finite(delta) or is_expired():
 		return 0
-	var active_delta := delta
+	# One frame's payout is bounded. The tick budget below caps how many ticks a frame can yield,
+	# which still let a 5-second frame (a returning tab, a shader compile, hitstop recovery) buy four
+	# seconds of DoT in one call: a status that had 4 s left paid its entire remaining damage in a
+	# single payload. The clock that *expires* the effect keeps running on the real delta, so a hitch
+	# cannot also stretch a status's life; only the burst of damage is refused.
+	var frame := minf(delta, MAX_PAYOUT_DELTA)
+	var active_delta := frame
 	if not is_permanent():
-		active_delta = minf(delta, remaining)
+		active_delta = minf(frame, remaining)
 		remaining = maxf(remaining - delta, 0.0)
 	if not is_finite(config.tick_interval) or config.tick_interval <= 0.0:
 		return 0

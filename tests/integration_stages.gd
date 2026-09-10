@@ -872,13 +872,18 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	sm.queue_wave(ember_queue, 5, 0.2, 8)
 	var stamped: EnemyBase = spawned_nodes[0] if not spawned_nodes.is_empty() else null
 	var stamped_manager := stamped.get_status_manager() if stamped != null else null
-	var record_ok := stamped != null and stamped_manager != null \
-		and stamped_manager.has_effect(&"ember_air") \
-		and stamped_manager.stack_count(&"ember_air") == 2 \
-		and is_equal_approx(stamped.get_health_fraction(), 1.0) \
-		and is_equal_approx(stamped.get_effective_attack_damage(), cfg_basic.attack_damage * 1.5) \
-		and stamped.get_health_component() != null \
-		and is_equal_approx(stamped.get_health_component().get_max(), cfg_basic.max_health * 1.6)
+	# Every clause named separately, because a combined boolean reported as `record=false` sends
+	# someone reading a CI log back to read the whole file: five sub-checks here and no clue which one
+	# moved. The numbers are printed too, so the next failure says what the entity actually is.
+	var has_ok := stamped_manager != null and stamped_manager.has_effect(&"ember_air")
+	var stack_ok := stamped_manager != null and stamped_manager.stack_count(&"ember_air") == 2
+	var full_ok := stamped != null and is_equal_approx(stamped.get_health_fraction(), 1.0)
+	var attack_ok := stamped != null \
+		and is_equal_approx(stamped.get_effective_attack_damage(), cfg_basic.attack_damage * 1.5)
+	var health_component := stamped.get_health_component() if stamped != null else null
+	var hp_ok := health_component != null \
+		and is_equal_approx(health_component.get_max(), cfg_basic.max_health * 1.6)
+	var record_ok := stamped != null and has_ok and stack_ok and full_ok and attack_ok and hp_ok
 	# Volatile Mix at 100%: the fold's chance must actually detonate (one explosion, no crash).
 	var blast_before := sm.get_active_count()
 	if stamped != null:
@@ -889,7 +894,12 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	results.append({
 		"name": "the wave's folded record scales spawns and stamps its status",
 		"passed": record_ok and consumed_the_chance,
-		"why": "record=%s blasts=%s" % [str(record_ok), str(consumed_the_chance)],
+		"why": "has=%s stacks=%s full=%s attack=%s hp=%s blasts=%s (stacks=%d max=%s atk=%s)" % [
+				str(has_ok), str(stack_ok), str(full_ok), str(attack_ok), str(hp_ok),
+				str(consumed_the_chance),
+				stamped_manager.stack_count(&"ember_air") if stamped_manager != null else -1,
+				str(health_component.get_max()) if health_component != null else "none",
+				str(stamped.get_effective_attack_damage()) if stamped != null else "none"],
 	})
 
 	timer.stop()
@@ -965,28 +975,38 @@ static func _run_run_definition_integration(tree: SceneTree) -> Array:
 	})
 
 	# --- and the rung is what the scoreboard pays with ------------------------------
-	# `RunScorekeeper` reads GameRoot for the rank; with no GameRoot here the rank is 0, so the live
-	# number is tier 0's `score_mult` and nothing else — which is exactly the double-count bug the
-	# flat per-rank bonus used to be. The escalated rung is asserted against the file too, one call
-	# apart, because the ladder's whole contract is that rank 8 means tier 3.
+	# `RunScorekeeper` takes the mode and the rank from GameRoot; this harness boots neither, so the
+	# run is a standard one at rank 0 and its payout is the kill's own value untouched. That is the
+	# first half of the contract: the ladder must not reach into a mode that does not scale with
+	# prestige, which is exactly how the old flat per-rank bonus double-counted. The second half is the
+	# *selection* — which rung a challenge run at rank 8 gets — asserted against the rows the resource
+	# carries rather than against a literal, because a hard-coded "rank 8 means tier 3" here was a
+	# guess about data that says 0/2/4/6/8. Numbers written from memory are how this file has failed
+	# twice; the file is the source.
 	var run := RunState.new()
 	var keeper := RunScorekeeper.new()
 	keeper.reset_run(run)
 	keeper.record_kill(100, 0)
-	var tier_zero: ChallengeTier = ladder.challenge_tiers[0] \
-			if ladder != null and not ladder.challenge_tiers.is_empty() else null
-	var want_zero := int(round(101.0 * (tier_zero.score_mult if tier_zero != null else -1.0)))
-	var rung: ChallengeTier = ladder.challenge_tiers[3] \
-			if ladder != null and ladder.challenge_tiers.size() > 3 else null
+	var want_standard := int(round(101.0 * GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8)))
+	var selected := -1
+	if ladder != null:
+		selected = ladder.tier_index_for_rank(8)
+	var rung: ChallengeTier = ladder.challenge_tiers[selected] if ladder != null and selected >= 0 else null
+	# The rung that covers rank 8 is the last one whose unlock it clears, and the next one must still
+	# be out of reach; that is the whole ladder contract in two comparisons, with no index to drift.
+	var selection_ok := rung != null and rung.unlock_rank <= 8 \
+		and (selected + 1 >= ladder.challenge_tiers.size() \
+			or ladder.challenge_tiers[selected + 1].unlock_rank > 8)
 	var at_eighth := GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 8)
-	var payout_ok := run.score == want_zero and rung != null \
+	var payout_ok := run.score == want_standard and selection_ok \
 		and is_equal_approx(at_eighth, rung.score_mult) \
 		and is_equal_approx(GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8), 1.0)
 	results.append({
 		"name": "a run's payout is its tier's multiplier and the mode's own, never both",
 		"passed": payout_ok,
-		"why": "score=%d want=%d rank8=%.3f want=%.3f" % [run.score, want_zero, at_eighth,
-				rung.score_mult if rung != null else -1.0],
+		"why": "score=%d want=%d rank8=%.3f tier=%d/%d unlock=%d" % [run.score, want_standard,
+				at_eighth, selected, ladder.challenge_tiers.size() if ladder != null else -1,
+				rung.unlock_rank if rung != null else -1],
 	})
 
 	return results

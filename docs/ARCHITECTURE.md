@@ -410,8 +410,10 @@ files and the ladder, is mirrored in `tests/python/test_regress_run_modes.py`.
 `tests/unit/test_game_modes.gd` covers the resolvers and each `validate()` refusal path, and
 `tests/integration_stages.gd::_run_run_definition_integration` proves the wire in a live tree: a real
 `Narrator.announce_wave` emits the campaign row's own text, a cold `Prestige.ladder()` still finds
-the content folder when the harness booted no registry, and a challenge kill pays exactly one
-multiplier — tier 0's, with the flat per-rank bonus correctly skipped.
+the content folder when the harness booted no registry, and a run's payout is the mode's own
+multiplier and nothing else — with the boot-less harness that is a standard run, so the ladder must
+not reach in at all, and the rung a challenge run gets at rank 8 is checked against the row the
+ladder's `tier_index_for_rank` selects rather than a literal index (the rungs unlock at 0/2/4/6/8).
 
 ## Autoload policy
 
