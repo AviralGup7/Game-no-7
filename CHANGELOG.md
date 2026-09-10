@@ -1,5 +1,133 @@
 # Changelog
 
+## [Unreleased] — Audio playback engine rebuilt from the base up (2026-09-10)
+
+Third-round audit picked the audio engine: it shipped a fully data-driven
+`AudioConfig` schema the playback engine never read (per-cue voice caps,
+cooldown spam guard, per-play volume/pitch rolls, bus routing, the `music_layer`
+tag — all dead), started every SFX voice at full volume in sample zero, hard-
+stopped stolen voices (the step-function pop), left one hot cue able to
+monopolize all 16 voices, declared a "UI" bus that was never created, kept a
+dead hard-switching music path inside AudioManager, and ran a "4-layer
+intensity mixer" that was a volume nudge on a single bed. Rebuilt grounded in
+FMOD/Wwise voice-management practice and adaptive-music research (full
+write-up + sources in `docs/AUDIO_ENGINE.md`):
+
+- **The contract is live.** New pure `SfxPolicy` governs every play:
+  per-cue cooldown (silent suppression), per-cue voice cap with
+  middleware-"oldest" steal, all from config; `AudioConfig.for_cue()` ships
+  hand-tuned defaults (spam guards for footsteps/shots/hits, cap-1 for
+  one-shot feedback, UI-bus routing) and `register_cue` accepts per-cue
+  overrides. Per-play volume/pitch rolls are now actually applied.
+- **Click-safe voices.** Every start ramps in (12 ms); a stolen voice fades
+  out over 30 ms with a 1-t² shape before its player is reused — steals ride
+  a pending-claim queue so no live voice is ever hard-cut.
+- **Real vertical layering.** MusicManager now mixes optional intensity
+  stems (`music_<bed>_l2/_l3`) above the bed with asymmetric fades (up 0.6 s
+  / down 2.0 s), a 0.4 s dwell that stops heat flicker from machine-gunning
+  the stems, and phase-synced joins. No stems registered → v1 single-bed
+  behavior; stream swaps always fade-out → swap → fade-in.
+- **Housekeeping.** The phantom "UI" bus exists and routes; the dead parallel
+  music path (`play_music`/`stop_music`/`_music_player`) is gone; the fake
+  bed volume-nudge layer is replaced by real stem levels. Soak/stress seams
+  (`_sfx_pool`, `_cues`, `get_cue_stream`) and the v1 public API are
+  preserved.
+- New unit suite `tests/unit/test_audio_policy.gd` + Python shape guards.
+- **4.4.1 compatibility.** `AudioConfig.for_cue()` annotates its dict lookup
+  `: Variant` — the CI runtime suite treats "inferred from Variant" as an
+  error, and the sandbox's `gdparse` doesn't type-check against the engine.
+
+## [Unreleased] — Minimap radar rebuilt from the base up (2026-09-09)
+
+The next-weakest subsystem audit picked the radar: v1 re-queried groups at
+15 Hz and snap-drew every dot from raw node positions (visible ~0.8 m stepping
+per refresh for a fast enemy), carried a dead `_north_up` member, had no
+spawn/death transitions, no facing cone, no threat hierarchy, and redrew
+unconditionally at the discovery cadence even when idle. Rebuilt as a
+threat-aware radar grounded in published radar-HUD practice (full write-up +
+sources in `docs/MINIMAP_RADAR.md`):
+
+- **Smoothed tracks, decoupled cadences.** Each entity's display position
+  eases toward the truth with frame-rate-independent exponential smoothing
+  (`1 - exp(-rate*dt)`, the same family the camera uses). Group queries stay
+  at 15 Hz; drawing runs per frame but `queue_redraw()` is gated on actual
+  change, so an idle radar issues zero canvas invalidations.
+- **Pure testable core.** Projection (v1-pinned semantics, now degenerate-
+  safe), `track_position`, `ping_progress`, `blink_alpha`, `wedge_points` and
+  the `advance_tracks` state machine are static + deterministic — new unit
+  suite `tests/unit/test_minimap_radar.gd` plus Python shape guards.
+- **Threat intelligence.** New enemies spawn a 1.2 s "spotted" ping; deaths
+  fade out; the closest enemy gets a white emphasis ring; a live boss turns
+  the rim into a red danger pulse with a boss halo; expiring pickups blink.
+- **Orientation context.** North-up radar with a 70° facing cone (10 m range)
+  so "which way is ahead" reads at a glance; player wedge stays instant.
+- **Preserved contracts.** `project_to_map` semantics, `arena_half`,
+  140×140 minimum, `Arena.ARENA_GROUP` lookup with legacy path fallback in
+  `_find_arena()`, shared group constants; help-panel legend updated to the
+  new vocabulary.
+- **4.4.1 compatibility.** World→map projection goes through a `world_xz()`
+  helper (`Vector2(p.x, p.z)`) because `Vector3.xz` is not a 4.4 member.
+
+## [Unreleased] — Performance governor rebuilt from the base up (2026-09-09)
+
+The audit found the weakest subsystem: the adaptive-quality monitor. It
+averaged **FPS** (a nonlinear transform) against **absolute** 45/57 fps
+thresholds, O(n) every frame, started every run at a hardcoded HIGH tier,
+never persisted what auto-scaling found, let every unrelated settings save
+re-assert the saved tier (clobbering the auto-scaled one), and shipped an
+unreachable "ultra" tier — the settings schema silently dropped it, so the
+`ui_root` ultra branch was dead code. Rebuilt as a frame-time governor,
+grounded in published adaptive-quality-scaling practice (full write-up +
+sources in `docs/PERFORMANCE_GOVERNOR.md`):
+
+- **Frame time, relative budgets.** Decisions run on frame time against the
+  current tier's *own* budget (`1000 / target_fps`). A healthy 30 fps capped
+  tier reads as healthy, not failing — absolute rules misread capped tiers and
+  cascade to the floor with no way back up (the engine's own cap forbids the
+  frame times the upgrade rule would demand).
+- **p95 + hitches, not just the mean.** Nearest-rank p95 over a 240-sample
+  ring (O(1) push; percentiles computed at the 0.5 s decision cadence only),
+  with hitches = frames beyond 2× budget. Two downgrade gates: *sustained*
+  (avg ≥ 1.15×, p95 ≥ 1.35×, two consecutive bad ticks) and *spiky* (≥ 2
+  hitches, p95 ≥ 1.5×).
+- **Hysteresis.** Downgrade fast, upgrade cautiously: an upgrade needs 15 s of
+  stability since the last tier change plus a clean window; a 5 s cooldown
+  separates steps (the pre-existing contract); a 3 s warmup absorbs run-start
+  load spikes; the sample window clears on every tier change so no decision
+  runs on stale samples.
+- **Rate-capped tiers hide headroom.** At the cap, frames pin to the limiter
+  even on fast hardware, so the upgrade gate there tests flat pacing (p95
+  ≤ 1.1× budget, zero hitches) instead of average headroom the cap forbids.
+- **The save round-trips.** `SettingsData` now accepts **ultra** (four
+  presets), the settings panel offers all four tiers, `main.gd` opens each run
+  at the saved quality, and an auto-scaled tier is persisted through an
+  injected `Callable` seam (`main.gd` wires it to `SaveManager`) so a slow
+  device reboots at the tier it already proved it can hold. `ui_root` applies
+  a saved quality **only when it changed**, so saving a volume can no longer
+  clobber the auto-scaled tier; auto tier changes also refresh the
+  damage-number budget via `quality_tier_changed`.
+- **Real actuators + session-cap survival.** MSAA now actually follows the
+  tier (LOW off, MEDIUM 2×, HIGH/ULTRA 4× — 4× is the mobile-safe ceiling)
+  via `Viewport.msaa_3d`, restored from the project setting on teardown like
+  the fps cap already was. The player's Settings FPS cap survives tier
+  changes: the governor may lower `Engine.max_fps`, never raise it above the
+  choice.
+- **Tested.** New deterministic unit suite
+  `tests/unit/test_performance_monitor.gd` (pinned clock, synthetic frame
+  times: warmup, floor/ceiling, hysteresis, cooldown, session cap, p95 math,
+  ring cap, artifact dropping, spiky gate, hitch-blocked upgrade + recovery)
+  registered in `run_tests.gd`; static guards in
+  `tests/python/test_regress_performance_governor.py`. Existing pins kept:
+  `Engine.max_fps` teardown restore, single `_exit_tree`, no-op-free
+  `_apply_tier_to_engine`, damage-budget numbers, 5 s cooldown semantics.
+- **4.4.1 compatibility.** The sample ring is built by a `make_ring()`
+  factory (4.4 has no `PackedFloat32Array(int)` constructor) and lazily sized
+  on first push; `get_tier_name()` takes an optional tier index; debug
+  telemetry uses the typed `OS.get_static_memory_usage()` (4.4 has no
+  total-RAM getter, and string dispatch is gate-banned); `test_save.gd` now
+  pins that `ultra` is a valid preset and that a truly invalid quality is
+  still ignored.
+
 ## [Unreleased] — Solid decoration + touch-button dispatch hardening (2026-09-09)
 
 Player-reported: *"character crossing through objects"* and *"crash on clicking the

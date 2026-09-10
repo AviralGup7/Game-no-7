@@ -753,7 +753,9 @@ class AuditFollowUpHardeningTests(unittest.TestCase):
                       "Arena must join its group in _ready or the lookup never resolves")
 
     def test_minimap_refresh_has_no_bare_path_lookup(self):
-        body = func_body(read("scripts/ui/minimap.gd"), "_refresh_targets")
+        # v2: the group-driven discovery pass resolves the arena through
+        # _find_arena(); the legacy path lookup lives there only.
+        body = func_body(read("scripts/ui/minimap.gd"), "_discover")
         # Assert against code, not the explanatory comment that trails the function.
         code = "\n".join(ln for ln in body.splitlines() if not ln.strip().startswith("#"))
         self.assertIn("_find_arena()", code)

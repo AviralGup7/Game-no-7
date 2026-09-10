@@ -25,7 +25,7 @@ func refresh() -> void:
 		var card := UiFactory.card(_body)
 		UiFactory.title(step[0], card, 22).modulate = UiTheme.CYAN
 		UiFactory.label(step[1], card, 20)
-	UiFactory.label("Minimap: triangle = you; dots = enemies; large purple dot = boss; blue pips = pickups.\nPause at any time with the HUD button. Settings includes larger text and reduced motion.", _body, 18)
+	UiFactory.label("Minimap: triangle = you (cone = where you face); dots = enemies (ring = closest threat);\nrising ring = new spawn; large purple dot = boss (red rim = boss fight); blue pips = pickups (blinking = expiring).\nPause at any time with the HUD button. Settings includes larger text and reduced motion.", _body, 18)
 	var coach := get_tree().get_first_node_in_group("tutorial_manager") as TutorialManager
 	if coach != null:
 		var note := UiFactory.label("", _body, 20)

@@ -36,7 +36,11 @@ class VisualsTests(unittest.TestCase):
         txt=read("scripts/enemies/enemy_locomotion.gd")
         self.assertIn("maxf(_bounds_half - _bounds_margin, 0.0)",txt)
     def test_minimap_radius_clamped(self):
+        # v2: disc radius clamped to a sane minimum; projection degenerate-safe
+        # for half/radius <= 0 and NaN world points (unit-pinned in
+        # tests/unit/test_minimap_radar.gd).
         txt=read("scripts/ui/minimap.gd")
         self.assertIn("maxf(minf",txt)
-        self.assertIn("maxf(half, 0.01)",txt)
+        self.assertIn("half <= 0.0 or radius_px <= 0.0",txt)
+        self.assertIn("mag > 1.0",txt)
 if __name__=="__main__": unittest.main()
