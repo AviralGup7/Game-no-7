@@ -78,7 +78,10 @@ func play_hit_feedback(shake_amp: float = 0.4, duration: float = 0.25) -> void:
 	_request_vibration(20, 80)
 
 
-func play_attack_feedback(shake_amp: float = 0.15, duration: float = 0.12) -> void:
+## `_shake_amp` / `_duration`: a swung-and-missed attack deliberately gets no
+## camera shake (contact supplies it). The parameters mirror play_hit_feedback()
+## so both feedback entry points share one call shape.
+func play_attack_feedback(_shake_amp: float = 0.15, _duration: float = 0.12) -> void:
 	# Contact supplies the shake; a missed swing must not feel like a landed hit.
 	_request_vibration(6, 30)
 

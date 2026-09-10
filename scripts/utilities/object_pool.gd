@@ -23,11 +23,13 @@ var _max_size: int = 256
 var _tag: String = "pool"
 
 
-func _init(create_fn: Callable = Callable(), reset_fn: Callable = Callable(), prewarm: int = 0, max_size: int = 256, tag: String = "pool") -> void:
+## `pool_max_size` / `pool_tag`, not `max_size` / `tag`: those are this class'
+## own accessors (`max_size()`, `tag()`).
+func _init(create_fn: Callable = Callable(), reset_fn: Callable = Callable(), prewarm: int = 0, pool_max_size: int = 256, pool_tag: String = "pool") -> void:
 	_create_fn = create_fn
 	_reset_fn = reset_fn
-	_max_size = maxi(max_size, 1)
-	_tag = tag
+	_max_size = maxi(pool_max_size, 1)
+	_tag = pool_tag
 	if prewarm > 0:
 		prewarm_pool(prewarm)
 

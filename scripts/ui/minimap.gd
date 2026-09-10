@@ -82,12 +82,13 @@ func _ready() -> void:
 ## Project a world XZ offset (relative to arena centre) onto map pixels,
 ## clamping out-of-range points to the rim so nothing draws outside the disc.
 ## NOTE: pinned by tests/unit/test_meta_misc.gd — keep semantics exact.
-static func project_to_map(world_xz: Vector2, center_px: Vector2, radius_px: float, half: float) -> Vector2:
-	if not is_finite(world_xz.x) or not is_finite(world_xz.y):
+## `offset_xz`, not `world_xz`: `world_xz()` is this class' own projector.
+static func project_to_map(offset_xz: Vector2, center_px: Vector2, radius_px: float, half: float) -> Vector2:
+	if not is_finite(offset_xz.x) or not is_finite(offset_xz.y):
 		return center_px
 	if half <= 0.0 or radius_px <= 0.0:
 		return center_px
-	var offset := world_xz / half
+	var offset := offset_xz / half
 	var mag := offset.length()
 	if mag > 1.0:
 		offset /= mag
@@ -164,20 +165,20 @@ static func advance_tracks(
 	for entry in live:
 		if not (entry is Dictionary):
 			continue
-		var id := int((entry as Dictionary).get("id", -1))
-		if id <= 0:
+		var blip_id := int((entry as Dictionary).get("id", -1))
+		if blip_id <= 0:
 			continue
 		var xz := Vector2((entry as Dictionary).get("xz", Vector2(INF, INF)))
 		if not (is_finite(xz.x) and is_finite(xz.y)):
 			continue
 		var kind := StringName(String((entry as Dictionary).get("kind", "enemy")))
 		var blink := clampf(float((entry as Dictionary).get("blink", 0.0)), 0.0, 1.0)
-		if seen.has(id):
+		if seen.has(blip_id):
 			continue
-		seen[id] = true
-		if previous.has(id):
-			var prev: Dictionary = (previous as Dictionary)[id]
-			next[id] = {
+		seen[blip_id] = true
+		if previous.has(blip_id):
+			var prev: Dictionary = (previous as Dictionary)[blip_id]
+			next[blip_id] = {
 				"pos": track_position(Vector2(prev.get("pos", xz)), xz, delta, tr_rate),
 				"alpha": 1.0,
 				"born_ms": int(prev.get("born_ms", now_ms)),
@@ -185,7 +186,7 @@ static func advance_tracks(
 				"blink": blink,
 			}
 		else:
-			next[id] = {"pos": xz, "alpha": 1.0, "born_ms": now_ms, "kind": kind, "blink": blink}
+			next[blip_id] = {"pos": xz, "alpha": 1.0, "born_ms": now_ms, "kind": kind, "blink": blink}
 	# Fade out tracks whose entity vanished; they hold their last seen spot.
 	for id in (previous as Dictionary).keys():
 		if seen.has(id):
@@ -204,13 +205,13 @@ static func advance_tracks(
 	while (next as Dictionary).size() > cap:
 		var victim := -1
 		var victim_score := INF
-		for id in (next as Dictionary).keys():
-			var t: Dictionary = (next as Dictionary)[id]
+		for candidate_id in (next as Dictionary).keys():
+			var t: Dictionary = (next as Dictionary)[candidate_id]
 			var stale_bonus := 0.0 if float(t.get("alpha", 1.0)) < 1.0 else 1.0e9
 			var score := float(int(t.get("born_ms", 0))) + stale_bonus
 			if score < victim_score:
 				victim_score = score
-				victim = id
+				victim = candidate_id
 		if victim < 0:
 			break
 		(next as Dictionary).erase(victim)

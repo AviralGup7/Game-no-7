@@ -137,7 +137,10 @@ static func create(settings: SettingsData) -> Theme:
 	var theme := Theme.new()
 	theme.default_font = REGULAR
 	theme.default_font_size = int(20 * settings.text_scale)
-	var surface := Color.BLACK if settings.high_contrast else SURFACE
+	# NOTE: high-contrast currently adapts the border colour (`edge`) only. A
+	# matching `surface` colour was computed here but never read by any stylebox,
+	# so it was dropped rather than left as dead code. Wiring the panel fills to a
+	# high-contrast surface is a deliberate visual change, tracked separately.
 	var edge := Color.WHITE if settings.high_contrast else EDGE
 	var disabled_bg := Color(INK.r, INK.g, INK.b, 0.85)
 
@@ -223,10 +226,11 @@ static func decorate(button: Button, icon_name: String) -> void:
 
 static func apply_text_scale(node: Node, scale: float) -> void:
 	if node is Control:
-		var control := node as Control
-		if control.has_theme_font_size_override("font_size"):
-			if not control.has_meta("ui_base_font"):
-				control.set_meta("ui_base_font", control.get_theme_font_size("font_size"))
-			control.add_theme_font_size_override("font_size", int(float(control.get_meta("ui_base_font")) * scale))
+		# `control_node`, not `control`: `control()` is this class' StyleBox factory.
+		var control_node := node as Control
+		if control_node.has_theme_font_size_override("font_size"):
+			if not control_node.has_meta("ui_base_font"):
+				control_node.set_meta("ui_base_font", control_node.get_theme_font_size("font_size"))
+			control_node.add_theme_font_size_override("font_size", int(float(control_node.get_meta("ui_base_font")) * scale))
 	for child in node.get_children():
 		apply_text_scale(child, scale)

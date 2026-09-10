@@ -20,7 +20,7 @@ static func spread_directions(facing: Vector3, projectile_count: int, spread_deg
 	flat = flat.normalized()
 	var clamped_spread := maxf(spread_degrees, 0.0)
 	if n == 1 or clamped_spread <= 0.0:
-		for i in range(n):
+		for shot_idx in range(n):
 			out.append(flat)
 		return out
 	var half := deg_to_rad(clamped_spread) * 0.5

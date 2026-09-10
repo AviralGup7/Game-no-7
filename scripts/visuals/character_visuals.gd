@@ -74,12 +74,13 @@ static func mount(body: Node3D, role: StringName) -> Node3D:
 static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> Node3D:
 	if body == null:
 		return null
-	var mount := body.get_node_or_null("VisualRoot/CharacterModel") as Node3D
-	if mount == null:
+	# `mount_point`, not `mount`: `mount()` is this class' own public entry point.
+	var mount_point := body.get_node_or_null("VisualRoot/CharacterModel") as Node3D
+	if mount_point == null:
 		_report_mount_issue("CharacterVisuals: no VisualRoot/CharacterModel mount point for role %s (primitive kept)" % String(role))
 		return null
 	# Idempotent: never double-mount on a pooled/re-used actor.
-	var existing := mount.get_node_or_null("CharacterVisual")
+	var existing := mount_point.get_node_or_null("CharacterVisual")
 	if existing != null and existing.get_child_count() > 0:
 		return existing as Node3D
 
@@ -98,7 +99,7 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 	wrapper.set_meta(HeroRigContract.AUTHORED_IDLE_META, authored_hero)
 	instance.name = &"Model"
 	wrapper.add_child(instance)
-	mount.add_child(wrapper)
+	mount_point.add_child(wrapper)
 
 	# Hide the source's alternate-loadout equipment BEFORE measuring: swords and
 	# shields extend sideways/forward and would otherwise shrink the fit and drag
@@ -109,7 +110,7 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 	var factor := _fit_factor(instance, target_height)
 	if factor <= 0.0:
 		# No usable geometry -> keep the primitive and tear down the mount.
-		mount.remove_child(wrapper)
+		mount_point.remove_child(wrapper)
 		wrapper.free()
 		_report_mount_issue("CharacterVisuals: model has no usable geometry for role %s: %s (primitive kept)" % [String(role), path])
 		return null
@@ -123,7 +124,7 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 	# would double-count the scale and offset the body off the capsule).
 	var measured: Variant = _bounds(instance as Node3D, Transform3D.IDENTITY)
 	if measured == null:
-		mount.remove_child(wrapper)
+		mount_point.remove_child(wrapper)
 		wrapper.free()
 		_report_mount_issue("CharacterVisuals: model has no visible mesh bounds for role %s: %s (primitive kept)" % [String(role), path])
 		return null
@@ -134,8 +135,8 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 		-bounds.get_center().z
 	)
 
-	_hide_primitive(mount)
-	_add_ground_shadow(mount)
+	_hide_primitive(mount_point)
+	_add_ground_shadow(mount_point)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
 	# HD material pass: anisotropic filtering + role-tuned roughness/metallic so the
 	# authored metal/roughness atlas remains physically distinct under arena lighting.
@@ -270,13 +271,14 @@ static func stop_breathing(wrapper: Node3D) -> void:
 
 
 ## Hide the primitive body mesh that the model replaces (visible=false keeps the node).
-static func _hide_primitive(mount: Node3D) -> void:
-	var body := mount.get_node_or_null("Body")
+## `mount_point`, not `mount`: `mount()` is this class' own public entry point.
+static func _hide_primitive(mount_point: Node3D) -> void:
+	var body := mount_point.get_node_or_null("Body")
 	if body is MeshInstance3D:
 		body.visible = false
 		return
 	# Some archetype scenes nest the primitive deeper under CharacterModel.
-	for m in mount.find_children("Body", "MeshInstance3D", false, false):
+	for m in mount_point.find_children("Body", "MeshInstance3D", false, false):
 		m.visible = false
 
 

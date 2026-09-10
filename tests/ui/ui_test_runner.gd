@@ -16,11 +16,12 @@ func _ready() -> void:
 		return
 	_run.call_deferred()
 
-func _check(name: String, passed: bool) -> void:
+## `case_name`, not `name`: this runner is a Node and `name` is Node's node-name.
+func _check(case_name: String, passed: bool) -> void:
 	_total += 1
 	if not passed:
-		_failures.append(name)
-		push_error("UI FAIL: " + name)
+		_failures.append(case_name)
+		push_error("UI FAIL: " + case_name)
 
 func _settle() -> void:
 	for i in range(4): await get_tree().process_frame
@@ -127,7 +128,7 @@ func _run() -> void:
 	_check("daily has preview before launch", _ui._setup._daily and _ui._setup._daily_info.visible and GameRoot.get_current_state() == GameRoot.State.MAIN_MENU)
 	_ui._setup._launch()
 	await _settle()
-	_check("daily uses existing command and seed", GameRoot.is_daily_run() and GameRoot.get_run().seed == DailyChallenge.seed_for_today())
+	_check("daily uses existing command and seed", GameRoot.is_daily_run() and GameRoot.get_run().rng_seed == DailyChallenge.seed_for_today())
 	GameRoot.request_game_over()
 	await _settle()
 	GameRoot.request_restart()

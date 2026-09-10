@@ -28,8 +28,8 @@ const FRENZIED_COOLDOWN_MULT := 0.55
 
 ## Roll 1-2 distinct affixes for an elite of `archetype` at `wave`.
 ## Deterministic in (seed, spawn_index).
-static func roll_affixes(archetype_id: StringName, wave: int, seed: int, spawn_index: int) -> Array[StringName]:
-	var rng := RngService.make_generator(seed + hash(String(archetype_id)), RngService.STREAM_AI + spawn_index)
+static func roll_affixes(archetype_id: StringName, wave: int, rng_seed: int, spawn_index: int) -> Array[StringName]:
+	var rng := RngService.make_generator(rng_seed + hash(String(archetype_id)), RngService.STREAM_AI + spawn_index)
 	var pool: Array = ALL.duplicate()
 	# Volatile needs a death-blast handler; keep it for melee brutes early.
 	var count := 1

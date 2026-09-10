@@ -203,10 +203,10 @@ static func _validate_game_modes(tables: Dictionary, mutators: Dictionary,
 		for plan in mode.wave_plans:
 			if plan == null:
 				continue
-			for archetype_id in plan.archetypes:
-				if not enemies.has(archetype_id):
+			for plan_archetype in plan.archetypes:
+				if not enemies.has(plan_archetype):
 					errors.append("game mode %s wave %d spawns unknown archetype %s"
-							% [String(mode.mode_id), plan.wave_number, String(archetype_id)])
+							% [String(mode.mode_id), plan.wave_number, String(plan_archetype)])
 		if mode.scales_with_prestige:
 			_validate_scaled_mode(mode, ladder, errors)
 

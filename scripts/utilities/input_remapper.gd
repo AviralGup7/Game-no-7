@@ -133,9 +133,9 @@ static func deserialize_actions(data: Dictionary) -> int:
 		for entry in binds:
 			if not (entry is Dictionary):
 				continue
-			var event := deserialize_event(entry)
-			if event != null and not _event_in(parsed, event):
-				parsed.append(event)
+			var parsed_event := deserialize_event(entry)
+			if parsed_event != null and not _event_in(parsed, parsed_event):
+				parsed.append(parsed_event)
 			if parsed.size() >= MAX_BINDS_PER_ACTION:
 				break
 		if parsed.is_empty():

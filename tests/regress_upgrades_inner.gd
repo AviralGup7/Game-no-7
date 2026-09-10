@@ -12,12 +12,13 @@ var _failures: Array[String] = []
 var _score_emits := 0
 
 
-func _check(name: String, passed: bool, extra: String = "") -> void:
+## `case_name`, not `name`: these runners are Nodes and `name` is Node's node-name.
+func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
-		print("  PASS: %s" % name)
+		print("  PASS: %s" % case_name)
 	else:
-		_failures.append(name)
+		_failures.append(case_name)
 		push_error("REGRESS FAIL: %s %s" % [name, extra])
 
 

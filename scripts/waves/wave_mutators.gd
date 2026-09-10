@@ -107,11 +107,11 @@ static func resolve_status(effect_id: StringName) -> StatusEffectConfig:
 ## from wave 8. Authored waves declare their own instead. The wave floor each mutator honours is
 ## `WaveMutatorConfig.min_wave` (Glass Cannon's "wave 6+" used to be an `if wave < 6` here with a
 ## comment explaining it).
-static func roll_for_wave(wave: int, seed: int) -> Array[StringName]:
+static func roll_for_wave(wave: int, rng_seed: int) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if wave < MIN_ROLL_WAVE:
 		return out
-	var rng := RngService.make_generator(seed, RngService.STREAM_WAVES + wave * 7)
+	var rng := RngService.make_generator(rng_seed, RngService.STREAM_WAVES + wave * 7)
 	var pool: Array = _roll_pool(wave)
 	if pool.is_empty():
 		return out
@@ -125,19 +125,19 @@ static func roll_for_wave(wave: int, seed: int) -> Array[StringName]:
 ## Resolve the active set for a wave: authored declarations win; generated waves roll (skipped on
 ## a director breather, spiced with an extra on a hot streak). Unknown ids are dropped, duplicates
 ## collapsed. Pure in (declared, wave, seed).
-static func resolve_for_wave(declared: Array, wave: int, seed: int, breather: bool, spice: bool) -> Array[StringName]:
+static func resolve_for_wave(declared: Array, wave: int, rng_seed: int, breather: bool, spice: bool) -> Array[StringName]:
 	var out: Array[StringName] = []
 	var pool: Array = declared.duplicate()
 	if pool.is_empty():
 		if breather:
 			return out
-		for m in roll_for_wave(wave, seed):
+		for m in roll_for_wave(wave, rng_seed):
 			pool.append(m)
 		if spice and pool.size() < 2:
-			var extra := roll_for_wave(wave + SPICE_WAVE_OFFSET, seed)
-			for m in extra:
-				if m not in pool:
-					pool.append(m)
+			var extra := roll_for_wave(wave + SPICE_WAVE_OFFSET, rng_seed)
+			for extra_id in extra:
+				if extra_id not in pool:
+					pool.append(extra_id)
 					break
 	for raw in pool:
 		var id := StringName(String(raw))

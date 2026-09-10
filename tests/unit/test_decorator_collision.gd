@@ -108,8 +108,8 @@ static func _run_checks(results: Array, arena: Arena, decorator: ArenaDecorator)
 	var nav := arena.get_nav_grid()
 	var unblocked := 0
 	if nav != null:
-		for foot in blockers:
-			if nav.is_walkable(foot.get_center()):
+		for blocker in blockers:
+			if nav.is_walkable(blocker.get_center()):
 				unblocked += 1
 	results.append({
 		"name": "decorator: nav grid is rebuilt and blocks every prop footprint",

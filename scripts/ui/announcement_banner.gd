@@ -46,20 +46,21 @@ func set_reduced_motion(reduced: bool) -> void:
 	if reduced: scale = Vector2.ONE
 
 
-func announce(text: String, severity: StringName = &"info") -> void:
-	if text.is_empty(): return
+## `message`, not `text`: `text` is Label's text property (this banner is a Label).
+func announce(message: String, severity: StringName = &"info") -> void:
+	if message.is_empty(): return
 	for entry in _queue:
-		if entry.text == text: return
+		if entry.text == message: return
 	if _queue.size() >= 6: _queue.pop_front()
 	if severity == &"danger":
 		_timer = 0
-		_queue.push_front({"text": text, "severity": severity})
+		_queue.push_front({"text": message, "severity": severity})
 	else:
-		_queue.append({"text": text, "severity": severity})
+		_queue.append({"text": message, "severity": severity})
 
 
-func _on_announcement(_key: StringName, text: String, severity: StringName) -> void:
-	announce(text, severity)
+func _on_announcement(_key: StringName, message: String, severity: StringName) -> void:
+	announce(message, severity)
 
 
 func _on_wave_cleared(wave: int, bonus: int) -> void:

@@ -60,9 +60,9 @@ var _rng := RngService.new()
 var _blockers: Array[AABB] = []
 
 
-func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
+func decorate(arena_id: StringName, arena_half: float, rng_seed: int) -> void:
 	clear()
-	_rng.reseed(seed + hash(String(arena_id)) * 3)
+	_rng.reseed(rng_seed + hash(String(arena_id)) * 3)
 	match String(arena_id):
 		"ember_crucible":
 			_compose_ember(arena_half)
@@ -235,7 +235,11 @@ func _wall_props(half: float, banner: StringName, add_torches: bool) -> void:
 		_spawned.append(holder)
 
 
-func _centerish(half: float, radius: float) -> Vector3:
+## Pick a decoration spot off-centre. `_half` is unused: the disc `radius`
+## already bounds the sample, and `CENTER_CLEAR_RADIUS` bounds the middle.
+## NOTE: currently has no callers — kept as the arena-prop utility it is rather
+## than deleted, since a diagnostics pass should not remove intended capability.
+func _centerish(_half: float, radius: float) -> Vector3:
 	for _attempt in range(12):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, radius)
 		if p.length() > CENTER_CLEAR_RADIUS * 0.9:

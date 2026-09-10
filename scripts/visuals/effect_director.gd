@@ -101,7 +101,6 @@ var _ring_pool: Array[Node3D] = []
 var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
-var _bus := EventBindings.new()
 var _live_telegraphs := 0
 
 
@@ -165,12 +164,13 @@ func try_telegraph(for_boss: bool = false) -> bool:
 				if n is Damageable and (n as Damageable).is_alive():
 					bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
-	var free := 0
+	# `free_rings`, not `free`: `free()` is Object's destructor.
+	var free_rings := 0
 	for r in _ring_pool:
 		if not r.visible:
-			free += 1
-	free += maxi(0, MAX_RINGS - _ring_pool.size())
-	if free <= reserve:
+			free_rings += 1
+	free_rings += maxi(0, MAX_RINGS - _ring_pool.size())
+	if free_rings <= reserve:
 		return false
 	return _can_claim_ring(PRIORITY_SPAWN)
 
@@ -210,10 +210,11 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	if ring == null:
 		return
 	var grounded := at
-	var floor := _floor_hit(at)
-	grounded.y = float(floor.get("y", at.y))
+	# `floor_hit`, not `floor`: `floor()` is a built-in math function.
+	var floor_hit := _floor_hit(at)
+	grounded.y = float(floor_hit.get("y", at.y))
 	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
-	var nrm: Vector3 = floor.get("normal", Vector3.UP)
+	var nrm: Vector3 = floor_hit.get("normal", Vector3.UP)
 	if nrm.length_squared() > 0.01:
 		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
@@ -320,7 +321,7 @@ func _floor_hit(at: Vector3) -> Dictionary:
 	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
 
 
-func _on_wave_started(wave_number: int, _planned: int) -> void:
+func _on_wave_started(_wave_number: int, _planned: int) -> void:
 	var origin := _arena_origin()
 	ring_at(origin, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
 	burst_at(origin + Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
@@ -349,7 +350,7 @@ func _on_boss_slain(_boss_id: StringName) -> void:
 	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
 
 
-func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) -> void:
+func _on_pickup_collected(_pickup_id: StringName, _amount: int, collector: Node) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(collector) and collector is Node3D:
 		at = (collector as Node3D).global_position
@@ -374,10 +375,12 @@ func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> vo
 		burst_at(at, color, 0.5, PRIORITY_STATUS)
 
 
-func _on_projectile_fired(owner: Node, _weapon_id: StringName) -> void:
-	if not is_instance_valid(owner) or not owner is Node3D:
+## `shooter`, not `owner`: `owner` is Node's scene-ownership property. This is
+## the node that fired the projectile (EventBus.projectile_fired's first argument).
+func _on_projectile_fired(shooter: Node, _weapon_id: StringName) -> void:
+	if not is_instance_valid(shooter) or not shooter is Node3D:
 		return
-	var at := (owner as Node3D).global_position + Vector3(0, 1.0, 0)
+	var at := (shooter as Node3D).global_position + Vector3(0, 1.0, 0)
 	burst_at(at, Color(1.0, 0.82, 0.45), 0.48, PRIORITY_HIT)
 
 
@@ -509,13 +512,13 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 			return b
 	# Grow the pool up to the mobile cap.
 	if _bursts.size() < MAX_BURSTS:
-		var b := _make_burst_template() as GPUParticles3D
-		if b == null:
+		var burst := _make_burst_template() as GPUParticles3D
+		if burst == null:
 			return null
-		add_child(b)
-		_bursts.append(b)
-		_burst_prios[b] = priority
-		return b
+		add_child(burst)
+		_bursts.append(burst)
+		_burst_prios[burst] = priority
+		return burst
 	# Saturated: steal the lowest-priority active burst if the new request outranks it.
 	var lowest: GPUParticles3D = null
 	var lowest_prio := 9999
@@ -536,12 +539,12 @@ func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
 		if not r.visible:
 			return r
 	if _ring_pool.size() < MAX_RINGS:
-		var r := _make_ring()
-		if r != null:
-			add_child(r)
-			_ring_pool.append(r)
-			_ring_prios[r] = priority
-			return r
+		var ring := _make_ring()
+		if ring != null:
+			add_child(ring)
+			_ring_pool.append(ring)
+			_ring_prios[ring] = priority
+			return ring
 	# Saturated: steal the lowest-priority visible ring if new request is higher.
 	# Never evict a live BOSS ring for a grunt/spawn tell.
 	var lowest: Node3D = null

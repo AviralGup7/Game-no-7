@@ -177,9 +177,9 @@ static func _obstacle_layouts(results: Array) -> void:
 		var in_bounds := true
 		var spawn_clear := true
 		var hazard_buried := false
-		for ob in layout:
-			var pos := ob.position
-			var hs := ob.half_extents()
+		for obstacle in layout:
+			var pos := obstacle.position
+			var hs := obstacle.half_extents()
 			var foot := maxf(hs.x, hs.z)
 			if absf(pos.x) + foot > half - 1.0 or absf(pos.z) + foot > half - 1.0:
 				in_bounds = false

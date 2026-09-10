@@ -18,8 +18,10 @@ var _telegraph_flash_duration := 0.18
 
 
 func _ready() -> void:
-	var owner := get_parent()
-	_visual = owner.get_node_or_null("VisualRoot") as Node3D
+	# `host_body`, not `owner`: `owner` is Node's scene-ownership property. This is
+	# the enemy node this feedback component is parented under.
+	var host_body := get_parent()
+	_visual = host_body.get_node_or_null("VisualRoot") as Node3D
 	# Node3D has no modulate property. A private, reusable material overlay
 	# provides the existing flash without runtime errors on every spawn/hit.
 	_flash_material = StandardMaterial3D.new()

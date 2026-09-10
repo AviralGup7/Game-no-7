@@ -31,8 +31,9 @@ func run_smoke_test() -> Dictionary:
 	return {"passed": passed, "steps": steps}
 
 
-func _steps_append(steps: Array, name: StringName, passed: bool, details: String) -> void:
-	steps.append({"name": String(name), "passed": passed, "details": details})
+## `step_name`, not `name`: TestHarness is a Node and `name` is its node-name.
+func _steps_append(steps: Array, step_name: StringName, passed: bool, details: String) -> void:
+	steps.append({"name": String(step_name), "passed": passed, "details": details})
 
 
 func _state_machine_ok() -> bool:
@@ -178,8 +179,8 @@ func _save_round_trip_ok() -> bool:
 
 ## --- Instrumentation helpers (used by integration tests) ---
 
-func start_test_run(seed: int = 12345) -> void:
-	EventBus.report_info("TestHarness.start_test_run seed=%d" % seed)
+func start_test_run(rng_seed: int = 12345) -> void:
+	EventBus.report_info("TestHarness.start_test_run seed=%d" % rng_seed)
 	GameRoot.request_play()
 
 

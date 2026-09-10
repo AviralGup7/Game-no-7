@@ -183,10 +183,11 @@ func _finish_cycle() -> void:
 
 func _effective_cooldown() -> float:
 	var base := maxf(cooldown, 0.05)
-	var owner := _body
-	if owner == null or not is_instance_valid(owner):
+	# `body`, not `owner`: `owner` is Node's scene-ownership property.
+	var body := _body
+	if body == null or not is_instance_valid(body):
 		return base
-	var prog := owner.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	var prog := body.get_node_or_null("ProgressionComponent") as ProgressionComponent
 	if prog != null:
 		return maxf(prog.get_stat(&"dodge_cooldown_multiplier", base), 0.05)
 	return base

@@ -63,13 +63,14 @@ func randi_range(salt: int, low: int, high: int) -> int:
 	return stream(salt).randi_range(low, high)
 
 
-## True with probability `chance` in [0,1].
-func chance(salt: int, chance: float) -> bool:
-	if chance <= 0.0:
+## True with probability `probability` in [0,1]. The parameter is `probability`,
+## not `chance`, because `chance()` is this class' own method.
+func chance(salt: int, probability: float) -> bool:
+	if probability <= 0.0:
 		return false
-	if chance >= 1.0:
+	if probability >= 1.0:
 		return true
-	return stream(salt).randf() < chance
+	return stream(salt).randf() < probability
 
 
 ## Uniform pick from a non-empty array; returns null for an empty array.

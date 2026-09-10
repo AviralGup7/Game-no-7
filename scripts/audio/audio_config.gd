@@ -111,12 +111,13 @@ const _TUNED: Dictionary = {
 }
 
 
-static func for_cue(cue_id: StringName) -> AudioConfig:
+## `requested_cue`, not `cue_id`: `cue_id` is this resource's own @export field.
+static func for_cue(requested_cue: StringName) -> AudioConfig:
 	var cfg := AudioConfig.new()
-	cfg.cue_id = cue_id
+	cfg.cue_id = requested_cue
 	cfg.bus = &"SFX"
 	cfg.max_voices = DEFAULT_MAX_VOICES
-	var tuned: Variant = _TUNED.get(String(cue_id))
+	var tuned: Variant = _TUNED.get(String(requested_cue))
 	if tuned == null:
 		return cfg
 	cfg.bus = tuned[0]

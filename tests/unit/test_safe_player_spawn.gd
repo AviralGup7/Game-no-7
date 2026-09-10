@@ -47,9 +47,9 @@ static func _unstuck(results: Array) -> void:
 		_finite3(poisoned) and absf(poisoned.x) <= half + 0.001 and absf(poisoned.z) <= half + 0.001,
 		"got %s" % str(poisoned))
 
-	var floor := arena.unstuck_origin(Vector3(4.0, -8.0, 4.0))
+	var floor_origin := arena.unstuck_origin(Vector3(4.0, -8.0, 4.0))
 	_check(results, "below-floor spawn is lifted",
-		floor.y >= 0.15, "y=%.3f" % floor.y)
+		floor_origin.y >= 0.15, "y=%.3f" % floor_origin.y)
 
 	arena.free()
 

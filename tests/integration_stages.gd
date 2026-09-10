@@ -657,7 +657,7 @@ static func _run_boss_integration(tree: SceneTree, target: Node3D = null) -> Arr
 	return results
 
 
-static func _boss_ability_sequence(tree: SceneTree, seed: int, target: Node3D) -> Array:
+static func _boss_ability_sequence(tree: SceneTree, rng_seed: int, target: Node3D) -> Array:
 	var cfg := _basic_cfg()
 	cfg.archetype_id = &"probe_boss_ability"
 	cfg.max_health = 600.0
@@ -677,12 +677,12 @@ static func _boss_ability_sequence(tree: SceneTree, seed: int, target: Node3D) -
 	tree.root.add_child(boss)
 	boss.set_physics_process(false)
 	controller.set_physics_process(false)
-	boss.initialize(cfg, target, seed)
+	boss.initialize(cfg, target, rng_seed)
 	controller.configure_phases([{
 		"threshold": 1.0, "name": "Lab", "damage_mult": 1.0, "speed_mult": 1.0,
 		"abilities": [&"slam", &"charge", &"summon"], "interval": 0.3,
 	}])
-	controller.begin_fight(seed)
+	controller.begin_fight(rng_seed)
 	var kinds: Array = []
 	controller.telegraph_started.connect(func(kind: StringName, _duration: float) -> void:
 		if kind != BossController.TELEGRAPH_RECOVER:
@@ -955,7 +955,7 @@ static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack
 	return ", ".join(parts)
 
 
-static func _run_run_definition_integration(tree: SceneTree) -> Array:
+static func _run_run_definition_integration(_tree: SceneTree) -> Array:
 	var results: Array = []
 
 	# --- the announcer reads the mode's row, not a table of its own -----------------

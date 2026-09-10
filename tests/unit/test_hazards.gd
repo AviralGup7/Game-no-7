@@ -393,14 +393,14 @@ static func _index_matches_bruteforce(results: Array) -> void:
 		for at in range(found):
 			seen[index.result_index(at)] = true
 		var brute := {}
-		for i in range(40):
-			if (flags[i] & mask) == 0:
+		for probe_idx in range(40):
+			if (flags[probe_idx] & mask) == 0:
 				continue
-			var dx := xs[i] - center.x
-			var dz := zs[i] - center.z
-			var allowed := radius + pads[i]
+			var dx := xs[probe_idx] - center.x
+			var dz := zs[probe_idx] - center.z
+			var allowed := radius + pads[probe_idx]
 			if dx * dx + dz * dz <= allowed * allowed:
-				brute[i] = true
+				brute[probe_idx] = true
 		if seen.size() != brute.size():
 			mismatches += 1
 		else:
@@ -433,7 +433,7 @@ static func _index_reports_its_own_work(results: Array) -> void:
 		index.insert(Vector3(-11.0 + float(i % 8) * 3.0, 0.0, -11.0 + int(i / 8.0) * 3.0), 0, 0.0)
 	var before := index.visited
 	for q in range(10):
-		index.query(Vector3(-11.0 + float(q % 5) * 0.2, 0.0, -11.0 + float(q / 5) * 0.2), 1.2, 0)
+		index.query(Vector3(-11.0 + float(q % 5) * 0.2, 0.0, -11.0 + float(int(q / 5.0)) * 0.2), 1.2, 0)
 	var work_per_query := float(index.visited - before) / 10.0
 	_check(results, "a query visits a fraction of the arena instead of all of it",
 		work_per_query < 40.0 * 0.6, "visited/query=%s (brute force would be 40)" % str(work_per_query))

@@ -79,7 +79,7 @@ func _safe_seed(default: int = 0) -> int:
 	var run := _safe_run()
 	if run == null:
 		return default
-	return run.seed
+	return run.rng_seed
 
 func _safe_arena_id(default: StringName = &"default_arena") -> StringName:
 	var run := _safe_run()
@@ -220,7 +220,7 @@ func _create_systems(arena: Arena, player: Player) -> void:
 ## Per-run support systems: projectiles, pickups, juice, perf scaling, arena
 ## dressing + hazards. All passive until used; freed with the world on rebuild.
 func _create_run_systems(arena: Arena, player: Player) -> void:
-	var seed := _safe_seed()
+	var run_seed := _safe_seed()
 	var arena_id := _safe_arena_id()
 	var half := arena.get_interior_half()
 
@@ -231,7 +231,7 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	var pickups := PickupManager.new()
 	pickups.name = "PickupManager"
 	_world_root.add_child(pickups)
-	pickups.configure(seed)
+	pickups.configure(run_seed)
 
 	var hitstop := HitstopManager.new()
 	hitstop.name = "HitstopManager"
@@ -249,7 +249,7 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	var decorator := ArenaDecorator.new()
 	decorator.name = "ArenaDecorator"
 	arena.add_child(decorator)
-	decorator.decorate(arena_id, half, seed)
+	decorator.decorate(arena_id, half, run_seed)
 	# Prestige banners (unlocked cosmetics) hang on the arena walls in their colours.
 	if SaveManager != null:
 		decorator.apply_prestige_banners(half, SaveManager.get_unlocked_cosmetics())
@@ -260,7 +260,7 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	# The layout itself is authored: ArenaConfig.hazard_layout for the arena, plus the
 	# game mode's own HazardModeLayout. Neither call needs a new code path when a designer
 	# adds a hazard or an arena (docs/EXTENDING.md).
-	hazards.configure(arena_id, half, seed)
+	hazards.configure(arena_id, half, run_seed)
 	var mode_id := GameMode.MODE_STANDARD
 	if GameRoot != null:
 		mode_id = GameRoot.get_run_mode()
@@ -282,11 +282,11 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
 	var skills := player.get_skill_controller()
 	if skills != null:
-		skills.configure(seed)
+		skills.configure(run_seed)
 	var weapons := player.get_weapon_manager()
-	weapons.configure(seed)
+	weapons.configure(run_seed)
 	_apply_owned_unlocks(player, skills, weapons)
-	_attach_build_effects(player, seed)
+	_attach_build_effects(player, run_seed)
 	# Tutorial coach follows real player actions.
 	if _tutorial != null:
 		player.attack_started.connect(_tutorial.notify_player_attacked)
