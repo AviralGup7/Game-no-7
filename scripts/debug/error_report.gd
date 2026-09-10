@@ -61,6 +61,27 @@ static func format_stack(stack: Array) -> PackedStringArray:
 	return lines
 
 
+## Drop leading stack frames that belong to the error plumbing itself
+## (EventBus.report_* + the debug pipeline), so frame #0 is the true caller.
+## Stops at the first external frame; non-Dictionary entries are kept as-is so a
+## malformed stack can never come back empty-handed.
+static func drop_internal_frames(stack: Array, internal_suffixes: Array) -> Array:
+	var start := 0
+	while start < stack.size():
+		var entry: Variant = stack[start]
+		if not entry is Dictionary:
+			break
+		var source := str((entry as Dictionary).get("source", ""))
+		var internal := false
+		for suffix in internal_suffixes:
+			if not source.is_empty() and source.ends_with(str(suffix)):
+				internal = true
+		if not internal:
+			break
+		start += 1
+	return stack.slice(start)
+
+
 ## Assemble the full copyable block. `stack` is get_stack() output (or an empty
 ## Array), `context` a flat String->Variant map, `log_tail` the buffered lines
 ## in chronological order (oldest first). Context keys are sorted so two reports

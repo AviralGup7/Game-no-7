@@ -21,16 +21,19 @@ game behaves exactly as before.
 
 1. The tree pauses — the simulation, enemies, timers, everything stops.
 2. A full-screen overlay shows the report: title, UTC timestamp, message, stack
-   trace, device/game context (app + engine version, OS, device model, memory,
-   FPS, game state, run/wave/score, scene), and the last 60 log lines.
+   trace (plumbing frames stripped, so frame #0 is the true caller),
+   device/game context (app + engine version, OS, device model, memory, FPS,
+   game state, run/wave/score, scene, screenshot path), and the last 60 log
+   lines. The overlay headlines which capture is shown and where it auto-saved.
 3. Every capture is also auto-saved to `user://logs/crash_<UTC-timestamp>.log`
-   (newest 5 kept).
+   plus a `crash_<UTC-timestamp>.png` screenshot of the scene as it was at
+   failure (newest 5 pairs kept).
 
 ## Overlay actions
 
 | Button | Effect |
 |---|---|
-| `COPY REPORT` (or Ctrl+C) | Copies the whole block to the OS clipboard. The button confirms with the size (`COPIED ✓ (12.4 KB)`); if the clipboard round-trip fails it says so and the text stays selectable for a manual long-press copy. |
+| `COPY REPORT` (or Ctrl+C) | Copies the whole block to the OS clipboard. The button confirms with the size (`COPIED ✓ (12.4 KB)`); if the clipboard round-trip fails it says so and selects the whole text for a manual long-press copy. |
 | `SAVE TO FILE` | Writes `user://logs/report_<timestamp>.txt` and shows the path. |
 | `< PREV` / `NEXT >` | Steps through stacked errors (cascades are kept, newest 10). |
 | `RESUME GAME` | Closes the overlay and restores the exact pre-freeze pause state. |
@@ -50,17 +53,23 @@ game behaves exactly as before.
 
 - `debug_mode.cfg` — the persisted flag.
 - `logs/session.log` — this session's diagnostics + breadcrumbs (state changes,
-  run start/end, wave starts); rotated to `logs/session.previous.log` on boot,
-  capped at 256 KiB.
+  run start/end, wave starts, saves, OS memory warnings, main-loop stalls over
+  1.5s); rotated to `logs/session.previous.log` on boot, capped at 256 KiB.
 - `logs/session.json` — `{"clean_exit": ...}` exit flag for crash recovery.
-- `logs/crash_*.log` — auto-saved captures. `logs/report_*.txt` — explicit saves.
+- `logs/crash_*.log` — auto-saved captures. `logs/crash_*.png` — paired
+  screenshots. `logs/report_*.txt` — explicit saves.
 
 ## Coverage and honest limitations
 
 - **Covered:** every authored failure point — `EventBus.report_error` is what
   world build, arena load, player spawn, spawn/wave systems, and saves call on
-  failure. Authored guards can also call
-  `DebugErrorHandler.capture_error(message)` directly.
+  failure, and the trap fails closed (any severity that is not info/warning
+  freezes, so a future `critical` cannot slip past). `save_failed` is captured
+  as data-loss class even though it is a signal, not a diagnostic. Authored
+  guards can also call `DebugErrorHandler.capture_error(message)` directly.
+- **Counted:** every real error (self-tests excluded, any flag state) is
+  counted into the run's analytics row (`RunAnalytics.note_error`), so run-end
+  rows and session totals say which runs hit errors.
 - **Hard native crashes** (segfault, OOM kill, force-stop) cannot be
   intercepted from GDScript. For those, each boot checks the previous
   session's exit flag; an unclean exit keeps its recovered log one click away
@@ -82,3 +91,8 @@ game behaves exactly as before.
 - `scripts/debug/debug_mode_toggle.gd` — the shared switch (menu + settings).
 - `scripts/debug/error_report.gd`, `scripts/debug/debug_log_buffer.gd` — pure,
   unit-tested formatting + ring buffer (`tests/unit/test_error_report.gd`).
+- Integrations: `RunAnalytics.note_error` (per-run + session error counts),
+  `TestHarness.get_test_snapshot` (`debug` key) and its `debug_trap_ready`
+  smoke step. `tests/python/test_regress_debug_mode.py` pins the trap's
+  load-bearing shapes (no headless freeze, no recursion, overlay layer/input,
+  frame stripping, screenshot pairing, integrations, toggle reach).

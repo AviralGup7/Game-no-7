@@ -18,8 +18,10 @@ signal restart_requested
 signal menu_requested
 
 const LAYER_ABOVE_ALL := 128
+const SUBTITLE_BASE := "Nothing crashed. COPY REPORT (or Ctrl+C) copies the whole block."
 
 var _root: Control
+var _subtitle_label: Label
 var _counter_label: Label
 var _text: TextEdit
 var _feedback: Label
@@ -59,8 +61,8 @@ func _build() -> void:
 	margin.add_child(box)
 	var headline := UiFactory.title("DEBUG MODE — ERROR CAPTURED, GAME FROZEN", box, 24)
 	headline.modulate = Color(1.0, 0.45, 0.4)
-	var subtitle := UiFactory.label("Nothing crashed. COPY REPORT (or Ctrl+C) copies the whole block.", box, 16)
-	subtitle.modulate = UiTheme.MUTED
+	_subtitle_label = UiFactory.label(SUBTITLE_BASE, box, 16)
+	_subtitle_label.modulate = UiTheme.MUTED
 	_counter_label = UiFactory.label("REPORT 1 OF 1", box, 16)
 	_counter_label.modulate = UiTheme.CYAN
 	_text = TextEdit.new()
@@ -108,14 +110,19 @@ func _action(parent: Control, caption: String) -> Button:
 	return button
 
 
-## Present a report. `index`/`total` drive the counter + prev/next state.
-func show_report(report_text: String, index: int, total: int) -> void:
+## Present a report. `index`/`total` drive the counter + prev/next state; `title`
+## headlines which capture this is when paging through stacked errors, and
+## `autosave_path` ("" when unknown) tells the tester where the file already went.
+func show_report(title: String, report_text: String, index: int, total: int, autosave_path: String) -> void:
 	_text.text = report_text
+	var clean_title := title.strip_edges()
+	_subtitle_label.text = SUBTITLE_BASE if clean_title.is_empty() else SUBTITLE_BASE + "\n" + clean_title
 	_counter_label.text = "REPORT %d OF %d" % [index + 1, maxi(total, 1)]
 	var many := total > 1
 	_prev_button.disabled = not many
 	_next_button.disabled = not many
-	show_feedback("")
+	var clean_path := autosave_path.strip_edges()
+	show_feedback("" if clean_path.is_empty() else "Auto-saved: " + clean_path)
 	_root.visible = true
 	var bar := _text.get_v_scroll_bar()
 	if is_instance_valid(bar):
@@ -138,6 +145,13 @@ func is_showing() -> bool:
 func show_feedback(message: String) -> void:
 	if _feedback != null:
 		_feedback.text = message
+
+
+## Select the whole report so a failed clipboard copy is still one long-press
+## away from a manual copy.
+func select_all_text() -> void:
+	if _text != null:
+		_text.select_all()
 
 
 func _input(event: InputEvent) -> void:

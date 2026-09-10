@@ -18,6 +18,9 @@ extends Node
 ##   (Android background kills also count as unclean — a hint, not proof.)
 ## - Headless runs (--headless, CI) never freeze: there is no screen to read
 ##   the report on. They still log and still write crash files.
+## - Every capture also grabs a screenshot (crash_<stamp>.png next to the log)
+##   and is counted into the run's analytics row; a stall watchdog breadcrumbs
+##   main-loop gaps over 1.5s (scene loads, hitches, real freezes).
 ##
 ## Autoload-order contract: this singleton reads EventBus signals only, and it
 ## persists its own flag in user://debug_mode.cfg (never SaveManager), so it can
@@ -41,10 +44,16 @@ const LOG_TAIL_LINES := 60
 const MAX_REPORTS := 10
 const CMDLINE_ENABLE := "--debug-mode"
 const CMDLINE_NO_FREEZE := "--no-debug-freeze"
+## Stack frames from these files are the error plumbing itself, never the bug.
+const INTERNAL_SOURCES := ["event_bus.gd", "debug_error_handler.gd"]
+## A main-loop gap longer than this is logged as a stall (scene load, hitch, or
+## a real freeze); it never freezes by itself — it is only a breadcrumb.
+const STALL_WARN_MSEC := 1500
 
 var _debug_mode := false
 var _buffer := DebugLogBuffer.new()
-var _reports: Array[String] = []
+## Kept captures: {title, text, path} records, newest last.
+var _reports: Array[Dictionary] = []
 var _pending: Array[Dictionary] = []
 var _current := 0
 var _overlay: DebugErrorOverlay
@@ -54,6 +63,9 @@ var _draining := false
 var _previous_unclean := false
 var _previous_tail := PackedStringArray()
 var _no_freeze := false
+var _session_log_bytes := 0
+var _last_frame_msec := 0
+var _backgrounded := false
 
 
 func _ready() -> void:
@@ -62,6 +74,7 @@ func _ready() -> void:
 	_load_config()
 	_apply_cmdline_overrides()
 	_rotate_session_log()
+	_session_log_bytes = _measure_session_log()
 	_previous_unclean = _read_previous_unclean()
 	_previous_tail = _read_log_tail(PREVIOUS_LOG, LOG_TAIL_LINES)
 	_write_session_state(false)
@@ -70,6 +83,8 @@ func _ready() -> void:
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.run_ended.connect(_on_run_ended)
 	EventBus.wave_started.connect(_on_wave_started)
+	EventBus.save_failed.connect(_on_save_failed)
+	EventBus.save_completed.connect(_on_save_completed)
 	_overlay = DebugErrorOverlay.new()
 	add_child(_overlay)
 	_overlay.copy_requested.connect(_on_copy_requested)
@@ -90,6 +105,27 @@ func _notification(what: int) -> void:
 			# The only paths that mark a clean exit. A crash, force-stop, or OS
 			# background kill skips them, and the next boot notices.
 			_write_session_state(true)
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			# Frames stop while backgrounded; without this the resume gap would
+			# log a bogus stall in _process.
+			_backgrounded = true
+		NOTIFICATION_APPLICATION_RESUMED:
+			_backgrounded = false
+			_last_frame_msec = 0
+
+
+func _process(_delta: float) -> void:
+	# Stall watchdog: a gap with no frame at all means the main loop itself
+	# stalled (heavy scene load, hitch, or a genuine freeze). Warning breadcrumb
+	# only — it never freezes, and background gaps are excluded above.
+	var now := Time.get_ticks_msec()
+	if _backgrounded or _last_frame_msec <= 0:
+		_last_frame_msec = now
+		return
+	var gap := now - _last_frame_msec
+	_last_frame_msec = now
+	if gap > STALL_WARN_MSEC:
+		_log("warning", "main-loop stall: %.1fs without a frame (scene load, hitch, or freeze)" % (float(gap) / 1000.0))
 
 
 ## ---------- Public flag API (used by the menu + settings toggles) ----------
@@ -130,10 +166,27 @@ func had_unclean_previous_session() -> bool:
 ## Honors the debug flag: when OFF the message is only logged to the session file.
 func capture_error(message: String, stack: Array = [], extra: Dictionary = {}) -> void:
 	_log("error", message)
+	# Self-tests prove the pipeline; they are not run errors and stay uncounted.
+	if not bool(extra.get("self_test", false)):
+		_note_analytics_error()
 	if not _debug_mode:
 		return
 	var frames: Array = stack if not stack.is_empty() else _capture_stack(2)
-	var item := {"message": message, "stack": frames, "extra": extra}
+	_queue_capture(message, frames, extra)
+
+
+## Count one real error into the run's analytics row (any flag state).
+func _note_analytics_error() -> void:
+	if RunAnalytics != null:
+		RunAnalytics.note_error()
+
+
+## Single funnel for every capture path: queue + deferred present. `log_override`
+## replaces the live buffer tail (used for the previous session's recovered log).
+func _queue_capture(message: String, stack: Array, extra: Dictionary, log_override := PackedStringArray()) -> void:
+	var item := {"message": message, "stack": stack, "extra": extra}
+	if not log_override.is_empty():
+		item["log"] = log_override
 	_pending.append(item)
 	_drain_pending.call_deferred()
 
@@ -148,28 +201,41 @@ func capture_test_error() -> void:
 
 func _on_diagnostic(message: String, severity: StringName) -> void:
 	# Every diagnostic is preserved to the buffer + session file either way, so a
-	# later hard crash still leaves a trail. Only errors freeze, and only in
-	# debug mode. Presenting is deferred: this runs synchronously inside the
-	# reporter's call stack, but the stack snapshot must be taken right here.
+	# later hard crash still leaves a trail. Fail closed: anything that is not an
+	# info/warning freezes in debug mode, so a future severity (e.g. "critical")
+	# can never slip past the trap. Presenting is deferred: this runs
+	# synchronously inside the reporter's call stack, but the stack snapshot must
+	# be taken right here.
 	_log(String(severity), message)
-	if severity != &"error" or not _debug_mode:
+	if severity == &"info" or severity == &"warning":
 		return
-	var item := {
-		"message": message,
-		"stack": _capture_stack(2),
-		"extra": {"source": "eventbus"},
-	}
-	_pending.append(item)
-	_drain_pending.call_deferred()
+	_note_analytics_error()
+	if not _debug_mode:
+		return
+	_queue_capture(message, _capture_stack(2), {"source": "eventbus"})
 
 
-## Snapshot the live call stack, dropping this helper + its direct caller so
-## frame #0 is the code that reported the error.
+## A failed save is data-loss class: breadcrumb always, capture in debug mode.
+func _on_save_failed(reason: StringName) -> void:
+	var message := "save failed: %s" % String(reason)
+	_log("error", message)
+	_note_analytics_error()
+	if not _debug_mode:
+		return
+	_queue_capture(message, _capture_stack(2), {"source": "save_failed"})
+
+
+func _on_save_completed() -> void:
+	_log("info", "save completed")
+
+
+## Snapshot the live call stack: drop this helper + its direct caller, then
+## strip the plumbing frames (EventBus.report_* + this pipeline) so frame #0 is
+## the code that actually reported the error.
 func _capture_stack(frames_to_drop: int) -> Array:
 	var frames := get_stack()
-	if frames_to_drop <= 0:
-		return frames
-	return frames.slice(mini(frames_to_drop, frames.size()))
+	var start := mini(maxi(frames_to_drop, 0), frames.size())
+	return ErrorReport.drop_internal_frames(frames.slice(start), INTERNAL_SOURCES)
 
 
 ## Low-frequency breadcrumbs so a report shows what the game was doing.
@@ -206,16 +272,43 @@ func _present(item: Dictionary) -> void:
 	var stack: Array = item.get("stack", [])
 	var extra: Dictionary = item.get("extra", {})
 	var log_lines: PackedStringArray = item.get("log", _buffer.tail(LOG_TAIL_LINES))
-	var report := ErrorReport.build(_report_title(extra), message, stack, _gather_context(extra), log_lines)
-	_reports.append(report)
+	var title := _report_title(extra)
+	# One stamp pairs the .log with its .png. The screenshot is taken before the
+	# overlay covers the screen, so it shows the scene as it was at failure.
+	var stamp := ErrorReport.filename_stamp()
+	var shot := _capture_screenshot(stamp)
+	var context := _gather_context(extra)
+	if not shot.is_empty():
+		context["screenshot"] = shot
+	var report := ErrorReport.build(title, message, stack, context, log_lines)
+	var crash_path := _write_crash_file(report, stamp)
+	_reports.append({"title": title, "text": report, "path": crash_path})
 	while _reports.size() > MAX_REPORTS:
 		_reports.pop_front()
 	_current = _reports.size() - 1
-	_write_crash_file(report)
 	error_captured.emit(_reports.size())
 	_freeze()
-	if _overlay != null:
-		_overlay.show_report(report, _current, _reports.size())
+	_show_record(_reports[_current], crash_path)
+
+
+## Grab the current frame as crash_<stamp>.png next to the crash log. Skipped
+## headless (no framebuffer) and on any failure — a missing screenshot must
+## never break the report itself.
+func _capture_screenshot(stamp: String) -> String:
+	if DisplayServer.get_name() == "headless":
+		return ""
+	var tree := get_tree()
+	if tree == null or tree.root == null:
+		return ""
+	var image := tree.root.get_texture().get_image()
+	if image == null or image.is_empty():
+		return ""
+	_ensure_log_dir()
+	var path := "%s/crash_%s.png" % [LOG_DIR, stamp]
+	if image.save_png(path) != OK:
+		push_warning("DebugErrorHandler: screenshot save failed")
+		return ""
+	return path
 
 
 func _report_title(extra: Dictionary) -> String:
@@ -223,6 +316,8 @@ func _report_title(extra: Dictionary) -> String:
 		return "Self-test error (debug pipeline check)"
 	if String(extra.get("source", "")) == "previous_session":
 		return "Previous session ended unexpectedly (recovered log)"
+	if String(extra.get("source", "")) == "save_failed":
+		return "Save failed (data-loss class error)"
 	return "Runtime error captured before it could crash the game"
 
 
@@ -267,10 +362,10 @@ func show_next_report() -> void:
 
 
 func _show_at(index: int) -> void:
-	if _reports.is_empty() or _overlay == null:
+	if _reports.is_empty():
 		return
 	_current = clampi(index, 0, _reports.size() - 1)
-	_overlay.show_report(_reports[_current], _current, _reports.size())
+	_show_record(_reports[_current])
 
 
 ## Re-open the newest captured report (Settings > Debug). Freezes while visible:
@@ -280,8 +375,16 @@ func show_last_report() -> void:
 		return
 	_current = _reports.size() - 1
 	_freeze()
-	if _overlay != null:
-		_overlay.show_report(_reports[_current], _current, _reports.size())
+	_show_record(_reports[_current])
+
+
+## Show one kept record on the overlay (fresh captures pass their just-written
+## path explicitly; re-views reuse the stored one).
+func _show_record(record: Dictionary, autosave_path: String = "") -> void:
+	if _overlay == null:
+		return
+	var note := autosave_path if not autosave_path.is_empty() else String(record.get("path", ""))
+	_overlay.show_report(String(record.get("title", "")), String(record.get("text", "")), _current, _reports.size(), note)
 
 
 ## Present the previous session's recovered log tail like a fresh capture (kept
@@ -289,14 +392,7 @@ func show_last_report() -> void:
 func show_previous_session_report() -> void:
 	if _previous_tail.is_empty():
 		return
-	var item := {
-		"message": "The previous session did not exit cleanly (crash, force-stop, or an OS background kill). Log tail recovered from disk.",
-		"stack": [],
-		"log": _previous_tail,
-		"extra": {"source": "previous_session"},
-	}
-	_pending.append(item)
-	_drain_pending.call_deferred()
+	_queue_capture("The previous session did not exit cleanly (crash, force-stop, or an OS background kill). Log tail recovered from disk.", [], {"source": "previous_session"}, _previous_tail)
 
 
 ## ---------- Copy / save ----------
@@ -312,9 +408,18 @@ func _copy_and_report() -> void:
 	if _reports.is_empty():
 		return
 	if copy_current_report():
-		_feedback_to_overlay("COPIED ✓  (%s — paste it into your bug report)" % _kilobytes(_reports[_current]))
+		_feedback_to_overlay("COPIED ✓  (%s — paste it into your bug report)" % _kilobytes(_current_text()))
 	else:
-		_feedback_to_overlay("COPY FAILED — long-press the text above to select and copy it manually.")
+		if _overlay != null:
+			_overlay.select_all_text()
+		_feedback_to_overlay("COPY FAILED — the text is selected above; long-press to copy it manually.")
+
+
+## The visible report's body ("" when nothing is kept).
+func _current_text() -> String:
+	if _reports.is_empty():
+		return ""
+	return String(_reports[clampi(_current, 0, _reports.size() - 1)].get("text", ""))
 
 
 func _feedback_to_overlay(message: String) -> void:
@@ -325,9 +430,9 @@ func _feedback_to_overlay(message: String) -> void:
 ## Copy the visible report to the OS clipboard. Returns false when the
 ## round-trip read-back disagrees (some Android keyboards block clipboard reads).
 func copy_current_report() -> bool:
-	if _reports.is_empty():
+	var text := _current_text()
+	if text.is_empty():
 		return false
-	var text := _reports[_current]
 	DisplayServer.clipboard_set(text)
 	return DisplayServer.clipboard_get() == text
 
@@ -344,10 +449,11 @@ func _on_save_requested() -> void:
 ## (Every capture is already auto-saved as a crash_*.log file; this is the
 ## explicit, user-confirmed copy.)
 func save_current_report() -> String:
-	if _reports.is_empty():
+	var text := _current_text()
+	if text.is_empty():
 		return ""
 	var path := "%s/report_%s.txt" % [LOG_DIR, ErrorReport.filename_stamp()]
-	if _write_text_file(path, _reports[_current]):
+	if _write_text_file(path, text):
 		return path
 	return ""
 
@@ -497,14 +603,23 @@ func _log(severity: String, message: String) -> void:
 	_append_session_log(line)
 
 
+## Size of the live session log, measured once at boot and tracked per write so
+## rotation never needs a probe open.
+func _measure_session_log() -> int:
+	if not FileAccess.file_exists(SESSION_LOG):
+		return 0
+	var probe := FileAccess.open(SESSION_LOG, FileAccess.READ)
+	if probe == null:
+		return 0
+	var size := probe.get_length()
+	probe.close()
+	return size
+
+
 func _append_session_log(line: String) -> void:
-	if FileAccess.file_exists(SESSION_LOG):
-		var probe := FileAccess.open(SESSION_LOG, FileAccess.READ)
-		if probe != null and probe.get_length() > MAX_SESSION_LOG_BYTES:
-			probe.close()
-			_rotate_session_log()
-		elif probe != null:
-			probe.close()
+	if _session_log_bytes > MAX_SESSION_LOG_BYTES:
+		_rotate_session_log()
+		_session_log_bytes = 0
 	var file := FileAccess.open(SESSION_LOG, FileAccess.READ_WRITE)
 	if file == null:
 		file = FileAccess.open(SESSION_LOG, FileAccess.WRITE)
@@ -514,6 +629,7 @@ func _append_session_log(line: String) -> void:
 	file.seek(file.get_length())
 	file.store_line(line)
 	file.close()
+	_session_log_bytes += line.to_utf8_buffer().size() + 1
 
 
 func _read_previous_unclean() -> bool:
@@ -558,10 +674,15 @@ func _write_text_file(path: String, contents: String) -> bool:
 	return true
 
 
-func _write_crash_file(report: String) -> void:
-	var path := "%s/crash_%s.log" % [LOG_DIR, ErrorReport.filename_stamp()]
-	if _write_text_file(path, report):
-		_prune_files("crash_", ".log", MAX_CRASH_FILES)
+## Write crash_<stamp>.log (paired with the screenshot's crash_<stamp>.png).
+## Returns the path, or "" on failure.
+func _write_crash_file(report: String, stamp: String) -> String:
+	var path := "%s/crash_%s.log" % [LOG_DIR, stamp]
+	if not _write_text_file(path, report):
+		return ""
+	_prune_files("crash_", ".log", MAX_CRASH_FILES)
+	_prune_files("crash_", ".png", MAX_CRASH_FILES)
+	return path
 
 
 func _prune_files(prefix: String, suffix: String, keep: int) -> void:
@@ -607,5 +728,6 @@ func get_debug_snapshot() -> Dictionary:
 		"pending": _pending.size(),
 		"log_lines": _buffer.size(),
 		"log_dropped": _buffer.dropped_count(),
+		"session_log_bytes": _session_log_bytes,
 		"previous_unclean": _previous_unclean,
 	}

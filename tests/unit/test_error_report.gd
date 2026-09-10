@@ -115,4 +115,42 @@ static func suite() -> Array:
 		"why": "",
 	})
 
+	var plumbing := [
+		{"function": "report_error", "source": "res://scripts/core/event_bus.gd", "line": 105},
+		{"function": "_on_diagnostic", "source": "res://scripts/debug/debug_error_handler.gd", "line": 200},
+		{"function": "_ready", "source": "res://scripts/main/main.gd", "line": 12},
+	]
+	var trimmed := ErrorReport.drop_internal_frames(plumbing, ["event_bus.gd", "debug_error_handler.gd"])
+	results.append({
+		"name": "leading plumbing frames drop so #0 is the true caller",
+		"passed": trimmed.size() == 1 and str(trimmed[0].get("function")) == "_ready",
+		"why": "",
+	})
+
+	var stopped := ErrorReport.drop_internal_frames([
+		{"function": "_ready", "source": "res://scripts/main/main.gd", "line": 12},
+		{"function": "report_error", "source": "res://scripts/core/event_bus.gd", "line": 105},
+	], ["event_bus.gd"])
+	results.append({
+		"name": "filtering stops at the first external frame",
+		"passed": stopped.size() == 2 and str(stopped[0].get("function")) == "_ready",
+		"why": "",
+	})
+
+	var raw := ErrorReport.drop_internal_frames(["raw line"], ["event_bus.gd"])
+	results.append({
+		"name": "non-dictionary entries are kept as-is",
+		"passed": raw.size() == 1 and str(raw[0]) == "raw line",
+		"why": "",
+	})
+
+	var all_internal := ErrorReport.drop_internal_frames([
+		{"function": "report_error", "source": "res://scripts/core/event_bus.gd", "line": 105},
+	], ["event_bus.gd"])
+	results.append({
+		"name": "all-internal stack degrades to empty (renders as no-stack note)",
+		"passed": all_internal.is_empty(),
+		"why": "",
+	})
+
 	return results

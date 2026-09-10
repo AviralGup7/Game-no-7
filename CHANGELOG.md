@@ -38,6 +38,21 @@ through stacked errors, resume, restart, and main-menu actions.
   `tests/unit/test_error_report.gd` in the synchronous suite; the startup
   contract test now pins nine singletons with the handler directly after
   EventBus.
+- **Follow-up hardening, fixes, and integrations.** Frame #0 is now the true
+  caller (`ErrorReport.drop_internal_frames` strips the EventBus/pipeline
+  frames, unit-tested); every capture grabs a paired `crash_<stamp>.png`
+  screenshot whose path lands in the report context; the overlay headlines
+  each capture's title and its auto-saved path; a failed clipboard copy now
+  selects the whole text for a one-gesture manual copy; the session log
+  rotates off an in-memory byte counter instead of a probe open per line.
+  Coverage widened: `save_failed` captures as data-loss class, the severity
+  gate fails closed (any future non-info/warning severity freezes), and a
+  background-aware stall watchdog breadcrumbs main-loop gaps over 1.5s.
+  Integrations: real errors count into analytics (`note_error` → per-run rows
+  + `session_errors`; pure increment, self-tests excluded) and the test
+  harness exposes the `debug` snapshot plus a `debug_trap_ready` smoke step.
+  `tests/python/test_regress_debug_mode.py` pins the trap's load-bearing
+  shapes so refactors cannot silently break them.
 
 ## [Unreleased] — Mobile input & interruption: the weakest subsystem, rebuilt (2026-09-10)
 
