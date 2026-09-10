@@ -183,10 +183,10 @@ func _finish_cycle() -> void:
 
 func _effective_cooldown() -> float:
 	var base := maxf(cooldown, 0.05)
-	var owner := _body
-	if owner == null or not is_instance_valid(owner):
+	var host := _body
+	if host == null or not is_instance_valid(host):
 		return base
-	var prog := owner.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	var prog := host.get_node_or_null("ProgressionComponent") as ProgressionComponent
 	if prog != null:
 		return maxf(prog.get_stat(&"dodge_cooldown_multiplier", base), 0.05)
 	return base

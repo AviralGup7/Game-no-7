@@ -1,5 +1,62 @@
 # Changelog
 
+## [Unreleased] — Editor-error sweep: the 4.7.2 report, fixed and verified offline (2026-09-10)
+
+The project was opened in a Godot **4.7.2-stable** editor and reported three "Parse error"
+toasts (`main.gd`, `virtual_joystick.gd`, `tests/unit/test_locomotion_nan.gd`) plus 107
+analyzer warnings. The warning half was real and is now fixed tree-wide; the parse-error half
+was investigated against the actual engine source and is documented below.
+
+- **The parse errors are not code defects.** The three scripts were diff-checked against the
+  real `4.4.1-stable` → `4.7.2-stable` GDScript sources (tokenizer, parser, analyzer, and the
+  full warning table downloaded from the engine tags): no grammar rule tightened, no analyzer
+  hard error added that any construct in those files uses (the only new hard errors in 4.7 are
+  `@abstract`-class related), and the default warning-to-error levels are byte-identical
+  between the two versions. All three files load green in the pinned 4.4.1 CI (main scene +
+  the NAN-locomotion suite both execute them) and parse clean under gdparse/gdlint. The
+  toasts match the known 4.6/4.7 editor first-load dependency-order bugs
+  (godotengine/godot#120407, #119715, #119100): dependent scripts surface a generic
+  "Parse error" while the editor's threaded import is still resolving their dependencies, and
+  the error clears once loading completes. `docs/BUILD.md` (Troubleshooting) now says so.
+- **UNUSED_SIGNAL ×47 silenced by annotation, not deletion.** Every one is a live cross-file
+  contract (verified project-wide: each signal has an emitter and receivers somewhere in the
+  tree) that the per-script analyzer cannot see. `event_bus.gd` wraps its declaration block in
+  `@warning_ignore_start/restore("unused_signal")` with the rationale; `enemy_base.gd`
+  (`state_changed`, `attack_started`, `attack_hit` — emitted by the state scripts) and
+  `player.gd` (`move_started`, `move_stopped`, `upgrade_applied` — emitted by the locomotion /
+  progression components) exempt exactly those signals at the declaration. The annotation is
+  engine-verified present in both 4.4.1 and 4.7.2 and applies to `signal` members.
+- **SHADOWED_* ×29 fixed for real.** A chain-aware offline detector (ClassDB manifest +
+  project class graph, the same data the engine-API gate uses) enumerated exactly the
+  identifiers the analyzer would flag, and each was renamed at the source: `seed` → `run_seed`
+  in 18 functions (a `seed` parameter shadows the `@GlobalScope` function everywhere), plus
+  `name`/`owner`/`text`/`size`/`position`/`control`/`mount`/`basis`/`floor`/`exp`/`log`/
+  `capacity`/`world_xz`/`free` shadows across `audio_manager`, `announcement_banner`,
+  `armory_panel`, `camera_rig`, `character_visuals`, `combat_log`, `dodge_controller`,
+  `effect_director`, `enemy_feedback`, `minimap`, `test_harness`, `ui_gauges`, `ui_theme`,
+  `virtual_joystick` and six test harnesses. Call sites are positional, so no behavior moved;
+  the contract tests that pin signatures were updated to the new names in the same commit.
+- **UNUSED_PARAMETER ×11 underscored** at genuine protocol/signal seams
+  (`damageable.apply_damage`, `game_root._on_state_entered`, `enemy_animator._on_boss_telegraph`,
+  `spawn_ledger.register_direct_spawn`, `player._on_weapon_attack_resolved`,
+  `player_feedback.play_attack_feedback`, `effect_director._on_wave_started` /
+  `_on_pickup_collected`, `arena_decorator._centerish`, two test helpers), and
+  `enemy_idle_state._investigate` dropped its dead `cfg` parameter entirely.
+- **UNUSED_VARIABLE ×2 removed** (`ui_theme.create`'s unread `surface`, a dead `g0` capture in
+  the pickup-magnet stress check) and the **UNREACHABLE_CODE** `return 0` after the real
+  return in `upgrade_panel._current_stack()` was deleted.
+- **INTEGER_DIVISION ×5 made intent-explicit** without changing values: the mm:ss formatting in
+  `game_mode.objective_label` (`int(left / 60)` — float division + truncation, identical for
+  the non-negative operand, and it keeps the no-authored-magnitudes rule intact), the A* index
+  math in `arena_nav_grid` (`int(i / float(width))`), and the mirrored-flank spacing in
+  `spawn_patterns` (`float(int(i / 2.0))` — truncation preserved).
+- **CONFUSABLE_LOCAL_DECLARATION ×1 fixed**: `arena_nav_grid.find_path` declared `i` inside the
+  heap loop while the parent function declares `i` again below; the loop-local is now `idx`.
+- Verification: 887 python tests green (four signature-pin needles updated to the renamed
+  contracts), all seven offline gates green (typed-arch, guards, resources, engine-api,
+  scene-path, string-format, signals), gdparse + gdlint clean over the whole tree, and the
+  shadow detector re-run at zero.
+
 ## [Unreleased] — The signal contract became a gate: names and arities, pinned offline (2026-09-10)
 
 Fourth pass of *what is the weakest section of an all-green tree?* The ClassDB, the node tree and

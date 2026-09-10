@@ -16,11 +16,11 @@ func _ready() -> void:
 		return
 	_run.call_deferred()
 
-func _check(name: String, passed: bool) -> void:
+func _check(case_name: String, passed: bool) -> void:
 	_total += 1
 	if not passed:
-		_failures.append(name)
-		push_error("UI FAIL: " + name)
+		_failures.append(case_name)
+		push_error("UI FAIL: " + case_name)
 
 func _settle() -> void:
 	for i in range(4): await get_tree().process_frame

@@ -370,7 +370,7 @@ func _sync_player_control() -> void:
 	_active_player.set_control_enabled(enabled)
 
 
-func _on_state_entered(previous: StringName, current: StringName) -> void:
+func _on_state_entered(_previous: StringName, current: StringName) -> void:
 	match current:
 		State.STARTING_RUN:
 			_start_new_run()

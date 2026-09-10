@@ -96,7 +96,7 @@ func extend_one(archetype: StringName) -> void:
 ## queued): it is already in the arena, so it counts as planned AND spawned
 ## WITHOUT entering the pending queue. Defeats still flow through record_defeat(),
 ## so completion bookkeeping stays exact either way.
-func register_direct_spawn(archetype: StringName) -> void:
+func register_direct_spawn(_archetype: StringName) -> void:
 	_planned_count += 1
 	_spawned_count += 1
 

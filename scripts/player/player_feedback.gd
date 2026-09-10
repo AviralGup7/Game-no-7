@@ -78,7 +78,7 @@ func play_hit_feedback(shake_amp: float = 0.4, duration: float = 0.25) -> void:
 	_request_vibration(20, 80)
 
 
-func play_attack_feedback(shake_amp: float = 0.15, duration: float = 0.12) -> void:
+func play_attack_feedback(_shake_amp: float = 0.15, _duration: float = 0.12) -> void:
 	# Contact supplies the shake; a missed swing must not feel like a landed hit.
 	_request_vibration(6, 30)
 

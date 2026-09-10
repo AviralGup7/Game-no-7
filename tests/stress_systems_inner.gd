@@ -28,13 +28,13 @@ func _ready() -> void:
 	_run()
 
 
-func _check(name: String, passed: bool, extra: String = "") -> void:
+func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
-		print("  PASS: %s" % name)
+		print("  PASS: %s" % case_name)
 	else:
-		_failures.append(name)
-		push_error("STRESS FAIL: %s %s" % [name, extra])
+		_failures.append(case_name)
+		push_error("STRESS FAIL: %s %s" % [case_name, extra])
 
 
 func _on_diag(message: String, severity: StringName) -> void:
@@ -494,7 +494,7 @@ func _settings_equal(a: SettingsData, b: Dictionary) -> bool:
 	return true
 
 
-func _sliders_match_save(panel: Node) -> bool:
+func _sliders_match_save(_panel: Node) -> bool:
 	# At least the persisted settings must differ from the pristine originals
 	# (we moved every slider), proving SAVE wrote the draft.
 	return not _settings_equal(SaveManager.get_settings(), _orig_settings)

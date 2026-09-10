@@ -198,6 +198,15 @@ godot --headless --path . --export-release "Android" build/LastStandArena.apk
 - **"preset not found"** → confirm `export_presets.cfg` lists a preset named `Android`.
 - **Import errors on fresh clone** → run `--import` once (needed for class registry).
 - **Play rejects debug-signed APK** → provide a release keystore + CI secrets.
+- **"Parse error" toasts for `main.gd` / `virtual_joystick.gd` /
+  `test_locomotion_nan.gd` on first open in a Godot 4.6/4.7 editor** → these are the
+  editor's first-load dependency-ordering artifacts, not script defects: the scripts are
+  valid GDScript on both the pinned 4.4.1 (CI loads and executes all three) and the newer
+  parser (diff-verified against the engine sources), and the toast clears once the import
+  finishes. Close the project, delete its `.godot` cache folder, and reopen; if a message
+  persists after a full reimport, copy the exact text + line from the Debugger panel into a
+  bug report — a persistent message is actionable, the startup toast alone is not
+  (upstream: godotengine/godot#120407, #119715, #119100).
 
 ## Publish a GitHub milestone release
 

@@ -21,7 +21,12 @@ class_name Player
 ## player. UI and future systems talk to THIS node through the stable command
 ## interface below; Player and EnemyBase share the Damageable combat protocol.
 
+## move_started/move_stopped are emitted by PlayerLocomotion and
+## upgrade_applied by the progression component, both on this node's behalf:
+## exempt exactly those three from the per-file usage check.
+@warning_ignore("unused_signal")
 signal move_started()
+@warning_ignore("unused_signal")
 signal move_stopped()
 signal attack_started()
 signal attack_finished()
@@ -29,6 +34,7 @@ signal damaged(result: DamageResult)
 signal dodged()
 signal died()
 signal respawned()
+@warning_ignore("unused_signal")
 signal upgrade_applied(upgrade_id: StringName)
 signal leveled_up(new_level: int)
 
@@ -512,7 +518,7 @@ func _on_leveled_up(new_level: int) -> void:
 		EventBus.announcement.emit(&"level_up", "Level %d!" % new_level, &"info")
 
 
-func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
+func _on_weapon_attack_resolved(_weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
 	attack_finished.emit()
 	if hit_count > 0 and _feedback != null:
 		_feedback.play_impact_feedback(was_crit)

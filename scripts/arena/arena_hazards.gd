@@ -70,11 +70,11 @@ var _unknown_mechanics: Dictionary = {}
 
 ## Rebuilds the hazard set for one arena. `seed` is the run seed; the arena id is folded
 ## in so two arenas in the same run do not share phases.
-func configure(arena_id: StringName, arena_half: float, seed: int) -> void:
+func configure(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	_arena_id = arena_id
 	_arena_half = arena_half if arena_half > 0.0 else 12.0
 	_mode_id = GameMode.MODE_STANDARD
-	_rng.reseed(seed + hash(String(arena_id)))
+	_rng.reseed(run_seed + hash(String(arena_id)))
 	_game_time = 0.0
 	_status_cache.clear()
 	_unknown_mechanics.clear()
