@@ -30,4 +30,5 @@ func snap_to_facing(yaw: float, profile: CameraProfile) -> void:
 		target_pitch = deg_to_rad(profile.get_clamped_pitch_deg())
 		current_pitch = target_pitch
 		target_distance = profile.get_clamped_distance()
+		current_distance = target_distance
 		collision_distance = target_distance

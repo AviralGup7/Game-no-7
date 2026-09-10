@@ -2,13 +2,15 @@ class_name CameraOrbitController
 extends RefCounted
 
 ## Handles manual orbit input and smoothing of yaw/pitch/distance.
-## Delegates auto-follow decision to CameraAutoFollowController.
-## Now also respects mode distance multipliers and combat framing boost.
+## Delegates auto-follow to CameraAutoFollowController, lock-on yaw to a gentle
+## lerp that keeps the locked enemy ahead of the player, and never fights the
+## arena boom clamp (distance is profile-capped; walls are CameraMath's job).
 
 var orbit: CameraOrbitState = null
 var input_handler: CameraInputHandler = null
 var auto_follow: CameraAutoFollowController = null
 var _profile: CameraProfile = null
+
 
 func setup(profile: CameraProfile, orbit_state: CameraOrbitState, input: CameraInputHandler, auto: CameraAutoFollowController) -> void:
 	_profile = profile
@@ -16,36 +18,47 @@ func setup(profile: CameraProfile, orbit_state: CameraOrbitState, input: CameraI
 	input_handler = input
 	auto_follow = auto
 
+
 func set_profile(profile: CameraProfile) -> void:
 	_profile = profile
 
-func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector3, focus_pos: Vector3, framing: CameraFramingController, mode: CameraModeController, reduced_motion: bool) -> void:
+
+func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector3, focus_pos: Vector3, framing: CameraFramingController, mode: CameraModeController, reduced_motion: bool, lock_pos: Vector3 = Vector3.ZERO) -> void:
 	if _profile == null or orbit == null:
 		return
 
-	# Manual
 	var manual := input_handler.gather(delta) if input_handler != null else Vector2.ZERO
 	var has_manual := manual.length_squared() > 0.0001
 
 	if has_manual:
-		auto_follow.notify_manual_input()
-		orbit.target_yaw -= manual.x * deg_to_rad(_profile.orbit_speed_deg) * delta * 6.0
-		orbit.target_pitch += manual.y * deg_to_rad(_profile.orbit_speed_deg) * delta * 6.0
-		orbit.target_pitch = clampf(orbit.target_pitch, deg_to_rad(_profile.min_pitch_deg), deg_to_rad(_profile.max_pitch_deg))
+		if auto_follow != null:
+			auto_follow.notify_manual_input()
+		# gather() already returns this-frame degrees.
+		orbit.target_yaw -= deg_to_rad(manual.x)
+		orbit.target_pitch += deg_to_rad(manual.y)
+	elif mode != null and mode.is_locked() and CameraMath.is_finite_v3(lock_pos):
+		# Zelda-style: sit behind the player, looking toward the lock. Manual
+		# orbit above still wins for the frame, so the right stick is not trapped.
+		var to_lock := lock_pos - focus_pos
+		to_lock.y = 0.0
+		if to_lock.length_squared() > 0.0001:
+			var lock_yaw := CameraMath.yaw_from_direction(to_lock)
+			orbit.target_yaw = CameraMath.lerp_angle_weighted(
+				orbit.target_yaw, lock_yaw, clampf(delta * 4.0, 0.0, 1.0)
+			)
+	elif auto_follow != null:
+		auto_follow.tick(delta, velocity_tracker, orbit, cam_pos, focus_pos)
 
-	# Auto follow
-	auto_follow.tick(delta, velocity_tracker, orbit, cam_pos, focus_pos)
+	orbit.target_pitch = clampf(
+		orbit.target_pitch,
+		deg_to_rad(_profile.min_pitch_deg),
+		deg_to_rad(_profile.max_pitch_deg)
+	)
 
-	# Compute desired target distance with mode + combat boosts
 	var base_dist := _profile.get_clamped_distance()
-	var mode_mult := 1.0
-	var blend := 1.0
 	if mode != null:
-		mode_mult = mode.get_mode_distance_multiplier()
-		blend = mode.get_blend_factor()
-		# Blend base toward mode-multiplied
-		if mode_mult != 1.0:
-			base_dist = lerpf(_profile.get_clamped_distance(), _profile.get_clamped_distance() * mode_mult, blend)
+		# Mode controller already blends from the previous multiplier to the new one.
+		base_dist *= mode.get_mode_distance_multiplier()
 
 	var combat_boost := 0.0
 	if framing != null:
@@ -53,7 +66,6 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 
 	orbit.target_distance = clampf(base_dist + combat_boost, _profile.min_distance, _profile.max_distance)
 
-	# Smooth
 	var yaw_smooth := _profile.yaw_smoothing
 	var pitch_smooth := _profile.pitch_smoothing
 	if reduced_motion:
@@ -66,7 +78,6 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 	orbit.current_yaw = CameraMath.lerp_angle_weighted(orbit.current_yaw, orbit.target_yaw, yaw_w)
 	orbit.current_pitch = lerpf(orbit.current_pitch, orbit.target_pitch, pitch_w)
 
-	# Distance smoothing with in/out
 	var dist_target := orbit.target_distance
 	var dist_smooth := _profile.distance_smoothing_out
 	if orbit.collision_distance < orbit.current_distance - 0.05:
@@ -78,20 +89,23 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 
 	var dist_w := CameraMath.exp_weight(dist_smooth, delta)
 	orbit.current_distance = lerpf(orbit.current_distance, dist_target, dist_w)
-	var ceiling := _profile.max_distance
-	# Keep the boom shorter than a 24 m yard so orbit/combat boosts cannot park
-	# the lens in the surrounding walls even before the collision solver runs.
-	ceiling = minf(ceiling, 10.5)
-	orbit.current_distance = clampf(orbit.current_distance, _profile.min_distance, ceiling)
+	orbit.current_distance = clampf(orbit.current_distance, _profile.min_distance, _profile.max_distance)
+
 
 func reset_orbit(facing_yaw: float) -> void:
 	if orbit == null:
 		return
-	orbit.target_yaw = facing_yaw
-	orbit.target_pitch = deg_to_rad(_profile.get_clamped_pitch_deg()) if _profile != null else orbit.target_pitch
-	auto_follow.reset()
-	input_handler.reset()
+	orbit.snap_to_facing(facing_yaw, _profile)
+	if auto_follow != null:
+		auto_follow.reset()
+	if input_handler != null:
+		input_handler.reset()
+
 
 func set_target_distance(dist: float) -> void:
 	if orbit != null:
-		orbit.target_distance = clampf(dist, _profile.min_distance if _profile else 1.0, _profile.max_distance if _profile else 20.0)
+		orbit.target_distance = clampf(
+			dist,
+			_profile.min_distance if _profile else 1.0,
+			_profile.max_distance if _profile else 20.0
+		)

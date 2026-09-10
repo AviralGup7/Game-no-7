@@ -70,13 +70,14 @@ func tick(delta: float, reduced_motion: bool, speed: float = 0.0, is_colliding: 
 		fade = clampf(fade, 0.0, 1.0)
 		var strength := _shake_amplitude * fade
 
-		var nx := _noise.get_noise_1d(_shake_time * _profile.shake_frequency)
-		var ny := _noise.get_noise_1d(_shake_time * _profile.shake_frequency + 100.0)
-		var nz := _noise.get_noise_1d(_shake_time * _profile.shake_frequency + 200.0) * 0.35
+		var freq := _profile.shake_frequency if _profile != null else 28.0
+		var nx := _noise.get_noise_1d(_shake_time * freq)
+		var ny := _noise.get_noise_1d(_shake_time * freq + 100.0)
+		var nz := _noise.get_noise_1d(_shake_time * freq + 200.0) * 0.35
 		var own_offset := Vector3(nx, ny, nz) * strength
 
 		trauma_offset += own_offset
-		trauma_roll += _noise.get_noise_1d(_shake_time * _profile.shake_frequency + 300.0) * strength * 0.06
+		trauma_roll += _noise.get_noise_1d(_shake_time * freq + 300.0) * strength * 0.06
 
 		if _shake_remaining <= 0.001:
 			_shake_amplitude = 0.0

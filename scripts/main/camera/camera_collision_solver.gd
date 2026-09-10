@@ -162,8 +162,11 @@ func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, 
 		orbit.collision_distance = held
 		result = from + final_dir * held
 	else:
+		# `to` already encodes current_distance + shoulder + height. Replacing it
+		# with `current_distance` along the arm dropped the shoulder offset on
+		# the clear path and popped the boom the moment a whisker grazed.
 		orbit.collision_distance = clampf(dist, _profile.min_distance, _profile.max_distance)
-		result = from + final_dir * orbit.current_distance
+		result = to
 	if not (is_finite(result.x) and is_finite(result.y) and is_finite(result.z)):
 		result = from + Vector3(0.0, 2.4, 0.0)
 

@@ -12,7 +12,7 @@ Pure static helpers – no state.
 Used everywhere to avoid duplication.
 
 ### 2. CameraInputHandler (`camera_input_handler.gd`)
-- Gathers yaw/pitch from: actions `camera_look_left/right/up/down`, gamepad right stick axes 2/3, mouse motion (right/middle button or captured), touch drag on right half of screen.
+- Gathers yaw/pitch from: actions `camera_look_left/right/up/down` (the InputMap already includes the right stick — do not also read `JOY_AXIS_RIGHT_*`), mouse motion (right/middle button or captured), and `handle_look_delta` for right-half touch drag.
 - Deadzone handling, mouse sensitivity, accumulation decay.
 - `reset()` clears mouse accum.
 
@@ -31,7 +31,7 @@ Used everywhere to avoid duplication.
 - `setup_from_profile`, `snap_to_facing`.
 
 ### 6. CameraAutoFollowController (`camera_auto_follow_controller.gd`)
-- Elden Ring logic: sustain timer >0.55s, deadzone 28°, toward-camera suppression (dot>0.25), strafe suppression 0.65x, speed scales with angle diff.
+- Elden Ring logic: sustain timer >0.55s, deadzone 28°, toward-camera suppression (`auto_follow_toward_camera_threshold`, default 0.25), strafe suppression 0.65x, speed scales with angle diff.
 - `manual_cooldown` suspends auto-follow after manual input (2s).
 - `tick()` updates `orbit.target_yaw`.
 

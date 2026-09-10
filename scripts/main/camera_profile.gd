@@ -55,7 +55,7 @@ extends Resource
 @export var auto_follow_delay: float = 0.55
 @export var auto_follow_speed: float = 1.35
 @export var auto_follow_deadzone_deg: float = 28.0
-@export var auto_follow_toward_camera_threshold: float = -0.38
+	@export var auto_follow_toward_camera_threshold: float = 0.25
 @export var auto_follow_strafe_suppression: float = 0.65
 @export var manual_orbit_cooldown: float = 2.0
 
@@ -177,6 +177,13 @@ func _clamp_profile_fields() -> void:
 	auto_follow_delay = clampf(auto_follow_delay, 0.0, 2.0)
 	auto_follow_speed = clampf(auto_follow_speed, 0.1, 5.0)
 	auto_follow_deadzone_deg = clampf(auto_follow_deadzone_deg, 0.0, 90.0)
+	# Authored as a positive dot product (0.25 = moving toward the lens). A
+	# negative leftover from an earlier sign convention would suppress follow
+	# on almost every heading; treat it as the documented default.
+	if auto_follow_toward_camera_threshold < 0.0 or not is_finite(auto_follow_toward_camera_threshold):
+		auto_follow_toward_camera_threshold = 0.25
+	else:
+		auto_follow_toward_camera_threshold = clampf(auto_follow_toward_camera_threshold, 0.0, 1.0)
 
 	collision_radius = clampf(collision_radius, 0.05, 1.5)
 	ground_clearance = clampf(ground_clearance, 0.1, 3.0)
