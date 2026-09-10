@@ -124,7 +124,7 @@ static func roll_for_wave(wave: int, run_seed: int) -> Array[StringName]:
 
 ## Resolve the active set for a wave: authored declarations win; generated waves roll (skipped on
 ## a director breather, spiced with an extra on a hot streak). Unknown ids are dropped, duplicates
-## collapsed. Pure in (declared, wave, seed).
+## collapsed. Pure in (declared, wave, run_seed).
 static func resolve_for_wave(declared: Array, wave: int, run_seed: int, breather: bool, spice: bool) -> Array[StringName]:
 	var out: Array[StringName] = []
 	var pool: Array = declared.duplicate()

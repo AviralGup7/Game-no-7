@@ -1,8 +1,14 @@
-class_name VirtualJoystick
+class_name TouchJoystick
 extends Control
 ## Floating virtual movement joystick. Captures touch in its (left-half) region,
 ## tracks a single ownership index for multi-touch safety, and exposes a normalized
 ## movement value. Requires no screen-coordinate knowledge from gameplay code.
+##
+## The class is named TouchJoystick, not VirtualJoystick, on purpose: Godot 4.7
+## added a *native* class called `VirtualJoystick`, and a `class_name` that hides
+## a native class is a hard parse error ("Class "VirtualJoystick" hides a native
+## class"). Do not rename this back — the script will stop loading and take
+## TouchControls -> UiRoot -> Main down with it. The file path is unchanged.
 
 signal value_changed(value: Vector2)
 signal became_active()

@@ -23,11 +23,11 @@ var _max_size: int = 256
 var _tag: String = "pool"
 
 
-func _init(create_fn: Callable = Callable(), reset_fn: Callable = Callable(), prewarm: int = 0, max_size: int = 256, tag: String = "pool") -> void:
+func _init(create_fn: Callable = Callable(), reset_fn: Callable = Callable(), prewarm: int = 0, initial_max_size: int = 256, pool_tag: String = "pool") -> void:
 	_create_fn = create_fn
 	_reset_fn = reset_fn
-	_max_size = maxi(max_size, 1)
-	_tag = tag
+	_max_size = maxi(initial_max_size, 1)
+	_tag = pool_tag
 	if prewarm > 0:
 		prewarm_pool(prewarm)
 

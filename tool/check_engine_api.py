@@ -162,10 +162,31 @@ class Manifest:
         self.classes: dict = raw["classes"]
         self.global_functions: set[str] = set(raw["global_functions"])
         self.global_constants: set[str] = set(raw["global_constants"])
+        # Native ENUM TYPE names, from the same `enum=` attributes that group the
+        # constants in the doc XML. `Key` / `JoyButton` / `Variant.Type` are
+        # @GlobalScope enums (no class of that name exists), and `Viewport.MSAA`
+        # is an enum member of a class -- both are legal GDScript type and cast
+        # targets, and the analyzer names `as <Enum>` as the fix for its
+        # INT_AS_ENUM_WITHOUT_CAST warning, so the gate has to accept them.
+        self.global_enums: set[str] = set(raw.get("global_enums", []))
+        self.class_enums: dict[str, set[str]] = {
+            c: set(e.get("enums", [])) for c, e in self.classes.items() if e.get("enums")
+        }
         self._inherit_cache: dict[str, dict] = {}
 
     def has_class(self, name: str) -> bool:
         return name in self.classes
+
+    def is_native_enum(self, name: str) -> bool:
+        """True for a native enum TYPE name in either of its legal spellings:
+        a @GlobalScope enum (`Key`, `JoyButton`, `Variant.Type`) or a class-scoped
+        one (`Viewport.MSAA`). Both are legal GDScript annotation and `as` cast
+        targets; the analyzer names `as <Enum>` as the fix for its
+        INT_AS_ENUM_WITHOUT_CAST warning."""
+        if name in self.global_enums:
+            return True
+        owner, _, member = name.rpartition(".")
+        return bool(owner) and member in self.class_enums.get(owner, ())
 
     def members(self, cls: str) -> dict:
         """name -> {'method': kind-or-None, 'property': bool, 'signal': bool,
@@ -537,10 +558,12 @@ class Gate:
                 or self.project.class_by_name(base) is not None)
 
     def _type_exists_in_file(self, name: str, gf: GdClass) -> bool:
-        """Annotation/cast target: engine class, project class, or this file's
-        own enum/inner class (all legal GDScript annotation targets)."""
+        """Annotation/cast target: engine class, project class, native enum type,
+        or this file's own enum/inner class (all legal GDScript targets)."""
         base = generic_base(name)
         if base in gf.inner_classes or base in gf.consts:
+            return True
+        if self.manifest.is_native_enum(base):
             return True
         return self.type_exists(name)
 
@@ -677,14 +700,19 @@ class Gate:
         while i < end:
             t = toks[i]
             if t.kind == "kw" and t.text == "as":
-                # `expr as Type`
+                # `expr as Type`, where Type may be dotted: `as Viewport.MSAA`.
                 if i + 1 < end and toks[i + 1].kind == "ident":
                     tname = toks[i + 1].text
+                    step = 2
+                    if (i + 3 < end and toks[i + 2].text == "."
+                            and toks[i + 3].kind == "ident"):
+                        tname = tname + "." + toks[i + 3].text
+                        step = 4
                     if not self._type_exists_in_file(tname, gf):
                         self.error(gf.rel, idx, f"cast to unknown type `{tname}`")
                     else:
                         last_type = generic_base(tname)
-                    i += 2
+                    i += step
                     continue
                 i += 1
                 continue

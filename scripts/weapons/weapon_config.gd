@@ -37,7 +37,7 @@ const VALID_KINDS := [KIND_MELEE, KIND_RANGED, KIND_HYBRID]
 ## Windup before the hit resolves (telegraph + feel).
 @export_range(0.0, 10.0, 0.01) var windup: float = 0.12
 ## Melee reach in metres from the wielder.
-@export_range(0.1, 30.0, 0.1) var range: float = 2.6
+@export_range(0.1, 30.0, 0.1) var attack_range: float = 2.6
 ## Full arc width in degrees for melee sweeps (360 = radial whirl).
 @export_range(10.0, 360.0, 1.0) var arc_degrees: float = 110.0
 ## Max targets per swing (0 = unlimited).
@@ -93,8 +93,8 @@ func validate() -> Array[String]:
 		problems.append("swing_cooldown too small")
 	if windup < 0.0:
 		problems.append("windup cannot be negative")
-	if range <= 0.0:
-		problems.append("range must be > 0")
+	if attack_range <= 0.0:
+		problems.append("attack_range must be > 0")
 	if arc_degrees <= 0.0 or arc_degrees > 360.0:
 		problems.append("arc_degrees must be in (0,360]")
 	if max_targets < 0:

@@ -1,0 +1,224 @@
+name: GDScript diagnostics
+
+# Ground-truth diagnostic gate.
+#
+# The main Android workflow pins the engine the project was authored against
+# (4.4.1). Developers on newer engines see a different set of parser/compiler
+# diagnostics, and none of them were visible to CI. This job runs the *same*
+# project through the newer engine and records every parse error, compile error
+# and GDScript warning it produces, so diagnostics can be triaged against real
+# engine output instead of guesswork.
+#
+# The logs are committed back to the branch under docs/godot-runs/ because the
+# Actions log-download endpoint is not reachable from every environment that
+# needs to read them.
+
+on:
+  push:
+    branches: ["arena/01a08a34-game-no-7"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DIAG_GODOT_VERSION: "4.7.2-stable"
+
+jobs:
+  gdscript-diagnostics:
+    # NOTE: the `env` context is not available in jobs.<id>.name (only github,
+    # needs, strategy, matrix, vars, inputs), so the version is written literally.
+    name: Godot 4.7.2-stable diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot 4.7.2-stable
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.DIAG_GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: false
+
+      - name: Engine version
+        run: godot --version
+
+      - name: CLI flags available for diagnostics
+        shell: bash
+        run: |
+          godot --help 2>&1 | grep -iE -- '--(check-only|script|import|headless|verbose|editor|quit)' || true
+
+      # Full project import: surfaces parse/compile errors for every script the
+      # resource importer touches, plus autoload resolution.
+      - name: Import project (full parse pass)
+        shell: bash
+        run: |
+          set +e
+          godot --headless --path . --import > diag-import.log 2>&1
+          echo "import exit: $?"
+          set -e
+          true
+
+      # The project's own headless suite on the newer engine.
+      - name: Headless unit tests
+        shell: bash
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/run_tests.gd > diag-tests.log 2>&1
+          echo "tests exit: $?"
+          set -e
+          tail -30 diag-tests.log || true
+          true
+
+      # Every .gd file checked individually, so a script that the importer never
+      # reaches (tests, tooling, unused systems) is still parsed and reported.
+      # --check-only exits non-zero when a script has errors, so it is tolerated.
+      - name: Per-script check (all GDScript warnings)
+        shell: bash
+        run: |
+          : > diag-check.log
+          find scripts tests -name '*.gd' -type f | sort | while read -r f; do
+            res="res://${f}"
+            {
+              echo "===== ${res}"
+              godot --headless --path . --check-only --script "${res}" 2>&1
+            } >> diag-check.log || true
+          done
+          echo "checked $(grep -c '^===== res://' diag-check.log) scripts"
+          true
+
+      - name: Editor pass (compiles every openable script)
+        shell: bash
+        run: |
+          set +e
+          timeout 600 godot --headless --path . --editor --quit-after 2000 > diag-editor.log 2>&1
+          echo "editor exit: $?"
+          set -e
+          true
+
+      # GDScript *analyzer* warnings (shadowing, integer division, unused
+      # variables, unreachable code, ...) are editor-only: they are never printed
+      # by --import, --check-only or a headless --script run. The engine's own
+      # escalation switch turns each one into a compile error, which does carry a
+      # res:// path and line number. This is the opposite of suppression: it makes
+      # the diagnostics visible to CI. The setting is injected into the runner's
+      # copy of project.godot only and restored afterwards, so the shipped project
+      # keeps its normal warn-don't-fail behaviour.
+      # The editor's own analyzer, read over the built-in Language Server. This is
+      # the authoritative source of the diagnostics a developer sees in the
+      # debugger panel; nothing else headless prints them.
+      - name: Editor LSP diagnostics (every analyzer warning with file:line)
+        shell: bash
+        run: |
+          set +e
+          godot --headless --editor --path . > diag-lsp-editor.log 2>&1 &
+          EDITOR_PID=$!
+          for i in $(seq 1 90); do
+            if (exec 3<>/dev/tcp/127.0.0.1/6005) 2>/dev/null; then
+              echo "LSP listening after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          python3 tool/lsp_diagnostics.py --root . --wait 90 > diag-lsp.txt 2> diag-lsp.err
+          echo "lsp exit: $?"
+          tail -3 diag-lsp.err
+          kill "${EDITOR_PID}" 2>/dev/null
+          wait "${EDITOR_PID}" 2>/dev/null
+          set -e
+          true
+
+      - name: Warnings as errors (surfaces every analyzer warning with file:line)
+        shell: bash
+        run: |
+          set +e
+          cp project.godot /tmp/project.godot.orig
+          printf '\n[debug]\n\ngdscript/warnings/treat_warnings_as_errors=true\n' >> project.godot
+          # Self-check: prove the setting was actually read by the engine, so a
+          # renamed setting cannot silently produce an empty report.
+          cat > /tmp/probe.gd <<'GD'
+          extends SceneTree
+          func _init() -> void:
+              print("treat_warnings_as_errors=", ProjectSettings.get_setting("debug/gdscript/warnings/treat_warnings_as_errors"))
+              quit()
+          GD
+          cp /tmp/probe.gd res_probe.gd
+          godot --headless --path . --script res://res_probe.gd 2>&1 | tee diag-wae-probe.log
+          rm -f res_probe.gd
+          godot --headless --path . --import > diag-wae-import.log 2>&1
+          echo "wae import exit: $?"
+          godot --headless --path . --script res://tests/run_tests.gd > diag-wae-tests.log 2>&1
+          echo "wae tests exit: $?"
+          cp /tmp/project.godot.orig project.godot
+          set -e
+          true
+
+      - name: Diagnostic summary
+        shell: bash
+        run: |
+          # GitHub runs bash with -e -o pipefail; `head` closing the pipe early
+          # gives the upstream sort a SIGPIPE (141) which pipefail turns into a
+          # step failure. Nothing here should ever fail the job.
+          set +e
+          set +o pipefail
+          {
+            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log diag-wae-import.log diag-wae-tests.log diag-wae-probe.log diag-lsp.txt diag-lsp.err diag-lsp-editor.log; do
+              [ -f "$f" ] || continue
+              echo "########## ${f}"
+              grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared|Failed to load' "$f" \
+                | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort | uniq -c | sort -rn | head -400
+              echo
+            done
+          } | tee diag-summary.txt
+          true
+
+      # The Actions log endpoint is unreachable from some environments, so the
+      # raw logs travel with the branch instead.
+      - name: Publish diagnostic logs to the branch
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          mkdir -p docs/godot-runs
+          cp -f diag-import.log   docs/godot-runs/diagnostics-4.7.2-import.log   2>/dev/null || true
+          cp -f diag-tests.log    docs/godot-runs/diagnostics-4.7.2-tests.log    2>/dev/null || true
+          cp -f diag-check.log    docs/godot-runs/diagnostics-4.7.2-check.log    2>/dev/null || true
+          cp -f diag-editor.log   docs/godot-runs/diagnostics-4.7.2-editor.log   2>/dev/null || true
+          cp -f diag-wae-import.log  docs/godot-runs/diagnostics-4.7.2-wae-import.log 2>/dev/null || true
+          cp -f diag-wae-tests.log   docs/godot-runs/diagnostics-4.7.2-wae-tests.log  2>/dev/null || true
+          cp -f diag-wae-probe.log   docs/godot-runs/diagnostics-4.7.2-wae-probe.log  2>/dev/null || true
+          cp -f diag-lsp.txt         docs/godot-runs/diagnostics-4.7.2-lsp.txt        2>/dev/null || true
+          cp -f diag-lsp.err         docs/godot-runs/diagnostics-4.7.2-lsp.err        2>/dev/null || true
+          cp -f diag-lsp-editor.log  docs/godot-runs/diagnostics-4.7.2-lsp-editor.log 2>/dev/null || true
+          cp -f diag-summary.txt  docs/godot-runs/diagnostics-4.7.2-summary.txt  2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/godot-runs
+          if git diff --cached --quiet; then
+            echo "no diagnostic log changes to publish"
+          else
+            git commit -q -m "diagnostics: Godot 4.7.2-stable run output [skip ci]"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdscript-diagnostics
+          path: |
+            diag-import.log
+            diag-check.log
+            diag-tests.log
+            diag-editor.log
+            diag-wae-import.log
+            diag-wae-tests.log
+            diag-wae-probe.log
+            diag-lsp.txt
+            diag-lsp.err
+            diag-lsp-editor.log
+            diag-summary.txt
+          if-no-files-found: ignore

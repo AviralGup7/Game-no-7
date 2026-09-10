@@ -332,7 +332,7 @@ static func apply_count_nudge(queue: Array[StringName], bonus: int) -> void:
 static func _spread_position(i: int, k: int, n: int) -> int:
 	if n <= 0:
 		return 0
-	return mini((i + 1) * n / (k + 1), n - 1)
+	return mini(int((i + 1) * n / float(k + 1)), n - 1)
 
 
 func _on_all_cleared() -> void:

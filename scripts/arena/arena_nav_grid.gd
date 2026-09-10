@@ -240,7 +240,7 @@ func flow_field_direction(pos: Vector3) -> Vector3:
 	if best == i:
 		return Vector3.ZERO
 	var center := cell_center(c)
-	var next_center := cell_center(Vector2i(best % width, best / width))
+	var next_center := cell_center(Vector2i(best % width, int(best / float(width))))
 	var dir := Vector3(next_center.x - center.x, 0.0, next_center.z - center.z)
 	if dir.length_squared() < 0.0001:
 		return Vector3.ZERO
@@ -364,7 +364,7 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 	var cells: PackedVector3Array = PackedVector3Array()
 	var cur := goal_i
 	while cur != start_i and cur != -1:
-		cells.append(cell_center(Vector2i(cur % width, cur / width)))
+		cells.append(cell_center(Vector2i(cur % width, int(cur / float(width)))))
 		cur = came[cur]
 	cells.reverse()
 	# Greedy string-pulling: jump to the farthest visible waypoint, skipping
@@ -416,7 +416,7 @@ static func _heap_push(h: Array, v: Vector2) -> void:
 	h.append(v)
 	var i := h.size() - 1
 	while i > 0:
-		var p := (i - 1) / 2
+		var p := int((i - 1) / 2.0)
 		if h[p].x <= h[i].x:
 			break
 		var tmp: Variant = h[p]

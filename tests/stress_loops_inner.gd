@@ -194,7 +194,7 @@ func _connect_signal_watchers() -> void:
 
 ## Arity-proof counter: every watched signal has <= 4 args.
 func _watch(obj: Object, sig: String) -> void:
-	var cb := func(a0: Variant = null, a1: Variant = null, a2: Variant = null, a3: Variant = null) -> void:
+	var cb := func(_a0: Variant = null, _a1: Variant = null, _a2: Variant = null, _a3: Variant = null) -> void:
 		_sig_counts[sig] = int(_sig_counts.get(sig, 0)) + 1
 	obj.connect(sig, cb)
 
@@ -353,7 +353,7 @@ func _run_stage(loop: int) -> void:
 		child.queue_free()
 	await _frames(4)
 	_snap("%s.mid" % tag)
-	await _mount_checks(tag, player)
+	_mount_checks(tag, player)
 	await _enemy_barrage(tag, player, container)
 	await _feedback_checks(tag, player, container)
 	await _xp_checks(tag, player)
@@ -676,6 +676,10 @@ func _pickup_checks(tag: String, player: Node) -> void:
 		gems.append(mgr.get_child(mgr.get_child_count() - 1))
 	_check(tag + " distant pickup exists", not gems.is_empty())
 	if not gems.is_empty():
+		# NOTE: an earlier revision captured gems[0].global_position here, presumably
+		# to assert the magnet actually pulls the pickup toward the player. That
+		# assertion was never written and nothing read the capture, so the dead local
+		# is gone; this check still verifies collection via the pickup_collected count.
 		for i in range(90):
 			await get_tree().physics_frame
 			if not is_instance_valid(gems[0]):

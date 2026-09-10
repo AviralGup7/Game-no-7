@@ -79,7 +79,7 @@ func _safe_seed(default: int = 0) -> int:
 	var run := _safe_run()
 	if run == null:
 		return default
-	return run.seed
+	return run.run_seed
 
 func _safe_arena_id(default: StringName = &"default_arena") -> StringName:
 	var run := _safe_run()

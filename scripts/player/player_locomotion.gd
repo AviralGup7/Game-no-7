@@ -38,7 +38,7 @@ func uses_actions() -> bool:
 
 
 func set_move_input(input_vector: Vector2) -> void:
-	# Boundary between UI (VirtualJoystick / Input.get_axis) and gameplay. A stick
+	# Boundary between UI (TouchJoystick / Input.get_axis) and gameplay. A stick
 	# sample that is NaN/inf here would otherwise be latched for the rest of the run,
 	# because gather() only re-reads the keyboard when _move_input is exactly zero.
 	if not is_finite(input_vector.x) or not is_finite(input_vector.y):

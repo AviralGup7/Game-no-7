@@ -399,18 +399,18 @@ func _start_new_run() -> void:
 	var arena_id: StringName = ContentRegistry.get_selected_arena_id()
 	_current_run.reset()
 	_current_run.run_id = _next_run_id()
-	_current_run.seed = randi()
-	if _current_run.seed == 0:
-		_current_run.seed = 1
+	_current_run.run_seed = randi()
+	if _current_run.run_seed == 0:
+		_current_run.run_seed = 1
 	if not _daily.is_empty():
-		var ds := int(_daily.get("seed", _current_run.seed))
-		_current_run.seed = ds if ds != 0 else 1
+		var ds := int(_daily.get("seed", _current_run.run_seed))
+		_current_run.run_seed = ds if ds != 0 else 1
 	_current_run.arena_id = arena_id
 	_current_run.mode_id = GameMode.validated(_pending_mode)
 	_current_run.elapsed_seconds = 0.0
 	_score.reset_run(_current_run)
 	EventBus.report_info("Starting run %d mode=%s arena=%s seed=%d%s" % [
-		_current_run.run_id, String(_current_run.mode_id), String(arena_id), _current_run.seed,
+		_current_run.run_id, String(_current_run.mode_id), String(arena_id), _current_run.run_seed,
 		(" [" + String(_daily.get("label", "Daily")) + "]") if not _daily.is_empty() else ""])
 	# World assembly is delegated so each owning system can expand independently.
 	_call_build_world(arena_id)
@@ -418,7 +418,7 @@ func _start_new_run() -> void:
 		EventBus.report_error("Failed to build world or spawn player for arena %s" % String(arena_id))
 		transition_to(State.ERROR)
 		return
-	EventBus.run_started.emit(_current_run.run_id, _current_run.seed)
+	EventBus.run_started.emit(_current_run.run_id, _current_run.run_seed)
 	Narrator.announce_run_start(_current_run.mode_id, arena_id)
 	if not _daily.is_empty():
 		var muts: Array = _daily.get("mutators", [])

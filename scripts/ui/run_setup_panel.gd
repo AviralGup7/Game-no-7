@@ -157,7 +157,7 @@ func _refresh_details() -> void:
 		" / ".join(arena.tags) if not arena.tags.is_empty() else "hazards live",
 		arena.unlock_wave]
 	_weapon_info.text = "%s\n%s  •  Damage %.1f  •  Reach %.1fm  •  Interval %.2fs" % [weapon.description,
-		String(weapon.kind).capitalize(), weapon.base_damage, weapon.range, weapon.swing_cooldown]
+		String(weapon.kind).capitalize(), weapon.base_damage, weapon.attack_range, weapon.swing_cooldown]
 	var fixed := GameMode.fixed_weapon(mode_id)
 	var starter: StringName = DailyChallenge.challenge_for_today().weapon if _daily else (fixed if fixed != &"" else &"gladius")
 	var starter_config := ContentRegistry.get_weapon(starter)

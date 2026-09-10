@@ -61,7 +61,7 @@ func _finish_capture(run_id: int) -> void:
 
 static func duration(seconds: float) -> String:
 	var total := maxi(int(round(maxf(seconds, 0.0))), 0)
-	return "%02d:%02d" % [total / 60, total % 60]
+	return "%02d:%02d" % [int(total / 60.0), total % 60]
 
 static func performance(summary: Dictionary) -> String:
 	var seconds := float(summary.get("elapsed_seconds", 0.0))

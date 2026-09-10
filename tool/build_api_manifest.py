@@ -126,6 +126,11 @@ def class_entry(root: ET.Element) -> tuple[str, dict]:
         if sname:
             signals[sname] = len(s.findall("param"))
     consts = sorted({c.get("name") for c in root.iter("constant") if c.get("name")})
+    # Every <constant> in the doc XML carries enum="TypeName", so the native
+    # ENUM TYPE names (Viewport.MSAA, @GlobalScope Key, ...) come from the same
+    # pinned source as the constants themselves. Without these the gate cannot
+    # tell a legal `as Key` cast from a typo.
+    enums = sorted({c.get("enum") for c in root.iter("constant") if c.get("enum")})
     entry: dict = {}
     if inherits:
         entry["inherits"] = inherits
@@ -137,6 +142,8 @@ def class_entry(root: ET.Element) -> tuple[str, dict]:
         entry["signals"] = dict(sorted(signals.items()))
     if consts:
         entry["constants"] = consts
+    if enums:
+        entry["enums"] = enums
     return name, entry
 
 
@@ -177,6 +184,7 @@ def main() -> int:
             n for n, k in gscope.get("methods", {}).items()
         ),
         "global_constants": gscope.get("constants", []),
+        "global_enums": gscope.get("enums", []),
         "classes": {k: classes[k] for k in sorted(classes)},
     }
     OUT.write_text(
@@ -184,12 +192,14 @@ def main() -> int:
         encoding="utf-8",
     )
     print(
-        "wrote %s — %d classes, %d global functions, %d global constants, %d bytes"
+        "wrote %s — %d classes, %d global functions, %d global constants, "
+        "%d global enums, %d bytes"
         % (
             OUT.relative_to(ROOT),
             len(classes),
             len(manifest["global_functions"]),
             len(manifest["global_constants"]),
+            len(manifest["global_enums"]),
             OUT.stat().st_size,
         )
     )

@@ -115,7 +115,7 @@ static func suite() -> Array:
 			# `tests/python/test_regress_wave_mutators.py`; targeting both sides is what `all` means, and
 			# it never meant "apply it twice".
 			and ember.status_stacks == 1 and ember.status_targets_enemies and ember.status_targets_player,
-		"why": "effect=%s" % (ember_effect.effect_id if ember_effect != null else "<unresolved>"),
+		"why": "effect=%s" % (String(ember_effect.effect_id) if ember_effect != null else "<unresolved>"),
 	})
 
 	# --- `status_targets` is an id, so `all` must mean both and not be a substring test ---

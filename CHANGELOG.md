@@ -1,5 +1,34 @@
 # Changelog
 
+## [Unreleased] — Godot 4.7 compatibility: the joystick class no longer hides a native class (2026-09-10)
+
+Godot 4.7 added a **native** class named `VirtualJoystick`. A `class_name` that hides a native class
+is a hard parse error, not a warning, so on 4.7.2 the project stopped loading with a three-deep
+cascade that looked like three independent broken files:
+
+```
+SCRIPT ERROR: Parse Error: Class "VirtualJoystick" hides a native class.
+          at: res://scripts/ui/virtual_joystick.gd:1
+SCRIPT ERROR: Parse Error: Cannot infer the type of "value" variable ...
+          at: res://scripts/ui/touch_controls.gd:79
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: res://scripts/ui/ui_root.gd:0
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+```
+
+- **`VirtualJoystick` → `TouchJoystick`.** `virtual_joystick.gd` keeps its path, its API
+  (`radius`, `dead_zone`, `opacity`, `get_value()`, `is_active()`, `cancel()`, `set_rest_alpha()`,
+  `value_changed`/`became_active`/`became_inactive`) and its behaviour; only the global class name
+  changed. `TouchControls`, `tests/ui/ui_test_runner.gd` and `tests/unit/test_locomotion_nan.gd`
+  were updated to match. `main.gd` and `ui_root.gd` needed no edits at all — their "parse errors"
+  were the cascade, and they clear once the joystick script loads.
+- **CI can now see this class of failure.** `gdscript-diagnostics.yml` runs the project through
+  4.7.2-stable: full import, the headless suite, a per-script pass, an editor pass, and a
+  warnings-as-errors pass (the engine's own escalation switch, injected in the runner only) so
+  analyzer warnings that are editor-only still reach the log with a `res://` path and line number.
+  Logs are committed to `docs/godot-runs/` because the Actions log endpoint is not reachable from
+  every environment that has to read them.
+
 ## [Unreleased] — Editor-error sweep: the 4.7.2 report, fixed and verified offline (2026-09-10)
 
 The project was opened in a Godot **4.7.2-stable** editor and reported three "Parse error"
@@ -334,6 +363,23 @@ QA script.
 `docs/HARDENING.md` counts follow (201 needles, 794 tests; DocCountTests re-derives them),
 `docs/ARCHITECTURE.md` documents the input/interruption/emulation contract, and
 `tests/ui/ui_test_runner.gd` carries the press-semantics assertions for the headless run.
+
+> **Correction to the first bullet above (added by the branch that ran 4.7.2 in CI).**
+> The claim that the three parse-error toasts were only editor first-load artifacts does not
+> survive contact with a headless run. `gdscript-diagnostics.yml` boots 4.7.2-stable with
+> `--headless --editor` — no interactive first load, no threaded-import race — and still reports:
+>
+> ```
+> SCRIPT ERROR: Parse Error: Class "VirtualJoystick" hides a native class.
+>           at: res://scripts/ui/virtual_joystick.gd:1
+> ```
+>
+> Renaming the class to `TouchJoystick` moved the headless suite from `1055 total, 1 failed` to
+> `1095 total, 0 failed` with zero `SCRIPT ERROR` lines. So the toast was a real defect with a
+> real fix, and `class_name VirtualJoystick` cannot be restored while the project targets 4.7.
+> The dependency-order bugs linked above may well be real in other projects; they were not the
+> cause here. The sweep's other findings in this entry are unaffected by this correction.
+
 
 ## [Unreleased] — Merging main back in: two sessions, one tree (2026-09-10)
 

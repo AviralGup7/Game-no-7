@@ -125,8 +125,8 @@ func _unaware_wander(host: EnemyBase, cfg: EnemyConfig, delta: float) -> void:
 		if roll < 0.3:
 			# Look around a random direction (standing still, head turned).
 			_look_timer = LOOK_PAUSE_MIN + (LOOK_PAUSE_MAX - LOOK_PAUSE_MIN) * host.personality_roll()
-			var angle := host.personality_roll() * TAU
-			host.face_direction(Vector3(cos(angle), 0.0, sin(angle)))
+			var look_angle := host.personality_roll() * TAU
+			host.face_direction(Vector3(cos(look_angle), 0.0, sin(look_angle)))
 			_wander_target = host.get_home_position()
 			return
 		var angle := host.personality_roll() * TAU

@@ -226,12 +226,10 @@ func _process(delta: float) -> void:
 		return
 	if not is_finite(delta) or delta < 0.0:
 		delta = 0.016
-	var discovered := false
 	_discovery_acc += delta
 	if _discovery_acc >= DISCOVERY_INTERVAL:
 		_discovery_acc = 0.0
 		_discover()
-		discovered = true
 
 	var now_ms := Time.get_ticks_msec()
 	_tracks = advance_tracks(_tracks, _live, delta, now_ms)
