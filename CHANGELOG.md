@@ -181,6 +181,97 @@ review pass for exactly that reason.
   are published by the run, not silenced: they are the engine's own dynamic-access category, each
   one a guarded `is`-check or `has_signal` probe.
 
+## [Unreleased] — Mobile input & interruption: the weakest subsystem, rebuilt (2026-09-10)
+
+Seventh architecture pass, same method: rank `scripts/` by structural weakness, read the winner
+fully, check it against how the engine and the industry model the problem, rebuild, then pin the
+weak shape out. Every gate was green (770 python, 195 guard needles, typed-arch clean, lint clean),
+so the ranking went by blast radius × verification gap: the touch/input layer is the only subsystem
+that is both player-critical on every frame and entirely device-unverified — and it carried a live
+bug, a dead project setting, two missing OS behaviors, and a latency tax. All findings below were
+verified against the Godot **4.4.1-stable** source (via the GitHub API — `main/main.cpp`,
+`scene/main/scene_tree.cpp`, `scene/main/window.cpp`, `core/input/input.cpp`) and the 4.4 docs,
+not from memory; two of my own intermediate conclusions were wrong and are retracted inline.
+
+- **A `_ready` tail living inside a press handler stomped the layout on every declined tap.**
+  `TouchControls._ready` ended after the button loop; the three lines that belong to it
+  (`resized.connect(_layout)`, `visibility_changed.connect(_on_visibility_changed)`,
+  `_layout.call_deferred()`) sat inside `_on_button_pressed`, after the declined-toast emit. So
+  every declined touch press — dodge on cooldown, attack during stagger, the most common taps in
+  combat — re-connected both signals (engine "already connected" errors) and recomputed a
+  full-rect fallback layout over UiRoot's safe-area-aware plan, jumping the stick/buttons under
+  notches mid-fight; meanwhile the `visibility_changed` stuck-input backstop was never armed.
+  The three lines moved into `_ready` with `is_connected` guards. Pinned twice: the python
+  contract asserts the wiring is in `_ready` AND that `_on_button_pressed` contains no
+  `.connect(`/`_layout` at all — the exact bug shape.
+- **A dead emulation setting, replaced with the two real keys.** `project.godot` carried
+  `window/handheld/emulate_touchscreen_mouse=false`, which names a setting that does not exist
+  anywhere in the engine source (code search: 0 hits) — the project's stated "no emulation"
+  intent was silently inactive. The real keys are `input_devices/pointing/emulate_mouse_from_touch`
+  (engine default true, `main/main.cpp`) and `emulate_touch_from_mouse` (default false), now
+  stated explicitly in a new `[input_devices]` section. Deliberately NOT disabled: every
+  menu/skill/pause `Button` is a standard Control and answers touch only through emulated mouse
+  events (TouchScreenButton docs), so mouse-from-touch is a load-bearing default, documented as
+  such; the joystick's `_touch_seen` filter stays as defense-in-depth.
+- **Retracted: the fps cap was never dead.** This pass first read `run/max_fps.android=60` as a
+  bare key the engine would ignore (it reads `application/run/max_fps`) — forgetting that
+  `project.godot` keys are section-relative, so the line under `[application]` IS the real
+  setting with an Android override. An intermediate edit "fixed" it into the absolute form,
+  which under `[application]` resolves to `application/application/...` — i.e. the fix was the
+  bug. Caught on re-read before any gate ran. The line stands as written (the existing
+  `test_android_cap_preserves_physics_and_survives_tier_changes` pin was correct all along);
+  the pass adds only an explicit `run/max_fps=0` base and a comment explaining the
+  section-relative rule, plus a contract test refusing absolute-form lines. A second
+  near-miss of the same kind: the joystick's mouse branch LOOKED mis-nested in review and was
+  exonerated by `cat -A` — the `_touch_seen` clear-and-fall-through is correct.
+- **The Back button quit the app from anywhere; now it navigates.** Default
+  `quit_on_go_back=true` (`SceneTree._main_window_go_back`) exits on Back — mid-combat
+  included. The project now sets it `false` and `UiRoot` owns the button through
+  `NOTIFICATION_WM_GO_BACK_REQUEST` (the Back button generates no input event, so `_input`
+  never sees it): open modal dismissed, auxiliary screens closed, gameplay paused, pause
+  resumed, game-over backed to the menu, root menu through the save-guarded quit (backgrounding
+  on Android — the platform-standard Back-at-root). Transient screens ignore it. Desktop never
+  emits the notification, so desktop behavior is unchanged.
+- **Backgrounding no longer kills the run.** Nothing handled app interruption for gameplay:
+  Android/iOS background the app WITHOUT pausing the tree (AudioManager's handler mutes for
+  exactly this reason — the sim keeps running behind other apps), so a call taken mid-wave
+  meant returning to a corpse. `GameRoot` now auto-pauses on `APPLICATION_PAUSED` /
+  `APPLICATION_FOCUS_OUT` / `WM_WINDOW_FOCUS_OUT`, strictly gated on pausable states (an
+  ungated call would warn on every menu alt-tab). No auto-resume: the pause screen owns the
+  return. Desktop alt-tab takes the same path — standard for single-player.
+- **Attack/dodge/swap fire on press-down, not on release.** Release semantics added the whole
+  tap duration (60–150 ms) as latency to the time-critical verbs in a game about dodging
+  telegraphs. The engine's own gameplay button sets the precedent (`TouchScreenButton.pressed`
+  fires "when the button is pressed (down)"); menu Buttons intentionally stay
+  release-activated. `_fire()` keeps its guarded-emit + command-before-haptics shape but no
+  longer clears the hold — clearing there would re-arm mid-press and let a second finger
+  double-fire; release branches and `cancel()` own the clearing. The UI-runner touch test now
+  asserts press-fires, no double-fire, foreign-release ignored, and owning-release clears.
+- **Two joystick hygiene fixes.** `_input` routed every normal thumb-lift through `cancel()`,
+  dumping the 20-line input trace per release (logcat spam through all of combat) and arming
+  the 80 ms resume-ignore window, which ate fast re-taps; releases now take the quiet `_end()`
+  while `cancel()` + dump stay reserved for pause/focus/hide. `_draw` read
+  `DisplayServer.get_display_safe_area()` (physical screen pixels) against the logical `size`
+  for an inset UiSafeArea+UiLayout already own upstream — removed; the rest indicator centers
+  in its own rect. Also removed: the dead `_process` paused branch in `TouchControls`
+  (PROCESS_MODE_INHERIT never runs while paused; UiRoot's `cancel()` owns cleanup).
+- **Drive-by: the QA script's launch package tracked the preset.** `device_qa.sh` hardcoded
+  `com.laststand.arena` while the preset ships `com.laststandarena.game`, so the smoke-launch
+  targeted an uninstalled package; it now greps `package/unique_name` from
+  `export_presets.cfg` (`PKG=` still overrides), and `docs/DEVICE_QA.md` — which repeated the
+  stale id — points at the preset too. Its checklist gains the new behaviors: press-down
+  fire, no layout jump on declined taps, Back routing, interrupt auto-pause, logcat hygiene.
+
+Gates on this round: 794 python tests (16 in the new `test_regress_mobile_input_contract`,
+plus 8 from `main`'s PR #42 merged in cleanly — its game_root transition serialization
+auto-merged with the auto-pause handler and composes with it: a pause requested mid-transition
+is queued, not lost), `validate_guards.py` 201/0 (+6 needles), `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched, `bash -n` on the
+QA script.
+`docs/HARDENING.md` counts follow (201 needles, 794 tests; DocCountTests re-derives them),
+`docs/ARCHITECTURE.md` documents the input/interruption/emulation contract, and
+`tests/ui/ui_test_runner.gd` carries the press-semantics assertions for the headless run.
+
 ## [Unreleased] — Merging main back in: two sessions, one tree (2026-09-10)
 
 `main` had moved on 28 commits while this pass was in flight — sibling sessions shipping the
