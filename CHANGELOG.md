@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — Fix pass: identity, haptics, remaps, pickers, tutorial, midgame waves (2026-09-11)
+
+- **Version identity:** `project.godot`, `export_presets.cfg` and the example preset all ship `0.7.0` (version code 4). Android minSdk 24 / targetSdk 34 are authored instead of empty.
+- **Haptics:** export preset declares `permissions/vibrate=true` so `Input.vibrate_handheld()` can fire on device; still gated on the vibration setting.
+- **Input remaps persist** through `SettingsData.input_bindings` (save schema 6). Factory bindings are snapshotted before load so Restore Defaults works.
+- **Run setup is real:** arena launch calls `GameRoot.request_arena_selection`; starter loadout calls `GameRoot.set_pending_weapon`. Locked arenas/weapons stay preview-only.
+- **Tutorial coach** walks move → attack → dodge → winded → skill → upgrade → survive.
+- **Authored waves 6–9** fill the midgame gap before the wave-10 warlord.
+- **Settings debug chrome** (TRIGGER TEST ERROR / last-error viewers) is hidden unless debug mode is on or the build is a debug APK.
+- README names all **7** playable modes. Diagnostics CI tracks this branch.
+
 ## [Unreleased] — Arena art pass: per-arena dressing, landmark floor art, hazard models (2026-09-10)
 
 - **Downloaded 13 KayKit dungeon models** (same reviewed pack + pinned rev, CC0,

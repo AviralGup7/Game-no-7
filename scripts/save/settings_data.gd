@@ -15,6 +15,9 @@ var reduced_motion: bool = false
 var text_scale: float = 1.0
 var high_contrast: bool = false
 var aim_assist_enabled: bool = true
+## Portable InputRemapper snapshot `{action: [{kind, code}, ...]}`. Empty means
+## "keep project.godot defaults" — never wipe a working binding on a missing key.
+var input_bindings: Dictionary = {}
 
 
 ## Documented safe text-scale range. Kept in one place for validation.
@@ -66,6 +69,10 @@ func set_high_contrast(value: bool) -> void:
 
 func set_aim_assist_enabled(value: bool) -> void:
 	aim_assist_enabled = value
+
+
+func set_input_bindings(value: Dictionary) -> void:
+	input_bindings = value.duplicate(true) if value != null else {}
 
 
 ## Read accessors (UI panels and audio/motion systems read through these).
@@ -126,6 +133,7 @@ func to_dict() -> Dictionary:
 		"text_scale": text_scale,
 		"high_contrast": high_contrast,
 		"aim_assist_enabled": aim_assist_enabled,
+		"input_bindings": input_bindings.duplicate(true),
 	}
 
 
@@ -142,6 +150,11 @@ func from_dict(data: Dictionary) -> void:
 	set_text_scale(_d(data, "text_scale", 1.0, "float"))
 	high_contrast = bool(_d(data, "high_contrast", false, "bool"))
 	aim_assist_enabled = bool(_d(data, "aim_assist_enabled", true, "bool"))
+	var raw_binds: Variant = data.get("input_bindings", {})
+	if raw_binds is Dictionary:
+		input_bindings = (raw_binds as Dictionary).duplicate(true)
+	else:
+		input_bindings = {}
 
 
 ## Read a key with a type-checked fallback. Returns typed_default when missing/wrong.

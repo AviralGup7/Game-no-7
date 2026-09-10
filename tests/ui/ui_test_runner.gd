@@ -58,8 +58,10 @@ func _run() -> void:
 	_ui._setup._arenas.select(1)
 	_ui._setup._refresh_details()
 	_check("arena browsing does not mutate selection", ContentRegistry.get_selected_arena_id() == original_arena)
-	if not GameRoot.has_method("request_arena_selection") and _ui._setup._arena_ids[1] != original_arena:
-		_check("unsupported arena selection fails closed", _ui._setup._start.disabled)
+	var browsed := _ui._setup._arena_ids[_ui._setup._selected_arena_index()]
+	var browsed_cfg := ContentRegistry.get_arena(browsed)
+	if browsed_cfg != null and browsed_cfg.unlock_wave <= 1 and browsed != original_arena:
+		_check("unlocked arena preview can launch", not _ui._setup._start.disabled)
 	_ui._setup.present(false)
 	_ui._setup._launch()
 	await _settle()

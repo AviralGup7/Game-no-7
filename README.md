@@ -10,8 +10,8 @@ waves, and chase a high score. When you fall — or win — you see your run sum
 and can instantly restart.
 
 > **Project status — gameplay loop overhaul (see `CHANGELOG.md`).** Beyond the
-> Phase 1–4 foundation and meta game, the loop now includes: **5 game modes**
-> (Standard, Boss Rush, Survival, Challenge, Campaign) with distinct objectives and
+> Phase 1–4 foundation and meta game, the loop now includes: **7 game modes**
+> (Standard, Boss Rush, Survival, Challenge, Campaign, Hold the Line, Relic Hunt) with distinct objectives and
 > wave scripts; **8 transformative upgrades** (chain lightning melee, fire/frost
 > dodge trails, kill summons, thorn nova, execute, lifesteal burst, static aura);
 > **differentiated arenas** (pressure plates, orbiting movers, denser hazard grids);

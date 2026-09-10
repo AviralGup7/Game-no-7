@@ -85,4 +85,25 @@ static func suite() -> Array:
 		"passed": sd.graphics_quality == &"ultra",
 		"why": "",
 	})
+	var binds := {"attack": [{"kind": "keycode", "code": 32}]}
+	sd.set_input_bindings(binds)
+	var round := SettingsData.new()
+	round.from_dict(sd.to_dict())
+	results.append({
+		"name": "input_bindings round-trip through settings dict",
+		"passed": round.input_bindings.has("attack")
+			and (round.input_bindings["attack"] as Array).size() == 1,
+		"why": str(round.input_bindings),
+	})
+	var migrated_binds := SaveScript.normalize_save({
+		"schema_version": 5,
+		"settings": {"master_volume": 0.4, "input_bindings": binds},
+	})
+	var settings_out: Dictionary = migrated_binds.get("settings", {})
+	results.append({
+		"name": "schema 5 settings keep remaps on migrate to current",
+		"passed": int(migrated_binds.get("schema_version", 0)) == int(SaveScript.SCHEMA_VERSION)
+			and (settings_out.get("input_bindings", {}) as Dictionary).has("attack"),
+		"why": str(settings_out.get("input_bindings", {})),
+	})
 	return results

@@ -15,7 +15,7 @@ name: GDScript diagnostics
 
 on:
   push:
-    branches: ["arena/01a08a34-game-no-7"]
+    branches: ["arena/01a08d58-game-no-7", "main"]
   workflow_dispatch:
 
 permissions:

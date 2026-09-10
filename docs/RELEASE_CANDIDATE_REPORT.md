@@ -1,5 +1,5 @@
 # Release Candidate Report — Game-no-7 / Last Stand: Arena
-**Date:** 2026-09-08 (Asia/Calcutta) **Branch:** `arena/01a07f1a-game-no-7` at HEAD **Base:** `origin/main@70ada0d` **Engine:** Godot 4.4.1 mobile **Version:** `0.5.0` code 2
+**Date:** 2026-09-11 (Asia/Calcutta) **Branch:** `arena/01a08d58-game-no-7` **Engine:** Godot 4.4.1 mobile **Version:** `0.7.0` code 4 (project.godot and export_presets.cfg agree). Historical 2026-09-08 measurements below were taken against `0.5.0` code 2 and are not re-claimed as runtime evidence for this identity.
 **Scope:** Milestones 0–7 (M0 inventory/ownership/determinism; M1 9-weapon chain + transforms; M2 skills/statuses/enemies/boss/VFX; M3 authority/lifecycle; M4 audio/UI/arena/camera; M5 integration/persistence; M6 Android perf; M7 cleanup/docs).
 
 > Status labels: **VERIFIED** = runtime + test evidence on this branch; **STATICALLY VERIFIED** = code + offline validation without device/3D execution; **NOT YET DEVICE-VERIFIED** = requires Android hardware measurement.

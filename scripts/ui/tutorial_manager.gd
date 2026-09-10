@@ -1,9 +1,9 @@
 class_name TutorialManager
 extends Node
 
-## First-run coach: four steps in ~30s (move -> attack -> dodge -> winded).
-## Completes off real game events. Timeout fallback per step so it never
-## soft-locks. Only practiced completions persist the save flag.
+## First-run coach: seven steps (move -> attack -> dodge -> winded -> skill ->
+## upgrade -> survive). Completes off real game events. Timeout fallback per
+## step so it never soft-locks. Only practiced completions persist the save flag.
 
 signal tutorial_step_shown(step_id: StringName, text: String)
 signal tutorial_finished()
@@ -15,7 +15,7 @@ const STEP_WINDED := &"winded"
 const STEP_SKILL := &"skill"
 const STEP_UPGRADE := &"upgrade"
 const STEP_SURVIVE := &"survive"
-const STEP_ORDER := [STEP_MOVE, STEP_ATTACK, STEP_DODGE, STEP_WINDED]
+const STEP_ORDER := [STEP_MOVE, STEP_ATTACK, STEP_DODGE, STEP_WINDED, STEP_SKILL, STEP_UPGRADE, STEP_SURVIVE]
 const STEP_TIMEOUT := 7.5
 
 var _active := false
@@ -36,6 +36,9 @@ func _ready() -> void:
 		_bus.bind(EventBus.run_started, _on_run_started)
 		_bus.bind(EventBus.run_ended, _on_run_ended)
 		_bus.bind(EventBus.game_state_changed, _on_game_state_changed)
+		_bus.bind(EventBus.skill_cast, _on_skill_cast)
+		_bus.bind(EventBus.upgrade_selected, _on_upgrade_picked)
+		_bus.bind(EventBus.wave_completed, _on_wave_survived)
 
 
 func _exit_tree() -> void:
@@ -194,6 +197,25 @@ func notify_player_dodged() -> void:
 		var p := GameRoot.get_active_player() as Player
 		if p != null and p.get_stamina_fraction() <= 0.12:
 			_complete_current()
+
+
+func _on_skill_cast(_skill_id: StringName, caster: Node) -> void:
+	if not _active or _current_step() != STEP_SKILL:
+		return
+	var player := GameRoot.get_active_player() if GameRoot != null else null
+	if caster != null and player != null and caster != player:
+		return
+	_complete_current()
+
+
+func _on_upgrade_picked(_upgrade_id: StringName) -> void:
+	if _active and _current_step() == STEP_UPGRADE:
+		_complete_current()
+
+
+func _on_wave_survived(_wave_number: int, _completion_bonus: int) -> void:
+	if _active and _current_step() == STEP_SURVIVE:
+		_complete_current()
 
 
 func _complete_current() -> void:

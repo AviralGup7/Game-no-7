@@ -6,7 +6,7 @@ extends RefCounted
 ## It never touches disk, timers, or other autoloads; SaveManager keeps the live
 ## store + debounced flush and delegates all schema work here.
 
-const SCHEMA_VERSION := 5
+const SCHEMA_VERSION := 6
 const BUILD_SCHEMA_VERSION := 1
 
 
