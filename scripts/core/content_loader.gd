@@ -40,9 +40,10 @@ static func load_all() -> Dictionary:
 	_load_typed(&"res://data/hazards", &"hazards", tables, errors)
 	_load_typed(&"res://data/hazard_modes", &"hazard_modes", tables, errors)
 	_load_typed(&"res://data/mutators", &"mutators", tables, errors)
-	# Registered before the hazard-mode overlays, whose configs ask GameMode whether a mode id is
-	# real; the order does not matter to correctness (both resolve through the same disk fallback)
-	# but reading the catalogue first keeps the load log in dependency order.
+	# After the hazard-mode overlays, whose configs ask `GameMode` whether a mode id is real. That
+	# query no longer depends on this order — `GameMode._all_configs()` falls back to the folder while
+	# the registry is still half-built — but keeping the loader's own order dependency-shaped is why
+	# this line sits where it does, and a fallback that never has to run is better than one that must.
 	_load_typed(&"res://data/game_modes", &"game_modes", tables, errors)
 	var prestige_ladder := _load_prestige_ladder(errors)
 	_validate_references(tables, errors, prestige_ladder)

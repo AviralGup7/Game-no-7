@@ -244,6 +244,10 @@ class HotPathTests(unittest.TestCase):
         self.assertIn("if not _snapshot_ready:", gate,
                       "one snapshot per tick, however many hazards want victims")
         self.assertIn("return _victims_this_tick > 0", gate)
+        # The identifier the gate returns has to be a member of the file, not a name the reader
+        # assumes: an undeclared one is a parse error, and the arena's hazard layer is what breaks.
+        self.assertIn("var _victims_this_tick: int = 0", text,
+                      "the gate returns an identifier the file never declares")
         # Nobody in the arena => no snapshot work at all, and no hazard may gather first.
         self.assertEqual(text.count("if not _require_victims():"), 3,
                          "exactly the three victim-hungry paths may ask for a snapshot")

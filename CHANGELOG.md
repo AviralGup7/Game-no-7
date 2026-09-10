@@ -71,7 +71,32 @@ shape had to absorb the other side's feature rather than duplicate it.
   reverses Godot's escapes, because a python test comparing raw file text to what the engine will hand
   the game is comparing two different strings.
 
-Gates on the merged tree: 766 python tests, `validate_guards.py` 186/0, `validate_resources.py`
+- **The third headless round found five more defects of the same family, and one of them was this
+  merge's own doing.** `ArenaDecorator._place_structural(count, half: float, ...)` got a new
+  `var half := ...` from the footprint rewrite, and GDScript refuses a local that re-declares a
+  parameter of the same function — a parse error, so the decorator, the arena and the integration
+  stages all failed to load behind it. `ArenaHazards._require_victims()` returned
+  `_victims_this_tick`, an identifier the file never declared (the member is `_victims_last_tick`);
+  the harness guard this branch added probed `script.reload_failed`, which is the GDScript 3 name —
+  4.x asks `can_instantiate()`. And the run died on `ContentRegistry halting: 4 invalid/missing
+  content file(s)` because `GameMode._all_configs()` returned the registry's game-mode table *whenever
+  the registry existed*, including while `ContentLoader` was still loading it: `data/hazard_modes/*.tres`
+  validate their `mode_id` through `GameMode.is_known()`, and mid-load the registry is present and
+  empty, so four shipped overlays were told their modes do not exist and the registry asserted itself
+  down for the whole headless run.
+  Each got the same treatment: the bug fixed at the source, and the *class* closed locally rather than
+  the instance. `tests/python/test_regress_final_sweep.py::ScopeShadowTests` now walks every `.gd` under
+  `scripts/` and refuses a `var`/`for` that shadows its own function's parameter (the indentation
+  rule is enough, and `gdparse` has no scope analysis to offer). Both content resolvers —
+  `GameMode` and `WaveMutators`, the two that ask the registry for a whole table — fall back to the
+  content folder when the registry is empty, and cache a disk scan only once it has found something, so
+  a mid-load call can neither get a false "no" nor poison the cache with one; the pin covers both
+  files, because one rule in one resolver is the same bug with a shorter fuse. The hazard gate's
+  counter is now a declared member, and its python test asserts the declaration exists, not just the
+  line that reads it. A repo-wide sweep for the remaining shape — a private member assigned but not
+  declared in its file — found nine hits, all of them `static var` reads, so that class is closed.
+
+Gates on the merged tree: 768 python tests, `validate_guards.py` 186/0, `validate_resources.py`
 159/159 (with the two new checks verified against planted defects), `check_typed_arch.py` clean,
 `gdparse`/`gdlint` clean on every file the merge touched.
 

@@ -903,6 +903,21 @@ class FirstOfKindTests(Bans, unittest.TestCase):
         self.assertEqual(authored, self.SHIPPED_BLURBS,
                           "the first-of-kind copy moved: say so here as well as in the data")
 
+
+    def test_a_half_built_registry_is_not_an_answer(self):
+        # `ContentLoader` validates each file it has read *before* registering the table, so
+        # `GameMode.is_known()` is asked mid-load with the autoload present and empty -- which is how
+        # four shipped hazard overlays came to be reported as invalid content (a `push_error` in
+        # `HazardModeLayout.validate()`) and the registry then asserted itself down, taking the whole
+        # headless run with it. An empty registry means "not yet", and the folder cannot be half-loaded.
+        for rel in (MODE_GD, "scripts/waves/wave_mutators.gd"):
+            scan = read(rel)[read(rel).index("static func _all_configs()"):]
+            self.assertIn("if not out.is_empty():", scan,
+                          f"{rel} answered from a registry that had nothing in it yet")
+            self.assertIn("if not _disk_configs.is_empty():", scan,
+                          f"{rel} would cache an empty scan forever")
+
+
 class ConsumerTests(Bans, unittest.TestCase):
     """The public API survived, and the consumers read fields instead of keys."""
 

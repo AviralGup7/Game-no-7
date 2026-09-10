@@ -57,7 +57,11 @@ var _arena_half: float = 12.0
 var _rng := RngService.new()
 ## Scaled seconds since this layout was built — the only clock a hazard may use.
 var _game_time: float = 0.0
-var _victims_last_tick: int = 0
+## How many bodies the current gather found. `_require_victims()` gates on it mid-tick and the debug
+## snapshot exposes it as `victims_last_tick`, which is what it is by the time anyone reads the
+## snapshot: the tick's gather is over. One number, deliberately not two — a second counter would
+## only be a chance for the two to disagree.
+var _victims_this_tick: int = 0
 var _queries_last_tick: int = 0
 ## True once the victim snapshot for this physics tick has been taken (see _require_victims).
 var _snapshot_ready: bool = false
@@ -157,7 +161,7 @@ func get_debug_snapshot() -> Dictionary:
 		"arena": String(_arena_id),
 		"mode": String(_mode_id),
 		"game_time": snappedf(_game_time, 0.01),
-		"victims_last_tick": _victims_last_tick,
+		"victims_last_tick": _victims_this_tick,
 		"queries_last_tick": _queries_last_tick,
 		"index": _index.debug_snapshot(),
 		"instances": details,

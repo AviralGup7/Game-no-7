@@ -123,11 +123,12 @@ func _run_suites(paths: Array) -> void:
 			print("::error title=Suite load failure::%s did not compile/load" % path)
 			_total += 1
 			continue
-		# `load()` of a script with a parse error returns the object anyway, with the failure recorded on
-		# it — and calling a broken script yields nothing, which used to mean a suite that could not
-		# compile contributed zero cases and zero failures. The headless run reported 14 failures while a
+		# `load()` of a script with a parse error returns the object anyway, marked unloadable — and
+		# calling a broken script yields nothing, which used to mean a suite that could not compile
+		# contributed zero cases and zero failures. The headless run reported 14 failures while a
 		# registered suite that does not parse contributed none; that asymmetry is the hole.
-		if script.reload_failed:
+		# (`GDScript.reload_failed` is the 3.x name; 4.x asks a Script whether it can instantiate.)
+		if not script.can_instantiate():
 			_failures.append("Suite failed to compile: %s" % path)
 			print("::error title=Suite compile failure::%s has a parse error" % path)
 			_total += 1

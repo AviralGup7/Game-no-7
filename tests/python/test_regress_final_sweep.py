@@ -10,6 +10,7 @@ import pathlib
 import subprocess
 import sys
 import unittest
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
@@ -76,6 +77,57 @@ class CIStillSplitTests(unittest.TestCase):
         # Each stage uploads reports-* for bisect
         self.assertEqual(txt.count("reports-"), 3)
 
+
+class ScopeShadowTests(unittest.TestCase):
+    """A local that re-declares its own function's parameter is a *parse* error in GDScript -- "There
+    is already a parameter named \"half\" declared in this scope" -- so the file does not load, and
+    the class of thing that no syntax checker flags: `gdparse` is happy, the engine is not. It got into
+    this tree from a merge resolution that added `var half := ...` to a function whose second parameter
+    was `half: float` (the arena's half-extent). Indentation is enough to enforce the rule: a `func`
+    header's parameter names, against every declaration in the body indented deeper than it.
+    """
+
+    HEADER_RE = re.compile(r"^(\t*)(?:static )?func ([A-Za-z_][A-Za-z0-9_]*)\(([^)]*)\)")
+    DECL_RE = re.compile(r"^[\t ]+var ([A-Za-z_][A-Za-z0-9_]*)[\t ]*[:=]")
+    LOOP_RE = re.compile(r"^[\t ]+for ([A-Za-z_][A-Za-z0-9_]*)(?::[^\n]*)? in ")
+
+    @staticmethod
+    def _params(inner: str) -> set:
+        names = set()
+        for piece in inner.split(","):
+            piece = piece.strip()
+            if not piece:
+                continue
+            names.add(re.split(r"[:=]", piece, 1)[0].strip())
+        return names
+
+    def test_no_local_redeclares_its_own_parameter(self) -> None:
+        root = pathlib.Path(__file__).resolve().parents[2]
+        offenders = []
+        for gd in sorted((root / "scripts").rglob("*.gd")):
+            lines = gd.read_text(encoding="utf-8", errors="ignore").splitlines()
+            params: set = set()
+            indent = ""
+            for line in lines:
+                m = self.HEADER_RE.match(line)
+                if m:
+                    params, indent = self._params(m.group(3)), m.group(1)
+                    continue
+                if not line.strip() or line.lstrip().startswith("#"):
+                    continue
+                lead = len(line) - len(line.lstrip("\t"))
+                if lead <= len(indent):
+                    params = set()   # back out of the function body
+                    continue
+                if not params:
+                    continue
+                for rx in (self.DECL_RE, self.LOOP_RE):
+                    d = rx.match(line)
+                    if d and d.group(1) in params:
+                        offenders.append(f"{gd.relative_to(root)}: {line.strip()}")
+        self.assertEqual(offenders, [],
+                         msg="locals shadowing their own parameters (a parse error):\n  "
+                             + "\n  ".join(offenders[:12]))
 
 if __name__ == "__main__":
     unittest.main()

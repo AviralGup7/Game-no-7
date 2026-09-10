@@ -337,7 +337,8 @@ class RecordTypesAreGoneTests(unittest.TestCase):
         self.assertNotIn(".has_area(", suite, "the suite invented the same member")
         # A suite that cannot compile used to contribute zero cases and zero failures.
         runner = code("tests/run_tests.gd")
-        self.assertIn("if script.reload_failed:", runner)
+        self.assertIn("if not script.can_instantiate():", runner,
+                      "the probe is GDScript 3's `reload_failed`, which 4.x does not have")
         self.assertIn("Suite ran no cases", runner)
 
     def test_the_geometry_derivation_lives_on_the_type(self):

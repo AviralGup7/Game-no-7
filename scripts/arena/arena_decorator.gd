@@ -187,10 +187,12 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 			_primitive_pillar(body)
 		add_child(body)
 		_spawned.append(body)
-		var half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
+		# `foot_half`, not `half`: the enclosing function's own parameter is the arena's half-extent and
+		# shadowing it is a parse error ("There is already a parameter named \"half\"").
+		var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
 		# The collider is offset up by shape.position.y, so the box is too. `ArenaNavGrid` reads only x
 		# and z, but a footprint that lies about height is a bug waiting for the next reader.
-		_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - half, half * 2.0))
+		_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
 
 
 ## Scattered floor clutter (barrels / crates / boxes / rubble). Solid: each prop gets

@@ -339,11 +339,17 @@ static func _all_configs() -> Array[GameModeConfig]:
 		for res in ContentRegistry.get_all_game_modes().values():
 			if res is GameModeConfig:
 				out.append(res)
-		return out
-	# Headless harness / tooling without a registry: read the folder directly so the same ids still
-	# resolve. Sorted by id, so directory order cannot leak into the mode list the UI renders.
+		if not out.is_empty():
+			return out
+		# An empty table is not "no modes exist": `ContentLoader` validates every file it has read
+		# *before* it registers the table, so a hazard-mode overlay asking "is boss_rush a mode" arrives
+		# here mid-load with the autoload present and nothing in it. Answering from the half-built
+		# registry called four shipped overlays invalid content, which made the registry assert itself
+		# down. The folder holds the same data and cannot be half-loaded.
+	# Headless harness / tooling, or a loader that has not registered yet: read the folder directly so
+	# the same ids resolve either way. Sorted by id, so directory order cannot leak into the mode list
+	# the UI renders.
 	if not _disk_scanned:
-		_disk_scanned = true
 		var dir := DirAccess.open("res://data/game_modes")
 		if dir != null:
 			dir.list_dir_begin()
@@ -355,4 +361,8 @@ static func _all_configs() -> Array[GameModeConfig]:
 						_disk_configs.append(cfg)
 				fname = dir.get_next()
 			dir.list_dir_end()
+		# Cache only a scan that found something. The first call can arrive while `ContentLoader` is
+		# still working, and a cached empty answer would outlive the reason it was empty.
+		if not _disk_configs.is_empty():
+			_disk_scanned = true
 	return _disk_configs.duplicate()

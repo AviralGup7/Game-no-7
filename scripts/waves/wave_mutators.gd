@@ -192,11 +192,18 @@ static func _all_configs() -> Array[WaveMutatorConfig]:
 		for res in ContentRegistry.get_all_wave_mutators().values():
 			if res is WaveMutatorConfig:
 				out.append(res)
-		return out
-	# Headless harness / tooling without a registry: read the folder directly so the same ids
-	# still resolve. Sorted by (roll_order, id) below, so listing order cannot leak in.
+		if not out.is_empty():
+			return out
+		# An empty registry is not an answer, it is a moment: `ContentLoader` validates each file it has
+		# read *before* it registers the table that file belongs to, so a config asking "is
+		# `glass_cannon` a real mutator" can arrive mid-load with the autoload present and nothing in it.
+		# `GameMode` carries the same rule for the same reason -- it is written out in both files rather
+		# than lifted into a helper, because a resolver that reaches for a shared one hides which content
+		# folder it is falling back to, and that is the fact a reader needs.
+	# Headless harness / tooling without a registry, or a loader that has not registered yet: read the
+	# folder directly so the same ids still resolve. Sorted by (roll_order, id) below, so listing order
+	# cannot leak in.
 	if not _disk_scanned:
-		_disk_scanned = true
 		var dir := DirAccess.open("res://data/mutators")
 		if dir != null:
 			dir.list_dir_begin()
@@ -208,6 +215,10 @@ static func _all_configs() -> Array[WaveMutatorConfig]:
 						_disk_configs.append(cfg)
 				fname = dir.get_next()
 			dir.list_dir_end()
+		# Cache only a scan that found something: the first call can land mid-load, and a cached empty
+		# answer would outlive the reason it was empty.
+		if not _disk_configs.is_empty():
+			_disk_scanned = true
 	return _disk_configs.duplicate()
 
 
