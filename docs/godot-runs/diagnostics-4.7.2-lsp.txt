@@ -1,0 +1,4 @@
+/home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:61:17: ERROR: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:98:24: ERROR: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.

@@ -407,14 +407,14 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-          at: GDScript::reload (res://scripts/core/game_root.gd:62)
+          at: GDScript::reload (res://scripts/core/game_root.gd:63)
 ERROR: Failed to load script "res://scripts/core/game_root.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/run_analytics.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/run_analytics.gd:18)
+          at: GDScript::reload (res://scripts/core/run_analytics.gd:19)
 ERROR: Failed to load script "res://scripts/core/run_analytics.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/run_scorekeeper.gd
@@ -449,6 +449,35 @@ SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
 ERROR: Failed to load script "res://scripts/core/upgrade_service.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/validated_config.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/debug/debug_error_handler.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:81)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/debug_error_overlay.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:134)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_overlay.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/debug_log_buffer.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/debug/debug_mode_toggle.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
+          at: GDScript::reload (res://scripts/debug/debug_mode_toggle.gd:13)
+ERROR: Failed to load script "res://scripts/debug/debug_mode_toggle.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/error_report.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/enemies/boss_controller.gd
@@ -868,7 +897,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:71)
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/main.gd
@@ -941,7 +970,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 ERROR: Failed to load script "res://scripts/player/player_equipment.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:71)
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
@@ -1231,7 +1260,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/save/save_manager.gd:125)
+          at: GDScript::reload (res://scripts/save/save_manager.gd:128)
 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/save/save_schema.gd
@@ -1377,8 +1406,8 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/ui/ui_factory.gd:134)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/ui/ui_commands.gd:30)
+SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+          at: GDScript::reload (res://scripts/ui/ui_commands.gd:28)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/ui/tutorial_manager.gd:35)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1392,7 +1421,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-          at: GDScript::reload (res://scripts/ui/menu_panel.gd:71)
+          at: GDScript::reload (res://scripts/ui/menu_panel.gd:77)
 ERROR: Failed to load script "res://scripts/ui/menu_panel.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/ui/minimap.gd
@@ -1477,8 +1506,8 @@ ERROR: Failed to load script "res://scripts/ui/tutorial_manager.gd" with error "
 ===== res://scripts/ui/ui_commands.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/ui/ui_commands.gd:30)
+SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+          at: GDScript::reload (res://scripts/ui/ui_commands.gd:28)
 ERROR: Failed to load script "res://scripts/ui/ui_commands.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/ui/ui_factory.gd
@@ -1960,9 +1989,9 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/ui/ui_root.gd:51)
 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:31)
-ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:61)
+ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_area_combat.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -2147,6 +2176,12 @@ ERROR: Failed to load script "res://tests/unit/test_enemy_behaviors.gd" with err
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://tests/unit/test_enemy_scene_inheritance.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_error_report.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_event_bus_contract.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://tests/unit/test_extracted_modules.gd
@@ -2417,6 +2452,10 @@ ERROR: Failed to load script "res://tests/unit/test_safe_player_spawn.gd" with e
 ===== res://tests/unit/test_save.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_save.gd:98)
+ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_scoring.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
