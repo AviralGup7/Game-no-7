@@ -23,14 +23,16 @@ env:
 
 jobs:
   gdscript-diagnostics:
-    name: Godot ${{ env.DIAG_GODOT_VERSION }} diagnostics
+    # NOTE: the `env` context is not available in jobs.<id>.name (only github,
+    # needs, strategy, matrix, vars, inputs), so the version is written literally.
+    name: Godot 4.7.2-stable diagnostics
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Godot ${{ env.DIAG_GODOT_VERSION }}
+      - name: Set up Godot 4.7.2-stable
         uses: chickensoft-games/setup-godot@v2
         with:
           version: ${{ env.DIAG_GODOT_VERSION }}
