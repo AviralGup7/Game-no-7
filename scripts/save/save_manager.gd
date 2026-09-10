@@ -7,6 +7,9 @@ extends Node
 
 const SAVE_PATH := "user://last_stand_save.json"
 const BACKUP_PATH := "user://last_stand_save.backup.json"
+const BACKUP_2_PATH := "user://last_stand_save.backup.2.json"
+const BACKUP_3_PATH := "user://last_stand_save.backup.3.json"
+const INTEGRITY_KEY := "integrity"
 const SCHEMA_VERSION := SaveSchema.SCHEMA_VERSION
 const SAVE_DEBOUNCE_MSEC := 1200
 const MAX_VALID_SAVE_BYTES := 1 << 20  # 1 MiB safety cap
@@ -230,11 +233,19 @@ func save_now() -> bool:
 # ---------------------------- Persistence ----------------------------
 
 func _load_from_disk() -> void:
-	var raw: Variant = _read_raw(SAVE_PATH)
-	if raw == null:
-		raw = _read_raw(BACKUP_PATH)
+	# Try the newest copy first, then older generations. A valid JSON document is
+	# not necessarily a valid save: _read_raw also verifies the optional integrity
+	# envelope before any data is admitted to the runtime.
+	var candidates := [SAVE_PATH, BACKUP_PATH, BACKUP_2_PATH, BACKUP_3_PATH]
+	var raw: Variant = null
+	var source_path := SAVE_PATH
+	for candidate in candidates:
+		raw = _read_raw(candidate)
 		if raw != null:
-			EventBus.report_info("Recovered save from backup after primary was unreadable")
+			source_path = candidate
+			break
+	if raw != null and source_path != SAVE_PATH:
+		EventBus.report_info("Recovered save from backup after primary was unreadable: %s" % source_path)
 	var data := validate_save_data(raw)
 	_apply_validated(data)
 	# Emit a settings_changed on load so live systems adopt persisted settings.
@@ -245,11 +256,15 @@ func _load_from_disk() -> void:
 func _flush_save() -> bool:
 	if not _dirty:
 		return true
-	# Write backup of the previous good file first (destructive-recovery safety).
+	# Never replace the only known-good copy until the new document is completely
+	# written. Keep three generations: a bad storage sector or an interrupted
+	# replacement then costs at most the newest save, not the whole profile.
 	var previous: Variant = _read_raw(SAVE_PATH)
 	if previous != null:
+		_write_raw(BACKUP_3_PATH, JSON.stringify(_read_raw(BACKUP_2_PATH)))
+		_write_raw(BACKUP_2_PATH, JSON.stringify(_read_raw(BACKUP_PATH)))
 		_write_raw(BACKUP_PATH, JSON.stringify(previous))
-	var ok := _write_raw(SAVE_PATH, JSON.stringify(_save))
+	var ok := _write_raw(SAVE_PATH, _serialize_save())
 	if ok:
 		_dirty = false
 		EventBus.save_completed.emit()
@@ -267,21 +282,63 @@ func _read_raw(path: String) -> Variant:
 		return null
 	var text := file.get_as_text()
 	file.close()
-	var parsed = JSON.parse_string(text)
+	var parsed: Variant = JSON.parse_string(text)
+	if not parsed is Dictionary:
+		return null
+	if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed):
+		EventBus.report_warning("Save integrity check failed; treating as corrupt: %s" % path)
+		return null
 	return parsed
+
+
+func _integrity_valid(document: Dictionary) -> bool:
+	var stored: Variant = document.get(INTEGRITY_KEY, {})
+	if not stored is Dictionary or stored.get("algorithm", "") != "sha256":
+		return false
+	var payload := document.duplicate(true)
+	payload.erase(INTEGRITY_KEY)
+	return String(stored.get("digest", "")) == _sha256_text(JSON.stringify(payload))
+
+
+func _serialize_save() -> String:
+	var payload := _save.duplicate(true)
+	payload.erase(INTEGRITY_KEY)
+	var document := payload.duplicate(true)
+	document[INTEGRITY_KEY] = {
+		"algorithm": "sha256",
+		"digest": _sha256_text(JSON.stringify(payload)),
+	}
+	return JSON.stringify(document)
+
+
+func _sha256_text(value: String) -> String:
+	var hashing := HashingContext.new()
+	if hashing.start(HashingContext.HASH_SHA256) != OK:
+		return ""
+	hashing.update(value.to_utf8_buffer())
+	return hashing.finish().hex_encode()
 
 
 func _write_raw(path: String, contents: String) -> bool:
 	var tmp := path + ".tmp"
 	var file := FileAccess.open(tmp, FileAccess.WRITE)
 	if file == null:
+		EventBus.report_warning("Could not open temporary save: %s" % path)
 		return false
 	file.store_string(contents)
+	# Explicitly flush before close: close alone releases the handle, while flush
+	# documents the durability boundary and catches buffered I/O errors early.
+	file.flush()
+	var write_error := file.get_error()
 	file.close()
+	if write_error != OK:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		return false
+	# Same-directory rename is the commit point. Do not delete the destination on
+	# failure: that fallback turned a recoverable write error into total data loss.
 	var err := DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
-	if err != OK and FileAccess.file_exists(path):
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-		err = DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
+	if err != OK:
+		EventBus.report_warning("Could not commit save %s (error %d)" % [path, err])
 	return err == OK
 
 

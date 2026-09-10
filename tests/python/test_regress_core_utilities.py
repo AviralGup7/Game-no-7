@@ -17,13 +17,26 @@ class RngServiceTests(unittest.TestCase):
         self.assertIn("if salt < 0:",txt)
         self.assertIn("salt % 16384",txt)
 class WeightedTableTests(unittest.TestCase):
-    def test_finite_clamp(self):
+    def test_all_mutation_and_sample_paths_are_finite(self):
         txt=read("scripts/utilities/weighted_table.gd")
         self.assertIn("is_finite(weight)",txt)
         self.assertIn("clampf(weight",txt)
+        self.assertIn("func _recalculate_total", txt)
+        self.assertIn("if not is_finite(sample):", txt)
+        self.assertIn("if not is_finite(remaining_total)", txt)
+        self.assertLess(txt.index("_sanitize_weight(weight)"), txt.index("func set_weight"))
 class UpgradeSelectorTests(unittest.TestCase):
     def test_weighted_pick_finite(self):
         txt=read("scripts/progression/upgrade_selector.gd")
         self.assertIn("is_finite(c.weight)",txt)
         self.assertIn("is_finite(total)",txt)
+
+class ObjectPoolTests(unittest.TestCase):
+    def test_pool_tracks_ownership_and_factory_failures(self):
+        txt=read("scripts/utilities/object_pool.gd")
+        self.assertIn("var _leased: Array = []", txt)
+        self.assertIn("if obj == null or not _leased.has(obj)", txt)
+        self.assertIn("if obj == null:\n\t\t\tbreak", txt)
+        self.assertIn("_live_count = _leased.size()", txt)
+
 if __name__=="__main__": unittest.main()

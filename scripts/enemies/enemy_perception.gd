@@ -49,13 +49,17 @@ var _has_investigate := false
 
 func configure(vision_range_value: float, fov_value: float, hearing_value: float,
 		reaction_value: float, memory_value: float, always_aware_value: bool) -> void:
-	vision_range = maxf(vision_range_value, 0.0)
-	fov_degrees = clampf(fov_value, 0.0, 360.0)
-	hearing_range = maxf(hearing_value, 0.0)
-	reaction_base = maxf(reaction_value, 0.0)
-	memory_time = maxf(memory_value, 0.0)
+	vision_range = _finite_nonnegative(vision_range_value)
+	fov_degrees = clampf(fov_value if is_finite(fov_value) else 360.0, 0.0, 360.0)
+	hearing_range = _finite_nonnegative(hearing_value)
+	reaction_base = _finite_nonnegative(reaction_value)
+	memory_time = _finite_nonnegative(memory_value)
 	always_aware = always_aware_value
 	_fov_cos = cos(0.5 * deg_to_rad(fov_degrees))
+
+
+func _finite_nonnegative(value: float, fallback: float = 0.0) -> float:
+	return maxf(value, 0.0) if is_finite(value) else fallback
 
 
 ## (from: Vector3, to: Vector3) -> bool. Empty Callable = open world (tests,
@@ -74,9 +78,11 @@ func reset() -> void:
 
 
 func update(delta: float, eye: Vector3, facing: Vector3, target_pos: Vector3, target_exists: bool) -> void:
-	if not target_exists:
+	if not target_exists or not _finite_vector(target_pos) or not _finite_vector(eye) or not _finite_vector(facing):
 		reset()
 		return
+	if not is_finite(delta) or delta < 0.0:
+		delta = 0.0
 	if always_aware:
 		last_seen_pos = target_pos
 		_has_investigate = false
@@ -121,9 +127,9 @@ func update(delta: float, eye: Vector3, facing: Vector3, target_pos: Vector3, ta
 ## intensity 0..1 scales the hearing radius; strong sounds wake UNAWARE
 ## enemies into investigation, and cut the REACTING reaction time in half.
 func note_noise(pos: Vector3, intensity: float, eye: Vector3) -> void:
-	if intensity <= 0.0 or hearing_range <= 0.0:
+	if not is_finite(intensity) or intensity <= 0.0 or hearing_range <= 0.0:
 		return
-	if not is_finite(pos.x) or not is_finite(pos.z):
+	if not _finite_vector(pos) or not _finite_vector(eye):
 		return
 	var reach := hearing_range * (0.4 + 0.6 * clampf(intensity, 0.0, 1.0))
 	if eye.distance_to(pos) > reach:
@@ -141,6 +147,8 @@ func note_noise(pos: Vector3, intensity: float, eye: Vector3) -> void:
 
 
 func visible_now(eye: Vector3, facing: Vector3, target_pos: Vector3) -> bool:
+	if not _finite_vector(eye) or not _finite_vector(facing) or not _finite_vector(target_pos):
+		return false
 	var to := target_pos - eye
 	to.y = 0.0
 	var d := to.length()
@@ -193,10 +201,16 @@ func look_direction(eye: Vector3) -> Vector3:
 
 
 func _start_investigation(pos: Vector3, duration: float) -> void:
+	if not _finite_vector(pos):
+		return
 	_has_investigate = true
 	investigate_pos = pos
-	_memory_left = duration
+	_memory_left = _finite_nonnegative(duration)
 	status = Status.INVESTIGATING
+
+
+func _finite_vector(value: Vector3) -> bool:
+	return is_finite(value.x) and is_finite(value.y) and is_finite(value.z)
 
 
 func get_status_name() -> String:

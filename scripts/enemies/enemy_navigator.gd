@@ -55,9 +55,14 @@ func invalidate_path() -> void:
 ## Steer toward a live target node (the player). Grid flow field first, then
 ## navmesh, then the caller's fallback direction.
 func direction(body_position: Vector3, target: Node3D, fallback: Vector3, update_interval: float) -> Vector3:
+	if not _finite_vector(body_position) or not _finite_vector(fallback):
+		return Vector3.ZERO
 	if target == null or not is_instance_valid(target):
 		return fallback
 	var tp: Vector3 = target.global_position
+	if not _finite_vector(tp):
+		return fallback
+	update_interval = update_interval if is_finite(update_interval) and update_interval > 0.0 else PATH_REFRESH
 	if _grid != null and _grid.is_built():
 		if _grid.has_line_of_sight(body_position, tp):
 			var direct := _flat_dir(body_position, tp)
@@ -87,8 +92,10 @@ func direction(body_position: Vector3, target: Node3D, fallback: Vector3, update
 ## path that refreshes on a timer or when the point moves; direct steering
 ## when the line is open.
 func direction_toward(body_position: Vector3, point: Vector3, fallback: Vector3, delta: float) -> Vector3:
-	if not is_finite(point.x) or not is_finite(point.z):
-		return fallback
+	if not _finite_vector(body_position) or not _finite_vector(fallback) or not _finite_vector(point):
+		return Vector3.ZERO
+	if not is_finite(delta) or delta < 0.0:
+		delta = 0.0
 	if body_position.distance_to(point) < PATH_TARGET_RADIUS:
 		return fallback  # arrived; caller handles the linger
 	if _grid == null or not _grid.is_built():
@@ -115,7 +122,13 @@ func direction_toward(body_position: Vector3, point: Vector3, fallback: Vector3,
 	return _flat_dir(body_position, point)
 
 
+func _finite_vector(value: Vector3) -> bool:
+	return is_finite(value.x) and is_finite(value.y) and is_finite(value.z)
+
+
 func _flat_dir(from: Vector3, to: Vector3) -> Vector3:
+	if not _finite_vector(from) or not _finite_vector(to):
+		return Vector3.ZERO
 	var d := to - from
 	d.y = 0.0
 	if d.length_squared() < 0.0001:

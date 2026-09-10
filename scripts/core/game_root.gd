@@ -39,6 +39,14 @@ var _score := RunScorekeeper.new()
 var _best_score: int = 0
 var _best_wave: int = 0
 var _paused := false
+# Signals are synchronous in Godot. A listener can request another transition
+# while game_state_changed is being emitted, so state changes are serialized
+# instead of re-entering _on_state_entered halfway through the previous change.
+var _transition_in_progress := false
+var _pending_state: StringName = &""
+var _transition_serial: int = 0
+var _transition_history: Array[StringName] = []
+const MAX_TRANSITION_HISTORY := 16
 var _active_player: Player = null
 ## World-build seam (registered by Main / test harnesses; see _call_build_world).
 var _world_builder: Callable = Callable()
@@ -289,6 +297,21 @@ func request_game_over() -> void:
 ## ---------- State machine ----------
 
 func transition_to(new_state: StringName) -> bool:
+	if new_state == _current_state and not _transition_in_progress:
+		return false
+	if _transition_in_progress:
+		# Signals are synchronous: queue exactly one follow-up request and let the
+		# current state's enter hook finish first. The first request wins so a
+		# noisy listener cannot silently skip an important transition.
+		if _pending_state != &"":
+			EventBus.report_warning("Transition already queued (%s); ignoring %s" % [String(_pending_state), String(new_state)])
+			return false
+		_pending_state = new_state
+		return true
+	return _transition_now(new_state)
+
+
+func _transition_now(new_state: StringName) -> bool:
 	if new_state == _current_state:
 		return false
 	if new_state == State.PAUSED:
@@ -313,11 +336,28 @@ func _can_pause_from(state: StringName) -> bool:
 
 
 func _apply_state(new_state: StringName) -> bool:
+	if _transition_in_progress:
+		# _apply_state is intentionally the only commit point. Nested callers use
+		# transition_to(), which queues instead of reaching this branch.
+		return false
+	_transition_in_progress = true
 	var previous := _current_state
 	_current_state = new_state
+	_transition_serial += 1
+	_transition_history.append(new_state)
+	if _transition_history.size() > MAX_TRANSITION_HISTORY:
+		_transition_history.pop_front()
 	EventBus.game_state_changed.emit(previous, new_state)
 	_sync_player_control()
 	_on_state_entered(previous, new_state)
+	_transition_in_progress = false
+	# A state-enter hook or signal listener may have requested a legal follow-up
+	# (for example STARTING_RUN -> PLAYING). Drain it only after the current hook
+	# has completely returned, preventing half-entered states.
+	if _pending_state != &"":
+		var queued := _pending_state
+		_pending_state = &""
+		_transition_now(queued)
 	return true
 
 
@@ -554,6 +594,10 @@ func get_debug_snapshot() -> Dictionary:
 	return {
 		"state": String(_current_state),
 		"paused": _paused,
+		"transition_serial": _transition_serial,
+		"transition_in_progress": _transition_in_progress,
+		"pending_state": String(_pending_state),
+		"transition_history": _transition_history.duplicate(),
 		"best_score": _best_score,
 		"best_wave": _best_wave,
 		"run": _current_run.summary(),
