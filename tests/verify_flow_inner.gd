@@ -26,12 +26,12 @@ func _ready() -> void:
 	_run()
 
 
-func _check(name: String, passed: bool, extra: String = "") -> void:
+func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
-		print("  PASS: %s" % name)
+		print("  PASS: %s" % case_name)
 	else:
-		_failures.append(name)
+		_failures.append(case_name)
 		push_error("VERIFY FAIL: %s %s" % [name, extra])
 
 
@@ -433,13 +433,13 @@ func _enemy_feedback_checks(tag: String, player: Node, container: Node) -> void:
 
 
 func _level_up_checks(tag: String, player: Node) -> void:
-	var exp: Node = player.get_node("ExperienceComponent")
-	var lvl: int = exp.call("get_level")
+	var xp: Node = player.get_node("ExperienceComponent")
+	var lvl: int = xp.call("get_level")
 	var need: int = ExperienceComponent.xp_for_level(lvl)
 	var anims: Array = player.find_children("*", "AnimationPlayer", true, false)
 	var anim: AnimationPlayer = anims[0]
 	_stop_all_sfx()
-	var ups: int = exp.call("add_xp", need)
+	var ups: int = xp.call("add_xp", need)
 	_check(tag + " level-up triggers", ups == 1)
 	var snap := _sfx_snapshot()
 	_check(tag + " level-up sting exactly once", snap["total"] == 1 and _count(snap, "level_up") == 1, str(snap))

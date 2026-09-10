@@ -23,7 +23,7 @@ static func choose_for_wave(run: RunState, player: Player, wave_number: int) -> 
 	var pool: Array[UpgradeConfig] = []
 	for raw in ContentRegistry.get_all_upgrades().values():
 		pool.append(raw as UpgradeConfig)
-	var chosen: Array[UpgradeConfig] = UpgradeSelector.choose_upgrade_choices(pool, 3, run.seed, wave_number, counts)
+	var chosen: Array[UpgradeConfig] = UpgradeSelector.choose_upgrade_choices(pool, 3, run.run_seed, wave_number, counts)
 	if chosen.is_empty():
 		EventBus.report_info("No eligible upgrades to present after wave %d; continuing" % wave_number)
 		return empty

@@ -97,19 +97,19 @@ func _finite_vec(v: Vector2) -> Vector2:
 	return v if _is_finite_v2(v) else Vector2.ZERO
 
 
-func _begin(index: int, position: Vector2) -> void:
+func _begin(index: int, pointer_position: Vector2) -> void:
 	if get_tree() != null and get_tree().paused:
 		InputTrace.record("begin_paused", "ignored i=%d" % index)
 		return
-	if not _is_finite_v2(position):
+	if not _is_finite_v2(pointer_position):
 		return
 	_resume_ignore = 0.0
 	_active = true
 	_touch_index = index
-	_base = position
-	_knob = position
+	_base = pointer_position
+	_knob = pointer_position
 	_value = Vector2.ZERO
-	InputTrace.record("begin", "i=%d pos=%s" % [index, str(position)])
+	InputTrace.record("begin", "i=%d pos=%s" % [index, str(pointer_position)])
 	became_active.emit()
 	value_changed.emit(_value)
 	queue_redraw()
@@ -127,7 +127,7 @@ func _end() -> void:
 	queue_redraw()
 
 
-func _update(position: Vector2) -> void:
+func _update(pointer_position: Vector2) -> void:
 	if not _active:
 		return
 	if _resume_ignore > 0:
@@ -135,10 +135,10 @@ func _update(position: Vector2) -> void:
 	if get_tree() != null and get_tree().paused:
 		cancel()
 		return
-	if not _is_finite_v2(position):
+	if not _is_finite_v2(pointer_position):
 		return
 	var r := _safe_radius()
-	var delta := position - _base
+	var delta := pointer_position - _base
 	var length := delta.length()
 	if not is_finite(length):
 		return

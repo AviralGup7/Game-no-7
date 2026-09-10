@@ -12,7 +12,7 @@ extends RefCounted
 const BUILD_SCHEMA_VERSION := 1
 
 var run_id: int = 0
-var seed: int = 0
+var run_seed: int = 0
 var arena_id: StringName = &"default_arena"
 var mode_id: StringName = &"standard"
 var current_wave: int = 0
@@ -50,7 +50,7 @@ var objective_failed: bool = false
 
 func reset() -> void:
 	run_id = 0
-	seed = 0
+	run_seed = 0
 	arena_id = &"default_arena"
 	mode_id = &"standard"
 	current_wave = 0
@@ -120,7 +120,7 @@ func set_build_snapshot(snapshot: Dictionary) -> void:
 func build_snapshot() -> Dictionary:
 	return {
 		"schema_version": BUILD_SCHEMA_VERSION,
-		"seed": seed,
+		"seed": run_seed,
 		"current_wave": current_wave,
 		"equipped_weapons": equipped_weapons.duplicate(),
 		"equipped_skills": equipped_skills.duplicate(),
@@ -155,7 +155,7 @@ func _unique_ids(raw_values: Variant) -> Array[StringName]:
 func summary() -> Dictionary:
 	return {
 		"run_id": run_id,
-		"seed": seed,
+		"seed": run_seed,
 		"arena_id": String(arena_id),
 		"mode_id": String(mode_id),
 		"current_wave": current_wave,

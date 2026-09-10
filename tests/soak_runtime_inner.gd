@@ -32,12 +32,12 @@ func _ready() -> void:
 	_run()
 
 
-func _check(name: String, passed: bool, extra: String = "") -> void:
+func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
-		print("  PASS: %s" % name)
+		print("  PASS: %s" % case_name)
 	else:
-		_failures.append(name)
+		_failures.append(case_name)
 		push_error("SOAK FAIL: %s %s" % [name, extra])
 
 

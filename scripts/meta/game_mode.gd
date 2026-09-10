@@ -270,7 +270,7 @@ static func is_survival_victory(mode_id: StringName, elapsed: float) -> bool:
 ## reduced to two rules: some waves are scripted exactly, and the rest are the planner asked for a
 ## different wave number with an occasional extra archetype on a cadence. Those are knobs, so they
 ## are authored on the mode and this is one loop over them.
-static func spawn_queue(mode_id: StringName, wave_number: int, seed: int) -> Array[StringName]:
+static func spawn_queue(mode_id: StringName, wave_number: int, run_seed: int) -> Array[StringName]:
 	var cfg := definition(mode_id)
 	var out: Array[StringName] = []
 	if cfg == null or not cfg.overrides_planner():
@@ -281,7 +281,7 @@ static func spawn_queue(mode_id: StringName, wave_number: int, seed: int) -> Arr
 		out.append_array(plan.archetypes)
 	elif cfg.planner_wave_offset != 0 or cfg.planner_wave_floor > 1:
 		var asked := maxi(w + cfg.planner_wave_offset, cfg.planner_wave_floor)
-		out = WavePlanner.extended_queue_for_wave(asked, seed)
+		out = WavePlanner.extended_queue_for_wave(asked, run_seed)
 	if cfg.every_n_waves > 1 and w % cfg.every_n_waves == 0:
 		out.append_array(cfg.every_n_append)
 	return out

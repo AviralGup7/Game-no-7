@@ -82,12 +82,12 @@ func _ready() -> void:
 ## Project a world XZ offset (relative to arena centre) onto map pixels,
 ## clamping out-of-range points to the rim so nothing draws outside the disc.
 ## NOTE: pinned by tests/unit/test_meta_misc.gd — keep semantics exact.
-static func project_to_map(world_xz: Vector2, center_px: Vector2, radius_px: float, half: float) -> Vector2:
-	if not is_finite(world_xz.x) or not is_finite(world_xz.y):
+static func project_to_map(world_offset: Vector2, center_px: Vector2, radius_px: float, half: float) -> Vector2:
+	if not is_finite(world_offset.x) or not is_finite(world_offset.y):
 		return center_px
 	if half <= 0.0 or radius_px <= 0.0:
 		return center_px
-	var offset := world_xz / half
+	var offset := world_offset / half
 	var mag := offset.length()
 	if mag > 1.0:
 		offset /= mag
@@ -226,12 +226,10 @@ func _process(delta: float) -> void:
 		return
 	if not is_finite(delta) or delta < 0.0:
 		delta = 0.016
-	var discovered := false
 	_discovery_acc += delta
 	if _discovery_acc >= DISCOVERY_INTERVAL:
 		_discovery_acc = 0.0
 		_discover()
-		discovered = true
 
 	var now_ms := Time.get_ticks_msec()
 	_tracks = advance_tracks(_tracks, _live, delta, now_ms)

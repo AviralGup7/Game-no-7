@@ -616,7 +616,7 @@ class NoCodeTableTests(Bans, unittest.TestCase):
             self.assertIn(needle, body, f"spawn_queue stopped honouring `{needle}`")
         # The planner is *asked*, never written into: the old builders appended to the array the
         # planner returned, which is fine only while nobody caches one.
-        self.assertIn("out = WavePlanner.extended_queue_for_wave(asked, seed)", body,
+        self.assertIn("out = WavePlanner.extended_queue_for_wave(asked, run_seed)", body,
                       "spawn_queue no longer takes the planner's fresh array as its own base")
         floats = re.findall(r"\d+\.\d+", body)
         self.assertEqual(floats, [], f"spawn_queue is authoring magnitudes: {floats}")

@@ -19,8 +19,8 @@ var _capacity := DEFAULT_CAPACITY
 var _seq := 0
 
 
-func _init(capacity: int = DEFAULT_CAPACITY) -> void:
-	_capacity = maxi(capacity, 8)
+func _init(initial_capacity: int = DEFAULT_CAPACITY) -> void:
+	_capacity = maxi(initial_capacity, 8)
 
 
 func capacity() -> int:

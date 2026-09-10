@@ -86,10 +86,10 @@ func _make_prestige_row(meta: MetaProgression, rank: int, cost: int, verdict: St
 	row.add_theme_constant_override("separation", UiTheme.SPACE_M)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var name := Label.new()
-	name.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.max_rank(), Prestige.title_for(rank)]
-	name.add_theme_font_size_override("font_size", 22)
-	info.add_child(name)
+	var name_label := Label.new()
+	name_label.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.max_rank(), Prestige.title_for(rank)]
+	name_label.add_theme_font_size_override("font_size", 22)
+	info.add_child(name_label)
 	var blurb := Label.new()
 	# Printed from the ladder the ranks are actually applied from, not from a constant that could
 	# disagree with it (the promise on this row is the one thing the player prices a reset against).
@@ -144,11 +144,11 @@ func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var rank := meta.get_rank(item_id)
 	var max_rank := int(def["max_rank"])
-	var name := Label.new()
-	name.text = "%s  %d/%d" % [String(def["name"]), rank, max_rank]
-	name.add_theme_font_size_override("font_size", 22)
-	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info.add_child(name)
+	var name_label := Label.new()
+	name_label.text = "%s  %d/%d" % [String(def["name"]), rank, max_rank]
+	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(name_label)
 	var blurb := Label.new()
 	blurb.text = String(def["blurb"])
 	blurb.add_theme_font_size_override("font_size", 20)

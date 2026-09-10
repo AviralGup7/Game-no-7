@@ -132,7 +132,6 @@ func _current_stack(upgrade_id: StringName) -> int:
 	if run == null:
 		return 0
 	return int(run.selected_upgrades.get(upgrade_id, 0))
-	return 0
 
 
 func _rarity_color(rarity: StringName) -> Color:

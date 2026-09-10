@@ -60,9 +60,9 @@ var _rng := RngService.new()
 var _blockers: Array[AABB] = []
 
 
-func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
+func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
-	_rng.reseed(seed + hash(String(arena_id)) * 3)
+	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
 	match String(arena_id):
 		"ember_crucible":
 			_compose_ember(arena_half)
