@@ -10,6 +10,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -67,6 +79,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -101,6 +125,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -126,6 +162,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -153,6 +201,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -180,6 +240,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -211,6 +283,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -275,6 +359,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -301,6 +397,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -333,6 +441,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -358,8 +478,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/core/content_loader.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -481,6 +615,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -511,6 +657,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -530,6 +688,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -556,6 +726,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -579,6 +761,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -608,6 +802,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -631,6 +837,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -654,6 +872,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -683,6 +913,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -710,6 +952,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -733,6 +987,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -754,6 +1020,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -777,6 +1055,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -801,6 +1091,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -880,8 +1182,22 @@ ERROR: Failed to load script "res://scripts/player/player.gd" with error "Compil
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1053,8 +1369,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1082,8 +1412,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1165,8 +1509,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1276,6 +1634,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1292,6 +1662,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1339,6 +1721,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1412,6 +1806,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1576,6 +1982,20 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/visuals/character_visuals.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
+ERROR: Failed to load script "res://scripts/visuals/character_visuals.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/visuals/effect_director.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -1588,6 +2008,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1666,8 +2098,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/weapons/melee_resolver.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1695,6 +2141,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1718,6 +2176,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1743,6 +2213,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1764,11 +2246,29 @@ ERROR: Failed to load script "res://scripts/weapons/ranged_resolver.gd" with err
 ===== res://scripts/weapons/weapon_config.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
+ERROR: Failed to load script "res://scripts/weapons/weapon_config.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/weapons/weapon_instance.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1823,6 +2323,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1839,6 +2351,8 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/player/player.gd:92)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1919,8 +2433,22 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/player/player.gd:92)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1969,6 +2497,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1992,6 +2532,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2023,6 +2575,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2064,6 +2628,22 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/unit/test_character_visuals.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_character_visuals.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_character_visuals.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_collision_layers.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2078,6 +2658,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2107,6 +2699,8 @@ ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Comp
 ===== res://tests/unit/test_content_progression.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/player/progression_component.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2182,6 +2776,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2215,6 +2821,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2238,6 +2856,22 @@ ERROR: Failed to load script "res://tests/unit/test_hazards_live.gd" with error 
 ===== res://tests/unit/test_hero_rig.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_hero_rig.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_hero_rig.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_locomotion_nan.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2247,8 +2881,22 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/ui/virtual_joystick.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2300,6 +2948,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2329,6 +2989,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2349,6 +3021,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2381,6 +3065,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/unit/test_planner_extended.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_planner_extended.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_planner_extended.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_presentation_scripts.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2425,6 +3115,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2454,6 +3156,18 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2506,6 +3220,18 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:114)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2520,6 +3246,8 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/status/status_manager.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
+          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://tests/unit/test_weapons.gd:0)
 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
@@ -2527,6 +3255,22 @@ ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Comp
 ===== res://tests/validate_asset_imports.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
+SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
+SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
+SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
+          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/validate_asset_imports.gd:0)
+ERROR: Failed to load script "res://tests/validate_asset_imports.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/verify_flow.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
