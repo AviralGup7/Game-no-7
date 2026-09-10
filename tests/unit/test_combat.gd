@@ -36,7 +36,33 @@ static func suite() -> Array:
 	# DamageResult constants exist
 	results.append({
 		"name": "DamageResult ignore reasons defined",
-		"passed": DamageResult.IGNORE_INVALID_PAYLOAD == &"invalid_payload" and DamageResult.IGNORE_DEAD == &"dead",
+		"passed": DamageResult.IGNORE_INVALID_PAYLOAD == &"invalid_payload" and DamageResult.IGNORE_DEAD == &"dead"
+			and DamageResult.IGNORE_BLOCKED == &"blocked",
 		"why": "",
 	})
+
+	# Fully absorbed / zero-amount hits must not stagger or emit damaged.
+	var hp := HealthComponent.new()
+	hp.current_health = 50.0
+	hp.max_health = 50.0
+	var zero := DamagePayload.new()
+	zero.amount = 0.0
+	var zr := hp.take_damage(zero)
+	results.append({
+		"name": "zero-amount hit is blocked not accepted",
+		"passed": not zr.accepted and zr.ignored_reason == DamageResult.IGNORE_BLOCKED
+			and is_equal_approx(hp.current_health, 50.0),
+		"why": "reason=%s hp=%f" % [String(zr.ignored_reason), hp.current_health],
+	})
+	hp.set_mitigation_source(func(_amount: float, _payload: DamagePayload) -> float: return 0.0)
+	var absorbed := DamagePayload.new()
+	absorbed.amount = 25.0
+	var ar := hp.take_damage(absorbed)
+	results.append({
+		"name": "fully mitigated hit is blocked not accepted",
+		"passed": not ar.accepted and ar.ignored_reason == DamageResult.IGNORE_BLOCKED
+			and is_equal_approx(hp.current_health, 50.0),
+		"why": "reason=%s hp=%f" % [String(ar.ignored_reason), hp.current_health],
+	})
+	hp.free()
 	return results

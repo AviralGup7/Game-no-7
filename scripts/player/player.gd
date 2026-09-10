@@ -41,6 +41,8 @@ signal leveled_up(new_level: int)
 const DODGE_STAMINA_COST := 25.0
 const KILL_XP_BASE := 12.0
 const KILL_XP_ELITE_BONUS := 18.0
+## Matches the authored capsule in player.tscn (CapsuleShape3D.radius = 0.45).
+const HIT_RADIUS := 0.45
 
 var _control_enabled := false
 var _is_dead := false
@@ -428,6 +430,10 @@ func get_progression_component() -> ProgressionComponent:
 
 func get_health_component() -> HealthComponent:
 	return _health
+
+
+func get_hit_radius() -> float:
+	return HIT_RADIUS
 
 
 func get_stamina_component() -> StaminaComponent:

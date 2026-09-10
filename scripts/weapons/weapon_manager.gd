@@ -303,7 +303,9 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 		var target: Variant = entry["target"]
 		if target == null or not is_instance_valid(target):
 			continue
-		var sm := (target as Node).get_node_or_null("StatusManager") as StatusManager if target is Node else null
+		var sm: StatusManager = null
+		if target is Damageable:
+			sm = (target as Damageable).get_status_manager()
 		if sm != null:
 			var status_result := sm.apply_effects(inst.config.on_hit_effects, _owner_body)
 			var result: Variant = entry.get("result")

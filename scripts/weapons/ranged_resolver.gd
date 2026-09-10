@@ -97,10 +97,11 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 			continue
 		var to: Vector3 = (c as Node3D).global_position - origin
 		var along := to.dot(dir)
-		if along < 0.0 or along > max_distance:
+		if along < 0.0 or along > max_distance + maxf(damageable.get_hit_radius(), 0.0):
 			continue
 		var perpendicular := (to - dir * along).length()
-		if perpendicular <= radius_tolerance:
+		var radius := radius_tolerance + maxf(damageable.get_hit_radius(), 0.0)
+		if perpendicular <= radius:
 			hits.append({"target": c, "distance": along})
 	hits.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
 	return hits

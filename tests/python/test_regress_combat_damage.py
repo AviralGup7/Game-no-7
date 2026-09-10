@@ -53,4 +53,29 @@ class CombatDamageTests(unittest.TestCase):
         txt=read("scripts/weapons/ranged_resolver.gd")
         self.assertIn("maxf(spread_degrees, 0.0)",txt)
         self.assertIn("clamped_spread",txt)
+    def test_weapon_instance_crits_go_through_pity(self):
+        """Player swings used to call RngService.chance directly, so authored
+        CriticalSystem pity never fired. roll_crit must persist pity on the instance."""
+        txt=read("scripts/weapons/weapon_instance.gd")
+        self.assertIn("CriticalSystem.roll",txt)
+        self.assertIn("_crit_pity",txt)
+        self.assertIn("crit_seed_salt",txt)
+    def test_melee_resolver_uses_hit_radius_protocol(self):
+        txt=read("scripts/weapons/melee_resolver.gd")
+        body=txt[txt.find("func _target_radius"):txt.find("func _target_radius")+400]
+        self.assertIn("get_hit_radius()",body)
+        self.assertNotIn("EnemyBase",body)
+        self.assertNotIn("get_config()",body)
+    def test_zero_damage_after_mitigation_is_blocked(self):
+        txt=read("scripts/player/health_component.gd")
+        self.assertIn("IGNORE_BLOCKED",txt)
+        self.assertIn("if amount <= 0.0:",txt)
+    def test_hitscan_adds_target_hit_radius(self):
+        txt=read("scripts/weapons/ranged_resolver.gd")
+        self.assertIn("radius_tolerance + maxf(damageable.get_hit_radius()",txt)
+    def test_weapon_status_uses_damageable_seam(self):
+        txt=read("scripts/weapons/weapon_manager.gd")
+        self.assertIn("get_status_manager()",txt)
+        self.assertIn("sm.apply_effects(",txt)
+        self.assertNotIn("sm.call(",txt)
 if __name__=="__main__": unittest.main()

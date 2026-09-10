@@ -62,14 +62,13 @@ static func _is_valid_target(c: Variant) -> bool:
 	return damageable.is_alive()
 
 
-## Extra reach granted by bulky targets (reads EnemyConfig.bounds_radius when
-## available; 0 otherwise).
+## Extra reach granted by bulky targets. Same seam AreaDamage uses, so a swing
+## and a blast never disagree about how fat a body is.
 static func _target_radius(c: Variant) -> float:
-	if c is EnemyBase:
-		var cfg := (c as EnemyBase).get_config()
-		if cfg != null:
-			return cfg.bounds_radius
-	return 0.0
+	var damageable := c as Damageable
+	if damageable == null:
+		return 0.0
+	return maxf(damageable.get_hit_radius(), 0.0)
 
 
 ## Build the knockback vector for one victim: away from the wielder plus a small
