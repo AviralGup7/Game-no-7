@@ -1,5 +1,34 @@
 # Changelog
 
+## [Unreleased] — Godot 4.7 compatibility: the joystick class no longer hides a native class (2026-09-10)
+
+Godot 4.7 added a **native** class named `VirtualJoystick`. A `class_name` that hides a native class
+is a hard parse error, not a warning, so on 4.7.2 the project stopped loading with a three-deep
+cascade that looked like three independent broken files:
+
+```
+SCRIPT ERROR: Parse Error: Class "VirtualJoystick" hides a native class.
+          at: res://scripts/ui/virtual_joystick.gd:1
+SCRIPT ERROR: Parse Error: Cannot infer the type of "value" variable ...
+          at: res://scripts/ui/touch_controls.gd:79
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: res://scripts/ui/ui_root.gd:0
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+```
+
+- **`VirtualJoystick` → `TouchJoystick`.** `virtual_joystick.gd` keeps its path, its API
+  (`radius`, `dead_zone`, `opacity`, `get_value()`, `is_active()`, `cancel()`, `set_rest_alpha()`,
+  `value_changed`/`became_active`/`became_inactive`) and its behaviour; only the global class name
+  changed. `TouchControls`, `tests/ui/ui_test_runner.gd` and `tests/unit/test_locomotion_nan.gd`
+  were updated to match. `main.gd` and `ui_root.gd` needed no edits at all — their "parse errors"
+  were the cascade, and they clear once the joystick script loads.
+- **CI can now see this class of failure.** `gdscript-diagnostics.yml` runs the project through
+  4.7.2-stable: full import, the headless suite, a per-script pass, an editor pass, and a
+  warnings-as-errors pass (the engine's own escalation switch, injected in the runner only) so
+  analyzer warnings that are editor-only still reach the log with a `res://` path and line number.
+  Logs are committed to `docs/godot-runs/` because the Actions log endpoint is not reachable from
+  every environment that has to read them.
+
 ## [Unreleased] — Merging main back in: two sessions, one tree (2026-09-10)
 
 `main` had moved on 28 commits while this pass was in flight — sibling sessions shipping the

@@ -153,7 +153,7 @@ func _screen() -> String:
 
 func _test_touch() -> void:
 	_ui._touch.show()
-	var joystick: VirtualJoystick = _ui._touch.joystick
+	var joystick: TouchJoystick = _ui._touch.joystick
 	joystick._begin(2, Vector2(100, 100))
 	joystick._update(Vector2(145, 110))
 	_check("touch stick acquires input", joystick.is_active() and joystick.get_value().length() > 0)

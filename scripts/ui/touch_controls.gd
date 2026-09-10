@@ -3,14 +3,14 @@ extends Control
 ## Input presentation only. Ownership, movement and action validation stay in
 ## player/GameRoot APIs. The capture region never extends under skills/actions.
 signal action_declined(message: String)
-var joystick: VirtualJoystick
+var joystick: TouchJoystick
 var _buttons: Array[TouchActionButton] = []
 var _last_value := Vector2.ZERO
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
-	joystick = VirtualJoystick.new()
+	joystick = TouchJoystick.new()
 	joystick.name = "MovementJoystick"
 	joystick.opacity = 0.78
 	add_child(joystick)

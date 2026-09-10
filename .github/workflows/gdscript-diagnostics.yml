@@ -98,11 +98,44 @@ jobs:
           set -e
           true
 
+      # GDScript *analyzer* warnings (shadowing, integer division, unused
+      # variables, unreachable code, ...) are editor-only: they are never printed
+      # by --import, --check-only or a headless --script run. The engine's own
+      # escalation switch turns each one into a compile error, which does carry a
+      # res:// path and line number. This is the opposite of suppression: it makes
+      # the diagnostics visible to CI. The setting is injected into the runner's
+      # copy of project.godot only and restored afterwards, so the shipped project
+      # keeps its normal warn-don't-fail behaviour.
+      - name: Warnings as errors (surfaces every analyzer warning with file:line)
+        shell: bash
+        run: |
+          set +e
+          cp project.godot /tmp/project.godot.orig
+          printf '\n[debug]\n\ngdscript/warnings/treat_warnings_as_errors=true\n' >> project.godot
+          # Self-check: prove the setting was actually read by the engine, so a
+          # renamed setting cannot silently produce an empty report.
+          cat > /tmp/probe.gd <<'GD'
+          extends SceneTree
+          func _init() -> void:
+              print("treat_warnings_as_errors=", ProjectSettings.get_setting("debug/gdscript/warnings/treat_warnings_as_errors"))
+              quit()
+          GD
+          cp /tmp/probe.gd res_probe.gd
+          godot --headless --path . --script res://res_probe.gd 2>&1 | tee diag-wae-probe.log
+          rm -f res_probe.gd
+          godot --headless --path . --import > diag-wae-import.log 2>&1
+          echo "wae import exit: $?"
+          godot --headless --path . --script res://tests/run_tests.gd > diag-wae-tests.log 2>&1
+          echo "wae tests exit: $?"
+          cp /tmp/project.godot.orig project.godot
+          set -e
+          true
+
       - name: Diagnostic summary
         shell: bash
         run: |
           {
-            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log; do
+            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log diag-wae-import.log diag-wae-tests.log diag-wae-probe.log; do
               [ -f "$f" ] || continue
               echo "########## ${f}"
               grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared|Failed to load' "$f" \
@@ -123,6 +156,9 @@ jobs:
           cp -f diag-tests.log    docs/godot-runs/diagnostics-4.7.2-tests.log    2>/dev/null || true
           cp -f diag-check.log    docs/godot-runs/diagnostics-4.7.2-check.log    2>/dev/null || true
           cp -f diag-editor.log   docs/godot-runs/diagnostics-4.7.2-editor.log   2>/dev/null || true
+          cp -f diag-wae-import.log  docs/godot-runs/diagnostics-4.7.2-wae-import.log 2>/dev/null || true
+          cp -f diag-wae-tests.log   docs/godot-runs/diagnostics-4.7.2-wae-tests.log  2>/dev/null || true
+          cp -f diag-wae-probe.log   docs/godot-runs/diagnostics-4.7.2-wae-probe.log  2>/dev/null || true
           cp -f diag-summary.txt  docs/godot-runs/diagnostics-4.7.2-summary.txt  2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -145,5 +181,8 @@ jobs:
             diag-check.log
             diag-tests.log
             diag-editor.log
+            diag-wae-import.log
+            diag-wae-tests.log
+            diag-wae-probe.log
             diag-summary.txt
           if-no-files-found: ignore
