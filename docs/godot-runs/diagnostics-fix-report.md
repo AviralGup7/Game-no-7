@@ -214,3 +214,67 @@ opened against `main`. The diagnostics gate ran green on `32d88c8`
 
 An earlier attempt to push failed with `Bad credentials` because the session's GitHub token had
 expired; it was reconnected, and everything above was pushed and CI-verified after that.
+
+---
+
+## 9. After merging `main` — and the honest accounting of the final zero
+
+`main` advanced while this branch was open: PR #43 landed an independent sweep of the same
+4.7.2 diagnostics, plus a new `tool/check_engine_api.py` gate. The merge conflicted in 24 files.
+Where both sides had merely renamed the same identifier, main's name won (`mount_node`, `xz`,
+`pos`, `xp_comp`, `clog`, `title_label`, `as_control`, `host`, `target_cue_id`, `idx`, …) because
+it is upstream. Where this branch had something main did not, it was kept — above all
+`class_name TouchJoystick`, which **main still does not have**.
+
+### The final count is 0, but not entirely by this branch's method
+
+CI run on the merged tree reports **`# 0 diagnostics (0 errors, 0 warnings)`**, with
+`GDScript tests: 1095 total, 0 failed` and 0 `SCRIPT ERROR` lines.
+
+That last step from 43 → 0 was **main's, not this branch's**. This branch reached 43 warnings
+and deliberately stopped there, retaining every `UNUSED_SIGNAL` with no suppression of any kind
+(§3). `main` had instead wrapped `event_bus.gd`'s declaration block in
+`@warning_ignore_start/restore("unused_signal")` and annotated six signals in `enemy_base.gd`
+and `player.gd`. Those annotations are already merged upstream, so they stand in the tree and
+they are what silences the final 43. Both routes agree on the *finding* — all 43 are live
+cross-file contracts the per-script analyzer cannot see — and differ only on whether to say so
+in a comment or in an annotation.
+
+### A claim in main's CHANGELOG that the CI run disproves
+
+main's entry concludes the three parse errors "are not code defects" but editor first-load
+dependency-order artifacts. This branch ran 4.7.2 **headless** in CI — no interactive first
+load, no threaded-import race — and got:
+
+```
+SCRIPT ERROR: Parse Error: Class "VirtualJoystick" hides a native class.
+          at: res://scripts/ui/virtual_joystick.gd:1
+```
+
+and the rename moved the suite from `1055 total, 1 failed` to `1095 total, 0 failed`. So the
+toast was a real defect with a real fix. A correction is appended to that CHANGELOG entry; the
+rest of main's sweep is unaffected by it.
+
+### main's engine-API gate could not validate native enum casts
+
+The casts that clear `INT_AS_ENUM_WITHOUT_CAST` — `as Key`, `as JoyButton`, `as Viewport.MSAA` —
+were rejected as `cast to unknown type`, because the checked-in ClassDB manifest recorded
+constants but not enum **type** names. Rather than drop the casts or hand-whitelist them, the
+manifest builder now records enums from the same `enum=` attributes that group the constants in
+the pinned 4.4.1-stable doc XML (all 509 `@GlobalScope` constants carry one), and the gate
+resolves both spellings. Regenerated from the sha-verified artifact
+(`3623ee07…40`, matching the manifest's recorded provenance): **22 global enums**, Viewport's 14.
+It stays fail-closed — `Keyy`, `Viewport.MSAAA` and `Variant.Typo` are all still rejected.
+
+### Gates on the merged tree
+
+| Gate | Result |
+|---|---|
+| `python3 -m unittest discover -s tests/python` | **887 tests, OK** |
+| `tool/check_typed_arch.py` | clean — 186 classes, 8 autoloads |
+| `tool/check_engine_api.py` | clean — 257 GDScripts vs 994 classes |
+| `tool/validate_guards.py` | Passed 201, Failed 0 |
+| `tool/validate_resources.py` | 159 files OK |
+| `tool/validate_assets.py` | OK |
+| **Godot 4.7.2 analyzer (CI)** | **0 errors, 0 warnings** |
+| **Godot 4.7.2 suite (CI)** | **1095 total, 0 failed**; 0 `SCRIPT ERROR` |
