@@ -25,7 +25,13 @@ static func get_bindings(action: StringName) -> Array[InputEvent]:
 static func binding_label(event: InputEvent) -> String:
 	if event is InputEventKey:
 		var k := event as InputEventKey
-		var code := k.physical_keycode if k.physical_keycode != 0 else k.keycode
+		var code := k.keycode
+		if code == 0 and k.physical_keycode != 0:
+			# Physical codes are layout-independent; convert to the user's current
+			# layout for display instead of showing a misleading QWERTY label.
+			code = DisplayServer.keyboard_get_keycode_from_physical(k.physical_keycode)
+		if code == 0:
+			code = k.physical_keycode
 		var label := OS.get_keycode_string(code)
 		return label if not label.is_empty() else "Key %d" % code
 	if event is InputEventJoypadButton:
