@@ -548,11 +548,11 @@ func _feedback_checks(tag: String, player: Node, container: Node) -> void:
 
 
 func _xp_checks(tag: String, player: Node) -> void:
-	var xp: Node = player.get_node("ExperienceComponent")
-	var lvl: int = xp.call("get_level")
+	var xp_comp: Node = player.get_node("ExperienceComponent")
+	var lvl: int = xp_comp.call("get_level")
 	var need: int = ExperienceComponent.xp_for_level(lvl)
 	_stop_all_sfx()
-	var ups: int = xp.call("add_xp", need)
+	var ups: int = xp_comp.call("add_xp", need)
 	_check(tag + " level-up triggers", ups == 1)
 	var snap := _sfx_snapshot()
 	_check(tag + " level-up sting once", snap["total"] == 1 and _count(snap, "level_up") == 1, str(snap))

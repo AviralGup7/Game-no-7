@@ -164,12 +164,12 @@ func try_telegraph(for_boss: bool = false) -> bool:
 				if n is Damageable and (n as Damageable).is_alive():
 					bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
-	var free := 0
+	var free_count := 0
 	for r in _ring_pool:
 		if not r.visible:
-			free += 1
-	free += maxi(0, MAX_RINGS - _ring_pool.size())
-	if free <= reserve:
+			free_count += 1
+	free_count += maxi(0, MAX_RINGS - _ring_pool.size())
+	if free_count <= reserve:
 		return false
 	return _can_claim_ring(PRIORITY_SPAWN)
 
@@ -209,10 +209,10 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	if ring == null:
 		return
 	var grounded := at
-	var floor_hit := _floor_hit(at)
-	grounded.y = float(floor_hit.get("y", at.y))
+	var floor_y := _floor_hit(at)
+	grounded.y = float(floor_y.get("y", at.y))
 	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
-	var nrm: Vector3 = floor_hit.get("normal", Vector3.UP)
+	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
 	if nrm.length_squared() > 0.01:
 		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
@@ -373,10 +373,10 @@ func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> vo
 		burst_at(at, color, 0.5, PRIORITY_STATUS)
 
 
-func _on_projectile_fired(source: Node, _weapon_id: StringName) -> void:
-	if not is_instance_valid(source) or not source is Node3D:
+func _on_projectile_fired(shooter: Node, _weapon_id: StringName) -> void:
+	if not is_instance_valid(shooter) or not shooter is Node3D:
 		return
-	var at := (source as Node3D).global_position + Vector3(0, 1.0, 0)
+	var at := (shooter as Node3D).global_position + Vector3(0, 1.0, 0)
 	burst_at(at, Color(1.0, 0.82, 0.45), 0.48, PRIORITY_HIT)
 
 

@@ -277,10 +277,13 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
-> `arena.gd` is 439 lines now. That is features, not tables coming back: solid decoration props
+> `arena.gd` is 442 lines now. That is features, not tables coming back: solid decoration props
 > publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
 > `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
 > rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.
+> (The last three lines are the engine-contract comment where `_apply_sky_and_light` sets
+> `env.sky` — the canonical Godot-4 name the engine-api gate pins, not the Godot-3 compat alias
+> `background_sky` that lived there before.)
 
 
 | Field | Type | Replaces |
@@ -450,6 +453,25 @@ Dictionary run can no longer be injected accidentally.
   (request_attack / request_dodge / request_weapon_switch / request_skill),
   dispatched directly on `Player`; unknown commands warn and return `false`.
   TouchControls and SkillBar go through it — input has exactly one path.
+- **Touch buttons fire on press-down** (`TouchActionButton._fire` on the down
+  event, hold tracked until release for anti-repeat), matching the engine's
+  own `TouchScreenButton.pressed`; menu `Button`s intentionally stay
+  release-activated. `TouchControls._ready` (never the press handler) owns the
+  `resized`/`visibility_changed` wiring — wiring layout per-press re-connected
+  signals on every declined tap and stomped the safe-area plan mid-combat.
+- **OS interruption routing.** `project.godot` sets
+  `application/config/quit_on_go_back=false`, so Android Back arrives as
+  `NOTIFICATION_WM_GO_BACK_REQUEST`, which `UiRoot` routes (modal > auxiliary
+  screen > pause/resume/menu/guarded-quit, mirroring Esc). `GameRoot`
+  auto-pauses on `APPLICATION_PAUSED`/`APPLICATION_FOCUS_OUT`/
+  `WM_WINDOW_FOCUS_OUT`, strictly gated on pausable states (the engine does
+  NOT pause the tree when the app backgrounds — without this a call taken
+  mid-wave means returning to a corpse). No auto-resume anywhere.
+- **Emulation contract.** `input_devices/pointing/emulate_mouse_from_touch`
+  must stay `true` — every standard menu/skill/pause `Button` answers touch
+  only through emulated mouse events — while `emulate_touch_from_mouse` stays
+  `false` (the custom stick/buttons handle desktop mouse natively; synthesized
+  touch would double-fire them).
 - Panels use their public intent API + named children; boss bar and minimap
   cast to `EnemyBase`/`BossController`/`Pickup`/`Arena` for their queries.
 - `UiRoot` casts group members to their concrete types

@@ -26,6 +26,16 @@ func _ready() -> void:
 		button.pressed.connect(_on_button_pressed.bind(method))
 		add_child(button)
 		_buttons.append(button)
+	# Layout + stuck-input backstops. These MUST live here, not in the press
+	# handler below: UiRoot pushes the safe-area-aware plan via apply_layout(),
+	# and this fallback only covers the first frame / a missing plan. Wiring it
+	# per-press re-connected the signals on every declined tap (engine errors)
+	# and stomped the safe-area plan with a full-rect recompute mid-combat.
+	if not resized.is_connected(_layout):
+		resized.connect(_layout)
+	if not visibility_changed.is_connected(_on_visibility_changed):
+		visibility_changed.connect(_on_visibility_changed)
+	_layout.call_deferred()
 
 
 ## Single guarded entry point for every touch action button (attack / dodge / swap).
@@ -36,9 +46,6 @@ func _on_button_pressed(command: StringName) -> void:
 	if UiCommands.action(command):
 		return
 	action_declined.emit("Unavailable — check stamina, cooldown or equipped slots.")
-	resized.connect(_layout)
-	visibility_changed.connect(_on_visibility_changed)
-	_layout.call_deferred()
 
 func _layout() -> void:
 	# Fallback when no plan has been pushed yet (first frame / desktop preview).
@@ -71,11 +78,10 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 func _process(_delta: float) -> void:
 	if not is_visible_in_tree():
 		return
-	if get_tree() != null and get_tree().paused:
-		if _last_value != Vector2.ZERO:
-			UiCommands.move(Vector2.ZERO)
-			_last_value = Vector2.ZERO
-		return
+	# No paused branch: this control runs PROCESS_MODE_INHERIT, so _process
+	# never executes while the tree is paused and such a branch would be dead
+	# code. Pause-time cleanup is owned by UiRoot._show_screen, which calls
+	# cancel() (zeroing _last_value through the same path as hide/focus-out).
 	var value := joystick.get_value()
 	if not is_finite(value.x) or not is_finite(value.y):
 		# Never forward a poisoned sample to the player: it would be latched into

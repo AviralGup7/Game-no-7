@@ -63,7 +63,6 @@ var _age: float = 0.0
 var _active := false
 var _hit_bodies: Array = []
 var _visual: Node3D = null
-var _trail: Node = null
 # Two shared materials for the whole game (player gold / enemy red). Per-instance
 # StandardMaterial3D on every launch was the largest avoidable volley allocation.
 static var _shared_player_mat: StandardMaterial3D = null
@@ -91,7 +90,9 @@ var _ignore_rids: Array = []
 
 func _ready() -> void:
 	_visual = get_node_or_null("Visual") as Node3D
-	_trail = get_node_or_null("Trail")
+	# No "Trail" lookup on purpose: the pool builds shots with only a Visual
+	# node, no scene or code ever names a Trail child, and cosmetic trails
+	# attach to the player. The scene-path contract gate pins that absence.
 	monitoring = true
 	monitorable = false
 	if not body_entered.is_connected(_on_body_entered):

@@ -41,8 +41,6 @@ const OBJECTIVE_SURVIVE_TIME := GameModeConfig.OBJECTIVE_SURVIVE_TIME
 const OBJECTIVE_SLAY_BOSSES := GameModeConfig.OBJECTIVE_SLAY_BOSSES
 const OBJECTIVE_DEFEND_POINT := GameModeConfig.OBJECTIVE_DEFEND_POINT
 const OBJECTIVE_COLLECT := GameModeConfig.OBJECTIVE_COLLECT
-## Unit conversion for the M:SS objective readouts, not a balance value.
-const SECONDS_PER_MINUTE := 60
 
 ## Folder scan for the no-registry path, cached: in the headless harness (no autoloads) the
 ## alternative is re-listing `res://data/game_modes` for every accessor call. Authored content does
@@ -272,6 +270,8 @@ static func is_survival_victory(mode_id: StringName, elapsed: float) -> bool:
 ## reduced to two rules: some waves are scripted exactly, and the rest are the planner asked for a
 ## different wave number with an occasional extra archetype on a cadence. Those are knobs, so they
 ## are authored on the mode and this is one loop over them.
+## (`run_seed`, not `seed`: the bare name shadows the @GlobalScope function and
+## the analyzer reports the shadow at every call site.)
 static func spawn_queue(mode_id: StringName, wave_number: int, run_seed: int) -> Array[StringName]:
 	var cfg := definition(mode_id)
 	var out: Array[StringName] = []
@@ -306,12 +306,14 @@ static func objective_label(mode_id: StringName, wave: int, elapsed: float, boss
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
 			var left := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Survive  %d:%02d remaining" % [int(int(left) / float(SECONDS_PER_MINUTE)), int(left) % SECONDS_PER_MINUTE]
+			# float division + truncation (left is never negative): same mm:ss as
+			# int/60 without the INTEGER_DIVISION warning.
+			return "Survive  %d:%02d remaining" % [int(left / 60), int(left) % 60]
 		OBJECTIVE_SLAY_BOSSES:
 			return "Bosses  %d / %d" % [bosses_slain, max_waves(mode_id)]
 		OBJECTIVE_DEFEND_POINT:
 			var left_d := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Hold  %d:%02d  •  Beacon %d%%" % [int(int(left_d) / float(SECONDS_PER_MINUTE)), int(left_d) % SECONDS_PER_MINUTE, clampi(progress, 0, 100)]
+			return "Hold  %d:%02d  •  Beacon %d%%" % [int(left_d / 60), int(left_d) % 60, clampi(progress, 0, 100)]
 		OBJECTIVE_COLLECT:
 			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:

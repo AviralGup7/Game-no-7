@@ -222,10 +222,10 @@ static func decorate(button: Button, icon_name: String) -> void:
 
 static func apply_text_scale(node: Node, scale: float) -> void:
 	if node is Control:
-		var control_node := node as Control
-		if control_node.has_theme_font_size_override("font_size"):
-			if not control_node.has_meta("ui_base_font"):
-				control_node.set_meta("ui_base_font", control_node.get_theme_font_size("font_size"))
-			control_node.add_theme_font_size_override("font_size", int(float(control_node.get_meta("ui_base_font")) * scale))
+		var as_control := node as Control
+		if as_control.has_theme_font_size_override("font_size"):
+			if not as_control.has_meta("ui_base_font"):
+				as_control.set_meta("ui_base_font", as_control.get_theme_font_size("font_size"))
+			as_control.add_theme_font_size_override("font_size", int(float(as_control.get_meta("ui_base_font")) * scale))
 	for child in node.get_children():
 		apply_text_scale(child, scale)

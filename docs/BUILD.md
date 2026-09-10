@@ -77,6 +77,27 @@ gdlint scripts tests
 # Structural validation of .tscn/.tres hand-authored files
 python3 tool/validate_resources.py
 
+# Engine-API contract gate (offline, stdlib-only): every typed member access,
+# bare global call and .tscn/.tres property is checked against the pinned
+# engine's ClassDB (tool/godot_api_manifest.json). Regenerate the manifest with
+# `python3 tool/build_api_manifest.py` when GODOT_VERSION changes.
+python3 tool/check_engine_api.py
+
+# Scene-path contract gate (offline, stdlib-only): every get_node / NodePath
+# literal is resolved against the actual scene trees; a renamed or removed
+# node fails the build instead of the runtime.
+python3 tool/check_scene_paths.py
+
+# String-format contract gate (offline, stdlib-only): every "..." % use is
+# verified against the pinned engine's String::sprintf rules; an arity or
+# placeholder mismatch fails the build instead of erroring at runtime.
+python3 tool/check_string_formats.py
+
+# Signal contract gate (offline, stdlib-only): every signal name and emit
+# arity is resolved against the declaring classes; a phantom signal or a
+# wrong arity fails the build instead of erroring at runtime.
+python3 tool/check_signals.py
+
 # Content/data registry validation runs at startup and via TestHarness.
 # Headless unit tests:
 godot --headless --path . --script res://tests/run_tests.gd
@@ -177,6 +198,15 @@ godot --headless --path . --export-release "Android" build/LastStandArena.apk
 - **"preset not found"** → confirm `export_presets.cfg` lists a preset named `Android`.
 - **Import errors on fresh clone** → run `--import` once (needed for class registry).
 - **Play rejects debug-signed APK** → provide a release keystore + CI secrets.
+- **"Parse error" toasts for `main.gd` / `virtual_joystick.gd` /
+  `test_locomotion_nan.gd` on first open in a Godot 4.6/4.7 editor** → these are the
+  editor's first-load dependency-ordering artifacts, not script defects: the scripts are
+  valid GDScript on both the pinned 4.4.1 (CI loads and executes all three) and the newer
+  parser (diff-verified against the engine sources), and the toast clears once the import
+  finishes. Close the project, delete its `.godot` cache folder, and reopen; if a message
+  persists after a full reimport, copy the exact text + line from the Debugger panel into a
+  bug report — a persistent message is actionable, the startup toast alone is not
+  (upstream: godotengine/godot#120407, #119715, #119100).
 
 ## Publish a GitHub milestone release
 

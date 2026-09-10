@@ -97,19 +97,19 @@ func _finite_vec(v: Vector2) -> Vector2:
 	return v if _is_finite_v2(v) else Vector2.ZERO
 
 
-func _begin(index: int, pointer_position: Vector2) -> void:
+func _begin(index: int, pos: Vector2) -> void:
 	if get_tree() != null and get_tree().paused:
 		InputTrace.record("begin_paused", "ignored i=%d" % index)
 		return
-	if not _is_finite_v2(pointer_position):
+	if not _is_finite_v2(pos):
 		return
 	_resume_ignore = 0.0
 	_active = true
 	_touch_index = index
-	_base = pointer_position
-	_knob = pointer_position
+	_base = pos
+	_knob = pos
 	_value = Vector2.ZERO
-	InputTrace.record("begin", "i=%d pos=%s" % [index, str(pointer_position)])
+	InputTrace.record("begin", "i=%d pos=%s" % [index, str(pos)])
 	became_active.emit()
 	value_changed.emit(_value)
 	queue_redraw()
@@ -127,7 +127,7 @@ func _end() -> void:
 	queue_redraw()
 
 
-func _update(pointer_position: Vector2) -> void:
+func _update(pos: Vector2) -> void:
 	if not _active:
 		return
 	if _resume_ignore > 0:
@@ -135,10 +135,10 @@ func _update(pointer_position: Vector2) -> void:
 	if get_tree() != null and get_tree().paused:
 		cancel()
 		return
-	if not _is_finite_v2(pointer_position):
+	if not _is_finite_v2(pos):
 		return
 	var r := _safe_radius()
-	var delta := pointer_position - _base
+	var delta := pos - _base
 	var length := delta.length()
 	if not is_finite(length):
 		return
@@ -186,12 +186,13 @@ func _restore_rest_alpha() -> void:
 
 func _draw() -> void:
 	if not _active:
+		# Centered in the stick's own rect, full stop. Notch/cutout insets are
+		# owned upstream: UiSafeArea maps the OS safe area (physical screen
+		# pixels) into logical offsets once, and UiLayout places this rect
+		# inside them. Reading physical pixels here mixed units with the
+		# logical `size` (a ~100 px notch became a ~25-unit wobble) for an
+		# inset the solver had already applied.
 		var center := size * 0.5
-		var inset := 8.0
-		if get_viewport() != null:
-			var safe := DisplayServer.get_display_safe_area()
-			inset = maxf(inset, float(safe.position.x) * 0.25)
-		center.x = maxf(center.x, inset)
 		var rest := minf(_safe_radius() * 0.8, minf(size.x, size.y) * 0.42)
 		if rest < 4.0:
 			return
@@ -226,9 +227,15 @@ func _notification(what: int) -> void:
 func _input(event: InputEvent) -> void:
 	if not _active:
 		return
+	# A finger lifting is the NORMAL end of a drag, not an abort: it takes the
+	# quiet _end path. Routing it through the abort path dumped the 20-line
+	# input trace on every thumb lift (logcat spam through all of combat) and
+	# armed the 80 ms resume-ignore window, which ate fast re-taps. The abort
+	# path — with its trace dump — stays reserved for genuinely abnormal ends:
+	# pause, focus loss, and hide-while-held.
 	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
-		cancel()
+		_end()
 	elif event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed and _touch_index == _MOUSE_INDEX:
-			cancel()
+			_end()

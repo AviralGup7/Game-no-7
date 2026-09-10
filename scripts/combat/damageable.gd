@@ -26,6 +26,7 @@ const IGNORE_NOT_IMPLEMENTED: StringName = &"damageable_not_implemented"
 ## Apply a damage payload to this entity. Returns the synchronous DamageResult
 ## (accepted/rejected + final amount). The base implementation rejects safely.
 ## Override in every concrete entity.
+## (`_payload`: the base rejects every payload; subclasses name it.)
 func apply_damage(_payload: DamagePayload) -> DamageResult:
 	var result := DamageResult.new()
 	result.ignored_reason = IGNORE_NOT_IMPLEMENTED

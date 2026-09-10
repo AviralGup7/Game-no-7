@@ -60,6 +60,43 @@ jobs:
         shell: bash
         run: python3 tool/validate_assets.py
 
+      # Engine-API contract gate: every typed member access, global call and
+      # .tscn/.tres property is checked against the pinned engine's own ClassDB
+      # (tool/godot_api_manifest.json, reduced from the GODOT_VERSION source
+      # tag). Catches the phantom-member defect class offline — the class that
+      # shipped five times before it existed (see CHANGELOG.md / the gate's
+      # docstring). Hermetic: stdlib-only, no Godot binary, no network.
+      - name: Engine API contract gate
+        shell: bash
+        run: python3 tool/check_engine_api.py
+
+      # Scene-path contract gate: every string-literal get_node / NodePath
+      # property is resolved against the actual .tscn node trees (plus
+      # runtime `.name =` assignments and autoloads), and `as` casts after
+      # scene-resolved lookups are checked against the declared node class.
+      # Catches renamed/removed nodes offline — a runtime-error class no
+      # syntax gate can see. Hermetic: stdlib-only, no Godot binary.
+      - name: Scene path contract gate
+        shell: bash
+        run: python3 tool/check_scene_paths.py
+
+      # String-format contract gate: every `"..." %` use is checked against
+      # the 4.4.1-stable String::sprintf rules (placeholder syntax, exact
+      # array arity, scalar wrapping, literal types). A mismatch is a runtime
+      # ERROR in the engine. Hermetic: stdlib-only, no Godot binary.
+      - name: String format contract gate
+        shell: bash
+        run: python3 tool/check_string_formats.py
+
+      # Signal contract gate: every signal name and emit arity is resolved
+      # against the declaring classes (self chains, autoloads, engine signals
+      # from tool/godot_api_manifest.json) and connected callables are
+      # checked for parameter compatibility. A phantom signal or wrong arity
+      # is a runtime error in the engine. Hermetic: stdlib-only.
+      - name: Signal contract gate
+        shell: bash
+        run: python3 tool/check_signals.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |

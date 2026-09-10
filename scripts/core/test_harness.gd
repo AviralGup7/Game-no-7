@@ -179,7 +179,7 @@ func _save_round_trip_ok() -> bool:
 ## --- Instrumentation helpers (used by integration tests) ---
 
 func start_test_run(run_seed: int = 12345) -> void:
-	EventBus.report_info("TestHarness.start_test_run run_seed=%d" % run_seed)
+	EventBus.report_info("TestHarness.start_test_run seed=%d" % run_seed)
 	GameRoot.request_play()
 
 
