@@ -41,6 +41,8 @@ const OBJECTIVE_SURVIVE_TIME := GameModeConfig.OBJECTIVE_SURVIVE_TIME
 const OBJECTIVE_SLAY_BOSSES := GameModeConfig.OBJECTIVE_SLAY_BOSSES
 const OBJECTIVE_DEFEND_POINT := GameModeConfig.OBJECTIVE_DEFEND_POINT
 const OBJECTIVE_COLLECT := GameModeConfig.OBJECTIVE_COLLECT
+## Unit conversion for the M:SS objective readouts, not a balance value.
+const SECONDS_PER_MINUTE := 60
 
 ## Folder scan for the no-registry path, cached: in the headless harness (no autoloads) the
 ## alternative is re-listing `res://data/game_modes` for every accessor call. Authored content does
@@ -304,12 +306,12 @@ static func objective_label(mode_id: StringName, wave: int, elapsed: float, boss
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
 			var left := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Survive  %d:%02d remaining" % [int(left) / 60, int(left) % 60]
+			return "Survive  %d:%02d remaining" % [int(int(left) / float(SECONDS_PER_MINUTE)), int(left) % SECONDS_PER_MINUTE]
 		OBJECTIVE_SLAY_BOSSES:
 			return "Bosses  %d / %d" % [bosses_slain, max_waves(mode_id)]
 		OBJECTIVE_DEFEND_POINT:
 			var left_d := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Hold  %d:%02d  •  Beacon %d%%" % [int(left_d) / 60, int(left_d) % 60, clampi(progress, 0, 100)]
+			return "Hold  %d:%02d  •  Beacon %d%%" % [int(int(left_d) / float(SECONDS_PER_MINUTE)), int(left_d) % SECONDS_PER_MINUTE, clampi(progress, 0, 100)]
 		OBJECTIVE_COLLECT:
 			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:

@@ -62,7 +62,7 @@ static func _seamless_loops(results: Array) -> void:
 static func _peak(stream: AudioStreamWAV) -> float:
 	var peak := 0.0
 	var n := stream.data.size()
-	var step := maxi(n / 2000, 1)
+	var step := maxi(int(n / 2000.0), 1)
 	var i := 0
 	while i < n:
 		peak = maxf(peak, absf(float(stream.data[i]) - 128.0) / 128.0)

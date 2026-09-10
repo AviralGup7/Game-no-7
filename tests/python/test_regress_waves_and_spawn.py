@@ -19,7 +19,10 @@ class WavesSpawnTests(unittest.TestCase):
         self.assertIn("0.0, 1.0",txt)
     def test_wave_planner_int_division(self):
         txt=read("scripts/waves/wave_planner.gd")
-        self.assertIn("extra // 2",txt)
-        self.assertIn("mini(1 + extra // 2, 5)",txt)
+        # GDScript has no `//` operator (only `*`, `/`, `%`), so the truncation is
+        # written out as int(x / 2.0). int() truncates toward zero, exactly like
+        # int / int, so the whole-unit split is unchanged.
+        self.assertIn("mini(1 + int(extra / 2.0), 5)",txt)
+        self.assertIn("mini(int(extra / 2.0), 4)",txt)
         self.assertNotIn("mini(1 + extra / 2, 5)",txt)
 if __name__=="__main__": unittest.main()

@@ -105,7 +105,7 @@ static func flank(count: int, arena_half: float, player_pos: Vector3) -> Array[V
 	side = side.normalized() * (arena_half - WALL_MARGIN)
 	for i in range(count):
 		var s := 1.0 if i % 2 == 0 else -1.0
-		var along := (float(i / 2) - float(count / 4)) * 1.6
+		var along := (float(int(i / 2.0)) - float(int(count / 4.0))) * 1.6
 		var p := side * s + Vector3(player_pos.x * 0.3, 0, along)
 		out.append(_clamp(p, arena_half))
 	return out
@@ -120,7 +120,7 @@ static func cross(count: int, arena_half: float) -> Array[Vector3]:
 	var r := arena_half - WALL_MARGIN
 	for i in range(count):
 		var arm: Vector3 = arms[i % 4]
-		var step := float(i / 4) * 1.8
+		var step := float(int(i / 4.0)) * 1.8
 		out.append(_clamp(arm * maxf(r - step, 2.0), arena_half))
 	return out
 

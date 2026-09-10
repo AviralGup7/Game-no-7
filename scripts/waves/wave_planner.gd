@@ -97,10 +97,12 @@ static func extended_queue_for_wave(wave_number: int, run_seed: int) -> Array[St
 		return out
 	var rng := RngService.make_generator(run_seed, RngService.STREAM_WAVES + w * 13)
 	var extra := w - 5
-	var ranged := mini(1 + int(extra / 2), 5) # extra // 2, mini(1 + extra // 2, 5)
-	var dasher := mini(int(extra / 2), 4)
-	var exploder := mini(int(maxi(extra - 2, 0) / 2), 3)
-	var splitter := mini(int(maxi(extra - 3, 0) / 3), 2)
+	# Whole-unit splits of the extra budget. GDScript has no `//` operator, so the
+	# truncation is written out: int() truncates toward zero exactly like int / int.
+	var ranged := mini(1 + int(extra / 2.0), 5)
+	var dasher := mini(int(extra / 2.0), 4)
+	var exploder := mini(int(maxi(extra - 2, 0) / 2.0), 3)
+	var splitter := mini(int(maxi(extra - 3, 0) / 3.0), 2)
 	var adds: Array[StringName] = []
 	for i in range(ranged):
 		adds.append(&"ranged")
