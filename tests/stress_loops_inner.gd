@@ -676,7 +676,10 @@ func _pickup_checks(tag: String, player: Node) -> void:
 		gems.append(mgr.get_child(mgr.get_child_count() - 1))
 	_check(tag + " distant pickup exists", not gems.is_empty())
 	if not gems.is_empty():
-		var g0 := (gems[0] as Node3D).global_position
+		# NOTE: an earlier revision captured gems[0].global_position here, presumably
+		# to assert the magnet actually pulls the pickup toward the player. That
+		# assertion was never written and nothing read the capture, so the dead local
+		# is gone; this check still verifies collection via the pickup_collected count.
 		for i in range(90):
 			await get_tree().physics_frame
 			if not is_instance_valid(gems[0]):

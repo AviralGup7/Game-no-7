@@ -5,13 +5,19 @@ Branch `arena/01a08a34-game-no-7`. Baseline harvest:
 collected from Godot 4.7.2.stable's built-in language server (`tool/lsp_diagnostics.py`,
 which `didOpen`s every `.gd` in the project and reads `publishDiagnostics`).
 
-> **Verification caveat.** The Godot 4.7.2 binary cannot be obtained in this sandbox (all
-> godotengine/GitHub release hosts fail TLS), so the analyzer can only be re-run through CI.
-> The GitHub token in this session expired (`gh auth status` → *"The github.com token in
-> GH_TOKEN is no longer valid"*; both `GH_TOKEN` and `GITHUB_TOKEN` return *Bad credentials*),
-> so the last two commits could not be pushed and **the post-fix diagnostic count is not yet
-> measured**. Everything marked ✅ below was executed and observed in this session; the
-> analyzer re-run is marked ⛔ and is blocked on the push.
+> **Measured, not asserted.** The Godot 4.7.2 binary cannot be fetched in this sandbox, so
+> the analyzer only runs in CI. Every count below comes from a CI run on this branch, read out
+> of the `docs/godot-runs/diagnostics-4.7.2-lsp.*` files that run published.
+>
+> | Run | Warnings | Errors |
+> |---|---|---|
+> | `8d60451` — baseline before any diagnostic work | 172 | 0 |
+> | `4483ecc` — after the shadowing + unused-parameter batches | 112 | **7** |
+> | `06afc4f` — after every remaining category + the rename-reference fixes | **44** | **0** |
+>
+> The middle row is the important one: those 7 errors were **introduced by my own incomplete
+> renames** and are documented in §2. They are the reason this report exists in this form —
+> the Python suite passes source-text assertions, not a compiler, so it could not see them.
 
 ---
 
@@ -158,43 +164,48 @@ pre-existing and out of scope; flagged here rather than silently rewritten.
 
 ## 6. Final Godot diagnostic count
 
-⛔ **Not yet measured.** 172 was the pre-fix baseline. The expected post-fix count is
-**43 warnings (all `UNUSED_SIGNAL`), 0 errors**, but I will not state that as a result until
-the LSP has actually been re-run against these commits — that is the whole point of the
-exercise.
+**44 warnings, 0 errors** at run `06afc4f` (from `diagnostics-4.7.2-lsp.err`:
+`# 44 diagnostics (0 errors, 44 warnings)`), down from **172 warnings / 0 errors** at
+baseline, having passed through **112 warnings / 7 errors** mid-way.
+
+The 44 are 43 retained `UNUSED_SIGNAL` (§3) plus one `UNUSED_VARIABLE`, which is fixed in the
+commit after that run: `tests/stress_loops_inner.gd:679` captured
+`(gems[0] as Node3D).global_position` into `g0` and nothing ever read it. The capture is
+removed with a note, because it looks like a **pickup-magnet distance assertion that was never
+written** — the check only asserts the `pickup_collected` count. Inventing that assertion would
+change what the test verifies, so it is flagged here instead of being guessed at.
+
+Expected after that commit: **43 warnings, 0 errors** — pending the CI run on it.
+
+Same run also reports **`GDScript tests: 1095 total, 0 failed`** and **0 `SCRIPT ERROR`** lines
+in the test log.
 
 ---
 
 ## 7. Commits
 
-| Hash | Content | Pushed |
-|---|---|---|
-| `ab13286` | Shadowing, unreachable code, unused locals (batches 1–3), `RunState.seed`→`run_seed`, `WeaponConfig.range`→`attack_range` + 9 `.tres` | ✅ |
-| `4e289e1` | 21 underscore-prefixed unused parameters | ✅ |
-| `0165c73` | 19 explicit integer divisions + the `//` fiction-test fix | ❌ local only |
-| `192f79c` | Enum casts, scope-conflicting locals, ternary types, 15 redundant awaits, dead `_bus` | ❌ local only |
+| Hash | Content |
+|---|---|
+| `ab13286` | Shadowing, unreachable code, unused locals; `RunState.seed`→`run_seed`; `WeaponConfig.range`→`attack_range` + 9 `.tres` |
+| `4e289e1` | 21 underscore-prefixed unused parameters |
+| `aa652a0` | 19 explicit integer divisions + the `//` fiction-test fix |
+| `ad063ee` | Enum casts, scope-conflicting locals, ternary types, 15 redundant awaits, dead `_bus` |
+| `32d88c8` | The 10 missed rename references (see §2) |
+| *(latest)* | Dead `g0` local in the stress harness |
+
+Plus CI-authored `diagnostics: Godot 4.7.2-stable run output [skip ci]` commits that publish
+each run's logs back to this directory.
 
 No suppression of any kind was added: no `@warning_ignore`, no disabled warning category, no
 global setting change. `project.godot` still has **no `[debug]` section** — engine defaults.
 
 ---
 
-## 8. Push status — **blocked**
+## 8. Push and pull request
 
-`git push origin arena/01a08a34-game-no-7` fails:
+Pushed to `arena/01a08a34-game-no-7`; **pull request [#45](https://github.com/AviralGup7/Game-no-7/pull/45)**
+opened against `main`. The diagnostics gate ran green on `32d88c8`
+(run `34458977975`, `conclusion=success`).
 
-```
-fatal: could not read Username for 'https://github.com': terminal prompts disabled
-```
-
-```
-$ gh auth status
-  X github.com: authentication failed
-  - The github.com token in GH_TOKEN is no longer valid.
-```
-
-Both `GH_TOKEN` and `GITHUB_TOKEN` return *Bad credentials* from the API, and an
-`x-access-token` URL push is rejected outright. This is a session credential expiry, not a
-repository or branch problem — the work is committed locally on
-`arena/01a08a34-game-no-7` and nothing is lost. **GitHub needs to be reconnected in Arena**,
-after which the two outstanding commits push as-is and the CI gate re-runs the LSP harvest.
+An earlier attempt to push failed with `Bad credentials` because the session's GitHub token had
+expired; it was reconnected, and everything above was pushed and CI-verified after that.
