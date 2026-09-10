@@ -4,7 +4,11 @@ on:
   push:
     branches: ["**"]
     tags: ["v*"]
+    paths-ignore:
+      - "docs/godot-runs/**"
   pull_request:
+    paths-ignore:
+      - "docs/godot-runs/**"
   workflow_dispatch:
     inputs:
       release_tag:
@@ -15,6 +19,17 @@ on:
   # (event_name == 'release'; publish-release also handles tag pushes and manual dispatch).
   release:
     types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+
+defaults:
+  run:
+    shell: bash
 
 env:
   GODOT_VERSION: "4.4.1-stable"
@@ -112,6 +127,7 @@ jobs:
             build/
             *.log
           if-no-files-found: ignore
+          retention-days: 14
 
   # ---- Stage 1b: Godot headless tests (needs import) -------------------------
   godot-tests:
@@ -232,6 +248,7 @@ jobs:
             .godot/
             *.log
           if-no-files-found: ignore
+          retention-days: 14
 
   # ---- Stage 2: heavy Android build (needs both validations green) ------------
   build-android:
@@ -307,6 +324,22 @@ jobs:
         with:
           name: LastStandArena-android
           path: ${{ env.APK_PATH }}
+          retention-days: 30
+
+      - name: Build summary
+        if: always()
+        run: |
+          {
+            echo "## Android build"
+            echo
+            printf -- '- Godot: `%s`\n' "$GODOT_VERSION"
+            printf -- '- APK path: `%s`\n' "$APK_PATH"
+            if [ -s "$APK_PATH" ]; then
+              printf -- '- APK size: `%s bytes`\n' "$(stat -c%s "$APK_PATH")"
+            else
+              echo "- APK was not produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload reports (build)
         if: always()
@@ -317,6 +350,7 @@ jobs:
             build/
             *.log
           if-no-files-found: ignore
+          retention-days: 14
 
   # ---- Stage 3: publish (only when a Release is cut / workflow_dispatch) ----
   # Publish only the APK produced by the successful validation/build job.

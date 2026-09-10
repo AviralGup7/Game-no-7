@@ -15,6 +15,21 @@ class CIPipelineTests(unittest.TestCase):
         self.assertIn("godot-tests:", txt)
         self.assertIn("build-android:", txt)
         self.assertIn("publish-release:", txt)
+    def test_workflows_have_operational_guardrails(self):
+        android = read(".github/workflows/android.yml")
+        diag = read(".github/workflows/gdscript-diagnostics.yml")
+        for txt in (android, diag):
+            self.assertIn("concurrency:", txt)
+            self.assertIn("cancel-in-progress:", txt)
+            self.assertIn("paths-ignore:", txt)
+            self.assertIn("retention-days:", txt)
+        self.assertIn("permissions:\n  contents: read", android)
+        self.assertIn("permissions:\n  contents: read", diag)
+        self.assertIn("contents: write", diag)
+    def test_diagnostics_workflow_not_pinned_to_stale_arena_branch(self):
+        txt = read(".github/workflows/gdscript-diagnostics.yml")
+        self.assertIn('branches: ["main", "arena/**"]', txt)
+        self.assertNotIn("arena/01a08a34-game-no-7", txt)
     def test_validate_resources_runs_offline(self):
         txt = read(".github/workflows/android.yml")
         self.assertIn("validate_resources.py", txt)
