@@ -86,6 +86,14 @@ def main() -> int:
         ("scripts/main/camera_rig.gd", "if cam_origin.distance_squared_to(look_target) < 0.0004:"),
         ("scripts/main/camera/camera_shake_controller.gd", "if CameraMath.is_finite_transform(rolled):"),
         ("scripts/main/camera/camera_fov_controller.gd", "func _bounded(fov: float) -> float:"),
+        # Mobile input & interruption contract (tests/python/test_regress_mobile_input_contract.py
+        # pins the full shapes; these needles keep the handlers from being deleted silently).
+        ("scripts/core/game_root.gd", "NOTIFICATION_APPLICATION_FOCUS_OUT"),
+        ("scripts/core/game_root.gd", "if _can_pause_from(_current_state):"),
+        ("scripts/ui/ui_root.gd", "func _handle_back_button() -> void:"),
+        ("scripts/ui/ui_root.gd", "NOTIFICATION_WM_GO_BACK_REQUEST"),
+        ("scripts/ui/touch_action_button.gd", "queue_redraw()\n\t\t\t_fire()"),
+        ("scripts/ui/touch_controls.gd", "if not resized.is_connected(_layout):"),
         # Arena hazards: the optional visual and the non-finite epicentre are the two
         # guards this subsystem exists to keep. They used to be pinned by requiring
         # `func _hazard_emission(h: Dictionary)` to exist, which pinned the *shape* of a

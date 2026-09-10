@@ -270,6 +270,49 @@ func _close_auxiliary() -> void:
 		_settings.cancel_preview()
 	_show_screen(_return_screen)
 
+func _notification(what: int) -> void:
+	# _notification is NOT gated by pause (unlike _input/_process), so this
+	# fires while the tree is paused too — which the PAUSED arm below needs.
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		_handle_back_button()
+
+
+## Android Back routing. The project sets application/config/quit_on_go_back=false
+## so the button reaches us as a notification instead of quitting outright
+## (SceneTree._main_window_go_back). The Back button generates NO input event,
+## so _input/_unhandled_input never see it — this is its only path. It mirrors
+## the ui_cancel arms in _input (modal > auxiliary > gameplay), then extends to
+## the run screens Esc already drives via GameRoot, so Back and Esc agree:
+## gameplay pauses, pause resumes, game-over backs out to the menu, and Back at
+## the root menu takes the save-guarded quit (backgrounding on Android — the
+## platform-standard Back-at-root). Transient screens (status/loading/error)
+## have nothing safe to dismiss and ignore the button. Desktop never emits
+## this notification, so desktop behavior is unchanged.
+func _handle_back_button() -> void:
+	if _modal != null and _modal.is_open():
+		_modal.cancel_all()
+		return
+	if _active_screen in [&"settings", &"armory", &"help"]:
+		if _active_screen == &"settings" and _settings.is_rebinding():
+			return
+		_close_auxiliary()
+		return
+	if _active_screen == &"run_setup":
+		_show_screen(&"main_menu")
+		return
+	match _active_screen:
+		&"playing", &"wave_transition", &"upgrade_selection":
+			GameRoot.request_pause()
+		&"paused":
+			GameRoot.request_resume()
+		&"game_over", &"run_summary", &"meta_reward":
+			GameRoot.request_main_menu()
+		&"main_menu":
+			_request_quit()
+		_:
+			pass
+
+
 func _input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel") and not event.is_action_pressed("pause"): return
 	if _confirm != null and _confirm.visible: return
