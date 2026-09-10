@@ -838,11 +838,11 @@ WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 [  23% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
-[  23% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+[  23% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
 [  24% ] [90m[1mreimport[22m | impact_generic_light_000.ogg[39m[0m
 [  24% ] [90m[1mreimport[22m | impact_generic_light_001.ogg[39m[0m
 [  25% ] [90m[1mreimport[22m | checkmark.png[39m[0m
