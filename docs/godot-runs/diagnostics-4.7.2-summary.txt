@@ -14,7 +14,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -23,7 +23,7 @@
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
     350 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
