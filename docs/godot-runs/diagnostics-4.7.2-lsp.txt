@@ -1,0 +1,172 @@
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:238:17: WARNING: (UNUSED_PARAMETER): The parameter "half" is never used in the function "_centerish()". If this is intended, prefix it with an underscore: "_half".
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:63:56: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_hazards.gd:73:57: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:187:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:243:56: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:330:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "i" is declared below in the parent block.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:336:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:367:50: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:419:13: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/hazard_config.gd:114:21: WARNING: (SHADOWED_VARIABLE): The local function parameter "hazard_id" is shadowing an already-declared variable at line 33 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:114:21: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_manager.gd:402:17: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/combat/combat_log.gd:22:12: WARNING: (SHADOWED_VARIABLE): The local function parameter "capacity" is shadowing an already-declared function at line 26 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/combat/combat_query.gd:15:2: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "range" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/combat/damageable.gd:29:19: WARNING: (UNUSED_PARAMETER): The parameter "payload" is never used in the function "apply_damage()". If this is intended, prefix it with an underscore: "_payload".
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:13:8: WARNING: (UNUSED_SIGNAL): The signal "game_state_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:14:8: WARNING: (UNUSED_SIGNAL): The signal "run_started" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:15:8: WARNING: (UNUSED_SIGNAL): The signal "run_ended" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:16:8: WARNING: (UNUSED_SIGNAL): The signal "player_health_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:17:8: WARNING: (UNUSED_SIGNAL): The signal "player_died" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:18:8: WARNING: (UNUSED_SIGNAL): The signal "enemy_spawned" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:19:8: WARNING: (UNUSED_SIGNAL): The signal "enemy_damaged" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:20:8: WARNING: (UNUSED_SIGNAL): The signal "enemy_killed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:21:8: WARNING: (UNUSED_SIGNAL): The signal "wave_started" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:22:8: WARNING: (UNUSED_SIGNAL): The signal "wave_progressed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:23:8: WARNING: (UNUSED_SIGNAL): The signal "wave_completed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:24:8: WARNING: (UNUSED_SIGNAL): The signal "upgrade_choices_presented" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:25:8: WARNING: (UNUSED_SIGNAL): The signal "upgrade_selected" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:26:8: WARNING: (UNUSED_SIGNAL): The signal "score_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:27:8: WARNING: (UNUSED_SIGNAL): The signal "currency_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:28:8: WARNING: (UNUSED_SIGNAL): The signal "combo_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:29:8: WARNING: (UNUSED_SIGNAL): The signal "pause_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:30:8: WARNING: (UNUSED_SIGNAL): The signal "settings_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:31:8: WARNING: (UNUSED_SIGNAL): The signal "save_completed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:32:8: WARNING: (UNUSED_SIGNAL): The signal "save_failed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:33:8: WARNING: (UNUSED_SIGNAL): The signal "weapon_equipped" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:34:8: WARNING: (UNUSED_SIGNAL): The signal "weapon_switched" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:35:8: WARNING: (UNUSED_SIGNAL): The signal "projectile_fired" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:36:8: WARNING: (UNUSED_SIGNAL): The signal "skill_unlocked" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:37:8: WARNING: (UNUSED_SIGNAL): The signal "skill_cast" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:38:8: WARNING: (UNUSED_SIGNAL): The signal "skill_ready" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:39:8: WARNING: (UNUSED_SIGNAL): The signal "pickup_collected" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:40:8: WARNING: (UNUSED_SIGNAL): The signal "pickup_spawned" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:41:8: WARNING: (UNUSED_SIGNAL): The signal "status_applied" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:42:8: WARNING: (UNUSED_SIGNAL): The signal "status_expired" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:43:8: WARNING: (UNUSED_SIGNAL): The signal "player_leveled_up" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:44:8: WARNING: (UNUSED_SIGNAL): The signal "stamina_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:45:8: WARNING: (UNUSED_SIGNAL): The signal "boss_phase_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:46:8: WARNING: (UNUSED_SIGNAL): The signal "boss_spawned" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:47:8: WARNING: (UNUSED_SIGNAL): The signal "boss_slain" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:48:8: WARNING: (UNUSED_SIGNAL): The signal "wave_mutator_applied" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:49:8: WARNING: (UNUSED_SIGNAL): The signal "achievement_unlocked" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:50:8: WARNING: (UNUSED_SIGNAL): The signal "tutorial_step_completed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:51:8: WARNING: (UNUSED_SIGNAL): The signal "announcement" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:55:8: WARNING: (UNUSED_SIGNAL): The signal "objective_progress" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:58:8: WARNING: (UNUSED_SIGNAL): The signal "objective_resolved" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/game_root.gd:357:24: WARNING: (UNUSED_PARAMETER): The parameter "previous" is never used in the function "_on_state_entered()". If this is intended, prefix it with an underscore: "_previous".
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/run_state.gd:15:5: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/test_harness.gd:181:21: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/core/test_harness.gd:34:34: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:170:25: WARNING: (UNUSED_PARAMETER): The parameter "kind" is never used in the function "_on_boss_telegraph()". If this is intended, prefix it with an underscore: "_kind".
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:31:8: WARNING: (UNUSED_SIGNAL): The signal "state_changed" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:34:8: WARNING: (UNUSED_SIGNAL): The signal "attack_started" is declared but never explicitly used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:883:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "_target" is shadowing an already-declared variable at line 59 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_elite_affix.gd:31:63: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_feedback.gd:21:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "owner" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:128:8: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "angle" is declared below in the parent block.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:83:65: WARNING: (UNUSED_PARAMETER): The parameter "cfg" is never used in the function "_investigate()". If this is intended, prefix it with an underscore: "_cfg".
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_ledger.gd:99:28: WARNING: (UNUSED_PARAMETER): The parameter "archetype" is never used in the function "register_direct_spawn()". If this is intended, prefix it with an underscore: "_archetype".
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:339:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:422:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:23: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:38: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:123:21: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:129:52: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:165:41: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:23:100: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:45:49: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:59:69: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:82:73: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:542:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "basis" is shadowing an already-declared property in the base class "Node3D".
+/home/runner/work/Game-no-7/Game-no-7/scripts/main/main.gd:223:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:273:64: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:307:43: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:312:46: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/player/dodge_controller.gd:186:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "owner" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/player/player.gd:515:33: WARNING: (UNUSED_PARAMETER): The parameter "weapon_id" is never used in the function "_on_weapon_attack_resolved()". If this is intended, prefix it with an underscore: "_weapon_id".
+/home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:27: WARNING: (UNUSED_PARAMETER): The parameter "shake_amp" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_shake_amp".
+/home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:52: WARNING: (UNUSED_PARAMETER): The parameter "duration" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_duration".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/announcement_banner.gd:49:15: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "text" is shadowing an already-declared property in the base class "Label".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/announcement_banner.gd:61:41: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "text" is shadowing an already-declared property in the base class "Label".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/armory_panel.gd:147:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/armory_panel.gd:89:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:118:55: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:121:24: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/minimap.gd:229:2: WARNING: (UNUSED_VARIABLE): The local variable "discovered" is declared but never used in the block. If this is intended, prefix it with an underscore: "_discovered".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/minimap.gd:85:28: WARNING: (SHADOWED_VARIABLE): The local function parameter "world_xz" is shadowing an already-declared function at line 372 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/run_summary_panel.gd:64:24: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_gauges.gd:58:43: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "size" is shadowing an already-declared property in the base class "Control".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_theme.gd:140:2: WARNING: (UNUSED_VARIABLE): The local variable "surface" is declared but never used in the block. If this is intended, prefix it with an underscore: "_surface".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_theme.gd:226:7: WARNING: (SHADOWED_VARIABLE): The local variable "control" is shadowing an already-declared function at line 118 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/upgrade_panel.gd:135:2: WARNING: (UNREACHABLE_CODE): Unreachable code (statement after return) in function "_current_stack()".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/virtual_joystick.gd:100:25: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/virtual_joystick.gd:130:14: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "position" is shadowing an already-declared property in the base class "Control".
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:169:25: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:175:22: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:179:21: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/object_pool.gd:26:118: WARNING: (SHADOWED_VARIABLE): The local function parameter "tag" is shadowing an already-declared function at line 110 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/object_pool.gd:26:97: WARNING: (SHADOWED_VARIABLE): The local function parameter "max_size" is shadowing an already-declared function at line 106 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:468:16: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:476:28: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/rng_service.gd:67:24: WARNING: (SHADOWED_VARIABLE): The local function parameter "chance" is shadowing an already-declared function at line 67 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:273:29: WARNING: (SHADOWED_VARIABLE): The local function parameter "mount" is shadowing an already-declared function at line 67 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:77:6: WARNING: (SHADOWED_VARIABLE): The local variable "mount" is shadowing an already-declared function at line 67 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:104:5: WARNING: (UNUSED_PRIVATE_CLASS_VARIABLE): The class variable "_bus" is declared but never used in the class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:213:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "floor" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:323:23: WARNING: (UNUSED_PARAMETER): The parameter "wave_number" is never used in the function "_on_wave_started()". If this is intended, prefix it with an underscore: "_wave_number".
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:352:27: WARNING: (UNUSED_PARAMETER): The parameter "pickup_id" is never used in the function "_on_pickup_collected()". If this is intended, prefix it with an underscore: "_pickup_id".
+/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:377:27: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "owner" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_manager.gd:335:15: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_manager.gd:69:16: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_mutators.gd:110:38: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_mutators.gd:128:58: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:100:29: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:101:25: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:102:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:103:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:138:54: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:93:55: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/weapons/weapon_config.gd:40:35: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "range" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/integration_stages.gd:660:53: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/integration_stages.gd:958:45: WARNING: (UNUSED_PARAMETER): The parameter "tree" is never used in the function "_run_run_definition_integration()". If this is intended, prefix it with an underscore: "_tree".
+/home/runner/work/Game-no-7/Game-no-7/tests/regress_upgrades_inner.gd:15:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/soak_runtime_inner.gd:35:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:31:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:356:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:463:42: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The function parameter "seed" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:551:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "exp" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:679:3: WARNING: (UNUSED_VARIABLE): The local variable "g0" is declared but never used in the block. If this is intended, prefix it with an underscore: "_g0".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:239:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:242:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:266:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:276:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:286:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:293:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:297:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:300:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:303:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:311:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:316:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:31:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:320:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:324:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:497:26: WARNING: (UNUSED_PARAMETER): The parameter "panel" is never used in the function "_sliders_match_save()". If this is intended, prefix it with an underscore: "_panel".
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:139:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:19:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_area_combat.gd:101:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "log" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_hazards.gd:436:70: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_minimap_radar.gd:210:66: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_procedural_sfx.gd:65:19: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_safe_player_spawn.gd:50:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "floor" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_wave_mutators.gd:118:25: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+/home/runner/work/Game-no-7/Game-no-7/tests/verify_flow_inner.gd:29:13: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/verify_flow_inner.gd:436:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "exp" has the same name as a built-in function.
