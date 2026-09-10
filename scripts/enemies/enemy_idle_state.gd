@@ -80,7 +80,7 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 
 
 ## PACE to the last-known / noisy point, linger there, then forget.
-func _investigate(host: EnemyBase, perception: EnemyPerception, cfg: EnemyConfig, delta: float) -> void:
+func _investigate(host: EnemyBase, perception: EnemyPerception, _cfg: EnemyConfig, delta: float) -> void:
 	if not perception.has_investigate_point():
 		perception.clear_investigation()
 		return

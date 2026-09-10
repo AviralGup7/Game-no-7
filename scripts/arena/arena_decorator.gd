@@ -235,7 +235,7 @@ func _wall_props(half: float, banner: StringName, add_torches: bool) -> void:
 		_spawned.append(holder)
 
 
-func _centerish(half: float, radius: float) -> Vector3:
+func _centerish(_half: float, radius: float) -> Vector3:
 	for _attempt in range(12):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, radius)
 		if p.length() > CENTER_CLEAR_RADIUS * 0.9:

@@ -194,7 +194,7 @@ func _connect_signal_watchers() -> void:
 
 ## Arity-proof counter: every watched signal has <= 4 args.
 func _watch(obj: Object, sig: String) -> void:
-	var cb := func(a0: Variant = null, a1: Variant = null, a2: Variant = null, a3: Variant = null) -> void:
+	var cb := func(_a0: Variant = null, _a1: Variant = null, _a2: Variant = null, _a3: Variant = null) -> void:
 		_sig_counts[sig] = int(_sig_counts.get(sig, 0)) + 1
 	obj.connect(sig, cb)
 

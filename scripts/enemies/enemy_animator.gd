@@ -167,7 +167,7 @@ func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> vo
 		pass
 
 
-func _on_boss_telegraph(kind: StringName, duration: float) -> void:
+func _on_boss_telegraph(_kind: StringName, duration: float) -> void:
 	if _dead:
 		return
 	var clip := KEY_CAST if _clips.has(KEY_CAST) else KEY_ATTACK

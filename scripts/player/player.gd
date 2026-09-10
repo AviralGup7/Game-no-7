@@ -512,7 +512,7 @@ func _on_leveled_up(new_level: int) -> void:
 		EventBus.announcement.emit(&"level_up", "Level %d!" % new_level, &"info")
 
 
-func _on_weapon_attack_resolved(weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
+func _on_weapon_attack_resolved(_weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
 	attack_finished.emit()
 	if hit_count > 0 and _feedback != null:
 		_feedback.play_impact_feedback(was_crit)

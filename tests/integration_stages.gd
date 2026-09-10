@@ -955,7 +955,7 @@ static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack
 	return ", ".join(parts)
 
 
-static func _run_run_definition_integration(tree: SceneTree) -> Array:
+static func _run_run_definition_integration(_tree: SceneTree) -> Array:
 	var results: Array = []
 
 	# --- the announcer reads the mode's row, not a table of its own -----------------

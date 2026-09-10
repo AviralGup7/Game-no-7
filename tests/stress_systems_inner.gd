@@ -141,7 +141,7 @@ const WATCHED := ["run_started", "run_ended", "pause_changed", "settings_changed
 
 
 func _watch(obj: Object, sig: String) -> void:
-	var cb := func(a0: Variant = null, a1: Variant = null, a2: Variant = null, a3: Variant = null) -> void:
+	var cb := func(_a0: Variant = null, _a1: Variant = null, _a2: Variant = null, _a3: Variant = null) -> void:
 		_sig_counts[sig] = int(_sig_counts.get(sig, 0)) + 1
 	obj.connect(sig, cb)
 
@@ -494,7 +494,7 @@ func _settings_equal(a: SettingsData, b: Dictionary) -> bool:
 	return true
 
 
-func _sliders_match_save(panel: Node) -> bool:
+func _sliders_match_save(_panel: Node) -> bool:
 	# At least the persisted settings must differ from the pristine originals
 	# (we moved every slider), proving SAVE wrote the draft.
 	return not _settings_equal(SaveManager.get_settings(), _orig_settings)

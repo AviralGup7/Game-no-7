@@ -994,7 +994,7 @@ class LiveRunDefinitionStageTests(Bans, unittest.TestCase):
 
     def test_the_stage_exists_and_is_reached(self) -> None:
         txt = read(STAGES_GD)
-        self.assertIn("static func _run_run_definition_integration(tree: SceneTree) -> Array", txt)
+        self.assertIn("static func _run_run_definition_integration(_tree: SceneTree) -> Array", txt)
         # Chained, not merely defined: the runner only calls the combat and encounter stages, so a
         # stage nobody appends is a stage that reports zero cases.
         self.assertIn("results.append_array(_run_run_definition_integration(tree))", txt)

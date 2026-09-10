@@ -320,7 +320,7 @@ func _floor_hit(at: Vector3) -> Dictionary:
 	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
 
 
-func _on_wave_started(wave_number: int, _planned: int) -> void:
+func _on_wave_started(_wave_number: int, _planned: int) -> void:
 	var origin := _arena_origin()
 	ring_at(origin, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
 	burst_at(origin + Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
@@ -349,7 +349,7 @@ func _on_boss_slain(_boss_id: StringName) -> void:
 	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
 
 
-func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) -> void:
+func _on_pickup_collected(_pickup_id: StringName, _amount: int, collector: Node) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(collector) and collector is Node3D:
 		at = (collector as Node3D).global_position
