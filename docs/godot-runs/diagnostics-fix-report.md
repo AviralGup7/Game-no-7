@@ -14,6 +14,7 @@ which `didOpen`s every `.gd` in the project and reads `publishDiagnostics`).
 > | `8d60451` — baseline before any diagnostic work | 172 | 0 |
 > | `4483ecc` — after the shadowing + unused-parameter batches | 112 | **7** |
 > | `06afc4f` — after every remaining category + the rename-reference fixes | **44** | **0** |
+> | `36898ca` — after the last `UNUSED_VARIABLE` | **43** | **0** |
 >
 > The middle row is the important one: those 7 errors were **introduced by my own incomplete
 > renames** and are documented in §2. They are the reason this report exists in this form —
@@ -164,21 +165,25 @@ pre-existing and out of scope; flagged here rather than silently rewritten.
 
 ## 6. Final Godot diagnostic count
 
-**44 warnings, 0 errors** at run `06afc4f` (from `diagnostics-4.7.2-lsp.err`:
-`# 44 diagnostics (0 errors, 44 warnings)`), down from **172 warnings / 0 errors** at
-baseline, having passed through **112 warnings / 7 errors** mid-way.
+**43 warnings, 0 errors** — measured at run `36898ca`
+(`diagnostics-4.7.2-lsp.err`: `# 43 diagnostics (0 errors, 43 warnings)`).
 
-The 44 are 43 retained `UNUSED_SIGNAL` (§3) plus one `UNUSED_VARIABLE`, which is fixed in the
-commit after that run: `tests/stress_loops_inner.gd:679` captured
-`(gems[0] as Node3D).global_position` into `g0` and nothing ever read it. The capture is
-removed with a note, because it looks like a **pickup-magnet distance assertion that was never
-written** — the check only asserts the `pickup_collected` count. Inventing that assertion would
-change what the test verifies, so it is flagged here instead of being guessed at.
+```
+43 UNUSED_SIGNAL        <- every warning left is the retained event-bus set (§3)
+ 0 ERROR
+```
 
-Expected after that commit: **43 warnings, 0 errors** — pending the CI run on it.
+Progression: **172 warnings / 0 errors** at baseline → **112 / 7** mid-way (my own regression,
+§2) → **44 / 0** → **43 / 0**.
 
-Same run also reports **`GDScript tests: 1095 total, 0 failed`** and **0 `SCRIPT ERROR`** lines
-in the test log.
+All 129 fixable warnings are gone and **no category was suppressed to get there**. The same run
+reports **`GDScript tests: 1095 total, 0 failed`** and **0 `SCRIPT ERROR`** lines, so the scripts
+reload and run clean.
+
+For the record, the last warning cleared was `tests/stress_loops_inner.gd:679`: a capture of
+`gems[0].global_position` into `g0` that nothing read. It looks like a **pickup-magnet distance
+assertion that was never written** — the check only asserts the `pickup_collected` count. The
+capture is removed and the gap noted at the call site rather than an assertion being invented.
 
 ---
 
