@@ -353,7 +353,7 @@ func _run_stage(loop: int) -> void:
 		child.queue_free()
 	await _frames(4)
 	_snap("%s.mid" % tag)
-	await _mount_checks(tag, player)
+	_mount_checks(tag, player)
 	await _enemy_barrage(tag, player, container)
 	await _feedback_checks(tag, player, container)
 	await _xp_checks(tag, player)

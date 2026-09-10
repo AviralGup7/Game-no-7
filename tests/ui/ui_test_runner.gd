@@ -136,7 +136,7 @@ func _run() -> void:
 	await _settle()
 	await _test_layouts()
 	_test_layout_solver()
-	await _test_armory_and_save()
+	_test_armory_and_save()
 	await _test_tutorial()
 	_check("summary zero time is finite", not RunSummaryPanel.performance({"kills": 9, "elapsed_seconds": 0}).contains("inf"))
 	_check("summary clock handles hours", RunSummaryPanel.duration(3661) == "61:01")

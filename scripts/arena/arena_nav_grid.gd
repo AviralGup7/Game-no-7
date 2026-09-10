@@ -327,13 +327,13 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 	_heap_push(heap, Vector2(_heuristic(sc, tc), float(start_i)))
 	while not heap.is_empty():
 		var top := _heap_pop(heap)
-		var i := int(top.y)
-		if closed[i] != 0:
+		var cell_i := int(top.y)
+		if closed[cell_i] != 0:
 			continue
-		closed[i] = 1
-		if i == goal_i:
+		closed[cell_i] = 1
+		if cell_i == goal_i:
 			break
-		var c := Vector2i(i % width, int(i / float(width)))
+		var c := Vector2i(cell_i % width, int(cell_i / float(width)))
 		for n in NEIGHBORS:
 			var nc := c + n
 			if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
@@ -353,10 +353,10 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 			var tax := 0.0
 			if _cell_touches_blocked(nc):
 				tax = 0.35
-			var ng := g[i] + step + tax
+			var ng := g[cell_i] + step + tax
 			if ng < g[ni] - 1.0e-6:
 				g[ni] = ng
-				came[ni] = i
+				came[ni] = cell_i
 				_heap_push(heap, Vector2(ng + _heuristic(nc, tc), float(ni)))
 	if came[goal_i] == -1:
 		return empty

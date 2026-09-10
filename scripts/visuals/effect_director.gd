@@ -101,7 +101,6 @@ var _ring_pool: Array[Node3D] = []
 var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
-var _bus := EventBindings.new()
 var _live_telegraphs := 0
 
 
