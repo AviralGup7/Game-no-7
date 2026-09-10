@@ -15,6 +15,15 @@ class GameRootTests(unittest.TestCase):
         self.assertIn("if not transition_to(State.STARTING_RUN):",txt)
         self.assertIn("_apply_state(State.MAIN_MENU)",txt)
         self.assertIn("get_tree().paused = false",txt)
+    def test_transitions_are_serialized_against_synchronous_signals(self):
+        txt=read("scripts/core/game_root.gd")
+        self.assertIn("var _transition_in_progress := false", txt)
+        self.assertIn("var _pending_state: StringName", txt)
+        self.assertIn("func _transition_now", txt)
+        self.assertIn("# A state-enter hook or signal listener may have requested", txt)
+        self.assertIn("_transition_now(queued)", txt)
+        self.assertIn("MAX_TRANSITION_HISTORY", txt)
+
     def test_scene_router_guards_invalid(self):
         txt=read("scripts/core/scene_router.gd")
         self.assertIn("get_tree() != null",txt)

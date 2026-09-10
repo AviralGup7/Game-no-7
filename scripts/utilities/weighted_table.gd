@@ -19,29 +19,54 @@ func _init(entries: Array = []) -> void:
 
 ## Add one entry. Non-positive weights are clamped to a tiny epsilon so the
 ## entry stays selectable-but-rare instead of silently vanishing.
+const MIN_WEIGHT := 0.0001
+const MAX_WEIGHT := 1000000.0
+const MAX_TOTAL_WEIGHT := 1e9
+
+
 func add(value: Variant, weight: float) -> void:
-	if not is_finite(weight):
-		weight = 0.0001
 	_values.append(value)
-	var w := clampf(weight, 0.0001, 1000000.0)
+	var w := _sanitize_weight(weight)
 	_weights.append(w)
-	_total = clampf(_total + w, 0.0, 1e9)
+	_recalculate_total()
 
 
 func remove_at(index: int) -> void:
 	if index < 0 or index >= _values.size():
 		return
-	_total -= _weights[index]
 	_values.remove_at(index)
 	_weights.remove_at(index)
+	# Rebuild instead of subtracting a PackedFloat32 value repeatedly. This
+	# avoids accumulated drift and repairs the aggregate if old content was bad.
+	_recalculate_total()
 
 
 func set_weight(index: int, weight: float) -> void:
 	if index < 0 or index >= _values.size():
 		return
-	_total -= _weights[index]
-	_weights[index] = maxf(weight, 0.0001)
-	_total += _weights[index]
+	_weights[index] = _sanitize_weight(weight)
+	_recalculate_total()
+
+
+func _sanitize_weight(weight: float) -> float:
+	if not is_finite(weight):
+		return MIN_WEIGHT
+	return clampf(weight, MIN_WEIGHT, MAX_WEIGHT)
+
+
+func _recalculate_total() -> void:
+	_total = 0.0
+	for weight in _weights:
+		_total += float(weight)
+	if not is_finite(_total) or _total <= 0.0:
+		_total = 0.0
+	elif _total > MAX_TOTAL_WEIGHT:
+		# Preserve relative probabilities while keeping the cumulative range
+		# representable and stable for very large generated tables.
+		var scale := MAX_TOTAL_WEIGHT / _total
+		for i in range(_weights.size()):
+			_weights[i] *= scale
+		_total = MAX_TOTAL_WEIGHT
 
 
 func size() -> int:
@@ -72,8 +97,12 @@ func clear() -> void:
 
 ## Map a uniform sample in [0,1) to an entry index. Returns -1 when empty.
 func roll_index(sample: float) -> int:
-	if _values.is_empty() or _total <= 0.0:
+	if _values.is_empty() or not is_finite(_total) or _total <= 0.0:
 		return -1
+	# A malformed external sample must be deterministic, not turn the target
+	# into NaN and silently select the final entry.
+	if not is_finite(sample):
+		sample = 0.0
 	var target := clampf(sample, 0.0, 0.9999999) * _total
 	var acc := 0.0
 	for i in range(_values.size()):
@@ -126,7 +155,10 @@ func roll_unique(samples: Array, count: int) -> Array:
 	for k in range(n):
 		var sample := 0.0
 		if k < samples.size():
-			sample = clampf(float(samples[k]), 0.0, 0.9999999)
+			var raw_sample := float(samples[k])
+			sample = clampf(raw_sample, 0.0, 0.9999999) if is_finite(raw_sample) else 0.0
+		if not is_finite(remaining_total) or remaining_total <= 0.0:
+			break
 		var target := sample * remaining_total
 		var acc := 0.0
 		var chosen := remaining_values.size() - 1

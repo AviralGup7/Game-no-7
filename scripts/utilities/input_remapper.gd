@@ -25,7 +25,13 @@ static func get_bindings(action: StringName) -> Array[InputEvent]:
 static func binding_label(event: InputEvent) -> String:
 	if event is InputEventKey:
 		var k := event as InputEventKey
-		var code := k.physical_keycode if k.physical_keycode != 0 else k.keycode
+		var code := k.keycode
+		if code == 0 and k.physical_keycode != 0:
+			# Physical codes are layout-independent; convert to the user's current
+			# layout for display instead of showing a misleading QWERTY label.
+			code = DisplayServer.keyboard_get_keycode_from_physical(k.physical_keycode)
+		if code == 0:
+			code = k.physical_keycode
 		var label := OS.get_keycode_string(code)
 		return label if not label.is_empty() else "Key %d" % code
 	if event is InputEventJoypadButton:
@@ -62,9 +68,7 @@ static func _joy_button_name(index: int) -> String:
 static func rebind_first(action: StringName, event: InputEvent) -> bool:
 	if action not in REMAPPABLE_ACTIONS:
 		return false
-	if not InputMap.has_action(action):
-		return false
-	if not (event is InputEventKey or event is InputEventJoypadButton):
+	if not InputMap.has_action(action) or not _event_is_valid(event):
 		return false
 	var existing := InputMap.action_get_events(action)
 	for e in existing:
@@ -96,9 +100,18 @@ static func serialize_actions(actions: Array = REMAPPABLE_ACTIONS) -> Dictionary
 static func serialize_event(event: InputEvent) -> Dictionary:
 	if event is InputEventKey:
 		var k := event as InputEventKey
-		return {"kind": "key", "code": int(k.physical_keycode)}
+		# InputEventKey requires exactly one meaningful key identity. Preserve
+		# physical bindings when present, but do not serialize an unusable zero;
+		# some platform-generated events only provide keycode.
+		if k.physical_keycode != 0:
+			return {"kind": "key_physical", "code": int(k.physical_keycode)}
+		if k.keycode != 0:
+			return {"kind": "keycode", "code": int(k.keycode)}
+		return {}
 	if event is InputEventJoypadButton:
 		var b := event as InputEventJoypadButton
+		if b.button_index < 0 or b.button_index > 255:
+			return {}
 		return {"kind": "pad", "code": int(b.button_index)}
 	return {}
 
@@ -114,37 +127,75 @@ static func deserialize_actions(data: Dictionary) -> int:
 		var binds: Variant = data[action_key]
 		if not (binds is Array):
 			continue
-		# Clear existing remappable bindings before restoring so repeated loads
-		# (e.g. after a save round-trip) never accumulate duplicates.
-		for existing in InputMap.action_get_events(aname).duplicate():
-			if existing is InputEventKey or existing is InputEventJoypadButton:
-				InputMap.action_erase_event(aname, existing)
+		# Parse first, then mutate InputMap. A corrupt array must never erase the
+		# working defaults and leave the player with an unusable action.
+		var parsed: Array[InputEvent] = []
 		for entry in binds:
 			if not (entry is Dictionary):
 				continue
 			var event := deserialize_event(entry)
-			if event != null:
-				# Respect the per-action bind cap even during restore.
-				if InputMap.action_get_events(aname).size() >= MAX_BINDS_PER_ACTION:
-					break
-				InputMap.action_add_event(aname, event)
-				applied += 1
+			if event != null and not _event_in(parsed, event):
+				parsed.append(event)
+			if parsed.size() >= MAX_BINDS_PER_ACTION:
+				break
+		if parsed.is_empty():
+			continue
+		# Clear only after at least one valid binding has been prepared.
+		for existing in InputMap.action_get_events(aname).duplicate():
+			if existing is InputEventKey or existing is InputEventJoypadButton:
+				InputMap.action_erase_event(aname, existing)
+		for event in parsed:
+			InputMap.action_add_event(aname, event)
+			applied += 1
 	return applied
 
 
 static func deserialize_event(entry: Dictionary) -> InputEvent:
 	var kind := String(entry.get("kind", ""))
-	var code := int(entry.get("code", 0))
+	var raw_code: Variant = entry.get("code", -1)
+	if not (raw_code is int or raw_code is float):
+		return null
+	var code := int(raw_code)
+	if code < 0:
+		return null
+	if kind == "pad" and code > 255:
+		return null
 	match kind:
-		"key":
+		# "key" is retained as the v1 physical-key format for save compatibility.
+		"key", "key_physical":
+			if code == 0:
+				return null
 			var k := InputEventKey.new()
 			k.physical_keycode = code
 			return k
+		"keycode":
+			if code == 0:
+				return null
+			var logical := InputEventKey.new()
+			logical.keycode = code
+			return logical
 		"pad":
 			var b := InputEventJoypadButton.new()
 			b.button_index = code
 			return b
 	return null
+
+
+static func _event_is_valid(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		var key := event as InputEventKey
+		return key.physical_keycode != 0 or key.keycode != 0
+	if event is InputEventJoypadButton:
+		var button := event as InputEventJoypadButton
+		return button.button_index >= 0 and button.button_index <= 255
+	return false
+
+
+static func _event_in(events: Array[InputEvent], candidate: InputEvent) -> bool:
+	for event in events:
+		if _events_match(event, candidate):
+			return true
+	return false
 
 
 ## True when `event` is already bound to a DIFFERENT remappable action (used to
@@ -162,7 +213,11 @@ static func find_conflict(event: InputEvent, except_action: StringName) -> Strin
 
 static func _events_match(a: InputEvent, b: InputEvent) -> bool:
 	if a is InputEventKey and b is InputEventKey:
-		return (a as InputEventKey).physical_keycode == (b as InputEventKey).physical_keycode
+		var ak := a as InputEventKey
+		var bk := b as InputEventKey
+		if ak.physical_keycode != 0 and bk.physical_keycode != 0:
+			return ak.physical_keycode == bk.physical_keycode
+		return ak.keycode != 0 and ak.keycode == bk.keycode
 	if a is InputEventJoypadButton and b is InputEventJoypadButton:
 		return (a as InputEventJoypadButton).button_index == (b as InputEventJoypadButton).button_index
 	return false

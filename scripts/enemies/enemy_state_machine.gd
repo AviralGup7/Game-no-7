@@ -18,6 +18,11 @@ const STATE_IDS := [
 
 var _event_bus: Node = null
 var _event_bus_resolved := false
+# State enter/exit and signal callbacks are synchronous. Queue re-entrant
+# requests so one enemy can never have two states active during one transition.
+var _transitioning := false
+var _queued_state: StringName = &""
+var _queued_force := false
 
 
 func _ready() -> void:
@@ -69,6 +74,16 @@ func has_state(state_id: StringName) -> bool:
 
 ## Change to `state_id`. Returns false when unknown or already current.
 func change_to(state_id: StringName) -> bool:
+	return _request_state(state_id, false)
+
+
+## Force a transition from any context (used by damage/death handlers). A forced
+## request supersedes a normal request that is still queued.
+func force_state(state_id: StringName) -> bool:
+	return _request_state(state_id, true)
+
+
+func _request_state(state_id: StringName, forced: bool) -> bool:
 	if state_id == &"" or state_id == null:
 		return false
 	if _host == null or not is_instance_valid(_host):
@@ -76,8 +91,23 @@ func change_to(state_id: StringName) -> bool:
 	if not _states.has(state_id):
 		_report_warning("Enemy %s: unknown state %s" % [String(_host.get_archetype_id()), String(state_id)])
 		return false
+	if _current != null and _current.get_id() == state_id and not _transitioning:
+		return forced
+	if _transitioning:
+		if forced or _queued_state == &"":
+			_queued_state = state_id
+			_queued_force = forced
+		else:
+			_report_warning("Enemy %s: state %s already queued; ignoring %s" % [
+				String(_host.get_archetype_id()), String(_queued_state), String(state_id)])
+		return true
+	return _commit_state(state_id)
+
+
+func _commit_state(state_id: StringName) -> bool:
 	if _current != null and _current.get_id() == state_id:
 		return false
+	_transitioning = true
 	var previous := get_current()
 	if _current != null:
 		_current.exit(_host)
@@ -86,17 +116,13 @@ func change_to(state_id: StringName) -> bool:
 	state_changed.emit(previous, state_id)
 	if _host.has_signal("state_changed"):
 		_host.emit_signal("state_changed", previous, state_id)
+	_transitioning = false
+	if _queued_state != &"":
+		var queued := _queued_state
+		_queued_state = &""
+		_queued_force = false
+		_commit_state(queued)
 	return true
-
-
-## Force a transition from any context (used by damage/death handlers).
-func force_state(state_id: StringName) -> bool:
-	if not _states.has(state_id):
-		_report_warning("Enemy force_state unknown: %s" % String(state_id))
-		return false
-	if _current != null and _current.get_id() == state_id:
-		return true
-	return change_to(state_id)
 
 
 func update(delta: float) -> void:

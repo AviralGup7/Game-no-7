@@ -14,4 +14,22 @@ class SaveManagerTests(unittest.TestCase):
         self.assertIn("int(round(float(v)))",txt)
         self.assertIn("func _string_int_map",txt)
         self.assertIn("maxi(int(round(float(v))), 0)",txt)
+
+    def test_save_commit_is_non_destructive_and_durable(self):
+        txt=read("scripts/save/save_manager.gd")
+        self.assertIn("file.flush()", txt)
+        self.assertIn("file.get_error()", txt)
+        self.assertIn("Three backup generations", read("docs/SAVE_RESILIENCE.md"))
+        self.assertIn("HashingContext.HASH_SHA256", txt)
+        # A rename failure must not remove the last known-good destination.
+        commit = txt[txt.index("func _write_raw"):]
+        self.assertNotIn("remove_absolute(ProjectSettings.globalize_path(path))", commit)
+        self.assertIn("BACKUP_3_PATH", txt)
+
+    def test_integrity_is_verified_before_normalization(self):
+        txt=read("scripts/save/save_manager.gd")
+        self.assertLess(txt.index("raw = _read_raw(candidate)"), txt.index("validate_save_data(raw)"))
+        self.assertIn("if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed)", txt)
+        self.assertIn('"algorithm": "sha256"', txt)
+
 if __name__=="__main__": unittest.main()
