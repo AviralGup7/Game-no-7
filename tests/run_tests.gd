@@ -54,6 +54,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_performance_monitor.gd",
 	"res://tests/unit/test_minimap_radar.gd",
 	"res://tests/unit/test_audio_policy.gd",
+	"res://tests/unit/test_error_report.gd",
 ]
 
 ## Node3D-based suites: these build Node3D fixtures and assert on positions.

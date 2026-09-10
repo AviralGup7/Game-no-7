@@ -1,5 +1,77 @@
 # Changelog
 
+## [Unreleased] — Arena art pass: per-arena dressing, landmark floor art, hazard models (2026-09-10)
+
+- **Downloaded 13 KayKit dungeon models** (same reviewed pack + pinned rev, CC0,
+  blob-sha verified against the upstream tree): per-arena champion shield banners,
+  decorated/stacked barrels and crates, candle trio + lit candle, sword trophies,
+  trunk, open vent grate. Manifest grows 243 → 256 files / 96 models.
+- **Hazard markers mount floor models** under an honest telegraph disc: spike bed,
+  open vent and plate tile (the first two were locked but unused), plus a rim ring
+  at the exact hitbox radius and an ember orb for the orbiting mover.
+- **Landmarks enriched in code**: rotating lava with crust chips, five-prism cluster
+  with heart shard, stepped obelisk with rune band; every silhouette gets a plinth,
+  rim and wide floor ring plus a shared idle emission pulse. Torch sconces get a
+  deterministic glow halo on the approved Kenney flare sprite.
+- **Per-arena decorator compositions**: gate-flanking trophy pairs (Default), lit
+  candle ring (Frost), crate depots + decorated barrel stacks (Ember). Default
+  scatter spots shifted slightly (trophies route first); still deterministic.
+- Pinned by `tests/python/test_regress_arena_art.py` (10 tests); the catalogue's
+  "per-arena bespoke art" pending item is resolved.
+
+## [Unreleased] — Debug mode: errors freeze the game with a copyable report (2026-09-10)
+
+On-device debugging had no story: an APK failure meant a dead app and no
+details. There is now a debug-mode error trap. A toggle on the main menu (and
+in Settings > Debug) arms it; while ON, any error reported through EventBus —
+the channel every critical boot/run system already uses — pauses the tree and
+presents a copyable block (message, stack trace, device/game context, recent
+log) instead of crashing, with copy-to-clipboard, save-to-file, prev/next
+through stacked errors, resume, restart, and main-menu actions.
+
+- **New `DebugErrorHandler` autoload, second after EventBus.** It taps the
+  `diagnostic` signal, snapshots `get_stack()` synchronously at capture time,
+  and presents deferred so reporting stays safe from any call stack. It owns
+  its own flag file (`user://debug_mode.cfg`, never SaveManager) so it can sit
+  that early and still persist; every diagnostic plus state/run/wave
+  breadcrumbs always append to `user://logs/session.log` even with the flag
+  off. Its own I/O failures use `push_warning` directly, so error handling can
+  never report an error about itself (no recursion).
+- **Freeze overlay, not a crash.** `DebugErrorOverlay` (layer 128,
+  always-process, input-swallowing) shows the report in a read-only TextEdit;
+  `COPY REPORT`/Ctrl+C copies the whole block with a verified round-trip and a
+  manual-copy fallback hint, and each capture auto-saves a `crash_*.log` file
+  (newest 5 kept). Resume restores the pause state by re-reading
+  `GameRoot.is_paused()`, so an Android Back press behind the overlay cannot
+  desync the tree pause.
+- **Honest coverage.** GDScript-called failures freeze; hard native crashes
+  cannot be intercepted from script, so each boot checks the previous
+  session's exit flag and Settings > Debug offers the recovered log tail one
+  click away (`VIEW LAST SESSION LOG`). Headless/CI runs never freeze (no
+  screen) but still log and write crash files; `--no-debug-freeze` does the
+  same for scripted device runs.
+- **Self-test + docs.** `TRIGGER TEST ERROR` proves the freeze/copy pipeline
+  on a device without waiting for a real bug; `docs/DEBUG_MODE.md` documents
+  the toggles, overlay actions, files, and limits. Pure core
+  (`ErrorReport`/`DebugLogBuffer`) is covered by
+  `tests/unit/test_error_report.gd` in the synchronous suite; the startup
+  contract test now pins nine singletons with the handler directly after
+  EventBus.
+- **Follow-up hardening, fixes, and integrations.** Frame #0 is now the true
+  caller (`ErrorReport.drop_internal_frames` strips the EventBus/pipeline
+  frames, unit-tested); every capture grabs a paired `crash_<stamp>.png`
+  screenshot whose path lands in the report context; the overlay headlines
+  each capture's title and its auto-saved path; a failed clipboard copy now
+  selects the whole text for a one-gesture manual copy; the session log
+  rotates off an in-memory byte counter instead of a probe open per line.
+  Coverage widened: `save_failed` captures as data-loss class, the severity
+  gate fails closed (any future non-info/warning severity freezes), and a
+  background-aware stall watchdog breadcrumbs main-loop gaps over 1.5s.
+  Integrations: real errors count into analytics (`note_error` → per-run rows
+  + `session_errors`; pure increment, self-tests excluded) and the test
+  harness exposes the `debug` snapshot plus a `debug_trap_ready` smoke step.
+  `tests/python/test_regress_debug_mode.py` pins the trap's load-bearing
+  shapes so refactors cannot silently break them.
 ## [Unreleased] — Godot 4.7 compatibility: the joystick class no longer hides a native class (2026-09-10)
 
 Godot 4.7 added a **native** class named `VirtualJoystick`. A `class_name` that hides a native class

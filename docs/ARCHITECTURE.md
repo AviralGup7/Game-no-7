@@ -420,9 +420,10 @@ ladder's `tier_index_for_rank` selects rather than a literal index (the rungs un
 
 ## Autoload policy
 
-Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,
-SceneRouter, RunAnalytics, TestHarness) are referenced **directly by name** in
-GameRoot/main/UI code — they are project singletons.
+Autoloads (EventBus, DebugErrorHandler, SaveManager, AudioManager,
+ContentRegistry, GameRoot, SceneRouter, RunAnalytics, TestHarness) are
+referenced **directly by name** in GameRoot/main/UI code — they are project
+singletons.
 
 Two deliberate, documented **autoload-optional seams** exist so the same
 scripts run in-game and under the hermetic, autoload-free headless harness

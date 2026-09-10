@@ -68,6 +68,19 @@ func refresh() -> void:
 		_fps = fps.get_item_id(index)
 		UiFactory.play_press("OPTION"))
 	add_child(fps)
+	_section("DEBUG")
+	var debug_toggle := DebugModeToggle.new()
+	add_child(debug_toggle)
+	var test_error := UiFactory.button("TRIGGER TEST ERROR", self, 20)
+	test_error.tooltip_text = "Freezes the game with a sample error report. Debug mode must be ON."
+	test_error.pressed.connect(_on_test_error_pressed)
+	var last_report := UiFactory.button("VIEW LAST ERROR REPORT", self, 20)
+	last_report.visible = DebugErrorHandler.has_reports()
+	last_report.pressed.connect(_on_view_last_report_pressed)
+	var last_session := UiFactory.button("VIEW LAST SESSION LOG", self, 20)
+	last_session.tooltip_text = "Shown when the previous session did not exit cleanly (crash, force-stop, or OS background kill)."
+	last_session.visible = DebugErrorHandler.had_unclean_previous_session()
+	last_session.pressed.connect(_on_view_last_session_pressed)
 	_section("KEYBOARD / GAMEPAD BINDINGS")
 	UiFactory.label("Bindings apply for this session only; the current save schema has no binding field. Escape cancels capture. Conflicts are rejected.", self, 18)
 	for action in InputRemapper.REMAPPABLE_ACTIONS:
@@ -209,6 +222,21 @@ func _apply() -> void:
 	if not SaveManager.save_now():
 		_feedback.text = "Settings applied in memory, but saving failed. Please retry."
 	settings_applied.emit()
+
+func _on_test_error_pressed() -> void:
+	if not DebugErrorHandler.is_debug_mode():
+		_feedback.text = "Turn debug mode ON first, then trigger a test error."
+		return
+	DebugErrorHandler.capture_test_error()
+
+
+func _on_view_last_report_pressed() -> void:
+	DebugErrorHandler.show_last_report()
+
+
+func _on_view_last_session_pressed() -> void:
+	DebugErrorHandler.show_previous_session_report()
+
 
 func _reset_draft() -> void:
 	# Explicit reset command belongs to SaveManager, not a duplicate save schema.

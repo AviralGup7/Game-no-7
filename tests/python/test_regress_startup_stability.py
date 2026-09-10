@@ -41,11 +41,15 @@ class AutoloadOrderTests(unittest.TestCase):
         # GameRoot reads ContentRegistry during run start (not _ready), but keep
         # it after the content store so main-menu consumers see loaded content.
         self.assertLess(pos["ContentRegistry"], pos["GameRoot"])
+        # DebugErrorHandler captures errors from every later singleton; it depends
+        # only on EventBus and persists its own flag, so it sits directly after it.
+        self.assertLess(pos["EventBus"], pos["DebugErrorHandler"])
+        self.assertLess(pos["DebugErrorHandler"], pos["SaveManager"])
 
-    def test_all_eight_singletons_present(self) -> None:
+    def test_all_nine_singletons_present(self) -> None:
         self.assertEqual(
             set(self.order()),
-            {"EventBus", "SaveManager", "AudioManager", "ContentRegistry",
+            {"EventBus", "DebugErrorHandler", "SaveManager", "AudioManager", "ContentRegistry",
              "GameRoot", "SceneRouter", "RunAnalytics", "TestHarness"})
 
 

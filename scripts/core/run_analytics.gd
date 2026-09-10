@@ -11,6 +11,7 @@ var _live := {
 	"damage_taken": 0.0,
 	"waves": 0,
 	"lock_ons": 0,
+	"errors": 0,
 }
 
 
@@ -27,7 +28,7 @@ func _ready() -> void:
 
 
 func _on_run_started(_id: int, _seed: int) -> void:
-	_live = {"kills": 0, "elites": 0, "bosses": 0, "damage_taken": 0.0, "waves": 0, "lock_ons": 0}
+	_live = {"kills": 0, "elites": 0, "bosses": 0, "damage_taken": 0.0, "waves": 0, "lock_ons": 0, "errors": 0}
 	Narrator.reset_run()
 
 
@@ -62,6 +63,14 @@ func note_damage_taken(amount: float) -> void:
 		_live["damage_taken"] = float(_live["damage_taken"]) + amount
 
 
+## Called by DebugErrorHandler for every real error (any flag state; self-tests
+## excluded). The count rides the live row into record_run_end, so run-end rows
+## say which runs hit errors. Pure increment — it must never emit, or the error
+## trap recurses.
+func note_error() -> void:
+	_live["errors"] = int(_live["errors"]) + 1
+
+
 func get_live() -> Dictionary:
 	return _live.duplicate()
 
@@ -85,16 +94,19 @@ func get_session_totals() -> Dictionary:
 	var kills := 0
 	var seconds := 0.0
 	var bosses := 0
+	var errors := 0
 	for run in _session_runs:
 		runs += 1
 		kills += int(run.get("kills", 0))
 		seconds += float(run.get("elapsed_seconds", 0.0))
 		bosses += int(run.get("bosses", 0))
+		errors += int(run.get("errors", 0))
 	return {
 		"session_runs": runs,
 		"session_kills": kills,
 		"session_time_seconds": seconds,
 		"session_bosses": bosses,
+		"session_errors": errors,
 	}
 
 
