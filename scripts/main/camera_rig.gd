@@ -41,6 +41,9 @@ var _has_snapped := false
 var _non_finite_reported := false
 
 # Modules
+## `_input_handler`, not `_input`: the latter shadows Node._input(), which the
+## engine calls for unhandled input. This is the camera's input module, not a
+## virtual-method override.
 var _input_handler := CameraInputHandler.new()
 var _velocity := CameraVelocityTracker.new()
 var _focus := CameraFocusTracker.new()
@@ -539,7 +542,6 @@ func _update_lock_on_target() -> void:
 func _get_target_facing_yaw() -> float:
 	if _target == null:
 		return _orbit_state.current_yaw if _orbit_state != null else 0.0
-	# `target_basis`, not `basis`: `basis` is Node3D's own transform basis.
 	var target_basis := _target.global_transform.basis
 	var forward := -target_basis.z
 	forward.y = 0.0

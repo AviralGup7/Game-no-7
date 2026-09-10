@@ -23,6 +23,7 @@ func run_smoke_test() -> Dictionary:
 	_steps_append(steps, &"game_over_works", _game_over_transition_ok(), "GameRoot accepts game-over transition from playing")
 	_steps_append(steps, &"save_round_trip_works", _save_round_trip_ok(), "validate_save_data normalizes a raw save")
 	_steps_append(steps, &"content_registry_validates", ContentRegistry.validate_all(), "content registry validation")
+	_steps_append(steps, &"debug_trap_ready", _debug_trap_ok(), "debug error trap present with a live snapshot")
 
 	var passed := true
 	for step in steps:
@@ -31,7 +32,6 @@ func run_smoke_test() -> Dictionary:
 	return {"passed": passed, "steps": steps}
 
 
-## `step_name`, not `name`: TestHarness is a Node and `name` is its node-name.
 func _steps_append(steps: Array, step_name: StringName, passed: bool, details: String) -> void:
 	steps.append({"name": String(step_name), "passed": passed, "details": details})
 
@@ -177,10 +177,17 @@ func _save_round_trip_ok() -> bool:
 	return int(normalized.get("best_score", 0)) == 42 and int(normalized.get("schema_version", 0)) == SaveManager.SCHEMA_VERSION
 
 
+func _debug_trap_ok() -> bool:
+	if DebugErrorHandler == null:
+		return false
+	var snapshot: Dictionary = DebugErrorHandler.get_debug_snapshot()
+	return snapshot.has("reports") and snapshot.has("frozen") and snapshot.has("log_lines")
+
+
 ## --- Instrumentation helpers (used by integration tests) ---
 
-func start_test_run(rng_seed: int = 12345) -> void:
-	EventBus.report_info("TestHarness.start_test_run seed=%d" % rng_seed)
+func start_test_run(run_seed: int = 12345) -> void:
+	EventBus.report_info("TestHarness.start_test_run seed=%d" % run_seed)
 	GameRoot.request_play()
 
 
@@ -224,6 +231,7 @@ func get_test_snapshot() -> Dictionary:
 	return {
 		"game_root": GameRoot.get_debug_snapshot(),
 		"content": ContentRegistry.get_debug_snapshot(),
+		"debug": DebugErrorHandler.get_debug_snapshot(),
 		"save": {
 			"best_score": SaveManager.get_best_score(),
 			"best_wave": SaveManager.get_best_wave(),

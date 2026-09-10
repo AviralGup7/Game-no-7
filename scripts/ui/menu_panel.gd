@@ -51,6 +51,12 @@ func _ready() -> void:
 	_records = UiFactory.label("", records_plate, 20)
 	_records.modulate = UiTheme.MUTED
 
+	# Debug-mode switch, visible from the moment the game starts: when ON, errors
+	# freeze the game with a copyable report instead of crashing (see docs/DEBUG_MODE.md).
+	var debug_toggle := DebugModeToggle.new()
+	debug_toggle.size_flags_horizontal = SIZE_EXPAND_FILL
+	box.add_child(debug_toggle)
+
 	resized.connect(_fit)
 	_fit.call_deferred()
 	if not OS.has_feature("mobile"):

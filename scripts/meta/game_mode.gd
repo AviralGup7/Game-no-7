@@ -270,7 +270,9 @@ static func is_survival_victory(mode_id: StringName, elapsed: float) -> bool:
 ## reduced to two rules: some waves are scripted exactly, and the rest are the planner asked for a
 ## different wave number with an occasional extra archetype on a cadence. Those are knobs, so they
 ## are authored on the mode and this is one loop over them.
-static func spawn_queue(mode_id: StringName, wave_number: int, rng_seed: int) -> Array[StringName]:
+## (`run_seed`, not `seed`: the bare name shadows the @GlobalScope function and
+## the analyzer reports the shadow at every call site.)
+static func spawn_queue(mode_id: StringName, wave_number: int, run_seed: int) -> Array[StringName]:
 	var cfg := definition(mode_id)
 	var out: Array[StringName] = []
 	if cfg == null or not cfg.overrides_planner():
@@ -281,7 +283,7 @@ static func spawn_queue(mode_id: StringName, wave_number: int, rng_seed: int) ->
 		out.append_array(plan.archetypes)
 	elif cfg.planner_wave_offset != 0 or cfg.planner_wave_floor > 1:
 		var asked := maxi(w + cfg.planner_wave_offset, cfg.planner_wave_floor)
-		out = WavePlanner.extended_queue_for_wave(asked, rng_seed)
+		out = WavePlanner.extended_queue_for_wave(asked, run_seed)
 	if cfg.every_n_waves > 1 and w % cfg.every_n_waves == 0:
 		out.append_array(cfg.every_n_append)
 	return out
@@ -304,12 +306,14 @@ static func objective_label(mode_id: StringName, wave: int, elapsed: float, boss
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
 			var left := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Survive  %d:%02d remaining" % [int(int(left) / float(60)), int(left) % 60]
+			# float division + truncation (left is never negative): same mm:ss as
+			# int/60 without the INTEGER_DIVISION warning.
+			return "Survive  %d:%02d remaining" % [int(left / 60), int(left) % 60]
 		OBJECTIVE_SLAY_BOSSES:
 			return "Bosses  %d / %d" % [bosses_slain, max_waves(mode_id)]
 		OBJECTIVE_DEFEND_POINT:
 			var left_d := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Hold  %d:%02d  •  Beacon %d%%" % [int(int(left_d) / float(60)), int(left_d) % 60, clampi(progress, 0, 100)]
+			return "Hold  %d:%02d  •  Beacon %d%%" % [int(left_d / 60), int(left_d) % 60, clampi(progress, 0, 100)]
 		OBJECTIVE_COLLECT:
 			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:

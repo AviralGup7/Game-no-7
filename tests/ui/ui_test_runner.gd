@@ -16,7 +16,6 @@ func _ready() -> void:
 		return
 	_run.call_deferred()
 
-## `case_name`, not `name`: this runner is a Node and `name` is Node's node-name.
 func _check(case_name: String, passed: bool) -> void:
 	_total += 1
 	if not passed:
@@ -128,7 +127,7 @@ func _run() -> void:
 	_check("daily has preview before launch", _ui._setup._daily and _ui._setup._daily_info.visible and GameRoot.get_current_state() == GameRoot.State.MAIN_MENU)
 	_ui._setup._launch()
 	await _settle()
-	_check("daily uses existing command and seed", GameRoot.is_daily_run() and GameRoot.get_run().rng_seed == DailyChallenge.seed_for_today())
+	_check("daily uses existing command and seed", GameRoot.is_daily_run() and GameRoot.get_run().run_seed == DailyChallenge.seed_for_today())
 	GameRoot.request_game_over()
 	await _settle()
 	GameRoot.request_restart()
@@ -137,7 +136,7 @@ func _run() -> void:
 	await _settle()
 	await _test_layouts()
 	_test_layout_solver()
-	await _test_armory_and_save()
+	_test_armory_and_save()
 	await _test_tutorial()
 	_check("summary zero time is finite", not RunSummaryPanel.performance({"kills": 9, "elapsed_seconds": 0}).contains("inf"))
 	_check("summary clock handles hours", RunSummaryPanel.duration(3661) == "61:01")
@@ -154,7 +153,7 @@ func _screen() -> String:
 
 func _test_touch() -> void:
 	_ui._touch.show()
-	var joystick: VirtualJoystick = _ui._touch.joystick
+	var joystick: TouchJoystick = _ui._touch.joystick
 	joystick._begin(2, Vector2(100, 100))
 	joystick._update(Vector2(145, 110))
 	_check("touch stick acquires input", joystick.is_active() and joystick.get_value().length() > 0)

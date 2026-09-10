@@ -46,7 +46,6 @@ func set_reduced_motion(reduced: bool) -> void:
 	if reduced: scale = Vector2.ONE
 
 
-## `message`, not `text`: `text` is Label's text property (this banner is a Label).
 func announce(message: String, severity: StringName = &"info") -> void:
 	if message.is_empty(): return
 	for entry in _queue:

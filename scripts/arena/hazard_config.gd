@@ -111,9 +111,8 @@ const VALID_TRIGGERS := [TRIGGER_PERIODIC, TRIGGER_PROXIMITY]
 ## the headless harness (which runs without autoloads) get the same resource straight from
 ## res://data/hazards/, so an id means the same thing in both — the same shape the arena
 ## picker in RunSetupPanel uses. `load()` is cached by Godot, so this is not disk I/O.
-## `requested_id`, not `hazard_id`: `hazard_id` is this resource's own @export field.
-static func resolve(requested_id: StringName) -> HazardConfig:
-	var path := "res://data/hazards/%s.tres" % String(requested_id)
+static func resolve(target_id: StringName) -> HazardConfig:
+	var path := "res://data/hazards/%s.tres" % String(target_id)
 	if not ResourceLoader.exists(path):
 		return null
 	return load(path) as HazardConfig

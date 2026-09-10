@@ -465,7 +465,7 @@ func _apply_msaa() -> void:
 		_:
 			level = Viewport.MSAA_4X
 	if int(vp.msaa_3d) != level:
-		vp.msaa_3d = level
+		vp.msaa_3d = level as Viewport.MSAA
 
 
 func _restore_msaa() -> void:
@@ -473,7 +473,7 @@ func _restore_msaa() -> void:
 		return
 	var configured := int(ProjectSettings.get_setting_with_override("rendering/anti_aliasing/quality/msaa_3d"))
 	if int(_root_viewport.msaa_3d) != configured:
-		_root_viewport.msaa_3d = configured
+		_root_viewport.msaa_3d = configured as Viewport.MSAA
 
 
 func _resolve_root_viewport() -> Viewport:

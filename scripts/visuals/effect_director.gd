@@ -164,13 +164,12 @@ func try_telegraph(for_boss: bool = false) -> bool:
 				if n is Damageable and (n as Damageable).is_alive():
 					bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
-	# `free_rings`, not `free`: `free()` is Object's destructor.
-	var free_rings := 0
+	var free_count := 0
 	for r in _ring_pool:
 		if not r.visible:
-			free_rings += 1
-	free_rings += maxi(0, MAX_RINGS - _ring_pool.size())
-	if free_rings <= reserve:
+			free_count += 1
+	free_count += maxi(0, MAX_RINGS - _ring_pool.size())
+	if free_count <= reserve:
 		return false
 	return _can_claim_ring(PRIORITY_SPAWN)
 
@@ -210,11 +209,10 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	if ring == null:
 		return
 	var grounded := at
-	# `floor_hit`, not `floor`: `floor()` is a built-in math function.
-	var floor_hit := _floor_hit(at)
-	grounded.y = float(floor_hit.get("y", at.y))
+	var floor_y := _floor_hit(at)
+	grounded.y = float(floor_y.get("y", at.y))
 	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
-	var nrm: Vector3 = floor_hit.get("normal", Vector3.UP)
+	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
 	if nrm.length_squared() > 0.01:
 		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
@@ -375,8 +373,6 @@ func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> vo
 		burst_at(at, color, 0.5, PRIORITY_STATUS)
 
 
-## `shooter`, not `owner`: `owner` is Node's scene-ownership property. This is
-## the node that fired the projectile (EventBus.projectile_fired's first argument).
 func _on_projectile_fired(shooter: Node, _weapon_id: StringName) -> void:
 	if not is_instance_valid(shooter) or not shooter is Node3D:
 		return
@@ -506,10 +502,10 @@ func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
 func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 	# No detached "template" Node: every constructed emitter must enter the
 	# owned pool below so world teardown frees its rendering resources.
-	for b in _bursts:
-		if not b.emitting:
-			b.amount = 22
-			return b
+	for pooled in _bursts:
+		if not pooled.emitting:
+			pooled.amount = 22
+			return pooled
 	# Grow the pool up to the mobile cap.
 	if _bursts.size() < MAX_BURSTS:
 		var burst := _make_burst_template() as GPUParticles3D
@@ -522,11 +518,11 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 	# Saturated: steal the lowest-priority active burst if the new request outranks it.
 	var lowest: GPUParticles3D = null
 	var lowest_prio := 9999
-	for b in _bursts:
-		var pr: int = int(_burst_prios.get(b, PRIORITY_HIT))
+	for pooled in _bursts:
+		var pr: int = int(_burst_prios.get(pooled, PRIORITY_HIT))
 		if pr < lowest_prio:
 			lowest_prio = pr
-			lowest = b
+			lowest = pooled
 	if lowest != null and priority > lowest_prio:
 		lowest.restart()
 		lowest.emitting = false # will be set emitting by caller via restart
@@ -535,9 +531,9 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 
 
 func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
-	for r in _ring_pool:
-		if not r.visible:
-			return r
+	for pooled in _ring_pool:
+		if not pooled.visible:
+			return pooled
 	if _ring_pool.size() < MAX_RINGS:
 		var ring := _make_ring()
 		if ring != null:
@@ -549,15 +545,15 @@ func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
 	# Never evict a live BOSS ring for a grunt/spawn tell.
 	var lowest: Node3D = null
 	var lowest_prio := 9999
-	for r in _ring_pool:
-		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
-		if not r.visible:
+	for pooled in _ring_pool:
+		var pr: int = int(_ring_prios.get(pooled, PRIORITY_HIT))
+		if not pooled.visible:
 			continue
 		if priority < PRIORITY_BOSS and pr >= PRIORITY_BOSS:
 			continue
 		if pr < lowest_prio:
 			lowest_prio = pr
-			lowest = r
+			lowest = pooled
 	if lowest != null and priority > lowest_prio:
 		lowest.visible = false
 		_prune_telegraph_count()

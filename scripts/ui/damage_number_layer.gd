@@ -115,10 +115,10 @@ func spawn_damage_number(world_pos: Vector3, amount: float, was_crit: bool = fal
 	var label := _obtain(player_owned)
 	label.text = str(CriticalSystem.display_value(amount, was_crit))
 	label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2) if was_crit else color)
-	label.add_theme_font_size_override("font_size", int((22 * CRIT_SCALE if was_crit else 22) * _text_scale))
+	label.add_theme_font_size_override("font_size", int((22.0 * CRIT_SCALE if was_crit else 22.0) * _text_scale))
 	label.add_theme_constant_override("outline_size", int(6.0 + _text_scale * 3.0))
 	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1.0))
-	var jitter := Vector2(0 if _reduced_motion else randf_range(-12, 12), -8)
+	var jitter := Vector2(0.0 if _reduced_motion else randf_range(-12.0, 12.0), -8.0)
 	if was_crit:
 		jitter.x = clampf(jitter.x + 18.0, -28.0, 28.0)
 		jitter.y -= 16.0

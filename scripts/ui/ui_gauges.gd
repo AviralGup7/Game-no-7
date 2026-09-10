@@ -55,7 +55,6 @@ func _head_row() -> HBoxContainer:
 	return row
 
 
-## `font_size`, not `size`: `size` is Control's rect size.
 func _caption(parent: Node, text: String, font_size: int, color: Color) -> Label:
 	var l := UiFactory.title(text, parent, font_size)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT

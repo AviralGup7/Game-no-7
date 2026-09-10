@@ -20,15 +20,15 @@ const PLAYER_SAFE_RADIUS := 6.0  # spawns are pushed out of this radius
 
 
 ## Dispatch: positions for `count` spawns of a pattern.
-static func positions_for(pattern: StringName, count: int, arena_half: float, player_pos: Vector3, rng_seed: int, salt: int) -> Array[Vector3]:
+static func positions_for(pattern: StringName, count: int, arena_half: float, player_pos: Vector3, run_seed: int, salt: int) -> Array[Vector3]:
 	var pts: Array[Vector3] = []
 	match pattern:
 		PATTERN_RING:
-			pts = ring(count, arena_half, rng_seed, salt)
+			pts = ring(count, arena_half, run_seed, salt)
 		PATTERN_ARC:
-			pts = arc(count, arena_half, player_pos, rng_seed, salt)
+			pts = arc(count, arena_half, player_pos, run_seed, salt)
 		PATTERN_CLUSTER:
-			pts = cluster(count, arena_half, player_pos, rng_seed, salt)
+			pts = cluster(count, arena_half, player_pos, run_seed, salt)
 		PATTERN_FLANK:
 			pts = flank(count, arena_half, player_pos)
 		PATTERN_CROSS:
@@ -36,17 +36,17 @@ static func positions_for(pattern: StringName, count: int, arena_half: float, pl
 		PATTERN_GATE:
 			pts = gate(arena_half, player_pos)
 		_:
-			pts = scatter(count, arena_half, rng_seed, salt)
+			pts = scatter(count, arena_half, run_seed, salt)
 	enforce_player_distance(pts, player_pos, arena_half)
 	return pts
 
 
 ## Even ring around the arena centre.
-static func ring(count: int, arena_half: float, rng_seed: int, salt: int) -> Array[Vector3]:
+static func ring(count: int, arena_half: float, run_seed: int, salt: int) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	if count <= 0:
 		return out
-	var rng := RngService.make_generator(rng_seed, salt)
+	var rng := RngService.make_generator(run_seed, salt)
 	var radius := (arena_half - WALL_MARGIN) * rng.randf_range(0.65, 0.95)
 	var offset := rng.randf_range(-PI, PI)
 	for i in range(count):
@@ -56,11 +56,11 @@ static func ring(count: int, arena_half: float, rng_seed: int, salt: int) -> Arr
 
 
 ## Arc facing the player (spawns converge from one side).
-static func arc(count: int, arena_half: float, player_pos: Vector3, rng_seed: int, salt: int) -> Array[Vector3]:
+static func arc(count: int, arena_half: float, player_pos: Vector3, run_seed: int, salt: int) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	if count <= 0:
 		return out
-	var rng := RngService.make_generator(rng_seed, salt)
+	var rng := RngService.make_generator(run_seed, salt)
 	var away := -player_pos
 	away.y = 0.0
 	if away.length_squared() < 0.01:
@@ -79,12 +79,12 @@ static func arc(count: int, arena_half: float, player_pos: Vector3, rng_seed: in
 
 
 ## Tight cluster at a random edge point (ambush packs, splitters).
-static func cluster(count: int, arena_half: float, player_pos: Vector3, rng_seed: int, salt: int) -> Array[Vector3]:
+static func cluster(count: int, arena_half: float, player_pos: Vector3, run_seed: int, salt: int) -> Array[Vector3]:
 	var out: Array[Vector3] = []
 	if count <= 0:
 		return out
-	var rng := RngService.make_generator(rng_seed, salt)
-	var edge := ring(1, arena_half, rng_seed, salt + 999)[0]
+	var rng := RngService.make_generator(run_seed, salt)
+	var edge := ring(1, arena_half, run_seed, salt + 999)[0]
 	# Prefer the far side from the player.
 	if edge.distance_to(player_pos) < arena_half:
 		edge = -edge
@@ -105,7 +105,6 @@ static func flank(count: int, arena_half: float, player_pos: Vector3) -> Array[V
 	side = side.normalized() * (arena_half - WALL_MARGIN)
 	for i in range(count):
 		var s := 1.0 if i % 2 == 0 else -1.0
-		# Truncated division is deliberate: enemies spawn in pairs sharing a lane.
 		var along := (float(int(i / 2.0)) - float(int(count / 4.0))) * 1.6
 		var p := side * s + Vector3(player_pos.x * 0.3, 0, along)
 		out.append(_clamp(p, arena_half))
@@ -121,15 +120,15 @@ static func cross(count: int, arena_half: float) -> Array[Vector3]:
 	var r := arena_half - WALL_MARGIN
 	for i in range(count):
 		var arm: Vector3 = arms[i % 4]
-		var step := float(int(i / 4.0)) * 1.8  # 4 spawn arms; truncation groups them
+		var step := float(int(i / 4.0)) * 1.8
 		out.append(_clamp(arm * maxf(r - step, 2.0), arena_half))
 	return out
 
 
 ## Uniform scatter (fallback / mixed waves).
-static func scatter(count: int, arena_half: float, rng_seed: int, salt: int) -> Array[Vector3]:
+static func scatter(count: int, arena_half: float, run_seed: int, salt: int) -> Array[Vector3]:
 	var out: Array[Vector3] = []
-	var rng := RngService.make_generator(rng_seed, salt)
+	var rng := RngService.make_generator(run_seed, salt)
 	var r := arena_half - WALL_MARGIN
 	for i in range(count):
 		out.append(Vector3(rng.randf_range(-r, r), 0, rng.randf_range(-r, r)))
@@ -163,8 +162,8 @@ static func _clamp(p: Vector3, arena_half: float) -> Vector3:
 
 ## Pick a pattern id deterministically for a wave (variety without repetition:
 ## avoids the previous pattern).
-static func pattern_for_wave(wave: int, rng_seed: int, previous: StringName) -> StringName:
-	var rng := RngService.make_generator(rng_seed, RngService.STREAM_WAVES + wave)
+static func pattern_for_wave(wave: int, run_seed: int, previous: StringName) -> StringName:
+	var rng := RngService.make_generator(run_seed, RngService.STREAM_WAVES + wave)
 	var pool: Array = ALL.duplicate()
 	pool.erase(previous)
 	if pool.is_empty():

@@ -86,7 +86,6 @@ func _make_prestige_row(meta: MetaProgression, rank: int, cost: int, verdict: St
 	row.add_theme_constant_override("separation", UiTheme.SPACE_M)
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	# `title_label`, not `name`: `name` is Node's node-name property.
 	var title_label := Label.new()
 	title_label.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.max_rank(), Prestige.title_for(rank)]
 	title_label.add_theme_font_size_override("font_size", 22)
@@ -145,7 +144,6 @@ func _make_row(meta: MetaProgression, item_id: StringName) -> Control:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var rank := meta.get_rank(item_id)
 	var max_rank := int(def["max_rank"])
-	# `title_label`, not `name`: `name` is Node's node-name property.
 	var title_label := Label.new()
 	title_label.text = "%s  %d/%d" % [String(def["name"]), rank, max_rank]
 	title_label.add_theme_font_size_override("font_size", 22)

@@ -399,7 +399,8 @@ func _db(linear: float) -> float:
 	return linear_to_db(clampf(linear, 0.0, 1.0))
 
 
-## `bus_name`, not `name`: `name` is Node's node-name property.
+## (`bus_name`, not `name`: that shadows the Node.name property the analyzer
+## checks against.)
 func _bus_index(bus_name: String) -> int:
 	for i in AudioServer.get_bus_count():
 		if AudioServer.get_bus_name(i) == bus_name:

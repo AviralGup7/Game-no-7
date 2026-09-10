@@ -180,11 +180,11 @@ func rebuild_flow_field(target_pos: Vector3) -> void:
 	_heap_push(heap, Vector2(0.0, float(tc.y * width + tc.x)))
 	while not heap.is_empty():
 		var top := _heap_pop(heap)
-		var i := int(top.y)
+		var idx := int(top.y)
 		var cost := top.x
-		if cost > _flow_dist[i] + 1.0e-6:
+		if cost > _flow_dist[idx] + 1.0e-6:
 			continue  # stale entry
-		var c := Vector2i(i % width, int(i / float(width)))
+		var c := Vector2i(idx % width, int(idx / float(width)))
 		for n in NEIGHBORS:
 			var nc := c + n
 			if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
@@ -327,13 +327,13 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 	_heap_push(heap, Vector2(_heuristic(sc, tc), float(start_i)))
 	while not heap.is_empty():
 		var top := _heap_pop(heap)
-		var cell_idx := int(top.y)
-		if closed[cell_idx] != 0:
+		var idx := int(top.y)
+		if closed[idx] != 0:
 			continue
-		closed[cell_idx] = 1
-		if cell_idx == goal_i:
+		closed[idx] = 1
+		if idx == goal_i:
 			break
-		var c := Vector2i(cell_idx % width, int(cell_idx / float(width)))
+		var c := Vector2i(idx % width, int(idx / float(width)))
 		for n in NEIGHBORS:
 			var nc := c + n
 			if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
@@ -353,10 +353,10 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 			var tax := 0.0
 			if _cell_touches_blocked(nc):
 				tax = 0.35
-			var ng := g[cell_idx] + step + tax
+			var ng := g[idx] + step + tax
 			if ng < g[ni] - 1.0e-6:
 				g[ni] = ng
-				came[ni] = cell_idx
+				came[ni] = idx
 				_heap_push(heap, Vector2(ng + _heuristic(nc, tc), float(ni)))
 	if came[goal_i] == -1:
 		return empty
@@ -416,7 +416,7 @@ static func _heap_push(h: Array, v: Vector2) -> void:
 	h.append(v)
 	var i := h.size() - 1
 	while i > 0:
-		var p := int((i - 1) / 2.0)  # binary-heap parent index; truncation is the point
+		var p := int((i - 1) / 2.0)
 		if h[p].x <= h[i].x:
 			break
 		var tmp: Variant = h[p]

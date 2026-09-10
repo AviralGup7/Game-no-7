@@ -66,9 +66,9 @@ func set_forced_mutators(ids: Array[StringName]) -> void:
 	_forced_mutators = ids.duplicate()
 
 
-func start_run(rng_seed: int) -> void:
+func start_run(run_seed: int) -> void:
 	_active = true
-	_seed = rng_seed
+	_seed = run_seed
 	_current_wave = 0
 	_planned_count = 0
 	_phase = PHASE_PREPARING
@@ -231,16 +231,16 @@ func _announce_wave(wave_number: int) -> void:
 func _resolve_mutators(wave_number: int, cfg: WaveConfig) -> void:
 	if not _forced_mutators.is_empty():
 		_active_mutators = _forced_mutators.duplicate()
-		for mutator_id in _active_mutators:
-			EventBus.wave_mutator_applied.emit(mutator_id, wave_number)
+		for id in _active_mutators:
+			EventBus.wave_mutator_applied.emit(id, wave_number)
 		return
 	# Mode-forced mutators (challenge / boss rush) apply for the whole run.
 	# Challenge scales its set by prestige tier; other modes keep authored lists.
 	var mode_forced := GameMode.challenge_mutators(_run_mode(), _prestige_rank())
 	if not mode_forced.is_empty():
 		_active_mutators = mode_forced.duplicate()
-		for mutator_id in _active_mutators:
-			EventBus.wave_mutator_applied.emit(mutator_id, wave_number)
+		for id in _active_mutators:
+			EventBus.wave_mutator_applied.emit(id, wave_number)
 		return
 	# Authored waves declare their own; generated waves roll (director may veto).
 	var declared: Array = []
@@ -305,8 +305,8 @@ static func apply_count_nudge(queue: Array[StringName], bonus: int) -> void:
 	if bonus > 0:
 		# Duplicate the entry at each evenly-spaced pick position of the ORIGINAL
 		# queue (spacing divides the queue into bonus+1 equal segments).
-		for bonus_idx in range(bonus):
-			queue.append(queue[_spread_position(bonus_idx, bonus, n)])
+		for i in range(bonus):
+			queue.append(queue[_spread_position(i, bonus, n)])
 		return
 	# Negative: remove `drop` entries, but never empty a non-empty plan. Removing
 	# evenly spaced original positions (instead of popping the tail) preserves

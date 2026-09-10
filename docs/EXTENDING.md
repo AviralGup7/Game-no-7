@@ -439,6 +439,41 @@ internals:
   `PhysicsShapeQueryParameters3D` / `PhysicsRayQueryParameters3D` (see
   `EnemyPack._sep_query`, `CameraCollisionSolver`, `Projectile`) — the server reads
   them at call time.
+- **Engine member names are a checked-in contract.** `tool/check_engine_api.py`
+  verifies every typed member access, bare global call and `.tscn`/`.tres`
+  property against the pinned engine's ClassDB (`tool/godot_api_manifest.json`).
+  A property rename or removal in a future engine bump is fixed by regenerating
+  the manifest (`python3 tool/build_api_manifest.py`) and answering the gate's
+  findings — never by weakening the gate. When the CI `GODOT_VERSION` moves, the
+  manifest moves with it (the regression test fails the drift).
+- **Node paths are a contract too.** `tool/check_scene_paths.py` resolves every
+  string-literal `get_node`/`get_node_or_null` against the `.tscn` trees, the
+  runtime `.name = "..."` assignments and the autoloads, verifies every
+  scene-authored `NodePath(...)` property, and checks `get_node("P") as T`
+  casts against the declared node class. Renaming a node means answering the
+  gate (rename everywhere, or attach the node under its old path); a lookup
+  that resolves nowhere is a hard error because a hard `get_node` errors at
+  runtime and an `or_null` one is dead code. Nodes a variant scene adds into
+  an instantiated base scene's subtree are legal and understood (the
+  enemy-variant pattern).
+- **Format strings are checked against the engine's `sprintf`.** Every
+  `"..." %` use is verified by `tool/check_string_formats.py`: the array on the
+  right must match the placeholder count exactly, a non-array right side is
+  wrapped to one element, and `%d/%o/%x/%X/%f`/`%v`/`%c` demand number/vector/
+  char values. A mismatch is a runtime engine ERROR, so the gate fails the
+  build instead. When you build a message from parts, prefer one format with
+  the right number of values over `+` concatenation around a partial format
+  (`"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, which prints its own
+  placeholders).
+- **Signals are a checked contract.** `tool/check_signals.py` resolves every
+  signal name on its receiver — implicit `self` (walking the `extends` chain
+  into engine signals), the autoloads, and the legacy string forms — checks
+  every `emit` against the declared parameter count, and checks a connected
+  same-file method's parameter range against the signal's arity. Renaming or
+  re-typing a signal means answering the gate everywhere it is emitted or
+  connected; a name that exists nowhere fails the build, and a guarded
+  duck-typed probe (`has_signal` before `emit_signal`) stays legal because
+  the name exists somewhere.
 
 ## 13. Add a game mode
 

@@ -187,7 +187,10 @@ func _apply_sky_and_light(theme: ArenaThemeConfig) -> void:
 		sky.sky_material = pm
 	var env := Environment.new()
 	env.background_mode = Environment.BG_SKY
-	env.background_sky = sky
+	# The Godot-4 property is `sky`; `background_sky` is only answered by a
+	# Godot-3 compat path in Environment._set, and the engine-api gate
+	# (tool/check_engine_api.py) pins the canonical name.
+	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 	env.ambient_light_color = theme.ambient_color
 	env.ambient_light_energy = theme.ambient_energy

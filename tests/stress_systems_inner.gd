@@ -28,14 +28,13 @@ func _ready() -> void:
 	_run()
 
 
-## `case_name`, not `name`: these runners are Nodes and `name` is Node's node-name.
 func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
 		print("  PASS: %s" % case_name)
 	else:
 		_failures.append(case_name)
-		push_error("STRESS FAIL: %s %s" % [name, extra])
+		push_error("STRESS FAIL: %s %s" % [case_name, extra])
 
 
 func _on_diag(message: String, severity: StringName) -> void:
@@ -142,7 +141,7 @@ const WATCHED := ["run_started", "run_ended", "pause_changed", "settings_changed
 
 
 func _watch(obj: Object, sig: String) -> void:
-	var cb := func(a0: Variant = null, a1: Variant = null, a2: Variant = null, a3: Variant = null) -> void:
+	var cb := func(_a0: Variant = null, _a1: Variant = null, _a2: Variant = null, _a3: Variant = null) -> void:
 		_sig_counts[sig] = int(_sig_counts.get(sig, 0)) + 1
 	obj.connect(sig, cb)
 
@@ -237,10 +236,10 @@ func _lifecycle_matrix() -> void:
 	var p0: Node = GameRoot.get_active_player()
 	(_find_button(_ui()._hud, "PAUSE") as Button).pressed.emit()
 	await _frames(3)
-	await _verify_lifecycle("A paused", GameRoot.State.PAUSED, true)
+	_verify_lifecycle("A paused", GameRoot.State.PAUSED, true)
 	(_find_button(_ui()._screens["paused"], "RESUME RUN") as Button).pressed.emit()
 	await _frames(3)
-	await _verify_lifecycle("A resumed", GameRoot.State.PLAYING, false)
+	_verify_lifecycle("A resumed", GameRoot.State.PLAYING, false)
 	# B: pause -> main menu -> start again.
 	(_find_button(_ui()._hud, "PAUSE") as Button).pressed.emit()
 	await _frames(3)
@@ -264,7 +263,7 @@ func _lifecycle_matrix() -> void:
 			dlg.get_ok_button().pressed.emit()
 			_check("B dialog confirm ticks back once", _last_tick_is("ui_back"), str(_sfx_snapshot()))
 			await _frames(6)
-	await _verify_lifecycle("B menu", GameRoot.State.MAIN_MENU, false)
+	_verify_lifecycle("B menu", GameRoot.State.MAIN_MENU, false)
 	_check("B old player freed", not is_instance_valid(p0))
 	_check("C start", await _start_via_ui())
 	_check("C new player live", is_instance_valid(GameRoot.get_active_player()) and GameRoot.get_active_player() != p0)
@@ -274,7 +273,7 @@ func _lifecycle_matrix() -> void:
 		GameRoot.request_restart()
 		await _wait_for(func() -> bool: return GameRoot.get_current_state() == GameRoot.State.PLAYING, 60.0)
 		await _frames(4)
-		await _verify_lifecycle("C%d restarted" % i, GameRoot.State.PLAYING, false)
+		_verify_lifecycle("C%d restarted" % i, GameRoot.State.PLAYING, false)
 		_check("C%d old player freed" % i, not is_instance_valid(old))
 		_check("C%d music calm" % i, _music().get_state() == &"calm")
 	# D: pause -> restart.
@@ -284,24 +283,24 @@ func _lifecycle_matrix() -> void:
 	GameRoot.request_restart()
 	await _wait_for(func() -> bool: return GameRoot.get_current_state() == GameRoot.State.PLAYING, 60.0)
 	await _frames(4)
-	await _verify_lifecycle("D restart-from-pause", GameRoot.State.PLAYING, false)
+	_verify_lifecycle("D restart-from-pause", GameRoot.State.PLAYING, false)
 	_check("D old player freed", not is_instance_valid(old_d))
 	# E: pause -> menu -> start -> pause -> resume.
 	(_find_button(_ui()._hud, "PAUSE") as Button).pressed.emit()
 	await _frames(3)
 	GameRoot.request_main_menu()
 	await _frames(6)
-	await _verify_lifecycle("E menu", GameRoot.State.MAIN_MENU, false)
+	_verify_lifecycle("E menu", GameRoot.State.MAIN_MENU, false)
 	_check("E start", await _start_via_ui())
 	(_find_button(_ui()._hud, "PAUSE") as Button).pressed.emit()
 	await _frames(3)
-	await _verify_lifecycle("E paused", GameRoot.State.PAUSED, true)
+	_verify_lifecycle("E paused", GameRoot.State.PAUSED, true)
 	(_find_button(_ui()._screens["paused"], "RESUME RUN") as Button).pressed.emit()
 	await _frames(3)
-	await _verify_lifecycle("E resumed", GameRoot.State.PLAYING, false)
+	_verify_lifecycle("E resumed", GameRoot.State.PLAYING, false)
 	# F: game over -> menu -> start.
 	await _kill_player()
-	await _verify_lifecycle("F gameover", GameRoot.State.GAME_OVER, false)
+	_verify_lifecycle("F gameover", GameRoot.State.GAME_OVER, false)
 	var over_menu := _buttons_with(_ui()._screens["game_over"], "MENU")
 	if not over_menu.is_empty():
 		(over_menu[0] as Button).pressed.emit()
@@ -309,20 +308,20 @@ func _lifecycle_matrix() -> void:
 	else:
 		GameRoot.request_main_menu()
 		await _frames(6)
-	await _verify_lifecycle("F menu", GameRoot.State.MAIN_MENU, false)
+	_verify_lifecycle("F menu", GameRoot.State.MAIN_MENU, false)
 	_check("F start", await _start_via_ui())
 	# G: game over -> restart x2.
 	for i in range(1, 3):
 		await _kill_player()
-		await _verify_lifecycle("G%d gameover" % i, GameRoot.State.GAME_OVER, false)
+		_verify_lifecycle("G%d gameover" % i, GameRoot.State.GAME_OVER, false)
 		GameRoot.request_restart()
 		await _wait_for(func() -> bool: return GameRoot.get_current_state() == GameRoot.State.PLAYING, 60.0)
 		await _frames(4)
-		await _verify_lifecycle("G%d restarted" % i, GameRoot.State.PLAYING, false)
+		_verify_lifecycle("G%d restarted" % i, GameRoot.State.PLAYING, false)
 	# Park at menu.
 	GameRoot.request_main_menu()
 	await _frames(6)
-	await _verify_lifecycle("Z parked menu", GameRoot.State.MAIN_MENU, false)
+	_verify_lifecycle("Z parked menu", GameRoot.State.MAIN_MENU, false)
 
 
 var _bus_baseline_run := {}

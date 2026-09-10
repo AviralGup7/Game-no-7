@@ -29,7 +29,7 @@ static func _sword() -> WeaponConfig:
 	w.base_damage = 10.0
 	w.swing_cooldown = 0.5
 	w.windup = 0.1
-	w.range = 3.0
+	w.attack_range = 3.0
 	w.arc_degrees = 90.0
 	w.combo_damage_steps = PackedFloat32Array([1.0, 1.5])
 	w.combo_window = 0.4

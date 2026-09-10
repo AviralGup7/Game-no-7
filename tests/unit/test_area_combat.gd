@@ -98,20 +98,20 @@ static func suite() -> Array:
 	# into an 8-slot ring, so the 3 oldest damage entries are dropped and 7 of the
 	# original damage entries survive (7 * 10.0 == 70.0).
 	var cap := 8
-	var combat_log := CombatLog.new(cap)
+	var clog := CombatLog.new(cap)
 	for i in range(10):
-		combat_log.log_damage(&"sword", "grunt", 10.0, false, false)
-	combat_log.log_kill(&"grunt", 10)
+		clog.log_damage(&"sword", "grunt", 10.0, false, false)
+	clog.log_kill(&"grunt", 10)
 	results.append({
 		"name": "CombatLog caps at capacity, newest-first recent()",
-		"passed": combat_log.size() == cap and combat_log.capacity() == cap
-			and (combat_log.recent(1)[0] as Dictionary)["kind"] == CombatLog.KIND_KILL,
-		"why": "size=%d cap=%d" % [combat_log.size(), combat_log.capacity()],
+		"passed": clog.size() == cap and clog.capacity() == cap
+			and (clog.recent(1)[0] as Dictionary)["kind"] == CombatLog.KIND_KILL,
+		"why": "size=%d cap=%d" % [clog.size(), clog.capacity()],
 	})
 	results.append({
 		"name": "CombatLog damage_by_source aggregates",
-		"passed": absf(float(combat_log.damage_by_source().get("sword", 0.0)) - 70.0) < 0.01,
-		"why": str(combat_log.damage_by_source()),
+		"passed": absf(float(clog.damage_by_source().get("sword", 0.0)) - 70.0) < 0.01,
+		"why": str(clog.damage_by_source()),
 	})
 
 	for d in [center, edge, out, n1, n2, corpse, l_mid, l_side, l_behind, r_in, r_band, r_out, c1, c2, c3]:

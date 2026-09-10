@@ -12,7 +12,7 @@ static func find_targets_in_arc(
 	origin: Vector3,
 	forward: Vector3,
 	targets: Array,
-	range: float,
+	attack_range: float,
 	half_angle_degrees: float
 ) -> Array:
 	var out: Array = []
@@ -29,7 +29,7 @@ static func find_targets_in_arc(
 		if node != null:
 			offset = (node.global_position - origin) * Vector3(1, 0, 1)
 		var dist_sq := offset.length_squared()
-		if dist_sq > range * range:
+		if dist_sq > attack_range * attack_range:
 			continue
 		if dist_sq < 0.0001:
 			out.append(t)

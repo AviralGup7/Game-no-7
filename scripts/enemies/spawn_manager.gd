@@ -336,9 +336,9 @@ func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
 func _on_boss_summon_requested(archetype_id: StringName, count: int) -> void:
 	var cfg: EnemyConfig = _resolve_enemy_config(archetype_id)
 	if cfg == null:
-		var event_bus := _eb()
-		if event_bus != null:
-			event_bus.report_warning("Boss summoned unknown archetype %s" % String(archetype_id))
+		var warn_bus := _eb()
+		if warn_bus != null:
+			warn_bus.report_warning("Boss summoned unknown archetype %s" % String(archetype_id))
 		return
 	for i in range(maxi(count, 0)):
 		_ledger.extend_one(archetype_id)
@@ -419,9 +419,9 @@ func _dispatch_split(base: EnemyBase, config: EnemyConfig, at: Vector3) -> void:
 	if child_cfg == null:
 		# Unknown child archetype: keep the plan honest — queue the entries so the
 		# normal bounded-retry path records them as FAILED (never silently skipped).
-		var event_bus := _eb()
-		if event_bus != null:
-			event_bus.report_warning("%s splits into unknown archetype %s" % [String(config.archetype_id), String(config.splits_into)])
+		var warn_bus := _eb()
+		if warn_bus != null:
+			warn_bus.report_warning("%s splits into unknown archetype %s" % [String(config.archetype_id), String(config.splits_into)])
 		for i in range(config.split_count):
 			_ledger.extend_one(config.splits_into)
 		return

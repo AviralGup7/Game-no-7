@@ -11,7 +11,6 @@
 
 [sub_resource type="PanoramaSkyMaterial" id="Sky_mat"]
 panorama = ExtResource("8_pano")
-energy = 0.9
 
 [sub_resource type="Sky" id="Sky_res"]
 sky_material = SubResource("Sky_mat")
@@ -19,7 +18,7 @@ radiance_size = 4
 
 [sub_resource type="Environment" id="Env_res"]
 background_mode = 2
-background_sky = SubResource("Sky_res")
+sky = SubResource("Sky_res")
 ambient_light_source = 3
 ambient_light_color = Color(0.66, 0.7, 0.78, 1)
 ambient_light_energy = 1.0

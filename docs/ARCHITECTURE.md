@@ -277,10 +277,13 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
-> `arena.gd` is 439 lines now. That is features, not tables coming back: solid decoration props
+> `arena.gd` is 442 lines now. That is features, not tables coming back: solid decoration props
 > publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
 > `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
 > rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.
+> (The last three lines are the engine-contract comment where `_apply_sky_and_light` sets
+> `env.sky` — the canonical Godot-4 name the engine-api gate pins, not the Godot-3 compat alias
+> `background_sky` that lived there before.)
 
 
 | Field | Type | Replaces |
@@ -417,9 +420,10 @@ ladder's `tier_index_for_rank` selects rather than a literal index (the rungs un
 
 ## Autoload policy
 
-Autoloads (EventBus, SaveManager, AudioManager, ContentRegistry, GameRoot,
-SceneRouter, RunAnalytics, TestHarness) are referenced **directly by name** in
-GameRoot/main/UI code — they are project singletons.
+Autoloads (EventBus, DebugErrorHandler, SaveManager, AudioManager,
+ContentRegistry, GameRoot, SceneRouter, RunAnalytics, TestHarness) are
+referenced **directly by name** in GameRoot/main/UI code — they are project
+singletons.
 
 Two deliberate, documented **autoload-optional seams** exist so the same
 scripts run in-game and under the hermetic, autoload-free headless harness

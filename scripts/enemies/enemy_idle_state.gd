@@ -74,15 +74,13 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 				host.face_direction(look)
 			host.set_desired_move(Vector3.ZERO, 0.0)
 		EnemyPerception.Status.INVESTIGATING:
-			_investigate(host, perception, cfg, delta)
+			_investigate(host, perception, delta)
 		_:
 			_unaware_wander(host, cfg, delta)
 
 
 ## PACE to the last-known / noisy point, linger there, then forget.
-## `_cfg`: every idle handler shares one signature; investigate reads the
-## perception point instead of the config.
-func _investigate(host: EnemyBase, perception: EnemyPerception, _cfg: EnemyConfig, delta: float) -> void:
+func _investigate(host: EnemyBase, perception: EnemyPerception, delta: float) -> void:
 	if not perception.has_investigate_point():
 		perception.clear_investigation()
 		return

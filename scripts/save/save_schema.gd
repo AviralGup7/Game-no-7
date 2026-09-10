@@ -111,7 +111,7 @@ static func _normalize_run_build(value: Variant) -> Dictionary:
 		return out
 	var data: Dictionary = value
 	out.schema_version = BUILD_SCHEMA_VERSION
-	out.rng_seed = maxi(_int_or(_dict_get(data, "seed", 0), 0), 0)
+	out.run_seed = maxi(_int_or(_dict_get(data, "seed", 0), 0), 0)
 	out.current_wave = maxi(_int_or(_dict_get(data, "current_wave", 0), 0), 0)
 	out.selected_upgrades = _string_int_map(_dict_get(data, "selected_upgrades", {}))
 	out.active_modifiers = _string_list(_dict_get(data, "active_modifiers", []))

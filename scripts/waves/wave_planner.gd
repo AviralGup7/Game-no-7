@@ -90,14 +90,16 @@ static func _counts_for_wave(wave_number: int) -> Dictionary:
 ## Extended queue: the classic composition plus new-archetype injections from wave 6
 ## (ranged backlines, dasher flanks, exploders, splitters, periodic heavies). Waves 1-5
 ## are byte-identical to spawn_queue_for_wave so early-game tests stay pinned.
-static func extended_queue_for_wave(wave_number: int, rng_seed: int) -> Array[StringName]:
+static func extended_queue_for_wave(wave_number: int, run_seed: int) -> Array[StringName]:
 	var out := spawn_queue_for_wave(wave_number)
 	var w := maxi(wave_number, 1)
 	if w < 6:
 		return out
-	var rng := RngService.make_generator(rng_seed, RngService.STREAM_WAVES + w * 13)
+	var rng := RngService.make_generator(run_seed, RngService.STREAM_WAVES + w * 13)
 	var extra := w - 5
-	var ranged := mini(1 + int(extra / 2.0), 5)  # extra // 2, mini(1 + extra // 2, 5)
+	# Whole-unit splits of the extra budget. GDScript has no `//` operator, so the
+	# truncation is written out: int() truncates toward zero exactly like int / int.
+	var ranged := mini(1 + int(extra / 2.0), 5)
 	var dasher := mini(int(extra / 2.0), 4)
 	var exploder := mini(int(maxi(extra - 2, 0) / 2.0), 3)
 	var splitter := mini(int(maxi(extra - 3, 0) / 3.0), 2)
@@ -135,7 +137,7 @@ static func extended_queue_for_wave(wave_number: int, rng_seed: int) -> Array[St
 
 ## Expand an authored WaveConfig's entries into a flat queue with deterministic
 ## weight-biased interleaving (no long same-archetype runs).
-static func expand_authored_entries(cfg: WaveConfig, rng_seed: int) -> Array[StringName]:
+static func expand_authored_entries(cfg: WaveConfig, run_seed: int) -> Array[StringName]:
 	var out: Array[StringName] = []
 	if cfg == null:
 		return out
@@ -145,7 +147,7 @@ static func expand_authored_entries(cfg: WaveConfig, rng_seed: int) -> Array[Str
 			buckets.append({"id": entry.archetype_id, "left": entry.count, "weight": maxf(entry.spawn_weight, 0.01)})
 	if buckets.is_empty():
 		return out
-	var rng := RngService.make_generator(rng_seed, RngService.STREAM_WAVES + cfg.wave_number * 29)
+	var rng := RngService.make_generator(run_seed, RngService.STREAM_WAVES + cfg.wave_number * 29)
 	var total := 0
 	for b in buckets:
 		total += int(b["left"])
@@ -153,9 +155,9 @@ static func expand_authored_entries(cfg: WaveConfig, rng_seed: int) -> Array[Str
 	while total > 0 and guard < 4096:
 		guard += 1
 		var sum := 0.0
-		for bucket in buckets:
-			if int(bucket["left"]) > 0:
-				sum += float(bucket["weight"])
+		for b in buckets:
+			if int(b["left"]) > 0:
+				sum += float(b["weight"])
 		if sum <= 0.0:
 			break
 		var roll := rng.randf() * sum

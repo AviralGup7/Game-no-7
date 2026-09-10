@@ -41,17 +41,30 @@ const DUNGEON := "res://assets/environment/dungeon/"
 const SC_PILLAR := DUNGEON + "pillar.glb"
 const SC_PILLAR_DECOR := DUNGEON + "pillar_decorated.glb"
 const SC_COLUMN := DUNGEON + "column.glb"
+## Per-arena wall identity: champion shield banners, one colour per arena (same hang
+## convention as the plain banners they replace, so the wall ring code is untouched).
 const SC_BANNER := {
-	&"red": DUNGEON + "banner_red.glb",
-	&"blue": DUNGEON + "banner_blue.glb",
+	&"red": DUNGEON + "banner_shield_red.glb",
+	&"blue": DUNGEON + "banner_shield_blue.glb",
 	&"green": DUNGEON + "banner_green.glb",
-	&"yellow": DUNGEON + "banner_yellow.glb",
+	&"yellow": DUNGEON + "banner_shield_yellow.glb",
 }
 const SC_TORCH := DUNGEON + "torch_lit.glb"
 const SC_BOX := DUNGEON + "box_large.glb"
+const SC_BOX_DECOR := DUNGEON + "box_small_decorated.glb"
+const SC_BOXSTACK := DUNGEON + "box_stacked.glb"
 const SC_CRATES := DUNGEON + "crates_stacked.glb"
 const SC_BARREL := DUNGEON + "barrel_large.glb"
+const SC_BARREL_DECOR := DUNGEON + "barrel_large_decorated.glb"
+const SC_BARREL_STACK := DUNGEON + "barrel_small_stack.glb"
 const SC_RUBBLE := DUNGEON + "rubble_large.glb"
+const SC_TRUNK := DUNGEON + "trunk_medium_A.glb"
+const SC_CANDLE3 := DUNGEON + "candle_triple.glb"
+const SC_CANDLELIT := DUNGEON + "candle_thin_lit.glb"
+const SC_SWORD := DUNGEON + "sword_shield.glb"
+const SC_SWORD_GOLD := DUNGEON + "sword_shield_gold.glb"
+## Sword trophies are centre-origin wall art (1.67 m tall): this seats their base on the floor.
+const TROPHY_LIFT := 0.82
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
@@ -60,9 +73,9 @@ var _rng := RngService.new()
 var _blockers: Array[AABB] = []
 
 
-func decorate(arena_id: StringName, arena_half: float, rng_seed: int) -> void:
+func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
-	_rng.reseed(rng_seed + hash(String(arena_id)) * 3)
+	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
 	match String(arena_id):
 		"ember_crucible":
 			_compose_ember(arena_half)
@@ -107,8 +120,11 @@ func spawned_count() -> int:
 
 func _compose_default(half: float) -> void:
 	# Ancient coliseum: balanced, readable — landmarks + scattered ruins.
+	# Champion trophies flank the north gate first, so the scatter below routes around them.
+	_mount_trophy_pair(3.0, -11.3, SC_SWORD_GOLD, SC_SWORD)
+	_mount_trophy_pair(-3.0, -11.3, SC_SWORD, SC_SWORD_GOLD)
 	_place_structural(5, half, SC_PILLAR)
-	_scatter(16, half, [SC_RUBBLE, SC_BOX, SC_BARREL, SC_CRATES])
+	_scatter(16, half, [SC_RUBBLE, SC_BOX_DECOR, SC_TRUNK, SC_BARREL, SC_CRATES, SC_CANDLE3])
 	_wall_props(half, &"red", false)
 	# Weathered stone circle around the obelisk (4 small shards).
 	for i in range(4):
@@ -120,7 +136,7 @@ func _compose_default(half: float) -> void:
 func _compose_ember(half: float) -> void:
 	# Forge crucible: dense, hot, vertical — decorated pillars + many barrels/crates as fuel.
 	_place_structural(6, half, SC_PILLAR_DECOR)
-	_scatter(18, half, [SC_BARREL, SC_CRATES, SC_BOX, SC_RUBBLE])
+	_scatter(18, half, [SC_BARREL_DECOR, SC_BARREL, SC_BARREL_STACK, SC_CRATES, SC_BOX, SC_RUBBLE])
 	_wall_props(half, &"yellow", true)
 	# Ring of braziers around the central forge — strong emissive read from distance.
 	for i in range(5):
@@ -128,13 +144,17 @@ func _compose_ember(half: float) -> void:
 		var at := Vector3(cos(angle) * 3.0, 0, sin(angle) * 3.0)
 		_mount_prop(SC_TORCH, at, 1.35)
 	# Extra fuel stacks near walls.
-	_scatter(4, half, [SC_BARREL, SC_CRATES])
+	_scatter(4, half, [SC_BARREL_STACK, SC_CRATES])
+	# Crate depots: the stacked-crate model is room-scale at 1.0, so it gets deliberate
+	# open-spot placements at depot scale instead of a scatter-pool slot.
+	for _i in range(2):
+		_mount_prop(SC_BOXSTACK, _open_spot(half, 2.5), 0.55)
 
 
 func _compose_frost(half: float) -> void:
 	# Frost hollow: sparse, cold, tall columns — open sightlines for ranged.
 	_place_structural(7, half, SC_COLUMN)
-	_scatter(12, half, [SC_RUBBLE, SC_BOX, SC_RUBBLE])
+	_scatter(12, half, [SC_RUBBLE, SC_TRUNK, SC_BOX, SC_RUBBLE])
 	_wall_props(half, &"blue", false)
 	# Ice shard ring around the crystal cluster (blue banners already on walls).
 	for i in range(3):
@@ -159,6 +179,11 @@ func _compose_frost(half: float) -> void:
 		add_child(holder)
 		_spawned.append(holder)
 		_add_prop_collision(holder)
+	# Lit candle ring interleaved with the shards — cold light points, emissive only.
+	for i in range(3):
+		var candle_angle := float(i) * TAU / 3.0 + PI / 2.0
+		var candle_at := Vector3(cos(candle_angle) * 2.55, 0, sin(candle_angle) * 2.55)
+		_mount_prop(SC_CANDLELIT, candle_at, 1.0)
 
 
 # ---------------------- builders ----------------------
@@ -235,10 +260,6 @@ func _wall_props(half: float, banner: StringName, add_torches: bool) -> void:
 		_spawned.append(holder)
 
 
-## Pick a decoration spot off-centre. `_half` is unused: the disc `radius`
-## already bounds the sample, and `CENTER_CLEAR_RADIUS` bounds the middle.
-## NOTE: currently has no callers — kept as the arena-prop utility it is rather
-## than deleted, since a diagnostics pass should not remove intended capability.
 func _centerish(_half: float, radius: float) -> Vector3:
 	for _attempt in range(12):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, radius)
@@ -308,6 +329,26 @@ func _mount_prop(path: String, at: Vector3, scale_factor: float) -> void:
 	holder.position = at
 	if not _mount_model(holder, path, 0.0, scale_factor):
 		_primitive_brazier(holder)
+	add_child(holder)
+	_spawned.append(holder)
+	_add_prop_collision(holder)
+
+
+## Two flat trophy pieces mounted back to back so a front face reads from either side
+## (KayKit sword trophies are single-sided wall art with a centre origin: one mount
+## would be invisible from behind). One collider + one nav footprint for the pair.
+func _mount_trophy_pair(x: float, z: float, face_a: String, face_b: String) -> void:
+	var holder := Node3D.new()
+	holder.position = Vector3(x, 0.0, z)
+	var south := Node3D.new()
+	holder.add_child(south)
+	if not _mount_model(south, face_a, TROPHY_LIFT, 1.0):
+		_primitive_rock(south, 1.2)
+	var north := Node3D.new()
+	north.rotation.y = PI
+	holder.add_child(north)
+	if not _mount_model(north, face_b, TROPHY_LIFT, 1.0):
+		_primitive_rock(north, 1.2)
 	add_child(holder)
 	_spawned.append(holder)
 	_add_prop_collision(holder)

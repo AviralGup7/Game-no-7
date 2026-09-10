@@ -19,7 +19,6 @@ var _capacity := DEFAULT_CAPACITY
 var _seq := 0
 
 
-## `initial_capacity`, not `capacity`: `capacity()` is this class' accessor.
 func _init(initial_capacity: int = DEFAULT_CAPACITY) -> void:
 	_capacity = maxi(initial_capacity, 8)
 
