@@ -1,5 +1,60 @@
 # Changelog
 
+## [Unreleased] — The engine contract became a gate: twelve phantom references exorcised offline (2026-09-10)
+
+The question this pass asked: *what is the weakest section of a tree where all 770 python tests,
+the typed-architecture gate, the guard needles, gdparse and gdlint are already green?* The answer
+was in the tree's own history — the one defect class that kept shipping is the one no static pass
+here can see: **references to engine members the pinned Godot does not have**. `gdparse`/`gdlint`
+are syntax checks with no ClassDB; the five phantoms documented in GODOT_HANDOFF_RESOLUTION.md
+(`AABB.has_area()`, `fposmodf`, `get_surface_material_override_count()`,
+`NavigationAgent3D.path_height_tolerance`, `PanoramaSkyMaterial.energy`) each survived at least one
+review pass for exactly that reason.
+
+- **The contract is now data.** `tool/godot_api_manifest.json` is the 4.4.1-stable ClassDB itself —
+  994 classes, 114 `@GlobalScope` functions, 509 constants, every method with its static-ness and
+  return type, every property (including the undocumented-internal ones like
+  `NavigationMesh.vertices`, and the property-getter/setter methods GDScript can call), reduced
+  from the official source tag by `tool/build_api_manifest.py` (zipball size-verified against the
+  provenance note in GODOT_HANDOFF_RESOLUTION.md) and checked in, so the gate never needs a network
+  or a Godot binary.
+- **The gate is `tool/check_engine_api.py`** — stdlib-only, hermetic, wired into CI's
+  `validate-resources` stage. It walks every `.gd` under `scripts/` and `tests/` with a small
+  typed-dataflow pass (annotations, `:=` inference through constructors/casts/literals/typed
+  calls, typed parameters, autoloads, `self`/`super`, chained return types) and every
+  `.tscn`/`.tres` property assignment, and its severity is the engine's own: per the 4.4.1
+  analyzer source, an unknown member on a **hard-typed builtin** receiver or an unknown
+  scene/resource property is a compile/load error → gate fails; the same miss on an
+  **Object-derived** receiver is the engine's UNSAFE_PROPERTY_ACCESS (resolved at runtime) →
+  reported as `[unsafe]` warnings, which is why legitimate guarded duck-typing (the `bus: Node`
+  signal wiring, `event is InputEventKey` handlers) stays legal and visible. A miss that names a
+  member existing *nowhere* in engine or project fails whatever the receiver — a phantom is a
+  phantom.
+- **The gate's first run found twelve live phantom references — three distinct property names
+  the pinned engine does not have — that the headless-only verification had never touched**,
+  all fixed:
+  1. `data/audio/*.tres` × 9 authored `randomization_type = 2` — **no such property in Godot 4**;
+     the engine name is `playback_mode` (enum `PLAYBACK_SEQUENTIAL = 2`), so the authored playback
+     mode was dropped on every load of every player SFX randomizer. Now `playback_mode = 2`.
+  2. `scenes/arena/arena.tscn` authored `PanoramaSkyMaterial.energy = 0.9` — the exact property
+     the handoff resolution removed from `arena.gd`, surviving in the scene copy; no such property
+     exists (no compat `_set` in the 4.4.1 source either). Removed, matching the script-side
+     rationale already documented there (HDRI exposure is governed by the Environment).
+  3. `scenes/arena/arena.tscn` + `scripts/arena/arena.gd` authored `Environment.background_sky` —
+     the Godot-3 name; the canonical 4.x property is `sky`. The engine source shows 4.4.1 answers
+     the old name only through a compat path in `Environment._set`, so it *worked* — which is
+     exactly why it survived every log-based pass. Both now set `sky`, the name the ClassDB pins.
+- **The gate is pinned by tests, not by hope.** `tests/python/test_regress_engine_api_contract.py`
+  (18 tests) re-derives that the manifest's version equals CI's `GODOT_VERSION`, that the tree
+  runs clean, and — one negative test per historical defect — that `has_area`, `fposmodf`,
+  `get_surface_material_override_count`, `path_height_tolerance`, `energy`,
+  `randomization_type` and a builtin-receiver typo are all still caught in their `.gd`, `.tscn`
+  and `.tres` shapes, while the corrected names pass. 788 python tests green (was 770).
+- `docs/HARDENING.md` lists the gate in Tooling; `docs/ARCHITECTURE.md`'s live `arena.gd` count
+  re-derived (439 → 442, the delta being the engine-contract comment). The 44 `[unsafe]` warnings
+  are published by the run, not silenced: they are the engine's own dynamic-access category, each
+  one a guarded `is`-check or `has_signal` probe.
+
 ## [Unreleased] — Merging main back in: two sessions, one tree (2026-09-10)
 
 `main` had moved on 28 commits while this pass was in flight — sibling sessions shipping the

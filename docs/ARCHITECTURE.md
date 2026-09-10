@@ -277,10 +277,13 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
-> `arena.gd` is 439 lines now. That is features, not tables coming back: solid decoration props
+> `arena.gd` is 442 lines now. That is features, not tables coming back: solid decoration props
 > publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
 > `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
 > rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.
+> (The last three lines are the engine-contract comment where `_apply_sky_and_light` sets
+> `env.sky` — the canonical Godot-4 name the engine-api gate pins, not the Godot-3 compat alias
+> `background_sky` that lived there before.)
 
 
 | Field | Type | Replaces |

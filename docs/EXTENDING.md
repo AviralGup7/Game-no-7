@@ -439,6 +439,13 @@ internals:
   `PhysicsShapeQueryParameters3D` / `PhysicsRayQueryParameters3D` (see
   `EnemyPack._sep_query`, `CameraCollisionSolver`, `Projectile`) — the server reads
   them at call time.
+- **Engine member names are a checked-in contract.** `tool/check_engine_api.py`
+  verifies every typed member access, bare global call and `.tscn`/`.tres`
+  property against the pinned engine's ClassDB (`tool/godot_api_manifest.json`).
+  A property rename or removal in a future engine bump is fixed by regenerating
+  the manifest (`python3 tool/build_api_manifest.py`) and answering the gate's
+  findings — never by weakening the gate. When the CI `GODOT_VERSION` moves, the
+  manifest moves with it (the regression test fails the drift).
 
 ## 13. Add a game mode
 

@@ -141,6 +141,17 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
   (175 checks as of the run-definition pass, up from 99: every authored mode, ladder rule and
   deleted code table is pinned there too)
 - `tool/check_typed_arch.py` — typed-architecture gate (no duck typing; refs resolve)
+- `tool/check_engine_api.py` — engine-API contract gate: every typed member access, bare global
+  call and `.tscn`/`.tres` property is checked against `tool/godot_api_manifest.json` — the
+  pinned engine's own ClassDB (4.4.1-stable, reduced from the official source tag by
+  `tool/build_api_manifest.py`, so the gate is hermetic). Severity follows the engine's own
+  analyzer: unknown members on hard-typed builtin receivers and unknown scene/resource properties
+  fail the build (that is the class of bug that shipped five times — `AABB.has_area()`,
+  `fposmodf`, `get_surface_material_override_count`, `path_height_tolerance`,
+  `PanoramaSkyMaterial.energy` — and twice more in this tree before the gate existed:
+  `AudioStreamRandomizer.randomization_type` in all nine `data/audio/*.tres`, and
+  `Environment.background_sky` in `arena.tscn` + `arena.gd`); unknown members on Object-derived
+  receivers are reported as `[unsafe]` warnings, matching the engine's UNSAFE_PROPERTY_ACCESS
 - `scripts/download_assets.py --verify` — offline checksum lock verification
 
 ## How to add a new system
@@ -158,7 +169,7 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 3. Run `python3 -m unittest discover -s tests/python -v` and
    `python3 tool/validate_guards.py` — both must be green before push.
 4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py &&
-   python3 tool/check_typed_arch.py`.
+   python3 tool/check_typed_arch.py && python3 tool/check_engine_api.py`.
 
 ## Metrics
 

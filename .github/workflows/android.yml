@@ -60,6 +60,16 @@ jobs:
         shell: bash
         run: python3 tool/validate_assets.py
 
+      # Engine-API contract gate: every typed member access, global call and
+      # .tscn/.tres property is checked against the pinned engine's own ClassDB
+      # (tool/godot_api_manifest.json, reduced from the GODOT_VERSION source
+      # tag). Catches the phantom-member defect class offline — the class that
+      # shipped five times before it existed (see CHANGELOG.md / the gate's
+      # docstring). Hermetic: stdlib-only, no Godot binary, no network.
+      - name: Engine API contract gate
+        shell: bash
+        run: python3 tool/check_engine_api.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |

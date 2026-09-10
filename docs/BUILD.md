@@ -77,6 +77,12 @@ gdlint scripts tests
 # Structural validation of .tscn/.tres hand-authored files
 python3 tool/validate_resources.py
 
+# Engine-API contract gate (offline, stdlib-only): every typed member access,
+# bare global call and .tscn/.tres property is checked against the pinned
+# engine's ClassDB (tool/godot_api_manifest.json). Regenerate the manifest with
+# `python3 tool/build_api_manifest.py` when GODOT_VERSION changes.
+python3 tool/check_engine_api.py
+
 # Content/data registry validation runs at startup and via TestHarness.
 # Headless unit tests:
 godot --headless --path . --script res://tests/run_tests.gd
