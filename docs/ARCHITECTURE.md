@@ -450,6 +450,25 @@ Dictionary run can no longer be injected accidentally.
   (request_attack / request_dodge / request_weapon_switch / request_skill),
   dispatched directly on `Player`; unknown commands warn and return `false`.
   TouchControls and SkillBar go through it — input has exactly one path.
+- **Touch buttons fire on press-down** (`TouchActionButton._fire` on the down
+  event, hold tracked until release for anti-repeat), matching the engine's
+  own `TouchScreenButton.pressed`; menu `Button`s intentionally stay
+  release-activated. `TouchControls._ready` (never the press handler) owns the
+  `resized`/`visibility_changed` wiring — wiring layout per-press re-connected
+  signals on every declined tap and stomped the safe-area plan mid-combat.
+- **OS interruption routing.** `project.godot` sets
+  `application/config/quit_on_go_back=false`, so Android Back arrives as
+  `NOTIFICATION_WM_GO_BACK_REQUEST`, which `UiRoot` routes (modal > auxiliary
+  screen > pause/resume/menu/guarded-quit, mirroring Esc). `GameRoot`
+  auto-pauses on `APPLICATION_PAUSED`/`APPLICATION_FOCUS_OUT`/
+  `WM_WINDOW_FOCUS_OUT`, strictly gated on pausable states (the engine does
+  NOT pause the tree when the app backgrounds — without this a call taken
+  mid-wave means returning to a corpse). No auto-resume anywhere.
+- **Emulation contract.** `input_devices/pointing/emulate_mouse_from_touch`
+  must stay `true` — every standard menu/skill/pause `Button` answers touch
+  only through emulated mouse events — while `emulate_touch_from_mouse` stays
+  `false` (the custom stick/buttons handle desktop mouse natively; synthesized
+  touch would double-fire them).
 - Panels use their public intent API + named children; boss bar and minimap
   cast to `EnemyBase`/`BossController`/`Pickup`/`Arena` for their queries.
 - `UiRoot` casts group members to their concrete types
