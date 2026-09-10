@@ -3,7 +3,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/rpg/knife_slice_2.ogg" id="1_stream"]
 
 [resource]
-randomization_type = 2
+playback_mode = 2
 streams_count = 1
 stream_0/stream = ExtResource("1_stream")
 stream_0/weight = 1.0

@@ -141,7 +141,47 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
   (175 checks as of the run-definition pass, up from 99: every authored mode, ladder rule and
   deleted code table is pinned there too)
 - `tool/check_typed_arch.py` — typed-architecture gate (no duck typing; refs resolve)
+- `tool/check_engine_api.py` — engine-API contract gate: every typed member access, bare global
+  call and `.tscn`/`.tres` property is checked against `tool/godot_api_manifest.json` — the
+  pinned engine's own ClassDB (4.4.1-stable, reduced from the official source tag by
+  `tool/build_api_manifest.py`, so the gate is hermetic). Severity follows the engine's own
+  analyzer: unknown members on hard-typed builtin receivers and unknown scene/resource properties
+  fail the build (that is the class of bug that shipped five times — `AABB.has_area()`,
+  `fposmodf`, `get_surface_material_override_count`, `path_height_tolerance`,
+  `PanoramaSkyMaterial.energy` — and twice more in this tree before the gate existed:
+  `AudioStreamRandomizer.randomization_type` in all nine `data/audio/*.tres`, and
+  `Environment.background_sky` in `arena.tscn` + `arena.gd`); unknown members on Object-derived
+  receivers are reported as `[unsafe]` warnings, matching the engine's UNSAFE_PROPERTY_ACCESS
+- `tool/check_scene_paths.py` — scene-path contract gate: the game's own tree contract, the
+  sibling of the engine-API gate. Every string-literal `get_node`/`get_node_or_null` in
+  `scripts/` and `tests/` is resolved against the actual `.tscn` node hierarchies plus
+  runtime `.name = "..."` assignments and autoloads; scene-authored `NodePath(...)` properties
+  are resolved relative to the node carrying them; every `[node parent="..."]` is verified
+  instance-aware (the enemy-variant pattern instances `enemy_base.tscn` and overrides nodes
+  inside its subtree); `get_node("P") as T` is checked against the declared node class via the
+  ClassDB inheritance in `tool/godot_api_manifest.json`. A renamed/removed node is a runtime
+  error per the pinned engine's own `Node.get_node` docs, and no syntax gate can see it —
+  its first run found one already: `projectile.gd` looked up a `"Trail"` child that exists in
+  no scene and no code, wrote it to a member nothing ever read, and had done so on every
+  headless run without a peep
 - `scripts/download_assets.py --verify` — offline checksum lock verification
+- `tool/check_signals.py` — signal contract gate: every signal operation's name is resolved on
+  its receiver (implicit `self` walking the `extends` chain into engine signals, autoloads whose
+  class is known exactly, legacy string forms `emit_signal`/`connect("x")` included), emit arity
+  is checked against the declared parameter count, and a connected same-file callable's parameter
+  range must accept exactly the signal's arguments — with engine-signal arities from
+  `tool/godot_api_manifest.json`. A name declared nowhere is a phantom and fails the build; a
+  dynamic receiver using a name declared elsewhere is the engine's UNSAFE-access analogue and is
+  reported as advisory warnings (`--verbose` lists them). Scene-file `[connection ...]` blocks
+  would be covered too — the tree authors zero of them
+- `tool/check_string_formats.py` — string-format contract gate: every `"..." %` use is checked
+  against the 4.4.1-stable `String::sprintf` rules reduced from the engine source (placeholder
+  syntax `d o x X f v s c`, `%%` escape, `*` dynamic-width consuming an extra value, exact array
+  arity with trailing-comma-aware counting, scalar-wraps-to-one-element, and literal type checks
+  for numeric/`%v`/`%c` slots). A mismatch is a runtime `ERR_FAIL_MSG` in the engine, not a
+  warning. Its first run found one already: `tests/unit/test_wave_mutators.gd` fed two values to
+  a one-placeholder format — the test's assertion never read the `why` string, so the error was
+  logged silently on every run. 833 format uses are now pinned.
 
 ## How to add a new system
 
@@ -158,7 +198,9 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
 3. Run `python3 -m unittest discover -s tests/python -v` and
    `python3 tool/validate_guards.py` — both must be green before push.
 4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py &&
-   python3 tool/check_typed_arch.py`.
+   python3 tool/check_typed_arch.py && python3 tool/check_engine_api.py &&
+   python3 tool/check_scene_paths.py && python3 tool/check_string_formats.py &&
+   python3 tool/check_signals.py`.
 
 ## Metrics
 

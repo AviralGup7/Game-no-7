@@ -87,6 +87,10 @@ BUILTIN_TYPES = {
     "PhysicsBody3D", "CollisionObject3D", "AnimatableBody3D", "SkeletonIK3D",
     "BoneAttachment3D", "Sprite2D", "Sprite3D", "Label3D", "Decal",
     "ReflectionProbe", "Light3D", "SpotLight3D", "ProceduralSkyMaterial", "Sky",
+    # Native enum types used as `as` cast targets. Godot reports
+    # INT_AS_ENUM_WITHOUT_CAST when an int is assigned to an enum-typed
+    # property and names this cast as the fix, so these are legal targets.
+    "Key", "JoyButton", "JoyAxis", "MouseButton", "Error", "Variant.Type",
 }
 
 # Methods every Object-derived type answers to (verified by the engine itself).

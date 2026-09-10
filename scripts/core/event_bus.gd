@@ -10,6 +10,12 @@ extends Node
 ## (boss/enemy). All handlers are no-ops when target is null/invalid so headless
 ## and pooled lifecycles cannot dupe or leak.
 
+## The analyzer counts signal usages per script, so every bus signal emitted by
+## the owning system (GameRoot, wave director, combat, save, ...) reads as
+## "unused" here although each one is a live cross-file contract (emitters and
+## receivers pinned by tool/check_signals.py). Suppress the category for the
+## declaration block only — emit/connect checks stay fully active.
+@warning_ignore_start("unused_signal")
 signal game_state_changed(previous_state: StringName, current_state: StringName)
 signal run_started(run_id: int, seed: int)
 signal run_ended(score: int, wave: int, best_score: int)
@@ -56,6 +62,7 @@ signal objective_progress(label: String, progress: int, target: int)
 ## Emitted when an objective-mode win/lose condition resolves (defend timer met,
 ## relic quota banked, beacon destroyed). GameRoot decides victory vs game over.
 signal objective_resolved(mode_id: StringName, success: bool)
+@warning_ignore_restore("unused_signal")
 
 
 ## Bind `cb` to `sig` and automatically disconnect when `host` leaves the tree.

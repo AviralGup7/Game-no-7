@@ -73,9 +73,9 @@ var _rng := RngService.new()
 var _blockers: Array[AABB] = []
 
 
-func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
+func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
-	_rng.reseed(seed + hash(String(arena_id)) * 3)
+	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
 	match String(arena_id):
 		"ember_crucible":
 			_compose_ember(arena_half)
@@ -260,7 +260,7 @@ func _wall_props(half: float, banner: StringName, add_torches: bool) -> void:
 		_spawned.append(holder)
 
 
-func _centerish(half: float, radius: float) -> Vector3:
+func _centerish(_half: float, radius: float) -> Vector3:
 	for _attempt in range(12):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, radius)
 		if p.length() > CENTER_CLEAR_RADIUS * 0.9:

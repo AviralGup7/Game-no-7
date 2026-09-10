@@ -207,7 +207,7 @@ static func suite() -> Array:
 	# Cap: 200 fresh entities, cap 96 -> exactly 96 kept, all live (alpha 1).
 	var big: Array = []
 	for i in range(200):
-		big.append({"id": 1000 + i, "xz": Vector2(float(i % 20), float(i / 20)), "kind": &"enemy", "blink": 0.0})
+		big.append({"id": 1000 + i, "xz": Vector2(float(i % 20), float(int(i / 20.0))), "kind": &"enemy", "blink": 0.0})
 	var t8 := Minimap.advance_tracks({}, big, 0.016, 4000, 8.0, 0.35, 96)
 	results.append({
 		"name": "advance_tracks enforces the track cap",

@@ -166,17 +166,17 @@ static func deserialize_event(entry: Dictionary) -> InputEvent:
 			if code == 0:
 				return null
 			var k := InputEventKey.new()
-			k.physical_keycode = code
+			k.physical_keycode = code as Key
 			return k
 		"keycode":
 			if code == 0:
 				return null
 			var logical := InputEventKey.new()
-			logical.keycode = code
+			logical.keycode = code as Key
 			return logical
 		"pad":
 			var b := InputEventJoypadButton.new()
-			b.button_index = code
+			b.button_index = code as JoyButton
 			return b
 	return null
 

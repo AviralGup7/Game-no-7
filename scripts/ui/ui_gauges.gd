@@ -55,8 +55,8 @@ func _head_row() -> HBoxContainer:
 	return row
 
 
-func _caption(parent: Node, text: String, size: int, color: Color) -> Label:
-	var l := UiFactory.title(text, parent, size)
+func _caption(parent: Node, text: String, font_size: int, color: Color) -> Label:
+	var l := UiFactory.title(text, parent, font_size)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

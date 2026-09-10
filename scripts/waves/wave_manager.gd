@@ -66,9 +66,9 @@ func set_forced_mutators(ids: Array[StringName]) -> void:
 	_forced_mutators = ids.duplicate()
 
 
-func start_run(seed: int) -> void:
+func start_run(run_seed: int) -> void:
 	_active = true
-	_seed = seed
+	_seed = run_seed
 	_current_wave = 0
 	_planned_count = 0
 	_phase = PHASE_PREPARING
@@ -332,7 +332,7 @@ static func apply_count_nudge(queue: Array[StringName], bonus: int) -> void:
 static func _spread_position(i: int, k: int, n: int) -> int:
 	if n <= 0:
 		return 0
-	return mini((i + 1) * n / (k + 1), n - 1)
+	return mini(int((i + 1) * n / float(k + 1)), n - 1)
 
 
 func _on_all_cleared() -> void:

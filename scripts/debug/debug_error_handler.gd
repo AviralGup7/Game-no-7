@@ -490,7 +490,10 @@ func _gather_context(extra: Dictionary) -> Dictionary:
 	context["locale"] = OS.get_locale()
 	context["display_server"] = DisplayServer.get_name()
 	context["processors"] = OS.get_processor_count()
-	context["memory_mb"] = "static=%d dynamic=%d" % [_megabytes(Performance.get_monitor(Performance.MEMORY_STATIC)), _megabytes(Performance.get_monitor(Performance.MEMORY_DYNAMIC))]
+	# Performance.MEMORY_DYNAMIC was removed from the engine (4.3+): naming it is a
+	# parse error on 4.4.1, and this file is an autoload, so that kills startup.
+	# Static + peak-static is the surviving memory signal (see tool/godot_api_manifest.json).
+	context["memory_mb"] = "static=%d peak=%d" % [_megabytes(Performance.get_monitor(Performance.MEMORY_STATIC)), _megabytes(OS.get_static_memory_peak_usage())]
 	context["fps"] = int(Performance.get_monitor(Performance.TIME_FPS))
 	context["viewport"] = _viewport_size_text()
 	context["scene"] = _current_scene_text()

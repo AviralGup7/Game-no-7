@@ -69,6 +69,30 @@ godot --headless --path . --import          # first run: import + generate cache
 godot --headless --path . --script res://tests/run_tests.gd
 ```
 
+Offline gates (no Godot binary needed — these run in CI's `validate-resources`
+stage and anywhere python3 is available):
+
+```bash
+python3 -m unittest discover -s tests/python     # 871 unit + regression guards
+python3 tool/check_typed_arch.py                 # typed-architecture contract
+python3 tool/validate_guards.py                  # inlined-guard needles
+python3 tool/check_engine_api.py                 # engine-API contract: every typed member
+                                                 # access + .tscn/.tres property checked against
+                                                 # the pinned Godot's own ClassDB
+                                                 # (tool/godot_api_manifest.json)
+python3 tool/check_scene_paths.py                # scene-path contract: every get_node/NodePath
+                                                 # literal resolved against the actual .tscn node
+                                                 # trees (+ runtime names, autoloads); `as` casts
+                                                 # checked against declared node classes
+python3 tool/check_string_formats.py             # string-format contract: every `"..." %` use
+                                                 # verified against the engine's String::sprintf
+                                                 # rules (arity, placeholder syntax, literal types)
+python3 tool/check_signals.py                    # signal contract: every signal name + emit arity
+                                                 # resolved against declaring classes (self chains,
+                                                 # autoloads, engine signals); connected callables
+                                                 # checked for parameter compatibility
+```
+
 ---
 
 ## Downloaded 3D asset kit

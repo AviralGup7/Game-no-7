@@ -170,7 +170,7 @@ func effective_cooldown() -> float:
 func effective_range() -> float:
 	if config == null:
 		return 0.0
-	return maxf(config.range + range_bonus, 0.5)
+	return maxf(config.attack_range + range_bonus, 0.5)
 
 
 func effective_knockback() -> float:

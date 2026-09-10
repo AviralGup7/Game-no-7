@@ -74,13 +74,13 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 				host.face_direction(look)
 			host.set_desired_move(Vector3.ZERO, 0.0)
 		EnemyPerception.Status.INVESTIGATING:
-			_investigate(host, perception, cfg, delta)
+			_investigate(host, perception, delta)
 		_:
 			_unaware_wander(host, cfg, delta)
 
 
 ## PACE to the last-known / noisy point, linger there, then forget.
-func _investigate(host: EnemyBase, perception: EnemyPerception, cfg: EnemyConfig, delta: float) -> void:
+func _investigate(host: EnemyBase, perception: EnemyPerception, delta: float) -> void:
 	if not perception.has_investigate_point():
 		perception.clear_investigation()
 		return
@@ -125,8 +125,8 @@ func _unaware_wander(host: EnemyBase, cfg: EnemyConfig, delta: float) -> void:
 		if roll < 0.3:
 			# Look around a random direction (standing still, head turned).
 			_look_timer = LOOK_PAUSE_MIN + (LOOK_PAUSE_MAX - LOOK_PAUSE_MIN) * host.personality_roll()
-			var angle := host.personality_roll() * TAU
-			host.face_direction(Vector3(cos(angle), 0.0, sin(angle)))
+			var look_angle := host.personality_roll() * TAU
+			host.face_direction(Vector3(cos(look_angle), 0.0, sin(look_angle)))
 			_wander_target = host.get_home_position()
 			return
 		var angle := host.personality_roll() * TAU

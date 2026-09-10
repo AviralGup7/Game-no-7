@@ -111,12 +111,12 @@ const _TUNED: Dictionary = {
 }
 
 
-static func for_cue(cue_id: StringName) -> AudioConfig:
+static func for_cue(target_cue_id: StringName) -> AudioConfig:
 	var cfg := AudioConfig.new()
-	cfg.cue_id = cue_id
+	cfg.cue_id = target_cue_id
 	cfg.bus = &"SFX"
 	cfg.max_voices = DEFAULT_MAX_VOICES
-	var tuned: Variant = _TUNED.get(String(cue_id))
+	var tuned: Variant = _TUNED.get(String(target_cue_id))
 	if tuned == null:
 		return cfg
 	cfg.bus = tuned[0]

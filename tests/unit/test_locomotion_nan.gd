@@ -34,13 +34,13 @@ static func _finite3(v: Vector3) -> bool:
 	return is_finite(v.x) and is_finite(v.y) and is_finite(v.z)
 
 
-# --- VirtualJoystick: the source of the analog value ------------------------
+# --- TouchJoystick: the source of the analog value ------------------------
 
 static func _joystick(results: Array) -> void:
 	# A degenerate radius used to divide the drag offset straight into inf/NaN, and the
 	# player latched that value for the rest of the run (the stick only re-sends on
 	# change), so the hero kept "pushing" into garbage until the physics blew up.
-	var stick := VirtualJoystick.new()
+	var stick := TouchJoystick.new()
 	stick.radius = 0.0
 	stick._begin(0, Vector2(20, 20))
 	stick._update(Vector2(140, 20))
@@ -52,7 +52,7 @@ static func _joystick(results: Array) -> void:
 	stick.free()
 
 	# A non-finite pointer position is dropped, leaving the stick at rest.
-	var fresh := VirtualJoystick.new()
+	var fresh := TouchJoystick.new()
 	fresh._begin(0, Vector2(20, 20))
 	fresh._update(Vector2(INF, -INF))
 	_check(results, "infinite drag position is ignored", fresh.get_value() == Vector2.ZERO,
@@ -69,7 +69,7 @@ static func _joystick(results: Array) -> void:
 	fresh.free()
 
 	# A non-finite press must not capture at all: there is no base to measure from.
-	var no_start := VirtualJoystick.new()
+	var no_start := TouchJoystick.new()
 	no_start._begin(0, Vector2(NAN, 4.0))
 	_check(results, "non-finite press does not capture", not no_start.is_active())
 	no_start._update(Vector2(50, 50))
@@ -80,7 +80,7 @@ static func _joystick(results: Array) -> void:
 
 	# Mouse parity: the stick has to be draggable in the editor so this exact path is
 	# reproducible without a touch device (press -> drag -> release).
-	var mouse_stick := VirtualJoystick.new()
+	var mouse_stick := TouchJoystick.new()
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.pressed = true

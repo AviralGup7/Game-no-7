@@ -539,8 +539,8 @@ func _update_lock_on_target() -> void:
 func _get_target_facing_yaw() -> float:
 	if _target == null:
 		return _orbit_state.current_yaw if _orbit_state != null else 0.0
-	var basis := _target.global_transform.basis
-	var forward := -basis.z
+	var target_basis := _target.global_transform.basis
+	var forward := -target_basis.z
 	forward.y = 0.0
 	if forward.length_squared() < 0.0001:
 		return _orbit_state.current_yaw if _orbit_state != null else 0.0
