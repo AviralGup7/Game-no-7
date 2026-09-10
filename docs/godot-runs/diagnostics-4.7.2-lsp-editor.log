@@ -5,86 +5,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/core/content_registry.gd:126)
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/core/content_registry.gd:263)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:36)
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:132)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
-SCRIPT ERROR: Parse Error: Could not resolve class "CameraProfile", because of a parser error.
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:76)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:80)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup_from_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:82)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:83)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:84)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:85)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:86)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:87)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:88)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:89)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "setup".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:124)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:137)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:138)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:139)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:140)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:141)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:142)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:143)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:144)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_profile".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:145)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "snap_to_facing".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:171)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:370)
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:662)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/player/player_feedback.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/player/player.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/core/game_root.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
-ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry.gd' is not compiling.
-   at: _create_autoload (editor/settings/editor_autoload_settings.cpp:340)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
@@ -93,13 +13,11 @@ ERROR: Failed to create an autoload, script 'res://scripts/core/content_registry
 [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
-SCRIPT ERROR: Parse Error: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-          at: GDScript::reload (res://scripts/main/main.gd:186)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "get_camera_profile".
-          at: GDScript::reload (res://scripts/main/main.gd:186)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "set_camera_profile".
-          at: GDScript::reload (res://scripts/main/main.gd:188)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
+          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:118)
+SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
+          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
+ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
 [  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
@@ -107,72 +25,23 @@ ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse erro
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
-Cannot infer the type of "browsed" variable because the value doesn't have a set type.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://tests/unit/test_camera_modules.gd
-Could not resolve class "CameraProfile", because of a parser error.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://tests/unit/test_configs.gd
-Could not resolve class "CameraProfile", because of a parser error.
+Expected statement, found "Indent" instead.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://tests/unit/test_save.gd
 Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_collision_solver.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+ERROR: LSP: Failed to parse script: res://tests/unit/test_ui_layout.gd
+Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_fov_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_focus_tracker.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_shake_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_auto_follow_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_orbit_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_framing_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_orbit_state.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_mode_controller.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera/camera_input_handler.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera_profile.gd
-Unexpected "Indent" in class body.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/camera_rig.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/main/main.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/core/content_registry.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/core/content_loader.gd
-Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
+ERROR: LSP: Failed to parse script: res://scripts/ui/ui_gauges.gd
+Identifier "_xp_seeded" not declared in the current scope.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-SCRIPT ERROR: Parse Error: Unexpected "Indent" in class body.
-          at: GDScript::reload (res://scripts/main/camera_profile.gd:58)
-ERROR: Failed to load script "res://scripts/main/camera_profile.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:61)
+SCRIPT ERROR: Parse Error: Expected statement, found "Indent" instead.
+          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:232)
 ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)

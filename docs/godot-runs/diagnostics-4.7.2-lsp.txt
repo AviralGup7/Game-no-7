@@ -1,101 +1,39 @@
-/home/runner/work/Game-no-7/Game-no-7/scripts/core/content_loader.gd:285:16: ERROR: Cannot infer the type of "cam" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/core/content_loader.gd:285:20: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/core/content_registry.gd:126:49: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/core/content_registry.gd:263:27: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:11:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:14:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:18:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:76:22: ERROR: Cannot infer the type of "toward_gate" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:84:23: ERROR: Cannot infer the type of "suppression" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_auto_follow_controller.gd:92:22: ERROR: Cannot infer the type of "follow_speed" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:344:15: ERROR: Cannot infer the type of "min_y" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:60:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:85:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_collision_solver.gd:93:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:10:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:13:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:19:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:29:20: ERROR: Cannot infer the type of "predictive" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:37:22: ERROR: Cannot infer the type of "horiz_smooth" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_focus_tracker.gd:38:21: ERROR: Cannot infer the type of "vert_smooth" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:11:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:17:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:25:18: ERROR: Cannot infer the type of "base_fov" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:26:2: ERROR: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:40:19: ERROR: Cannot infer the type of "smoothing" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_fov_controller.gd:8:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:11:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:19:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:23:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:73:18: ERROR: Cannot infer the type of "interval" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_framing_controller.gd:78:18: ERROR: Cannot infer the type of "radius" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:14:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:17:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:21:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:59:14: ERROR: Cannot infer the type of "dead" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:65:17: ERROR: Cannot infer the type of "yaw_deg" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_input_handler.gd:66:19: ERROR: Cannot infer the type of "pitch_deg" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:19:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:20:20: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:33:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_mode_controller.gd:38:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:12:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:15:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:22:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:58:19: ERROR: Cannot infer the type of "base_dist" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:69:20: ERROR: Cannot infer the type of "yaw_smooth" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:70:22: ERROR: Cannot infer the type of "pitch_smooth" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:82:21: ERROR: Cannot infer the type of "dist_smooth" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_controller.gd:98:2: ERROR: Could not resolve external class member "snap_to_facing".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_state.gd:15:32: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_orbit_state.gd:26:40: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:20:19: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:33:25: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:67:16: ERROR: Cannot infer the type of "decay" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:73:15: ERROR: Cannot infer the type of "freq" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera/camera_shake_controller.gd:8:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_profile.gd:58:1: ERROR: Unexpected "Indent" in class body.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_profile.gd:58:63: ERROR: Expected end of file.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:124:3: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:132:32: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:137:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:138:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:139:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:140:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:141:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:142:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:143:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:144:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:145:2: ERROR: Could not resolve external class member "set_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:36:13: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:370:23: ERROR: Cannot infer the type of "pos_smoothing" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:662:10: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:76:14: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:80:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:82:2: ERROR: Could not resolve external class member "setup_from_profile".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:83:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:84:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:85:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:86:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:87:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:88:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/camera_rig.gd:89:2: ERROR: Could not resolve external class member "setup".
-/home/runner/work/Game-no-7/Game-no-7/scripts/main/main.gd:186:11: ERROR: Could not parse global class "CameraProfile" from "res://scripts/main/camera_profile.gd".
-/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:61:17: ERROR: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:126:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:126:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:138:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:138:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:178:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:178:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:207:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:207:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:40:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:40:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:83:17: ERROR: Cannot infer the type of "profile" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_camera_modules.gd:83:17: ERROR: Could not resolve class "CameraProfile", because of a parser error.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_configs.gd:35:11: ERROR: Cannot infer the type of "c" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_configs.gd:35:11: ERROR: Could not resolve class "CameraProfile", because of a parser error.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_gauges.gd:118:2: ERROR: Identifier "_xp_seeded" not declared in the current scope.
+/home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_gauges.gd:150:5: ERROR: Identifier "_xp_seeded" not declared in the current scope.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:232:1: ERROR: Expected statement, found "Indent" instead.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:233:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:234:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:235:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:236:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:237:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:238:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:239:2: ERROR: Unexpected "for" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:240:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:241:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:242:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:243:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:248:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:249:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:250:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:251:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:252:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:253:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:254:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:260:2: ERROR: Unexpected identifier "hp" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:261:2: ERROR: Unexpected identifier "boss" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:263:2: ERROR: Unexpected identifier "boss_machine" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:264:2: ERROR: Unexpected identifier "boss" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:265:2: ERROR: Unexpected identifier "add_child" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:266:2: ERROR: Unexpected identifier "EventBus" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:267:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:268:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:269:2: ERROR: Unexpected identifier "hp" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:270:2: ERROR: Unexpected identifier "_ui" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:271:2: ERROR: Unexpected identifier "_check" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:272:2: ERROR: Unexpected identifier "boss" in class body.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:273:17: ERROR: Expected end of file.
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:273:2: ERROR: Unexpected "await" in class body.
 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:98:24: ERROR: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_ui_layout.gd:66:23: ERROR: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
