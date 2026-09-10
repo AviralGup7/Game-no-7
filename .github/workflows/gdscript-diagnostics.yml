@@ -15,7 +15,8 @@ name: GDScript diagnostics
 
 on:
   push:
-    branches: ["arena/01a08a34-game-no-7"]
+    branches: ["main", "arena/**"]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -177,7 +178,9 @@ jobs:
       # The Actions log endpoint is unreachable from some environments, so the
       # raw logs travel with the branch instead.
       - name: Publish diagnostic logs to the branch
-        if: always()
+        # push events only: on pull_request GITHUB_REF_NAME is "<pr>/merge", which
+        # is not a branch, and the checkout has no write access to push to anyway.
+        if: always() && github.event_name == 'push'
         shell: bash
         run: |
           set -e
