@@ -1,11 +1,11 @@
 # Last Stand: Arena — asset catalogue
 
-Reviewed **9 September 2026** · Godot 4.4.1 · 3D third-person · Android
+Reviewed **10 September 2026** · Godot 4.4.1 · 3D third-person · Android
 
-**243 checksum-locked files, 49.08 MiB: 81 models, 87 PNGs, 4 JPGs, 3 HDRIs,
+**256 checksum-locked files, 49.80 MiB: 94 models, 87 PNGs, 4 JPGs, 3 HDRIs,
 34 audio clips, 2 fonts, 14 binary mesh dependencies and 18 licence/credit notices.**
 In addition, the project-authored Warden bundle has **5 derived files / 4.93 MiB**:
-2 GLBs and 3 shared PNG maps (now **83 models** in the combined inventory).
+2 GLBs and 3 shared PNG maps (now **96 models** in the combined inventory).
 Its independent recipe/input/output hash lock is
 `assets/characters/warden/build_report.json`; upstream downloads stay untouched.
 
@@ -44,6 +44,14 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
     rubble) placed deterministically by `ArenaDecorator` with per-arena compositions
     and primitive fallback; **arena themes** (sky/fog/sun/ambient + floor/wall tint)
     give Default / Ember Crucible / Frost Hollow distinct identities.
+  - **Arena art pass:** per-arena champion shield banners (`banner_shield_*`) on the
+    wall ring, gate-flanking sword trophies (Default), a lit candle ring (Frost),
+    crate depots + decorated barrel stacks (Ember), and an open vent grate mounted
+    under the fire-vent telegraph. Hazard markers also mount the previously unused
+    spike-bed and floor-tile locks; torch sconces get a deterministic glow halo on
+    the approved Kenney flare sprite. Landmark silhouettes are enriched in code
+    (plinth + rim + wide floor ring per arena, lava crust, crystal heart, obelisk
+    rune band) with an idle emission pulse — no new textures required.
   - **Pooled VFX** (`EffectDirector`): GPU bursts + ground rings for enemy spawn /
     death, wave start/completion, pickups, boss spawn/slain and status effects.
   - **Recorded audio registered** (`AudioAssetIntegrator`): the approved SFX variants
@@ -51,7 +59,7 @@ the immutable source/download lock is [`assets/manifest.json`](../assets/manifes
     `music_menu/calm/battle/boss/victory` cues, taking precedence over the procedural
     fallback. Each state bed is a distinct recorded loop: tavern (menu), feast (calm),
     orchestral combat (battle), evil apocalypse (boss) and rejoicing (victory).
-- **Integrated since review:** weapon *attachment* visuals (9 weapons handslot.r/l + ModelVisual extent + PlayerEquipment equip), UI skinning (Kenney HUD/status), and skill VFX (EffectDirector distinct tints/textures/radii + PlayerAnimation). **Still pending:** per-arena bespoke art variants (themes + decorator cover; no unique arena meshes). Recorded boss/calm/victory music was previously pending; all five music beds now ship as recorded CC0 loops.
+- **Integrated since review:** weapon *attachment* visuals (9 weapons handslot.r/l + ModelVisual extent + PlayerEquipment equip), UI skinning (Kenney HUD/status), and skill VFX (EffectDirector distinct tints/textures/radii + PlayerAnimation). **Resolved:** per-arena bespoke art variants — per-arena shield banners, gate trophies, frost candle ring, ember depots, hazard floor models and landmark floor rings with idle animation (themes + decorator + markers, all pinned by `test_regress_arena_art.py`). Recorded boss/calm/victory music was previously pending; all five music beds now ship as recorded CC0 loops.
 - Existing source art remains available; preferred equipment/reward selections
   replace old choices in the catalogue, not by destructive source-file overwrites.
 
@@ -109,7 +117,7 @@ bottle/crystal shapes help identification independently of tint.
 - Three archived **HDRI panoramas** (`assets/textures/panorama/*.hdr`, 1K,
   Poly Haven CC0 captures via the pinned three.js mirror) are mapped per arena in
   `arena.gd`; falling back to the procedural sky if a `.hdr` is unimported.
-- 37 KayKit dungeon environment models remain available for props; they now get
+- 50 KayKit dungeon environment models remain available for props; they now get
   the same anisotropic/PBR material polish, plus the scene's torches/banners.
 - No parallax, tessellation, displacement or new physics geometry.
 - `gameplay_arenas` covers all three arenas (themes + decorator); `gameplay_skills` covers all eight skills integrated (EffectDirector distinct tint+texture+radius+burst + SkillExecutor behaviour + audio/camera).
