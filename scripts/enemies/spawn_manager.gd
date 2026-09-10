@@ -246,6 +246,7 @@ func _spawn_one() -> bool:
 	_maybe_make_elite(instance, config)
 	_maybe_begin_boss_fight(instance)
 	_activate_enemy(instance, archetype)
+	_stamp_wave_status_on_spawn(instance)
 	# Success: only now remove the entry from the plan.
 	_ledger.pop_on_success()
 	_spawn_index += 1
@@ -275,8 +276,19 @@ func _spawn_jitter() -> Vector3:
 func _apply_spawn_scaling(instance: EnemyBase, _config: EnemyConfig) -> void:
 	var scaled := _wave.enemy_scaling()
 	instance.apply_difficulty(scaled.x, scaled.y, scaled.z)
+
+
+## Stamp the wave's status on the entity that just arrived, and on the player when the mutator reaches
+## them. This runs AFTER `_activate_enemy`, never inside `_apply_spawn_scaling`: `EnemyBase` resolves
+## its StatusManager component in `_ready()`, so a stamp issued before the node is in the tree finds no
+## manager and returns quietly. Silent, correct-looking, and it shipped an entire mutator half-dead --
+## the failure is invisible from the caller's side, which is why the live stage asserts on the
+## spawned enemy's stack count rather than on the spawner's own bookkeeping.
+func _stamp_wave_status_on_spawn(enemy: EnemyBase) -> void:
+	if _wave == null:
+		return
 	if _wave.status_targets_enemies:
-		_stamp_wave_status(instance)
+		_stamp_wave_status(enemy)
 	if _wave.status_targets_player:
 		_stamp_wave_status(_player)
 
@@ -446,6 +458,7 @@ func _spawn_split_child(child_cfg: EnemyConfig, at: Vector3, index: int, total: 
 	_apply_spawn_scaling(instance, child_cfg)
 	# Children inherit wave scaling but never roll elite (keeps burst costs legible).
 	_activate_enemy(instance, child_cfg.archetype_id)
+	_stamp_wave_status_on_spawn(instance)
 	instance.set_velocity_flat(outward * SPLIT_BURST_PUSH)
 	_ledger.register_direct_spawn(child_cfg.archetype_id)
 	_spawn_index += 1

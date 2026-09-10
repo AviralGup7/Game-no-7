@@ -177,7 +177,7 @@ file count and the guard-needle count from the tools themselves rather than trus
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call)
 - Validated files: 159/159 (was 85, then 151: +7 authored game modes, +1 prestige ladder)
-- Guard needles: 194 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
+- Guard needles: 195 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
   guard, a bounded export, or an absence; the merge of `main` and the four headless rounds that
   followed added nineteen, of which one refuses
   an engine member that does not exist (`.has_area()` on an `AABB`, a parse error that took two

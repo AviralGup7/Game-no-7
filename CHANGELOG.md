@@ -159,6 +159,24 @@ about), `validate_resources.py` 159/159 (with the two new checks verified agains
 Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
 `check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
 
+- **The seventh headless round: the instrumentation answered its own question, and the answer was a
+  shipped feature that never worked.** `has=false stacks=-1 full=true attack=true hp=true` — the enemy
+  was scaled correctly (32.0 hp, 9.0 attack) and had no status manager at all: `SpawnManager` stamped
+  the wave's status inside `_apply_spawn_scaling`, which runs *before* `_activate_enemy`, and
+  `EnemyBase` resolves its `StatusManager` component in `_ready()`. So `_stamp_wave_status` found
+  `get_status_manager() == null`, returned quietly, and Ember Winds set the player alight for every
+  wave of a mutator whose whole promise was lighting the arena's air for the enemies in it. The stamp
+  now happens after activation, for burst children too. A no-op that reads as code is the worst failure
+  this tree has: no error, no assertion, no crash — only a game that is quietly half as interesting.
+- **And the clamp cost one test its honesty.** `test_status_skills.gd` asked `tick()` for whole quanta
+  with a 1.1 s frame — precisely the input the new payout bound refuses — so it now feeds two legal
+  frames (0.5 s and 0.6 s, remainder carried in the accrual), which exercises the carry the one-liner
+  never touched. `docs/HARDENING.md` and one more guard needle (`_stamp_wave_status_on_spawn`, the
+  ordering that made the difference) follow the change.
+
+Gates on this round: 770 python tests, `validate_guards.py` 195/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
+
 - **A sixth headless round: three items left, all of them behaviour, and one still open on purpose.**
   With every suite compiling, the headless job reported three failures instead of nine, and the shape
   of the remaining three said the parse-error cascade had finally ended.

@@ -59,7 +59,10 @@ static func suite() -> Array:
 
 	# --- StatusEffect: tick quanta + per-tick damage ---
 	var fx3 := StatusEffect.new(burn, 2)
-	var ticks := fx3.tick(1.1)  # 2.2 intervals => 2 ticks
+	# Two frames of the largest legal size, not one 1.1 s call: `tick()` caps what a single frame may
+	# convert into quanta (MAX_PAYOUT_DELTA = 0.5 s) so a 5-second hitch cannot pay out the whole gap,
+	# and the accrual carries the remainder between frames. Feeding it 1.1 s asked the clamp to lie.
+	var ticks := fx3.tick(0.5) + fx3.tick(0.6)  # 0.5 + 0.5 intervals => 2 ticks, 0.1 left accruing
 	results.append({
 		"name": "StatusEffect tick() returns whole quanta",
 		"passed": ticks == 2 and is_equal_approx(fx3.dot_per_tick(), 4.0 * 0.5 * 2.0),

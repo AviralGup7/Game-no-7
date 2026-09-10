@@ -174,6 +174,9 @@ def main() -> int:
 	("scripts/waves/wave_manager.gd", "max_simultaneous_enemies()"),
 	("scripts/arena/arena.gd", "for foot in _decoration_blockers"),
 	("scripts/arena/arena.gd", "func register_decoration_blockers"),
+	# The wave's status has to be stamped after the enemy is in the tree, because that is when its
+# StatusManager component is resolved. Stamped any earlier and the mutator is a silent no-op.
+	("scripts/enemies/spawn_manager.gd", "_stamp_wave_status_on_spawn(instance)"),
 	# A BoxMesh that is configured and never attached to its MeshInstance3D is a solid wall nobody can
 	# see: main's hardening pass added the line, the refactor dropped it, and only a runtime check caught
 	# it. Likewise the pulse clock: capped at one period, so an idle hazard stays due instead of running
