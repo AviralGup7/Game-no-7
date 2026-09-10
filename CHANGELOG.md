@@ -174,6 +174,25 @@ Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_res
   never touched. `docs/HARDENING.md` and one more guard needle (`_stamp_wave_status_on_spawn`, the
   ordering that made the difference) follow the change.
 
+- **The eighth headless round: one failure left, and the answer was in the fixture, not the game.**
+  The stage now prints what it is looking at, and `tree=true, kids=HealthComponent, EnemyStateMachine`
+  said the rest: `_pack_test_enemy_scene()` packs the harness's enemy out of code with two children, and
+  `EnemyBase` resolves its `StatusManager` from the scene — so the fake enemy had no status manager to
+  stamp, `_stamp_wave_status` found `get_status_manager() == null` and returned quietly, and the
+  assertion failed for a reason that no amount of reading the production code could have revealed. The
+  fixture gains the third child (owned before `pack()`, the rule that entry already documents for the
+  other two), and the audit test that pins that ownership now pins the status manager with it, so a
+  fixture cannot be quietly incomplete again.
+- **Two of my own earlier conclusions were wrong and are retracted.** Round seven read the same
+  `has=false` and concluded the stamp ran too early in the spawn sequence; `tree=true` shows the enemy
+  was in the tree and `_ready()` had long since run, so the stamp's old position was never the problem
+  (the move to `_stamp_wave_status_on_spawn` stays, for the reason now written on it — a status needs a
+  resolved node, numeric scaling does not — not because it fixed anything). The same entry credited
+  `get_status_manager()`'s re-resolve with curing a shipped immunity: it does not, because no shipped
+  enemy scene lacks the node. Both comments were rewritten to say what is true, since a comment that
+  invents a fixed bug is a trap for the next reader. And `wave_effect=<null>` in the diagnostic was the
+  stage reading its own post-cleanup state, which is why the record is now captured at spawn time.
+
 Gates on this round: 770 python tests, `validate_guards.py` 195/0, `validate_resources.py` 159/159,
 `check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
 

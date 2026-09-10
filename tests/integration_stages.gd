@@ -706,12 +706,21 @@ static func _pack_test_enemy_scene() -> PackedScene:
 	var machine := EnemyStateMachine.new()
 	machine.name = "EnemyStateMachine"
 	proto.add_child(machine)
+	# The status manager as well, for the same reason: `EnemyBase` resolves it out of the scene, so a
+	# packed scene without this child spawns enemies that are immune to DoT, stuns, shields and the
+	# wave's own status -- and the stamping call returns quietly because `get_status_manager()` is null.
+	# That is what "the wave's folded record ... stamps its status" was actually reporting as `has=false`
+	# after three rounds of reading the production code: the fixture had no manager to stamp into.
+	var status := StatusManager.new()
+	status.name = "StatusManager"
+	proto.add_child(status)
 	# PackedScene.pack() only serializes children whose owner is the packed root.
 	# Without this the scene contains a bare EnemyBase: spawned enemies have no
 	# HealthComponent, so apply_damage is rejected with no_health_component, they
 	# never die, and every defeat/clear assertion in this stage silently fails.
 	hp.owner = proto
 	machine.owner = proto
+	status.owner = proto
 	var ps := PackedScene.new()
 	ps.pack(proto)
 	proto.free()
@@ -872,6 +881,9 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	sm.queue_wave(ember_queue, 5, 0.2, 8)
 	var stamped: EnemyBase = spawned_nodes[0] if not spawned_nodes.is_empty() else null
 	var stamped_manager := stamped.get_status_manager() if stamped != null else null
+	# Read before the block's own `set_wave_modifiers(neutral())` cleanup, or the diagnosis reports the
+	# record the stage tore down rather than the one the spawn saw.
+	var wave_at_spawn: WaveModifiers = sm.get_wave_modifiers()
 	# Every clause named separately, because a combined boolean reported as `record=false` sends
 	# someone reading a CI log back to read the whole file: five sub-checks here and no clue which one
 	# moved. The numbers are printed too, so the next failure says what the entity actually is.
@@ -897,7 +909,7 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 		# Built as a joined array on purpose: `"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, so the
 		# concatenated format string this replaces printed its own placeholders instead of the answer.
 		"why": _describe_record(has_ok, stack_ok, full_ok, attack_ok, hp_ok, consumed_the_chance,
-				stamped, stamped_manager, health_component, cfg_basic, sm),
+				stamped, stamped_manager, health_component, cfg_basic, wave_at_spawn),
 	})
 
 	timer.stop()
@@ -919,7 +931,8 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 ## reading to a one-bit answer, which is not a diagnosis.
 static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack_ok: bool,
 		hp_ok: bool, blasts_ok: bool, stamped: EnemyBase, stamped_manager: StatusManager,
-		health_component: HealthComponent, cfg_basic: EnemyConfig, sm: Node) -> String:
+		health_component: HealthComponent, cfg_basic: EnemyConfig,
+		wave: WaveModifiers) -> String:
 	var parts := PackedStringArray()
 	parts.append("has=%s" % str(has_ok))
 	parts.append("stacks=%s" % str(stack_ok))
@@ -935,7 +948,6 @@ static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack
 	parts.append("node=%s" % (str(stamped.get_node_or_null("StatusManager")) if stamped != null else "none"))
 	parts.append("kids=%s" % (", ".join(PackedStringArray(
 			stamped.get_children().map(func(c): return String(c.name)))) if stamped != null else "none"))
-	var wave: WaveModifiers = sm.get_wave_modifiers() if sm != null else null
 	parts.append("wave_effect=%s" % (str(wave.status_effect) if wave != null else "no-record"))
 	parts.append("wave_stacks=%d" % (wave.status_stacks if wave != null else -1))
 	parts.append("wave_targets=%s/%s" % [str(wave.status_targets_enemies) if wave != null else "?",

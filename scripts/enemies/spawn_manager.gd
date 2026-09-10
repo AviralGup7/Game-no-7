@@ -279,11 +279,11 @@ func _apply_spawn_scaling(instance: EnemyBase, _config: EnemyConfig) -> void:
 
 
 ## Stamp the wave's status on the entity that just arrived, and on the player when the mutator reaches
-## them. This runs AFTER `_activate_enemy`, never inside `_apply_spawn_scaling`: `EnemyBase` resolves
-## its StatusManager component in `_ready()`, so a stamp issued before the node is in the tree finds no
-## manager and returns quietly. Silent, correct-looking, and it shipped an entire mutator half-dead --
-## the failure is invisible from the caller's side, which is why the live stage asserts on the
-## spawned enemy's stack count rather than on the spawner's own bookkeeping.
+## them. Kept beside activation rather than inside `_apply_spawn_scaling` because the manager it needs
+## is a scene child resolved in `_ready()`: numeric scaling has no such dependency, a status does, and
+## the two calls reading different sides of one node's lifecycle is how this file's next silent no-op
+## would be written. The live stage asserts the spawned enemy's stack count, not the spawner's
+## bookkeeping, so a stamp that lands on nothing fails a test instead of shipping.
 func _stamp_wave_status_on_spawn(enemy: EnemyBase) -> void:
 	if _wave == null:
 		return

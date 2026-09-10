@@ -597,6 +597,11 @@ class PackedSceneOwnerTests(unittest.TestCase):
         pack_at = body.find("ps.pack(proto)")
         self.assertNotEqual(owner_at, -1, "HealthComponent must be owned by the root")
         self.assertNotEqual(machine_at, -1, "state machine must be owned by the root")
+        # And the status manager: `EnemyBase` resolves it out of the scene, so a fixture that packs only
+        # the first two children makes every spawn immune to DoT/stun/shield, and `_stamp_wave_status`
+        # returns quietly on a null manager -- which is what three rounds of CI read as a production bug.
+        status_at = body.find("status.owner = proto")
+        self.assertNotEqual(status_at, -1, "the fixture needs a StatusManager for the wave stamp to land")
         self.assertLess(owner_at, pack_at, "owners must be set before pack()")
         self.assertLess(machine_at, pack_at, "owners must be set before pack()")
 
