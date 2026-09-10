@@ -56,8 +56,8 @@ class AndroidPerformanceTests(unittest.TestCase):
         source = read("scripts/visuals/effect_director.gd")
         self.assertNotRegex(source, r"var _burst_template:")
         claim = source.split("func _claim_burst(")[1].split("func _claim_ring(")[0]
-        self.assertIn("add_child(b)", claim)
-        self.assertIn("_bursts.append(b)", claim)
+        self.assertIn("add_child(burst)", claim)
+        self.assertIn("_bursts.append(burst)", claim)
         self.assertIn("_bursts.size() < MAX_BURSTS", claim)
 
     def test_invalid_projectile_scene_is_freed(self):

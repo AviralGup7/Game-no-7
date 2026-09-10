@@ -393,14 +393,14 @@ static func _index_matches_bruteforce(results: Array) -> void:
 		for at in range(found):
 			seen[index.result_index(at)] = true
 		var brute := {}
-		for i in range(40):
-			if (flags[i] & mask) == 0:
+		for probe_idx in range(40):
+			if (flags[probe_idx] & mask) == 0:
 				continue
-			var dx := xs[i] - center.x
-			var dz := zs[i] - center.z
-			var allowed := radius + pads[i]
+			var dx := xs[probe_idx] - center.x
+			var dz := zs[probe_idx] - center.z
+			var allowed := radius + pads[probe_idx]
 			if dx * dx + dz * dz <= allowed * allowed:
-				brute[i] = true
+				brute[probe_idx] = true
 		if seen.size() != brute.size():
 			mismatches += 1
 		else:

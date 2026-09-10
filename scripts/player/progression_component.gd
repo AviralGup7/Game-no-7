@@ -244,25 +244,25 @@ func restore_progression(snapshot: Dictionary, wave_number: int = -1) -> int:
 	var made_progress := true
 	while made_progress and not pending.is_empty():
 		made_progress = false
-		for id in ids:
-			if not pending.has(id) or int(pending[id]) <= 0:
+		for upgrade_id in ids:
+			if not pending.has(upgrade_id) or int(pending[upgrade_id]) <= 0:
 				continue
-			var config: UpgradeConfig = ContentRegistry.get_upgrade(StringName(id))
+			var config: UpgradeConfig = ContentRegistry.get_upgrade(StringName(upgrade_id))
 			if config == null:
-				EventBus.report_warning("restore_progression: ignoring unknown upgrade %s" % id)
-				pending.erase(id)
+				EventBus.report_warning("restore_progression: ignoring unknown upgrade %s" % upgrade_id)
+				pending.erase(upgrade_id)
 				continue
 			if apply_upgrade(config):
-				pending[id] = int(pending[id]) - 1
+				pending[upgrade_id] = int(pending[upgrade_id]) - 1
 				restored += 1
 				made_progress = true
 			else:
 				# A blocked prerequisite may become valid on a later pass. A hard
 				# wave/exclusion/max-stack failure is naturally exhausted below.
 				continue
-		for id in ids:
-			if pending.has(id) and int(pending[id]) <= 0:
-				pending.erase(id)
+		for upgrade_id in ids:
+			if pending.has(upgrade_id) and int(pending[upgrade_id]) <= 0:
+				pending.erase(upgrade_id)
 	# Any remaining positive entries were invalid for this run (future wave,
 	# exclusion cycle, or malformed data); never partially invent their stats.
 	return restored

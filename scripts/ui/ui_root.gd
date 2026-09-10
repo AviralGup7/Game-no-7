@@ -417,8 +417,8 @@ func _apply_settings(settings: SettingsData) -> void:
 		var tier_idx := [&"low", &"medium", &"high", &"ultra"].find(quality)
 		if tier_idx < 0:
 			tier_idx = 2  # high is the default when save carries an unknown/legacy value
-		for node in monitors:
-			var monitor := node as PerformanceMonitor
+		for monitor_node in monitors:
+			var monitor := monitor_node as PerformanceMonitor
 			if monitor == null:
 				continue
 			monitor.set_tier(tier_idx)

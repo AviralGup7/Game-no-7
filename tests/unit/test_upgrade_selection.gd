@@ -37,8 +37,8 @@ static func suite() -> Array:
 	var again := UpgradeSelector.choose_upgrade_choices(pool, 3, 999, 2, {})
 	var same := three.size() == again.size()
 	if same:
-		for i in three.size():
-			if three[i].upgrade_id != again[i].upgrade_id:
+		for idx in three.size():
+			if three[idx].upgrade_id != again[idx].upgrade_id:
 				same = false
 	results.append({"name": "deterministic for same seed/wave/stacks", "passed": same, "why": ""})
 

@@ -317,7 +317,7 @@ These were not product bugs, but they made the suite assert against meaningless 
 - **`PackedScene.pack()` only serializes children whose `owner` is the pack root.** The
   spawn-manager fixture never set owners, so spawned enemies had no `HealthComponent`,
   `apply_damage` was rejected, nothing could die, and every defeat/clear assertion failed.
-- **`CombatLog.new(4)`** vs the class's `maxi(capacity, 8)` floor, and a melee arc fixture
+- **`CombatLog.new(4)`** vs the class's `maxi(initial_capacity, 8)` floor, and a melee arc fixture
   sitting at *exactly* the 45° boundary (inclusion decided by float rounding).
 
 ### Two process findings worth keeping

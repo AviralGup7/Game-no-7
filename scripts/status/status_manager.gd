@@ -244,12 +244,12 @@ func _physics_process(delta: float) -> void:
 	for id in _effects:
 		_tick_keys.append(id)
 	for i in _tick_keys.size():
-		var id: StringName = _tick_keys[i]
-		if not _effects.has(id):
+		var effect_id: StringName = _tick_keys[i]
+		if not _effects.has(effect_id):
 			continue
-		var fx: StatusEffect = _effects.get(id, null)
+		var fx: StatusEffect = _effects.get(effect_id, null)
 		if fx == null:
-			_expiring.append(id)
+			_expiring.append(effect_id)
 			expired_count += 1
 			continue
 		var was_expired := fx.is_expired()
@@ -260,17 +260,17 @@ func _physics_process(delta: float) -> void:
 			# The one time-dependent change a fold cares about.
 			_aggregates_dirty = true
 		if fx.is_expired():
-			_expiring.append(id)
+			_expiring.append(effect_id)
 			expired_count += 1
 	_tick_keys.clear()
 	if expired_count > 0:
-		for i in _expiring.size():
-			var id: StringName = _expiring[i]
-			_remove_effect(id)
-			effect_expired.emit(id)
+		for exp_idx in _expiring.size():
+			var effect_id: StringName = _expiring[exp_idx]
+			_remove_effect(effect_id)
+			effect_expired.emit(effect_id)
 			var bus := _event_bus()
 			if bus != null:
-				bus.status_expired.emit(_owner_body, id)
+				bus.status_expired.emit(_owner_body, effect_id)
 		_expiring.clear()
 	_ticking = false
 

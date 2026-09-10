@@ -502,27 +502,27 @@ func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
 func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 	# No detached "template" Node: every constructed emitter must enter the
 	# owned pool below so world teardown frees its rendering resources.
-	for b in _bursts:
-		if not b.emitting:
-			b.amount = 22
-			return b
+	for pooled in _bursts:
+		if not pooled.emitting:
+			pooled.amount = 22
+			return pooled
 	# Grow the pool up to the mobile cap.
 	if _bursts.size() < MAX_BURSTS:
-		var b := _make_burst_template() as GPUParticles3D
-		if b == null:
+		var burst := _make_burst_template() as GPUParticles3D
+		if burst == null:
 			return null
-		add_child(b)
-		_bursts.append(b)
-		_burst_prios[b] = priority
-		return b
+		add_child(burst)
+		_bursts.append(burst)
+		_burst_prios[burst] = priority
+		return burst
 	# Saturated: steal the lowest-priority active burst if the new request outranks it.
 	var lowest: GPUParticles3D = null
 	var lowest_prio := 9999
-	for b in _bursts:
-		var pr: int = int(_burst_prios.get(b, PRIORITY_HIT))
+	for pooled in _bursts:
+		var pr: int = int(_burst_prios.get(pooled, PRIORITY_HIT))
 		if pr < lowest_prio:
 			lowest_prio = pr
-			lowest = b
+			lowest = pooled
 	if lowest != null and priority > lowest_prio:
 		lowest.restart()
 		lowest.emitting = false # will be set emitting by caller via restart
@@ -531,29 +531,29 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 
 
 func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
-	for r in _ring_pool:
-		if not r.visible:
-			return r
+	for pooled in _ring_pool:
+		if not pooled.visible:
+			return pooled
 	if _ring_pool.size() < MAX_RINGS:
-		var r := _make_ring()
-		if r != null:
-			add_child(r)
-			_ring_pool.append(r)
-			_ring_prios[r] = priority
-			return r
+		var ring := _make_ring()
+		if ring != null:
+			add_child(ring)
+			_ring_pool.append(ring)
+			_ring_prios[ring] = priority
+			return ring
 	# Saturated: steal the lowest-priority visible ring if new request is higher.
 	# Never evict a live BOSS ring for a grunt/spawn tell.
 	var lowest: Node3D = null
 	var lowest_prio := 9999
-	for r in _ring_pool:
-		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
-		if not r.visible:
+	for pooled in _ring_pool:
+		var pr: int = int(_ring_prios.get(pooled, PRIORITY_HIT))
+		if not pooled.visible:
 			continue
 		if priority < PRIORITY_BOSS and pr >= PRIORITY_BOSS:
 			continue
 		if pr < lowest_prio:
 			lowest_prio = pr
-			lowest = r
+			lowest = pooled
 	if lowest != null and priority > lowest_prio:
 		lowest.visible = false
 		_prune_telegraph_count()

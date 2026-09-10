@@ -120,13 +120,13 @@ func _apply_model() -> void:
 	if config.visual_scene != null:
 		var key := config.visual_scene.resource_path + ":" + str(config.visual_extent)
 		if not _models.has(key):
-			var model := ModelVisual.create(config.visual_scene, config.visual_extent)
-			if model != null:
-				_visual.add_child(model)
-				model.position.y = 0.2
+			var cached_model := ModelVisual.create(config.visual_scene, config.visual_extent)
+			if cached_model != null:
+				_visual.add_child(cached_model)
+				cached_model.position.y = 0.2
 				# Same HD material pass as actors/props: anisotropic + tuned PBR.
-				HdMaterials.polish(model)
-				_models[key] = model
+				HdMaterials.polish(cached_model)
+				_models[key] = cached_model
 		selected = _models.get(key) as Node3D
 	if selected != null:
 		selected.visible = true

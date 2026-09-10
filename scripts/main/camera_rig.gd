@@ -41,7 +41,10 @@ var _has_snapped := false
 var _non_finite_reported := false
 
 # Modules
-var _input := CameraInputHandler.new()
+## `_input_handler`, not `_input`: the latter shadows Node._input(), which the
+## engine calls for unhandled input. This is the camera's input module, not a
+## virtual-method override.
+var _input_handler := CameraInputHandler.new()
 var _velocity := CameraVelocityTracker.new()
 var _focus := CameraFocusTracker.new()
 var _orbit_state := CameraOrbitState.new()
@@ -74,11 +77,11 @@ func _ready() -> void:
 	_profile._clamp_profile_fields()
 
 	# Setup modules
-	_input.setup(_profile)
+	_input_handler.setup(_profile)
 	_velocity.setup(Vector3.ZERO, 8.0)
 	_orbit_state.setup_from_profile(_profile, 0.0)
 	_auto_follow.setup(_profile)
-	_orbit.setup(_profile, _orbit_state, _input, _auto_follow)
+	_orbit.setup(_profile, _orbit_state, _input_handler, _auto_follow)
 	_collision.setup(_profile)
 	_framing.setup(_profile)
 	_fov.setup(_profile)
@@ -131,7 +134,7 @@ func set_camera_profile(profile: CameraProfile) -> void:
 		return
 	_profile = profile
 	_profile._clamp_profile_fields()
-	_input.set_profile(_profile)
+	_input_handler.set_profile(_profile)
 	_focus.set_profile(_profile)
 	_auto_follow.set_profile(_profile)
 	_orbit.set_profile(_profile)
@@ -160,7 +163,7 @@ func reset_transform() -> void:
 	_collision.invalidate_cache()
 	_shake.reset()
 	_auto_follow.reset()
-	_input.reset()
+	_input_handler.reset()
 	_collision.recovery_timer = 0.0
 	_mode.reset()
 	if _target != null:
@@ -218,7 +221,7 @@ func get_debug_snapshot() -> Dictionary:
 		"target_velocity": _velocity.velocity,
 		"target_speed": _velocity.speed,
 		"modules": {
-			"input": _input != null,
+			"input": _input_handler != null,
 			"velocity": _velocity != null,
 			"focus": _focus != null,
 			"orbit": _orbit_state != null,
@@ -278,7 +281,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _enabled:
 		return
 	if event is InputEventMouseMotion:
-		_input.handle_mouse_motion(event as InputEventMouseMotion)
+		_input_handler.handle_mouse_motion(event as InputEventMouseMotion)
 	elif event is InputEventScreenDrag:
 		# Touch drag on right half of screen = camera orbit (mobile)
 		var drag := event as InputEventScreenDrag
@@ -290,7 +293,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			# Feed as mouse motion scaled for touch
 			var mm := InputEventMouseMotion.new()
 			mm.relative = drag.relative * 0.8
-			_input.handle_mouse_motion(mm)
+			_input_handler.handle_mouse_motion(mm)
 	if event.is_action_pressed("camera_reset") or event.is_action_pressed("lock_on"):
 		if not toggle_lock_on():
 			reset_orbit()
