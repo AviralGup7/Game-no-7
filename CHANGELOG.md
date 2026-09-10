@@ -81,10 +81,13 @@ not from memory; two of my own intermediate conclusions were wrong and are retra
   stale id — points at the preset too. Its checklist gains the new behaviors: press-down
   fire, no layout jump on declined taps, Back routing, interrupt auto-pause, logcat hygiene.
 
-Gates on this round: 786 python tests (770 + 16 in the new `test_regress_mobile_input_contract`),
-`validate_guards.py` 201/0 (+6 needles), `validate_resources.py` 159/159, `check_typed_arch.py`
-clean, `gdparse`/`gdlint` clean on every file touched, `bash -n` on the QA script.
-`docs/HARDENING.md` counts follow (201 needles, 786 tests; DocCountTests re-derives them),
+Gates on this round: 794 python tests (16 in the new `test_regress_mobile_input_contract`,
+plus 8 from `main`'s PR #42 merged in cleanly — its game_root transition serialization
+auto-merged with the auto-pause handler and composes with it: a pause requested mid-transition
+is queued, not lost), `validate_guards.py` 201/0 (+6 needles), `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched, `bash -n` on the
+QA script.
+`docs/HARDENING.md` counts follow (201 needles, 794 tests; DocCountTests re-derives them),
 `docs/ARCHITECTURE.md` documents the input/interruption/emulation contract, and
 `tests/ui/ui_test_runner.gd` carries the press-semantics assertions for the headless run.
 
