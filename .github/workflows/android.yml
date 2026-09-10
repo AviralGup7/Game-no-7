@@ -88,6 +88,15 @@ jobs:
         shell: bash
         run: python3 tool/check_string_formats.py
 
+      # Signal contract gate: every signal name and emit arity is resolved
+      # against the declaring classes (self chains, autoloads, engine signals
+      # from tool/godot_api_manifest.json) and connected callables are
+      # checked for parameter compatibility. A phantom signal or wrong arity
+      # is a runtime error in the engine. Hermetic: stdlib-only.
+      - name: Signal contract gate
+        shell: bash
+        run: python3 tool/check_signals.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |

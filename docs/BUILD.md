@@ -93,6 +93,11 @@ python3 tool/check_scene_paths.py
 # placeholder mismatch fails the build instead of erroring at runtime.
 python3 tool/check_string_formats.py
 
+# Signal contract gate (offline, stdlib-only): every signal name and emit
+# arity is resolved against the declaring classes; a phantom signal or a
+# wrong arity fails the build instead of erroring at runtime.
+python3 tool/check_signals.py
+
 # Content/data registry validation runs at startup and via TestHarness.
 # Headless unit tests:
 godot --headless --path . --script res://tests/run_tests.gd

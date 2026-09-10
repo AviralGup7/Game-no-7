@@ -1,5 +1,52 @@
 # Changelog
 
+## [Unreleased] — The signal contract became a gate: names and arities, pinned offline (2026-09-10)
+
+Fourth pass of *what is the weakest section of an all-green tree?* The ClassDB, the node tree and
+the `%` operator are pinned; the last big unpinned messaging surface was the game's own
+**signals**: 133 declared across 39 scripts, an EventBus-centric architecture, ~210 calls through
+autoload receivers, ~138 through implicit `self`, plus dynamic receivers and two legacy string
+forms. Per the pinned engine's docs (4.4.1-stable `Object.connect` / `Signal.emit`), a nonexistent
+signal name is a runtime error, a wrong emit arity is a runtime error, and the engine invokes a
+connected Callable with exactly the signal's arguments — a method whose parameter list cannot take
+them fails at emit time. gdparse/gdlint see none of it; the headless suites only exercise the
+connections their flows happen to take.
+
+- **The manifest grew signal arities.** `tool/build_api_manifest.py` now records every engine
+  signal's parameter count alongside its name (regenerated from the same sha-verified
+  4.4.1-stable tagball: 994 classes, 466 engine signals with arities — `Node.ready` = 0,
+  `Area3D.body_entered` = 1), so inherited engine signals and their arities are part of the
+  checked-in contract.
+- **The gate is `tool/check_signals.py`** — stdlib-only, hermetic, wired into CI's
+  `validate-resources` stage. It resolves every signal operation on its receiver: implicit `self`
+  (walking the `extends` chain through project scripts into engine signals), autoloads (whose
+  class is known exactly, so those checks are strict, arity included), legacy string forms
+  (`emit_signal("x", ...)`, `connect("x", ...)`, receiver-aware), and connected callables — a
+  same-file method must satisfy `required <= signal params <= total` (defaults widen the range,
+  exactly as the engine's call will), and inherited engine methods are existence-verified.
+  Severity follows the sibling gates: a name declared *nowhere* is a phantom and fails the build
+  whatever the receiver; a dynamic receiver using a name declared elsewhere is the engine's
+  UNSAFE-access analogue, reported as advisory warnings (244 today, `--verbose` lists them);
+  `has_signal` probes are counted, never flagged. The tree's guarded duck-typing
+  (`if _host.has_signal("state_changed"): _host.emit_signal(...)`) stays legal by construction.
+- **First-run result: clean.** 138 self-signal ops, 210 autoload-receiver ops, 4 legacy string
+  forms and 264 dynamic receivers checked — zero phantoms, zero arity mismatches. The value is
+  the pin: the three defect classes this tree shipped before were all "name the pinned engine
+  doesn't answer"; the fourth class — "signal the declaring class doesn't declare" — now fails
+  the build before it can ship instead of at runtime on a flow the headless suites don't touch.
+  (One false positive the gate caught in its own bring-up became a real fix to the gate:
+  connected callables resolve through the class chain, so `resized.connect(queue_redraw)` on a
+  `Control` is verified as CanvasItem's method, not flagged as a phantom.)
+- **The gate is pinned by tests.** `tests/python/test_regress_signal_contract.py` (26 tests): the
+  tree runs clean with real volume (>=130 self ops, >=200 autoload ops, >=4 string forms), the
+  manifest carries engine signal arities, and one synthetic negative per error class — bare/chained/
+  autoload phantoms, declared-elsewhere warning split, engine-inherited signals, emit arity
+  (self and autoload), phantom callables, callable arity out of range, default-parameter ranges,
+  inherited engine callables, legacy string forms (bare, dynamic-receiver, `has_signal` probes).
+  871 python tests green (was 845).
+- Docs: HARDENING tooling + checklist, EXTENDING conventions, BUILD validation list, README
+  offline-gate commands.
+
 ## [Unreleased] — The string-format contract became a gate: sprintf's rules, pinned offline (2026-09-10)
 
 Third pass of *what is the weakest section of an all-green tree?* The ClassDB is pinned, the node

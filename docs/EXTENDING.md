@@ -465,6 +465,15 @@ internals:
   the right number of values over `+` concatenation around a partial format
   (`"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, which prints its own
   placeholders).
+- **Signals are a checked contract.** `tool/check_signals.py` resolves every
+  signal name on its receiver — implicit `self` (walking the `extends` chain
+  into engine signals), the autoloads, and the legacy string forms — checks
+  every `emit` against the declared parameter count, and checks a connected
+  same-file method's parameter range against the signal's arity. Renaming or
+  re-typing a signal means answering the gate everywhere it is emitted or
+  connected; a name that exists nowhere fails the build, and a guarded
+  duck-typed probe (`has_signal` before `emit_signal`) stays legal because
+  the name exists somewhere.
 
 ## 13. Add a game mode
 

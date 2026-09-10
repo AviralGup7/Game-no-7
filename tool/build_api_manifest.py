@@ -8,8 +8,9 @@ The engine is pinned (`GODOT_VERSION` in `.github/workflows/android.yml` and
 with is a fixed, knowable contract. The doc XML files that ship in the engine
 source tag ARE that contract: every method, property, signal and constant of
 every class, plus `@GlobalScope`. This manifest is that contract, reduced to
-names (+ static-ness + return types) and checked in, so gates can fail a
-phantom-member reference **offline**, on every PR, with no Godot binary.
+names (+ static-ness + return types, + signal parameter counts for the signal
+gate's arity checks) and checked in, so gates can fail a phantom-member
+reference **offline**, on every PR, with no Godot binary.
 
 The defect class this pins has shipped five times already (each survived at
 least one review pass, because gdparse/gdlint are syntax checks with no
@@ -116,7 +117,14 @@ def class_entry(root: ET.Element) -> tuple[str, dict]:
         if setter and setter not in methods:
             methods[setter] = "m"
     props = sorted(set(props))
-    signals = sorted({s.get("name") for s in root.iter("signal") if s.get("name")})
+    # Signals map name -> parameter count: the signal gate checks emit arity
+    # and connect-callable arity against these, exactly as the engine does
+    # when it calls the connected Callable with the emitted arguments.
+    signals: dict[str, int] = {}
+    for s in root.iter("signal"):
+        sname = s.get("name")
+        if sname:
+            signals[sname] = len(s.findall("param"))
     consts = sorted({c.get("name") for c in root.iter("constant") if c.get("name")})
     entry: dict = {}
     if inherits:
@@ -126,7 +134,7 @@ def class_entry(root: ET.Element) -> tuple[str, dict]:
     if props:
         entry["properties"] = props
     if signals:
-        entry["signals"] = signals
+        entry["signals"] = dict(sorted(signals.items()))
     if consts:
         entry["constants"] = consts
     return name, entry
