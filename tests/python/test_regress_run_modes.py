@@ -616,7 +616,7 @@ class NoCodeTableTests(Bans, unittest.TestCase):
             self.assertIn(needle, body, f"spawn_queue stopped honouring `{needle}`")
         # The planner is *asked*, never written into: the old builders appended to the array the
         # planner returned, which is fine only while nobody caches one.
-        self.assertIn("out = WavePlanner.extended_queue_for_wave(asked, seed)", body,
+        self.assertIn("out = WavePlanner.extended_queue_for_wave(asked, rng_seed)", body,
                       "spawn_queue no longer takes the planner's fresh array as its own base")
         floats = re.findall(r"\d+\.\d+", body)
         self.assertEqual(floats, [], f"spawn_queue is authoring magnitudes: {floats}")
@@ -994,7 +994,7 @@ class LiveRunDefinitionStageTests(Bans, unittest.TestCase):
 
     def test_the_stage_exists_and_is_reached(self) -> None:
         txt = read(STAGES_GD)
-        self.assertIn("static func _run_run_definition_integration(tree: SceneTree) -> Array", txt)
+        self.assertIn("static func _run_run_definition_integration(_tree: SceneTree) -> Array", txt)
         # Chained, not merely defined: the runner only calls the combat and encounter stages, so a
         # stage nobody appends is a stage that reports zero cases.
         self.assertIn("results.append_array(_run_run_definition_integration(tree))", txt)

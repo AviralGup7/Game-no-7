@@ -197,7 +197,7 @@ def main() -> int:
     	('scripts/meta/game_mode.gd', 'static func definition(mode_id: StringName) -> GameModeConfig'),
     	('scripts/meta/game_mode.gd', 'push_error("GameMode: unknown mode id'),
     	('scripts/meta/game_mode.gd', 'cfg.plan_for_wave(w)'),
-    	('scripts/meta/game_mode.gd', 'out = WavePlanner.extended_queue_for_wave(asked, seed)'),
+    	('scripts/meta/game_mode.gd', 'out = WavePlanner.extended_queue_for_wave(asked, rng_seed)'),
     	('scripts/meta/game_mode.gd', 'DirAccess.open("res://data/game_modes")'),
     	('scripts/meta/game_mode_config.gd', 'func overrides_planner() -> bool'),
     	('scripts/meta/game_mode_config.gd', 'func plan_for_wave(wave_number: int) -> GameModeWavePlan'),

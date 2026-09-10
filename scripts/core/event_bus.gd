@@ -58,6 +58,60 @@ signal objective_progress(label: String, progress: int, target: int)
 signal objective_resolved(mode_id: StringName, success: bool)
 
 
+## Every signal this bus declares, in declaration order.
+##
+## Emitters and observers reference these members directly; this is the
+## machine-readable view of the same contract, for tests and tooling that need
+## the whole set at once — asserting the registry below cannot drift from the
+## declarations above, or reporting which channels have no observer yet.
+## res://tests/unit/test_event_bus_contract.gd pins this against
+## Script.get_script_signal_list(), so a signal added above without being
+## registered here fails the headless suite instead of drifting silently.
+func owned_signals() -> Array[Signal]:
+	return [
+		game_state_changed,
+		run_started,
+		run_ended,
+		player_health_changed,
+		player_died,
+		enemy_spawned,
+		enemy_damaged,
+		enemy_killed,
+		wave_started,
+		wave_progressed,
+		wave_completed,
+		upgrade_choices_presented,
+		upgrade_selected,
+		score_changed,
+		currency_changed,
+		combo_changed,
+		pause_changed,
+		settings_changed,
+		save_completed,
+		save_failed,
+		weapon_equipped,
+		weapon_switched,
+		projectile_fired,
+		skill_unlocked,
+		skill_cast,
+		skill_ready,
+		pickup_collected,
+		pickup_spawned,
+		status_applied,
+		status_expired,
+		player_leveled_up,
+		stamina_changed,
+		boss_phase_changed,
+		boss_spawned,
+		boss_slain,
+		wave_mutator_applied,
+		achievement_unlocked,
+		tutorial_step_completed,
+		announcement,
+		diagnostic,
+		objective_progress,
+		objective_resolved,
+	]
 ## Bind `cb` to `sig` and automatically disconnect when `host` leaves the tree.
 ## Autoload signals otherwise outlive per-run nodes if a future RefCounted or
 ## autoload subscriber is added. Production nodes still free their connections

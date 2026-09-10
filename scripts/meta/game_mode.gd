@@ -304,12 +304,12 @@ static func objective_label(mode_id: StringName, wave: int, elapsed: float, boss
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
 			var left := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Survive  %d:%02d remaining" % [int(int(left) / 60.0), int(left) % 60]
+			return "Survive  %d:%02d remaining" % [int(int(left) / float(60)), int(left) % 60]
 		OBJECTIVE_SLAY_BOSSES:
 			return "Bosses  %d / %d" % [bosses_slain, max_waves(mode_id)]
 		OBJECTIVE_DEFEND_POINT:
 			var left_d := maxf(target_seconds(mode_id) - elapsed, 0.0)
-			return "Hold  %d:%02d  •  Beacon %d%%" % [int(int(left_d) / 60.0), int(left_d) % 60, clampi(progress, 0, 100)]
+			return "Hold  %d:%02d  •  Beacon %d%%" % [int(int(left_d) / float(60)), int(left_d) % 60, clampi(progress, 0, 100)]
 		OBJECTIVE_COLLECT:
 			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:

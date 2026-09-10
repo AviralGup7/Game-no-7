@@ -573,7 +573,7 @@ class SelectionDeterminismTests(Bans, unittest.TestCase):
 
     def test_resolve_keeps_its_signature_for_forced_and_authored_waves(self):
         src = code(SELECTOR_GD)
-        self.assertIn("static func resolve_for_wave(declared: Array, wave: int, seed: int, "
+        self.assertIn("static func resolve_for_wave(declared: Array, wave: int, rng_seed: int, "
                       "breather: bool, spice: bool) -> Array[StringName]", src)
         self.assertIn("break", src.split("spice")[2].split("static func display_name")[0]
                       if "spice" in src else "", "the spice pick must stop at the first distinct id")
