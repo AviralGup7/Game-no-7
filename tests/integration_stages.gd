@@ -894,16 +894,10 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	results.append({
 		"name": "the wave's folded record scales spawns and stamps its status",
 		"passed": record_ok and consumed_the_chance,
-		"why": "has=%s stacks=%s full=%s attack=%s hp=%s blasts=%s (stacks=%d max=%s atk=%s tree=%s" \
-				+ " mgr=%s children=%s)" % [
-				str(has_ok), str(stack_ok), str(full_ok), str(attack_ok), str(hp_ok),
-				str(consumed_the_chance),
-				stamped_manager.stack_count(&"ember_air") if stamped_manager != null else -1,
-				str(health_component.get_max()) if health_component != null else "none",
-				str(stamped.get_effective_attack_damage()) if stamped != null else "none",
-				str(stamped.is_inside_tree()) if stamped != null else "none",
-				str(stamped.get_node_or_null("StatusManager")) if stamped != null else "none",
-				str(stamped.get_children().map(func(c): return c.name)) if stamped != null else []],
+		# Built as a joined array on purpose: `"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, so the
+		# concatenated format string this replaces printed its own placeholders instead of the answer.
+		"why": _describe_record(has_ok, stack_ok, full_ok, attack_ok, hp_ok, consumed_the_chance,
+				stamped, stamped_manager, health_component, cfg_basic, sm),
 	})
 
 	timer.stop()
@@ -920,6 +914,35 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 ## what the announcer emits, that a mode's scripted queue survives the registry hop, and that the
 ## prestige ladder's rung is the number the scoreboard multiplies with. In a running game these all
 ## resolve through ContentRegistry, which is a different path than the harness's folder scan.
+## The record check's diagnosis in one line: which clause moved, what the entity actually is, and
+## whether the spawner still holds the wave that was asked for. `record=false` sent two rounds of
+## reading to a one-bit answer, which is not a diagnosis.
+static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack_ok: bool,
+		hp_ok: bool, blasts_ok: bool, stamped: EnemyBase, stamped_manager: StatusManager,
+		health_component: HealthComponent, cfg_basic: EnemyConfig, sm: Node) -> String:
+	var parts := PackedStringArray()
+	parts.append("has=%s" % str(has_ok))
+	parts.append("stacks=%s" % str(stack_ok))
+	parts.append("full=%s" % str(full_ok))
+	parts.append("attack=%s" % str(attack_ok))
+	parts.append("hp=%s" % str(hp_ok))
+	parts.append("blasts=%s" % str(blasts_ok))
+	parts.append("stacks=%d" % (stamped_manager.stack_count(&"ember_air") if stamped_manager != null else -1))
+	parts.append("max=%s" % (str(health_component.get_max()) if health_component != null else "none"))
+	parts.append("atk=%s" % (str(stamped.get_effective_attack_damage()) if stamped != null else "none"))
+	parts.append("want=%s/%s" % [str(cfg_basic.max_health * 1.6), str(cfg_basic.attack_damage * 1.5)])
+	parts.append("tree=%s" % (str(stamped.is_inside_tree()) if stamped != null else "none"))
+	parts.append("node=%s" % (str(stamped.get_node_or_null("StatusManager")) if stamped != null else "none"))
+	parts.append("kids=%s" % (", ".join(PackedStringArray(
+			stamped.get_children().map(func(c): return String(c.name)))) if stamped != null else "none"))
+	var wave: WaveModifiers = sm.get_wave_modifiers() if sm != null else null
+	parts.append("wave_effect=%s" % (str(wave.status_effect) if wave != null else "no-record"))
+	parts.append("wave_stacks=%d" % (wave.status_stacks if wave != null else -1))
+	parts.append("wave_targets=%s/%s" % [str(wave.status_targets_enemies) if wave != null else "?",
+			str(wave.status_targets_player) if wave != null else "?"])
+	return ", ".join(parts)
+
+
 static func _run_run_definition_integration(tree: SceneTree) -> Array:
 	var results: Array = []
 
