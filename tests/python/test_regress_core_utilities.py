@@ -26,4 +26,13 @@ class UpgradeSelectorTests(unittest.TestCase):
         txt=read("scripts/progression/upgrade_selector.gd")
         self.assertIn("is_finite(c.weight)",txt)
         self.assertIn("is_finite(total)",txt)
+
+class ObjectPoolTests(unittest.TestCase):
+    def test_pool_tracks_ownership_and_factory_failures(self):
+        txt=read("scripts/utilities/object_pool.gd")
+        self.assertIn("var _leased: Array = []", txt)
+        self.assertIn("if obj == null or not _leased.has(obj)", txt)
+        self.assertIn("if obj == null:\n\t\t\tbreak", txt)
+        self.assertIn("_live_count = _leased.size()", txt)
+
 if __name__=="__main__": unittest.main()

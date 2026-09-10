@@ -14,6 +14,9 @@ extends RefCounted
 var _create_fn: Callable
 var _reset_fn: Callable
 var _free: Array = []
+# Explicit ownership tracking prevents an object from being released into a
+# different pool (or released twice) and silently corrupting live_count.
+var _leased: Array = []
 var _live_count := 0
 var _total_created := 0
 var _max_size: int = 256
@@ -35,35 +38,46 @@ func prewarm_pool(count: int) -> void:
 		return
 	var target := mini(count, _max_size)
 	while _free.size() < target:
-		_free.append(_create_fn.call())
+		var obj: Variant = _create_fn.call()
+		# A failed factory must not seed null entries or make this loop unbounded.
+		if obj == null:
+			break
+		_free.append(obj)
 		_total_created += 1
 
 
 ## Take an object from the pool (freshly created when empty). Returns null when
-## no create fn is configured.
+## no create fn is configured or a factory fails. Every successful acquire is
+## recorded so release can reject foreign and duplicate objects safely.
 func acquire() -> Variant:
 	if not _create_fn.is_valid():
 		return null
 	var obj: Variant = null
-	if _free.is_empty():
-		obj = _create_fn.call()
-		_total_created += 1
-	else:
+	while not _free.is_empty() and obj == null:
 		obj = _free.pop_back()
-	if _reset_fn.is_valid() and obj != null:
+	if obj == null:
+		obj = _create_fn.call()
+		if obj == null:
+			return null
+		_total_created += 1
+	if _reset_fn.is_valid():
 		_reset_fn.call(obj)
-	_live_count += 1
+	_leased.append(obj)
+	_live_count = _leased.size()
 	return obj
 
 
-## Return an object. Unknown/duplicate releases are ignored defensively; objects
-## beyond max_size are dropped so the pool cannot grow without bound.
+## Return an object. Only objects currently leased from this pool are accepted;
+## unknown/duplicate releases are ignored. Reset on release prevents stale state
+## from leaking into a later use, while the acquire reset remains a second line
+## of defence for callers whose reset function depends on activation context.
 func release(obj: Variant) -> void:
-	if obj == null:
+	if obj == null or not _leased.has(obj):
 		return
-	if obj in _free:
-		return
-	_live_count = maxi(_live_count - 1, 0)
+	_leased.erase(obj)
+	_live_count = _leased.size()
+	if _reset_fn.is_valid():
+		_reset_fn.call(obj)
 	if _free.size() >= _max_size:
 		_free_release_overflow(obj)
 		return
