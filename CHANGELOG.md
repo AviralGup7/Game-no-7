@@ -1,5 +1,42 @@
 # Changelog
 
+## [Unreleased] — The string-format contract became a gate: sprintf's rules, pinned offline (2026-09-10)
+
+Third pass of *what is the weakest section of an all-green tree?* The ClassDB is pinned, the node
+tree is pinned; what remained was the tree's largest single runtime-error surface with zero
+coverage: the **`%` format operator**. The tree formats ~833 messages with it — every `push_error`,
+every authored-content validation problem, every combat-log line, every test `why` — and the pinned
+engine's semantics (verified in the 4.4.1-stable source: `String::sprintf` in
+`core/string/ustring.cpp`, `OperatorEvaluatorStringFormat` in `core/variant/variant_op.h`, the
+parser's "Allow for trailing comma" in `gdscript_parser.cpp`) are strict: an Array operand must
+match the placeholder count exactly, a scalar operand is wrapped to one element, `%d/%o/%x/%X/%f`
+demand numbers, `%v` a vector, `%c` a number or single character, `*` consumes an extra value —
+and any mismatch is a runtime `ERR_FAIL_MSG`, not a warning. The tree has even been stung by the
+class's cousin already: `tests/integration_stages.gd` carries a comment explaining how a
+concatenated format once printed its own placeholders because `"a" + "b" % [..]` binds as
+`"a" + ("b" % [..])`.
+
+- **The gate is `tool/check_string_formats.py`** — stdlib-only, hermetic, wired into CI's
+  `validate-resources` stage. It tokenizes every `.gd` in `scripts/` and `tests/` (strings,
+  escapes, comments, `&`/`^` StringName/NodePath literals all understood), finds every string
+  literal followed by `%`, parses the format with the engine's placeholder grammar, counts Array
+  operands element-by-element (trailing-comma-aware, nesting- and string-aware), and type-checks
+  obvious literal arguments against their slots. Error messages quote the engine's own reasons.
+- **First-run finding, fixed:** `tests/unit/test_wave_mutators.gd` fed two values to a
+  one-placeholder format (`"one_sided=%s" % [enemies, player]`) — the engine raises
+  "not all arguments converted during string formatting" on it and leaves the raw format text in
+  the `why` string. It shipped because the test's assertion never reads `why`, so the error was
+  logged silently on every headless run. Now `"one_sided=%s/%s"`.
+- **The gate is pinned by tests.** `tests/python/test_regress_string_format_contract.py`
+  (25 tests): the tree runs clean with all 833 uses checked, and one synthetic negative per error
+  class — array too-few/too-many, scalar with zero or two placeholders, trailing-comma and
+  multi-line forms, `%%` escape, `*` dynamic width, unknown type character, incomplete trailing
+  `%`, string-into-number slot, number-into-`%v`, long-into-`%c`, plus the not-format lookalikes
+  (integer modulo, StringName/NodePath literals, comment content) and the concatenation
+  precedence trap. 845 python tests green (was 820).
+- Docs: HARDENING tooling + checklist, EXTENDING conventions, BUILD validation list, README
+  offline-gate commands.
+
 ## [Unreleased] — The scene-path contract became a gate: the tree's own node names, pinned offline (2026-09-10)
 
 Second pass of the same question — *what is the weakest section of an all-green tree?* — after the

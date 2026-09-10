@@ -88,6 +88,11 @@ python3 tool/check_engine_api.py
 # node fails the build instead of the runtime.
 python3 tool/check_scene_paths.py
 
+# String-format contract gate (offline, stdlib-only): every "..." % use is
+# verified against the pinned engine's String::sprintf rules; an arity or
+# placeholder mismatch fails the build instead of erroring at runtime.
+python3 tool/check_string_formats.py
+
 # Content/data registry validation runs at startup and via TestHarness.
 # Headless unit tests:
 godot --headless --path . --script res://tests/run_tests.gd

@@ -80,6 +80,14 @@ jobs:
         shell: bash
         run: python3 tool/check_scene_paths.py
 
+      # String-format contract gate: every `"..." %` use is checked against
+      # the 4.4.1-stable String::sprintf rules (placeholder syntax, exact
+      # array arity, scalar wrapping, literal types). A mismatch is a runtime
+      # ERROR in the engine. Hermetic: stdlib-only, no Godot binary.
+      - name: String format contract gate
+        shell: bash
+        run: python3 tool/check_string_formats.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |

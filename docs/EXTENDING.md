@@ -456,6 +456,15 @@ internals:
   runtime and an `or_null` one is dead code. Nodes a variant scene adds into
   an instantiated base scene's subtree are legal and understood (the
   enemy-variant pattern).
+- **Format strings are checked against the engine's `sprintf`.** Every
+  `"..." %` use is verified by `tool/check_string_formats.py`: the array on the
+  right must match the placeholder count exactly, a non-array right side is
+  wrapped to one element, and `%d/%o/%x/%X/%f`/`%v`/`%c` demand number/vector/
+  char values. A mismatch is a runtime engine ERROR, so the gate fails the
+  build instead. When you build a message from parts, prefer one format with
+  the right number of values over `+` concatenation around a partial format
+  (`"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, which prints its own
+  placeholders).
 
 ## 13. Add a game mode
 

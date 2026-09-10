@@ -165,6 +165,14 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
   no scene and no code, wrote it to a member nothing ever read, and had done so on every
   headless run without a peep
 - `scripts/download_assets.py --verify` — offline checksum lock verification
+- `tool/check_string_formats.py` — string-format contract gate: every `"..." %` use is checked
+  against the 4.4.1-stable `String::sprintf` rules reduced from the engine source (placeholder
+  syntax `d o x X f v s c`, `%%` escape, `*` dynamic-width consuming an extra value, exact array
+  arity with trailing-comma-aware counting, scalar-wraps-to-one-element, and literal type checks
+  for numeric/`%v`/`%c` slots). A mismatch is a runtime `ERR_FAIL_MSG` in the engine, not a
+  warning. Its first run found one already: `tests/unit/test_wave_mutators.gd` fed two values to
+  a one-placeholder format — the test's assertion never read the `why` string, so the error was
+  logged silently on every run. 833 format uses are now pinned.
 
 ## How to add a new system
 
@@ -182,7 +190,7 @@ Each stage uploads its own `reports-*` artifact so failures bisect trivially.
    `python3 tool/validate_guards.py` — both must be green before push.
 4. Run `python3 tool/validate_resources.py && python3 tool/validate_assets.py &&
    python3 tool/check_typed_arch.py && python3 tool/check_engine_api.py &&
-   python3 tool/check_scene_paths.py`.
+   python3 tool/check_scene_paths.py && python3 tool/check_string_formats.py`.
 
 ## Metrics
 
