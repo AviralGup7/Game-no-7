@@ -167,7 +167,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  59% ] [90m[1mupdate_scripts_classes[22m | UiText[39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | UiTheme[39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | UpgradePanel[39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | VirtualJoystick[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | TouchJoystick[39m[0m
 [  61% ] [90m[1mupdate_scripts_classes[22m | InputRemapper[39m[0m
 [  61% ] [90m[1mupdate_scripts_classes[22m | InputTrace[39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | JsonHelpers[39m[0m
@@ -784,11 +784,11 @@ WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 [  24% ] [90m[1mreimport[22m | impact_punch_medium_001.ogg[39m[0m
+[  24% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
-[  24% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
@@ -1471,12 +1471,4 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: Cannot infer the type of "value" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/ui/touch_controls.gd:79)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/ui/ui_root.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/main/main.gd:0)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 cannot connect to daemon at tcp:5037: Connection refused
