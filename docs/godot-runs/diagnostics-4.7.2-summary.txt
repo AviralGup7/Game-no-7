@@ -1,11 +1,19 @@
 ########## diag-import.log
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
+      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
+      1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
+      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "REGULAR" constant because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "BOLD" constant because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
 
 ########## diag-tests.log
      66 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+      3 ERROR: Parameter "material" is null.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -14,22 +22,21 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
-      1 ERROR: Parameter "material" is null.
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    350 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    182 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    351 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    183 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
      97 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     79 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+     80 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       3 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
@@ -47,6 +54,7 @@
       2 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
+      1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compilation failed".
@@ -154,6 +162,9 @@
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_attack_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/boss_controller.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_mode_toggle.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_overlay.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/upgrade_service.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/test_harness.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/scene_router.gd" with error "Compilation failed".
@@ -188,6 +199,7 @@
      66 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+      3 ERROR: Parameter "material" is null.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -201,7 +213,6 @@
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
-      1 ERROR: Parameter "material" is null.
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
@@ -210,6 +221,7 @@
 ########## diag-wae-probe.log
 
 ########## diag-lsp.txt
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
 
 ########## diag-lsp.err
 

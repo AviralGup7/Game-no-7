@@ -414,7 +414,7 @@ ERROR: Failed to load script "res://scripts/core/game_root.gd" with error "Compi
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/run_analytics.gd:18)
+          at: GDScript::reload (res://scripts/core/run_analytics.gd:19)
 ERROR: Failed to load script "res://scripts/core/run_analytics.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/run_scorekeeper.gd
@@ -449,6 +449,35 @@ SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
 ERROR: Failed to load script "res://scripts/core/upgrade_service.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/validated_config.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/debug/debug_error_handler.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:81)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/debug_error_overlay.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:134)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_overlay.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/debug_log_buffer.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/debug/debug_mode_toggle.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
+          at: GDScript::reload (res://scripts/debug/debug_mode_toggle.gd:13)
+ERROR: Failed to load script "res://scripts/debug/debug_mode_toggle.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/debug/error_report.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/enemies/boss_controller.gd
@@ -868,7 +897,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:71)
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/main/main.gd
@@ -941,7 +970,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 ERROR: Failed to load script "res://scripts/player/player_equipment.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/main/camera_rig.gd:71)
+          at: GDScript::reload (res://scripts/main/camera_rig.gd:74)
 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
@@ -1392,7 +1421,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-          at: GDScript::reload (res://scripts/ui/menu_panel.gd:71)
+          at: GDScript::reload (res://scripts/ui/menu_panel.gd:77)
 ERROR: Failed to load script "res://scripts/ui/menu_panel.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/ui/minimap.gd
@@ -2147,6 +2176,12 @@ ERROR: Failed to load script "res://tests/unit/test_enemy_behaviors.gd" with err
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://tests/unit/test_enemy_scene_inheritance.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_error_report.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_event_bus_contract.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://tests/unit/test_extracted_modules.gd
