@@ -33,6 +33,9 @@ boot_splash/bg_color=Color(0.09, 0.1, 0.12, 1)
 ; the engine defers tree insertion — but only earlier _ready()s have run).
 ; Keep this dependency-first ordering:
 ;   EventBus      — no dependencies (signals only)
+;   DebugErrorHandler — EventBus only (diagnostic tap); persists its own flag in
+;     user://debug_mode.cfg (never SaveManager), so it can sit second and capture
+;     boot errors from every later singleton
 ;   SaveManager   — loads from disk in _ready(); reports through EventBus
 ;   AudioManager  — applies SaveManager settings + EventBus signals at _ready()
 ;   ContentRegistry — registers loaded + catalogued audio cues into AudioManager
@@ -41,6 +44,7 @@ boot_splash/bg_color=Color(0.09, 0.1, 0.12, 1)
 [autoload]
 
 EventBus="*res://scripts/core/event_bus.gd"
+DebugErrorHandler="*res://scripts/debug/debug_error_handler.gd"
 SaveManager="*res://scripts/save/save_manager.gd"
 AudioManager="*res://scripts/audio/audio_manager.gd"
 ContentRegistry="*res://scripts/core/content_registry.gd"

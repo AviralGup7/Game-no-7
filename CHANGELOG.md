@@ -1,5 +1,44 @@
 # Changelog
 
+## [Unreleased] — Debug mode: errors freeze the game with a copyable report (2026-09-10)
+
+On-device debugging had no story: an APK failure meant a dead app and no
+details. There is now a debug-mode error trap. A toggle on the main menu (and
+in Settings > Debug) arms it; while ON, any error reported through EventBus —
+the channel every critical boot/run system already uses — pauses the tree and
+presents a copyable block (message, stack trace, device/game context, recent
+log) instead of crashing, with copy-to-clipboard, save-to-file, prev/next
+through stacked errors, resume, restart, and main-menu actions.
+
+- **New `DebugErrorHandler` autoload, second after EventBus.** It taps the
+  `diagnostic` signal, snapshots `get_stack()` synchronously at capture time,
+  and presents deferred so reporting stays safe from any call stack. It owns
+  its own flag file (`user://debug_mode.cfg`, never SaveManager) so it can sit
+  that early and still persist; every diagnostic plus state/run/wave
+  breadcrumbs always append to `user://logs/session.log` even with the flag
+  off. Its own I/O failures use `push_warning` directly, so error handling can
+  never report an error about itself (no recursion).
+- **Freeze overlay, not a crash.** `DebugErrorOverlay` (layer 128,
+  always-process, input-swallowing) shows the report in a read-only TextEdit;
+  `COPY REPORT`/Ctrl+C copies the whole block with a verified round-trip and a
+  manual-copy fallback hint, and each capture auto-saves a `crash_*.log` file
+  (newest 5 kept). Resume restores the pause state by re-reading
+  `GameRoot.is_paused()`, so an Android Back press behind the overlay cannot
+  desync the tree pause.
+- **Honest coverage.** GDScript-called failures freeze; hard native crashes
+  cannot be intercepted from script, so each boot checks the previous
+  session's exit flag and Settings > Debug offers the recovered log tail one
+  click away (`VIEW LAST SESSION LOG`). Headless/CI runs never freeze (no
+  screen) but still log and write crash files; `--no-debug-freeze` does the
+  same for scripted device runs.
+- **Self-test + docs.** `TRIGGER TEST ERROR` proves the freeze/copy pipeline
+  on a device without waiting for a real bug; `docs/DEBUG_MODE.md` documents
+  the toggles, overlay actions, files, and limits. Pure core
+  (`ErrorReport`/`DebugLogBuffer`) is covered by
+  `tests/unit/test_error_report.gd` in the synchronous suite; the startup
+  contract test now pins nine singletons with the handler directly after
+  EventBus.
+
 ## [Unreleased] — Mobile input & interruption: the weakest subsystem, rebuilt (2026-09-10)
 
 Seventh architecture pass, same method: rank `scripts/` by structural weakness, read the winner

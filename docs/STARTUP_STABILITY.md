@@ -78,8 +78,8 @@ the defaults for the entire session, feeding `run_ended`/game-over presentation.
 corrected later by the load-time `settings_changed` emission).
 
 **Fix:** dependency-first autoload order in `project.godot`
-(EventBus → SaveManager → AudioManager → ContentRegistry → GameRoot →
-SceneRouter → RunAnalytics → TestHarness), documented in-file, plus
+(EventBus → DebugErrorHandler → SaveManager → AudioManager → ContentRegistry →
+GameRoot → SceneRouter → RunAnalytics → TestHarness), documented in-file, plus
 `GameRoot._finalize_run()` now adopts the authoritative bests from the save store
 after recording, so the emitted best can never be a stale startup cache.
 
