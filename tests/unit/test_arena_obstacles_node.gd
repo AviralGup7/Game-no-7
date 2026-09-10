@@ -45,7 +45,11 @@ static func suite() -> Array:
 
 static func _run_checks(results: Array, arena: Node3D) -> void:
 	var half := float(arena.get("interior_half"))
-	var expected := ArenaObstacles.layout_for(StringName(arena.get("arena_id")), half)
+	# Compare against the config the ARENA resolved, not a re-loaded copy: same source, so a
+	# resolution bug (wrong id, registry miss, silent fallback) fails here instead of agreeing
+	# with itself.
+	var cfg: ArenaConfig = arena.call("get_config")
+	var expected := ArenaObstacles.layout_for(cfg, half)
 	var obstacles := arena.get_node_or_null("Obstacles") as Node3D
 	results.append({
 		"name": "arena: Obstacles node is created",
@@ -65,8 +69,8 @@ static func _run_checks(results: Array, arena: Node3D) -> void:
 	var n := mini(obstacles.get_child_count(), expected.size())
 	for i in range(n):
 		var body := obstacles.get_child(i) as StaticBody3D
-		var hs: Vector3 = expected[i]["half_size"]
-		var want_pos: Vector3 = expected[i]["pos"]
+		var hs := expected[i].half_extents()
+		var want_pos := expected[i].position
 		if body == null or body.collision_layer != 1 or body.collision_mask != 0:
 			layers_ok = false
 			continue
@@ -102,11 +106,55 @@ static func _run_checks(results: Array, arena: Node3D) -> void:
 		"why": "",
 	})
 
-	# The landmark is an OBJECT: it must have a collision body on the same layer.
+	results.append({
+		"name": "arena: obstacle count comes from the authored layout, mirrors expanded",
+		"passed": cfg != null and cfg.obstacle_layout.size() > 0 and expected.size() > cfg.obstacle_layout.size(),
+		"why": "authored=%d expanded=%d" % [cfg.obstacle_layout.size() if cfg != null else -1, expected.size()],
+	})
+
+	# The landmark is an OBJECT: it must have a collision body on the same layer, and that
+	# body must be the authored footprint (before phase 5 the shape was hard-coded per kind
+	# and the footprint was a second hand-written number that could disagree with it).
 	var landmark_body := arena.get_node_or_null("Landmark/Body") as StaticBody3D
 	results.append({
 		"name": "arena: landmark has a collision body on layer 1",
 		"passed": landmark_body != null and landmark_body.collision_layer == 1,
+		"why": "",
+	})
+	var landmark_ok := false
+	if landmark_body != null and cfg != null and cfg.landmark != null:
+		var lm_shape: Shape3D = null
+		for c in landmark_body.get_children():
+			if c is CollisionShape3D:
+				lm_shape = (c as CollisionShape3D).shape
+		var want := cfg.landmark.footprint_half
+		if lm_shape is BoxShape3D:
+			landmark_ok = (lm_shape as BoxShape3D).size.is_equal_approx(want * 2.0)
+		elif lm_shape is CylinderShape3D:
+			var cyl := lm_shape as CylinderShape3D
+			landmark_ok = absf(cyl.radius - want.x) < 0.001 and absf(cyl.height - want.y * 2.0) < 0.001
+	results.append({
+		"name": "arena: landmark body is the authored footprint",
+		"passed": landmark_ok,
+		"why": str(cfg.landmark.footprint_half) if cfg != null and cfg.landmark != null else "no landmark config",
+	})
+
+	# Theme reached the world: the arena's Environment must carry the authored fog/exposure
+	# numbers. apply_theme() used to `return` silently on a table miss, which is precisely the
+	# failure this pins; reading the live resource is the only way to see it.
+	var wenv := arena.get_node_or_null("Environment") as WorldEnvironment
+	var theme_ok := false
+	if wenv != null and wenv.environment != null and cfg != null and cfg.theme != null:
+		var env := wenv.environment
+		theme_ok = env.fog_enabled and env.glow_enabled and env.adjustment_enabled \
+				and absf(env.fog_density - cfg.theme.fog_density) < 0.0001 \
+				and absf(env.adjustment_contrast - cfg.theme.contrast) < 0.0001
+		var sun := arena.get_node_or_null("Lighting/Sun") as DirectionalLight3D
+		if sun != null:
+			theme_ok = theme_ok and absf(sun.light_energy - cfg.theme.sun_energy) < 0.0001
+	results.append({
+		"name": "arena: authored theme is live on the WorldEnvironment + sun",
+		"passed": theme_ok,
 		"why": "",
 	})
 
@@ -152,7 +200,7 @@ static func _run_checks(results: Array, arena: Node3D) -> void:
 	})
 	var blocked_ok := true
 	for ob in expected:
-		if nav.is_walkable(ob["pos"] as Vector3):
+		if nav.is_walkable(ob.position):
 			blocked_ok = false
 	# The obelisk footprint blocks the very center; the gate gap and the
 	# player start stay open (both inside the boundary ring).

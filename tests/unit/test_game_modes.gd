@@ -1,6 +1,13 @@
 extends RefCounted
 
-## Headless unit tests for GameMode, Narrator, Prestige, and BuildEffects tags.
+## Headless unit tests for GameMode, its authored configs, Narrator, Prestige, and BuildEffects tags.
+##
+## The mode/prestige cases used to prove that the code tables had the right numbers in them. The
+## numbers are authored data now (`res://data/game_modes/`, `res://data/prestige/ladder.tres`), so
+## what these cases prove instead is that a file is *resolved* — that the id in a save, a mode card,
+## or a wave plan reaches the config that carries its copy — plus the shape guarantees the loader
+## checks and the shipped values themselves (`tests/python/test_regress_run_modes.py` mirrors every
+## number, so a rebalance must be a deliberate edit there).
 
 
 static func suite() -> Array:
@@ -20,10 +27,22 @@ static func suite() -> Array:
 		"why": str(GameMode.all_mode_ids()),
 	})
 	results.append({
+		"name": "Every MODE_ handle names a file that resolves (no dead handles)",
+		"passed": GameMode.MODES.size() == GameMode.all_mode_ids().size()
+			and _every_handle_resolves(),
+		"why": "a const that names no .tres is how unlock_prestige survived unread",
+	})
+	results.append({
 		"name": "GameMode.validated falls back to standard",
 		"passed": GameMode.validated(&"nope") == GameMode.MODE_STANDARD
 			and GameMode.validated(GameMode.MODE_BOSS_RUSH) == GameMode.MODE_BOSS_RUSH,
 		"why": "",
+	})
+	results.append({
+		"name": "An unknown mode resolves no config instead of borrowing Standard's",
+		"passed": GameMode.resolve(&"nope") == null
+			and GameMode.resolve(GameMode.MODE_SURVIVAL) != null,
+		"why": "def() used to hand back Standard's record for any id it did not know",
 	})
 	results.append({
 		"name": "Boss Rush victory at wave 5; not before",
@@ -46,6 +65,19 @@ static func suite() -> Array:
 			and GameMode.spawn_queue(GameMode.MODE_STANDARD, 1, 42).is_empty(),
 		"why": str(GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 1, 42)),
 	})
+	# The five scripted duels, wave for wave. These sizes were a formula (`mini(2 + wave, 6)` adds,
+	# a heavy from 3, a ranged+dasher pair at 5) until the row carried them; the row must reproduce it.
+	results.append({
+		"name": "Boss Rush script escalates wave by wave exactly",
+		"passed": GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 1, 42).size() == 4
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 2, 42).size() == 5
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 42).size() == 7
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 4, 42).size() == 8
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 5, 42).size() == 10
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 42).count(&"heavy") == 1
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 2, 42).count(&"heavy") == 0,
+		"why": str(GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 5, 42)),
+	})
 	results.append({
 		"name": "Campaign queues are deterministic + scripted",
 		"passed": GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 1, 7)
@@ -53,6 +85,28 @@ static func suite() -> Array:
 			and GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 5, 1)[0] == &"warlord"
 			and GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 15, 1).count(&"warlord") == 2,
 		"why": str(GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 15, 1)),
+	})
+	results.append({
+		"name": "Campaign's unscripted middle waves come from the planner, escalated",
+		"passed": GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 12, 7)
+				== WavePlanner.extended_queue_for_wave(14, 7)
+			and GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 11, 7)
+				== WavePlanner.extended_queue_for_wave(13, 7)
+			and not GameMode.spawn_queue(GameMode.MODE_CAMPAIGN, 11, 7).is_empty(),
+		"why": "waves 11-13 have a beat and no archetype list, so the +2 planner rule must still run",
+	})
+	results.append({
+		"name": "Campaign beat sheet covers the arc and nothing beyond it",
+		"passed": not Narrator.beat_text(GameMode.MODE_CAMPAIGN, 1).is_empty()
+			and not Narrator.beat_text(GameMode.MODE_CAMPAIGN, 15).is_empty()
+			and Narrator.beat_text(GameMode.MODE_CAMPAIGN, 16).is_empty()
+			and Narrator.beat_text(GameMode.MODE_SURVIVAL, 1).is_empty(),
+		"why": Narrator.beat_text(GameMode.MODE_CAMPAIGN, 15),
+	})
+	results.append({
+		"name": "Every scripted campaign wave is announced",
+		"passed": _campaign_arc_is_narrated(),
+		"why": "the beat sheet and the spawn script used to be two tables that could drift apart",
 	})
 	results.append({
 		"name": "Challenge tier-0 mutators are glass + ember; fixed gladius",
@@ -77,6 +131,12 @@ static func suite() -> Array:
 		"why": "cap0=%d cap8=%d" % [GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 0), GameMode.max_waves_for(GameMode.MODE_CHALLENGE, 8)],
 	})
 	results.append({
+		"name": "A mutator pool only a scaling mode owns is drawn by count",
+		"passed": GameMode.challenge_mutators(GameMode.MODE_BOSS_RUSH, 8) == GameMode.forced_mutators(GameMode.MODE_BOSS_RUSH)
+			and GameMode.forced_mutators(GameMode.MODE_BOSS_RUSH) == [&"elite_surge"],
+		"why": "non-scaling modes keep their authored list at every rank",
+	})
+	results.append({
 		"name": "Defend + Collect objectives resolve to their constants",
 		"passed": GameMode.objective(GameMode.MODE_DEFEND) == GameMode.OBJECTIVE_DEFEND_POINT
 			and GameMode.objective(GameMode.MODE_COLLECT) == GameMode.OBJECTIVE_COLLECT
@@ -91,6 +151,20 @@ static func suite() -> Array:
 			and not GameMode.spawn_queue(GameMode.MODE_COLLECT, 1, 7).is_empty()
 			and GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7) == GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7),
 		"why": str(GameMode.spawn_queue(GameMode.MODE_DEFEND, 1, 7)),
+	})
+	# The cadence rule, measured against the planner it wraps: the mode adds exactly one archetype on
+	# its authored wave and nothing otherwise. Pinning the delta (not a count) is what stops the
+	# every_n fields from being tuned into a no-op without anyone noticing.
+	results.append({
+		"name": "Mode cadence adds one archetype on its authored wave only",
+		"passed": GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7).size()
+				- WavePlanner.extended_queue_for_wave(4, 7).size() == 1
+			and GameMode.spawn_queue(GameMode.MODE_DEFEND, 2, 7).size()
+				- WavePlanner.extended_queue_for_wave(3, 7).size() == 0
+			and GameMode.spawn_queue(GameMode.MODE_COLLECT, 4, 7).size()
+				- WavePlanner.extended_queue_for_wave(6, 7).size() == 1,
+		"why": "%d/%d" % [GameMode.spawn_queue(GameMode.MODE_DEFEND, 3, 7).size(),
+				GameMode.spawn_queue(GameMode.MODE_DEFEND, 2, 7).size()],
 	})
 	results.append({
 		"name": "Mode score multipliers are > 1 for non-standard",
@@ -114,14 +188,76 @@ static func suite() -> Array:
 		"why": GameMode.objective_label(GameMode.MODE_SURVIVAL, 1, 30.0, 0),
 	})
 	results.append({
-		"name": "Defend/Collect objective labels reflect live progress",
+		"name": "Defend + Collect objective labels reflect live progress",
 		"passed": "Beacon" in GameMode.objective_label(GameMode.MODE_DEFEND, 1, 10.0, 0, 42)
 			and "Relics" in GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5)
 			and ("5 / %d" % GameMode.collect_target(GameMode.MODE_COLLECT)) in GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5),
 		"why": GameMode.objective_label(GameMode.MODE_COLLECT, 1, 0.0, 0, 5),
 	})
 
-	# --- Narrator ---
+	# --- Authored configs refuse the shapes that used to be legal ---
+	results.append({
+		"name": "GameModeConfig rejects a target its objective will not read",
+		"passed": _rejects(_mode_with(func(cfg: GameModeConfig) -> void:
+				cfg.objective = GameModeConfig.OBJECTIVE_CLEAR_WAVES
+				cfg.collect_target = 7), "collect_target"),
+		"why": "a quota under a wave-count objective is dead data, which is what this phase deleted",
+	})
+	results.append({
+		"name": "GameModeConfig rejects an objective outside its vocabulary",
+		"passed": _rejects(_mode_with(func(cfg: GameModeConfig) -> void:
+				cfg.objective = &"eat_everything"), "objective"),
+		"why": "",
+	})
+	results.append({
+		"name": "GameModeConfig rejects duplicate wave plans",
+		"passed": _rejects(_mode_with(func(cfg: GameModeConfig) -> void:
+				cfg.wave_plans = [_plan(2, [&"basic"], "", ""), _plan(2, [&"fast"], "", "")]), "two wave plans"),
+		"why": "the first row used to win silently inside a Dictionary",
+	})
+	results.append({
+		"name": "GameModeConfig rejects a row that neither spawns nor speaks",
+		"passed": _rejects(_mode_with(func(cfg: GameModeConfig) -> void:
+				cfg.wave_plans = [_plan(3, [], "", "")]), "delete the row"),
+		"why": "",
+	})
+	results.append({
+		"name": "Every shipped mode config validates clean",
+		"passed": _all_modes_validate(),
+		"why": "the authored files are the contract; this is the layer that reads them as they ship",
+	})
+	results.append({
+		"name": "The shipped prestige ladder validates clean",
+		"passed": Prestige.ladder() != null and Prestige.ladder().validate().is_empty(),
+		"why": str(Prestige.ladder().validate()) if Prestige.ladder() != null else "no ladder",
+	})
+	results.append({
+		"name": "GameModeConfig rejects a scaling mode with nothing to scale",
+		"passed": _rejects(_mode_with(func(cfg: GameModeConfig) -> void:
+				cfg.scales_with_prestige = true), "prestige_mutator_pool"),
+		"why": "",
+	})
+	results.append({
+		"name": "PrestigeLadderConfig rejects titles that do not cover the ladder",
+		"passed": _rejects(_ladder_with(func(cfg: PrestigeLadderConfig) -> void:
+				cfg.max_rank = 10
+				cfg.titles = PackedStringArray(["Unproven", "Survivor"])), "titles"),
+		"why": "TITLES.stop(short) + title_for's default used to print 'Unproven' at rank 9",
+	})
+	results.append({
+		"name": "PrestigeLadderConfig rejects a rung that is gentler than the one below",
+		"passed": _rejects(_ladder_with(func(cfg: PrestigeLadderConfig) -> void:
+				cfg.challenge_tiers = _softer_ladder()),
+				"shorter or gentler"),
+		"why": "the ladder promised 'harder, richer, longer'; nothing checked it",
+	})
+	results.append({
+		"name": "ChallengeTier rejects a zero-wave rung",
+		"passed": _tier("Broken", 0, 1.5, 1.4, 0).validate().size() > 0,
+		"why": "",
+	})
+
+	# --- Narrator: the arena's voice is the arena's own ---
 	results.append({
 		"name": "Narrator has arena lore for all three arenas",
 		"passed": not Narrator.arena_intro(&"default_arena").is_empty()
@@ -130,20 +266,28 @@ static func suite() -> Array:
 		"why": "",
 	})
 	results.append({
-		"name": "Campaign beat sheet covers wave 1 and 15",
-		"passed": not Narrator.campaign_beat(1).is_empty()
-			and not Narrator.campaign_beat(15).is_empty()
-			and Narrator.campaign_beat(99).is_empty(),
-		"why": str(Narrator.campaign_beat(15)),
+		"name": "An unknown arena says nothing instead of quoting The Pit",
+		"passed": Narrator.arena_intro(&"no_such_arena").is_empty()
+			and Narrator.arena_mid(&"no_such_arena").is_empty()
+			and Narrator.arena_intro(&"frost_hollow") != Narrator.arena_intro(&"default_arena"),
+		"why": "ARENA_LORE.get(id, ARENA_LORE[default]) gave every new arena the first arena's voice",
 	})
 	results.append({
-		"name": "Mode intros exist for every mode",
-		"passed": not Narrator.mode_intro(GameMode.MODE_STANDARD).is_empty()
-			and not Narrator.mode_intro(GameMode.MODE_CAMPAIGN).is_empty()
-			and not Narrator.mode_intro(GameMode.MODE_BOSS_RUSH).is_empty(),
+		"name": "Mode intros and victory lines exist for every mode",
+		"passed": _every_mode_has_a_voice(),
 		"why": "",
 	})
 	results.append({
+		"name": "Victory copy still says what the announcer's match used to say",
+		"passed": Narrator.victory_line(GameMode.MODE_BOSS_RUSH) == "The pantheon yields. Five crowns are yours."
+			and Narrator.victory_line(GameMode.MODE_CHALLENGE) == "Challenge complete. The glass did not break you."
+			and Narrator.victory_line(GameMode.MODE_STANDARD) == "Victory. The stand holds.",
+		"why": Narrator.victory_line(GameMode.MODE_SURVIVAL),
+	})
+	results.append({
+		# The first-of-kind pass authored its copy onto the enemy, so the case survives here — but the
+		# line now comes out of `data/enemies/<id>_enemy.tres`, which is why an empty blurb is allowed to
+		# mean "this archetype is never announced" instead of being a fall-through.
 		"name": "Narrator enemy blurbs cover the headline archetypes",
 		"passed": not Narrator.enemy_blurb(&"warlord").is_empty()
 			and not Narrator.enemy_blurb(&"exploder").is_empty()
@@ -151,15 +295,15 @@ static func suite() -> Array:
 		"why": Narrator.enemy_blurb(&"warlord"),
 	})
 
-	# --- Prestige ---
+	# --- Prestige ladder ---
 	results.append({
 		"name": "Prestige cost escalates; max gates",
-		"passed": Prestige.cost_for_rank(0) == Prestige.PRESTIGE_COST_BASE
+		"passed": Prestige.cost_for_rank(0) == 2000
 			and Prestige.cost_for_rank(1) > Prestige.cost_for_rank(0)
-			and Prestige.can_prestige(Prestige.MAX_PRESTIGE, 999999, 1.0) == &"maxed"
+			and Prestige.can_prestige(Prestige.max_rank(), 999999, 1.0) == &"maxed"
 			and Prestige.can_prestige(0, 0, 1.0) == &"insufficient_funds"
 			and Prestige.can_prestige(0, 999999, 0.1) == &"armory_incomplete"
-			and Prestige.can_prestige(0, Prestige.PRESTIGE_COST_BASE, 0.7) == &"ok",
+			and Prestige.can_prestige(0, 2000, 0.7) == &"ok",
 		"why": "",
 	})
 	results.append({
@@ -168,25 +312,38 @@ static func suite() -> Array:
 			and Prestige.score_multiplier(5) > Prestige.score_multiplier(1)
 			and Prestige.title_for(0) == "Unproven"
 			and Prestige.title_for(10) == "Last Stand"
+			and Prestige.title_for(9) != "Unproven"
 			and not Prestige.cosmetics_for_rank(1).is_empty()
 			and Prestige.all_cosmetics_up_to(5).size() >= Prestige.cosmetics_for_rank(1).size(),
 		"why": Prestige.title_for(5),
 	})
 	results.append({
+		"name": "The ladder's titles cover exactly its ranks",
+		"passed": Prestige.ladder() != null
+			and Prestige.ladder().titles.size() == Prestige.max_rank() + 1,
+		"why": "MAX_PRESTIGE and TITLES were independent and could disagree",
+	})
+	results.append({
 		"name": "Challenge tier unlocks with prestige",
 		"passed": Prestige.challenge_tier(0) == 0
 			and Prestige.challenge_tier(4) >= 2
-			and float(Prestige.challenge_tier_def(4).get("score_mult", 0)) > 1.5,
+			and Prestige.challenge_tier_def(4) != null
+			and Prestige.challenge_tier_def(4).score_mult > 1.5,
 		"why": str(Prestige.challenge_tier_def(4)),
 	})
 	results.append({
-		"name": "Prestige challenge tier accessors escalate with rank",
+		"name": "Challenge tier accessors escalate with rank",
 		"passed": Prestige.challenge_tier_mutator_count(0) == 2
 			and Prestige.challenge_tier_mutator_count(8) >= 4
 			and Prestige.challenge_tier_waves(8) > Prestige.challenge_tier_waves(0)
 			and Prestige.challenge_tier_currency_mult(8) > Prestige.challenge_tier_currency_mult(0)
 			and Prestige.challenge_tier_label(10) == "Last Stand Challenge",
 		"why": Prestige.challenge_tier_label(10),
+	})
+	results.append({
+		"name": "Every rank resolves exactly one rung, and never a missing one",
+		"passed": _every_rank_resolves(),
+		"why": "min(floor(rank/2), size-1) made a gap in the int keys mean the easiest tier",
 	})
 
 	# --- Cosmetics catalogue: unlocked ids now resolve to applyable definitions ---
@@ -208,7 +365,7 @@ static func suite() -> Array:
 			and not Cosmetics.is_known(&"bogus"),
 		"why": "",
 	})
-	var all_prestige_cosmetics := Prestige.all_cosmetics_up_to(Prestige.MAX_PRESTIGE)
+	var all_prestige_cosmetics := Prestige.all_cosmetics_up_to(Prestige.max_rank())
 	var all_known := not all_prestige_cosmetics.is_empty()
 	for cid in all_prestige_cosmetics:
 		if not Cosmetics.is_known(cid):
@@ -328,3 +485,123 @@ static func suite() -> Array:
 	})
 
 	return results
+
+
+## Every MODE_ handle in GameMode must name a file that resolves, and every file must have a handle.
+static func _every_handle_resolves() -> bool:
+	var listed := PackedStringArray()
+	for id in GameMode.all_mode_ids():
+		listed.append(String(id))
+	for handle in GameMode.MODES:
+		if not listed.has(String(handle)):
+			return false
+		if GameMode.resolve(handle) == null:
+			return false
+	return listed.size() == GameMode.MODES.size()
+
+
+static func _campaign_arc_is_narrated() -> bool:
+	var cap := GameMode.max_waves(GameMode.MODE_CAMPAIGN)
+	if cap <= 0:
+		return false
+	for wave in range(1, cap + 1):
+		if Narrator.beat_text(GameMode.MODE_CAMPAIGN, wave).is_empty():
+			return false
+	return true
+
+
+static func _every_mode_has_a_voice() -> bool:
+	for mode_id in GameMode.all_mode_ids():
+		if GameMode.intro_line(mode_id).is_empty():
+			return false
+		if GameMode.victory_line(mode_id).is_empty():
+			return false
+	return true
+
+
+## Every rank from 0 to the top must resolve a rung, and the rung must never soften as rank rises.
+static func _every_rank_resolves() -> bool:
+	var ladder := Prestige.ladder()
+	if ladder == null or ladder.challenge_tiers.is_empty():
+		return false
+	var last_waves := 0
+	var last_mult := 0.0
+	for rank in range(0, Prestige.max_rank() + 1):
+		var tier := ladder.tier_for_rank(rank)
+		if tier == null or tier.max_waves < 1:
+			return false
+		if tier.max_waves < last_waves or tier.score_mult < last_mult:
+			return false
+		last_waves = tier.max_waves
+		last_mult = tier.score_mult
+	return true
+
+
+static func _all_modes_validate() -> bool:
+	for mode_id in GameMode.all_mode_ids():
+		var cfg := GameMode.resolve(mode_id)
+		if cfg == null:
+			return false
+		if not cfg.validate().is_empty():
+			return false
+	return not GameMode.all_mode_ids().is_empty()
+
+
+static func _mode_with(mutate: Callable) -> GameModeConfig:
+	var cfg := GameModeConfig.new()
+	cfg.mode_id = &"test_mode"
+	cfg.display_name = "Test Mode"
+	cfg.blurb = "A mode built in code for validation tests."
+	cfg.intro_line = "Test."
+	cfg.victory_line = "Test won."
+	cfg.max_waves = 6
+	cfg.upgrade_every = 2
+	mutate.call(cfg)
+	return cfg
+
+
+static func _ladder_with(mutate: Callable) -> PrestigeLadderConfig:
+	var cfg := PrestigeLadderConfig.new()
+	var tiers: Array[ChallengeTier] = [_tier("Standard Challenge", 0, 1.5, 1.4, 12)]
+	cfg.max_rank = 4
+	cfg.titles = PackedStringArray(["Unproven", "Survivor", "Veteran", "Champion", "Warlord-Slayer"])
+	cfg.challenge_tiers = tiers
+	mutate.call(cfg)
+	return cfg
+
+
+static func _softer_ladder() -> Array[ChallengeTier]:
+	var tiers: Array[ChallengeTier] = [_tier("Easy", 0, 2.0, 2.0, 12), _tier("Hard", 2, 1.2, 1.2, 8)]
+	return tiers
+
+
+static func _plan(wave: int, archetypes: Array, title: String, line: String) -> GameModeWavePlan:
+	var plan := GameModeWavePlan.new()
+	plan.wave_number = wave
+	for id in archetypes:
+		plan.archetypes.append(StringName(String(id)))
+	plan.beat_title = title
+	plan.beat_line = line
+	return plan
+
+
+static func _tier(label: String, rank: int, score: float, currency: float, waves: int) -> ChallengeTier:
+	var tier := ChallengeTier.new()
+	tier.label = label
+	tier.unlock_rank = rank
+	tier.score_mult = score
+	tier.currency_mult = currency
+	tier.max_waves = waves
+	return tier
+
+
+## validate() must report something naming `needle` — the message is part of the contract, because a
+## config that rejects for the wrong reason is a config that will reject the wrong file.
+static func _rejects(cfg: ValidatedConfig, needle: String) -> bool:
+	var problems: Array[String] = cfg.validate()
+	if problems.is_empty():
+		return false
+	for problem in problems:
+		if needle in problem:
+			return true
+	return false

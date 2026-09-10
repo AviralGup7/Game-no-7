@@ -176,7 +176,7 @@ func get_prestige_rank() -> int:
 
 
 func set_prestige_rank(rank: int) -> void:
-	_prestige_rank = clampi(rank, 0, Prestige.MAX_PRESTIGE)
+	_prestige_rank = Prestige.clamp_rank(rank)
 
 
 ## Starter weapon for the current run (mode fixed loadout > daily > gladius).

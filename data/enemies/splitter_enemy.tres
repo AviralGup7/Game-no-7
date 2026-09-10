@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"splitter"
+blurb = "Sporekin \u2014 cut once, fight twice."
 display_name = "Broodmother"
 scene = ExtResource("2_scene")
 max_health = 45.0

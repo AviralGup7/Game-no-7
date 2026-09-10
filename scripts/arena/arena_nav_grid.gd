@@ -48,7 +48,13 @@ const NEIGHBORS: Array[Vector2i] = [
 ]
 
 
-func build(half_extent: float, cell_size_value: float, obstacles: Array) -> void:
+## `blockers` are world-space AABBs in arena-local metres — the same boxes the collision
+## bodies are built from (ArenaObstaclePlacement.footprint, ArenaLandmarkConfig.footprint).
+## They used to arrive as `{"pos", "half_size"}` Dictionaries, and the convention was read
+## wrong once: `pos` treated as the min corner silently shifted every footprint by +half on
+## each axis (a wall at x∈[4,8] became x∈[5.75,10.75]), blocking cells nothing occupied and
+## leaving the real ones open. An AABB has no second reading.
+func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) -> void:
 	half = clampf(half_extent, 2.0, 200.0)
 	cell_size = clampf(cell_size_value, 0.2, 2.0)
 	width = maxi(8, int(ceilf(2.0 * half / cell_size)))
@@ -71,21 +77,15 @@ func build(half_extent: float, cell_size_value: float, obstacles: Array) -> void
 				_blocked[z * width + x] = 1
 
 	obstacle_count = 0
-	for raw in obstacles:
-		var ob: Dictionary = raw if raw is Dictionary else {}
-		var pos: Vector3 = ob.get("pos", Vector3.ZERO)
-		var hs: Vector3 = ob.get("half_size", Vector3.ONE * 0.5)
-		if not is_finite(pos.x) or not is_finite(pos.z):
+	for box in blockers:
+		var p := box.position
+		var s := box.size
+		if not (is_finite(p.x) and is_finite(p.z) and is_finite(s.x) and is_finite(s.z)):
 			continue
-		# pos is the obstacle CENTER (see layout_for / tests). AABB(min, size),
-		# so the box spans pos ± hs. Treating pos as the min corner (AABB(pos,
-		# hs*2)) silently shifted every footprint by +half on each axis, which
-		# blocked the wrong cells (e.g. a wall at x∈[4,8] becoming x∈[5.75,10.75]).
-		var min_corner := pos - hs
-		var aabb := AABB(min_corner, hs * 2.0).grow(AGENT_MARGIN)
-		_mark_blocked(aabb)
+		_mark_blocked(box.grow(AGENT_MARGIN))
 		obstacle_count += 1
 	_built = true
+
 
 
 ## Mark every cell whose CENTER falls inside `aabb` as blocked.

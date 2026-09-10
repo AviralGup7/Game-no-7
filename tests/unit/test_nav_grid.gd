@@ -23,13 +23,15 @@ static func _check(results: Array, name: String, passed: bool, why: String = "")
 ## A wall slab across the middle of the arena: x in [4,8], z in [-1,1].
 static func _wall_grid() -> ArenaNavGrid:
 	var g := ArenaNavGrid.new()
-	g.build(12.0, 0.5, [{"pos": Vector3(6.0, 0.0, 0.0), "half_size": Vector3(2.0, 3.0, 1.0)}])
+	var blockers: Array[AABB] = [AABB(Vector3(4.0, -3.0, -1.0), Vector3(4.0, 6.0, 2.0))]
+	g.build(12.0, 0.5, blockers)
 	return g
 
 
 static func _build_and_bounds(results: Array) -> void:
 	var g := ArenaNavGrid.new()
-	g.build(12.0, 0.5, [])
+	var open_ground: Array[AABB] = []
+	g.build(12.0, 0.5, open_ground)
 	_check(results, "grid builds and reports cell count", g.is_built() and g.width == 48 and g.depth == 48,
 			"w=%d d=%d" % [g.width, g.depth])
 	_check(results, "center is walkable", g.is_walkable(Vector3(0.0, 0.0, 0.0)))
@@ -50,7 +52,8 @@ static func _line_of_sight(results: Array) -> void:
 
 static func _wall_free_los() -> bool:
 	var g := ArenaNavGrid.new()
-	g.build(12.0, 0.5, [])
+	var open_ground: Array[AABB] = []
+	g.build(12.0, 0.5, open_ground)
 	return g.has_line_of_sight(Vector3(-10.0, 0.0, 0.0), Vector3(10.0, 0.0, 0.0))
 
 
@@ -129,26 +132,45 @@ static func _paths_equal(a: PackedVector3Array, b: PackedVector3Array) -> bool:
 	return true
 
 
+## The authored ArenaConfig for a shipped arena, straight off disk: the same resource the
+## game resolves in Arena._resolve_config, so this suite cannot pass against a copy.
+static func _arena_config(arena_id: String) -> ArenaConfig:
+	var path := "res://data/arenas/%s.tres" % arena_id
+	if not ResourceLoader.exists(path):
+		return null
+	return load(path) as ArenaConfig
+
+
+## Expands an arena's authored placements exactly as ArenaHazards does at build time.
+static func _hazard_centers(arena_id: String) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	var arena := _arena_config(arena_id)
+	if arena == null:
+		return out
+	for placement in arena.hazard_layout:
+		if placement == null:
+			continue
+		for at in placement.mirrored_positions():
+			out.append(at)
+	return out
+
+
 static func _obstacle_layouts(results: Array) -> void:
 	var ids := ["default_arena", "ember_crucible", "frost_hollow"]
 	var spawn_points := [Vector3(11, 0, 0), Vector3(-11, 0, 0), Vector3(0, 11, 0), Vector3(0, -11, 0)]
-	# Hazard CENTERS per arena, mirrored from ArenaHazards._layout_defaults.
-	# Hazards are allowed to sit beside obstacles by design (a vent on the lane
-	# next to a pillar); the constraint is that no hazard CENTER is buried
-	# inside a solid obstacle box, which would mask the hazard's effect area.
-	var hazards := {
-		"default_arena": [Vector3(6, 0, 0), Vector3(-6, 0, 0), Vector3(0, 0, 6), Vector3(0, 0, -6),
-			Vector3(4, 0, 4), Vector3(-4, 0, -4), Vector3(3, 0, -3), Vector3(-3, 0, 3),
-			Vector3(0, 0, 0), Vector3(0, 0, -6), Vector3(0, 0, 6)],
-		"ember_crucible": [Vector3(5, 0, 5), Vector3(-5, 0, -5), Vector3(-5, 0, 5), Vector3(5, 0, -5),
-			Vector3(0, 0, 7), Vector3(0, 0, -7), Vector3(0, 0, 0), Vector3(6, 0, 0), Vector3(7, 0, 7)],
-		"frost_hollow": [Vector3(4, 0, 0), Vector3(-4, 0, 0), Vector3(0, 0, 5), Vector3(0, 0, -5),
-			Vector3(6, 0, 6), Vector3(-6, 0, -6), Vector3(0, 0, 4), Vector3(0, 0, -4),
-			Vector3(0, 0, 0), Vector3(0, 0, 7)],
-	}
+	# Hazard CENTERS come from the arena's authored layout — the same .tres ArenaHazards
+	# builds from, mirrors expanded. This list used to be hand-copied out of
+	# ArenaHazards._layout_defaults, which meant it silently stopped testing anything the
+	# moment a layout moved; the layouts themselves are pinned against the OLD hand-tuned
+	# coordinates in tests/unit/test_hazards.gd, so the data cannot drift unnoticed either.
+	# Hazards are allowed to sit beside obstacles by design (a vent on the lane next to a
+	# pillar); the constraint is that no hazard CENTER is buried inside a solid obstacle
+	# box, which would mask the hazard's effect area.
 	var half := 12.0
 	for id in ids:
-		var layout := ArenaObstacles.layout_for(StringName(id), half)
+		_check(results, "%s: hazard layout is authored data the game can read" % id,
+			_hazard_centers(id).size() >= 9, "centers=%d" % _hazard_centers(id).size())
+		var layout := ArenaObstacles.layout_for(_arena_config(id), half)
 		_check(results, "%s: layout is non-empty" % id, layout.size() > 0, "size=%d" % layout.size())
 		if layout.is_empty():
 			continue
@@ -156,15 +178,15 @@ static func _obstacle_layouts(results: Array) -> void:
 		var spawn_clear := true
 		var hazard_buried := false
 		for ob in layout:
-			var pos: Vector3 = ob["pos"]
-			var hs: Vector3 = ob["half_size"]
+			var pos := ob.position
+			var hs := ob.half_extents()
 			var foot := maxf(hs.x, hs.z)
 			if absf(pos.x) + foot > half - 1.0 or absf(pos.z) + foot > half - 1.0:
 				in_bounds = false
 			for sp in spawn_points:
 				if pos.distance_to(sp) < foot + 1.2 + 0.5:
 					spawn_clear = false  # jitter 1.2 + 0.5 safety
-			for hz in hazards[id]:
+			for hz in _hazard_centers(id):
 				var hp: Vector3 = hz
 				if absf(hp.x - pos.x) < hs.x and absf(hp.z - pos.z) < hs.z:
 					hazard_buried = true  # hazard center inside the solid box
@@ -172,20 +194,46 @@ static func _obstacle_layouts(results: Array) -> void:
 		_check(results, "%s: spawn markers stay clear (jitter-proof)" % id, spawn_clear)
 		_check(results, "%s: no hazard center buried in an obstacle" % id, not hazard_buried)
 	# The Pit keeps a passable gate between its twin towers.
-	var pit := ArenaObstacles.layout_for(StringName("default_arena"), half)
+	var pit := ArenaObstacles.layout_for(_arena_config("default_arena"), half)
 	var gap := 999.0
 	for ob in pit:
-		var pos: Vector3 = ob["pos"]
-		var hs: Vector3 = ob["half_size"]
+		var pos := ob.position
+		var hs := ob.half_extents()
 		if absf(pos.z) < 0.01 and absf(pos.x) < 5.0:
 			gap = minf(gap, absf(pos.x) - hs.x)
 	_check(results, "default arena gate is passable", gap > 1.5, "inner=%.2f" % gap)
-	# Layouts scale with arena size.
-	var big := ArenaObstacles.layout_for(StringName("default_arena"), 24.0)
-	var small := ArenaObstacles.layout_for(StringName("default_arena"), 12.0)
+	# An authored layout is in THAT arena's metres and is never rescaled — the old table
+	# silently rescaled whichever arena id it fell through to, which is exactly the surprise
+	# that moved layouts into data. The fallback, which exists precisely to serve an arena of
+	# unknown shape, is the one that scales.
+	var authored := ArenaObstacles.layout_for(_arena_config("default_arena"), 24.0)
+	var authored_small := ArenaObstacles.layout_for(_arena_config("default_arena"), 12.0)
+	var absolute_ok := authored.size() == authored_small.size()
+	if absolute_ok:
+		for i in range(authored.size()):
+			if authored[i].position.distance_to(authored_small[i].position) > 0.001:
+				absolute_ok = false
+	_check(results, "authored layouts are absolute, not scaled by the floor size", absolute_ok)
+	var big := ArenaObstacles.fallback_layout(24.0)
+	var small := ArenaObstacles.fallback_layout(12.0)
 	var scales_ok := big.size() == small.size()
 	if scales_ok:
 		for i in range(big.size()):
-			if (big[i]["pos"] as Vector3).distance_to((small[i]["pos"] as Vector3) * 2.0) > 0.01:
+			if big[i].position.distance_to(small[i].position * 2.0) > 0.01:
 				scales_ok = false
-	_check(results, "layouts scale with arena half-extent", scales_ok)
+	_check(results, "the fallback layout scales with arena half-extent", scales_ok)
+	# The Pit's authored layout and the fallback agree: the fallback IS that geometry, and if
+	# the two ever drift the "absence is a documented choice" claim stops being true.
+	# The authored rows, not `layout_for`: `layout_for` expands mirrors and the fallback is the
+	# un-expanded pair, so comparing the two measured the expansion rather than the geometry.
+	# Split, not chained: handing `load(path).field` straight to a statically typed `Array[T]` local is
+	# refused in 4.3+ (godot#95568) — the value has to pass through a variable the compiler can see.
+	var pit_cfg: ArenaConfig = _arena_config("default_arena")
+	var pit_authored: Array[ArenaObstaclePlacement] = pit_cfg.obstacle_layout
+	var same := pit_authored.size() == small.size()
+	if same:
+		for i in range(small.size()):
+			if pit_authored[i].position.distance_to(small[i].position) > 0.001 \
+					or not pit_authored[i].half_extents().is_equal_approx(small[i].half_extents()):
+				same = false
+	_check(results, "the Pit authors the same layout the fallback generates", same)

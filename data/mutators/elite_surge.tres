@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"elite_surge"
+display_name = "Elite Surge"
+description = "+20% elite chance. Rich kills."
+severity = &"major"
+roll_order = 2
+min_wave = 1
+score_mult = 1.2
+elite_bonus = 0.2

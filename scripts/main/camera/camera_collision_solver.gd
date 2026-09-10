@@ -1,19 +1,138 @@
 class_name CameraCollisionSolver
 extends RefCounted
 
-## Spring-arm collision – sphere-cast from focus to desired, whiskers, ground clearance.
-## Fast pull-in, slow push-out (Unreal SpringArm style).
+## Spring-arm collision – sphere-cast from focus to desired, whiskers, ground
+## clearance. Fast pull-in, slow push-out (Unreal SpringArm style).
+##
+## HOT-PATH CONTRACT (why this file is longer than the maths it contains):
+## `solve()` runs once per RENDER frame from `CameraRig._process`, not once per
+## physics tick. On a 90/120 Hz phone that is 2x the spatial queries, and every
+## query used to allocate a fresh SphereShape3D + PhysicsShapeQueryParameters3D
+## plus one PhysicsRayQueryParameters3D per whisker — RID-backed objects handed to
+## the physics server, i.e. avoidable allocation on the frame-critical path. Two
+## rules, both pinned by `tests/python/test_regress_physics_timing_and_ccd.py`:
+##
+##   1. Query objects are created ONCE and mutated per query. The server reads the
+##      parameter object at call time, so reuse is safe — the same pattern
+##      `EnemyPack._sep_query` already documents.
+##   2. Spatial work is time- AND distance-gated. A full pass costs one motion
+##      cast, at most `whisker_count` short rays and one ground ray; it runs
+##      every QUERY_INTERVAL seconds, or immediately once the arm has moved more
+##      than CACHE_SLACK (a fast orbit or a teleport can therefore never see a
+##      stale result). Only the OBSTACLE TEST is amortised: the cached pullback is
+##      applied to the *current* arm direction every frame, so the camera keeps
+##      tracking the player with zero added latency.
+##
+## The arm queries CollisionLayers.CAMERA_QUERY_MASK (arena geometry only): a
+## horde must never shove the player's view around, pillars and walls must.
+
+## Minimum seconds between full spatial passes (one pass per physics tick at the
+## project's 60 Hz, so a 60 fps device is behaviourally identical to before).
+const QUERY_INTERVAL := 1.0 / 60.0
+## How far the arm may travel on a stale cache before a fresh pass is forced.
+const CACHE_SLACK := 0.4
+## Distance shaved off a hit so the camera never rests exactly on a collider
+## (a resting spring arm flickers between "touching" and "clear" per frame).
+const PULLBACK_PADDING := 0.25
+## Whiskers stop this far short of whatever they find, for the same reason.
+const WHISKER_PADDING := 0.3
+## Motion-cast start margin: big enough to survive a shape that begins a hair
+## inside a wall, small enough not to visibly shorten the arm.
+const CAST_MARGIN := 0.02
+
+## How many steps the walk-out may take, and how far each step closes on the focus. Bounded because
+## the walk runs on the render path whenever the cache still says "embedded": the old version looped
+## eight times against freshly allocated query objects, which is the allocation this file exists to
+## remove.
+const OVERLAP_WALK_STEPS := 4
+const OVERLAP_WALK_TOWARD_FOCUS := 0.34
+## If the camera is cornered against the focus, park it above the focus instead: a spring arm with
+## nowhere to go is a black screen, and 1.6 m clears a wall the player can stand behind.
+const OVERLAP_CORNER_LIFT := 1.6
 
 var is_colliding := false
 var recovery_timer := 0.0
+## Set by a pass whose cast fraction came back essentially zero: the desired camera position is
+## inside geometry (a spawn or a snap into the skybox or the south wall), which a motion cast cannot
+## report as a collision because the shape starts embedded. `solve()` walks the camera out of it.
+var _embedded := false
 
 var _profile: CameraProfile = null
 
+# Pooled query state (never re-created after setup(); see rule 1 above).
+var _sphere: SphereShape3D = null
+var _shape_query: PhysicsShapeQueryParameters3D = null
+var _ray_query: PhysicsRayQueryParameters3D = null
+var _exclude: Array = []
+
+# Cache (see rule 2 above).
+var _time_until_query := 0.0
+var _cache_valid := false
+var _cached_to := Vector3.INF
+var _cached_from := Vector3.INF
+var _cached_pullback := 0.0
+var _cached_hit := false
+var _cached_ground_y := 0.0
+var _cached_ground_hit := false
+## Diagnostics: how many spatial queries the last solve() actually issued.
+var queries_last_pass := 0
+var passes_total := 0
+## The walk-out's own queries, counted apart from a pass's three: they happen only while the last
+## pass said "embedded", which on a well-behaved arena is never.
+var overlap_queries_last_frame := 0
+
+
 func setup(profile: CameraProfile) -> void:
 	_profile = profile
+	_ensure_query_objects()
+	if profile != null:
+		_sphere.radius = maxf(profile.collision_radius, 0.05)
+	invalidate_cache()
+
 
 func set_profile(profile: CameraProfile) -> void:
 	_profile = profile
+	_ensure_query_objects()
+	if profile != null and _sphere != null:
+		_sphere.radius = maxf(profile.collision_radius, 0.05)
+	invalidate_cache()
+
+
+## The ONLY place the query objects exist. `new()` here, never in solve().
+func _ensure_query_objects() -> void:
+	if _sphere == null:
+		_sphere = SphereShape3D.new()
+		_sphere.radius = 0.35
+	if _shape_query == null:
+		_shape_query = PhysicsShapeQueryParameters3D.new()
+		_shape_query.shape = _sphere
+		_shape_query.collide_with_bodies = true
+		_shape_query.collide_with_areas = false
+	if _ray_query == null:
+		_ray_query = PhysicsRayQueryParameters3D.new()
+		_ray_query.collide_with_bodies = true
+		_ray_query.collide_with_areas = false
+
+
+## Drop the cached pass so the next solve() queries for sure (profile change,
+## rig re-target, cut-scene snap).
+func invalidate_cache() -> void:
+	_cache_valid = false
+	_embedded = false
+	_cached_to = Vector3.INF
+	_cached_from = Vector3.INF
+	_time_until_query = 0.0
+
+
+## Per-frame tick from the rig: decays the push-out hold AND drives the query
+## clock (solve() has no delta of its own, so the clock lives here).
+func tick_recovery(delta: float) -> void:
+	if recovery_timer > 0.0:
+		recovery_timer = maxf(recovery_timer - maxf(delta, 0.0), 0.0)
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	_time_until_query = maxf(_time_until_query - delta, 0.0)
+
 
 func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, world: World3D) -> Vector3:
 	if _profile == null or orbit == null:
@@ -28,184 +147,243 @@ func solve(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, 
 	if not is_finite(dist) or dist < 0.001:
 		return from + Vector3(0.0, 2.2, 0.0)
 
-	var hit := _sphere_cast(from, to, _profile.collision_radius, target, world)
-	var target_dist := dist
-
-	if hit.has("fraction"):
-		var safe := float(hit.get("fraction", 1.0))
-		if not is_finite(safe):
-			safe = 0.0
-		# Origin already inside a wall (camera spawned in the skybox / south wall):
-		# do not slide along the wall normal into NaN — lift to a clear height.
-		if safe < 0.04:
-			is_colliding = true
-			recovery_timer = _profile.collision_recovery_delay
-			orbit.collision_distance = _profile.min_distance
-			return from + Vector3(0.0, 2.4, 0.0)
-		target_dist = maxf(dist * safe - 0.25, _profile.min_distance)
-		is_colliding = true
-		recovery_timer = _profile.collision_recovery_delay
-	else:
-		var whisker_dist := _whisker_check(from, to, orbit, target, world)
-		if whisker_dist < dist:
-			target_dist = whisker_dist
-			is_colliding = true
-			recovery_timer = _profile.collision_recovery_delay
-		else:
-			if recovery_timer > 0.0:
-				# Keep colliding state during recovery to avoid jitter
-				is_colliding = true
-				# recovery_timer is decreased outside? We'll handle with delta via caller or here with fixed?
-				# For simplicity, we don't auto-decrease here; caller will tick recovery.
-			else:
-				is_colliding = false
-
-	orbit.collision_distance = clampf(target_dist, _profile.min_distance, _profile.max_distance)
+	queries_last_pass = 0
+	overlap_queries_last_frame = 0
+	if _needs_fresh_pass(from, to):
+		_run_pass(from, to, dist, orbit, target, world)
 
 	var final_dir := dir.normalized()
-	if final_dir.length_squared() < 0.0001:
-		return from + Vector3(0.0, 2.2, 0.0)
-	var result: Vector3
-	if is_colliding:
-		result = from + final_dir * orbit.collision_distance
+	if not final_dir.is_finite():
+		return to
+
+	var result := from
+	if _cache_valid and _cached_hit:
+		var held := clampf(_cached_pullback, _profile.min_distance, _profile.max_distance)
+		orbit.collision_distance = held
+		result = from + final_dir * held
 	else:
+		orbit.collision_distance = clampf(dist, _profile.min_distance, _profile.max_distance)
 		result = from + final_dir * orbit.current_distance
 	if not (is_finite(result.x) and is_finite(result.y) and is_finite(result.z)):
 		result = from + Vector3(0.0, 2.4, 0.0)
 
-	result = _enforce_ground_clearance(result, from, world)
-	result = _pull_out_of_overlap(result, from, target, world)
+	if _cache_valid and _cached_ground_hit:
+		result = _apply_ground_clearance(result, from)
+	if _embedded:
+		result = _pull_out_of_overlap(result, from, target, world)
 	return result
 
-func tick_recovery(delta: float) -> void:
-	if recovery_timer > 0.0:
-		recovery_timer = maxf(recovery_timer - delta, 0.0)
 
-func _sphere_cast(from: Vector3, to: Vector3, radius: float, target: Node3D, world: World3D) -> Dictionary:
-	if world == null:
-		return {}
-	var space := world.direct_space_state
-	if space == null:
-		return {}
+## The cache holds only while BOTH ends of the arm stay put. `to` (the desired
+## camera position) is what sweeps into geometry; `from` (the focus) moves with
+## shoulder offset, look-ahead and the boss/combat framing, and a shifted focus
+## invalidates a previous whisker fan even when the length is unchanged.
+func _needs_fresh_pass(from: Vector3, to: Vector3) -> bool:
+	if not _cache_valid or _time_until_query <= 0.0:
+		return true
+	var slack_sq := CACHE_SLACK * CACHE_SLACK
+	var moved := (to - _cached_to).length_squared() > slack_sq
+	moved = moved or (from - _cached_from).length_squared() > slack_sq
+	return moved
 
-	var sphere := SphereShape3D.new()
-	sphere.radius = maxf(radius, 0.05)
 
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = sphere
-	query.transform = Transform3D(Basis(), from)
-	query.motion = to - from
-	query.collision_mask = 1
-	query.margin = 0.02
-	if target != null and target is CollisionObject3D:
-		var skip: Array[RID] = [target.get_rid()]
-		var model := target.get_node_or_null("VisualRoot/CharacterModel")
-		if model is CollisionObject3D:
-			skip.append((model as CollisionObject3D).get_rid())
-		query.exclude = skip
+func _run_pass(from: Vector3, to: Vector3, dist: float, orbit: CameraOrbitState, target: Node3D, world: World3D) -> void:
+	_time_until_query = QUERY_INTERVAL
+	# The flag is a verdict of THIS pass, so it decays with the cache rather than latching: once the
+	# arm is clear again the next pass clears it and the walk-out stops running.
+	_embedded = false
+	passes_total += 1
+	_cache_valid = true
+	_cached_to = to
+	_cached_from = from
+	# Recompute the collision state from a clean slate every pass; the push-out
+	# hold (recovery_timer) is what makes it asymmetric, not the cache.
+	var hit_anything := false
+	var held := dist
 
-	var result := space.cast_motion(query)
-	if result.size() >= 2:
-		var safe := float(result[0])
-		var unsafe := float(result[1])
-		if safe < 1.0 - 0.001:
-			var point := from + (to - from) * safe
-			return {"fraction": safe, "unsafe": unsafe, "point": point}
+	# `use_sphere_cast` is an authored per-profile switch (every shipped profile
+	# turns it on); when it is off the whiskers alone do the work.
+	var safe := _cast_safe_fraction(from, to, target, world) if _profile.use_sphere_cast else 1.0
+	if safe < 0.04:
+		# Not "the wall is close" — "there is nowhere to put the camera". Hold the arm at its minimum
+		# so the player can still see, and let solve() walk the resolved position out of the brush.
+		_embedded = true
+		held = _profile.min_distance
+		hit_anything = true
+	elif safe < 1.0:
+		held = maxf(dist * safe - PULLBACK_PADDING, _profile.min_distance)
+		hit_anything = true
+	else:
+		var whisker_dist := _whisker_check(from, to, dist, orbit, target, world)
+		if whisker_dist < dist:
+			held = whisker_dist
+			hit_anything = true
 
-	# Fallback raycast
-	var ray_query := PhysicsRayQueryParameters3D.create(from, to)
-	ray_query.collision_mask = 1
-	if target != null and target is CollisionObject3D:
-		ray_query.exclude = [target.get_rid()]
-	var ray_result := space.intersect_ray(ray_query)
-	if not ray_result.is_empty():
-		var hit_pos: Vector3 = ray_result.get("position", to)
-		var hit_dist := from.distance_to(hit_pos)
-		var total_dist := from.distance_to(to)
-		if total_dist > 0.001:
-			return {"fraction": hit_dist / total_dist, "point": hit_pos}
-	return {}
+	if hit_anything:
+		is_colliding = true
+		recovery_timer = _profile.collision_recovery_delay
+	elif recovery_timer > 0.0:
+		# Slow push-out: stay flagged as colliding (the shake controller damps
+		# against is_colliding) while the recovery delay runs off, so an arm
+		# resting on a ledge cannot flicker between states every frame. Distance
+		# itself is NOT held: the arm already tracks the desired length here, so
+		# only the flag decays — same shape as before the cache existed.
+		is_colliding = true
+	else:
+		is_colliding = false
 
-func _whisker_check(from: Vector3, to: Vector3, orbit: CameraOrbitState, target: Node3D, world: World3D) -> float:
-	if _profile.whisker_count <= 0 or world == null:
-		return from.distance_to(to)
-	var space := world.direct_space_state
-	if space == null:
-		return from.distance_to(to)
+	_cached_hit = hit_anything
+	_cached_pullback = clampf(held, _profile.min_distance, _profile.max_distance)
+	_ground_probe(to, world)
 
-	var base_dist := from.distance_to(to)
+
+## One motion cast against the arena. Returns the safe fraction of `to - from`
+## (1.0 = clear). A shape that already starts inside geometry yields no collision
+## here — the whiskers and the Area3D overlap paths still cover that case.
+func _cast_safe_fraction(from: Vector3, to: Vector3, target: Node3D, world: World3D) -> float:
+	var space := _space(world)
+	if space == null or _shape_query == null:
+		return 1.0
+	_shape_query.transform = Transform3D(Basis(), from)
+	_shape_query.motion = to - from
+	_shape_query.collision_mask = CollisionLayers.CAMERA_QUERY_MASK
+	_shape_query.margin = CAST_MARGIN
+	_fill_exclude(target)
+	_shape_query.exclude = _exclude
+	queries_last_pass += 1
+	var result := space.cast_motion(_shape_query)
+	if result.size() < 2:
+		return 1.0
+	var safe := float(result[0])
+	if not is_finite(safe):
+		return 1.0
+	return clampf(safe, 0.0, 1.0)
+
+
+## Short rays fanned either side of the arm: they catch the wall a straight cast
+## grazes past when the arm swings across a corner.
+func _whisker_check(from: Vector3, to: Vector3, base_dist: float, orbit: CameraOrbitState, target: Node3D, world: World3D) -> float:
+	if _profile.whisker_count <= 0:
+		return base_dist
+	var space := _space(world)
+	if space == null or _ray_query == null:
+		return base_dist
+
 	var min_dist := base_dist
 	var yaw := orbit.current_yaw if orbit != null else 0.0
 	var pitch := orbit.current_pitch if orbit != null else 0.5
-
+	var nudge := deg_to_rad(6.0)
 	for i in range(_profile.whisker_count):
 		var angle_offset := deg_to_rad(_profile.whisker_angle_deg) * (i + 1) * (1 if i % 2 == 0 else -1)
 		var test_yaw := yaw + angle_offset
-		var pitch_nudge := deg_to_rad(6.0) * (1 if i % 2 == 0 else -1)
-		var test_pitch := clampf(pitch + pitch_nudge, -1.2, 1.4)
+		# Fan in pitch as well as yaw: a low arm swinging past a floor lip or a ceiling beam needs a
+		# whisker that points slightly down/up, or the camera clips through the ledge it just found.
+		var test_pitch := clampf(pitch + nudge * (1 if i % 2 == 0 else -1), -1.2, 1.4)
 		var test_dir := Vector3(sin(test_yaw) * cos(test_pitch), sin(test_pitch), cos(test_yaw) * cos(test_pitch)).normalized()
-		var test_to := from + test_dir * base_dist
-
-		var q := PhysicsRayQueryParameters3D.create(from, test_to)
-		q.collision_mask = 1
-		if target != null and target is CollisionObject3D:
-			q.exclude = [target.get_rid()]
-		var res := space.intersect_ray(q)
-		if not res.is_empty():
-			var hit_pos: Vector3 = res.get("position", test_to)
-			var d := from.distance_to(hit_pos) - 0.3
-			min_dist = minf(min_dist, d)
-
+		var res := _cast_ray(space, from, from + test_dir * base_dist, target)
+		if res.is_empty():
+			continue
+		var hit_pos: Vector3 = res.get("position", to)
+		min_dist = minf(min_dist, maxf(from.distance_to(hit_pos) - WHISKER_PADDING, _profile.min_distance))
 	return clampf(min_dist, _profile.min_distance, base_dist)
 
-func _enforce_ground_clearance(cam_pos: Vector3, focus: Vector3, world: World3D) -> Vector3:
-	if world == null:
-		return cam_pos
-	var space := world.direct_space_state
-	if space == null:
-		return cam_pos
 
+## Walk the resolved position out of geometry it starts inside, toward the focus: the first position
+## with no overlap wins. A motion cast cannot report a collision for a shape that begins embedded, so
+## this is the only thing standing between a camera spawned in the south wall and a black frame; the
+## old version did the same walk with a fresh SphereShape3D and query object per call.
+func _pull_out_of_overlap(cam_pos: Vector3, from: Vector3, target: Node3D, world: World3D) -> Vector3:
+	var space := _space(world)
+	if space == null or _shape_query == null:
+		return cam_pos
+	var query := _shape_query
+	query.motion = Vector3.ZERO
+	query.margin = CAST_MARGIN
+	query.collision_mask = CollisionLayers.CAMERA_QUERY_MASK
+	_fill_exclude(target)
+	query.exclude = _exclude
+	var pos := cam_pos
+	for _step in OVERLAP_WALK_STEPS:
+		overlap_queries_last_frame += 1
+		query.transform = Transform3D(Basis(), pos)
+		if space.intersect_shape(query, 1).is_empty():
+			return pos
+		pos = pos.lerp(from, OVERLAP_WALK_TOWARD_FOCUS)
+		if pos.distance_squared_to(from) < 0.16:
+			return from + Vector3(0.0, OVERLAP_CORNER_LIFT, 0.0)
+	return pos
+
+
+## Ground height under the camera, so the arm never dips through the floor.
+## Probed at the DESIRED position rather than the resolved one (the resolved one is
+## what this probe produces, so sampling it would feed the cache back into itself);
+## on a flat arena floor the two agree, and the `focus.y - 1.0` floor below bounds
+## the difference on any geometry that does have height.
+func _ground_probe(cam_pos: Vector3, world: World3D) -> void:
+	_cached_ground_hit = false
+	var space := _space(world)
+	if space == null or _ray_query == null:
+		return
 	var down_from := cam_pos + Vector3(0.0, 0.5, 0.0)
 	var down_to := cam_pos + Vector3(0.0, -6.0, 0.0)
-	var query := PhysicsRayQueryParameters3D.create(down_from, down_to)
-	query.collision_mask = 1
-	var result := space.intersect_ray(query)
-	if not result.is_empty():
-		var ground_y: float = result.get("position", cam_pos).y
-		var min_y := ground_y + _profile.ground_clearance
-		if cam_pos.y < min_y:
-			cam_pos.y = min_y
+	var result := _cast_ray(space, down_from, down_to, null)
+	if result.is_empty():
+		return
+	var hit_pos: Vector3 = result.get("position", Vector3.ZERO)
+	var ground_y := hit_pos.y
+	if not is_finite(ground_y):
+		return
+	_cached_ground_y = ground_y
+	_cached_ground_hit = true
 
+
+func _apply_ground_clearance(cam_pos: Vector3, focus: Vector3) -> Vector3:
+	var min_y := _cached_ground_y + _profile.ground_clearance
+	if cam_pos.y < min_y:
+		cam_pos.y = min_y
 	var min_allowed := focus.y - 1.0
 	if cam_pos.y < min_allowed:
 		cam_pos.y = lerpf(cam_pos.y, min_allowed, 0.5)
-
 	return cam_pos
 
 
-## If the eye ended inside a collider (cast_motion reports 0/1 when already overlapping),
-## walk it back toward the focus until the probe is clear or we sit on the player.
-func _pull_out_of_overlap(cam_pos: Vector3, from: Vector3, target: Node3D, world: World3D) -> Vector3:
-	if world == null or _profile == null:
-		return cam_pos
-	var space := world.direct_space_state
-	if space == null:
-		return cam_pos
-	var sphere := SphereShape3D.new()
-	sphere.radius = maxf(_profile.collision_radius, 0.08)
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = sphere
-	query.collision_mask = 1
-	query.margin = 0.02
-	if target != null and target is CollisionObject3D:
-		query.exclude = [target.get_rid()]
-	var pos := cam_pos
-	for _step in 8:
-		query.transform = Transform3D(Basis(), pos)
-		var hits := space.intersect_shape(query, 1)
-		if hits.is_empty():
-			return pos
-		pos = pos.lerp(from, 0.28)
-		if pos.distance_squared_to(from) < 0.16:
-			return from + Vector3(0.0, 1.6, 0.0)
-	return pos
+## Reused ray parameters: mutate + call, never allocate (rule 1).
+func _cast_ray(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, target: Node3D) -> Dictionary:
+	_ray_query.from = from
+	_ray_query.to = to
+	_ray_query.collision_mask = CollisionLayers.CAMERA_QUERY_MASK
+	_fill_exclude(target)
+	_ray_query.exclude = _exclude
+	queries_last_pass += 1
+	return space.intersect_ray(_ray_query)
+
+
+func _fill_exclude(target: Node3D) -> void:
+	_exclude.clear()
+	if target == null or not (target is CollisionObject3D):
+		return
+	# Narrowed by the `is` check above; a typed local beats an `as` cast here (the
+	# architecture gate keeps its engine-cast allowlist deliberately short).
+	var collider: CollisionObject3D = target
+	_exclude.append(collider.get_rid())
+
+
+func _space(world: World3D) -> PhysicsDirectSpaceState3D:
+	if world == null:
+		return null
+	return world.direct_space_state
+
+
+func get_debug_snapshot() -> Dictionary:
+	return {
+		"is_colliding": is_colliding,
+		"recovery_timer": recovery_timer,
+		"cache_valid": _cache_valid,
+		"cached_pullback": _cached_pullback,
+		"cached_hit": _cached_hit,
+		"ground_hit": _cached_ground_hit,
+		"queries_last_pass": queries_last_pass,
+		"passes_total": passes_total,
+		"embedded": _embedded,
+		"overlap_queries_last_frame": overlap_queries_last_frame,
+	}

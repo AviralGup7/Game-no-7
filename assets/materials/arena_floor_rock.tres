@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/rock/rock_metal.png" id="4_metal"]
 
 [resource]
-resource_name = "Arena Floor — photo rock PBR (HD pass)"
+resource_name = "Arena Floor \u2014 photo rock PBR (HD pass)"
 albedo_color = Color(0.88, 0.88, 0.88, 1)
 albedo_texture = ExtResource("1_color")
 metallic = 1.0

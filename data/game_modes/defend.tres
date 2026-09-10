@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="GameModeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/meta/game_mode_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mode_id = &"defend"
+display_name = "Hold the Line"
+blurb = "Guard the beacon at the arena's heart. If it falls, the run ends \u2014 survive the timer to win."
+intro_line = "The beacon must not fall. Hold the centre \u2014 everything comes for the light."
+victory_line = "Victory. The stand holds."
+objective = &"defend_point"
+score_mult = 1.4
+currency_mult = 1.3
+max_waves = 0
+target_seconds = 240.0
+collect_target = 0
+upgrade_every = 3
+fixed_weapon = &""
+forced_mutators = Array[StringName]([])
+scales_with_prestige = false
+prestige_mutator_pool = Array[StringName]([])
+planner_wave_offset = 1
+planner_wave_floor = 2
+every_n_waves = 3
+every_n_append = Array[StringName]([&"heavy"])

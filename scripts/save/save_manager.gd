@@ -189,11 +189,13 @@ func set_meta_ranks(ranks: Dictionary) -> void:
 
 
 func get_prestige_rank() -> int:
-	return clampi(int(_save.get("prestige_rank", 0)), 0, Prestige.MAX_PRESTIGE)
+	# Clamped against the authored ladder (`Prestige.max_rank()`), not a constant: the ceiling and the
+	# rows it gates live in res://data/prestige/ladder.tres now.
+	return Prestige.clamp_rank(int(_save.get("prestige_rank", 0)))
 
 
 func set_prestige_rank(rank: int) -> void:
-	_save.prestige_rank = clampi(rank, 0, Prestige.MAX_PRESTIGE)
+	_save.prestige_rank = Prestige.clamp_rank(rank)
 	mark_dirty()
 
 

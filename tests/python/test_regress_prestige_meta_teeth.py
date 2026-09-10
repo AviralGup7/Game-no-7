@@ -34,12 +34,21 @@ class ChallengeTierTests(unittest.TestCase):
             self.assertIn("func %s(" % fn, txt)
 
     def test_tiers_carry_currency_and_waves(self):
-        txt = read("scripts/meta/prestige.gd")
-        # Every tier row must now carry the new escalation fields.
-        self.assertIn('"currency_mult"', txt)
-        self.assertIn('"waves"', txt)
-        # Last Stand is the harshest tier.
-        self.assertIn('"Last Stand Challenge"', txt)
+        # The rungs are authored data now (res://data/prestige/ladder.tres), which is the whole point:
+        # `Prestige.CHALLENGE_TIERS` used to be an int-keyed Dictionary of Dictionaries here, indexed
+        # by `min(floor(rank / 2), size - 1)`, so a gap in the keys handed the top-rank player tier 0.
+        ladder = read("data/prestige/ladder.tres")
+        self.assertIn("currency_mult = ", ladder)
+        self.assertIn("max_waves = ", ladder)
+        self.assertIn("mutator_count = ", ladder)
+        # Last Stand is the harshest tier, and the ladder is a dense ordered array.
+        self.assertIn('label = "Last Stand Challenge"', ladder)
+        self.assertIn("challenge_tiers = Array[ChallengeTier]([", ladder)
+        prestige = read("scripts/meta/prestige.gd")
+        for table in ("const CHALLENGE_TIERS", "const TITLES", "const PRESTIGE_COST_BASE",
+                      "const MAX_PRESTIGE", "const SCORE_BONUS_PER_RANK", "const CURRENCY_BONUS_PER_RANK",
+                      "const CHALLENGE_TIER_EVERY"):
+            self.assertNotIn(table, prestige, f"`{table}` put the numbers back in code")
 
     def test_gamemode_reads_prestige_tier(self):
         txt = read("scripts/meta/game_mode.gd")
@@ -52,9 +61,15 @@ class ChallengeTierTests(unittest.TestCase):
             "is_victory_wave_for",
         ):
             self.assertIn("func %s(" % fn, txt)
-        # The mutator SET is drawn from a pool by tier count, not a fixed pair.
-        self.assertIn("CHALLENGE_MUTATOR_POOL", txt)
+        # The mutator SET is drawn from a pool by tier count, not a fixed pair — and the pool is the
+        # mode's own authored field, not a const here (which is what let the pool and the tier counts
+        # live in two files that nothing compared).
+        self.assertNotIn("CHALLENGE_MUTATOR_POOL", txt, "the pool went back to being a code table")
+        self.assertIn("prestige_mutator_pool", txt)
         self.assertIn("challenge_tier_mutator_count", txt)
+        challenge = read("data/game_modes/challenge.tres")
+        self.assertIn('prestige_mutator_pool = Array[StringName]([&"glass_cannon", &"ember_winds", '
+                      '&"iron_hide", &"volatile_mix", &"elite_surge"])', challenge)
 
     def test_wave_manager_uses_prestige_scaled_challenge(self):
         txt = read("scripts/waves/wave_manager.gd")
@@ -114,10 +129,19 @@ class ObjectiveModeTests(unittest.TestCase):
         self.assertIn("MODE_COLLECT", txt)
         self.assertIn("OBJECTIVE_DEFEND_POINT", txt)
         self.assertIn("OBJECTIVE_COLLECT", txt)
-        # Both objectives now have spawn queues (endless until the win condition).
-        self.assertIn("_defend_queue", txt)
-        self.assertIn("_collect_queue", txt)
+        # Both objectives now have spawn queues, authored as queue rules on their mode file rather
+        # than as private `_defend_queue`/`_collect_queue` builders in the same script as everything
+        # else: the mode says "ask the planner for wave+1 (never below 2), and send a heavy every
+        # third wave", and one generic `spawn_queue()` honours it for every mode.
+        for gone in ("static func _defend_queue", "static func _collect_queue",
+                     "static func _survival_queue", "static func _boss_rush_queue",
+                     "static func _campaign_queue"):
+            self.assertNotIn(gone, txt, "%s came back" % gone.split()[-1])
         self.assertIn("func collect_target(", txt)
+        for mode_file, needle in (("defend", "every_n_append = Array[StringName]([&\"heavy\"])"),
+                                  ("collect", "every_n_append = Array[StringName]([&\"ranged\"])")):
+            self.assertIn(needle, read("data/game_modes/%s.tres" % mode_file),
+                          "%s no longer authors its cadence" % mode_file)
 
     def test_objective_label_covers_new_objectives(self):
         txt = read("scripts/meta/game_mode.gd")

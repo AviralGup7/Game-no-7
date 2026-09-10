@@ -28,8 +28,19 @@ class InstanceValidTests(unittest.TestCase):
         txt=read("scripts/ui/tutorial_manager.gd")
         self.assertIn("is_instance_valid",txt)
     def test_status_has_instance_valid(self):
+        # Was: `is_instance_valid(fx)` re-checked inside the tick, because `_effects` was an
+        # untyped Dictionary whose Variant values something else could free under it. The
+        # table is now Dictionary[StringName, StatusEffect] held solely by this component, so
+        # a value cannot die while it is in it: the type is the guard and the per-frame
+        # validity walk is gone. Pinned as the typed declaration plus the null check the tick
+        # still performs, so it cannot regress to `Dictionary` + `as StatusEffect` casts.
         txt=read("scripts/status/status_manager.gd")
-        self.assertIn("is_instance_valid(fx)",txt)
+        self.assertIn("var _effects: Dictionary[StringName, StatusEffect] = {}",txt,msg="status table must stay typed")
+        self.assertIn("var fx: StatusEffect = _effects.get(id, null)",txt,msg="tick must still null-check before deref")
+        # Comment-stripped: the subsystem's doc comment deliberately names the cast design
+        # it replaced, so scanning it would make the pin unsatisfiable.
+        code = "\n".join(l for l in txt.splitlines() if not l.lstrip().startswith("#"))
+        self.assertNotIn("as StatusEffect",code,msg="no Variant casts out of the effect table")
     def test_projectile_has_instance_valid(self):
         self.assertIn("is_instance_valid(self)",read("scripts/weapons/projectile.gd"))
 class FiniteTests(unittest.TestCase):

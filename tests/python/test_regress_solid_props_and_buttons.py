@@ -54,8 +54,11 @@ class SolidDecorationTests(unittest.TestCase):
     def test_collider_is_on_the_world_layer_the_actors_collide_with(self):
         body = func_body(DECORATOR, "_add_prop_collision")
         self.assertIn("StaticBody3D.new()", body)
-        self.assertIn("body.collision_layer = 1", body)
-        self.assertIn("body.collision_mask = 0", body)
+        # Named bits, not `= 1`/`= 0`: this branch's collision contract (`tool/validate_guards.py` and
+        # `tests/python/test_regress_collision_contract.py`) refuses a numeric layer anywhere under
+        # scripts/. What this test cares about — a prop body is world-solid and queries nothing — holds.
+        self.assertIn("body.collision_layer = CollisionLayers.WORLD_BODY_LAYER", body)
+        self.assertIn("body.collision_mask = CollisionLayers.NO_LAYER", body)
         self.assertIn("BoxShape3D.new()", body)
         # Sized from the mounted model's own AABB, not a hardcoded guess.
         self.assertIn("_combined_local_aabb(", body)

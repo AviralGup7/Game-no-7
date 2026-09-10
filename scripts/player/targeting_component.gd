@@ -106,7 +106,9 @@ func _blocked(space: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3) -> b
 	var a := from + Vector3(0.0, 1.1, 0.0)
 	var b := to + Vector3(0.0, 1.1, 0.0)
 	var q := PhysicsRayQueryParameters3D.create(a, b)
-	q.collision_mask = 1
+	# Only arena geometry breaks a lock-on; another enemy in the way does not. Named bit, because
+	# `collision_mask = 1` stops meaning anything the moment a layer is renumbered.
+	q.collision_mask = CollisionLayers.OBSTRUCTORS
 	if _owner_node is CollisionObject3D:
 		q.exclude = [(_owner_node as CollisionObject3D).get_rid()]
 	var hit := space.intersect_ray(q)

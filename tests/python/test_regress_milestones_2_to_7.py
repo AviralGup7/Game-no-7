@@ -35,10 +35,23 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         self.assertIn("BossPhaseLight", txt)
         self.assertIn("recolor", txt)
         self.assertIn("light_energy", txt)
+        # Phase 5 deleted Arena.THEMES: the per-arena look became authored
+        # ArenaThemeConfig/ArenaLandmarkConfig resources. What the milestone actually
+        # promised is that each arena still has its own theme and its own named
+        # centrepiece, so that is what gets asserted now -- against the data the game
+        # loads, instead of against a constant that was itself the weak design.
         txt2 = read("scripts/arena/arena.gd")
-        self.assertIn("THEMES", txt2)
-        self.assertIn("forge", txt2)
-        self.assertIn("crystal", txt2)
+        self.assertIn("ArenaThemeConfig", txt2)
+        self.assertNotIn("THEMES := {", txt2)
+        for arena_id in ("default_arena", "ember_crucible", "frost_hollow"):
+            theme = read(f"data/arena_themes/{arena_id}.tres")
+            self.assertIn(f'theme_id = &"{arena_id}"', theme, f"{arena_id} must own its theme")
+            cfg = read(f"data/arenas/{arena_id}.tres")
+            self.assertIn("theme = ExtResource(", cfg)
+            self.assertIn("landmark = ExtResource(", cfg)
+        silhouettes = " ".join(read(f"data/arena_landmarks/{k}.tres") for k in ("forge", "crystal", "obelisk"))
+        for kind in ("forge", "crystal", "obelisk"):
+            self.assertIn(f'kind = &"{kind}"', silhouettes, f"landmark silhouette '{kind}' is gone")
 class Milestone3_AuthorityAndLifecycle(unittest.TestCase):
     def test_legacy_attack_modules_removed(self):
         # The M3 cleanup is done: AttackController/ComboChain were deleted, not

@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"warlord"
+blurb = "Arena Warlord \u2014 thrice-crowned killer of the Pit."
 display_name = "Arena Warlord"
 scene = ExtResource("2_scene")
 max_health = 600.0

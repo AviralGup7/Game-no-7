@@ -94,19 +94,22 @@ func performance_score() -> float:
 	return clampf(kill_term - dps_term, -1.0, 1.0)
 
 
-## Full multiplier set for the NEXT wave. Dominating players get slightly
-## stronger, richer waves; struggling players get a gentler mix.
-func next_wave_multipliers() -> Dictionary:
+## The NEXT wave's adaptive adjustment, as the same typed record the mutators fold into. It used to
+## return a Dictionary whose `score_mult` and `count_bonus` WaveManager never read — only hp, damage
+## and speed survived the hand-off, so "dominating players get richer waves" was true in the comment
+## and false in the game. Returning the record means folding it is arithmetic, not key matching:
+## `WaveModifiers.fold_director` multiplies exactly the fields this one fills.
+func next_wave_multipliers() -> WaveModifiers:
 	var p := performance_score()
 	var nudge := p * MAX_NUDGE
-	return {
-		"hp_mult": 1.0 + nudge,
-		"damage_mult": 1.0 + nudge * 0.6,
-		"speed_mult": 1.0 + nudge * 0.3,
-		"count_bonus": _count_bonus(p),
-		"score_mult": 1.0 + maxf(nudge, 0.0),
-		"elite_bonus": maxf(nudge, 0.0) * 0.4,
-	}
+	var out := WaveModifiers.neutral()
+	out.hp_mult = 1.0 + nudge
+	out.damage_mult = 1.0 + nudge * 0.6
+	out.speed_mult = 1.0 + nudge * 0.3
+	out.count_bonus = _count_bonus(p)
+	out.score_mult = 1.0 + maxf(nudge, 0.0)
+	out.elite_bonus = maxf(nudge, 0.0) * 0.4
+	return out
 
 
 func _count_bonus(performance: float) -> int:

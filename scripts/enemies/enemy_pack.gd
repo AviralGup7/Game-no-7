@@ -30,9 +30,11 @@ const FEAR_HP_TRIGGER := 0.55
 ## How long the grief retreat lasts once triggered.
 const FEAR_DURATION := 0.9
 
-## Enemies live on collision layer 4 (see enemy_base.tscn); the separation
-## query only looks at peers, never the player or the world.
-const ENEMY_COLLISION_LAYER := 4
+## Separation peers only (CollisionLayers.SEPARATION_QUERY_MASK, pinned to the
+## enemy_base.tscn layer by tests/python/test_regress_collision_contract.py):
+## the query must never react to the player or the arena, or steering would fight
+## the hard collision those bodies already resolve. Authoring the value here
+## rather than as `4` is the point — this line and the scene must agree.
 ## Separation steering (soft): radius, query period, blend weight.
 const SEP_RADIUS := 1.0
 const SEP_PERIOD := 0.12
@@ -58,7 +60,7 @@ func bind(host: EnemyBase) -> void:
 	_sep_shape.radius = SEP_RADIUS
 	_sep_query.shape = _sep_shape
 	_sep_query.collide_with_bodies = true
-	_sep_query.collision_mask = ENEMY_COLLISION_LAYER
+	_sep_query.collision_mask = CollisionLayers.SEPARATION_QUERY_MASK
 
 
 ## Clear transient pack state (spawn / re-initialize).

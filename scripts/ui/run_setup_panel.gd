@@ -87,8 +87,15 @@ func present(daily: bool = false) -> void:
 	_modes.disabled = daily
 	_daily_info.visible = daily
 	var mutators := PackedStringArray()
+	# The card has room for names; the *rules* are a tooltip, following skill_bar's pattern.
+	# `WaveMutatorConfig.description` is authored copy, so it is shown rather than left in the
+	# inspector — a mutator whose promise nobody reads can quietly stop being kept (see HARDENING).
+	var mutator_notes := PackedStringArray()
 	for id in challenge.mutators:
 		mutators.append(WaveMutators.display_name(id))
+		mutator_notes.append("%s — %s" % [WaveMutators.display_name(id), WaveMutators.description(id)])
+	if not mutator_notes.is_empty():
+		_daily_info.tooltip_text = "\n".join(mutator_notes)
 	_daily_info.text = "%s UTC  •  Fixed starter / shared seed\n%s\nOffline challenge — no online leaderboard." % [challenge.label, "  +  ".join(mutators)]
 	_refresh_details()
 
@@ -140,10 +147,13 @@ func _refresh_details() -> void:
 			var cap := GameMode.max_waves_for(mode_id, rank)
 			obj_line = ("Clear %d waves" % cap) if cap > 0 else "Endless waves"
 	_mode_info.text += "\nObjective: %s  •  Score x%.2f" % [obj_line, GameMode.score_multiplier_for(mode_id, rank)]
-	var lore := Narrator.arena_intro(arena.arena_id)
+	# The arena's own lore line, read off the config rather than through Narrator's id lookup: the
+	# panel already holds the config, and ArenaConfig.validate() requires the three lines, so the old
+	# "fall back to the tags, or to 'Classic survival'" chain was a way for an arena to describe
+	# itself as somebody else.
 	_arena_info.text = "%s\n%s\n%s  •  Unlock milestone: wave %d" % [
 		arena.display_name,
-		lore if not lore.is_empty() else (" / ".join(arena.tags) if not arena.tags.is_empty() else "Classic survival"),
+		arena.lore_intro,
 		" / ".join(arena.tags) if not arena.tags.is_empty() else "hazards live",
 		arena.unlock_wave]
 	_weapon_info.text = "%s\n%s  •  Damage %.1f  •  Reach %.1fm  •  Interval %.2fs" % [weapon.description,

@@ -110,6 +110,9 @@ func clamp_to_bounds() -> void:
 			0.0 if not is_finite(p.y) else p.y,
 			0.0 if not is_finite(p.z) else clampf(p.z, -limit, limit))
 		_body.velocity = Vector3.ZERO
+		# Repairing a poisoned transform IS a teleport; the hero must appear at the
+		# repaired spot on this frame, not slide there from the NaN position.
+		_body.reset_physics_interpolation()
 		return
 	var y := p.y
 	if y < 0.12:

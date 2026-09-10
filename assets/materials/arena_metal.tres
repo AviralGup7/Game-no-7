@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/metal/aluminium_normal.png" id="2_normal"]
 
 [resource]
-resource_name = "Arena Iron — brushed metal fittings (HD pass)"
+resource_name = "Arena Iron \u2014 brushed metal fittings (HD pass)"
 albedo_color = Color(0.8, 0.8, 0.82, 1)
 albedo_texture = ExtResource("1_color")
 metallic = 0.95

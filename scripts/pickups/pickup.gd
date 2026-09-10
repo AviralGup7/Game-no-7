@@ -44,6 +44,8 @@ func drop(cfg: PickupConfig, at: Vector3, player: Node3D, pickup_level: int = 1)
 	visible = true
 	set_physics_process(true)
 	global_position = at
+	# Pool slot -> drop point is a teleport (the idle slot parks at y = -100).
+	reset_physics_interpolation()
 	_base_y = at.y
 	_apply_model()
 	_apply_tint()
@@ -154,6 +156,7 @@ func pool_reset() -> void:
 	visible = false
 	set_physics_process(false)
 	global_position = Vector3(0, -100, 0)
+	reset_physics_interpolation()
 
 
 func is_active() -> bool:

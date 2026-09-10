@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"exploder"
+blurb = "Powder-gut \u2014 dies loud. Keep your distance."
 display_name = "Emberimp"
 scene = ExtResource("2_scene")
 max_health = 12.0

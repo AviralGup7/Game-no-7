@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"glass_cannon"
+display_name = "Glass Cannon"
+description = "Everyone hits harder \u2014 including you. Enemies deal +40%, take +25%."
+severity = &"major"
+roll_order = 3
+min_wave = 6
+damage_mult = 1.4
+hp_mult = 0.8
+player_damage_mult = 1.25
+score_mult = 1.3

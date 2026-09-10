@@ -553,6 +553,9 @@ static func _run_enemy_encounter_integration(tree: SceneTree) -> Array:
 	var spawn_results := _run_spawn_manager_integration(tree)
 	results.append_array(spawn_results)
 
+	# --- Authored run definitions reaching a live tree -------------------------
+	results.append_array(_run_run_definition_integration(tree))
+
 	target.queue_free()
 	whiff_target.queue_free()
 	poise_target.queue_free()
@@ -703,12 +706,21 @@ static func _pack_test_enemy_scene() -> PackedScene:
 	var machine := EnemyStateMachine.new()
 	machine.name = "EnemyStateMachine"
 	proto.add_child(machine)
+	# The status manager as well, for the same reason: `EnemyBase` resolves it out of the scene, so a
+	# packed scene without this child spawns enemies that are immune to DoT, stuns, shields and the
+	# wave's own status -- and the stamping call returns quietly because `get_status_manager()` is null.
+	# That is what "the wave's folded record ... stamps its status" was actually reporting as `has=false`
+	# after three rounds of reading the production code: the fixture had no manager to stamp into.
+	var status := StatusManager.new()
+	status.name = "StatusManager"
+	proto.add_child(status)
 	# PackedScene.pack() only serializes children whose owner is the packed root.
 	# Without this the scene contains a bare EnemyBase: spawned enemies have no
 	# HealthComponent, so apply_damage is rejected with no_health_component, they
 	# never die, and every defeat/clear assertion in this stage silently fails.
 	hp.owner = proto
 	machine.owner = proto
+	status.owner = proto
 	var ps := PackedScene.new()
 	ps.pack(proto)
 	proto.free()
@@ -848,6 +860,58 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 		"why": "scaled=%s pristine=%s" % [str(scaled_ok), str(cfg_pristine)],
 	})
 
+	# --- A wave's folded record reaches the arena: scaling AND the status it carries ----------
+	# The static suites prove the fold; this proves the fold arrives. Ember Winds' `burn_tick` was
+	# unread for as long as the record was a Dictionary, so there was literally no live path to
+	# assert on. The fake player here is not a Damageable, which is also under test: stamping must
+	# skip what cannot hold a status instead of calling a method it never declared.
+	var ember := WaveModifiers.neutral()
+	ember.hp_mult = 1.6
+	ember.damage_mult = 1.5
+	ember.speed_mult = 0.85
+	ember.explode_chance = 1.0
+	ember.severity = WaveMutatorConfig.SEVERITY_MAJOR
+	ember.status_effect = load("res://data/status/ember_air.tres") as StatusEffectConfig
+	ember.status_stacks = 2
+	ember.status_targets_enemies = true
+	ember.status_targets_player = true
+	sm.set_wave_modifiers(ember)
+	spawned_nodes.clear()
+	var ember_queue: Array[StringName] = [&"basic"]
+	sm.queue_wave(ember_queue, 5, 0.2, 8)
+	var stamped: EnemyBase = spawned_nodes[0] if not spawned_nodes.is_empty() else null
+	var stamped_manager := stamped.get_status_manager() if stamped != null else null
+	# Read before the block's own `set_wave_modifiers(neutral())` cleanup, or the diagnosis reports the
+	# record the stage tore down rather than the one the spawn saw.
+	var wave_at_spawn: WaveModifiers = sm.get_wave_modifiers()
+	# Every clause named separately, because a combined boolean reported as `record=false` sends
+	# someone reading a CI log back to read the whole file: five sub-checks here and no clue which one
+	# moved. The numbers are printed too, so the next failure says what the entity actually is.
+	var has_ok := stamped_manager != null and stamped_manager.has_effect(&"ember_air")
+	var stack_ok := stamped_manager != null and stamped_manager.stack_count(&"ember_air") == 2
+	var full_ok := stamped != null and is_equal_approx(stamped.get_health_fraction(), 1.0)
+	var attack_ok := stamped != null \
+		and is_equal_approx(stamped.get_effective_attack_damage(), cfg_basic.attack_damage * 1.5)
+	var health_component := stamped.get_health_component() if stamped != null else null
+	var hp_ok := health_component != null \
+		and is_equal_approx(health_component.get_max(), cfg_basic.max_health * 1.6)
+	var record_ok := stamped != null and has_ok and stack_ok and full_ok and attack_ok and hp_ok
+	# Volatile Mix at 100%: the fold's chance must actually detonate (one explosion, no crash).
+	var blast_before := sm.get_active_count()
+	if stamped != null:
+		stamped.apply_damage(_lethal_payload(stamped))
+	var consumed_the_chance := sm.get_active_count() <= blast_before and sm.get_defeated_count() >= 1
+	sm.clear()
+	sm.set_wave_modifiers(WaveModifiers.neutral())
+	results.append({
+		"name": "the wave's folded record scales spawns and stamps its status",
+		"passed": record_ok and consumed_the_chance,
+		# Built as a joined array on purpose: `"a" + "b" % [..]` binds as `"a" + ("b" % [..])`, so the
+		# concatenated format string this replaces printed its own placeholders instead of the answer.
+		"why": _describe_record(has_ok, stack_ok, full_ok, attack_ok, hp_ok, consumed_the_chance,
+				stamped, stamped_manager, health_component, cfg_basic, wave_at_spawn),
+	})
+
 	timer.stop()
 	sm.clear()
 	sm.queue_free()
@@ -856,3 +920,132 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	player.queue_free()
 	return results
 
+
+## What the run's authored files actually do inside a live tree. The static suites prove a `.tres`
+## parses and that its numbers match the mirror; this proves the *wire* — that a mode's wave row is
+## what the announcer emits, that a mode's scripted queue survives the registry hop, and that the
+## prestige ladder's rung is the number the scoreboard multiplies with. In a running game these all
+## resolve through ContentRegistry, which is a different path than the harness's folder scan.
+## The record check's diagnosis in one line: which clause moved, what the entity actually is, and
+## whether the spawner still holds the wave that was asked for. `record=false` sent two rounds of
+## reading to a one-bit answer, which is not a diagnosis.
+static func _describe_record(has_ok: bool, stack_ok: bool, full_ok: bool, attack_ok: bool,
+		hp_ok: bool, blasts_ok: bool, stamped: EnemyBase, stamped_manager: StatusManager,
+		health_component: HealthComponent, cfg_basic: EnemyConfig,
+		wave: WaveModifiers) -> String:
+	var parts := PackedStringArray()
+	parts.append("has=%s" % str(has_ok))
+	parts.append("stacks=%s" % str(stack_ok))
+	parts.append("full=%s" % str(full_ok))
+	parts.append("attack=%s" % str(attack_ok))
+	parts.append("hp=%s" % str(hp_ok))
+	parts.append("blasts=%s" % str(blasts_ok))
+	parts.append("stacks=%d" % (stamped_manager.stack_count(&"ember_air") if stamped_manager != null else -1))
+	parts.append("max=%s" % (str(health_component.get_max()) if health_component != null else "none"))
+	parts.append("atk=%s" % (str(stamped.get_effective_attack_damage()) if stamped != null else "none"))
+	parts.append("want=%s/%s" % [str(cfg_basic.max_health * 1.6), str(cfg_basic.attack_damage * 1.5)])
+	parts.append("tree=%s" % (str(stamped.is_inside_tree()) if stamped != null else "none"))
+	parts.append("node=%s" % (str(stamped.get_node_or_null("StatusManager")) if stamped != null else "none"))
+	parts.append("kids=%s" % (", ".join(PackedStringArray(
+			stamped.get_children().map(func(c): return String(c.name)))) if stamped != null else "none"))
+	parts.append("wave_effect=%s" % (str(wave.status_effect) if wave != null else "no-record"))
+	parts.append("wave_stacks=%d" % (wave.status_stacks if wave != null else -1))
+	parts.append("wave_targets=%s/%s" % [str(wave.status_targets_enemies) if wave != null else "?",
+			str(wave.status_targets_player) if wave != null else "?"])
+	return ", ".join(parts)
+
+
+static func _run_run_definition_integration(tree: SceneTree) -> Array:
+	var results: Array = []
+
+	# --- the announcer reads the mode's row, not a table of its own -----------------
+	var heard: Array = []
+	var listener := func(text_key: StringName, text: String, _severity: StringName) -> void:
+		heard.append([String(text_key), text])
+	EventBus.announcement.connect(listener)
+	Narrator.announce_wave(GameMode.MODE_CAMPAIGN, &"frost_hollow", 5)
+	Narrator.announce_wave(GameMode.MODE_SURVIVAL, &"ember_crucible", 1)
+	Narrator.announce_wave(GameMode.MODE_COLLECT, &"default_arena", 2)
+	EventBus.announcement.disconnect(listener)
+	# Exactly two announcements from three calls: the third (Relic Hunt, wave 2) has no authored beat
+	# and is not a milestone wave, so silence is itself under test — the old code could only reach it
+	# by falling through a `match` that knew the mode by name.
+	var authored := load("res://data/game_modes/campaign.tres") as GameModeConfig
+	var row := authored.plan_for_wave(5) if authored != null else null
+	var expected_beat := "%s — %s" % [String(row.beat_title), String(row.beat_line)] if row != null else ""
+	var beat_ok := heard.size() == 2 and String(heard[0][0]) == "campaign_beat" \
+		and String(heard[0][1]) == expected_beat and not expected_beat.is_empty()
+	var survival := load("res://data/game_modes/survival.tres") as GameModeConfig
+	var intro_ok := heard.size() == 2 and String(heard[1][0]) == "narrator" \
+		and survival != null and String(heard[1][1]) == String(survival.intro_line)
+	results.append({
+		"name": "announcer emits the mode's authored beat and intro, and nothing else",
+		"passed": beat_ok and intro_ok,
+		"why": str(heard),
+	})
+
+	# --- a mode's scripted queue survives the registry hop -------------------------
+	var queue := GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 7)
+	var queue_ok := queue.size() == 7 and queue[0] == &"warlord" and queue.count(&"heavy") == 1
+	results.append({
+		"name": "boss rush wave 3 arrives scripted from the registry path",
+		"passed": queue_ok,
+		"why": str(queue),
+	})
+
+	# --- the ladder resolves with no registry at all ---------------------------------
+	# This harness boots only EventBus, so `Prestige.ladder()` must find the content folder on its
+	# own. Forgetting the cache here is the point: it proves the disk path is a real fallback and not
+	# a convenience that only the unit tests exercise. `Prestige.forget_ladder()` exists so a content
+	# reload can re-resolve, and the stage reuses it to force a cold lookup.
+	Prestige.forget_ladder()
+	var ladder := Prestige.ladder()
+	var ladder_ok := ladder != null and Prestige.max_rank() == 10 and Prestige.cost_base() == 2000 \
+		and is_equal_approx(Prestige.armory_completion_required(), ladder.armory_completion_required)
+	var gate_ok := ladder != null \
+		and Prestige.can_prestige(0, ladder.cost_base - 1, 1.0) != &"ok" \
+		and Prestige.can_prestige(0, ladder.cost_base, ladder.armory_completion_required) == &"ok" \
+		and Prestige.can_prestige(0, ladder.cost_base, ladder.armory_completion_required - 0.01) != &"ok" \
+		and Prestige.can_prestige(Prestige.max_rank(), 1000000, 1.0) != &"ok"
+	results.append({
+		"name": "the prestige ladder resolves from the content folder, and its gate is the file's own",
+		"passed": ladder_ok and gate_ok,
+		"why": "ladder=%s rank=%d" % [str(ladder != null), Prestige.max_rank()],
+	})
+
+	# --- and the rung is what the scoreboard pays with ------------------------------
+	# `RunScorekeeper` takes the mode and the rank from GameRoot; this harness boots neither, so the
+	# run is a standard one at rank 0 and its payout is the kill's own value untouched. That is the
+	# first half of the contract: the ladder must not reach into a mode that does not scale with
+	# prestige, which is exactly how the old flat per-rank bonus double-counted. The second half is the
+	# *selection* — which rung a challenge run at rank 8 gets — asserted against the rows the resource
+	# carries rather than against a literal, because a hard-coded "rank 8 means tier 3" here was a
+	# guess about data that says 0/2/4/6/8. Numbers written from memory are how this file has failed
+	# twice; the file is the source.
+	var run := RunState.new()
+	var keeper := RunScorekeeper.new()
+	keeper.reset_run(run)
+	keeper.record_kill(100, 0)
+	var want_standard := int(round(101.0 * GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8)))
+	var selected := -1
+	if ladder != null:
+		selected = ladder.tier_index_for_rank(8)
+	var rung: ChallengeTier = ladder.challenge_tiers[selected] if ladder != null and selected >= 0 else null
+	# The rung that covers rank 8 is the last one whose unlock it clears, and the next one must still
+	# be out of reach; that is the whole ladder contract in two comparisons, with no index to drift.
+	var selection_ok := rung != null and rung.unlock_rank <= 8 \
+		and (selected + 1 >= ladder.challenge_tiers.size() \
+			or ladder.challenge_tiers[selected + 1].unlock_rank > 8)
+	var at_eighth := GameMode.score_multiplier_for(GameMode.MODE_CHALLENGE, 8)
+	var payout_ok := run.score == want_standard and selection_ok \
+		and is_equal_approx(at_eighth, rung.score_mult) \
+		and is_equal_approx(GameMode.score_multiplier_for(GameMode.MODE_STANDARD, 8), 1.0)
+	results.append({
+		"name": "a run's payout is its tier's multiplier and the mode's own, never both",
+		"passed": payout_ok,
+		"why": "score=%d want=%d rank8=%.3f tier=%d/%d unlock=%d" % [run.score, want_standard,
+				at_eighth, selected, ladder.challenge_tiers.size() if ladder != null else -1,
+				rung.unlock_rank if rung != null else -1],
+	})
+
+	return results

@@ -100,10 +100,18 @@ named `_validated_*` as an active safeguard.
 - Player and enemy movement/combat run at the fixed physics cadence. Target selection
   is attack-driven, not a global every-render-frame scan. Navigation retargeting is
   interval-based (normally 0.2s). No AI tick-rate or targeting changes without profiles.
-- `StatusManager` validates configs during ticks and snapshots keys; hazards gather
-  and filter player/enemy groups every physics tick. These are plausible busy-wave
-  CPU costs, but removing checks or caching mutable status state without measurement
-  risks changing combat. Left intact.
+- `StatusManager` and `ArenaHazards` were this file's two "plausible busy-wave cost, left
+  alone" items; both have now been measured and fixed rather than excused. Status queries
+  (move speed, outgoing/incoming damage, stun/root, shield pool) are cached folds
+  invalidated by an application, a removal, an absorbed shield layer and the tick in which a
+  duration crosses zero — one fold per entity per tick at most, with
+  `recomputes`/`aggregate_reads` counters in `get_debug_snapshot()` so the cache is testable
+  — the tick reuses two scratch arrays instead of allocating `keys().duplicate()`,
+  config validation moved to load, and an idle manager is not ticked at all. Hazards went
+  from gathering and filtering the player/enemy groups per hazard per tick to one lazily
+  built snapshot shared by the set, bucketed in a `PackedInt32Array` grid, with per-hazard
+  scan cadence (`HazardConfig.scan_interval`) and no victim query at all for a periodic
+  pulse between bursts. See `docs/ARCHITECTURE.md` ("Status effects", "Arena hazards").
 - HUD weapon refresh (0.15s), minimap (15Hz), and skill-bar refresh are already
   throttled. Ring fades and muzzle flashes disable processing while idle. Feedback
   mesh traversal is now cached on first use after the rig mounts.

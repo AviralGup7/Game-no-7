@@ -7,6 +7,13 @@ extends ValidatedConfig
 
 @export var archetype_id: StringName = &""
 @export var display_name: String = ""
+
+## The archetype's first-appearance line, read by `Narrator.note_enemy_spawned` and announced once per
+## run per archetype. It lives here because it describes the enemy: `Narrator` used to keep an
+## `ENEMY_BLURBS` Dictionary keyed by archetype, which meant a new archetype could be added to the
+## content folder and never be noticed by the announcer, and a typo in an id was a silent miss.
+## An empty blurb is a deliberate "this one is never announced", not a fall-through.
+@export var blurb: String = ""
 @export var scene: PackedScene = null
 @export_range(0.0, 10000.0, 0.5) var max_health: float = 10.0
 @export_range(0.0, 30.0, 0.1) var move_speed: float = 2.0

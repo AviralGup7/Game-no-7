@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="HazardConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+hazard_id = &"ember_mover"
+display_name = "Ember Mover"
+description = "A field that travels: it circles the position it was authored at, so the layout line says where it patrols from."
+mechanic = &"field"
+trigger = &"periodic"
+radius = 1.4
+period = 0.0
+damage = 10.0
+falloff = &"none"
+victim_cooldown = 0.35
+scan_interval = 0.05
+orbit_radius_fraction = 0.55
+orbit_radius_min = 2.0
+orbit_radius_max = 6.0
+orbit_speed = 1.1
+source_id = &"moving_hazard"
+marker_color = Color(0.9, 0.2, 0.55, 0.45)
+marker_emission = 0.6
+marker_emission_armed = 1.2
+marker_height = 0.12
+tags = Array[StringName]([&"moving", &"patrol"])

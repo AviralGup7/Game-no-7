@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Lightweight structural validator for Godot .tscn/.tres text files.
+r"""Lightweight structural validator for Godot .tscn/.tres text files.
 
 This is NOT a substitute for Godot's own importer; it catches common hand-authoring
 mistakes before CI/editor: load_steps mismatches, missing referenced res:// files,
 stale or duplicated script ids, obviously unbalanced section headers, and — for
 scenes that inherit another scene (`instance=ExtResource(...)`) — property values
-referencing `SubResource("id")` pools from the parent file. Sub-resource ids are
+referencing `SubResource("id")` pools from the parent file. It also checks the two ways
+the text-format reader is stricter than GDScript, both of which shipped broken resources
+this tool could previously not see: an authored value constructor that is not a flat,
+complete list of numbers (`Color(r, g, b)` is legal code and a parse error in a .tres),
+and non-ASCII bytes in a resource file (the reader is Latin-1 oriented; Godot's writer
+emits `\uXXXX` escapes and the reader reverses them). Sub-resource ids are
 file-local: a child scene must declare what it references (or edit the base), the
 editor's `[editable]` sections being the one sanctioned cross-file pointer.
 
@@ -29,6 +34,29 @@ NODE_RE = re.compile(r"^\[node ")
 EXTRES_USE_RE = re.compile(r'ExtResource\("([^"]+)"\)')
 SUBRES_USE_RE = re.compile(r'SubResource\("([^"]+)"\)')
 EDITABLE_SUB_RE = re.compile(r'^\[editable [^\]]*\bsub_resource="([^"]+)"')
+
+# Godot's text-format reader does not evaluate GDScript: it builds authored values by calling the
+# constructor with a fixed number of flat scalar arguments. So `Color(0.22, 0.42, 0.68)` — legal, and
+# what a hand-written .tres looks like when you copy from code — is a *parse error* in a resource file
+# ("Expected 4 arguments for constructor"), the file never loads, and everything referencing it fails
+# with it. Six shipped arena theme/landmark resources were broken this way, and no local check could
+# see it: the scripts themselves parsed fine, and `gdparse` knows nothing of the engine's ClassDB.
+ENGINE_ARITY = {
+    "Color": 4, "Vector2": 2, "Vector2i": 2, "Vector3": 3, "Vector3i": 3, "Vector4": 4,
+    "Rect2": 4, "Rect2i": 4, "AABB": 6, "Plane": 4, "Quat": 4, "Basis": 9,
+    "Transform2D": 6, "Transform3D": 12, "Projection": 16,
+}
+# `[^()]*` deliberately declines to match a constructor call with a nested call inside it; nothing in
+# the text format writes that way, and a false positive here would be worse than a miss.
+NUM_RE = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
+VALUE_RE = re.compile(
+    r"\b(" + "|".join(ENGINE_ARITY) + r")\(([^()]*)\)")
+
+# The text reader is Latin-1 oriented: a raw em dash in an authored string is reported as
+# "Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1".
+# Godot's own writer escapes non-ASCII as \uXXXX, and the reader unescapes it — so escaping is not a
+# workaround, it is the file format. (GDScript source is a different story: scripts are read as UTF-8,
+# which is why a literal em dash in narrator.gd stays.)
 
 
 def load_steps_from(header_line: str) -> int | None:
@@ -112,6 +140,37 @@ def check_file(path: str, problems: list[str]) -> None:
                     f'{rel}: SubResource("{sid}") referenced but not declared in this file — '
                     f"sub-resource ids are file-local; declare it here or edit the base scene"
                 )
+
+    # --- authored value constructors -------------------------------------------------------------
+    for lineno, raw in enumerate(lines, 1):
+        for m in VALUE_RE.finditer(raw):
+            kind, inner = m.group(1), m.group(2)
+            args = [a.strip() for a in inner.split(",") if a.strip()]
+            if not all(NUM_RE.fullmatch(a) for a in args):
+                problems.append(
+                    f"{rel}:{lineno}: {kind}(...) is not a list of flat numbers — the .tres reader "
+                    f"calls the constructor itself, so write the literals out "
+                    f"(found: {inner.strip()[:60]!r})"
+                )
+                continue
+            want = ENGINE_ARITY[kind]
+            if len(args) != want:
+                problems.append(
+                    f"{rel}:{lineno}: {kind}(...) has {len(args)} components, the text format wants "
+                    f"exactly {want} (a wrong count is a parse error: the resource does not load, and "
+                    f"neither does anything that references it)"
+                )
+
+    # --- ASCII-only authored text --------------------------------------------------------------
+    for lineno, raw in enumerate(lines, 1):
+        odd = sorted({ord(c) for c in raw if ord(c) > 127})
+        if odd:
+            names = ", ".join("U+%04X" % c for c in odd)
+            form = "".join("\\u%04x" % c for c in odd)
+            problems.append(
+                f"{rel}:{lineno}: non-ASCII {names} in a resource file - write it as {form}, which is "
+                f"what Godot's own writer emits and what the Latin-1 text reader expects"
+            )
 
     declared = len(ext_resources)
     expected_steps = declared + sub_count + 1

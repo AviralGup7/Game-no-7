@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="HazardConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/hazard_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+hazard_id = &"heal_ward"
+display_name = "Healing Ward"
+description = "Player-only regeneration field. Held in the middle of a fight it is a trade: standing still to heal."
+mechanic = &"field"
+trigger = &"periodic"
+radius = 2.5
+period = 0.0
+heal_per_second = 6.0
+scan_interval = 0.05
+affects_enemies = false
+is_beneficial = true
+source_id = &"heal_ward"
+marker_color = Color(0.4, 1, 0.5, 0.3)
+marker_emission = 0.4
+marker_emission_armed = 0.8
+tags = Array[StringName]([&"restorative"])

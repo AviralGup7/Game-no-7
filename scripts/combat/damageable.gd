@@ -42,3 +42,26 @@ func is_alive() -> bool:
 ## implementation reports full health; override when the entity owns health.
 func get_health_fraction() -> float:
 	return 1.0
+
+
+## ---------- Component + geometry seams for area systems ----------
+##
+## ArenaHazards (and anything else that polls a candidate list) used to reach these with
+## `get_node_or_null("StatusManager") as StatusManager` per victim per tick: a string
+## path lookup plus a cast, on the hot path, with a typo silently returning null. The
+## entity already resolved both in _ready(), so the seam is one virtual call.
+## Base implementations report "no component", which every caller already tolerates.
+
+func get_status_manager() -> StatusManager:
+	return null
+
+
+func get_health_component() -> HealthComponent:
+	return null
+
+
+## Extra radius an area test adds to its own radius to cover this body. Enemies report
+## their authored bounds; anything else is treated as a point (which is what AreaDamage
+## did before this seam existed, so no hit window changes size).
+func get_hit_radius() -> float:
+	return 0.0

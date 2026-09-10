@@ -57,7 +57,7 @@ var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
 ## Arena-local XZ footprints of every solid prop, published to the Arena so the
 ## shared nav grid blocks the same cells the colliders occupy.
-var _blockers: Array = []
+var _blockers: Array[AABB] = []
 
 
 func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
@@ -81,10 +81,12 @@ func clear() -> void:
 	_blockers.clear()
 
 
-## Solid-prop footprints in arena-local coordinates: [{"pos": Vector3, "half_size": Vector3}].
-## Same entry shape as ArenaObstacles.layout_for, so the Arena can feed them straight
-## into ArenaNavGrid.build().
-func get_nav_blockers() -> Array:
+## Solid-prop footprints as world-space boxes, the shape `ArenaNavGrid.build()` and
+## `Arena.register_decoration_blockers` take. AABB rather than a `{"pos","half_size"}` key-bag because
+## the repo's rule for anything crossing a boundary is a typed record: a Dictionary key nobody reads is
+## invisible, and a typo'd key is a runtime miss rather than a parse error. The authored obstacle
+## placements in `Arena` travel the same way (as `ArenaObstaclePlacement`).
+func get_nav_blockers() -> Array[AABB]:
 	return _blockers
 
 
@@ -172,8 +174,8 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 		var body := StaticBody3D.new()
 		body.position = at
 		body.add_to_group("world_static")
-		body.collision_layer = 1
-		body.collision_mask = 0
+		body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+		body.collision_mask = CollisionLayers.NO_LAYER
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = Vector3(1.4, 4.0, 1.4)
@@ -185,10 +187,12 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 			_primitive_pillar(body)
 		add_child(body)
 		_spawned.append(body)
-		_blockers.append({
-			"pos": Vector3(at.x, 0.0, at.z),
-			"half_size": Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5),
-		})
+		# `foot_half`, not `half`: the enclosing function's own parameter is the arena's half-extent and
+		# shadowing it is a parse error ("There is already a parameter named \"half\"").
+		var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
+		# The collider is offset up by shape.position.y, so the box is too. `ArenaNavGrid` reads only x
+		# and z, but a footprint that lies about height is a bug waiting for the next reader.
+		_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
 
 
 ## Scattered floor clutter (barrels / crates / boxes / rubble). Solid: each prop gets
@@ -321,10 +325,12 @@ func _add_prop_collision(holder: Node3D) -> void:
 		clampf(bounds.size.z * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_XZ))
 	var body := StaticBody3D.new()
 	body.name = "PropCollision"
-	# Layer 1 = the world layer the player (mask 1) and every enemy (mask 5) collide
-	# with; mask 0 because a static prop never queries anything itself.
-	body.collision_layer = 1
-	body.collision_mask = 0
+	# The world layer is what the player and every enemy are masked against, and a static
+	# prop queries nothing itself. Named, not written as bits: `collision_layer = 1` reads as a
+	# constant to keep and stops meaning anything the moment a layer is renumbered, which is the bug
+	# class `tool/validate_guards.py` and `tests/python/test_regress_collision_contract.py` refuse.
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
 	box.size = half * 2.0
@@ -341,10 +347,7 @@ func _add_prop_collision(holder: Node3D) -> void:
 	var sn := absf(sin(yaw))
 	var foot := Vector3(half.x * cs + half.z * sn, half.y, half.x * sn + half.z * cs)
 	var local_center := holder.transform.basis * center
-	_blockers.append({
-		"pos": Vector3(holder.position.x + local_center.x, 0.0, holder.position.z + local_center.z),
-		"half_size": foot,
-	})
+	_blockers.append(AABB(holder.position + local_center - foot, foot * 2.0))
 
 
 ## Combined AABB of every mesh under `root`, in `root`-local space. Walks the child

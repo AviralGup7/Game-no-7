@@ -161,13 +161,29 @@ class AnimationAndHazardTests(unittest.TestCase):
         self.assertIn("return current_fov if is_finite(current_fov) else 45.0", fov)
 
     def test_hazard_visuals_are_optional_not_unguarded(self):
-        txt = read("scripts/arena/arena_hazards.gd")
-        self.assertIn("func _hazard_emission(h: Dictionary) -> StandardMaterial3D:", txt)
-        self.assertIn("if marker == null or not is_instance_valid(marker) or not marker.has_meta(\"disc\"):", txt)
-        # Gameplay still runs when the glow is gone; a NaN epicentre does not.
-        vent = txt[txt.index("func _tick_vent("):txt.index("func _hazard_emission(")]
-        self.assertIn("if float(h[\"timer\"]) >= VENT_PERIOD:", vent)
-        self.assertIn("if not is_finite(center.x) or not is_finite(center.y) or not is_finite(center.z):", vent)
+        """A hazard's visual may be gone; its gameplay may not be, and a NaN centre may
+        never reach a body.
+
+        The pin here is the property, not the plumbing: exactly one place resolves the
+        marker reference, and it validates before dereferencing. (It used to assert that
+        `_hazard_emission(h: Dictionary)` existed, which pinned the untyped-record design
+        the subsystem was rebuilt to remove; the guard moved to HazardInstance.visual().)
+        """
+        instance = read("scripts/arena/hazard_instance.gd")
+        guard = "func visual() -> HazardMarker:"
+        self.assertIn(guard, instance)
+        block = instance[instance.index(guard):][:400]
+        self.assertIn("marker == null or not is_instance_valid(marker)", block)
+        hazards = read("scripts/arena/arena_hazards.gd")
+        # Every gameplay marker touch goes through the guarded accessor; the raw field is
+        # only ever assigned, never dereferenced.
+        self.assertIn("instance.marker = marker", hazards)
+        self.assertNotIn("instance.marker.", hazards,
+                        "arena_hazards.gd must not dereference a marker without guarding it")
+        self.assertIn("\tvar marker := instance.visual()\n\tif marker == null:\n\t\treturn", hazards)
+        # A non-finite epicentre is skipped before any victim is touched.
+        self.assertIn("if not instance.position_is_sane():", hazards)
+        self.assertIn("return is_finite(position.x) and is_finite(position.y) and is_finite(position.z)", instance)
 
 
 class HarnessRegistrationTests(unittest.TestCase):

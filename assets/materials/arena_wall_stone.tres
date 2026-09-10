@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/stone/stone_normal.png" id="2_normal"]
 
 [resource]
-resource_name = "Arena Walls — world-scale stone"
+resource_name = "Arena Walls \u2014 world-scale stone"
 albedo_color = Color(0.55, 0.59, 0.66, 1)
 albedo_texture = ExtResource("1_color")
 roughness = 0.95

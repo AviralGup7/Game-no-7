@@ -9,10 +9,11 @@ extends RefCounted
 ## instantiates the REAL arena scene + a real ArenaDecorator headless and asserts
 ## that every floor-standing prop now
 ##
-##   * carries a "PropCollision" StaticBody3D on collision_layer 1 (the world layer
-##     the player's mask 1 and every enemy's mask 5 collide with) with a finite,
-##     non-degenerate box shape;
-##   * published a matching footprint through Arena.get_nav_blockers() so the
+##   * carries a "PropCollision" StaticBody3D on the world layer (`CollisionLayers.
+##     WORLD_BODY_LAYER`, the layer the player and every enemy are masked against) with a
+##     finite, non-degenerate box shape;
+##   * published a matching footprint (a typed `AABB`, not a key-bag) through
+##     `ArenaDecorator.get_nav_blockers()` so the
 ##     shared nav grid blocks the same cells physics blocks (AI routes around);
 ##   * stays clear of the player start and the enemy spawn markers, so a new
 ##     collider can never sit on a spawn or trap the hero at run start;
@@ -57,7 +58,7 @@ static func _run_checks(results: Array, arena: Arena, decorator: ArenaDecorator)
 	var colliders := _find_colliders(decorator)
 	var pillars := _find_structural_pillars(decorator)
 	var solids := colliders.size() + pillars.size()
-	var blockers: Array = decorator.get_nav_blockers()
+	var blockers: Array[AABB] = decorator.get_nav_blockers()
 
 	results.append({
 		"name": "decorator: floor props are solid (%d clutter + %d pillars)" % [colliders.size(), pillars.size()],
@@ -90,10 +91,9 @@ static func _run_checks(results: Array, arena: Arena, decorator: ArenaDecorator)
 	})
 
 	var bad_foot := 0
-	for raw in blockers:
-		var foot: Dictionary = raw if raw is Dictionary else {}
-		var pos: Vector3 = foot.get("pos", Vector3.ZERO)
-		var hs: Vector3 = foot.get("half_size", Vector3.ZERO)
+	for foot in blockers:
+		var pos := foot.get_center()
+		var hs := foot.size * 0.5
 		if not (is_finite(pos.x) and is_finite(pos.z) and is_finite(hs.x) and is_finite(hs.z)):
 			bad_foot += 1
 		elif hs.x <= 0.0 or hs.z <= 0.0:
@@ -108,10 +108,8 @@ static func _run_checks(results: Array, arena: Arena, decorator: ArenaDecorator)
 	var nav := arena.get_nav_grid()
 	var unblocked := 0
 	if nav != null:
-		for raw in blockers:
-			var foot: Dictionary = raw if raw is Dictionary else {}
-			var pos: Vector3 = foot.get("pos", Vector3.ZERO)
-			if nav.is_walkable(pos):
+		for foot in blockers:
+			if nav.is_walkable(foot.get_center()):
 				unblocked += 1
 	results.append({
 		"name": "decorator: nav grid is rebuilt and blocks every prop footprint",
@@ -130,9 +128,8 @@ static func _run_checks(results: Array, arena: Arena, decorator: ArenaDecorator)
 	var near_start := 0
 	var near_marker := 0
 	var markers := arena.get_spawn_points()
-	for raw in blockers:
-		var foot: Dictionary = raw if raw is Dictionary else {}
-		var pos: Vector3 = foot.get("pos", Vector3.ZERO)
+	for foot in blockers:
+		var pos := foot.get_center()
 		if start != null and Vector2(pos.x - start.position.x, pos.z - start.position.z).length() < MIN_PLAYER_START_CLEARANCE:
 			near_start += 1
 		for marker in markers:

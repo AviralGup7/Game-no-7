@@ -1,13 +1,22 @@
 class_name GameMode
 extends RefCounted
 
-## Data-driven run mode definitions. Standard survival remains the default; Boss Rush,
-## Survival (timed endurance), Challenge (fixed loadout + mutators), and Campaign
-## (scripted encounter beats + narrative) share the same WaveManager / RunState loop
-## with mode-specific wave queues, win conditions, and scoring multipliers.
+## Run-mode selection and behaviour. The *definitions* are authored data now
+## (`res://data/game_modes/<mode_id>.tres`, `GameModeConfig`); what stays here has to be code: how a
+## wave's archetype list is built from a mode's plan rows or its planner rule, which live progress an
+## objective label prints, and how a scaling mode re-reads the prestige ladder.
 ##
-## Pure static API — no tree access. GameRoot stores the active mode id on RunState;
-## WaveManager / Main / UI query helpers here.
+## It used to hold both. `CATALOG` was a Dictionary of Dictionaries inside the script that ran the
+## modes, and its own doc comment promised that "adding a mode is data-only". It wasn't: each of the
+## thirteen accessors re-typed a Dictionary read with its own private default (`upgrade_every`
+## defaulted to 2, `boss_interval` to 10), `def()` answered an unknown mode id with Standard's
+## record so a stale save or a misnamed file became a playable "Endless waves" run, five modes'
+## encounter scripts were `match` arms here, and `narrator_id`, `boss_interval` and `unlock_prestige`
+## were authored on all seven modes and read by nothing. `docs/EXTENDING.md` told modders to "append
+## an entry to the dict"; now that sentence describes reality: you write a `.tres`.
+##
+## Pure static API — no tree access. GameRoot stores the active mode id on RunState; WaveManager /
+## Main / UI query helpers here.
 
 const MODE_STANDARD := &"standard"
 const MODE_BOSS_RUSH := &"boss_rush"
@@ -17,222 +26,194 @@ const MODE_CAMPAIGN := &"campaign"
 const MODE_DEFEND := &"defend"
 const MODE_COLLECT := &"collect"
 
-const OBJECTIVE_CLEAR_WAVES := &"clear_waves"
-const OBJECTIVE_SURVIVE_TIME := &"survive_time"
-const OBJECTIVE_SLAY_BOSSES := &"slay_bosses"
-const OBJECTIVE_DEFEND_POINT := &"defend_point"
-const OBJECTIVE_COLLECT := &"collect"
+## The seven shipped ids. Handles for callers, not content: the strings are the file stems under
+## `res://data/game_modes/`, and `tests/python/test_regress_run_modes.py` fails if a handle here
+## stops naming a file (which is how `unlock_prestige` was able to sit unread for so long).
+const MODES: Array[StringName] = [
+	MODE_STANDARD, MODE_BOSS_RUSH, MODE_SURVIVAL, MODE_CHALLENGE,
+	MODE_CAMPAIGN, MODE_DEFEND, MODE_COLLECT,
+]
 
-## Catalogue of playable modes. Adding a mode is data-only (plus optional wave helpers).
-const CATALOG := {
-	MODE_STANDARD: {
-		"display_name": "Standard",
-		"blurb": "Endless waves. Kill everything. Climb the scoreboard.",
-		"objective": OBJECTIVE_CLEAR_WAVES,
-		"score_mult": 1.0,
-		"currency_mult": 1.0,
-		"max_waves": 0,  # 0 = endless
-		"target_seconds": 0.0,
-		"boss_interval": 10,
-		"upgrade_every": 2,
-		"forced_mutators": [],
-		"fixed_weapon": &"",
-		"narrator_id": &"standard",
-		"unlock_prestige": 0,
-	},
-	MODE_BOSS_RUSH: {
-		"display_name": "Boss Rush",
-		"blurb": "Five Warlord duels. Short rests. No filler packs.",
-		"objective": OBJECTIVE_SLAY_BOSSES,
-		"score_mult": 1.35,
-		"currency_mult": 1.25,
-		"max_waves": 5,
-		"target_seconds": 0.0,
-		"boss_interval": 1,
-		"upgrade_every": 1,
-		"forced_mutators": [&"elite_surge"],
-		"fixed_weapon": &"",
-		"narrator_id": &"boss_rush",
-		"unlock_prestige": 0,
-	},
-	MODE_SURVIVAL: {
-		"display_name": "Survival",
-		"blurb": "Endure five minutes of mounting pressure. Score ticks with time lived.",
-		"objective": OBJECTIVE_SURVIVE_TIME,
-		"score_mult": 1.15,
-		"currency_mult": 1.1,
-		"max_waves": 0,
-		"target_seconds": 300.0,
-		"boss_interval": 8,
-		"upgrade_every": 3,
-		"forced_mutators": [],
-		"fixed_weapon": &"",
-		"narrator_id": &"survival",
-		"unlock_prestige": 0,
-	},
-	MODE_CHALLENGE: {
-		"display_name": "Challenge Run",
-		"blurb": "Fixed Gladius loadout, harsh mutators, clear the tier or die trying.",
-		"objective": OBJECTIVE_CLEAR_WAVES,
-		"score_mult": 1.5,
-		"currency_mult": 1.4,
-		"max_waves": 12,
-		"target_seconds": 0.0,
-		"boss_interval": 6,
-		"upgrade_every": 2,
-		# Base-tier signature; the live set is chosen by prestige tier via
-		# challenge_mutators() (this list is the tier-0 pair, see below).
-		"forced_mutators": [&"glass_cannon", &"ember_winds"],
-		"fixed_weapon": &"gladius",
-		"narrator_id": &"challenge",
-		"unlock_prestige": 0,
-	},
-	MODE_CAMPAIGN: {
-		"display_name": "Campaign: The Last Stand",
-		"blurb": "Scripted encounters, lore beats, and a final Warlord reckoning.",
-		"objective": OBJECTIVE_CLEAR_WAVES,
-		"score_mult": 1.2,
-		"currency_mult": 1.3,
-		"max_waves": 15,
-		"target_seconds": 0.0,
-		"boss_interval": 5,
-		"upgrade_every": 1,
-		"forced_mutators": [],
-		"fixed_weapon": &"",
-		"narrator_id": &"campaign",
-		"unlock_prestige": 0,
-	},
-	MODE_DEFEND: {
-		"display_name": "Hold the Line",
-		"blurb": "Guard the beacon at the arena's heart. If it falls, the run ends — survive the timer to win.",
-		"objective": OBJECTIVE_DEFEND_POINT,
-		"score_mult": 1.4,
-		"currency_mult": 1.3,
-		"max_waves": 0,  # ends on the clock / beacon death, not a wave cap
-		"target_seconds": 240.0,
-		"boss_interval": 8,
-		"upgrade_every": 3,
-		"forced_mutators": [],
-		"fixed_weapon": &"",
-		"narrator_id": &"standard",
-		"unlock_prestige": 0,
-		"collect_target": 0,
-	},
-	MODE_COLLECT: {
-		"display_name": "Relic Hunt",
-		"blurb": "Slain foes drop relics. Bank enough before the horde overruns you.",
-		"objective": OBJECTIVE_COLLECT,
-		"score_mult": 1.3,
-		"currency_mult": 1.35,
-		"max_waves": 0,  # ends when the relic quota is met, not a wave cap
-		"target_seconds": 0.0,
-		"boss_interval": 8,
-		"upgrade_every": 3,
-		"forced_mutators": [&"bounty_hunt"],
-		"fixed_weapon": &"",
-		"narrator_id": &"standard",
-		"unlock_prestige": 0,
-		"collect_target": 20,
-	},
-}
+## Objective vocabulary. The literals belong to `GameModeConfig` (the `.tres` files validate against
+## them); these are the handles `ObjectiveDirector`, the setup panel and the HUD match on.
+const OBJECTIVE_CLEAR_WAVES := GameModeConfig.OBJECTIVE_CLEAR_WAVES
+const OBJECTIVE_SURVIVE_TIME := GameModeConfig.OBJECTIVE_SURVIVE_TIME
+const OBJECTIVE_SLAY_BOSSES := GameModeConfig.OBJECTIVE_SLAY_BOSSES
+const OBJECTIVE_DEFEND_POINT := GameModeConfig.OBJECTIVE_DEFEND_POINT
+const OBJECTIVE_COLLECT := GameModeConfig.OBJECTIVE_COLLECT
+
+## Folder scan for the no-registry path, cached: in the headless harness (no autoloads) the
+## alternative is re-listing `res://data/game_modes` for every accessor call. Authored content does
+## not change inside a session, and a live game never reaches this path — ContentRegistry answers
+## first. Same rule `WaveMutators` and the arena systems follow.
+static var _disk_configs: Array[GameModeConfig] = []
+static var _disk_scanned := false
 
 
 static func is_known(mode_id: StringName) -> bool:
-	return CATALOG.has(mode_id)
+	return resolve(mode_id) != null
 
 
-static func def(mode_id: StringName) -> Dictionary:
-	if CATALOG.has(mode_id):
-		return CATALOG[mode_id]
-	return CATALOG[MODE_STANDARD]
+## Registry first, disk second, and *no stand-in*: `def()` used to hand back Standard's whole record
+## for any id it did not recognise, which is indistinguishable from a mode that genuinely wants
+## endless waves. Null here means "nobody authored this mode", and `validated()` is where a caller
+## opts into the clamp.
+static func resolve(mode_id: StringName) -> GameModeConfig:
+	if mode_id == &"":
+		return null
+	if ContentRegistry != null:
+		var registered: GameModeConfig = ContentRegistry.get_game_mode(mode_id)
+		if registered != null:
+			return registered
+	for cfg in _all_configs():
+		if cfg.mode_id == mode_id:
+			return cfg
+	return null
+
+
+## The definition a caller should use, with an unknown id reported once per call site and clamped to
+## Standard (a run must still be startable from a save file that names a deleted mode).
+static func definition(mode_id: StringName) -> GameModeConfig:
+	if mode_id == &"":
+		# "No mode chosen yet" is not a broken reference: RunState defaults to Standard and
+		# GameRoot clamps before starting, so an empty id here means a caller queried between runs.
+		return null
+	var cfg := resolve(validated(mode_id))
+	if cfg == null:
+		push_error("GameMode: no mode definition resolves for '%s' (not even %s)"
+				% [String(mode_id), String(MODE_STANDARD)])
+	return cfg
+
+
+## The line read on the victory announcement (authored per mode, so the announcer never has to know
+## which modes exist).
+static func victory_line(mode_id: StringName) -> String:
+	var cfg := definition(mode_id)
+	return cfg.victory_line if cfg != null else ""
+
+
+## The scripted row for one wave of a mode, or null. This is how a mode's encounter content and its
+## narration stay together: `Narrator` asks the mode for the wave's beat instead of owning a second
+## int-keyed table of the same arc.
+static func beat_for_wave(mode_id: StringName, wave_number: int) -> GameModeWavePlan:
+	var cfg := definition(mode_id)
+	return cfg.plan_for_wave(maxi(wave_number, 1)) if cfg != null else null
 
 
 static func display_name(mode_id: StringName) -> String:
-	return String(def(mode_id).get("display_name", "Standard"))
+	var cfg := definition(mode_id)
+	return cfg.display_name if cfg != null else String(mode_id)
 
 
 static func blurb(mode_id: StringName) -> String:
-	return String(def(mode_id).get("blurb", ""))
+	var cfg := definition(mode_id)
+	return cfg.blurb if cfg != null else ""
 
 
+## The line the announcer reads when a run starts. `Narrator.mode_intro` is the caller; it exists so
+## the mode's copy stays on the mode instead of in a second table keyed by a `narrator_id` that no
+## code ever followed.
+static func intro_line(mode_id: StringName) -> String:
+	var cfg := definition(mode_id)
+	return cfg.intro_line if cfg != null else ""
+
+
+## Every authored mode, sorted by id: `run_setup_panel` builds its mode cards in this order, so the
+## sort is the UI's contract rather than whichever order the folder scan returned.
 static func all_mode_ids() -> Array[StringName]:
+	var names := PackedStringArray()
+	for cfg in _all_configs():
+		names.append(String(cfg.mode_id))
+	names.sort()
 	var out: Array[StringName] = []
-	for id in CATALOG.keys():
-		out.append(StringName(String(id)))
-	out.sort_custom(func(a: StringName, b: StringName) -> bool: return String(a) < String(b))
+	for name in names:
+		out.append(StringName(name))
 	return out
 
 
 static func score_multiplier(mode_id: StringName) -> float:
-	return float(def(mode_id).get("score_mult", 1.0))
+	var cfg := definition(mode_id)
+	return cfg.score_mult if cfg != null else 1.0
 
 
 static func currency_multiplier(mode_id: StringName) -> float:
-	return float(def(mode_id).get("currency_mult", 1.0))
+	var cfg := definition(mode_id)
+	return cfg.currency_mult if cfg != null else 1.0
 
 
+## Wave the run is won on; 0 = endless.
 static func max_waves(mode_id: StringName) -> int:
-	return int(def(mode_id).get("max_waves", 0))
+	var cfg := definition(mode_id)
+	return cfg.max_waves if cfg != null else 0
 
 
 static func target_seconds(mode_id: StringName) -> float:
-	return float(def(mode_id).get("target_seconds", 0.0))
+	var cfg := definition(mode_id)
+	return cfg.target_seconds if cfg != null else 0.0
 
 
-## Relic quota for OBJECTIVE_COLLECT modes (0 for every other mode).
+## Relic quota for a `collect` objective (0 for every other mode, by validation rather than by
+## default: `GameModeConfig` refuses to author a quota an objective will not read).
 static func collect_target(mode_id: StringName) -> int:
-	return maxi(int(def(mode_id).get("collect_target", 0)), 0)
+	var cfg := definition(mode_id)
+	return maxi(cfg.collect_target, 0) if cfg != null else 0
 
 
 static func upgrade_every(mode_id: StringName) -> int:
-	return maxi(int(def(mode_id).get("upgrade_every", 2)), 1)
-
-
-static func boss_interval(mode_id: StringName) -> int:
-	return maxi(int(def(mode_id).get("boss_interval", 10)), 1)
+	var cfg := definition(mode_id)
+	return cfg.upgrade_every if cfg != null else 0
 
 
 static func forced_mutators(mode_id: StringName) -> Array[StringName]:
-	var out: Array[StringName] = []
-	for m in Array(def(mode_id).get("forced_mutators", [])):
-		out.append(StringName(String(m)))
-	return out
+	var cfg := definition(mode_id)
+	if cfg == null:
+		return []
+	# Duplicated: the config is a shared loaded resource, and a caller that sorted or popped this
+	# list would be editing the .tres in memory for every later wave.
+	return cfg.forced_mutators.duplicate()
 
 
 static func fixed_weapon(mode_id: StringName) -> StringName:
-	return StringName(String(def(mode_id).get("fixed_weapon", "")))
+	var cfg := definition(mode_id)
+	return cfg.fixed_weapon if cfg != null else &""
 
 
-## ---------- Challenge prestige tiers ----------
-## The Challenge run reads the player's prestige tier (Prestige.challenge_tier)
-## so a higher rank is a harsher, better-paying, longer run — not the same fixed
-## Gladius + 2 mutators every time. The mutator SET is drawn deterministically
-## from this ordered pool (first N by tier count), so tier 0 reproduces the
-## historical [glass_cannon, ember_winds] pair and each step adds pressure.
-const CHALLENGE_MUTATOR_POOL: Array[StringName] = [
-	&"glass_cannon", &"ember_winds", &"iron_hide", &"volatile_mix", &"elite_surge",
-]
+static func objective(mode_id: StringName) -> StringName:
+	var cfg := definition(mode_id)
+	return cfg.objective if cfg != null else OBJECTIVE_CLEAR_WAVES
 
+
+## ---------- Prestige-scaled runs ----------
+## A mode can re-read its payout and length from the prestige ladder's challenge tiers, so a higher
+## rank is a harsher, better-paying, longer run rather than the same fixed loadout every time. The
+## mutator SET is drawn from the mode's own ordered pool (`prestige_mutator_pool`) by the tier's
+## count, so tier 0 reproduces the historical [glass_cannon, ember_winds] pair and each rung adds
+## pressure. `ContentLoader` checks the three numbers agree across the two files; before this phase
+## nothing did.
 
 ## Whether this mode's run parameters scale with prestige tier.
 static func scales_with_prestige(mode_id: StringName) -> bool:
-	return validated(mode_id) == MODE_CHALLENGE
+	var cfg := definition(mode_id)
+	return cfg != null and cfg.scales_with_prestige
 
 
-## Deterministic mutator set for the Challenge run at `prestige_rank`. Non-challenge
-## modes keep their authored forced_mutators regardless of rank.
+## Deterministic mutator set for a scaling run at `prestige_rank`. Non-scaling modes keep their
+## authored forced_mutators regardless of rank.
 static func challenge_mutators(mode_id: StringName, prestige_rank: int) -> Array[StringName]:
-	if not scales_with_prestige(mode_id):
-		return forced_mutators(mode_id)
+	var cfg := definition(mode_id)
+	if cfg == null:
+		return []
+	if not cfg.scales_with_prestige:
+		return cfg.forced_mutators.duplicate()
 	var count := Prestige.challenge_tier_mutator_count(prestige_rank)
 	var out: Array[StringName] = []
-	for i in range(mini(count, CHALLENGE_MUTATOR_POOL.size())):
-		out.append(CHALLENGE_MUTATOR_POOL[i])
+	for i in range(mini(count, cfg.prestige_mutator_pool.size())):
+		out.append(cfg.prestige_mutator_pool[i])
 	return out
 
 
-## Prestige-aware wrappers. Callers with a live run pass GameRoot.get_prestige_rank();
-## the rank is only consulted for modes that scale (Challenge today).
+## Prestige-aware wrappers. Callers with a live run pass GameRoot.get_prestige_rank(); the rank is
+## only consulted for modes that scale.
 static func score_multiplier_for(mode_id: StringName, prestige_rank: int) -> float:
 	if scales_with_prestige(mode_id):
 		return Prestige.challenge_tier_score_mult(prestige_rank)
@@ -265,14 +246,6 @@ static func challenge_tier_label(mode_id: StringName, prestige_rank: int) -> Str
 	return display_name(mode_id)
 
 
-static func objective(mode_id: StringName) -> StringName:
-	return StringName(String(def(mode_id).get("objective", OBJECTIVE_CLEAR_WAVES)))
-
-
-static func narrator_id(mode_id: StringName) -> StringName:
-	return StringName(String(def(mode_id).get("narrator_id", "standard")))
-
-
 ## Whether the run should end in victory after completing `wave_number`.
 static func is_victory_wave(mode_id: StringName, wave_number: int) -> bool:
 	var cap := max_waves(mode_id)
@@ -281,7 +254,7 @@ static func is_victory_wave(mode_id: StringName, wave_number: int) -> bool:
 	return wave_number >= cap
 
 
-## Survival mode: victory when elapsed time reaches the target.
+## Timed modes: victory when elapsed time reaches the authored target.
 static func is_survival_victory(mode_id: StringName, elapsed: float) -> bool:
 	if objective(mode_id) != OBJECTIVE_SURVIVE_TIME:
 		return false
@@ -289,103 +262,34 @@ static func is_survival_victory(mode_id: StringName, elapsed: float) -> bool:
 	return target > 0.0 and elapsed >= target
 
 
-## Deterministic spawn queue override for modes that don't use the standard planner.
-## Returns empty when the mode should fall through to WavePlanner.
+## Deterministic spawn queue override for modes that don't use the standard planner. Returns empty
+## when the mode should fall through to WavePlanner.
+##
+## The five private queue builders this replaces (`_boss_rush_queue`, `_survival_queue`,
+## `_defend_queue`, `_collect_queue`, and a fifteen-arm `match wave_number` for the campaign) all
+## reduced to two rules: some waves are scripted exactly, and the rest are the planner asked for a
+## different wave number with an occasional extra archetype on a cadence. Those are knobs, so they
+## are authored on the mode and this is one loop over them.
 static func spawn_queue(mode_id: StringName, wave_number: int, seed: int) -> Array[StringName]:
+	var cfg := definition(mode_id)
+	var out: Array[StringName] = []
+	if cfg == null or not cfg.overrides_planner():
+		return out
 	var w := maxi(wave_number, 1)
-	match mode_id:
-		MODE_BOSS_RUSH:
-			return _boss_rush_queue(w)
-		MODE_SURVIVAL:
-			return _survival_queue(w, seed)
-		MODE_CAMPAIGN:
-			return _campaign_queue(w, seed)
-		MODE_CHALLENGE:
-			# Challenge uses the extended planner but is capped by max_waves.
-			return []
-		MODE_DEFEND:
-			return _defend_queue(w, seed)
-		MODE_COLLECT:
-			return _collect_queue(w, seed)
-		_:
-			return []
-
-
-static func _boss_rush_queue(wave_number: int) -> Array[StringName]:
-	var out: Array[StringName] = [&"warlord"]
-	# Escalating add packs between phases of the duel.
-	var adds := mini(2 + wave_number, 6)
-	for i in range(adds):
-		out.append(&"basic" if i % 2 == 0 else &"fast")
-	if wave_number >= 3:
-		out.append(&"heavy")
-	if wave_number >= 5:
-		out.append(&"ranged")
-		out.append(&"dasher")
+	var plan := cfg.plan_for_wave(w)
+	if plan != null and not plan.archetypes.is_empty():
+		out.append_array(plan.archetypes)
+	elif cfg.planner_wave_offset != 0 or cfg.planner_wave_floor > 1:
+		var asked := maxi(w + cfg.planner_wave_offset, cfg.planner_wave_floor)
+		out = WavePlanner.extended_queue_for_wave(asked, seed)
+	if cfg.every_n_waves > 1 and w % cfg.every_n_waves == 0:
+		out.append_array(cfg.every_n_append)
 	return out
 
 
-## Hold the Line: steady pressure that ramps with time; the run ends on the clock
-## or when the beacon dies, so waves keep coming (no early soft start).
-static func _defend_queue(wave_number: int, seed: int) -> Array[StringName]:
-	var base := WavePlanner.extended_queue_for_wave(maxi(wave_number + 1, 2), seed)
-	# Enemies converge on the beacon; a heavy every third wave threatens it directly.
-	if wave_number % 3 == 0:
-		base.append(&"heavy")
-	return base
-
-
-## Relic Hunt: dense, drop-rich packs so relics fall steadily; endless until quota.
-static func _collect_queue(wave_number: int, seed: int) -> Array[StringName]:
-	var base := WavePlanner.extended_queue_for_wave(maxi(wave_number + 2, 3), seed)
-	if wave_number % 4 == 0:
-		base.append(&"ranged")
-	return base
-
-
-static func _survival_queue(wave_number: int, seed: int) -> Array[StringName]:
-	# Dense, escalating packs without early-game soft start.
-	var base := WavePlanner.extended_queue_for_wave(maxi(wave_number + 2, 3), seed)
-	# Inject an extra heavy every 4th wave to keep pressure high.
-	if wave_number % 4 == 0:
-		base.append(&"heavy")
-	return base
-
-
-static func _campaign_queue(wave_number: int, seed: int) -> Array[StringName]:
-	# Scripted encounter beats for the short campaign arc.
-	match wave_number:
-		1:
-			return [&"basic", &"basic", &"basic", &"basic", &"basic"]
-		2:
-			return [&"basic", &"basic", &"fast", &"basic", &"fast", &"basic"]
-		3:
-			return [&"basic", &"fast", &"ranged", &"basic", &"fast", &"ranged"]
-		4:
-			return [&"basic", &"heavy", &"fast", &"basic", &"dasher", &"basic"]
-		5:
-			return [&"warlord", &"basic", &"basic", &"fast"]
-		6:
-			return [&"fast", &"fast", &"ranged", &"exploder", &"basic", &"basic", &"dasher"]
-		7:
-			return [&"heavy", &"ranged", &"basic", &"splitter", &"fast", &"basic", &"ranged"]
-		8:
-			return [&"dasher", &"exploder", &"fast", &"heavy", &"basic", &"ranged", &"dasher"]
-		9:
-			return [&"splitter", &"heavy", &"ranged", &"fast", &"exploder", &"basic", &"dasher", &"basic"]
-		10:
-			return [&"warlord", &"fast", &"fast", &"ranged", &"basic"]
-		11, 12, 13:
-			return WavePlanner.extended_queue_for_wave(wave_number + 2, seed)
-		14:
-			return [&"heavy", &"heavy", &"ranged", &"dasher", &"exploder", &"splitter", &"fast", &"fast"]
-		15:
-			return [&"warlord", &"warlord", &"heavy", &"ranged", &"dasher", &"basic", &"basic"]
-		_:
-			return WavePlanner.extended_queue_for_wave(wave_number, seed)
-
-
-## Whether this wave should offer an upgrade under the mode's cadence.
+## Whether this wave should offer an upgrade under the mode's cadence. 0 = never, which the old
+## `maxi(int(get(...)), 1)` made impossible to author: a mode that wanted no upgrades had to omit
+## the key and get "every 2 waves".
 static func wants_upgrade(mode_id: StringName, wave_number: int) -> bool:
 	var every := upgrade_every(mode_id)
 	if every <= 0:
@@ -393,34 +297,72 @@ static func wants_upgrade(mode_id: StringName, wave_number: int) -> bool:
 	return wave_number % every == 0
 
 
-## Objective progress string for HUD / summary. `progress` carries mode-specific
-## live state (relics collected, beacon fraction) so this stays pure and typed.
+## Objective progress string for HUD / summary. `progress` carries mode-specific live state (relics
+## collected, beacon fraction) so this stays pure and typed. The *targets* are data; which live
+## counter fills the blank is behaviour, keyed on the objective the config chose.
 static func objective_label(mode_id: StringName, wave: int, elapsed: float, bosses_slain: int, progress: int = 0) -> String:
 	match objective(mode_id):
 		OBJECTIVE_SURVIVE_TIME:
-			var target := target_seconds(mode_id)
-			var left := maxf(target - elapsed, 0.0)
+			var left := maxf(target_seconds(mode_id) - elapsed, 0.0)
 			return "Survive  %d:%02d remaining" % [int(left) / 60, int(left) % 60]
 		OBJECTIVE_SLAY_BOSSES:
-			var cap := max_waves(mode_id)
-			return "Bosses  %d / %d" % [bosses_slain, cap]
+			return "Bosses  %d / %d" % [bosses_slain, max_waves(mode_id)]
 		OBJECTIVE_DEFEND_POINT:
-			var target_d := target_seconds(mode_id)
-			var left_d := maxf(target_d - elapsed, 0.0)
+			var left_d := maxf(target_seconds(mode_id) - elapsed, 0.0)
 			return "Hold  %d:%02d  •  Beacon %d%%" % [int(left_d) / 60, int(left_d) % 60, clampi(progress, 0, 100)]
 		OBJECTIVE_COLLECT:
 			return "Relics  %d / %d" % [progress, collect_target(mode_id)]
 		OBJECTIVE_CLEAR_WAVES:
-			var cap2 := max_waves(mode_id)
-			if cap2 > 0:
-				return "Wave  %d / %d" % [wave, cap2]
+			var cap := max_waves(mode_id)
+			if cap > 0:
+				return "Wave  %d / %d" % [wave, cap]
 			return "Wave  %d" % wave
 		_:
 			return "Wave  %d" % wave
 
 
-## Hardened: clamp unknown mode ids to standard.
+## Hardened: clamp unknown mode ids to standard — and say so. The clamp is what lets a save file
+## from a build that had a now-deleted mode still start a run; reporting it is what stops that being
+## invisible (an unknown mode used to read as a normal Standard game, at Standard's payout).
 static func validated(mode_id: StringName) -> StringName:
 	if is_known(mode_id):
 		return mode_id
+	if mode_id == &"":
+		return MODE_STANDARD
+	push_error("GameMode: unknown mode id '%s' clamped to '%s'" % [String(mode_id), String(MODE_STANDARD)])
 	return MODE_STANDARD
+
+
+static func _all_configs() -> Array[GameModeConfig]:
+	var out: Array[GameModeConfig] = []
+	if ContentRegistry != null:
+		for res in ContentRegistry.get_all_game_modes().values():
+			if res is GameModeConfig:
+				out.append(res)
+		if not out.is_empty():
+			return out
+		# An empty table is not "no modes exist": `ContentLoader` validates every file it has read
+		# *before* it registers the table, so a hazard-mode overlay asking "is boss_rush a mode" arrives
+		# here mid-load with the autoload present and nothing in it. Answering from the half-built
+		# registry called four shipped overlays invalid content, which made the registry assert itself
+		# down. The folder holds the same data and cannot be half-loaded.
+	# Headless harness / tooling, or a loader that has not registered yet: read the folder directly so
+	# the same ids resolve either way. Sorted by id, so directory order cannot leak into the mode list
+	# the UI renders.
+	if not _disk_scanned:
+		var dir := DirAccess.open("res://data/game_modes")
+		if dir != null:
+			dir.list_dir_begin()
+			var fname := dir.get_next()
+			while not fname.is_empty():
+				if fname.ends_with(".tres"):
+					var cfg := load("res://data/game_modes/%s" % fname) as GameModeConfig
+					if cfg != null:
+						_disk_configs.append(cfg)
+				fname = dir.get_next()
+			dir.list_dir_end()
+		# Cache only a scan that found something. The first call can arrive while `ContentLoader` is
+		# still working, and a cached empty answer would outlive the reason it was empty.
+		if not _disk_configs.is_empty():
+			_disk_scanned = true
+	return _disk_configs.duplicate()

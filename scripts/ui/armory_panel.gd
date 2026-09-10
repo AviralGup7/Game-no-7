@@ -87,12 +87,14 @@ func _make_prestige_row(meta: MetaProgression, rank: int, cost: int, verdict: St
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var name := Label.new()
-	name.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.MAX_PRESTIGE, Prestige.title_for(rank)]
+	name.text = "PRESTIGE  %d/%d  —  %s" % [rank, Prestige.max_rank(), Prestige.title_for(rank)]
 	name.add_theme_font_size_override("font_size", 22)
 	info.add_child(name)
 	var blurb := Label.new()
+	# Printed from the ladder the ranks are actually applied from, not from a constant that could
+	# disagree with it (the promise on this row is the one thing the player prices a reset against).
 	blurb.text = "+%.0f%% score / +%.0f%% banked coins permanently. Resets armory stat ranks; keeps unlocks." % [
-		Prestige.SCORE_BONUS_PER_RANK * 100.0, Prestige.CURRENCY_BONUS_PER_RANK * 100.0]
+		Prestige.score_bonus_per_rank() * 100.0, Prestige.currency_bonus_per_rank() * 100.0]
 	blurb.add_theme_font_size_override("font_size", 18)
 	blurb.modulate = UiTheme.MUTED
 	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -115,8 +117,14 @@ func _make_prestige_row(meta: MetaProgression, rank: int, cost: int, verdict: St
 		&"maxed":
 			buy.text = "MAX PRESTIGE"
 			buy.disabled = true
+		&"unavailable":
+			# The ladder is authored content now, so "cannot price prestige" is a real state: say it
+			# instead of offering rank 1 for 0 coins, which is what consts-on-zero used to do.
+			buy.text = "PRESTIGE UNAVAILABLE"
+			buy.disabled = true
+			buy.tooltip_text = "res://data/prestige/ladder.tres did not load."
 		&"armory_incomplete":
-			buy.text = "ARMORY 60%+"
+			buy.text = "ARMORY %d%%+" % int(round(Prestige.armory_completion_required() * 100.0))
 			buy.disabled = true
 			buy.tooltip_text = "Unlock more armory ranks first (%.0f%% complete)." % (meta.armory_completion() * 100.0)
 		_:

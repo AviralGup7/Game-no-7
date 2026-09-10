@@ -1,5 +1,693 @@
 # Changelog
 
+## [Unreleased] — Merging main back in: two sessions, one tree (2026-09-10)
+
+`main` had moved on 28 commits while this pass was in flight — sibling sessions shipping the
+performance governor, the threat-aware minimap, the audio playback engine, camera containment and the
+first-of-kind announcer — so PR #41 arrived conflicting in 8 files. The rule for resolving them was
+never "whose line wins" but "what does the player and the modder end up with": both intents had to
+survive, and where the two branches modelled the same thing differently, this branch's data-first
+shape had to absorb the other side's feature rather than duplicate it.
+
+- **The first-of-kind announcer kept, and re-homed.** `main` gave `Narrator` an `ENEMY_BLURBS` table
+  plus `note_enemy_spawned`/`announce_first_of_kind`, exactly the kind of id-keyed copy table this pass
+  deletes. Keeping the table would have contradicted the phase; deleting the feature would have broken
+  `run_analytics.gd`'s call and silenced a shipped player-facing voice. So `EnemyConfig` grew a
+  `blurb` field, the five shipped blurbs moved into their own `data/enemies/*.tres`, and `Narrator`
+  reads through the registry with a `ResourceLoader.exists()` fallback like every other reader in it.
+  An archetype with no blurb (basic, fast, heavy) is deliberately never announced. `tool/validate_guards.py`
+  pins both halves: the reader exists, and the table does not.
+- **Decoration footprints became typed records.** `main`'s solid-prop pass published arena-local
+  `{"pos", "half_size"}` Dictionaries and this branch's arena rebuild had just deleted that record
+  shape; the seam between `ArenaDecorator` and `Arena` now carries `Array[AABB]` into the same
+  `ArenaNavGrid.build()` the authored `ArenaObstaclePlacement` list uses, so one grid is fed from two
+  typed sources. `tests/unit/test_decorator_collision.gd` was rewritten to read the same three
+  properties (finite, non-empty, clear of spawns) off the boxes — a suite that reads `foot.get("pos")`
+  out of an `AABB` degrades into asserting `Vector3.ZERO` over and over, which is a green lie.
+- **Two camera fixes ported onto the pooled solver rather than pasted over it.** `main` fixed the
+  camera resting inside a wall by allocating a `SphereShape3D` and a query object *per call* and walking
+  eight steps; this branch's rebuild exists to make that path allocation-free and cache-gated. Both
+  versions now exist once: an embedded verdict is computed in the pass (`safe < 0.04`), held with the
+  cache, and the walk-out runs on the pooled query for at most four steps. `main`'s pitch-fanned
+  whiskers came over unchanged, minus their per-whisker allocations.
+- **This branch's rules were applied to code that arrived on `main`.** A prop body's
+  `collision_layer = 1` and a lock-on ray's `collision_mask = 1` became `CollisionLayers` constants
+  (their own test pinned the numeric text, so it now pins the named constants and the contract gate
+  stopped having an exception); the wave manager took `main`'s live-enemy cap inside this branch's
+  authored spawn queue rather than next to it.
+- **Docs stop lying about both branches.** `HARDENING.md`'s counts are re-derived by `DocCountTests`
+  and did drift (192 scripts, 186 guard needles, 766 python tests); the `arena.gd` line count in
+  `ARCHITECTURE.md` was pinned to whatever the current file is, which conflates a frozen measurement
+  with a live one, so it now records both: what the rebuild deleted (533 → 354) and what the file
+  measures today (419, the delta being features).
+- **The headless run then found two bugs of this branch's own, which is why it exists.** `arena.gd`
+  asked an `AABB` for `has_area()` — that member belongs to `Rect2`; the engine spells the box one
+  `has_volume()` — in the landmark nav rule phase 5 added, again in `tests/unit/test_arena_world.gd`,
+  and once more in the decoration seam this merge touched. `wave_modifiers.gd` inferred a `bool` with
+  `:=` from a comparison on a `Variant`. Both are *parse* errors: the script never loads, and the
+  arena scene is gone. They survived two passes because an earlier parse error
+  (`arena_theme_config.gd`'s `NodePath` default) stopped the compiler resolving types downstream — fix
+  one and the next file in the chain starts reporting. `gdparse`/`gdlint` are a syntax check with no
+  ClassDB and cannot see this class of defect at all.
+  The fix is a name, not a repetition: `ArenaObstacles.blocks_nav(box: AABB)` is now the single answer
+  to "does this footprint remove cells" (x and z only — a nav grid has no use for height, and a
+  non-finite size fails the comparison, matching what `ArenaNavGrid.build` refuses), asked by the
+  landmark and the props alike; `is_chance` is declared `: bool`; and `tests/run_tests.gd` now fails a
+  suite whose `reload_failed` is set or which returns no cases, because a suite that cannot compile
+  used to contribute zero cases and zero failures — which is exactly how the identical mistake in
+  `test_arena_world.gd` stayed silent.
+
+- **The same headless run then found the data itself un-loadable**, in the arena-authored files phase
+  5 and phase 6 wrote: every `Color` in `data/arena_themes/*.tres` and `data/arena_landmarks/*.tres`
+  was written as three components — legal GDScript, and a parse error in a resource file, because the
+  text reader calls the constructor itself and wants it flat and complete — so all three themes and all
+  three landmarks loaded as *nothing*, and the arenas referencing them failed with them. And thirteen
+  lines of authored copy across `data/` and `assets/materials/` held raw em dashes, which the Latin-1
+  text reader reports as "Unicode parsing error: Invalid unicode codepoint (2014)" rather than reading
+  as written. Both were fixed by writing the data the way Godot writes it (`, 1.0` on every `Color`,
+  `\u2014` in place of a raw dash), and both checks are now in `tool/validate_resources.py`, since the
+  class of defect is "the .tres reader is stricter than the language" and the local gates had no idea.
+  The mirror tests had to learn the same lesson: `string_value()` in the run-mode and mutator suites now
+  reverses Godot's escapes, because a python test comparing raw file text to what the engine will hand
+  the game is comparing two different strings.
+
+- **The third headless round found five more defects of the same family, and one of them was this
+  merge's own doing.** `ArenaDecorator._place_structural(count, half: float, ...)` got a new
+  `var half := ...` from the footprint rewrite, and GDScript refuses a local that re-declares a
+  parameter of the same function — a parse error, so the decorator, the arena and the integration
+  stages all failed to load behind it. `ArenaHazards._require_victims()` returned
+  `_victims_this_tick`, an identifier the file never declared (the member is `_victims_last_tick`);
+  the harness guard this branch added probed `script.reload_failed`, which is the GDScript 3 name —
+  4.x asks `can_instantiate()`. And the run died on `ContentRegistry halting: 4 invalid/missing
+  content file(s)` because `GameMode._all_configs()` returned the registry's game-mode table *whenever
+  the registry existed*, including while `ContentLoader` was still loading it: `data/hazard_modes/*.tres`
+  validate their `mode_id` through `GameMode.is_known()`, and mid-load the registry is present and
+  empty, so four shipped overlays were told their modes do not exist and the registry asserted itself
+  down for the whole headless run.
+  Each got the same treatment: the bug fixed at the source, and the *class* closed locally rather than
+  the instance. `tests/python/test_regress_final_sweep.py::ScopeShadowTests` now walks every `.gd` under
+  `scripts/` and refuses a `var`/`for` that shadows its own function's parameter (the indentation
+  rule is enough, and `gdparse` has no scope analysis to offer). Both content resolvers —
+  `GameMode` and `WaveMutators`, the two that ask the registry for a whole table — fall back to the
+  content folder when the registry is empty, and cache a disk scan only once it has found something, so
+  a mid-load call can neither get a false "no" nor poison the cache with one; the pin covers both
+  files, because one rule in one resolver is the same bug with a shorter fuse. The hazard gate's
+  counter is now a declared member, and its python test asserts the declaration exists, not just the
+  line that reads it. A repo-wide sweep for the remaining shape — a private member assigned but not
+  declared in its file — found nine hits, all of them `static var` reads, so that class is closed.
+
+- **A fourth headless round, and the pattern held: five more defects, none of them visible to any local
+  gate.** `ArenaHazards._authored_layout()` and `._mode_layout()` returned
+  `loaded.hazard_layout if loaded != null else []` — a ternary whose type is the plain `Array` the untyped
+  arm contributes, refused by the declared `-> Array[HazardPlacement]`, so the hazard layer never loaded and
+  four hazard/nav tests failed on behaviour they were never actually able to exercise. `main`'s new
+  `test_safe_player_spawn.gd` steered the spawn solver through `arena._landmark_half`, the duplicate field
+  phase 5 deleted, and would have been silently broken (`Invalid assignment of property or key`) had the
+  file compiled at all: `Arena` now carries a named seam, `set_landmark_block_half()`, with the production
+  value assigned from the landmark at build, so there is still exactly one copy of the centrepiece's shape
+  in play. `test_status_manager.gd` called `move_speed_factor()` on a `StatusEffectConfig`, where it is a
+  float field — and the `:=` on that call is the same Variant-inference failure as `is_chance`. The arena
+  lore rule ("an arena that owns a scene owns its three lines") was in `ArenaConfig.validate()`, where it
+  rejected every hand-built probe arena in the suites while saying nothing about the shipped files it was
+  written for; it moved to `ContentLoader`, which is the one that knows the difference. And `Boss Rush`'s
+  escalation assertion in `test_game_modes.gd` (and this file's own earlier prose) claimed sizes 4/5/7/9/12
+  for a formula that produces 4/5/7/8/10 — the `.tres` rows and the python mirror were right, the quoted
+  number was not, which is what happens when a number is written from memory instead of from the code.
+  `test_regress_final_sweep.py::ScopeShadowTests` and four new guard needles (the seam, the loader check,
+  the deleted field, and a ban on `else []` in the hazard layer) pin the shapes.
+
+Gates on the merged tree: 768 python tests, `validate_guards.py` 190/0 (that line first said 186,
+quoted from the count before the round's own four needles were added — the same mistake the entry is
+about), `validate_resources.py` 159/159 (with the two new checks verified against planted defects),
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file the merge touched.
+
+- **A fifth headless round, and the mask finally came off the behaviour.** Nine items became eight
+  fixes, and for the first time the CI log named its own cause: the harness now annotates a suite that
+  cannot compile (`Suite compile failure::res://tests/unit/test_status_manager.gd has a parse error`)
+  instead of letting it evaporate into `Nonexistent function ... (via call)`. That one line is the
+  difference between a 70-second run with a list and a 70-second run with a mystery.
+- **A missing `return` is a parse error, and a parse error is a black hole.**
+  `tests/integration_stages.gd::_run_run_definition_integration` ended on `results.append({...})` with
+  no `return results` — "Not all code paths return a value" — so the whole integration script refused
+  to load and *every* stage in it reported a nonexistent function. `EveryPathReturnsTests` now sweeps
+  `scripts/` and `tests/` for a function declaring a return type that contains no `return` statement.
+- **A resource built, configured, and never attached is invisible to every tool and to the player.**
+  `ArenaObstacles.build_nodes` sized a `BoxMesh` and left it on the floor: the obstacle bodies were
+  solid, and the walls were not drawn. `main` had just fixed that exact line in its own hardening pass;
+  the auto-merge preferred this branch's refactored file and silently dropped it. Restored, swept
+  repo-wide (no `*Mesh`/`*Shape3D`/`*Material3D` local in `scripts/` goes unattached or unreturned),
+  and pinned twice over — `AttachedResourceTests` in the python suite and the existing Godot body test,
+  which is what actually caught it. **Auto-merge is not review**: a clean resolution means the hunks
+  did not overlap, not that both intents survived.
+- **Three fixtures were the bug, not the code.** `test_hazards.gd`'s "a hazard that targets nobody is
+  refused" flipped one of the two `affects_*` flags, so the rule under test correctly stayed quiet;
+  its spatial-index check packed all forty bodies into two cells and then blamed the grid for visiting
+  everything; and `test_nav_grid.gd`'s layout-parity check compared the *mirror-expanded* authored list
+  against the raw two-row fallback, so the sizes differed by construction (the Pit's authored rows are
+  verbatim the fallback's geometry: `(6.5,0,6.5)`+pillar mirrored on both axes, `(3.6,0,0)`+block
+  mirrored on x). A test that passes for the wrong reason is worse than one that fails.
+- **Two assertions found a real behavioural defect.** `HazardInstance.advance()` let a periodic pulse
+  that never detonated drift to twice its period and then snap back, which left the clock up to a full
+  period ahead of the telegraph it had already shown — the reported `timer=5.95` is 200 ticks at 0.05
+  against a 4.05 s period, arithmetic no earlier run could reach. The clock is now capped at one
+  period, so an idle hazard simply stays *due*. The once-per-second cooldown sweep also has a monotonic
+  `prune` budget, which the fixture violated by pruning at a time before its own last stamp.
+- **`StatusEffectConfig.move_speed_factor` is a field, and the round that "fixed" it fixed one of the
+  two call sites.** `haste.move_speed_factor()` in the cleanse assertion kept the file unparseable,
+  which in turn kept the corrected `expected_move` arithmetic from ever running.
+
+Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
+
+- **The seventh headless round: the instrumentation answered its own question, and the answer was a
+  shipped feature that never worked.** `has=false stacks=-1 full=true attack=true hp=true` — the enemy
+  was scaled correctly (32.0 hp, 9.0 attack) and had no status manager at all: `SpawnManager` stamped
+  the wave's status inside `_apply_spawn_scaling`, which runs *before* `_activate_enemy`, and
+  `EnemyBase` resolves its `StatusManager` component in `_ready()`. So `_stamp_wave_status` found
+  `get_status_manager() == null`, returned quietly, and Ember Winds set the player alight for every
+  wave of a mutator whose whole promise was lighting the arena's air for the enemies in it. The stamp
+  now happens after activation, for burst children too. A no-op that reads as code is the worst failure
+  this tree has: no error, no assertion, no crash — only a game that is quietly half as interesting.
+- **And the clamp cost one test its honesty.** `test_status_skills.gd` asked `tick()` for whole quanta
+  with a 1.1 s frame — precisely the input the new payout bound refuses — so it now feeds two legal
+  frames (0.5 s and 0.6 s, remainder carried in the accrual), which exercises the carry the one-liner
+  never touched. `docs/HARDENING.md` and one more guard needle (`_stamp_wave_status_on_spawn`, the
+  ordering that made the difference) follow the change.
+
+- **The eighth headless round: one failure left, and the answer was in the fixture, not the game.**
+  The stage now prints what it is looking at, and `tree=true, kids=HealthComponent, EnemyStateMachine`
+  said the rest: `_pack_test_enemy_scene()` packs the harness's enemy out of code with two children, and
+  `EnemyBase` resolves its `StatusManager` from the scene — so the fake enemy had no status manager to
+  stamp, `_stamp_wave_status` found `get_status_manager() == null` and returned quietly, and the
+  assertion failed for a reason that no amount of reading the production code could have revealed. The
+  fixture gains the third child (owned before `pack()`, the rule that entry already documents for the
+  other two), and the audit test that pins that ownership now pins the status manager with it, so a
+  fixture cannot be quietly incomplete again.
+- **Two of my own earlier conclusions were wrong and are retracted.** Round seven read the same
+  `has=false` and concluded the stamp ran too early in the spawn sequence; `tree=true` shows the enemy
+  was in the tree and `_ready()` had long since run, so the stamp's old position was never the problem
+  (the move to `_stamp_wave_status_on_spawn` stays, for the reason now written on it — a status needs a
+  resolved node, numeric scaling does not — not because it fixed anything). The same entry credited
+  `get_status_manager()`'s re-resolve with curing a shipped immunity: it does not, because no shipped
+  enemy scene lacks the node. Both comments were rewritten to say what is true, since a comment that
+  invents a fixed bug is a trap for the next reader. And `wave_effect=<null>` in the diagnostic was the
+  stage reading its own post-cleanup state, which is why the record is now captured at spawn time.
+
+Gates on this round: 770 python tests, `validate_guards.py` 195/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
+
+- **A sixth headless round: three items left, all of them behaviour, and one still open on purpose.**
+  With every suite compiling, the headless job reported three failures instead of nine, and the shape
+  of the remaining three said the parse-error cascade had finally ended.
+- **A DoT hitch clamp that was documented but not implemented.** `test_status_manager.gd`'s
+  "one huge frame is clamped to 0.5 s of DoT, not the whole gap" reported `quanta=1 total=16.0`:
+  `StatusEffect.tick()` bounded a frame at 64 *ticks* and at the effect's remaining duration, which
+  for a 4-second burn is the same thing — so a 5-second frame paid out four seconds of damage in one
+  payload. The expiry clock deliberately keeps running on the real delta (a hitch must not stretch a
+  status's life); only the payout is capped, by the new `MAX_PAYOUT_DELTA`.
+- **`rank 8 means tier 3` — a number in a comment again.** The payout check hard-coded
+  `challenge_tiers[0]` for a rank-0 run and `challenge_tiers[3]` for rank 8. The ladder's rows unlock
+  at 0/2/4/6/8, so rank 8 selects the fifth; and the harness boots no `GameRoot`, so the run it scores
+  is a *standard* one, whose payout must ignore the ladder entirely. The check now asserts that
+  property directly and derives the rung through `tier_index_for_rank`, comparing the row's own
+  `unlock_rank` against the rank rather than trusting an index — the second time this branch wrote a
+  number from memory where the file had the answer.
+- **One check is instrumented, not guessed.** "the wave's folded record scales spawns and stamps its
+  status" reported a bare `record=false` across five sub-assertions, and reading the spawn, stamping,
+  stacking, flooring and config-sharing paths in turn produced seven plausible causes and no evidence.
+  The check now names each clause and prints the numbers behind it (`stacks=`, `max=`, `atk=`), which
+  is the difference between the next run answering the question and another round of reading.
+- `docs/ARCHITECTURE.md`'s description of the payout stage followed the rewrite; the two python mirrors
+  that pinned `active_delta = minf(delta, remaining)` and `challenge_tiers[3]` now pin the new shapes —
+  a mirror that pins an old line is a liability, not a test.
+
+Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
+
+## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)
+
+Sixth architecture pass, same method: rank `scripts/` by structural weakness, read the winner fully,
+grep its blast radius, check it against how the engine and the industry model the problem, rebuild,
+then pin the weak shape out with tests that have to fail when the defect is re-introduced. The target
+was the run-definition layer — `scripts/meta/game_mode.gd`, `prestige.gd`, `narrator.gd` — three
+files whose job was to answer "what is this run like, and what does it sound like" out of code
+tables.
+
+- **A mode is a `.tres`.** `GameMode.CATALOG` was a Dictionary of Dictionaries — fourteen authored
+  keys per mode, inside the script that ran them — while `GameMode`'s own docblock and
+  `docs/EXTENDING.md` both promised that adding a mode was data-only. The seven shipped modes are now
+  `res://data/game_modes/<id>.tres` (`GameModeConfig`, 21 exported fields), registered by
+  `ContentLoader` alongside the rest of the content (159 validated files, up from 151), and Run Setup
+  lists whatever the folder holds. Thirteen `def(id).get("key", default)` accessors are gone; a
+  mode id that resolves to nothing is now a `push_error` plus Standard instead of an invisible 1.0×
+  run wearing another mode's name.
+- **Composition rules are fields, not arms.** Five per-mode queue builders (`_boss_rush_queue`,
+  `_survival_queue`, `_defend_queue`, `_collect_queue` and a fifteen-arm `match wave_number` of
+  literal archetype lists) became `wave_plans` (inline `GameModeWavePlan` rows),
+  `planner_wave_offset`, `planner_wave_floor`, `every_n_waves` and `every_n_append`: Boss Rush's
+  4/5/7/9/12 with `heavy` only from wave 3, Campaign's fifteen waves (1–10 and 14–15 scripted,
+  11–13 delegated to `WavePlanner` at wave+2), Survival's `+1 heavy` every 4, Defend's every 3,
+  Relic Hunt's `+1 ranged` every 4. The campaign's *length* had been copied into a third place
+  (`max_waves: 15`); it is one array now.
+- **Three dead fields deleted, two authoring walls removed.** `narrator_id`, `boss_interval` and
+  `unlock_prestige` were authored on all seven modes and read by nothing; `collect_target` existed on
+  two of seven. `upgrade_every` went through `maxi(…, 1)`, so "never offer an upgrade" could not be
+  written down — it is `@export_range(0, 20)` now, with 0 meaning never, and every numeric field on
+  the five new config types is range-bounded so the editor refuses a value the code would clamp.
+- **`Narrator` knows no ids.** `ARENA_LORE`, `MODE_INTRO`, `CAMPAIGN_BEATS` and `ENEMY_BLURBS` (five
+  of eight archetypes, read by no caller) are deleted: arena flavour is three `ArenaConfig.lore_*`
+  fields authored in the arena's own file, wave flavour is the mode's beat row, and the victory line
+  is `GameModeConfig.victory_line`. An authored-empty line emits nothing at all — the milestone
+  branches used to put a banner on screen with no text in it. `run_setup_panel` prints
+  `arena.lore_intro` instead of guessing "Classic survival" from tags.
+- **The prestige ladder is one authored file.** `res://data/prestige/ladder.tres`
+  (`PrestigeLadderConfig`) carries the cost curve, `max_rank`, both per-rank bonuses,
+  `armory_completion_required`, eleven titles, five `ChallengeTier` rungs (ranks 0/2/4/6/8,
+  1.5→3.5 score) and six `PrestigeUnlock` rows (ranks 1, 2, 3, 5, 7, 10). `Prestige` resolves, caches and *reports*:
+  `can_prestige()` gained `&"unavailable"` (a missing ladder used to read as "you may prestige"),
+  `clamp_rank()` replaced the `min/max` arithmetic that zeroed a save's rank when content failed to
+  load, and `title_for` stopped answering `"Unproven"` at rank 9 through a `.get` default. The
+  `min(floor(rank / 2), size - 1)` index into an int-keyed Dictionary had let a gap in the ladder pay
+  the top rank the *easiest* run at full price; rung order, monotonic cost and bonus, title coverage,
+  reachability of the top rung and the cosmetic ids' existence in `Cosmetics` are all `validate()`
+  rules now, one of them (`min(idx, size-1)`) only expressible once the cross-row rules moved to the
+  config that owns the rows.
+- **The challenge protocol is closed across the seam.** Which mutators a prestige-scaled run forces
+  had been split between `GameMode.CHALLENGE_MUTATOR_POOL` and numbers in `Prestige`, joined only by
+  `mini(count, pool.size())`. Per-mode `prestige_mutator_pool` × per-tier `mutator_count`,
+  cross-checked at load — with tier 0 required to *equal* the mode's own `score_mult`/`currency_mult`,
+  so the ladder cannot silently rebase a mode.
+- **Nothing the player reads moved.** The four modes that used to fall through a `match` default still
+  emit `"Victory. The stand holds."`; every label, blurb, intro, beat, objective string and payout in
+  the seven mode files and the ladder is mirrored value by value in
+  `tests/python/test_regress_run_modes.py`. The `armory_panel` row that read `"ARMORY 60%+"` computes
+  it from `Prestige.armory_completion_required()`.
+- **Three of eight consumers needed no change at all** (`wave_manager.gd`, `run_scorekeeper.gd`,
+  `objective_director.gd`): their call sites were already spelled the way the new layer exposes them,
+  which is what "the public API survived" is supposed to mean. The rest moved off record-keys onto
+  fields — `Prestige.clamp_rank`, `arena.lore_intro`, `Prestige.armory_completion_required`.
+- **Tests.** `tests/unit/test_game_modes.gd` (56 cases headless: resolvers, every `validate()` refusal
+  quoted from source, shipped data clean); `tests/python/test_regress_run_modes.py` (43 cases: the
+  shipped mirror, the no-dead-field rule, per-field record-literal bans, no mode-id comparison
+  anywhere in `scripts/`, loader/registry/consumer pins, and `DocCountTests` re-deriving the
+  doc's own counts from the tools); a new live integration stage
+  `_run_run_definition_integration` (4 cases) chained from the encounter stage, which is the only
+  place that proves a real `Narrator.announce_wave` emits the campaign row's copy, that
+  `Prestige.ladder()` still resolves in a tree that booted no registry, and that a challenge kill pays
+  exactly one multiplier. `tool/validate_guards.py` 99 → 175 checks; `docs/EXTENDING.md`'s game-mode
+  and prestige sections rewritten (they had told modders to append to `GameMode.CATALOG`) and
+  renumbered out of a duplicate-§11 collision. **Mutation matrix: 32 reintroduced defects, 32
+  caught** — and five of those only after the matrix exposed that a whole-file skip had left
+  `game_mode.gd` unbanned, that a `needle in file` check was satisfied by the *other* branch of the
+  same guard, that a comment naming a deleted call kept its presence-check green, and that two
+  copy-literal regressions nothing was watching at all.
+- **Behaviour changes worth knowing at review time.** A save naming a removed mode id, or a
+  `RunState.arena_id` nobody authored, is reported now (`push_error`) instead of being laundered into
+  Standard's payout / The Pit's lore; milestone waves with no authored lore are silent; `wave 0`
+  cannot trigger the "wave 10" line; `ChallengeTierConfig` is `ChallengeTier` (`*_config.gd` names are
+  reserved for loadable, validated configs).
+
+## [Unreleased] — The wave's rules became data, and one typed record (2026-09-09)
+
+Fifth architecture pass, same method: rank `scripts/` by structural weakness, read the winner
+fully, check it against how the engine and the industry model the problem, rebuild, pin the weak
+design out. The target was the wave-mutator subsystem — the smallest file in the ranking
+(`scripts/waves/wave_mutators.gd`, 155 lines) and the one whose Dictionary boundaries had the
+widest blast radius (`SpawnManager`, `WaveManager`, `DifficultyDirector`, `RunScorekeeper`,
+`WeaponManager`, `RunState`, the daily challenge and the run-summary panel).
+
+- **Mutators are `WaveMutatorConfig` resources now.** `definition()` was a `match mutator_id`
+  over seven hand-written Dictionaries, and its last line returned a *neutral* Dictionary for any
+  id it did not recognise — an unknown mutator was not an error, it was a wave that announced a
+  modifier and applied nothing. The seven shipped ones are `res://data/mutators/<id>.tres`,
+  registered by `ContentLoader` (151 validated files, up from 143), and their ids are checked at
+  load wherever they are referenced: `WaveConfig.arena_modifier_ids`, `GameMode.forced_mutators`,
+  `GameMode.CHALLENGE_MUTATOR_POOL`, and each mutator's `status_effect_id`. A mutator whose every
+  knob is neutral is refused outright: that is a banner line, not a rule.
+- **Five authored knobs started working.** Grepping every key against every consumer found
+  `currency_mult` (Bounty Hunt's entire "double currency" pitch) and `player_damage_mult` (Glass
+  Cannon's "take +25%") dropped by `set_wave_modifiers`, which copied four named keys and
+  documented "unknown keys are ignored"; `score_mult` copied but read by nobody, though six of
+  seven mutators advertised richer kills; `burn_tick` — Ember Winds' whole mechanic — read by
+  nobody, so it was a banner and a signal; and the director's own `score_mult`, so "dominating
+  players get richer waves" was a comment. They now fold into `RunScorekeeper` (score and
+  currency, beside the upgrade/mode/prestige multipliers), `WeaponManager` (player damage, beside
+  the status factor, refreshed on the wave seam `set_current_wave`), and the arena itself
+  (Ember Winds stamps a real `StatusEffectConfig`, `data/status/ember_air.tres` at 1.5/s, through
+  `StatusManager.apply_effect` on enemies as they spawn and on the player while a wave arrives).
+  `severity` finally escalates the wave banner: `minor` warns, `major` is `danger`.
+- **One typed record per wave instead of three Dictionaries.** `WaveModifiers` is what
+  `WaveManager._fold_modifiers()` produces once per wave — plan scalars, then the
+  `DifficultyDirector`'s bounded nudge, then the mutators, then `clamp_bounds()` — and what
+  `SpawnManager`, `RunScorekeeper`, `WeaponManager` and `RunState` read field by field.
+  `SpawnManager`'s `_difficulty` and `_wave_mods` are gone (8 string-keyed reads removed),
+  `DifficultyDirector.next_wave_multipliers()` returns the record, and the only Dictionaries left
+  in the pipeline are `WavePlanner.calculate_difficulty_scalars()`'s (a test-pinned scalar
+  function, absorbed by `apply_plan_scalars`) and `debug_dictionary()` at the debug-snapshot
+  boundary. Stacking rules are authored per field in `WaveMutatorConfig.FOLD`
+  (`multiply`/`add`/`max`) because "how do two modifiers combine" has no generic answer; the
+  bounds live with the fold, so a consumer cannot forget its clamp.
+- **`RunState.active_modifiers` is written.** It was cleared, duplicated, serialized and shown in
+  the run summary — and never assigned, so every summary in the game reported no mutators.
+  `set_wave_modifiers()` publishes it from the folded record at each wave launch (ids only:
+  multipliers are re-derived per wave and stay out of the save), and the daily card now tooltips
+  each mutator's `description` instead of leaving that field in the inspector.
+- **Selection stayed deterministic, and got smaller.** `roll_for_wave` keeps its
+  `(seed, STREAM_WAVES + wave * 7)` stream, its 4/8-wave shape and its pool order — which is
+  authored as `roll_order` now, because `DailyChallenge.mutators_for_stamp()` pops indices out of
+  that list and `GameMode` indexes its own challenge pool; `min_wave` replaced
+  `if wave < 6: pool.erase(GLASS_CANNON)`. Ties in `roll_order` are a startup error, and the
+  unknown-id path warns instead of neutralising.
+- **Pinned out:** `tests/python/test_regress_wave_mutators.py` (43 checks: mirrors every shipped
+  number, refuses `match mutator_id`/`definition()`/Dictionary multiplier records in `scripts/`,
+  requires every field of the record and every field of the config to have a reader, pins the
+  fold order, the roll stream, the registry wiring and the doc text),
+  `tests/unit/test_wave_mutators.gd` (15 headless cases: fold arithmetic, bounds, targets, the
+  neutral refusal, roll gating, the run mirror) and `tool/validate_guards.py` 61 → 99 needles.
+  641 python tests green (was 598), and 38 of 38 reintroduced defects caught by a mutation pass over a scratch copy. Two live-stage additions in `tests/integration_stages.gd` assert the
+  folded record reaches a spawned enemy's health, damage *and* status list — a path that could
+  not exist before, because nothing stamped anything.
+- **Docs that lied:** `docs/EXTENDING.md` §11 described "`WaveMutators` (`ALL`,
+  `resolve_for_wave`, per-id `apply_to_wave_mods` scalars)" — a method name that never existed and
+  an `ALL` const that does not any more; rewritten as "add a mutator without touching code".
+  `docs/ARCHITECTURE.md` gained "Wave rules (mutators, the director, and the one folded record)".
+  `docs/HARDENING.md` told contributors to "add a `_validated_*` helper", the exact pattern its
+  own gate rejects; that section now says what replaced it (load-time `validate()`, typed records,
+  "a field must have a reader").
+
+## [Unreleased] — The arena's authored world: theme, landmark, cover (2026-09-09)
+
+Fourth architecture pass, same method: find the weak subsystem, read it fully, check it
+against how the engine and the industry do it, rebuild, then pin the weak design out. The
+target was the arena's *identity*: `scripts/arena/arena.gd` and its two helpers. Everything
+about how an arena looks and what stands in it lived in code that branched on the arena id
+string, so a new arena `.tres` could not fail — it just quietly got someone else's arena.
+
+- **`THEMES` and `PANORAMA_SKIES` are gone; the look is a resource.** `arena.gd` held
+  `const THEMES := { "ember_crucible": { "sun_color": Color(…), … }, … }` and applied it with
+  fourteen `preset.get("…")` reads — four of them wrapped in `float()` — so every key had a
+  name-based fallback, and the six numbers every arena shared (ambient energy, the glow triple,
+  fog-sky-affect, tone map) were welded into `_apply_sky_and_light`. It is `ArenaThemeConfig`
+  (`data/arena_themes/<arena_id>.tres`) now, referenced from `ArenaConfig.theme` by hard
+  resource path: every look number is authored, all of them range-enforced, and a NaN channel /
+  a fog density that hides the far half of the floor / a `user://` HDRI is refused at load.
+  `apply_theme()` no longer takes an id and can no longer `return` silently on a table miss;
+  `theme == null` is the one authored way to keep the scene's own look. `@export var config_path`
+  was deleted unread — no scene set it and nothing had ever loaded it.
+- **The landmark builds nothing instead of defaulting to an obelisk.** Two `match kind`
+  statements with `_:` arms chose the silhouette and hard-coded its geometry, light and colours;
+  the collision body and the nav-grid footprint were two hand-written numbers per kind that
+  could disagree; and `_hd_marble_mat` was dead code. `ArenaLandmarkConfig` authors
+  `kind`/`shape`/`footprint_half`/tint/emissive/one point light, and `ArenaLandmark` (new, 204
+  lines) builds the silhouette from them; `arena.gd` went 533 → 354. `footprint_half` is now
+  *both* the body and the blocker (`footprint_half * scale`), so physics and AI intent cannot
+  drift apart, and an unrecognised `kind` is a `push_error` plus nothing built — no mesh, no
+  body, no phantom blocker.
+- **Obstacle layouts are authored, and stop being a Dictionary record.**
+  `ArenaObstacles.layout_for(arena_id, half)` was `match String(arena_id)` emitting
+  `{"pos", "half_size", "kind"}`, read back with `.get("pos", Vector3.ZERO)` by the collision
+  builder *and* by `ArenaNavGrid.build` — which is exactly how a footprint convention had
+  already been misread once (the grid's old comment records it). `ArenaConfig.obstacle_layout`
+  is an `Array[ArenaObstaclePlacement]` with a `mirror` (the same vocabulary `HazardPlacement`
+  uses, pinned against the two drifting apart), positions are in *that arena's* metres and are
+  never rescaled, and the geometry crosses API boundaries as `Array[AABB]`. The records' `kind`
+  field disappeared rather than getting a job: nothing had ever read it. An arena that authors no
+  layout still gets The Pit's pattern via `fallback_layout(half)`, now the only place that scales
+  by the floor size.
+- **New cross-check:** an obstacle whose centre lands inside the landmark footprint is a load
+  error (`ArenaConfig._obstacle_landmark_overlap`) — it draws nothing, is still solid, and blocks
+  the AI away from a wall nobody can see.
+- **Docs that lied are fixed.** `docs/EXTENDING.md` §3 promised "additional arenas = a new scene
+  + an ArenaConfig" while three files keyed behaviour on the id; §3 is now an eight-step
+  authoring guide, `docs/ARCHITECTURE.md` gained "The authored world", and `GODOT_HANDOFF.md`
+  item 4 stopped telling the next engineer to grep a table for obstacle boxes. The one remaining
+  arena-id branch is `ArenaDecorator.decorate()`'s prop scatter — seeded from the id, so
+  re-keying it would move every brazier and banner in a shipped arena, which needs a running
+  game to sign off. It is pinned to exactly one `match String(arena_id)` so it cannot spread.
+- **Tests.** New `tests/unit/test_arena_world.gd` (15 cases: mirror math against the hazard
+  vocabulary, footprint derivation, shared-resource safety, fallback identity, every shipped
+  theme/landmark/obstacle number, all validation rules, the refusal path, footprint→grid
+  blocking) and `tests/python/test_regress_arena_world_data.py` (32 checks: the id tables pinned
+  out, the Dictionary records pinned out, the type contract, every shipped number audited
+  against the deleted tables, and the docs). `test_arena_obstacles_node.gd` now asserts the theme
+  actually reached the live `WorldEnvironment` and sun — `apply_theme`'s silent return was the
+  whole bug — and that the landmark's body *is* the authored footprint. Four stale pins were
+  re-pointed at the new design (the `THEMES` milestone check, the per-arena panorama check, and
+  the ember 8.5 m / gate-literal hardening checks): all four now assert the guarantee against the
+  data the game loads instead of the expression that used to produce it. The re-pin of the hazard
+  placement-expansion check also fixed a scoping bug of our own — it scanned every `mirror` in
+  the arena file and started counting the new obstacles as hazards (17 for an 11-hazard arena).
+- **Verified by mutation, not by inspection:** 43/43 injected regressions were caught — tables
+  returning, key-bags returning, `pos` misread as the min corner, expansion writing through a
+  shared resource, the fallback skipping `expand`, the silent landmark default, a deleted
+  validator rule, a reworded message, a shrunken colour-audit list, a deleted range hint, and
+  drift in every shipped colour, footprint and coordinate.
+- Gates at this commit: 598 python tests (from 566), `check_typed_arch` clean (174 classes, from
+  170), `validate_guards` 61 (from 53), `validate_resources` 143 files (from 137), assets OK,
+  `gdparse`/`gdlint` clean on every touched file.
+
+## [Unreleased] — Status effects: the read path became a cached fold (2026-09-09)
+
+Third architecture pass. Same method as the previous two: find the subsystem whose cost is
+paid most often, check it against how the engine actually works, rebuild the weak part, and
+pin the weak design out. This time the target was `scripts/status/` — the per-entity
+component that movement, AI, damage and the HUD query dozens of times per frame. Rationale
+in `docs/ARCHITECTURE.md` ("Status effects"); authoring notes in `docs/EXTENDING.md` §10.
+
+- **The five derived numbers are folded once, not per read.** `move_speed_factor()`,
+  `outgoing_damage_factor()`, `incoming_damage_factor()`, `is_stunned()`/`is_rooted()` and
+  `shield_remaining()` used to re-walk an untyped `Dictionary`, cast each value with
+  `as StatusEffect` and call `pow()` per effect per axis — ~80 walks per physics tick at a
+  full wave, because `player.gd` and `enemy_base.gd` ask every tick and every hit asks
+  twice more. They are field reads on a fold that is recomputed lazily when
+  `_aggregates_dirty` is set by exactly the four things that can change it: an application,
+  a removal, an absorbed shield layer, and the tick in which `remaining` crosses zero
+  (`StatusEffect.reapply()` now returns whether it changed anything a fold depends on, so a
+  duration-only refresh — burn re-applied every swing — costs nothing). This is the Dirty
+  Flag pattern, the same mechanism Godot uses for a body's global transform and Unreal's
+  GameplayEffects uses for attribute aggregators, chosen over re-evaluating per frame.
+- **The tick stopped allocating.** `_effects.keys().duplicate()` per entity per frame (two
+  Arrays; `keys()` already returns a fresh one, so the `.duplicate()` was pure waste) became
+  two reused scratch arrays guarded by a `_ticking` re-entrancy flag — guarded because
+  `HealthComponent.damaged` → `cleanse_all()` from a listener is a real path here (Purge
+  pickup), and erasing while iterating a Dictionary is undefined per the Godot docs. The
+  per-effect `fx.config.validate()` inside the tick is gone: it re-ran a 14-rule authoring
+  audit 60 times a second per effect to catch "an old save with bad numbers", and status
+  state has never been serialized (SaveManager has no status path).
+- **Typed table, and the shield layer moved home.** `Dictionary[StringName, StatusEffect]`
+  replaces `Dictionary` + casts (runtime-only on purpose: 4.4 cannot serialize a typed
+  Dictionary of Resources in a `.tres`, godot#100889, nor accept one from
+  `JSON.parse_string`, godot#97137). The parallel `_shield_layers` Dictionary keyed by
+  effect id — written on every application, erased on every removal, re-summed from
+  `.values()` on every absorbed hit — is now `StatusEffect.shield_layer`, so `absorb_direct()`
+  is one allocation-free walk and `_sync_shield_pool()` disappeared. `_power_for` returns a
+  `Vector2` pair instead of a `Dictionary` record with three string lookups per application.
+- **An idle component is not ticked.** `set_physics_process(false)` while the table is empty
+  (the repo's own convention: `enemy_base`, `pickup`, `player_feedback`, `projectile`),
+  because with 40 enemies alive "no effects" is the most common state and used to cost a
+  `_physics_process` call plus an `is_empty()` test anyway.
+- **Real defect fixed, not just moved:** the `SOFT_LOCK_CAP_SECONDS` "hard stop" for
+  stun/root durations was written as a `maxf` floor, so an authored `duration = 30` with
+  `stuns = true` froze the player for 30 s under a comment claiming it was capped at 3.
+  Initial duration, `set_power_modifiers` and all three stack-mode branches now route through
+  the ceiling. Shipped data is unaffected (`stun.tres` is 1.5 s); no shipped effect is
+  permanent, and none uses `roots`.
+- **`StatusEffectConfig` now extends `ValidatedConfig`**, so its audit runs at load through
+  `ContentLoader` and `ContentRegistry` turns a bad `.tres` into a startup error. This is the
+  first conversion off the documented "needs a real run to prove the shipped files pass"
+  list — the proof was built without a binary instead: `tests/python/test_regress_status_hot_path.py` (35 checks)
+  mirrors all 14 rules in python, reads its defaults and rule text out of the GDScript class
+  so the mirror cannot drift, and audits every `data/status/*.tres`. The remaining four
+  (`SkillConfig`, `WeaponConfig`, `AudioConfig`, `BossPhaseConfig`) stay listed, still
+  pinned as a shrink-only set. Related inconsistency fixed while there:
+  `duration`'s `@export_range` minimum of 0.05 made "0 = permanent until cleansed" — which
+  `validate()` and `is_permanent()` both define — unauthorisable in the inspector (guard
+  needle re-pinned, same fix as `HazardConfig.period`).
+- **Behaviour preserved deliberately**, and pinned so the cache cannot be quietly wrong: the
+  multiplicative axes still include an effect that expired this tick but has not been removed
+  yet (what the per-read scans did; it self-corrects in the same tick), the stun/root locks
+  still exclude it, `ADD` shields still grant only newly acquired capacity, `absorb_direct()`
+  still consumes layers in stable insertion order and still clamps a hit to 10k, DoT/HoT
+  still route through `HealthComponent` with the authored `dot_type` and caster attribution,
+  and all three signals still fire from the same points.
+- **Tests.** New `tests/unit/test_status_manager.gd` (live, in-tree fixtures over a real
+  `HealthComponent`, tick driven by hand at 1/8 s so DoT arithmetic is binary-exact): 90 reads
+  cost one fold, a fold is not done eagerly, the cache refolds exactly once after an
+  application, expiry releases the entity *in the tick it expires*, the scratch arrays come
+  back empty, `cleanse_all()` from a damage signal mid-tick neither crashes nor leaves a
+  stale fold, remove-during-removal is idempotent, shield pools cannot outlive their effect,
+  a 5 s hitch is one DoT quanta, HoT totals are tick-rate independent, and a NaN/Inf authored
+  factor cannot reach movement (60 assertions across 15 cases). New `tests/python/test_regress_status_hot_path.py` (35
+  checks: shipped-data audit, mirror-coverage link, hot-path bans, invalidation completeness,
+  type contract, behaviour parity, docs consistency). 566 python tests OK; 53/53 guard
+  needles; typed-arch and resource gates clean.
+- **Caveats.** No Godot binary in this environment: the GDScript suite is static-verified
+  (gdparse/gdlint/check_typed_arch) and executes in CI, so its first run should be read
+  carefully. Two pins had to move because they asserted the weak design, not the behaviour:
+  `test_regress_foundational_guards.test_status_has_instance_valid` (per-tick
+  `is_instance_valid(fx)` walk → typed, exclusively-owned table) and
+  `test_regress_top5_hardening.test_status_manager_looks_up_bus_by_path` (kept as-is by
+  preserving the accessor name `_event_bus()`; the lookup is now resolved once in `_ready`
+  instead of on every application and every expiry). `weapon_manager.gd`'s pins on
+  `as StatusManager` / `apply_effects(` are untouched: the public API did not change.
+
+## [Unreleased] — Arena hazards rebuilt: authored, typed, spatially indexed (2026-09-09)
+
+Second architecture pass, chosen by measurement rather than taste: the arena hazard
+subsystem was the one place where *content was code* and where the hot path did per-tick
+work the rest of the project had already designed out. Rationale now in
+`docs/ARCHITECTURE.md` ("Arena hazards"); the authoring workflow is `docs/EXTENDING.md` §11.
+
+- **Layouts and tuning became data.** `ArenaHazards._layout_defaults()` matched on
+  `String(arena_id)` and hand-placed eleven/twelve hazards per arena, so adding a fourth
+  arena meant editing the hazard system — and `ArenaObstacles` documented itself as
+  "hand-tuned against" that function. Now: `HazardConfig extends ValidatedConfig`
+  (`res://data/hazards/*.tres`, six authored hazards) + `HazardPlacement` on
+  `ArenaConfig.hazard_layout` (with a `mirror` that expands one line into a symmetric set)
+  + `HazardModeLayout` (`res://data/hazard_modes/*.tres`) replacing the four
+  `apply_mode_pressure` match arms. All three are validated at load through
+  `ContentLoader`, and the arena `.tres` files carry the exact hazard sets the deleted code
+  produced (11 / 9 / 10, pinned in `tests/unit/test_hazards.gd`).
+- **Six code paths collapsed into two mechanics.** `pulse` (periodic or proximity-armed
+  detonation) and `field` (applies while you stand in it, throttled per victim), with
+  travel as a property rather than a `_tick_mover` branch. `match h["kind"]` over an
+  untyped Dictionary is gone: the mechanic is a validated id, an unknown one is a load
+  error, and the runtime fall-through `push_error`s instead of silently doing nothing.
+- **Typed per-hazard state.** `HazardInstance` (`RefCounted`) replaces the
+  `{kind, pos, timer, node}` + lazily-created `{angle, tick}` records, so `h["timer"]`
+  typos become compile-checked field access, and `_radius_of()` / `_color_of()` — which
+  re-declared the same tuning a third and fourth time (the ichor radius was a bare `2.8`
+  in two places, the plate blast a `+ 1.5` in the tick) — are gone. Mutable state lives on
+  the instance, never on a shared config resource.
+- **The visual stopped being metadata.** `HazardMarker` is built from the same radius the
+  gameplay uses and exposes `set_pulse()` / `set_center()`; the marker reference is read
+  through one guarded accessor (`HazardInstance.visual()`), replacing
+  `set_meta("disc")` / `get_meta("disc")` round trips and the per-victim
+  `set_meta("spike_cd_…")` cooldown keys (metadata is serialized with the scene, and
+  godot#79222 measured a real frame-rate cost for `set_meta`/`get_meta` at this volume).
+- **One shared snapshot + a uniform grid, on the game clock.** Victims used to be gathered
+  into a fresh Array, `.filter()`-ed through a lambda into a second Array, then scanned by
+  every hazard: ~460 distance tests plus two allocations and 42 lambda calls per 60 Hz
+  tick at 40 enemies, with `_tick_spikes` additionally doing an O(n) `_hazards.find(h)`
+  *per victim*. Now `_require_victims()` builds one lazy snapshot per tick
+  (`RadiusSpatialIndex`: `PackedInt32Array` heads + next-links, rebuilt in place, sized
+  from the largest query radius) and each hazard queries the few entities near it at its
+  own `scan_interval` — a periodic vent queries nothing between bursts. Timers accumulate
+  `delta` on `_game_time` instead of `Time.get_ticks_msec()`: at the hitstop manager's
+  0.05x a 1 s spike immunity used to be spent in ~50 ms of game time, and the vent
+  telegraph pulsed on wall clock while the world stood still. Heal now integrates over the
+  time a field actually covered, so scan cadence changes cost, not total.
+- **New typed seams that other systems can use.** `Damageable.get_status_manager()`,
+  `get_health_component()` and `get_hit_radius()` replace
+  `get_node_or_null("StatusManager") as StatusManager` on hazard paths, and `AreaDamage`
+  pads bodies through the same `get_hit_radius()` so a hazard's spatial pre-filter can
+  never disagree with the damage it hands off. `AreaDamage.VALID_FALLOFFS` lets content
+  validate its own `falloff` name.
+- **Dead knob removed:** `configure(..., ambient_burn)` was never passed `true` (the
+  "Ember Winds" mutator delivers its fire ticks via `burn_tick`, not via hazards). It is
+  now an explicit `ignite_pulses()`, tested, and available to the mutator path.
+- **Validation reachability gap found and half-closed.** `ContentLoader` runs `validate()`
+  only on resources that are a `ValidatedConfig`; `ArenaConfig` had one but did not extend
+  it, so arena validation ran in the CI harness and never at load. Converted (authored
+  hazard layouts make that load-bearing). Five other config types (`SkillConfig`,
+  `StatusEffectConfig`, `WeaponConfig`, `AudioConfig`, `BossPhaseConfig`) still extend
+  `Resource` — converting each is one line, but `ContentRegistry` *halts startup* on a
+  validation error in debug builds, so each needs a real run proving the shipped `.tres`
+  files pass. Pinned as a shrink-only list in the new suite.
+- **Tests.** New `tests/unit/test_hazards.gd` (pure: validation rules, mirror expansion,
+  layout parity with the old hand-tuned coordinates, cooldown/burst arithmetic, grid vs
+  brute force, capacity overflow counting) and `tests/unit/test_hazards_live.gd`
+  (in-tree fixtures, tick-by-tick: both teams hit once per period, throttled fields,
+  player-armed plate, 100 Hz vs 60 Hz heal totals equal, freed markers, group/dead-body
+  filtering, NaN epicentre). New `tests/python/test_regress_hazard_subsystem.py` (28
+  checks; verified to fail on ten mutations, including a re-added wall clock, re-added
+  metadata, a re-added arena `match`, a mechanic losing its arm, an AoE call handed the
+  whole arena, and a reassigned bucket store). `tests/unit/test_nav_grid.gd` now reads
+  hazard centres from the arena `.tres` instead of a hand-copied mirror of the deleted
+  function. `tool/validate_guards.py` hazard needle moved from "a `Dictionary` signature
+  exists" to the two guards that matter; 53/53 pass.
+- **Caveats.** No Godot binary in this environment, so the GDScript suites are
+  static-verified (gdparse/gdlint/check_typed_arch/validate_resources) and the behaviour
+  tests themselves run in CI; the timing numbers in the live suite are written to tolerate
+  float accumulation but a first CI run should be read carefully. Gameplay-visible
+  changes are intentional and few: movers now orbit the position they were authored at
+  (they used to ignore it and circle the arena centre), a mover with no room to circle
+  stays put instead of clipping the wall, spike beds and vents now respect the shared
+  body-padding rule at the rim (a big enemy is caught a hair earlier, like every other
+  AoE in the game), and an ichor pool re-stamps its slow at 0.25 s instead of every tick
+  (so the slow may linger up to a quarter second after you leave). Roll back the whole
+  subsystem by restoring `scripts/arena/arena_hazards.gd` at this commit's parent; the
+  arena `.tres` `hazard_layout` lines and `data/hazards*` directories are additive.
+
+## [Unreleased] — Physics timing contract, collision contract, swept projectiles (2026-09-09)
+
+Architecture pass on the parts that touch physics — collision, camera, player,
+projectiles. No new physics engine: Godot's server already owns capsule motion, and
+the gaps were contracts and timing, not solvers. Full rationale in
+`docs/ARCHITECTURE.md` ("Collision contract", "Timing contract").
+
+- **`CollisionLayers` (`scripts/core/collision_layers.gd`) is now the only source of
+  3D bits.** 24 hand-written `collision_layer` / `collision_mask` numbers across
+  arena bodies, `EnemyPack` separation, the camera solver, the projectile pool and
+  the pickup pool became named constants, and the reserved-but-unassigned
+  `PlayerAttack` / `EnemyAttack` / `Pickup` layers are now documented as reserved
+  rather than left implied. New
+  `tests/python/test_regress_collision_contract.py` (15 checks) pins the bit layout to
+  `[layer_names]`, rejects any numeric assignment in `scripts/**`, pins
+  `player.tscn` (2/1) and `enemy_base.tscn` (4/5) to the constants, forbids
+  archetypes re-declaring collision, and asserts the four deliberate decisions
+  (no hero/enemy body-block, geometry-only camera, peers-only separation,
+  polled-not-detected pickups). `tests/unit/test_collision_layers.gd` is the
+  in-engine mirror (registered in `UNIT_SUITES`).
+- **Camera spring-arm stopped allocating on the frame-critical path.**
+  `CameraCollisionSolver.solve()` ran once per *render* frame and built a fresh
+  `SphereShape3D` + `PhysicsShapeQueryParameters3D` + one
+  `PhysicsRayQueryParameters3D` per whisker per frame — up to 6 RID-backed objects
+  handed to the physics server, scaling with panel refresh rate. Query objects are now
+  built once and mutated (the `EnemyPack._sep_query` pattern), and the whole spatial
+  pass is gated on a 1/60 s clock *and* a 0.4 m arm-displacement test, so a 120 Hz
+  panel halves the queries while `solve()` still applies the cached pullback to the
+  current arm direction (no added tracking latency). `recovery_timer` semantics, the
+  whisker fan, ground clearance and the fast-in/slow-out asymmetry are unchanged;
+  `use_sphere_cast` is now actually honoured (it was an authored profile field no code
+  read). `invalidate_cache()` forces a pass after a re-target, a rig reset and the
+  10 m teleport guard. `queries_last_pass` / `passes_total` reach the debug snapshot.
+- **Physics interpolation enabled; the camera opts out and reads the interpolated
+  target.** `physics/common/physics_interpolation=true` so the 60 Hz sim can never
+  alias against a 120 Hz panel or the `PerformanceMonitor` step-down to `Engine.max_fps`
+  30. `CameraRig` and its `Camera3D` set `PHYSICS_INTERPOLATION_MODE_OFF` (the rig is
+  written every render frame — double-smoothing it would add a tick of lag) and follow
+  `get_global_transform_interpolated()` instead of the stale tick value;
+  `DamageNumberLayer` opts out for the same reason. Every teleport now resets
+  interpolation after the write: `Projectile.launch/pool_reset`, `Pickup.drop/pool_reset`,
+  `SpawnManager` spawn placement and split burst, `PickupManager.magnet_burst`,
+  `Player.reset_for_new_run` (the run-start placement — reset lives on the actor, so a
+  future debug/menu spawner cannot forget it), and the non-finite position repairs in
+  `CharacterController` / `PlayerLocomotion`.
+  `tests/python/test_regress_physics_timing_and_ccd.py` (22 checks) pins all of it,
+  including a scan that fails on any new `_process` transform writer without an opt-out.
+- **Projectiles are swept, no longer point-sampled.** A `Projectile` assigns
+  `global_position` itself, so the server never integrates it and there is no CCD:
+  at `sunbow`'s 24 m/s that is 0.40 m of travel per tick against a 0.25 m detection
+  sphere, enough to skip a barrier or a dodging target. Each step now asks
+  `cast_motion` how far it may safely go, identifies the blocker with a short
+  `hit_from_inside` ray (cast_motion reports a fraction, not a collider), and loops up
+  to 4 segments so a piercing shot resolves every victim along the path instead of at
+  its endpoint. Swept and overlap contacts funnel through one `_resolve_hit()`, so the
+  two paths cannot disagree; `sweep_radius` is taken from the authored
+  `SphereShape3D`; `collide_with_bodies` only (volleys cannot shoot each other down);
+  the launcher body is ignored for the flight; and with no space, no tree or
+  `swept_collision = false` the shot falls back to the previous plain integration.
+
+Verification (no Godot binary in this sandbox — see the caveat below): `gdparse` clean
+on all 222 scripts/tests, `gdlint` clean on every touched file,
+`check_typed_arch.py` clean (164 classes), `validate_guards.py` 47/47,
+`python3 -m unittest discover -s tests/python` **502 tests OK**, and both new suites
+confirmed to fail on deliberately reverted code (mutated copies: opt-out removed →
+2 failures, extra `SphereShape3D.new()` → 1 failure). `--headless` runtime tests could
+not be executed here, so the GDScript suite (`tests/unit/test_collision_layers.gd`) is
+verified by parser + lint only and runs in CI.
+
 ## [Unreleased] — Audio playback engine rebuilt from the base up (2026-09-10)
 
 Third-round audit picked the audio engine: it shipped a fully data-driven

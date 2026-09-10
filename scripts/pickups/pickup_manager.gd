@@ -46,8 +46,11 @@ func _refresh_drop_table() -> void:
 
 func _make_pickup() -> Pickup:
 	var p := Pickup.new()
-	p.collision_layer = 0
-	p.collision_mask = 0
+	# Pickups are polled by radius (Pickup._tick_collect), never detected: zeroing
+	# both sides of the contract keeps them out of the camera/projector/separation
+	# queries instead of relying on a mask nobody re-checks.
+	p.collision_layer = CollisionLayers.NO_LAYER
+	p.collision_mask = CollisionLayers.PICKUP_QUERY_MASK
 	var visual := Node3D.new()
 	visual.name = "Visual"
 	p.add_child(visual)
@@ -154,6 +157,9 @@ func magnet_burst() -> int:
 	for p in _live:
 		if p.config != null:
 			p.global_position = player.global_position + _rng.point_in_disc(RngService.STREAM_DROPS, p.config.collect_radius * 0.5)
+			# A burst IS a teleport: without this the sweep interpolates every gem
+			# from its old ground position for a frame, which reads as a rubber band.
+			p.reset_physics_interpolation()
 			moved += 1
 	return moved
 

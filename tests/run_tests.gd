@@ -37,6 +37,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_safe_player_spawn.gd",
 	"res://tests/unit/test_systems_completion.gd",
 	"res://tests/unit/test_director_mutators.gd",
+	"res://tests/unit/test_wave_mutators.gd",
 	"res://tests/unit/test_meta_misc.gd",
 	"res://tests/unit/test_planner_extended.gd",
 	"res://tests/unit/test_extracted_modules.gd",
@@ -47,6 +48,9 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_content_progression.gd",
 	"res://tests/unit/test_presentation_scripts.gd",
 	"res://tests/unit/test_game_modes.gd",
+	"res://tests/unit/test_collision_layers.gd",
+	"res://tests/unit/test_hazards.gd",
+	"res://tests/unit/test_arena_world.gd",
 	"res://tests/unit/test_performance_monitor.gd",
 	"res://tests/unit/test_minimap_radar.gd",
 	"res://tests/unit/test_audio_policy.gd",
@@ -67,6 +71,8 @@ const NODE_SUITES := [
 	"res://tests/unit/test_arena_obstacles_node.gd",
 	"res://tests/unit/test_decorator_collision.gd",
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
+	"res://tests/unit/test_hazards_live.gd",
+	"res://tests/unit/test_status_manager.gd",
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"
@@ -117,7 +123,21 @@ func _run_suites(paths: Array) -> void:
 			print("::error title=Suite load failure::%s did not compile/load" % path)
 			_total += 1
 			continue
+		# `load()` of a script with a parse error returns the object anyway, marked unloadable — and
+		# calling a broken script yields nothing, which used to mean a suite that could not compile
+		# contributed zero cases and zero failures. The headless run reported 14 failures while a
+		# registered suite that does not parse contributed none; that asymmetry is the hole.
+		# (`GDScript.reload_failed` is the 3.x name; 4.x asks a Script whether it can instantiate.)
+		if not script.can_instantiate():
+			_failures.append("Suite failed to compile: %s" % path)
+			print("::error title=Suite compile failure::%s has a parse error" % path)
+			_total += 1
+			continue
 		var cases: Array = script.call("suite")
+		if cases.is_empty():
+			_failures.append("Suite ran no cases: %s" % path)
+			_total += 1
+			continue
 		for c in cases:
 			_total += 1
 			if not bool(c.get("passed", false)):

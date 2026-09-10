@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="GameModeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/meta/game_mode_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mode_id = &"challenge"
+display_name = "Challenge Run"
+blurb = "Fixed Gladius loadout, harsh mutators, clear the tier or die trying."
+intro_line = "Glass and fire. One blade. Twelve waves. No excuses."
+victory_line = "Challenge complete. The glass did not break you."
+objective = &"clear_waves"
+score_mult = 1.5
+currency_mult = 1.4
+max_waves = 12
+target_seconds = 0.0
+collect_target = 0
+upgrade_every = 2
+fixed_weapon = &"gladius"
+forced_mutators = Array[StringName]([&"glass_cannon", &"ember_winds"])
+scales_with_prestige = true
+prestige_mutator_pool = Array[StringName]([&"glass_cannon", &"ember_winds", &"iron_hide", &"volatile_mix", &"elite_surge"])
+planner_wave_offset = 0
+planner_wave_floor = 1
+every_n_waves = 0
+every_n_append = Array[StringName]([])

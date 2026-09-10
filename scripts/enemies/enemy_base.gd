@@ -920,6 +920,25 @@ func get_health_fraction() -> float:
 	return 1.0 if _alive else 0.0
 
 
+## Damageable component seams (see the doc comment on Damageable): these are the refs
+## _ready() already resolved, so hazards and AoE never walk the node path again -- except on the null
+## branch, which is how a scene variant that attaches its manager after `_ready` (a mod, or a harness
+## that packs the enemy in code) reaches the subsystem at all instead of returning nothing forever.
+func get_status_manager() -> StatusManager:
+	if _status == null:
+		_status = get_node_or_null("StatusManager") as StatusManager
+	return _status
+
+
+func get_health_component() -> HealthComponent:
+	return _health
+
+
+func get_hit_radius() -> float:
+	var cfg := get_config()
+	return cfg.bounds_radius if cfg != null else 0.0
+
+
 func get_debug_snapshot() -> Dictionary:
 	return {
 		"archetype": String(_archetype_id),

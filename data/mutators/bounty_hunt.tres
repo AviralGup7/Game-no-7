@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="WaveMutatorConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_mutator_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+mutator_id = &"bounty_hunt"
+display_name = "Bounty Hunt"
+description = "Double currency, tougher marks."
+severity = &"minor"
+roll_order = 4
+min_wave = 1
+hp_mult = 1.2
+damage_mult = 1.1
+currency_mult = 2.0
+elite_bonus = 0.05

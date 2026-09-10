@@ -70,7 +70,7 @@ cost memory, be nondeterministic, and still need the grid for LOS checks.
 ### 3.1 "Nothing walks through objects" — collision + intent, one source of truth
 
 * `scripts/arena/arena_obstacles.gd` — deterministic obstacle layouts per arena
-  (pillars/blocks), hand-cleared against each arena's hazards and spawn
+  (pillars/blocks), hand-cleared against each arena's authored hazard layout and spawn
   markers (asserted by `tests/unit/test_nav_grid.gd`).
 * `scripts/arena/arena.gd::_spawn_obstacles` — each entry becomes a
   **StaticBody3D on collision layer 1** — the *same* layer the player

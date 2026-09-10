@@ -9,6 +9,10 @@ extends Node
 
 signal pool_exhausted_recycled()
 
+## Detection sphere used when a projectile scene has no authored shape, and the
+## default the Projectile sweep starts from (see Projectile.sweep_radius).
+const SWEEP_RADIUS := 0.25
+
 @export var pool_size: int = 48
 @export var projectile_scene: PackedScene = null
 
@@ -43,22 +47,31 @@ func _make_projectile() -> Projectile:
 	if not p.release_requested.is_connected(_on_release_requested):
 		p.release_requested.connect(_on_release_requested)
 	var shape := p.get_node_or_null("CollisionShape3D") as CollisionShape3D
-	if shape != null and shape.shape == null:
-		var sphere := SphereShape3D.new()
-		sphere.radius = 0.25
-		shape.shape = sphere
+	if shape != null:
+		if shape.shape == null:
+			var sphere := SphereShape3D.new()
+			sphere.radius = SWEEP_RADIUS
+			shape.shape = sphere
+		# The swept test must agree with the authored overlap volume or the two hit
+		# paths disagree about what a hit is; a sphere shape hands us its radius.
+		var authored = shape.shape
+		if authored != null and authored.get_class() == "SphereShape3D":
+			p.sweep_radius = float(authored.radius)
 	return p
 
 
 ## Minimal code-built projectile so the pool works with zero scene assets.
 func _make_fallback_projectile() -> Projectile:
 	var p := Projectile.new()
-	p.collision_layer = 0
-	p.collision_mask = 7  # world + player + enemy
+	# Pooled shots are detection-only bodies: they answer to no query themselves
+	# and only *ask* the space about the mask in CollisionLayers.
+	p.collision_layer = CollisionLayers.NO_LAYER
+	p.collision_mask = CollisionLayers.PROJECTILE_HIT_MASK
+	p.sweep_radius = SWEEP_RADIUS
 	var shape_node := CollisionShape3D.new()
 	shape_node.name = "CollisionShape3D"
 	var sphere := SphereShape3D.new()
-	sphere.radius = 0.25
+	sphere.radius = SWEEP_RADIUS
 	shape_node.shape = sphere
 	p.add_child(shape_node)
 	var visual := Node3D.new()

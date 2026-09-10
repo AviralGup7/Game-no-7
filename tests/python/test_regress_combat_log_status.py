@@ -11,8 +11,14 @@ class CombatLogStatusTests(unittest.TestCase):
         self.assertIn("damage_by_source",txt)
     def test_status_effect_tick_clamps(self):
         txt=read("scripts/status/status_effect.gd")
-        self.assertIn("active_delta = minf(delta, remaining)",txt)
+        # Two bounds, not one: the frame's payout is capped outright (a 5 s hitch used to convert into
+        # four seconds of DoT because the 64-tick budget is far above what a 4 s status needs), and the
+        # accrual only counts the part of that frame the effect was alive for. The expiry clock is not
+        # clamped, so a hitch cannot stretch a status's life to pay itself out more slowly.
+        self.assertIn("var frame := minf(delta, MAX_PAYOUT_DELTA)",txt)
+        self.assertIn("active_delta = minf(frame, remaining)",txt)
         self.assertIn("remaining = maxf(remaining - delta, 0.0)",txt)
+        self.assertIn("const MAX_PAYOUT_DELTA := 0.5",txt)
     def test_music_manager_null_run_guard(self):
         txt=read("scripts/audio/music_manager.gd")
         self.assertIn("GameRoot.get_run()",txt)

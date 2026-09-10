@@ -30,6 +30,12 @@ var victory: bool = false
 var upgrade_choices: Array[StringName] = []
 var selected_upgrades: Dictionary = {}          # upgrade_id -> stack count
 var active_modifiers: Array[StringName] = []
+## This wave's folded rule multipliers (mutators + adaptive director), published by WaveManager at
+## every wave start and read by RunScorekeeper and WeaponManager. Live state only, on purpose: the
+## numbers are derived from `active_modifiers` plus the director, so the ids are what a save carries
+## and a resumed run recomputes them at the next wave launch. Keeping floats here would let a
+## restored save disagree with the wave it re-rolled them for.
+var modifiers: WaveModifiers = WaveModifiers.neutral()
 var equipped_weapons: Array[StringName] = []
 var equipped_skills: Array[StringName] = []
 var build_archetypes: Array[StringName] = []
@@ -62,6 +68,7 @@ func reset() -> void:
 	upgrade_choices.clear()
 	selected_upgrades.clear()
 	active_modifiers.clear()
+	modifiers = WaveModifiers.neutral()
 	equipped_weapons.clear()
 	equipped_skills.clear()
 	build_archetypes.clear()
@@ -121,6 +128,14 @@ func build_snapshot() -> Dictionary:
 		"selected_upgrades": selected_upgrades.duplicate(),
 		"active_modifiers": active_modifiers.duplicate(),
 	}
+
+
+## Publish one wave's folded rules. Called by WaveManager at wave launch (and nowhere else), which
+## is what keeps `active_modifiers` honest: the ids shown in the run summary, written to the save and
+## folded into this wave's multipliers are now the same array rather than one that nobody wrote.
+func set_wave_modifiers(mods: WaveModifiers) -> void:
+	modifiers = mods if mods != null else WaveModifiers.neutral()
+	active_modifiers = modifiers.mutator_ids.duplicate()
 
 
 func _unique_ids(raw_values: Variant) -> Array[StringName]:

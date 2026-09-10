@@ -42,10 +42,22 @@ Used everywhere to avoid duplication.
 - Smooths yaw/pitch/distance with in/out speeds (fast-in 14, slow-out 2.8).
 
 ### 8. CameraCollisionSolver (`camera_collision_solver.gd`)
-- Sphere-cast via `PhysicsShapeQueryParameters3D.cast_motion` + fallback raycast.
+- Sphere-cast via a pooled `PhysicsShapeQueryParameters3D.cast_motion` on
+  `CollisionLayers.CAMERA_QUERY_MASK` (arena geometry only — a horde never pushes the
+  view); whiskers identify what the cast misses.
 - Whisker check: 4-6 angled rays ±18-22° to anticipate tight spaces.
-- Ground clearance: raycast down 6m, enforce `cam_y >= ground_y + clearance`, also `cam_y >= focus_y -1`.
-- `recovery_timer` keeps colliding state briefly to avoid jitter.
+- Ground clearance: ray down 6m, enforce `cam_y >= ground_y + clearance`, also `cam_y >= focus_y -1`.
+- `recovery_timer` keeps the colliding *flag* held briefly after a clear pass so an arm
+  resting on a ledge cannot flicker state (the length itself is not held).
+- **Pooled + gated by construction:** the shape and both parameter objects are created
+  once in `_ensure_query_objects()`, and a full spatial pass runs only every
+  `QUERY_INTERVAL` (1/60 s) or once either end of the arm has moved `CACHE_SLACK`
+  (0.4 m). `solve()` is called per *render* frame, so on a 120 Hz panel this halves the
+  queries; the cached pullback is applied to the current arm direction every frame, so
+  tracking latency is unchanged. `invalidate_cache()` forces a fresh pass after a
+  re-target, a `reset_transform()` cut or the rig's 10 m teleport guard.
+- `get_debug_snapshot()` reports `queries_last_pass` / `passes_total` — the numbers to
+  watch in `PerformanceMonitor` output when tuning `whisker_count`.
 
 ### 9. CameraFramingController (`camera_framing_controller.gd`)
 - `calculate_desired_position(focus, orbit)` – spherical + height*0.55 + shoulder offset.
