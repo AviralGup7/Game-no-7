@@ -52,6 +52,12 @@ was investigated against the actual engine source and is documented below.
   `spawn_patterns` (`float(int(i / 2.0))` — truncation preserved).
 - **CONFUSABLE_LOCAL_DECLARATION ×1 fixed**: `arena_nav_grid.find_path` declared `i` inside the
   heap loop while the parent function declares `i` again below; the loop-local is now `idx`.
+- **SHADOWED_VARIABLE ×1 fixed (screenshot 0:00:03:322)**: `RngService.chance(salt, chance)` had
+  its probability parameter shadowing the member function of the same name (line 67 of
+  `rng_service.gd`, exactly as the editor toast reported); the parameter is now `probability`.
+  The three `INT_AS_ENUM` warnings in the same toast came from the pre-rebuild `game_mode.gd`
+  checkout; the current tree assigns its `Maneuver`/`Status`/`Mode` enums only via constants,
+  so there is nothing left to cast.
 - Verification: 887 python tests green (four signature-pin needles updated to the renamed
   contracts), all seven offline gates green (typed-arch, guards, resources, engine-api,
   scene-path, string-format, signals), gdparse + gdlint clean over the whole tree, and the
