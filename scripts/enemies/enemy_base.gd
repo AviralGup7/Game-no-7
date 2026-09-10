@@ -921,8 +921,12 @@ func get_health_fraction() -> float:
 
 
 ## Damageable component seams (see the doc comment on Damageable): these are the refs
-## _ready() already resolved, so hazards and AoE never walk the node path again.
+## _ready() already resolved, so hazards and AoE never walk the node path again -- except on the null
+## branch, where walking it is the difference between a scene that resolved late and an enemy that is
+## quietly immune to every status in the game.
 func get_status_manager() -> StatusManager:
+	if _status == null:
+		_status = get_node_or_null("StatusManager") as StatusManager
 	return _status
 
 

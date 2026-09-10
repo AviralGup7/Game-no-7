@@ -894,12 +894,16 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	results.append({
 		"name": "the wave's folded record scales spawns and stamps its status",
 		"passed": record_ok and consumed_the_chance,
-		"why": "has=%s stacks=%s full=%s attack=%s hp=%s blasts=%s (stacks=%d max=%s atk=%s)" % [
+		"why": "has=%s stacks=%s full=%s attack=%s hp=%s blasts=%s (stacks=%d max=%s atk=%s tree=%s" \
+				+ " mgr=%s children=%s)" % [
 				str(has_ok), str(stack_ok), str(full_ok), str(attack_ok), str(hp_ok),
 				str(consumed_the_chance),
 				stamped_manager.stack_count(&"ember_air") if stamped_manager != null else -1,
 				str(health_component.get_max()) if health_component != null else "none",
-				str(stamped.get_effective_attack_damage()) if stamped != null else "none"],
+				str(stamped.get_effective_attack_damage()) if stamped != null else "none",
+				str(stamped.is_inside_tree()) if stamped != null else "none",
+				str(stamped.get_node_or_null("StatusManager")) if stamped != null else "none",
+				str(stamped.get_children().map(func(c): return c.name)) if stamped != null else []],
 	})
 
 	timer.stop()
