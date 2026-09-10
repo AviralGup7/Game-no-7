@@ -15,6 +15,9 @@ const MIN_TOUCH := 88.0
 const GAP := 12.0
 const SKILL_SLOTS := 3
 const SKILL_SEPARATION := 8.0
+## Landscape width below this uses the stacked (portrait) message band even if
+## the device is wider than it is tall (small windows, 4:3 splits).
+const NARROW_WIDTH := 900.0
 
 
 static func gutter(size: Vector2) -> float:
@@ -25,8 +28,14 @@ static func top_bar_height(text_scale: float) -> float:
 	return 52.0 * clampf(text_scale, 1.0, 2.0)
 
 
+## Compact chrome: stacked message band, shorter HUD captions.
+## Portrait (taller than wide) is always compact — 1080x2340 is the common
+## Android portrait and is *wider* than NARROW_WIDTH, so a width-only test
+## used to keep landscape chrome on a tall phone.
 static func is_compact(size: Vector2) -> bool:
-	return size.x < 900.0
+	if not is_finite(size.x) or not is_finite(size.y):
+		return true
+	return size.x < NARROW_WIDTH or size.x < size.y
 
 
 ## Full overlay solution. Returns Rect2 values keyed by element name, all in
@@ -39,7 +48,11 @@ static func is_compact(size: Vector2) -> bool:
 ##     side columns, collapsing to zero height instead of stacking on top.
 static func compute(size: Vector2, text_scale: float) -> Dictionary:
 	var view := Vector2(maxf(size.x, 320.0), maxf(size.y, 240.0))
+	if not is_finite(view.x) or not is_finite(view.y):
+		view = Vector2(1280.0, 720.0)
 	var scale := clampf(text_scale, 0.8, 2.0)
+	if not is_finite(scale):
+		scale = 1.0
 	var pad := gutter(view)
 	var bar_h := top_bar_height(scale)
 	var top := pad + bar_h + GAP
@@ -52,18 +65,6 @@ static func compute(size: Vector2, text_scale: float) -> Dictionary:
 	var cluster_h := minor_r * 2.0 + attack_r * 2.0 + GAP
 	var cluster := Rect2(
 		Vector2(view.x - pad - cluster_w, view.y - pad - cluster_h), Vector2(cluster_w, cluster_h)
-	)
-	var attack := Rect2(
-		Vector2(cluster.end.x - attack_r * 2.0, cluster.end.y - attack_r * 2.0),
-		Vector2.ONE * attack_r * 2.0
-	)
-	var dodge := Rect2(
-		Vector2(cluster.position.x, attack.position.y + attack_r - minor_r),
-		Vector2.ONE * minor_r * 2.0
-	)
-	var swap := Rect2(
-		Vector2(attack.position.x + attack_r - minor_r, cluster.position.y),
-		Vector2.ONE * minor_r * 2.0
 	)
 	var stick := Rect2(
 		Vector2(pad, 0.0),
@@ -86,14 +87,27 @@ static func compute(size: Vector2, text_scale: float) -> Dictionary:
 	)
 	var controls_top := minf(minf(stick.position.y, cluster.position.y), skills.position.y)
 	if controls_top < top:
-		# Very short viewport: shrink the controls instead of letting them climb
-		# into the status strip.
-		var shrink := top - controls_top
-		stick.size.y = maxf(stick.size.y - shrink, 110.0)
+		# Very short viewport: shrink stick, skills, AND the action cluster.
+		# The previous path only shrank stick/skills, so on a 320x240 / large
+		# text-scale window the attack cluster climbed through the status strip.
+		var floor_y := top
+		var room := maxf(view.y - pad - floor_y, MIN_TOUCH)
+		var orig_cluster_h := cluster.size.y
+		stick.size.y = maxf(minf(stick.size.y, room), MIN_TOUCH)
 		stick.position.y = view.y - pad - stick.size.y
-		skills.size.y = maxf(skills.size.y - shrink, MIN_TOUCH)
+		skills.size.y = maxf(minf(skills.size.y, room), MIN_TOUCH)
 		skills.position.y = view.y - pad - skills.size.y
+		cluster.size.y = maxf(minf(cluster.size.y, room), MIN_TOUCH)
+		cluster.position.y = view.y - pad - cluster.size.y
+		var s := clampf(cluster.size.y / maxf(orig_cluster_h, 1.0), 0.35, 1.0)
+		attack_r *= s
+		minor_r *= s
 		controls_top = minf(minf(stick.position.y, cluster.position.y), skills.position.y)
+
+	var actions := _action_rects(cluster, attack_r, minor_r)
+	var attack: Rect2 = actions["attack"]
+	var dodge: Rect2 = actions["dodge"]
+	var swap: Rect2 = actions["swap"]
 
 	# --- top strip and side columns -----------------------------------------
 	var top_bar := Rect2(Vector2(pad, pad), Vector2(view.x - pad * 2.0, bar_h))
@@ -167,6 +181,25 @@ static func compute(size: Vector2, text_scale: float) -> Dictionary:
 		"skills": skills,
 		"compact": compact,
 	}
+
+
+## Attack sits in the cluster's bottom-right, dodge to its left, swap above it.
+static func _action_rects(cluster: Rect2, attack_r: float, minor_r: float) -> Dictionary:
+	var ar := maxf(attack_r, 1.0)
+	var mr := maxf(minor_r, 1.0)
+	var attack := Rect2(
+		Vector2(cluster.end.x - ar * 2.0, cluster.end.y - ar * 2.0),
+		Vector2.ONE * ar * 2.0
+	)
+	var dodge := Rect2(
+		Vector2(cluster.position.x, attack.position.y + ar - mr),
+		Vector2.ONE * mr * 2.0
+	)
+	var swap := Rect2(
+		Vector2(attack.position.x + ar - mr, cluster.position.y),
+		Vector2.ONE * mr * 2.0
+	)
+	return {"attack": attack, "dodge": dodge, "swap": swap}
 
 
 ## Hardened: never hand a degenerate rect to a Control.

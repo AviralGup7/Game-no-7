@@ -35,6 +35,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_locomotion_nan.gd",
 	"res://tests/unit/test_camera_arena_containment.gd",
 	"res://tests/unit/test_camera_modules.gd",
+	"res://tests/unit/test_ui_layout.gd",
 	"res://tests/unit/test_safe_player_spawn.gd",
 	"res://tests/unit/test_systems_completion.gd",
 	"res://tests/unit/test_director_mutators.gd",

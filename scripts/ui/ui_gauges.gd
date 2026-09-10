@@ -20,6 +20,10 @@ var _last_hp := 0.0
 var _last_hp_max := 0.0
 var _last_stamina := 0.0
 var _last_stamina_max := 0.0
+var _compact := false
+var _last_level := 1
+var _last_xp_into := 0
+var _last_xp_required := 1
 
 
 func _init() -> void:
@@ -90,6 +94,13 @@ func set_health(current: float, maximum: float) -> void:
 	health_caption.modulate = UiTheme.DANGER if low else Color.WHITE
 
 
+func set_compact(compact: bool) -> void:
+	if _compact == compact:
+		return
+	_compact = compact
+	relabel()
+
+
 func set_stamina(current: float, maximum: float) -> void:
 	_last_stamina = current
 	_last_stamina_max = maximum
@@ -97,16 +108,26 @@ func set_stamina(current: float, maximum: float) -> void:
 		stamina_bar.value = 0.0
 	else:
 		stamina_bar.value = clampf(current / maximum, 0, 1)
-	stamina_caption.text = "STAMINA  %d / %d" % [ceili(current), ceili(maximum)]
+	if _compact:
+		stamina_caption.text = "STA %d/%d" % [ceili(current), ceili(maximum)]
+	else:
+		stamina_caption.text = "STAMINA  %d / %d" % [ceili(current), ceili(maximum)]
 
 
 func set_xp(level: int, into: int, required: int) -> void:
+	_xp_seeded = true
+	_last_level = level
+	_last_xp_into = into
+	_last_xp_required = required
 	xp_bar.value = clampf(float(into) / maxi(required, 1), 0, 1)
 	if level >= ExperienceComponent.MAX_LEVEL:
 		xp_bar.value = 1
-		xp_caption.text = "LV %d  /  MAX LEVEL" % level
+		xp_caption.text = "LV %d MAX" % level if _compact else "LV %d  /  MAX LEVEL" % level
 		return
-	xp_caption.text = "LV %d  /  XP %d / %d" % [level, into, required]
+	if _compact:
+		xp_caption.text = "LV %d  %d/%d" % [level, into, required]
+	else:
+		xp_caption.text = "LV %d  /  XP %d / %d" % [level, into, required]
 
 
 func set_weapon_text(text: String, tooltip: String = "") -> void:
@@ -126,3 +147,5 @@ func relabel() -> void:
 		set_health(_last_hp, _last_hp_max)
 	if _last_stamina_max > 0.0:
 		set_stamina(_last_stamina, _last_stamina_max)
+	if _xp_seeded:
+		set_xp(_last_level, _last_xp_into, _last_xp_required)

@@ -26,6 +26,8 @@ var _pause_button: Button
 var _compact := false
 var _toast_fits := true
 var _weapon_refresh := 0.0
+var _wave_defeated := 0
+var _wave_total := 0
 # Dirty-flag caches so repeated events with unchanged values never force a label
 # write / tooltip rebuild (the HUD is updated at event rate and on a per-frame
 # weapon poll, so this keeps low-end GPUs free of redundant string work).
@@ -219,20 +221,42 @@ func set_currency(currency: int) -> void:
 
 
 func set_wave(wave: int) -> void:
-	if wave == _wave_cached: return
+	if wave == _wave_cached and _wave_total <= 0:
+		return
 	_wave_cached = wave
-	_wave_label.text = "WAVE %d" % wave
+	_refresh_wave_label()
 
 
 func set_combo(combo: int) -> void:
-	if combo == _combo_cached: return
+	if combo == _combo_cached:
+		return
 	_combo_cached = combo
-	_combo_label.text = "COMBO ×%d" % combo if combo > 1 else ""
+	_refresh_combo_label()
 
 
 func _wave_progress(wave: int, defeated: int, total: int) -> void:
 	_wave_cached = wave
-	_wave_label.text = "W%d • %d/%d" % [wave, defeated, total] if _compact else "WAVE %d  /  %d of %d" % [wave, defeated, total]
+	_wave_defeated = defeated
+	_wave_total = total
+	_refresh_wave_label()
+
+
+func _refresh_wave_label() -> void:
+	if _wave_label == null or _wave_cached < 0:
+		return
+	if _wave_total > 0:
+		_wave_label.text = "W%d • %d/%d" % [_wave_cached, _wave_defeated, _wave_total] if _compact else "WAVE %d  /  %d of %d" % [_wave_cached, _wave_defeated, _wave_total]
+	else:
+		_wave_label.text = "W%d" % _wave_cached if _compact else "WAVE %d" % _wave_cached
+
+
+func _refresh_combo_label() -> void:
+	if _combo_label == null:
+		return
+	if _combo_cached <= 1:
+		_combo_label.text = ""
+	else:
+		_combo_label.text = "×%d" % _combo_cached if _compact else "COMBO ×%d" % _combo_cached
 
 
 func show_toast(message: String) -> void:
@@ -277,7 +301,13 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	_combo_label.size_flags_horizontal = SIZE_SHRINK_BEGIN
 	_currency_label.size_flags_horizontal = SIZE_SHRINK_END
 	_score_value.size_flags_horizontal = SIZE_SHRINK_END
+	# Compact chrome: drop the SCORE caption (keep the number), hide coins on
+	# a strip that cannot fit them, and rewrite wave/combo for the new width.
+	_score_label.visible = not _compact
 	_currency_label.visible = not _compact or top_bar.size.x > 620.0
+	_refresh_wave_label()
+	_refresh_combo_label()
+	_gauges.set_compact(_compact)
 	_gauges.custom_minimum_size.x = maxf(vitals.size.x - 28.0, 120.0)
 
 

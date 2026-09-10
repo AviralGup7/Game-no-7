@@ -55,7 +55,7 @@ extends Resource
 @export var auto_follow_delay: float = 0.55
 @export var auto_follow_speed: float = 1.35
 @export var auto_follow_deadzone_deg: float = 28.0
-	@export var auto_follow_toward_camera_threshold: float = 0.25
+@export var auto_follow_toward_camera_threshold: float = 0.25
 @export var auto_follow_strafe_suppression: float = 0.65
 @export var manual_orbit_cooldown: float = 2.0
 
