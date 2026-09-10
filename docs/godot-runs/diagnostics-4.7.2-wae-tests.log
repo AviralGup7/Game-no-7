@@ -1345,7 +1345,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
 ========================================
 GDScript tests: 1095 total, 0 failed
 ========================================
-WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-ERROR: 8 resources still in use at exit (run with --verbose for details).
+ERROR: 2 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:822)
