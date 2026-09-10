@@ -41,4 +41,3 @@
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:58:8: WARNING: (UNUSED_SIGNAL): The signal "objective_resolved" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:31:8: WARNING: (UNUSED_SIGNAL): The signal "state_changed" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:34:8: WARNING: (UNUSED_SIGNAL): The signal "attack_started" is declared but never explicitly used in the class.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:679:3: WARNING: (UNUSED_VARIABLE): The local variable "g0" is declared but never used in the block. If this is intended, prefix it with an underscore: "_g0".
