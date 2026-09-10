@@ -66,9 +66,9 @@ func set_forced_mutators(ids: Array[StringName]) -> void:
 	_forced_mutators = ids.duplicate()
 
 
-func start_run(seed: int) -> void:
+func start_run(run_seed: int) -> void:
 	_active = true
-	_seed = seed
+	_seed = run_seed
 	_current_wave = 0
 	_planned_count = 0
 	_phase = PHASE_PREPARING

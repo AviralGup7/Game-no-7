@@ -28,13 +28,13 @@ func _ready() -> void:
 	_run()
 
 
-func _check(name: String, passed: bool, extra: String = "") -> void:
+func _check(case_name: String, passed: bool, extra: String = "") -> void:
 	_total += 1
 	if passed:
-		print("  PASS: %s" % name)
+		print("  PASS: %s" % case_name)
 	else:
-		_failures.append(name)
-		push_error("STRESS FAIL: %s %s" % [name, extra])
+		_failures.append(case_name)
+		push_error("STRESS FAIL: %s %s" % [case_name, extra])
 
 
 func _on_diag(message: String, severity: StringName) -> void:
@@ -460,12 +460,12 @@ func _mount_checks(tag: String, player: Node) -> void:
 	_check(tag + " bogus role mount returns null", bogus == null)
 
 
-func _spawn_enemy(archetype: StringName, seed: int, player: Node, container: Node) -> Node:
+func _spawn_enemy(archetype: StringName, run_seed: int, player: Node, container: Node) -> Node:
 	var path := BASIC_ENEMY if archetype != &"warlord" else WARLORD_ENEMY
 	var cls: PackedScene = load(path)
 	var enemy: Node = cls.instantiate()
 	container.add_child(enemy)
-	enemy.call("initialize", ContentRegistry.get_enemy(archetype), player, seed)
+	enemy.call("initialize", ContentRegistry.get_enemy(archetype), player, run_seed)
 	return enemy
 
 
@@ -548,11 +548,11 @@ func _feedback_checks(tag: String, player: Node, container: Node) -> void:
 
 
 func _xp_checks(tag: String, player: Node) -> void:
-	var exp: Node = player.get_node("ExperienceComponent")
-	var lvl: int = exp.call("get_level")
+	var xp_comp: Node = player.get_node("ExperienceComponent")
+	var lvl: int = xp_comp.call("get_level")
 	var need: int = ExperienceComponent.xp_for_level(lvl)
 	_stop_all_sfx()
-	var ups: int = exp.call("add_xp", need)
+	var ups: int = xp_comp.call("add_xp", need)
 	_check(tag + " level-up triggers", ups == 1)
 	var snap := _sfx_snapshot()
 	_check(tag + " level-up sting once", snap["total"] == 1 and _count(snap, "level_up") == 1, str(snap))
@@ -676,7 +676,6 @@ func _pickup_checks(tag: String, player: Node) -> void:
 		gems.append(mgr.get_child(mgr.get_child_count() - 1))
 	_check(tag + " distant pickup exists", not gems.is_empty())
 	if not gems.is_empty():
-		var g0 := (gems[0] as Node3D).global_position
 		for i in range(90):
 			await get_tree().physics_frame
 			if not is_instance_valid(gems[0]):

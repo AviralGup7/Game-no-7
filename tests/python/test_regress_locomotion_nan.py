@@ -33,12 +33,12 @@ class VirtualJoystickTests(unittest.TestCase):
     def test_pointer_positions_are_validated(self):
         txt = read("scripts/ui/virtual_joystick.gd")
         self.assertIn("func _is_finite_v2(v: Vector2) -> bool:", txt)
-        self.assertIn("if not _is_finite_v2(position):\n\t\treturn", txt)
+        self.assertIn("if not _is_finite_v2(pos):\n\t\treturn", txt)
 
     def test_value_only_exists_while_captured(self):
         # A drag that arrives after release must not publish phantom movement.
         txt = read("scripts/ui/virtual_joystick.gd")
-        fn = txt[txt.index("func _update(position: Vector2)"):]
+        fn = txt[txt.index("func _update(pos: Vector2)"):]
         self.assertIn("if not _active:\n\t\treturn", fn[:400])
 
     def test_value_accessor_never_hands_out_garbage(self):

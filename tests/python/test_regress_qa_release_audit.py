@@ -453,7 +453,7 @@ class CombatLogCapacityFloorTests(unittest.TestCase):
 
     def test_capacity_floor_is_documented_and_enforced(self):
         body = func_body(read("scripts/combat/combat_log.gd"), "_init")
-        self.assertRegex(body, r"maxi\(capacity, 8\)", "capacity floor of 8 expected")
+        self.assertRegex(body, r"maxi\(initial_capacity, 8\)", "capacity floor of 8 expected")
 
     def test_suite_does_not_request_a_capacity_below_the_floor(self):
         txt = read("tests/unit/test_area_combat.gd")

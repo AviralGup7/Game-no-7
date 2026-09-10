@@ -134,7 +134,7 @@ static func suite() -> Array:
 		"passed": one_sided.status_targets_enemies and not one_sided.status_targets_player \
 			and ember.status_targets_enemies and ember.status_targets_player \
 			and not nobody.status_targets_enemies and not nobody.status_targets_player,
-		"why": "one_sided=%s" % [one_sided.status_targets_enemies, one_sided.status_targets_player],
+		"why": "one_sided=%s/%s" % [one_sided.status_targets_enemies, one_sided.status_targets_player],
 	})
 
 	# --- Unknown ids are reported and dropped, never folded as a neutral stand-in ---
