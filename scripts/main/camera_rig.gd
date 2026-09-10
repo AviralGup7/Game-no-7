@@ -291,8 +291,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			var mm := InputEventMouseMotion.new()
 			mm.relative = drag.relative * 0.8
 			_input.handle_mouse_motion(mm)
-	if event.is_action_pressed("camera_reset"):
-		reset_orbit()
+	if event.is_action_pressed("camera_reset") or event.is_action_pressed("lock_on"):
+		if not toggle_lock_on():
+			reset_orbit()
 
 
 # ------------------------------------------------------------------
@@ -300,6 +301,8 @@ func _unhandled_input(event: InputEvent) -> void:
 # ------------------------------------------------------------------
 
 func _process(delta: float) -> void:
+	if not is_inside_tree():
+		return
 	if not _enabled or _target == null:
 		return
 	if not is_instance_valid(_target):
@@ -394,8 +397,11 @@ func _update_look_at() -> void:
 	if _mode.is_locked():
 		var lock_t := _mode.get_lock_target()
 		if lock_t != null:
-			var midpoint := (_focus.focus_point + lock_t.global_position) * 0.5
-			midpoint.y = _focus.focus_point.y # keep height stable
+			var factor := 0.5
+			if _profile != null:
+				factor = clampf(_profile.lock_on_midpoint_factor, 0.0, 1.0)
+			var midpoint := _focus.focus_point.lerp(lock_t.global_position, factor)
+			midpoint.y = _focus.focus_point.y
 			look_target = midpoint
 		else:
 			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
@@ -439,7 +445,34 @@ func _apply_follow_position(next_pos: Vector3, weight: float) -> void:
 	if not CameraMath.is_finite_v3(next):
 		_report_bad_camera_frame()
 		return
+	next = _keep_camera_inside_arena(next)
 	global_position = next
+
+
+func _arena_camera_half() -> float:
+	var tree := get_tree()
+	if tree == null:
+		return -1.0
+	var arena := tree.get_first_node_in_group("arena") as Arena
+	if arena == null:
+		return -1.0
+	return maxf(arena.get_interior_half() - 1.35, 2.0)
+
+
+## Shorten the boom toward the focus so the eye never sits in/through a wall.
+func _keep_camera_inside_arena(pos: Vector3) -> Vector3:
+	var half := _arena_camera_half()
+	if half < 0.0:
+		return pos
+	var focus := _focus.focus_point if _focus != null else pos
+	if not CameraMath.is_finite_v3(focus):
+		focus = pos
+	pos = CameraMath.shorten_arm_to_box(focus, pos, half)
+	if not is_finite(pos.y):
+		pos.y = 3.0
+	else:
+		pos.y = clampf(pos.y, 0.4, 18.0)
+	return pos
 
 
 func _report_bad_camera_frame() -> void:
@@ -449,37 +482,58 @@ func _report_bad_camera_frame() -> void:
 	push_warning("CameraRig: ignored a non-finite camera frame (follow position or look-at target); orientation held.")
 
 
+func toggle_lock_on() -> bool:
+	if _profile == null or not _profile.lock_on_enabled or _target == null:
+		return false
+	if _mode.is_locked():
+		_mode.set_lock_target(null)
+		return true
+	var best := _pick_lock_candidate()
+	if best == null:
+		return false
+	_mode.set_lock_target(best)
+	if RunAnalytics != null:
+		RunAnalytics.note_lock_on()
+	return true
+
+
+func _pick_lock_candidate() -> Node3D:
+	if _target == null or not is_instance_valid(_target):
+		return null
+	var targeting := _target.get_node_or_null("TargetingComponent") as TargetingComponent
+	var tree := get_tree()
+	if tree == null:
+		return null
+	var enemies := tree.get_nodes_in_group("enemies")
+	var best: Node = null
+	if targeting != null:
+		best = targeting.pick_best_target(enemies)
+	elif not enemies.is_empty():
+		best = enemies[0]
+	if best is Node3D and is_instance_valid(best):
+		var dist := (best as Node3D).global_position.distance_to(_target.global_position)
+		if dist <= _profile.lock_on_max_distance:
+			return best as Node3D
+	return null
+
+
 func _update_lock_on_target() -> void:
 	if _profile == null or not _profile.lock_on_enabled:
 		return
 	if _target == null:
 		return
-	# Try to get targeting component from player
-	var targeting := _target.get_node_or_null("TargetingComponent") as TargetingComponent
-	if targeting == null:
-		# Also check WeaponManager or player directly for best target
-		if _mode.is_locked() and _mode.get_lock_target() != null:
-			# Validate distance
-			var lt := _mode.get_lock_target()
-			if lt is Node3D and (lt as Node3D).global_position.distance_to(_target.global_position) > _profile.lock_on_max_distance:
-				_mode.set_lock_target(null)
+	if not _mode.is_locked():
 		return
-
-	# If the targeting component is present, use it to find the best lock target.
-	var tree := get_tree()
-	if tree == null:
+	var lt := _mode.get_lock_target()
+	if lt == null or not is_instance_valid(lt):
+		_mode.set_lock_target(null)
 		return
-	var enemies := tree.get_nodes_in_group("enemies")
-	var best := targeting.pick_best_target(enemies)
-	if best is Node3D and best != null and is_instance_valid(best):
-		var dist := (best as Node3D).global_position.distance_to(_target.global_position)
-		if dist < _profile.lock_on_max_distance:
-			# Only re-target while already locked (or when the player is aiming);
-			# otherwise let manual orbit stay authoritative.
-			if _mode.is_locked():
-				_mode.set_lock_target(best as Node3D)
-		elif _mode.is_locked():
-			_mode.set_lock_target(null)
+	if lt.global_position.distance_to(_target.global_position) > _profile.lock_on_max_distance:
+		var next := _pick_lock_candidate()
+		_mode.set_lock_target(next)
+		return
+	if lt is Damageable and not (lt as Damageable).is_alive():
+		_mode.set_lock_target(_pick_lock_candidate())
 
 
 func _get_target_facing_yaw() -> float:
@@ -558,16 +612,44 @@ func _on_kill_shake(_enemy: Node, _archetype: StringName, _score: int, _currency
 func _on_wave_shake(_wave: int, _bonus: int) -> void:
 	add_shake(0.35, 0.4)
 	_mode.set_mode(CameraModeController.Mode.COMBAT, 0.8)
+	_swap_profile(&"combat")
 
 func _on_boss_shake(_boss: Node, _id: StringName) -> void:
 	add_shake(0.6, 0.5)
 	_mode.set_mode(CameraModeController.Mode.BOSS, 1.0)
+	_swap_profile(&"boss")
 
 func _on_boss_slain_shake(_boss_id: StringName) -> void:
 	add_shake(0.8, 0.6)
 	_mode.set_mode(CameraModeController.Mode.EXPLORE, 0.6)
+	_swap_profile(&"default")
+
+
+func _swap_profile(id: StringName) -> void:
+	if ContentRegistry == null:
+		return
+	var prof: CameraProfile = ContentRegistry.get_camera_profile(id)
+	if prof != null:
+		set_camera_profile(prof)
 
 func _on_player_death_shake() -> void:
 	add_shake(0.9, 0.7)
+
+
+func _exit_tree() -> void:
+	if EventBus == null:
+		return
+	if EventBus.skill_cast.is_connected(_on_skill_shake):
+		EventBus.skill_cast.disconnect(_on_skill_shake)
+	if EventBus.enemy_killed.is_connected(_on_kill_shake):
+		EventBus.enemy_killed.disconnect(_on_kill_shake)
+	if EventBus.wave_completed.is_connected(_on_wave_shake):
+		EventBus.wave_completed.disconnect(_on_wave_shake)
+	if EventBus.boss_spawned.is_connected(_on_boss_shake):
+		EventBus.boss_spawned.disconnect(_on_boss_shake)
+	if EventBus.boss_slain.is_connected(_on_boss_slain_shake):
+		EventBus.boss_slain.disconnect(_on_boss_slain_shake)
+	if EventBus.player_died.is_connected(_on_player_death_shake):
+		EventBus.player_died.disconnect(_on_player_death_shake)
 
 

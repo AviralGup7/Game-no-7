@@ -617,11 +617,16 @@ class DocsTellTheTruthTests(unittest.TestCase):
         for needle in ("footprint_half", "ArenaObstaclePlacement", "fallback_layout",
                        "Array[AABB]", "ArenaThemeConfig", "ArenaLandmarkConfig"):
             self.assertIn(needle, txt, f"docs/ARCHITECTURE.md does not explain {needle}")
-        # The doc's own claim about the code, checked rather than trusted.
-        m = re.search(r"arena\.gd` shrank from 533 lines to (\d+)", txt)
-        self.assertIsNotNone(m, "the section should record how much of arena.gd this removed")
+        # Two claims, two rules. What the rebuild *removed* is history and stays frozen at the
+        # number the pass reported; the file's *current* size is a live number and is re-derived.
+        self.assertIn("shrank from 533 lines to 354", txt,
+                      "the section no longer records what the rebuild deleted")
+        m = re.search(r"arena\.gd`? is (\d+) lines now", txt)
+        self.assertIsNotNone(m, "the section should also record how long arena.gd is today")
         self.assertEqual(int(m.group(1)), len(read(ARENA_GD).splitlines()),
-                         "docs/ARCHITECTURE.md now overstates what the rebuild deleted")
+                         "docs/ARCHITECTURE.md's current arena.gd size drifted from the file")
+        self.assertIn("get_nav_blockers", txt,
+                      "the decoration-prop nav footprints are undocumented")
 
     def test_handoff_stops_telling_modders_to_grep_a_table(self):
         txt = read("GODOT_HANDOFF.md")

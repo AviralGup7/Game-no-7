@@ -284,6 +284,16 @@ static func suite() -> Array:
 			and Narrator.victory_line(GameMode.MODE_STANDARD) == "Victory. The stand holds.",
 		"why": Narrator.victory_line(GameMode.MODE_SURVIVAL),
 	})
+	results.append({
+		# The first-of-kind pass authored its copy onto the enemy, so the case survives here — but the
+		# line now comes out of `data/enemies/<id>_enemy.tres`, which is why an empty blurb is allowed to
+		# mean "this archetype is never announced" instead of being a fall-through.
+		"name": "Narrator enemy blurbs cover the headline archetypes",
+		"passed": not Narrator.enemy_blurb(&"warlord").is_empty()
+			and not Narrator.enemy_blurb(&"exploder").is_empty()
+			and not Narrator.enemy_blurb(&"dasher").is_empty(),
+		"why": Narrator.enemy_blurb(&"warlord"),
+	})
 
 	# --- Prestige ladder ---
 	results.append({

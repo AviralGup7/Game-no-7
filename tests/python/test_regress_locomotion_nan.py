@@ -86,7 +86,7 @@ class CharacterControllerTests(unittest.TestCase):
         self.assertIn("func _apply_velocity(vel: Vector3) -> void:", txt)
         # Nobody writes velocity + move_and_slide outside the choke point.
         self.assertEqual(txt.count("_owner_body.move_and_slide()"), 1)
-        self.assertEqual(txt.count("_owner_body.velocity = "), 3)  # entry, repair, stop()
+        self.assertEqual(txt.count("_owner_body.velocity = "), 4)  # entry, slide-jump rollback, repair, stop()
         self.assertIn("_apply_velocity(vel)", txt)
         self.assertIn("_apply_velocity(_clean_velocity(_owner_body.velocity))", txt)
 

@@ -59,7 +59,7 @@ func set_lock_target(target: Node3D) -> void:
 		set_mode(Mode.COMBAT if _is_combat() else Mode.EXPLORE, _profile.mode_blend_duration_explore if _profile != null else 0.5)
 
 func _is_combat() -> bool:
-	return true
+	return current_mode == Mode.COMBAT or current_mode == Mode.BOSS
 
 func tick(delta: float) -> void:
 	if _blend_timer < _blend_duration:

@@ -163,6 +163,14 @@ def main() -> int:
 
     print("-- run definitions: modes, the prestige ladder, and the arena's own voice --")
     meta_checks = [
+	("scripts/meta/narrator.gd", "static func note_enemy_spawned(archetype_id: StringName) -> void"),
+	("scripts/meta/narrator.gd", "static var _seen_archetypes: Dictionary[StringName, bool] = {}"),
+	("scripts/meta/narrator.gd", 'return cfg.blurb if cfg != null else ""'),
+	("scripts/enemies/enemy_config.gd", '@export var blurb: String = ""'),
+	("scripts/core/run_analytics.gd", "Narrator.note_enemy_spawned(archetype_id)"),
+	("scripts/waves/wave_manager.gd", "max_simultaneous_enemies()"),
+	("scripts/arena/arena.gd", "for foot in _decoration_blockers"),
+	("scripts/arena/arena.gd", "func register_decoration_blockers"),
     	('scripts/meta/game_mode.gd', 'static func resolve(mode_id: StringName) -> GameModeConfig'),
     	('scripts/meta/game_mode.gd', 'static func definition(mode_id: StringName) -> GameModeConfig'),
     	('scripts/meta/game_mode.gd', 'push_error("GameMode: unknown mode id'),
@@ -202,6 +210,7 @@ def main() -> int:
     # And the shapes that made the mode layer untrustworthy are refused here too: a Dictionary
     # catalogue, an id-keyed fallback, a per-mode queue builder, a table the loader cannot see.
     meta_absences = [
+	("scripts/meta/narrator.gd", "const ENEMY_BLURBS"),
     	('scripts/meta/game_mode.gd', 'const CATALOG'),
     	('scripts/meta/game_mode.gd', 'static func def('),
     	('scripts/meta/game_mode.gd', 'CHALLENGE_MUTATOR_POOL'),

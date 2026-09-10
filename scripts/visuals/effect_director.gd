@@ -17,6 +17,8 @@ extends Node
 
 const MAX_BURSTS := 10
 const MAX_RINGS := 14
+const MAX_LIVE_TELEGRAPH := 6
+const BOSS_RING_RESERVE := 2
 const MAX_MUZZLE := 4
 const RING_TEXTURE := "res://assets/effects/kenney/circle_05.png"
 const BURST_TEXTURE := "res://assets/effects/kenney/spark_01.png"
@@ -99,14 +101,38 @@ var _ring_pool: Array[Node3D] = []
 var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
+var _bus := EventBindings.new()
+var _live_telegraphs := 0
 
 
 func _ready() -> void:
+	add_to_group("effect_director")
 	_wire_events()
+
+
+func _exit_tree() -> void:
+	if EventBus != null:
+		EventBus.unbind(EventBus.enemy_spawned, _on_enemy_spawned)
+		EventBus.unbind(EventBus.enemy_killed, _on_enemy_killed)
+		EventBus.unbind(EventBus.enemy_damaged, _on_enemy_damaged)
+		EventBus.unbind(EventBus.wave_started, _on_wave_started)
+		EventBus.unbind(EventBus.wave_completed, _on_wave_completed)
+		EventBus.unbind(EventBus.pickup_collected, _on_pickup_collected)
+		EventBus.unbind(EventBus.pickup_spawned, _on_pickup_spawned)
+		EventBus.unbind(EventBus.status_applied, _on_status_applied)
+		EventBus.unbind(EventBus.boss_spawned, _on_boss_spawned)
+		EventBus.unbind(EventBus.boss_slain, _on_boss_slain)
+		EventBus.unbind(EventBus.projectile_fired, _on_projectile_fired)
+		EventBus.unbind(EventBus.skill_cast, _on_skill_cast)
+		EventBus.unbind(EventBus.player_leveled_up, _on_player_leveled_up)
+		EventBus.unbind(EventBus.weapon_equipped, _on_weapon_equipped)
+	_wired = false
 
 
 ## Death / impact explosion at a world position (pooled, no autoload dependency).
 func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	if _reduced_motion() and priority < PRIORITY_SKILL:
+		return
 	var p := _claim_burst(priority)
 	if p == null:
 		return
@@ -114,29 +140,101 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRI
 	var mat := p.process_material as ParticleProcessMaterial
 	if mat != null:
 		mat.color = color
+	p.amount = 22
 	p.scale = Vector3.ONE * scale
 	p.restart()
 	_burst_prios[p] = priority
 	# Gate noisy diagnostics: only high-value telegraphs (SKILL/BOSS/CRITICAL/SPAWN/PICKUP) log; per-hit HITS are silent.
-	if priority >= PRIORITY_PICKUP:
+	if priority >= PRIORITY_BOSS:
 		EventBus.report_info("EffectDirector burst at %s" % str(at))
 
 
 ## Expanding telegraph/collect ring (flat translucent disc on the ground plane).
+## Grunt/heavy windup rings share a small budget so 20 simultaneous swings
+## cannot drown the pool (boss/skill rings still steal).
+func try_telegraph(for_boss: bool = false) -> bool:
+	_prune_telegraph_count()
+	if for_boss:
+		return _can_claim_ring(PRIORITY_BOSS)
+	if _live_telegraphs >= MAX_LIVE_TELEGRAPH:
+		return false
+	var bosses_alive := 0
+	if is_inside_tree() and get_tree() != null:
+		for n in get_tree().get_nodes_in_group("enemies"):
+			if n != null and n.get_node_or_null("BossController") != null:
+				if n is Damageable and (n as Damageable).is_alive():
+					bosses_alive += 1
+	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
+	var free := 0
+	for r in _ring_pool:
+		if not r.visible:
+			free += 1
+	free += maxi(0, MAX_RINGS - _ring_pool.size())
+	if free <= reserve:
+		return false
+	return _can_claim_ring(PRIORITY_SPAWN)
+
+
+func _prune_telegraph_count() -> void:
+	var live := 0
+	for r in _ring_pool:
+		if not r.visible:
+			continue
+		var pr: int = int(_ring_prios.get(r, 0))
+		# Occupancy is every combat ring, not only spawn-priority, so grunt
+		# windups cannot pretend the pool is empty while it is full of hits.
+		if pr >= PRIORITY_STATUS:
+			live += 1
+	_live_telegraphs = live
+
+
+func _can_claim_ring(priority: int) -> bool:
+	for r in _ring_pool:
+		if not r.visible:
+			return true
+	if _ring_pool.size() < MAX_RINGS:
+		return true
+	for r in _ring_pool:
+		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
+		if not r.visible:
+			continue
+		if priority < PRIORITY_BOSS and pr >= PRIORITY_BOSS:
+			continue
+		if priority > pr:
+			return true
+	return false
+
+
 func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRIORITY_HIT) -> void:
 	var ring := _claim_ring(priority)
 	if ring == null:
 		return
-	ring.global_position = at + Vector3(0.02, 0, 0.02)
+	var grounded := at
+	var floor := _floor_hit(at)
+	grounded.y = float(floor.get("y", at.y))
+	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
+	var nrm: Vector3 = floor.get("normal", Vector3.UP)
+	if nrm.length_squared() > 0.01:
+		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 	if mi != null:
 		var mat := mi.material_override as StandardMaterial3D
 		if mat != null:
-			mat.albedo_color = Color(color, 0.45)
+			if ResourceLoader.exists(RING_TEXTURE):
+				mat.albedo_texture = load(RING_TEXTURE)
+			var ink := _telegraph_color(color, priority)
+			var alpha := 0.95 if _high_contrast() else (0.85 if priority >= PRIORITY_BOSS else 0.45)
+			mat.albedo_color = Color(ink, alpha)
+			mat.emission_enabled = true
+			mat.emission = ink
+			mat.emission_energy_multiplier = (2.0 if _high_contrast() else 1.4) if priority >= PRIORITY_BOSS else (0.7 if _high_contrast() else 0.35)
+	var hold := 1.15 if priority >= PRIORITY_BOSS else 0.6
+	if _reduced_motion():
+		hold = 0.7 if priority >= PRIORITY_BOSS else 0.35
 	ring.scale = Vector3(radius, radius, radius)
-	_show_ring(ring, 0.6)
+	_show_ring(ring, hold)
 	_ring_prios[ring] = priority
-	if priority >= PRIORITY_PICKUP:
+	if priority >= PRIORITY_BOSS:
 		EventBus.report_info("EffectDirector ring at %s" % str(at))
 
 
@@ -163,26 +261,6 @@ func _wire_events() -> void:
 	EventBus.bind(self, EventBus.weapon_equipped, _on_weapon_equipped)
 
 
-func _exit_tree() -> void:
-	if EventBus == null:
-		return
-	EventBus.unbind(EventBus.enemy_spawned, _on_enemy_spawned)
-	EventBus.unbind(EventBus.enemy_killed, _on_enemy_killed)
-	EventBus.unbind(EventBus.enemy_damaged, _on_enemy_damaged)
-	EventBus.unbind(EventBus.wave_started, _on_wave_started)
-	EventBus.unbind(EventBus.wave_completed, _on_wave_completed)
-	EventBus.unbind(EventBus.pickup_collected, _on_pickup_collected)
-	EventBus.unbind(EventBus.pickup_spawned, _on_pickup_spawned)
-	EventBus.unbind(EventBus.status_applied, _on_status_applied)
-	EventBus.unbind(EventBus.boss_spawned, _on_boss_spawned)
-	EventBus.unbind(EventBus.boss_slain, _on_boss_slain)
-	EventBus.unbind(EventBus.projectile_fired, _on_projectile_fired)
-	EventBus.unbind(EventBus.skill_cast, _on_skill_cast)
-	EventBus.unbind(EventBus.player_leveled_up, _on_player_leveled_up)
-	EventBus.unbind(EventBus.weapon_equipped, _on_weapon_equipped)
-	_wired = false
-
-
 func _on_enemy_spawned(enemy: Node, _archetype: StringName) -> void:
 	if is_instance_valid(enemy) and enemy is Node3D:
 		ring_at((enemy as Node3D).global_position, Color(0.9, 0.55, 0.3), 1.25, PRIORITY_SPAWN)
@@ -207,22 +285,63 @@ func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
 		burst_at(at, Color(0.9, 0.72, 0.55), 0.42, PRIORITY_ENEMY_HIT)
 
 
+func _arena_origin() -> Vector3:
+	var players := get_tree().get_nodes_in_group(&"player") if get_tree() != null else []
+	if players.size() > 0 and players[0] is Node3D:
+		var p := (players[0] as Node3D).global_position
+		p.y = 0.0
+		return p
+	return Vector3.ZERO
+
+
+func _floor_y(at: Vector3) -> float:
+	return float(_floor_hit(at).get("y", at.y))
+
+
+func _world_3d() -> World3D:
+	if not is_inside_tree():
+		return null
+	var host := get_parent() as Node3D
+	if host != null:
+		return host.get_world_3d()
+	var vp := get_viewport()
+	return vp.world_3d if vp != null else null
+
+
+func _floor_hit(at: Vector3) -> Dictionary:
+	var world := _world_3d()
+	if world == null or world.direct_space_state == null:
+		return {"y": at.y, "normal": Vector3.UP}
+	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 2.0, at + Vector3.DOWN * 4.0)
+	q.collide_with_areas = false
+	var hit: Dictionary = world.direct_space_state.intersect_ray(q)
+	if hit.is_empty():
+		return {"y": at.y, "normal": Vector3.UP}
+	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
+
+
 func _on_wave_started(wave_number: int, _planned: int) -> void:
-	ring_at(Vector3.ZERO, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
-	burst_at(Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
+	var origin := _arena_origin()
+	ring_at(origin, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
+	burst_at(origin + Vector3(0, 0.2, 0), Color(1.0, 0.65, 0.3), 1.2, PRIORITY_SPAWN)
 
 
 func _on_wave_completed(_wave_number: int, _bonus: int) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.88, 0.38), 8.0, PRIORITY_SPAWN)
-	burst_at(Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45, PRIORITY_SPAWN)
+	var origin := _arena_origin()
+	ring_at(origin, Color(1.0, 0.88, 0.38), 8.0, PRIORITY_SPAWN)
+	burst_at(origin + Vector3(0, 0.4, 0), Color(1.0, 0.92, 0.5), 1.45, PRIORITY_SPAWN)
 
 
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(boss) and boss is Node3D:
 		at = (boss as Node3D).global_position
-	ring_at(at, Color(0.95, 0.18, 0.12), 5.2, PRIORITY_BOSS)
-	burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.32, 0.18), 2.0, PRIORITY_BOSS)
+	# Inner danger disc + outer contrast ring so the telegraph reads on sand arenas
+	# and under high-contrast / reduced-motion settings.
+	ring_at(at, Color(1.0, 0.95, 0.15), 6.4, PRIORITY_BOSS)
+	ring_at(at, Color(0.95, 0.08, 0.08), 4.4, PRIORITY_BOSS)
+	if not _reduced_motion():
+		burst_at(at + Vector3(0, 0.6, 0), Color(1.0, 0.32, 0.18), 2.0, PRIORITY_BOSS)
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
@@ -241,15 +360,16 @@ func _on_pickup_collected(pickup_id: StringName, _amount: int, collector: Node) 
 func _on_pickup_spawned(pickup: Node, _pickup_id: StringName) -> void:
 	if not is_instance_valid(pickup) or not pickup is Node3D:
 		return
-	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 1.15, PRIORITY_PICKUP)
+	ring_at((pickup as Node3D).global_position, Color(0.45, 0.85, 1.0), 0.7, PRIORITY_PICKUP)
 
 
 func _on_status_applied(target: Node, effect_id: StringName, _stacks: int) -> void:
 	if not is_instance_valid(target) or not target is Node3D:
 		return
 	var color: Color = STATUS_COLORS.get(effect_id, Color(0.7, 0.7, 0.7))
-	var at := (target as Node3D).global_position + Vector3(0, 1.6, 0)
+	var at := (target as Node3D).global_position
 	ring_at(at, color, 0.85, PRIORITY_STATUS)
+	at += Vector3(0, 1.6, 0)
 	if effect_id == &"burn" or effect_id == &"shock" or effect_id == &"poison" or effect_id == &"bleed":
 		burst_at(at, color, 0.5, PRIORITY_STATUS)
 
@@ -303,6 +423,8 @@ func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 					bmat.spread = 75.0; burst.amount = 24
 				_:
 					bmat.spread = 68.0; burst.amount = 22
+		else:
+			burst.amount = 22
 		if burst.draw_pass_1 is QuadMesh and ResourceLoader.exists(burst_tex):
 			var quad := burst.draw_pass_1 as QuadMesh
 			var qmat := quad.material as StandardMaterial3D
@@ -383,6 +505,7 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 	# owned pool below so world teardown frees its rendering resources.
 	for b in _bursts:
 		if not b.emitting:
+			b.amount = 22
 			return b
 	# Grow the pool up to the mobile cap.
 	if _bursts.size() < MAX_BURSTS:
@@ -420,15 +543,21 @@ func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
 			_ring_prios[r] = priority
 			return r
 	# Saturated: steal the lowest-priority visible ring if new request is higher.
+	# Never evict a live BOSS ring for a grunt/spawn tell.
 	var lowest: Node3D = null
 	var lowest_prio := 9999
 	for r in _ring_pool:
 		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
-		if pr < lowest_prio and r.visible:
+		if not r.visible:
+			continue
+		if priority < PRIORITY_BOSS and pr >= PRIORITY_BOSS:
+			continue
+		if pr < lowest_prio:
 			lowest_prio = pr
 			lowest = r
 	if lowest != null and priority > lowest_prio:
-		lowest.visible = false # caller will make visible again
+		lowest.visible = false
+		_prune_telegraph_count()
 		return lowest
 	return null
 
@@ -507,3 +636,21 @@ func _show_ring(ring: Node3D, duration: float) -> void:
 
 func _has_particle_texture(path: String) -> bool:
 	return ResourceLoader.exists(path)
+
+
+func _reduced_motion() -> bool:
+	return SaveManager != null and SaveManager.get_settings() != null and SaveManager.get_settings().reduced_motion
+
+
+func _high_contrast() -> bool:
+	return SaveManager != null and SaveManager.get_settings() != null and SaveManager.get_settings().high_contrast
+
+
+## Deuteranopia-safe boss/danger ink: yellow outer + red inner, not green-on-sand.
+func _telegraph_color(color: Color, priority: int) -> Color:
+	if _high_contrast() or priority >= PRIORITY_BOSS:
+		if color.g > color.r and color.g > color.b:
+			return Color(1.0, 0.92, 0.12)
+		if color.r > 0.6:
+			return Color(1.0, 0.12, 0.08)
+	return color

@@ -568,9 +568,11 @@ class NoCodeTableTests(Bans, unittest.TestCase):
         self.assertEqual(hits, [], "a system branches on a mode id instead of on authored data\n"
                          + "\n".join(hits[:8]))
 
-    def test_the_announcer_knows_no_arenas_modes_or_archetypes(self):
+    def test_the_announcer_holds_no_tables_of_its_own(self):
         # `announce_wave` used to `if mode_id == GameMode.MODE_CAMPAIGN` and `ARENA_LORE.get(id,
-        # ARENA_LORE[&"default_arena"])`; both are refused here so the file stays a reader.
+        # ARENA_LORE[&"default_arena"])`; both are refused here so the file stays a reader. It is
+        # *handed* arena, mode and archetype ids and reads them off the configs — that is the whole
+        # difference from a table, and an id literal anywhere in this file undoes it.
         body = code(NARRATOR_GD)
         self.assertNotIn("default_arena", body, "the announcer is falling back to one arena's voice again")
         self.assertNotIn("GameMode.MODE_", body, "the announcer special-cases a mode again")
@@ -578,6 +580,11 @@ class NoCodeTableTests(Bans, unittest.TestCase):
         self.assertLessEqual(body.count("push_error"), 1, "the announcer became a policy layer")
         self.assertIn("GameMode.beat_for_wave(mode_id, wave_number)", body,
                       "beats are no longer asked of the mode that authors them")
+        # The announcement's own kind/severity names are this file's vocabulary; an *id* it invents is
+        # not. Everything else in `EventBus.announcement`'s signature is a StringName written here.
+        wire = {"narrator", "campaign_beat", "victory", "info", "warning"}
+        named = sorted({m.group(1) for m in re.finditer(r'&"([a-z_0-9]+)"', body)} - wire)
+        self.assertEqual(named, [], f"the announcer names content it should be handed: {named}")
 
     def test_the_spawn_queue_is_one_rule_set_not_five_builders(self):
         body = code(MODE_GD).split("static func spawn_queue")[1].split("static func")[0]
@@ -823,6 +830,57 @@ class DocCountTests(Bans, unittest.TestCase):
         self.assertIn("Coverage — 139/139 GDScripts hardened", doc)
         self.assertIn("The coverage count above is the sweep's own, frozen", doc)
 
+class FirstOfKindTests(Bans, unittest.TestCase):
+    """The one feature the other pass added to `Narrator`, kept and put on the data model.
+
+    `run_analytics.gd` calls `Narrator.note_enemy_spawned()` for every spawn, and the announcement it
+    makes is the archetype's `ENEMY_BLURBS` line — the table this pass deleted as unread. Refusing to
+    take the feature would have broken that caller; keeping the table would have kept the shape this
+    pass exists to remove. So the four functions are theirs and the copy is the enemy's: `data/enemies/
+    <id>_enemy.tres` authors `blurb`, and an archetype that authors none (basic, fast, heavy) is never
+    announced, which the old five-of-eight table expressed as a missing key.
+    """
+
+    SHIPPED_BLURBS = {
+        "warlord": "Arena Warlord \u2014 thrice-crowned killer of the Pit.",
+        "exploder": "Powder-gut \u2014 dies loud. Keep your distance.",
+        "splitter": "Sporekin \u2014 cut once, fight twice.",
+        "dasher": "Blink-blade \u2014 telegraphs, then commits.",
+        "ranged": "Gallery bow \u2014 soft, but never alone.",
+    }
+    ENEMY_DIR = "data/enemies"
+
+    def test_the_feature_survives_on_the_announcer(self) -> None:
+        body = code(NARRATOR_GD)
+        self.assertIn("static var _seen_archetypes: Dictionary[StringName, bool] = {}", body)
+        self.assertIn("static func reset_run() -> void:", body)
+        self.assertIn("_seen_archetypes.clear()", body)
+        self.assertIn("static func note_enemy_spawned(archetype_id: StringName) -> void:", body)
+        self.assertIn("func announce_first_of_kind(archetype_id: StringName) -> void:", body)
+        # one line per archetype per run, and an empty blurb is silence rather than an empty banner
+        self.assertIn("if _seen_archetypes.has(archetype_id):", body)
+        self.assertIn("if line.is_empty():", body)
+
+    def test_the_copy_is_the_enemy_s(self) -> None:
+        body = code(NARRATOR_GD)
+        self.assertIn("return cfg.blurb if cfg != null else \"\"", body)
+        self.assertIn('var registered: EnemyConfig = ContentRegistry.get_enemy(archetype_id)', body)
+        self.assertIn('ResourceLoader.exists(path)', body,
+                      "the blurb must resolve without a registry, like every other reader here")
+        self.assertAbsent(NARRATOR_GD, ("const ENEMY_BLURBS", "match archetype_id", "&\"warlord\""),
+                          "the announcer is a table of enemy copy again")
+        self.assertIn('@export var blurb: String = ""', read("scripts/enemies/enemy_config.gd"))
+
+    def test_the_shipped_blurbs_are_the_strings_the_other_pass_wrote(self) -> None:
+        authored = {}
+        for path in sorted((ROOT / self.ENEMY_DIR).glob("*.tres")):
+            raw = fields_of(path).get("blurb")
+            if raw is None:
+                continue
+            authored[path.stem.replace("_enemy", "")] = string_value(raw).replace("\\u2014", "\u2014")
+        self.assertEqual(authored, self.SHIPPED_BLURBS,
+                          "the first-of-kind copy moved: say so here as well as in the data")
+
 class ConsumerTests(Bans, unittest.TestCase):
     """The public API survived, and the consumers read fields instead of keys."""
 
@@ -951,8 +1009,13 @@ class DeadFieldTests(unittest.TestCase):
             for gone in ("static func boss_interval", "static func narrator_id",
                          "static func unlock_prestige"):
                 self.assertNotIn(gone, body, f"{gone} came back in {rel}")
-        self.assertNotIn("static func enemy_blurb", code(NARRATOR_GD),
-                         "the archetype blurbs nobody read are back")
+        # `enemy_blurb` was dead code while nothing read it. The first-of-kind pass that landed on
+        # main is a caller (`run_analytics` → `note_enemy_spawned`), so the reader stays — but it reads
+        # the enemy's authored field, and what must stay dead is the table it used to be.
+        self.assertIn("static func enemy_blurb", code(NARRATOR_GD),
+                      "the first-of-kind announcer lost its reader")
+        self.assertNotIn("const ENEMY_BLURBS", code(NARRATOR_GD),
+                         "the archetype copy is a Narrator table again")
 
     def test_the_dead_accessor_pattern_has_a_test_everywhere_it_was_found(self):
         # Every field on every new config is mirrored either by a SHIPPED value above or by an

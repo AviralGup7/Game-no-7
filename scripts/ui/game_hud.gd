@@ -186,7 +186,9 @@ func seed_from_run() -> void:
 	if _experience != null:
 		_experience.xp_changed.connect(_on_xp)
 		_on_xp(_experience.get_xp(), _experience.get_level(), _experience.get_xp(), ExperienceComponent.xp_for_level(_experience.get_level()))
-	set_weapon(player.get_weapon_manager().active_weapon_id())
+	var weapons := player.get_weapon_manager()
+	if weapons != null:
+		set_weapon(weapons.active_weapon_id())
 
 
 ## ---- Forwards to the UiGauges dock -----------------------------------------
@@ -229,6 +231,7 @@ func set_combo(combo: int) -> void:
 
 
 func _wave_progress(wave: int, defeated: int, total: int) -> void:
+	_wave_cached = wave
 	_wave_label.text = "W%d • %d/%d" % [wave, defeated, total] if _compact else "WAVE %d  /  %d of %d" % [wave, defeated, total]
 
 
@@ -250,6 +253,12 @@ func _process(delta: float) -> void:
 
 
 ## Position every HUD element from the shared layout solution (safe-area local).
+func vitals_screen_rect() -> Rect2:
+	if _gauges_scrim == null:
+		return Rect2()
+	return _gauges_scrim.get_global_rect()
+
+
 func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	if _top == null: return
 	_compact = bool(plan.get("compact", false)) or SaveManager.get_settings().text_scale > 1.3

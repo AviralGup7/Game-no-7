@@ -16,7 +16,9 @@ class ArenaGuards(unittest.TestCase):
         self.assertIn("_reduced_motion", txt)
         self.assertIn("SaveManager.get_settings().reduced_motion", txt)
     def test_minimap_throttled(self):
+        # v2: group re-queries are throttled to 15 Hz; per-frame work is the
+        # cheap track easing + gated redraw (see test_regress_minimap_radar).
         txt=read("scripts/ui/minimap.gd")
-        self.assertIn("UPDATE_INTERVAL", txt)
-        self.assertIn("15", txt)  # 15 Hz
+        self.assertIn("DISCOVERY_INTERVAL := 1.0 / 15.0", txt)
+        self.assertIn("_discovery_acc", txt)
 if __name__=="__main__": unittest.main()

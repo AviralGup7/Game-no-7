@@ -34,8 +34,12 @@ func set_sfx_volume(value: float) -> void:
 	sfx_volume = _clamp01(value)
 
 
+## Accepted quality presets: the four governor tiers (see PerformanceMonitor).
+const QUALITY_PRESETS := [&"low", &"medium", &"high", &"ultra"]
+
+
 func set_graphics_quality(value: StringName) -> void:
-	if value == &"low" or value == &"medium" or value == &"high":
+	if value in QUALITY_PRESETS:
 		graphics_quality = value
 	# Invalid values are ignored; the previous safe value is kept.
 

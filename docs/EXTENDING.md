@@ -19,7 +19,12 @@ continue with the degraded-but-usable tables. This file shows each common extens
    contract is enforced by `tests/python/test_regress_enemy_scene_inheritance.py` and
    `tests/unit/test_enemy_scene_inheritance.gd`.
 2. Create `res://data/enemies/<name>_enemy.tres` with `class EnemyConfig`:
-   `archetype_id`, `display_name`, `scene`, stats, `color_tint`, `tags`, `unlock_wave`.
+   `archetype_id`, `display_name`, `blurb`, `scene`, stats, `color_tint`, `tags`, `unlock_wave`.
+   `blurb` is the line the announcer reads the first time that archetype appears in a run
+   (`Narrator.note_enemy_spawned` → one `EventBus.announcement`, never repeated until
+   `Narrator.reset_run()`); leave it empty for a grunt that needs no introduction. An empty blurb is
+   "this one is never announced", not a fall-through to a default line — `Narrator` holds no enemy
+   copy of its own, so there is nothing to fall back to.
 3. Restart/refresh — the registry validates it (missing scene, bad values, duplicates)
    and exposes `ContentRegistry.get_enemy(&"<name>")`.
 4. Add it to wave data so it can appear, plus a `WaveSpawnEntry`.
@@ -137,6 +142,14 @@ step 7).
    exactly one `match String(arena_id)` in the file and fails if a second one appears anywhere
    in `scripts/arena/`.
 8. Unlock it via `SaveManager.unlock_arena("<name>")` (or ship pre-unlocked).
+
+**Scattered decoration is physical.** Anything `ArenaDecorator` scatters as a floor prop gets a
+`StaticBody3D` on `CollisionLayers.WORLD_BODY_LAYER` and publishes its axis-aligned footprint (an
+`AABB`, rotated into world bounds first) through `ArenaDecorator.get_nav_blockers()` into
+`Arena.register_decoration_blockers()`, so the nav grid the AI routes on and the physics the player
+bumps into are derived from the same numbers. A prop added to the scatter lists is therefore solid
+and pathable-around with no extra work; a prop whose box has no area is dropped at registration
+rather than blocking a row of the grid.
 
 ## 4. Add a new weapon
 

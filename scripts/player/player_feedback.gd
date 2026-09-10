@@ -20,6 +20,8 @@ var _last_impact_frame := -1
 
 func _ready() -> void:
 	_player = get_parent() as Player
+	if _player == null:
+		return
 	_visual = _player.get_node_or_null("VisualRoot") as Node3D
 	# Direct node lookup, NOT _player.get_health_component(): children _ready()
 	# before their parent, so the Player has not resolved its component refs yet.
@@ -82,9 +84,16 @@ func play_attack_feedback(shake_amp: float = 0.15, duration: float = 0.12) -> vo
 
 
 func play_impact_feedback(critical: bool = false) -> void:
-	if _reduced_motion() or _last_impact_frame == Engine.get_physics_frames():
+	if _last_impact_frame == Engine.get_physics_frames():
 		return
 	_last_impact_frame = Engine.get_physics_frames()
+	_request_vibration(40 if critical else 18, 140 if critical else 70)
+	if AudioManager != null:
+		AudioManager.duck_music(0.18 if critical else 0.1, 6.0 if critical else 3.5)
+	if _reduced_motion():
+		return
+	if get_tree() == null:
+		return
 	var juice := get_tree().get_first_node_in_group("hitstop_manager") as HitstopManager
 	if juice != null:
 		juice.request_hitstop(0.035 if critical else 0.018)
@@ -94,6 +103,9 @@ func play_impact_feedback(critical: bool = false) -> void:
 
 
 func play_dodge_feedback() -> void:
+	_request_vibration(12, 50)
+	if AudioManager != null:
+		AudioManager.duck_music(0.08, 2.5)
 	_request_camera_shake(0.08, 0.1)
 
 
@@ -105,6 +117,8 @@ func set_visual_flash_enabled(enabled: bool) -> void:
 
 func _request_camera_shake(amplitude: float, duration: float) -> void:
 	if _reduced_motion():
+		return
+	if get_tree() == null:
 		return
 	var cam := get_tree().get_first_node_in_group(String(CAMERA_RIG_GROUP)) as CameraRig
 	if cam != null:

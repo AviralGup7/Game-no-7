@@ -42,11 +42,11 @@ func _ready() -> void:
 	_mount_model()
 	if _host == null:
 		return
-	if _host.has_signal("state_changed"):
+	if _host.has_signal("state_changed") and not _host.state_changed.is_connected(_on_state_changed):
 		_host.state_changed.connect(_on_state_changed)
-	if _host.has_signal("attack_started"):
+	if _host.has_signal("attack_started") and not _host.attack_started.is_connected(_on_attack_started):
 		_host.attack_started.connect(_on_attack_started)
-	if _host.has_signal("died"):
+	if _host.has_signal("died") and not _host.died.is_connected(_on_died):
 		_host.died.connect(_on_died)
 	if EventBus != null and not EventBus.status_applied.is_connected(_on_status_applied):
 		EventBus.status_applied.connect(_on_status_applied)
@@ -99,31 +99,44 @@ func _process(_delta: float) -> void:
 		return
 	# Pace the run cycle with actual movement speed so slow brutes plod and fast
 	# skirmishers scamper.
-	if _current_state in [&"chase", &"dash"] and _clips.has(KEY_RUN):
+	if _player.current_animation == _clip(KEY_ATTACK) or _player.current_animation == _clip(KEY_HURT) or _player.current_animation == _clip(KEY_DEATH):
+		return
+	if _current_state == &"stunned":
+		_player.speed_scale = 0.05
+		return
+	if _current_state == &"ranged" and _clips.has(KEY_CAST) and _player.current_animation == _clip(KEY_CAST):
+		_player.speed_scale = 0.35
+	elif _current_state in [&"chase", &"dash"] and _clips.has(KEY_RUN):
 		var pace := clampf(_host.desired_speed / RUN_PACE_REFERENCE_SPEED, 0.7, 1.8)
 		_player.speed_scale = pace
 	elif _player.speed_scale != 1.0:
 		_player.speed_scale = 1.0
 
 
-func _on_state_changed(_previous: StringName, current: StringName) -> void:
+func _on_state_changed(previous: StringName, current: StringName) -> void:
 	_current_state = current
 	if _dead:
 		return
+	# Cancelled ranged windup must drop CAST. Attack on the same frame is owned
+	# by _on_attack_started — do not play IDLE first.
+	if previous == &"ranged" and current != &"ranged" and current != &"attack":
+		_loop(KEY_IDLE)
 	match current:
 		&"idle", &"fuse":
 			_loop(KEY_IDLE)
 		&"attack":
-			# Attack state's idle is handled by _on_attack_started one-shot; keep idle until it fires.
-			_loop(KEY_IDLE)
+			# Owned by _on_attack_started; do not overwrite with IDLE.
+			pass
 		&"chase", &"dash":
 			_loop(KEY_RUN)
 		&"ranged":
-			# Cast-capable ranged archetypes play their cast clip if supplied, otherwise run.
-			if _clips.has(KEY_CAST):
-				_one_shot(KEY_CAST)
+			# Hold aim/cast. Missing CAST must not idle-walk through the windup.
+			if _clips.has(KEY_CAST) and _clip(KEY_CAST) != _clip(KEY_ATTACK):
+				_loop(KEY_CAST)
+			elif _clips.has(KEY_ATTACK):
+				_hold_pose(KEY_ATTACK)
 			else:
-				_loop(KEY_RUN)
+				_loop(KEY_IDLE)
 		&"hurt":
 			_one_shot(KEY_HURT)
 		&"stunned":
@@ -182,14 +195,38 @@ func _loop(key: StringName) -> void:
 		return
 	if _player.current_animation == clip:
 		return
+	_player.speed_scale = 1.0
 	_player.play(clip)
+
+
+func _hold_pose(key: StringName) -> void:
+	var clip := _clip(key)
+	if clip == "" or _player == null:
+		return
+	# Tiny speed so a later ATTACK one-shot on the same clip is not skipped.
+	_player.play(clip, -1.0, 0.05)
+	_player.seek(0.0, true)
 
 
 func _one_shot(key: StringName, speed: float = 1.0) -> void:
 	var clip := _clip(key)
 	if clip == "" or _player == null:
 		return
-	_player.play(clip, -1.0, speed)
+	var blend := 0.08
+	if key == KEY_ATTACK:
+		var cfg := _host.get_config() if _host != null else null
+		blend = 0.08 if cfg != null and cfg.attack_windup < 0.2 else 0.12
+	_player.play(clip, blend, maxf(speed, 0.05))
+	if key == KEY_DEATH:
+		var anim := _player.get_animation(clip)
+		if anim != null and anim.resource_local_to_scene == false:
+			var copy := anim.duplicate() as Animation
+			copy.loop_mode = Animation.LOOP_NONE
+			copy.resource_local_to_scene = true
+			# Replace only this player's view of the clip.
+			anim.loop_mode = Animation.LOOP_NONE
+	if _player.current_animation_position > 0.04:
+		_player.seek(0.0, true)
 
 
 func _clip(key: StringName) -> String:

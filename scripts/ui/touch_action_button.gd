@@ -62,12 +62,28 @@ func _fire() -> void:
 		return
 	_held = false
 	_touch_index = -1
-	if vibrate_on_press:
-		var settings := SaveManager.get_settings()
-		if settings.vibration_enabled:
-			Input.vibrate_handheld(15)
+	# The command goes out FIRST. Haptics are presentation: a settings lookup or a
+	# vibrate call that throws must never abort _fire() before the gameplay intent
+	# is delivered — that silently kills the button the player just pressed
+	# (the ATTACK button is the only one with vibrate_on_press, which is exactly
+	# why it was the one that stopped answering).
 	pressed.emit()
+	if vibrate_on_press:
+		_vibrate()
 	queue_redraw()
+
+
+## Haptics are best-effort and never throw into the input path. Only attempted on a
+## real handheld: desktop/web have no vibrator, and Android's VIBRATE is a
+## permission-gated call (see docs/ANDROID_PERMISSIONS.md), so it must not run on a
+## platform that cannot grant it.
+func _vibrate() -> void:
+	var settings := SaveManager.get_settings()
+	if settings == null or not settings.vibration_enabled:
+		return
+	if not OS.has_feature("mobile"):
+		return
+	Input.vibrate_handheld(15)
 
 
 func cancel() -> void:

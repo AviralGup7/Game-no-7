@@ -277,6 +277,12 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
+> `arena.gd` is 420 lines now. That is features, not tables coming back: solid decoration props
+> publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
+> `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
+> rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.
+
+
 | Field | Type | Replaces |
 | --- | --- | --- |
 | `theme` | `ArenaThemeConfig` (`data/arena_themes/<arena_id>.tres`) | `THEMES` + `PANORAMA_SKIES` |

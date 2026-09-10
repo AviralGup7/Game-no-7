@@ -52,6 +52,8 @@ func drop(cfg: PickupConfig, at: Vector3, player: Node3D, pickup_level: int = 1)
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if not _active or config == null:
 		return
 	_age += delta

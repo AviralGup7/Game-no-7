@@ -245,7 +245,7 @@ func request_attack() -> int:
 		return 0
 	var was_reloading := inst.is_reloading()
 	var step := inst.try_start_attack()
-	if not was_reloading and inst.is_reloading():
+	if not was_reloading and inst.is_reloading() and inst.config != null:
 		reload_started.emit(inst.config.weapon_id)
 	return step
 
@@ -253,6 +253,8 @@ func request_attack() -> int:
 ## Advance the active weapon's timers; resolves the swing/shot when its windup
 ## elapses. Must be called every physics step while the player is live.
 func tick(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	# Holstered cooldowns/reloads continue, but cannot fire delayed swings.
 	for slot in range(_slots.size()):
 		if slot != _active_slot and _slots[slot] is WeaponInstance:
@@ -267,7 +269,7 @@ func tick(delta: float) -> void:
 func _resolve_active_attack(inst: WeaponInstance) -> void:
 	if _owner_body == null or not is_instance_valid(_owner_body):
 		return
-	if inst == null or inst.config == null or not is_instance_valid(inst):
+	if inst == null or inst.config == null:
 		return
 	if not is_inside_tree():
 		return

@@ -1,19 +1,50 @@
 extends Node
 ## Autoload: AudioManager
-## Owns music + SFX buses, volumes, mute, voice limiting, pooled players, and audio
-## fallback. Audio is never required for gameplay correctness: every lookup/play is
-## failure-safe and optional-missing cues produce a diagnostic, not a crash.
+## Owns SFX voice management, buses, volumes, mute, and audio fallback.
+##
+## v2 (playback-engine rebuild — see docs/AUDIO_ENGINE.md):
+##   * The AudioConfig contract is now LIVE: per-cue cooldown spam guard and
+##     per-cue voice cap (SfxPolicy), per-play volume/pitch rolls, and bus
+##     routing (including the previously phantom "UI" bus) all come from
+##     config, defaulting to AudioConfig.for_cue() tuning.
+##   * Click-safe voices: every start ramps in (~12 ms); a stolen or
+##     recycled voice fades out over ~30 ms with a 1-t^2 shape before the
+##     player is reused (a hard stop is a step function = broadband pop).
+##     Steals that need a still-playing victim go through a pending-claim
+##     queue so the old sound always gets its fade.
+##   * Stealing follows middleware "oldest" semantics: per-cue first (the
+##     longest-running instance of a frequent cue is the one to drop), then
+##     global oldest as the last resort at the 16-voice ceiling.
+##   * The dead parallel music path (hard-switch _music_player / play_music)
+##     is gone — MusicManager is the only music owner.
+##
+## Audio is never required for gameplay correctness: every lookup/play is
+## failure-safe and missing cues produce a diagnostic, not a crash.
 
 const MAX_SFX_VOICES := 16
+## Click-safe onset for every voice start.
+const FADE_IN_SECONDS := 0.012
+## Click-safe release; 1-t^2 gain shape so the tail has no high-frequency
+## step (research: 30 ms still reads as an abrupt stop, with no pop).
+const FADE_OUT_SECONDS := 0.030
 
-var _music_player: AudioStreamPlayer = null
 var _sfx_pool: Array[AudioStreamPlayer] = []
-var _current_music_id: StringName = &""
+var _voice_cue: Array[StringName] = []
+var _voice_fade: Array[Dictionary] = []
+## Pending claims: {player_idx, cue, volume_db, pitch_scale} — fired when the
+## stolen victim's fade-out completes so the old sound is never hard-cut.
+var _pending: Array[Dictionary] = []
+var _configs: Dictionary = {}       # cue -> AudioConfig (explicit registration)
+var _default_configs: Dictionary = {}  # cue -> AudioConfig.for_cue() cache
+var _policy := SfxPolicy.new()
+var _rng := RandomNumberGenerator.new()
 var _settings := SettingsData.new()
 var _buses_ready := false
 ## True while the OS has backgrounded the app (Android home/recents). Combines
 ## with the player's mute setting so audio never plays behind other apps.
 var _background_muted := false
+var _duck_left := 0.0
+var _duck_db := 0.0
 
 ## cue_id -> AudioStream (registered content; may be empty while audio is added).
 var _cues: Dictionary = {}
@@ -24,21 +55,21 @@ func _ready() -> void:
 	# background/foreground transitions arrive while the tree may be paused.
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_buses()
-	_music_player = AudioStreamPlayer.new()
-	_music_player.bus = "Music"
-	add_child(_music_player)
+	_rng.randomize()
 	for i in MAX_SFX_VOICES:
 		var p := AudioStreamPlayer.new()
 		p.bus = "SFX"
 		add_child(p)
 		_sfx_pool.append(p)
+		_voice_cue.append(&"")
+		_voice_fade.append({})
 	EventBus.settings_changed.connect(apply_settings)
 	apply_settings(SaveManager.get_settings())
 
 
 func _ensure_buses() -> void:
 	var names := AudioServer.get_bus_count()
-	for target in ["Music", "SFX"]:
+	for target in ["Music", "SFX", "UI"]:
 		var found := false
 		for i in names:
 			if AudioServer.get_bus_name(i) == target:
@@ -50,16 +81,34 @@ func _ensure_buses() -> void:
 	_buses_ready = true
 
 
-## Register or replace a cue->stream mapping (called by ContentRegistry at startup).
-func register_cue(cue_id: StringName, stream: AudioStream) -> void:
+## Register or replace a cue->stream mapping (called by ContentRegistry at
+## startup). `config` overrides the built-in AudioConfig.for_cue() contract.
+func register_cue(cue_id: StringName, stream: AudioStream, config: AudioConfig = null) -> void:
 	if stream == null or not is_instance_valid(stream):
 		EventBus.report_warning("Null stream registered for cue %s" % String(cue_id))
 		return
 	_cues[cue_id] = stream
+	if config != null:
+		_configs[cue_id] = config
+	else:
+		_configs.erase(cue_id)
+	_default_configs.erase(cue_id)
 
 
 func has_cue(cue_id: StringName) -> bool:
 	return _cues.has(cue_id) and _cues[cue_id] != null
+
+
+func _config_for(cue_id: StringName) -> AudioConfig:
+	if _configs.has(cue_id):
+		return _configs[cue_id]
+	if not _default_configs.has(cue_id):
+		_default_configs[cue_id] = AudioConfig.for_cue(cue_id)
+	return _default_configs[cue_id]
+
+
+func _safe_bus(bus: StringName) -> StringName:
+	return bus if (bus in AudioConfig.VALID_BUSES) else &"SFX"
 
 
 func apply_settings(settings: SettingsData) -> void:
@@ -70,22 +119,239 @@ func apply_settings(settings: SettingsData) -> void:
 		return
 	var master_db := _db(settings.master_volume)
 	AudioServer.set_bus_volume_db(0, master_db)
-	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume))
+	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume) - _duck_db)
+	# Combat duck never touches SFX or UI — hits must stay readable under a boss tell.
 	AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(settings.sfx_volume))
+	AudioServer.set_bus_volume_db(_bus_index("UI"), _db(settings.sfx_volume))
 	AudioServer.set_bus_mute(0, settings.muted or _background_muted)
 
 
-func _db(linear: float) -> float:
-	if linear <= 0.0:
-		return -80.0
-	return linear_to_db(clampf(linear, 0.0, 1.0))
+## Briefly duck Music under a combat cue so hits/crits/dodges read on a phone speaker.
+func duck_music(seconds: float = 0.12, amount_db: float = 4.0) -> void:
+	if not is_finite(seconds) or seconds <= 0.0:
+		return
+	# Combat ducks stay short; a boss tell (>=0.4s) may hold up to 1.1s without
+	# letting stacked 0.12s hits extend the mute.
+	if seconds >= 0.4:
+		_duck_left = minf(maxf(_duck_left, seconds), 1.1)
+	elif _duck_left > 0.35:
+		# Hit during a boss tell: deepen the duck, keep the tell's remaining time.
+		pass
+	else:
+		_duck_left = minf(maxf(_duck_left, seconds), 0.35)
+	_duck_db = maxf(_duck_db, clampf(amount_db, 0.0, 12.0))
+	apply_settings(_settings)
 
 
-func _bus_index(name: String) -> int:
-	for i in AudioServer.get_bus_count():
-		if AudioServer.get_bus_name(i) == name:
-			return i
-	return 0
+func _process(delta: float) -> void:
+	if _duck_left > 0.0 and is_finite(delta) and delta > 0.0:
+		_duck_left -= delta
+		if _duck_left <= 0.0:
+			_duck_left = 0.0
+			_duck_db = 0.0
+			apply_settings(_settings)
+	if is_finite(delta) and delta > 0.0:
+		_tick_fades(delta)
+		_reap_finished()
+
+
+func _clock_s() -> float:
+	return float(Time.get_ticks_msec()) / 1000.0
+
+
+# ---------------------------------------------------------------------------
+# SFX
+# ---------------------------------------------------------------------------
+
+## Returns true when a voice was allocated and started, false when the cue was
+## missing, the cooldown guard suppressed the play, or the voice ceiling was
+## reached (voice limiting).
+func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1.0) -> bool:
+	var stream := _resolve_stream(cue_id)
+	if stream == null:
+		EventBus.report_warning("SFX cue unavailable: %s" % String(cue_id))
+		return false
+	var cfg := _config_for(cue_id)
+	var now := _clock_s()
+	_policy.configure(cue_id, cfg.cooldown, cfg.max_voices)
+	var decision := _policy.try_play(cue_id, now)
+	var action: StringName = decision["action"]
+	if action == SfxPolicy.REJECT:
+		# By-design spam guard: suppressing must stay silent or the guard
+		# would just move the spam into the report channel.
+		return false
+	var base_vol := clampf(volume_db, -80.0, 6.0) if is_finite(volume_db) else 0.0
+	var base_pitch := clampf(pitch_scale, 0.1, 4.0) if (is_finite(pitch_scale) and pitch_scale > 0.0) else 1.0
+	var vol := base_vol + cfg.roll_volume_db(_rng)
+	var pitch := base_pitch * cfg.roll_pitch(_rng)
+	# 1) Per-cue steal (policy picked the cue's oldest voice).
+	if action == SfxPolicy.STEAL:
+		var victim_idx := int(decision["steal_token"])
+		if victim_idx >= 0 and victim_idx < _sfx_pool.size() and _sfx_pool[victim_idx].playing:
+			return _defer_on_fade(victim_idx, cue_id, vol, pitch, stream)
+		# Token already drained (ended between decision and claim): fall
+		# through to a normal claim.
+	# 2) Any idle player: start immediately.
+	for i in _sfx_pool.size():
+		if not _sfx_pool[i].playing and _voice_fade[i].is_empty() and not _is_pending_target(i):
+			_start_voice(i, cue_id, vol, pitch, stream)
+			return true
+	# 3) Ceiling reached: globally oldest playing voice (v1 fallback),
+	# fade-protected like every other steal.
+	var oldest := -1
+	var oldest_pos := -1.0
+	for i in _sfx_pool.size():
+		if _voice_fade[i].is_empty() and not _is_pending_target(i) and _sfx_pool[i].playing:
+			var pos: float = _sfx_pool[i].get_playback_position()
+			if oldest < 0 or pos > oldest_pos:
+				oldest = i
+				oldest_pos = pos
+	if oldest >= 0:
+		return _defer_on_fade(oldest, cue_id, vol, pitch, stream)
+	EventBus.report_warning("SFX voice limit reached; dropping: %s" % String(cue_id))
+	return false
+
+
+## The victim still has audio in the air: give it its fade-out and queue this
+## play to fire the moment the player is truly free (never a hard cut).
+func _defer_on_fade(idx: int, cue_id: StringName, vol: float, pitch: float, stream: AudioStream) -> bool:
+	if not _begin_fade_out(idx):
+		# No audio left to protect (ended between check and fade): claim now.
+		_start_voice(idx, cue_id, vol, pitch, stream)
+		return true
+	_pending.append({"player_idx": idx, "cue": cue_id, "volume_db": vol, "pitch_scale": pitch, "stream": stream})
+	return true
+
+
+func _is_pending_target(idx: int) -> bool:
+	for entry in _pending:
+		if int((entry as Dictionary)["player_idx"]) == idx:
+			return true
+	return false
+
+
+func _start_voice(idx: int, cue_id: StringName, vol: float, pitch: float, stream: AudioStream) -> void:
+	var player := _sfx_pool[idx]
+	var cfg := _config_for(cue_id)
+	player.bus = _safe_bus(cfg.bus)
+	player.stream = stream
+	# Defensive sanity clamps: authored values are trusted, but a bad tween or
+	# lerp must never blast the mix or produce a negative-pitch voice.
+	player.pitch_scale = clampf(pitch, 0.1, 4.0) if (is_finite(pitch) and pitch > 0.0) else 1.0
+	player.volume_db = -80.0
+	player.play()
+	_voice_cue[idx] = cue_id
+	_policy.voice_started(cue_id, idx)
+	_policy.note_played(cue_id, _clock_s())
+	_begin_fade_in(idx, clampf(vol, -80.0, 6.0))
+
+
+# --- Click-safe fades --------------------------------------------------------
+
+func _begin_fade_in(idx: int, to_db: float) -> void:
+	_voice_fade[idx] = {
+		"kind": "in",
+		"t": 0.0,
+		"dur": FADE_IN_SECONDS,
+		"from": -80.0,
+		"to": to_db,
+	}
+	_sfx_pool[idx].volume_db = -80.0
+
+
+## Starts the release fade unless the voice is already silent or a fade is in
+## flight. Returns true when a fade is now owning the player.
+func _begin_fade_out(idx: int) -> bool:
+	var player := _sfx_pool[idx]
+	if not player.playing:
+		return false
+	if not _voice_fade[idx].is_empty():
+		return true  # a fade is already in flight for this voice
+	_voice_fade[idx] = {
+		"kind": "out",
+		"t": 0.0,
+		"dur": FADE_OUT_SECONDS,
+		"from": player.volume_db,
+		"to": -80.0,
+	}
+	return true
+
+
+func _tick_fades(delta: float) -> void:
+	for i in _sfx_pool.size():
+		var fade: Dictionary = _voice_fade[i]
+		if fade.is_empty():
+			continue
+		var f: Dictionary = fade
+		var k := clampf(float(f["t"]) + delta / maxf(float(f["dur"]), 0.001), 0.0, 1.0)
+		var from := float(f["from"])
+		var to := float(f["to"])
+		var player := _sfx_pool[i]
+		if String(f["kind"]) == "out":
+			# 1-t^2 gain shape: no high-frequency step at the tail.
+			player.volume_db = to + (from - to) * (1.0 - k * k)
+		else:
+			player.volume_db = from + (to - from) * k
+		if k >= 1.0:
+			_finish_fade(i)
+
+
+func _finish_fade(idx: int) -> void:
+	var fade: Dictionary = _voice_fade[idx]
+	var kind := String(fade.get("kind", ""))
+	_voice_fade[idx] = {}
+	var player := _sfx_pool[idx]
+	if kind == "out":
+		player.stop()
+		var cue: StringName = _voice_cue[idx]
+		if cue != &"":
+			_policy.voice_ended(cue, idx)
+			_voice_cue[idx] = &""
+		_fire_pending(idx)
+
+
+func _fire_pending(idx: int) -> void:
+	var keep: Array[Dictionary] = []
+	for entry in _pending:
+		if int((entry as Dictionary)["player_idx"]) != idx:
+			keep.append(entry)
+			continue
+		# If the slot was reused meanwhile (pathological double-claim), drop
+		# the stale request rather than clobber the live voice.
+		if _voice_cue[idx] != &"" or _sfx_pool[idx].playing:
+			continue
+		var e: Dictionary = entry
+		_start_voice(idx, StringName(e["cue"]), float(e["volume_db"]), float(e["pitch_scale"]), e["stream"])
+	_pending = keep
+
+
+## Natural end of a voice (played out, no fade in flight) releases its
+## per-cue policy slot.
+func _reap_finished() -> void:
+	for i in _sfx_pool.size():
+		if _voice_fade[i].is_empty() and _voice_cue[i] != &"" and not _sfx_pool[i].playing:
+			_policy.voice_ended(_voice_cue[i], i)
+			_voice_cue[i] = &""
+
+
+func _resolve_stream(cue_id: StringName) -> AudioStream:
+	if not _cues.has(cue_id):
+		return null
+	var s: Variant = _cues[cue_id]
+	return s as AudioStream
+
+
+## Null-safe stream lookup for the MusicManager (missing cues stay silent).
+func get_cue_stream(cue_id: StringName) -> AudioStream:
+	return _resolve_stream(cue_id)
+
+
+func get_active_voice_count() -> int:
+	var n := 0
+	for p in _sfx_pool:
+		if p.playing:
+			n += 1
+	return n
 
 
 ## Live per-bus volume setters (settings UI). Update the cached settings object
@@ -120,9 +386,24 @@ func preview_bus_volume(bus_key: String, linear: float) -> void:
 		"master":
 			AudioServer.set_bus_volume_db(0, _db(linear))
 		"music":
-			AudioServer.set_bus_volume_db(_bus_index("Music"), _db(linear))
+			AudioServer.set_bus_volume_db(_bus_index("Music"), _db(linear) - _duck_db)
 		"sfx":
 			AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(linear))
+		"ui":
+			AudioServer.set_bus_volume_db(_bus_index("UI"), _db(linear))
+
+
+func _db(linear: float) -> float:
+	if linear <= 0.0:
+		return -80.0
+	return linear_to_db(clampf(linear, 0.0, 1.0))
+
+
+func _bus_index(name: String) -> int:
+	for i in AudioServer.get_bus_count():
+		if AudioServer.get_bus_name(i) == name:
+			return i
+	return 0
 
 
 func _notification(what: int) -> void:
@@ -148,94 +429,13 @@ func is_background_muted() -> bool:
 	return _background_muted
 
 
-## Null-safe stream lookup for the MusicManager (missing cues stay silent).
-func get_cue_stream(cue_id: StringName) -> AudioStream:
-	return _resolve_stream(cue_id)
-
-
-## Music ---------------------------------------------------------------------
-func play_music(cue_id: StringName) -> void:
-	if cue_id == _current_music_id:
-		return
-	_current_music_id = cue_id
-	var stream := _resolve_stream(cue_id)
-	if stream == null:
-		EventBus.report_warning("Music cue unavailable (fallback: silence): %s" % String(cue_id))
-		_current_music_id = &""
-		return
-	_music_player.stream = stream
-	_music_player.play()
-
-
-func stop_music() -> void:
-	_music_player.stop()
-	_current_music_id = &""
-
-
-func get_current_music() -> StringName:
-	return _current_music_id
-
-
-## SFX ------------------------------------------------------------------------
-## Returns true when a voice was allocated and started, false when the cue was
-## missing or all voices are busy (voice limiting).
-func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1.0) -> bool:
-	var stream := _resolve_stream(cue_id)
-	if stream == null:
-		EventBus.report_warning("SFX cue unavailable: %s" % String(cue_id))
-		return false
-	var player := _claim_voice()
-	if player == null:
-		EventBus.report_warning("SFX voice limit reached; dropping: %s" % String(cue_id))
-		return false
-	player.stream = stream
-	# Defensive sanity clamps: authored values are trusted, but a bad tween or
-	# lerp must never blast the mix or produce a negative-pitch voice.
-	player.volume_db = clampf(volume_db, -80.0, 6.0) if is_finite(volume_db) else 0.0
-	player.pitch_scale = clampf(pitch_scale, 0.1, 4.0) if (is_finite(pitch_scale) and pitch_scale > 0.0) else 1.0
-	player.play()
-	return true
-
-
-func _claim_voice() -> AudioStreamPlayer:
-	# Prefer an idle pooled player; otherwise recycle the oldest playing one.
-	var idle: AudioStreamPlayer = null
-	var oldest_playing: AudioStreamPlayer = null
-	for p in _sfx_pool:
-		if not p.playing:
-			idle = p
-			break
-		if oldest_playing == null or p.get_playback_position() > oldest_playing.get_playback_position():
-			oldest_playing = p
-	var chosen := idle if idle != null else oldest_playing
-	if chosen != null:
-		chosen.stop()
-	return chosen
-
-
-func _resolve_stream(cue_id: StringName) -> AudioStream:
-	if not _cues.has(cue_id):
-		return null
-	var s: Variant = _cues[cue_id]
-	return s as AudioStream
-
-
-func get_active_voice_count() -> int:
-	var n := 0
-	for p in _sfx_pool:
-		if p.playing:
-			n += 1
-	return n
-
-
 func get_debug_snapshot() -> Dictionary:
 	return {
-		"current_music": String(_current_music_id),
 		"active_sfx_voices": get_active_voice_count(),
 		"max_sfx_voices": MAX_SFX_VOICES,
 		"registered_cues": _cues.size(),
+		"pending_claims": _pending.size(),
 		"muted": _settings.muted,
 		"background_muted": _background_muted,
+		"voice_policy": _policy.get_debug_snapshot(),
 	}
-
-

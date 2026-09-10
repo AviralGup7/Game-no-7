@@ -16,18 +16,30 @@ var _dodge: DodgeController
 
 func _ready() -> void:
 	_player = get_parent() as Player
+	if _player == null:
+		return
 	_dodge = _player.get_node_or_null("DodgeController") as DodgeController
 	_weapons = _player.get_node_or_null("WeaponManager") as WeaponManager
 	if _weapons != null:
-		_weapons.weapon_switched_local.connect(_on_switch)
-		_weapons.reload_started.connect(_on_reload)
+		if not _weapons.weapon_switched_local.is_connected(_on_switch):
+			_weapons.weapon_switched_local.connect(_on_switch)
+		if not _weapons.reload_started.is_connected(_on_reload):
+			_weapons.reload_started.connect(_on_reload)
 	var health := _player.get_node_or_null("HealthComponent") as HealthComponent
-	if health != null:
+	if health != null and not health.health_changed.is_connected(_on_health):
 		health.health_changed.connect(_on_health)
-	EventBus.projectile_fired.connect(_on_shot)
+	if EventBus != null and not EventBus.projectile_fired.is_connected(_on_shot):
+		EventBus.projectile_fired.connect(_on_shot)
+
+
+func _exit_tree() -> void:
+	if EventBus != null and EventBus.projectile_fired.is_connected(_on_shot):
+		EventBus.projectile_fired.disconnect(_on_shot)
 
 
 func _physics_process(delta: float) -> void:
+	if _player == null:
+		return
 	if not _player.is_control_enabled() or not _player.is_on_floor() or (_dodge != null and _dodge.is_dodging()):
 		_step_travel = 0.0
 		return

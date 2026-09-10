@@ -78,7 +78,11 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 
 	var dist_w := CameraMath.exp_weight(dist_smooth, delta)
 	orbit.current_distance = lerpf(orbit.current_distance, dist_target, dist_w)
-	orbit.current_distance = clampf(orbit.current_distance, _profile.min_distance, _profile.max_distance)
+	var ceiling := _profile.max_distance
+	# Keep the boom shorter than a 24 m yard so orbit/combat boosts cannot park
+	# the lens in the surrounding walls even before the collision solver runs.
+	ceiling = minf(ceiling, 10.5)
+	orbit.current_distance = clampf(orbit.current_distance, _profile.min_distance, ceiling)
 
 func reset_orbit(facing_yaw: float) -> void:
 	if orbit == null:

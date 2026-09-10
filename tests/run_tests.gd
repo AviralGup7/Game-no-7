@@ -33,6 +33,9 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_status_skills.gd",
 	"res://tests/unit/test_drops_elites.gd",
 	"res://tests/unit/test_locomotion_nan.gd",
+	"res://tests/unit/test_camera_arena_containment.gd",
+	"res://tests/unit/test_safe_player_spawn.gd",
+	"res://tests/unit/test_systems_completion.gd",
 	"res://tests/unit/test_director_mutators.gd",
 	"res://tests/unit/test_wave_mutators.gd",
 	"res://tests/unit/test_meta_misc.gd",
@@ -48,6 +51,9 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_collision_layers.gd",
 	"res://tests/unit/test_hazards.gd",
 	"res://tests/unit/test_arena_world.gd",
+	"res://tests/unit/test_performance_monitor.gd",
+	"res://tests/unit/test_minimap_radar.gd",
+	"res://tests/unit/test_audio_policy.gd",
 ]
 
 ## Node3D-based suites: these build Node3D fixtures and assert on positions.
@@ -63,6 +69,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_hero_rig.gd",
 	"res://tests/unit/test_arena_obstacles_node.gd",
+	"res://tests/unit/test_decorator_collision.gd",
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
 	"res://tests/unit/test_hazards_live.gd",
 	"res://tests/unit/test_status_manager.gd",

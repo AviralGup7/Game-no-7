@@ -3,9 +3,17 @@ extends Node3D
 
 ## Deterministic cosmetic dressing built from the approved KayKit dungeon prop library
 ## (assets/environment/dungeon/**), giving each arena a distinct silhouette while
-## keeping run-to-run placement identical (fair + testable). Decoration is visual-only
-## EXCEPT structural pillars, which keep collision and double as line-of-sight
-## blockers for ranged enemies (exactly as before).
+## keeping run-to-run placement identical (fair + testable).
+##
+## EVERY floor-standing prop is solid: structural pillars (line-of-sight blockers for
+## ranged enemies) AND the scattered clutter (barrels, crates, boxes, rubble) and the
+## brazier/torch rings. A prop the hero visibly walks through reads as a broken game,
+## so each one gets a StaticBody3D on collision_layer 1 (the layer the player's mask 1
+## and every enemy's mask 5 already collide with) sized from the mounted model's OWN
+## AABB, and its footprint is registered with the shared nav grid so AI routes around
+## what physics blocks — the same "nothing walks through objects" invariant as
+## ArenaObstacles (see docs/ENEMY_AI_RESEARCH.md §3.1). Wall-hung banners stay
+## visual-only: they are flat cloth against the arena shell, not floor obstacles.
 ##
 ## Every prop load is optional: if a source model is missing/unimported the decorator
 ## transparently falls back to a primitive so an arena is never left undecorated.
@@ -19,6 +27,15 @@ const PILLAR_CLEARANCE := 2.3
 ## Props (including colliding pillars) keep this far from the player spawn so a
 ## run can never start with the hero stuck inside decoration collision.
 const SPAWN_CLEAR_RADIUS := 2.5
+## Clutter props are solid now, so they must also keep clear of the enemy spawn
+## markers: a collider sitting on a spawn would have the physics server push a
+## spawning enemy out of it (and could trap it against a wall).
+const SPAWN_MARKER_CLEAR_RADIUS := 1.7
+## Sanity clamps for a prop collider derived from imported art. A corrupt/huge
+## import must never produce a room-sized invisible wall.
+const MIN_PROP_HALF := 0.18
+const MAX_PROP_HALF_XZ := 1.4
+const MAX_PROP_HALF_Y := 2.2
 
 const DUNGEON := "res://assets/environment/dungeon/"
 const SC_PILLAR := DUNGEON + "pillar.glb"
@@ -38,6 +55,9 @@ const SC_RUBBLE := DUNGEON + "rubble_large.glb"
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
+## Arena-local XZ footprints of every solid prop, published to the Arena so the
+## shared nav grid blocks the same cells the colliders occupy.
+var _blockers: Array[AABB] = []
 
 
 func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
@@ -50,6 +70,7 @@ func decorate(arena_id: StringName, arena_half: float, seed: int) -> void:
 			_compose_frost(arena_half)
 		_:
 			_compose_default(arena_half)
+	_publish_blockers()
 
 
 func clear() -> void:
@@ -57,6 +78,25 @@ func clear() -> void:
 		if is_instance_valid(n):
 			n.queue_free()
 	_spawned.clear()
+	_blockers.clear()
+
+
+## Solid-prop footprints as world-space boxes, the shape `ArenaNavGrid.build()` and
+## `Arena.register_decoration_blockers` take. AABB rather than a `{"pos","half_size"}` key-bag because
+## the repo's rule for anything crossing a boundary is a typed record: a Dictionary key nobody reads is
+## invisible, and a typo'd key is a runtime miss rather than a parse error. The authored obstacle
+## placements in `Arena` travel the same way (as `ArenaObstaclePlacement`).
+func get_nav_blockers() -> Array[AABB]:
+	return _blockers
+
+
+## Hand the footprints to the owning Arena (the decorator is its direct child) so the
+## nav grid is rebuilt with them. Null-safe for headless fixtures without an Arena.
+func _publish_blockers() -> void:
+	var arena := get_parent() as Arena
+	if arena == null:
+		return
+	arena.register_decoration_blockers(_blockers)
 
 
 func spawned_count() -> int:
@@ -118,12 +158,16 @@ func _compose_frost(half: float) -> void:
 		holder.add_child(prism)
 		add_child(holder)
 		_spawned.append(holder)
+		_add_prop_collision(holder)
 
 
 # ---------------------- builders ----------------------
 
 ## Structural pillars get collision (LOS blockers). Uses model when available, else the
-## legacy primitive pillar of matching footprint.
+## legacy primitive pillar of matching footprint. Their footprint also joins the nav
+## grid: previously only ArenaObstacles + the landmark were registered, so the AI's
+## INTENT walked straight through these pillars even though physics stopped the body
+## (the enemy then leaned on the pillar until the stuck-nudge freed it).
 func _place_structural(count: int, half: float, scene_path: String) -> void:
 	for i in range(mini(count, MAX_PILLARS)):
 		var at := _open_spot(half, 2.0)
@@ -143,9 +187,14 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 			_primitive_pillar(body)
 		add_child(body)
 		_spawned.append(body)
+		var half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
+		# The collider is offset up by shape.position.y, so the box is too. `ArenaNavGrid` reads only x
+		# and z, but a footprint that lies about height is a bug waiting for the next reader.
+		_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - half, half * 2.0))
 
 
-## Scattered low clutter props (no collision) for grounding + occlusion interest.
+## Scattered floor clutter (barrels / crates / boxes / rubble). Solid: each prop gets
+## a collider sized from its own imported mesh plus a nav-grid footprint.
 func _scatter(count: int, half: float, choices: Array) -> void:
 	for i in range(mini(count, MAX_CLUTTER)):
 		var at := _open_spot(half, 1.0)
@@ -159,6 +208,9 @@ func _scatter(count: int, half: float, choices: Array) -> void:
 		holder.rotation.y = yaw
 		add_child(holder)
 		_spawned.append(holder)
+		# After the yaw is final: the collider inherits the holder's rotation, and the
+		# nav footprint below is expanded to the rotated box's axis-aligned bounds.
+		_add_prop_collision(holder)
 
 
 ## Banners / torches set along the arena walls (visual only).
@@ -200,14 +252,23 @@ func _player_spawn_local() -> Variant:
 	return null
 
 
-## An open spot away from centre, the player spawn, and previously-placed props.
+## An open spot away from centre, the player spawn, the enemy spawn markers, and
+## previously-placed props.
 func _open_spot(half: float, margin: float) -> Vector3:
 	var spawn: Variant = _player_spawn_local()
+	var markers := _spawn_marker_positions()
 	for _attempt in range(24):
 		var p := _rng.point_in_disc(RngService.STREAM_ARENA, half - margin)
 		if Vector2(p.x, p.z).length() < CENTER_CLEAR_RADIUS:
 			continue
 		if spawn != null and Vector2(p.x - spawn.x, p.z - spawn.z).length() < SPAWN_CLEAR_RADIUS:
+			continue
+		var on_marker := false
+		for m in markers:
+			if Vector2(p.x - m.x, p.z - m.z).length() < SPAWN_MARKER_CLEAR_RADIUS:
+				on_marker = true
+				break
+		if on_marker:
 			continue
 		var blocked := false
 		for n in _spawned:
@@ -221,7 +282,21 @@ func _open_spot(half: float, margin: float) -> Vector3:
 	return Vector3(half - margin, 0, half - margin)
 
 
-## Stand-alone decorative prop (no collision) placed at a world position.
+## Enemy spawn markers in arena-local XZ (the decorator sits at the arena origin, so
+## marker positions compare directly with prop positions). Empty in headless fixtures.
+func _spawn_marker_positions() -> Array:
+	var out: Array = []
+	var arena := get_parent() as Arena
+	if arena == null:
+		return out
+	for marker in arena.get_spawn_points():
+		if is_instance_valid(marker):
+			out.append((marker as Node3D).position)
+	return out
+
+
+## Stand-alone decorative prop (braziers / torch rings) placed at a world position.
+## Solid like the scattered clutter.
 func _mount_prop(path: String, at: Vector3, scale_factor: float) -> void:
 	var holder := Node3D.new()
 	holder.position = at
@@ -229,6 +304,78 @@ func _mount_prop(path: String, at: Vector3, scale_factor: float) -> void:
 		_primitive_brazier(holder)
 	add_child(holder)
 	_spawned.append(holder)
+	_add_prop_collision(holder)
+
+
+# ---------------------- prop collision (solid decoration) ----------------------
+
+## Give a floor-standing prop a real collider + a nav-grid footprint, sized from the
+## model's OWN imported AABB so the invisible wall always matches the visible mesh
+## (KayKit props vary in footprint, and a hardcoded box would clip or float).
+func _add_prop_collision(holder: Node3D) -> void:
+	if holder == null or not is_instance_valid(holder):
+		return
+	var bounds := _combined_local_aabb(holder)
+	var center := bounds.position + bounds.size * 0.5
+	var half := Vector3(
+		clampf(bounds.size.x * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_XZ),
+		clampf(bounds.size.y * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_Y),
+		clampf(bounds.size.z * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_XZ))
+	var body := StaticBody3D.new()
+	body.name = "PropCollision"
+	# The world layer is what the player and every enemy are masked against, and a static
+	# prop queries nothing itself. Named, not written as bits: `collision_layer = 1` reads as a
+	# constant to keep and stops meaning anything the moment a layer is renumbered, which is the bug
+	# class `tool/validate_guards.py` and `tests/python/test_regress_collision_contract.py` refuse.
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = half * 2.0
+	shape.shape = box
+	shape.position = center
+	body.add_child(shape)
+	holder.add_child(body)
+	# Nav footprint, expanded to the axis-aligned bounds of the YAW-ROTATED box (the
+	# collider inherits the holder's rotation; the nav grid is axis-aligned). The
+	# centre offset is rotated by the same yaw so an off-centre model's footprint
+	# lands where the mesh actually is.
+	var yaw := holder.rotation.y
+	var cs := absf(cos(yaw))
+	var sn := absf(sin(yaw))
+	var foot := Vector3(half.x * cs + half.z * sn, half.y, half.x * sn + half.z * cs)
+	var local_center := holder.transform.basis * center
+	_blockers.append(AABB(holder.position + local_center - foot, foot * 2.0))
+
+
+## Combined AABB of every mesh under `root`, in `root`-local space. Walks the child
+## transforms explicitly: at decoration time the holder is not in the tree yet, so
+## global_transform is not valid and MeshInstance3D.get_aabb() alone would ignore the
+## model's own node offsets. Returns a zero AABB when nothing drawable is mounted.
+func _combined_local_aabb(root: Node3D) -> AABB:
+	var bounds := AABB()
+	var found := false
+	var stack: Array = [[root, Transform3D.IDENTITY]]
+	while not stack.is_empty():
+		var pair: Array = stack.pop_back()
+		var node := pair[0] as Node3D
+		if node == null:
+			continue
+		var xform: Transform3D = pair[1]
+		if node != root:
+			xform = xform * node.transform
+		if node is MeshInstance3D:
+			var mi := node as MeshInstance3D
+			if mi.mesh != null:
+				var local: AABB = xform * mi.get_aabb()
+				bounds = local if not found else bounds.merge(local)
+				found = true
+		for child in node.get_children():
+			if child is Node3D:
+				stack.append([child, xform])
+	if not found:
+		return AABB(Vector3.ZERO, Vector3.ZERO)
+	return bounds
 
 
 # ---------------------- model mounting (optional) ----------------------

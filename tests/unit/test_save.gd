@@ -71,10 +71,18 @@ static func suite() -> Array:
 		"passed": sd.text_scale <= SettingsData.MAX_TEXT_SCALE and sd.text_scale >= SettingsData.MIN_TEXT_SCALE,
 		"why": "",
 	})
+	# Ultra is a valid preset (the governor rebuild made it round-trippable),
+	# so it must be accepted, not dropped like a typo.
 	sd.set_graphics_quality(&"ultra")
 	results.append({
+		"name": "ultra graphics quality accepted",
+		"passed": sd.graphics_quality == &"ultra",
+		"why": "",
+	})
+	sd.set_graphics_quality(&"not_a_quality")
+	results.append({
 		"name": "invalid graphics quality ignored",
-		"passed": sd.graphics_quality == &"medium",
+		"passed": sd.graphics_quality == &"ultra",
 		"why": "",
 	})
 	return results

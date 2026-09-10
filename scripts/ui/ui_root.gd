@@ -31,6 +31,11 @@ var _text_scale := 1.0
 var _banner_fits := true
 var _minimap_fits := true
 var _boss_fits := true
+var _last_player_hp := -1.0
+## Last graphics quality value actually applied to a live monitor. Seeded
+## empty so the boot-time _apply_settings call registers the saved value
+## without touching a (not yet existing) monitor.
+var _last_applied_quality: StringName = &""
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -48,8 +53,11 @@ func _ready() -> void:
 	EventBus.upgrade_choices_presented.connect(_upgrade.present)
 	EventBus.upgrade_selected.connect(_on_upgrade_selected)
 	EventBus.enemy_damaged.connect(_on_damage)
+	EventBus.player_health_changed.connect(_on_player_health_track)
 	EventBus.run_started.connect(func(_id: int, _seed: int) -> void:
 		_numbers.clear_all()
+		_last_player_hp = -1.0
+		_bind_player_damage()
 		_apply_settings(SaveManager.get_settings()))
 	_safe.resized.connect(_layout)
 	_apply_settings(SaveManager.get_settings())
@@ -191,8 +199,16 @@ func _layout() -> void:
 	var skills: Rect2 = UiLayout.sanitize(plan["skills"], view)
 	_skill_bar.fit_touch_targets(skills.size)
 	_skill_bar.position = skills.position
-	# Apply after child minimum-size invalidations (e.g. rotating a wide tablet).
-	_skill_bar.set_deferred("size", skills.size)
+	_skill_bar.size = skills.size
+	if _numbers != null and _hud != null:
+		_numbers.set_hud_block(_hud.vitals_screen_rect())
+	if _numbers != null and _skill_bar != null:
+		_numbers.set_skill_block(Rect2(_skill_bar.global_position, skills.size))
+	if _numbers != null:
+		if _minimap != null and _minimap.visible and _minimap_fits:
+			_numbers.set_minimap_block(Rect2(_minimap.global_position, _minimap.size))
+		else:
+			_numbers.set_minimap_block(Rect2())
 
 static func screen_for_state(state: StringName) -> StringName:
 	if state in [&"starting_run", &"loading", &"error"]: return &"status"
@@ -287,7 +303,48 @@ func _on_upgrade_selected(id: StringName) -> void:
 
 func _on_damage(enemy: Node, result: DamageResult) -> void:
 	if result != null and result.accepted and is_instance_valid(enemy) and enemy is Node3D:
-		_numbers.spawn_damage_number(enemy.global_position + Vector3.UP * 1.2, result.final_amount, result.was_critical)
+		_numbers.spawn_damage_number(enemy.global_position + Vector3.UP * 1.2, result.final_amount, result.was_critical, Color.WHITE, enemy as Node3D)
+
+
+func _on_player_health_track(current: float, _maximum: float) -> void:
+	_last_player_hp = current
+	_bind_player_damage()
+
+
+var _bound_player: Node = null
+
+
+func _bind_player_damage() -> void:
+	var player := GameRoot.get_active_player() if GameRoot != null else null
+	if player == _bound_player and player != null and player.has_signal("damaged") and player.damaged.is_connected(_on_player_damaged):
+		return
+	if _bound_player != null and is_instance_valid(_bound_player) and _bound_player.has_signal("damaged"):
+		if _bound_player.damaged.is_connected(_on_player_damaged):
+			_bound_player.damaged.disconnect(_on_player_damaged)
+	_bound_player = player
+	if player == null or not player.has_signal("damaged"):
+		return
+	if not player.damaged.is_connected(_on_player_damaged):
+		player.damaged.connect(_on_player_damaged)
+
+
+func _on_player_damaged(result: DamageResult) -> void:
+	if result == null or not result.accepted or result.final_amount < 1.0 or _numbers == null:
+		return
+	var player := GameRoot.get_active_player() if GameRoot != null else null
+	if not (player is Node3D):
+		return
+	var follow: Node3D = player as Node3D
+	if player is Damageable and not (player as Damageable).is_alive():
+		follow = null
+	_numbers.spawn_damage_number(
+		(player as Node3D).global_position + Vector3.UP * 1.4,
+		result.final_amount,
+		result.was_critical,
+		Color(1.0, 0.22, 0.08),
+		follow,
+		true
+	)
 
 func _apply_settings(settings: SettingsData) -> void:
 	_text_scale = settings.text_scale
@@ -295,22 +352,52 @@ func _apply_settings(settings: SettingsData) -> void:
 	UiTheme.apply_text_scale(self, settings.text_scale)
 	_banner.set_reduced_motion(settings.reduced_motion)
 	_numbers.set_reduced_motion(settings.reduced_motion)
+	_numbers.set_text_scale(settings.text_scale)
 	_boss_bar.set_reduced_motion(settings.reduced_motion)
 	_touch.set_high_contrast(settings.high_contrast)
 	for node in get_tree().get_nodes_in_group("hitstop_manager"):
 		var hitstop := node as HitstopManager
 		if hitstop != null:
 			hitstop.set_reduced_motion(settings.reduced_motion)
-	for node in get_tree().get_nodes_in_group("performance_monitor"):
+	var monitors := get_tree().get_nodes_in_group("performance_monitor")
+	for node in monitors:
 		var monitor := node as PerformanceMonitor
 		if monitor == null:
 			continue
-		var tier_idx := [&"low", &"medium", &"high"].find(settings.graphics_quality)
+		_watch_monitor_budget(monitor)
+	# Graphics quality is applied only when it actually changed: saving any
+	# other setting (volume, toggles) must not re-assert the saved tier and
+	# clobber a tier the auto-scale governor has already found this run.
+	var quality := settings.graphics_quality
+	if quality != _last_applied_quality:
+		_last_applied_quality = quality
+		var tier_idx := [&"low", &"medium", &"high", &"ultra"].find(quality)
 		if tier_idx < 0:
 			tier_idx = 2  # high is the default when save carries an unknown/legacy value
-		monitor.set_tier(tier_idx)
-		_numbers.set_max_live(monitor.max_damage_numbers())
+		for node in monitors:
+			var monitor := node as PerformanceMonitor
+			if monitor == null:
+				continue
+			monitor.set_tier(tier_idx)
+			_numbers.set_max_live(monitor.max_damage_numbers())
 	_layout.call_deferred()
+
+
+## Keep the damage-number budget in step with AUTO tier changes (the governor
+## emits quality_tier_changed; user-driven changes arrive via settings_changed).
+func _watch_monitor_budget(monitor: PerformanceMonitor) -> void:
+	if monitor.quality_tier_changed.is_connected(_on_monitor_tier_changed):
+		return
+	monitor.quality_tier_changed.connect(_on_monitor_tier_changed)
+
+
+func _on_monitor_tier_changed(_old_tier: int, _new_tier: int) -> void:
+	var monitors := get_tree().get_nodes_in_group("performance_monitor")
+	if monitors.is_empty():
+		return
+	var monitor := monitors[0] as PerformanceMonitor
+	if monitor != null:
+		_numbers.set_max_live(monitor.max_damage_numbers())
 
 func get_announcement_banner() -> AnnouncementBanner: return _banner
 func loc(key: StringName) -> String: return UiText.lookup(key)

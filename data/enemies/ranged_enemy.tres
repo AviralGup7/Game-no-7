@@ -6,6 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"ranged"
+blurb = "Gallery bow \u2014 soft, but never alone."
 display_name = "Slinger"
 scene = ExtResource("2_scene")
 max_health = 16.0

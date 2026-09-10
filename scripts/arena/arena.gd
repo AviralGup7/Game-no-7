@@ -40,6 +40,12 @@ var _nav_grid: ArenaNavGrid = null
 var _obstacles: Array[ArenaObstaclePlacement] = []
 var _landmark: ArenaLandmark = null
 var _config: ArenaConfig = null
+## The solid decoration props' footprints (barrels, crates, rubble, braziers), published by
+## `ArenaDecorator` after `decorate()`. They block nav cells exactly like the hand-authored obstacles,
+## so AI routes around a barrel instead of pathing straight through it — and they arrive as the same
+## typed `Array[AABB]` the authored placements are flattened into for `ArenaNavGrid.build`, so one
+## grid is fed from two sources and neither of them speaks Dictionary.
+var _decoration_blockers: Array[AABB] = []
 var _flow_tick := 0.0
 
 
@@ -273,7 +279,26 @@ func _build_navigation_floor() -> void:
 		var landmark_box := _landmark.footprint()
 		if landmark_box.has_area():
 			blockers.append(landmark_box)
+	# Solid decoration props are obstacles too: physics blocks their bodies, this blocks the AI's
+	# intent through them, from the same footprints — one list, so the two cannot disagree.
+	for foot in _decoration_blockers:
+		blockers.append(foot)
 	_nav_grid.build(interior_half, nav_cell_size, blockers)
+
+
+## Register the solid decoration footprints and rebuild the shared nav grid so the AI
+## routes around what the new colliders block. Called by ArenaDecorator.decorate();
+## safe to call before any decoration exists (rebuilds with the current set).
+func register_decoration_blockers(blockers: Array[AABB]) -> void:
+	# A copy, not a reference: `ArenaDecorator.reset()` clears and refills its own list, and a nav
+	# rebuild must never observe a half-populated one. The Y extent is whatever the prop's box is —
+	# `ArenaNavGrid.build` reads x and z only, drops a non-finite box, and a footprint with no area
+	# blocks nothing, which is the same `has_area()` rule the landmark uses above.
+	_decoration_blockers.clear()
+	for foot in blockers:
+		if foot.has_area():
+			_decoration_blockers.append(foot)
+	_rebuild_navigation_floor()
 
 
 ## Rebuild after a theme switch swaps the landmark (idempotent, cheap).
@@ -307,6 +332,47 @@ func get_min_spawn_distance() -> float:
 
 func get_player_start() -> Node3D:
 	return get_node_or_null("PlayerStart") as Node3D
+
+
+## Spawn pose that is on the floor, inside the playable box, and outside the
+## central landmark. The authored marker can sit too close to the south wall
+## (camera then starts in the HDRI "mountain" sky) or overlap the forge/obelisk.
+func get_safe_player_spawn() -> Transform3D:
+	var marker := get_player_start()
+	var xf := Transform3D.IDENTITY
+	if marker != null:
+		xf = marker.global_transform
+	xf.origin = unstuck_origin(xf.origin)
+	if not xf.basis.is_conformal() or xf.basis.determinant() == 0.0:
+		xf.basis = Basis.IDENTITY
+	return xf
+
+
+func unstuck_origin(p: Vector3) -> Vector3:
+	var half := maxf(interior_half - 2.25, 3.0)
+	if not is_finite(p.x):
+		p.x = 0.0
+	if not is_finite(p.y):
+		p.y = 0.2
+	if not is_finite(p.z):
+		p.z = 4.5
+	p.x = clampf(p.x, -half, half)
+	p.z = clampf(p.z, -half, half)
+	p.y = maxf(p.y, 0.15)
+	# The landmark is asked, not mirrored: `_landmark_half` used to be a second copy of its
+	# footprint, which went stale the moment the config changed.
+	var need := 0.0
+	if _landmark != null:
+		var landmark_size := _landmark.footprint().size
+		need = maxf(landmark_size.x, landmark_size.z) * 0.5 + 1.35
+	var flat := Vector2(p.x, p.z)
+	if need > 0.1 and flat.length() < need:
+		var dir := flat.normalized() if flat.length() > 0.05 else Vector2(0.0, 1.0)
+		p.x = dir.x * need
+		p.z = dir.y * need
+		p.x = clampf(p.x, -half, half)
+		p.z = clampf(p.z, -half, half)
+	return p
 
 
 func get_spawn_points() -> Array[Node3D]:

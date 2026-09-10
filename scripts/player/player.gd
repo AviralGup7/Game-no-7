@@ -95,6 +95,15 @@ func _ready() -> void:
 		EventBus.enemy_killed.connect(_on_enemy_kill_xp)
 
 
+func _exit_tree() -> void:
+	if EventBus == null:
+		return
+	if EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
+		EventBus.enemy_killed.disconnect(_on_enemy_kill_heal)
+	if EventBus.enemy_killed.is_connected(_on_enemy_kill_xp):
+		EventBus.enemy_killed.disconnect(_on_enemy_kill_xp)
+
+
 ## Resolve every component reference ONCE, as its concrete type. A wrong script
 ## on a child node yields null here (the `as` cast never lies), which the
 ## required-component check then reports by name.
@@ -181,6 +190,8 @@ func _physics_process(delta: float) -> void:
 			request_dodge()
 		if Input.is_action_just_pressed("switch_weapon"):
 			request_weapon_switch()
+		if InputMap.has_action("lock_on") and Input.is_action_just_pressed("lock_on"):
+			request_lock_on()
 	# Advance weapon timers every active step so hits resolve deterministically.
 	_weapons.tick(delta)
 	_attack_buffer.tick(delta, _try_attack)
@@ -230,16 +241,21 @@ func set_move_input(input_vector: Vector2) -> void:
 	_locomotion.set_move_input(input_vector)
 
 
+func get_move_intent() -> float:
+	return _locomotion.gather().length()
+
+
 func clear_move_input() -> void:
 	_locomotion.clear_and_idle()
 
 
-func request_attack() -> void:
+func request_attack() -> bool:
 	if not _can_combat():
-		return
+		return false
 	_attack_buffer.clear()
 	if not _try_attack():
 		_attack_buffer.push(attack_buffer_seconds)
+	return true
 
 
 func _can_combat() -> bool:
@@ -263,10 +279,23 @@ func _try_attack() -> bool:
 func _aim_attack() -> void:
 	if not is_inside_tree():
 		return
+	_targeting.apply_settings()
 	var nodes := get_tree().get_nodes_in_group("enemies")
 	var target := _targeting.pick_best_target(nodes)
 	if target is Node3D:
 		_controller.face_direction((target as Node3D).global_position - global_position)
+
+
+func request_lock_on() -> bool:
+	if not _can_combat():
+		return false
+	var tree := get_tree()
+	if tree == null:
+		return false
+	var rig := tree.get_first_node_in_group("camera_rig") as CameraRig
+	if rig == null:
+		return false
+	return rig.toggle_lock_on()
 
 
 func request_dodge() -> bool:

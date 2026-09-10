@@ -84,7 +84,8 @@ BUILTIN_TYPES = {
     "Curve", "Image", "ImageTexture", "Skin", "Shader", "ShaderMaterial",
     "Environment", "CameraAttributesPractical", "MultiMesh",
     "MultiMeshInstance3D", "RayCast3D", "ShapeCast3D", "CollisionPolygon3D",
-    "PhysicsBody3D", "Sprite2D", "Sprite3D", "Label3D", "Decal",
+    "PhysicsBody3D", "CollisionObject3D", "AnimatableBody3D", "SkeletonIK3D",
+    "BoneAttachment3D", "Sprite2D", "Sprite3D", "Label3D", "Decal",
     "ReflectionProbe", "Light3D", "SpotLight3D", "ProceduralSkyMaterial", "Sky",
 }
 

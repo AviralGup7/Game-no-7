@@ -114,7 +114,10 @@ func clamp_to_bounds() -> void:
 		# repaired spot on this frame, not slide there from the NaN position.
 		_body.reset_physics_interpolation()
 		return
-	var clamped := Vector3(clampf(p.x, -limit, limit), p.y, clampf(p.z, -limit, limit))
+	var y := p.y
+	if y < 0.12:
+		y = 0.12
+	var clamped := Vector3(clampf(p.x, -limit, limit), y, clampf(p.z, -limit, limit))
 	if clamped.x != p.x and _body.velocity.x * p.x > 0.0:
 		_body.velocity.x = 0.0
 	if clamped.z != p.z and _body.velocity.z * p.z > 0.0:

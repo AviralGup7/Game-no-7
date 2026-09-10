@@ -58,3 +58,70 @@ func roll_pitch(rng: RandomNumberGenerator) -> float:
 	if rng == null or pitch_var <= 0.0:
 		return pitch
 	return maxf(pitch + rng.randf_range(-pitch_var, pitch_var), 0.05)
+
+
+## Built-in playback contract for a cue. This is what makes the schema live:
+## the engine consults these defaults for every play, and a registered
+## (code- or .tres-sourced) config overrides them per cue.
+##
+## Tuning notes:
+##   * Footsteps/shots/hits are the spam sources — short cooldowns + higher
+##     caps keep them alive but bounded (cooldown first, cap second).
+##   * One-shot feedback cues (hurt, level up, wave bell) get max_voices 1:
+##     a second instance adds muddiness, not information.
+##   * UI cues route to the "UI" bus so menus stay out of the combat mix.
+##   * Generic cues keep zero variance: multi-variant streams already carry
+##     their own ±3 dB randomization (AudioStreamRandomizer), so rolling on
+##     top would double-dip the mix.
+
+## cue -> [bus, max_voices, cooldown_s, volume_var_db, pitch_var]
+const DEFAULT_MAX_VOICES := 4
+const _TUNED: Dictionary = {
+	# Spam sources: bounded but allowed to layer.
+	"player_step": [&"SFX", 6, 0.05, 0.0, 0.02],
+	"player_shot": [&"SFX", 8, 0.02, 1.0, 0.03],
+	"enemy_hit": [&"SFX", 6, 0.03, 0.0, 0.02],
+	"enemy_dash": [&"SFX", 4, 0.06, 0.0, 0.0],
+	"enemy_windup": [&"SFX", 4, 0.10, 0.0, 0.0],
+	"enemy_explosion": [&"SFX", 4, 0.08, 0.0, 0.0],
+	"enemy_spawn": [&"SFX", 6, 0.04, 0.0, 0.0],
+	"player_dodge": [&"SFX", 3, 0.05, 0.0, 0.03],
+	"pickup": [&"SFX", 4, 0.05, 1.0, 0.05],
+	# One-shot feedback: never layer on itself.
+	"player_hurt": [&"SFX", 1, 0.10, 0.0, 0.0],
+	"player_death": [&"SFX", 1, 0.5, 0.0, 0.0],
+	"player_low_health": [&"SFX", 1, 0.8, 0.0, 0.0],
+	"enemy_death": [&"SFX", 8, 0.03, 0.0, 0.05],
+	"level_up": [&"SFX", 1, 0.5, 0.0, 0.0],
+	"boss_spawned": [&"SFX", 1, 1.0, 0.0, 0.0],
+	"boss_slain": [&"SFX", 1, 1.0, 0.0, 0.0],
+	"game_over": [&"SFX", 1, 1.0, 0.0, 0.0],
+	"wave_started": [&"SFX", 1, 0.5, 0.0, 0.0],
+	"wave_completed": [&"SFX", 1, 0.5, 0.0, 0.0],
+	# Menus: their own bus, no combat bleed.
+	"ui_confirm": [&"UI", 2, 0.05, 0.0, 0.0],
+	"ui_back": [&"UI", 2, 0.05, 0.0, 0.0],
+	"upgrade_select": [&"UI", 2, 0.05, 0.0, 0.0],
+	# Music ids (defensive: they should never reach play_sfx).
+	"music_menu": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_calm": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_battle": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_boss": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_victory": [&"Music", 1, 0.0, 0.0, 0.0],
+}
+
+
+static func for_cue(cue_id: StringName) -> AudioConfig:
+	var cfg := AudioConfig.new()
+	cfg.cue_id = cue_id
+	cfg.bus = &"SFX"
+	cfg.max_voices = DEFAULT_MAX_VOICES
+	var tuned: Variant = _TUNED.get(String(cue_id))
+	if tuned == null:
+		return cfg
+	cfg.bus = tuned[0]
+	cfg.max_voices = tuned[1]
+	cfg.cooldown = tuned[2]
+	cfg.volume_var_db = tuned[3]
+	cfg.pitch_var = tuned[4]
+	return cfg

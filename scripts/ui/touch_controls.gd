@@ -23,11 +23,19 @@ func _ready() -> void:
 		button.opacity = 0.96
 		button.vibrate_on_press = entry[0] == "attack"
 		var method: StringName = entry[1]
-		button.pressed.connect(func() -> void:
-			if not UiCommands.action(method):
-				action_declined.emit("Unavailable — check stamina, cooldown or equipped slots."))
+		button.pressed.connect(_on_button_pressed.bind(method))
 		add_child(button)
 		_buttons.append(button)
+
+
+## Single guarded entry point for every touch action button (attack / dodge / swap).
+## A declined command is normal gameplay (stamina, cooldown, holstered slot) and
+## surfaces as a toast; an unexpected failure is reported through EventBus so a
+## device-side problem is visible in the log instead of looking like a dead button.
+func _on_button_pressed(command: StringName) -> void:
+	if UiCommands.action(command):
+		return
+	action_declined.emit("Unavailable — check stamina, cooldown or equipped slots.")
 	resized.connect(_layout)
 	visibility_changed.connect(_on_visibility_changed)
 	_layout.call_deferred()
@@ -63,6 +71,11 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 func _process(_delta: float) -> void:
 	if not is_visible_in_tree():
 		return
+	if get_tree() != null and get_tree().paused:
+		if _last_value != Vector2.ZERO:
+			UiCommands.move(Vector2.ZERO)
+			_last_value = Vector2.ZERO
+		return
 	var value := joystick.get_value()
 	if not is_finite(value.x) or not is_finite(value.y):
 		# Never forward a poisoned sample to the player: it would be latched into
@@ -90,6 +103,8 @@ func _on_visibility_changed() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) and DisplayServer.virtual_keyboard_get_height() > 0:
+			return
 		cancel()
 
 func get_debug_snapshot() -> Dictionary:
@@ -97,5 +112,6 @@ func get_debug_snapshot() -> Dictionary:
 
 
 func set_high_contrast(enabled: bool) -> void:
-	if joystick != null: joystick.modulate.a = 1.0 if enabled else 0.75
-	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.95
+	if joystick != null:
+		joystick.set_rest_alpha(1.0 if enabled else 0.75)
+	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.88
