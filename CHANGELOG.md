@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] — Documentation consolidation (2026-09-11)
+
+`docs/` reduced from 34 to 20 markdown files. Canonical/reference docs (pinned by
+regression tests or code comments) are kept; process artifacts, one-off research
+notes and duplicates were deleted or merged.
+
+- **Deleted (waste — historical/process artifacts, unreferenced):**
+  `AGENT5_UI_HANDOFF`, `RECHECK`, `RELEASE_CANDIDATE_REPORT`, `QA_RELEASE_AUDIT`,
+  `MILESTONES_2_7_SUMMARY`, `MILESTONE0_AUDIT`, `GAME_ROOT_LIFECYCLE_RESEARCH`,
+  `INPUT_REMAP_RESEARCH`, `OBJECT_POOL_RESEARCH`, `WEIGHTED_TABLE_RESEARCH`.
+- **Merged (duplicates → one doc):**
+  - `CAMERA_MODULAR` + `CAMERA_PERFECT` → **`CAMERA.md`** (modules, coordinator loop,
+    design principles, profiles, references).
+  - `PLAYER_IMPLEMENTATION` + `MOVEMENT_STABILITY` + `STARTUP_STABILITY` → **`PLAYER.md`**
+    (player contract + tuning, NaN-crash postmortem, boot/visibility postmortem).
+  - `ENEMY_AI_ROBUSTNESS_RESEARCH` → appended as §5 of `ENEMY_AI_RESEARCH.md`.
+  - `MILESTONE0_AUDIT` determinism contract → new `## Determinism` section in
+    `ARCHITECTURE.md`.
+- **Updated pointers:** `tool/validate_guards.py` (movement-stability rationale),
+  `tests/python/test_regress_enemy_ai_hardening.py`, `tests/python/test_regress_milestones_2_to_7.py`,
+  and the README repository map + documentation table.
+- **Verification:** 910 Python tests, engine-API contract, typed-architecture gate,
+  guard gate (201) and resource gate (159) all green. No runtime/device claims.
+
 ## [Unreleased] — Forensic-audit remediation: version alignment + detached-node error spam (2026-09-11)
 
 Follow-up to the read-only game forensic audit (`GAME_FORENSIC_AUDIT.md`). Only the

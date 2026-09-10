@@ -72,7 +72,7 @@ def main() -> int:
         ("scripts/visuals/ring_fade.gd", "clampf(_elapsed / _duration, 0.0, 1.0)"),
         # Joystick -> locomotion -> physics/camera: the non-finite-proof chain that keeps
         # a bad analog sample from latching into a CharacterBody3D / Camera3D transform
-        # (docs/MOVEMENT_STABILITY.md). Losing any one of these re-opens a device crash.
+        # (docs/PLAYER.md § Movement stability). Losing any one of these re-opens a device crash.
         ("scripts/ui/virtual_joystick.gd", "func _safe_radius() -> float:"),
         ("scripts/ui/virtual_joystick.gd", "return _value if _is_finite_v2(_value) else Vector2.ZERO"),
         ("scripts/ui/touch_controls.gd", "if not is_finite(value.x) or not is_finite(value.y):"),

@@ -161,7 +161,7 @@ class Milestone7_CleanupDocs(unittest.TestCase):
                     bad.append(str(p))
         self.assertEqual(bad, [], msg=str(bad))
     def test_determinism_documented(self):
-        txt = read("docs/MILESTONE0_AUDIT.md")
+        txt = read("docs/ARCHITECTURE.md")
         self.assertIn("Determinism", txt)
         self.assertIn("RngService", txt)
     def test_milestone1_doc_exists(self):

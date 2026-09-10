@@ -100,6 +100,22 @@ Two consequences worth knowing before you reach for a physics hitbox:
   crowding is soft (`EnemyPack` separation query, peers-only). Never move the
   boundary between the two without moving the pinned test with it.
 
+## Determinism
+
+Gameplay outcomes are reproducible from a per-run seed so they can be verified
+headlessly and replayed:
+
+- `RngService` owns salted per-stream generators — `STREAM_WAVES`, `STREAM_DROPS`,
+  `STREAM_CRITS`, `STREAM_AI`, `STREAM_UPGRADES`, `STREAM_ARENA`, `STREAM_AUDIO`
+  (plus `STREAM_COSMETIC`). No gameplay system may call global `randi()` directly
+  (pinned by `test_integration_wave_boss.py`).
+- Wave generation, upgrade selection, spawn order/placement and scoring are pure
+  functions of `(run_seed, wave_number)`; boss RNG derives from the run seed.
+- Combat is math, not physics (see above), so hit results are stable across frame
+  rates and hardware.
+- Only presentation may be non-deterministic; where a seed is convenient for
+  reproduction it is still used.
+
 ## Timing contract (render tick vs physics tick)
 
 Simulation is fixed 60 Hz (`physics/common/physics_ticks_per_second`); rendering is
