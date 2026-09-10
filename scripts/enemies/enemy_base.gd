@@ -885,7 +885,7 @@ func set_elite(affixes: Array) -> void:
 		attack_hit.connect(_on_vampiric_hit)
 
 
-func _on_vampiric_hit(_target: Node, result: DamageResult) -> void:
+func _on_vampiric_hit(_hit_target: Node, result: DamageResult) -> void:
 	if result == null or not result.accepted or not _alive:
 		return
 	if _health != null:
