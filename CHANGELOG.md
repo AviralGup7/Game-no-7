@@ -116,9 +116,48 @@ shape had to absorb the other side's feature rather than duplicate it.
   `test_regress_final_sweep.py::ScopeShadowTests` and four new guard needles (the seam, the loader check,
   the deleted field, and a ban on `else []` in the hazard layer) pin the shapes.
 
-Gates on the merged tree: 768 python tests, `validate_guards.py` 186/0, `validate_resources.py`
-159/159 (with the two new checks verified against planted defects), `check_typed_arch.py` clean,
-`gdparse`/`gdlint` clean on every file the merge touched.
+Gates on the merged tree: 768 python tests, `validate_guards.py` 190/0 (that line first said 186,
+quoted from the count before the round's own four needles were added — the same mistake the entry is
+about), `validate_resources.py` 159/159 (with the two new checks verified against planted defects),
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file the merge touched.
+
+- **A fifth headless round, and the mask finally came off the behaviour.** Nine items became eight
+  fixes, and for the first time the CI log named its own cause: the harness now annotates a suite that
+  cannot compile (`Suite compile failure::res://tests/unit/test_status_manager.gd has a parse error`)
+  instead of letting it evaporate into `Nonexistent function ... (via call)`. That one line is the
+  difference between a 70-second run with a list and a 70-second run with a mystery.
+- **A missing `return` is a parse error, and a parse error is a black hole.**
+  `tests/integration_stages.gd::_run_run_definition_integration` ended on `results.append({...})` with
+  no `return results` — "Not all code paths return a value" — so the whole integration script refused
+  to load and *every* stage in it reported a nonexistent function. `EveryPathReturnsTests` now sweeps
+  `scripts/` and `tests/` for a function declaring a return type that contains no `return` statement.
+- **A resource built, configured, and never attached is invisible to every tool and to the player.**
+  `ArenaObstacles.build_nodes` sized a `BoxMesh` and left it on the floor: the obstacle bodies were
+  solid, and the walls were not drawn. `main` had just fixed that exact line in its own hardening pass;
+  the auto-merge preferred this branch's refactored file and silently dropped it. Restored, swept
+  repo-wide (no `*Mesh`/`*Shape3D`/`*Material3D` local in `scripts/` goes unattached or unreturned),
+  and pinned twice over — `AttachedResourceTests` in the python suite and the existing Godot body test,
+  which is what actually caught it. **Auto-merge is not review**: a clean resolution means the hunks
+  did not overlap, not that both intents survived.
+- **Three fixtures were the bug, not the code.** `test_hazards.gd`'s "a hazard that targets nobody is
+  refused" flipped one of the two `affects_*` flags, so the rule under test correctly stayed quiet;
+  its spatial-index check packed all forty bodies into two cells and then blamed the grid for visiting
+  everything; and `test_nav_grid.gd`'s layout-parity check compared the *mirror-expanded* authored list
+  against the raw two-row fallback, so the sizes differed by construction (the Pit's authored rows are
+  verbatim the fallback's geometry: `(6.5,0,6.5)`+pillar mirrored on both axes, `(3.6,0,0)`+block
+  mirrored on x). A test that passes for the wrong reason is worse than one that fails.
+- **Two assertions found a real behavioural defect.** `HazardInstance.advance()` let a periodic pulse
+  that never detonated drift to twice its period and then snap back, which left the clock up to a full
+  period ahead of the telegraph it had already shown — the reported `timer=5.95` is 200 ticks at 0.05
+  against a 4.05 s period, arithmetic no earlier run could reach. The clock is now capped at one
+  period, so an idle hazard simply stays *due*. The once-per-second cooldown sweep also has a monotonic
+  `prune` budget, which the fixture violated by pruning at a time before its own last stamp.
+- **`StatusEffectConfig.move_speed_factor` is a field, and the round that "fixed" it fixed one of the
+  two call sites.** `haste.move_speed_factor()` in the cleanse assertion kept the file unparseable,
+  which in turn kept the corrected `expected_move` arithmetic from ever running.
+
+Gates on this round: 770 python tests, `validate_guards.py` 194/0, `validate_resources.py` 159/159,
+`check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file touched.
 
 ## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)
 

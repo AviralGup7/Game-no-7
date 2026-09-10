@@ -211,7 +211,9 @@ static func _fold_matches_brute_force(results: Array) -> void:
 		"got=%s want=%s" % [str(host.status.outgoing_damage_factor()), str(expected_outgoing)])
 	var cleanse_count := host.status.cleanse_all(true)
 	_check(results, "cleansing harmful effects leaves only the friendly fold",
-		cleanse_count == 2 and is_equal_approx(host.status.move_speed_factor(), haste.move_speed_factor()),
+		# `haste` is the config: the authored float is the answer for a single stack, and reading it
+		# as a method is what made this file fail to parse.
+		cleanse_count == 2 and is_equal_approx(host.status.move_speed_factor(), haste.move_speed_factor),
 		"cleansed=%d move=%s" % [cleanse_count, str(host.status.move_speed_factor())])
 	_free(host)
 

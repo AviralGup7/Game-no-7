@@ -174,6 +174,14 @@ def main() -> int:
 	("scripts/waves/wave_manager.gd", "max_simultaneous_enemies()"),
 	("scripts/arena/arena.gd", "for foot in _decoration_blockers"),
 	("scripts/arena/arena.gd", "func register_decoration_blockers"),
+	# A BoxMesh that is configured and never attached to its MeshInstance3D is a solid wall nobody can
+	# see: main's hardening pass added the line, the refactor dropped it, and only a runtime check caught
+	# it. Likewise the pulse clock: capped at one period, so an idle hazard stays due instead of running
+	# up to two periods ahead of the telegraph it already showed.
+	("scripts/arena/arena_obstacles.gd", "mesh.mesh = bm"),
+	("scripts/arena/hazard_instance.gd", "timer = minf(timer + delta, period)"),
+	("tests/python/test_regress_final_sweep.py", "class AttachedResourceTests"),
+	("tests/python/test_regress_final_sweep.py", "class EveryPathReturnsTests"),
     	('scripts/meta/game_mode.gd', 'static func resolve(mode_id: StringName) -> GameModeConfig'),
     	('scripts/meta/game_mode.gd', 'static func definition(mode_id: StringName) -> GameModeConfig'),
     	('scripts/meta/game_mode.gd', 'push_error("GameMode: unknown mode id'),

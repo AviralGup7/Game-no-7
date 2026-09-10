@@ -988,3 +988,5 @@ static func _run_run_definition_integration(tree: SceneTree) -> Array:
 		"why": "score=%d want=%d rank8=%.3f want=%.3f" % [run.score, want_zero, at_eighth,
 				rung.score_mult if rung != null else -1.0],
 	})
+
+	return results

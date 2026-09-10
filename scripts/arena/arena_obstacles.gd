@@ -109,6 +109,10 @@ static func build_nodes(parent: Node3D, layout: Array[ArenaObstaclePlacement], m
 		var mesh := MeshInstance3D.new()
 		var bm := BoxMesh.new()
 		bm.size = hs * 2.0
+		# Attach it. A BoxMesh that is built and configured but never handed to the MeshInstance3D is
+		# an orphaned resource: the body is solid, the wall is not drawn, and the only symptom in play is
+		# "why can I not walk there" (main's 2f854c2 fixed this same line; the refactor dropped it).
+		mesh.mesh = bm
 		if material != null:
 			mesh.material_override = material
 		body.add_child(mesh)

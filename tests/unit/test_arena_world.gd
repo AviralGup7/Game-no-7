@@ -386,6 +386,10 @@ static func _validation_rules_arena(results: Array) -> void:
 	ob.position = Vector3(-5.9, 0.0, 1.0)
 	var off_centre := cfg.landmark.duplicate(true) as ArenaLandmarkConfig
 	off_centre.position = Vector3(6.0, 0.0, 0.0)
+	# Stated, not inherited: the mirrored copy sits at (+5.9, 0, 1.0), and whether that is inside the
+	# centrepiece depends on the footprint. An obelisk (0.55 in z, +0.25 slack) does not contain it, so
+	# the check would be about the fixture's source arena rather than about mirroring.
+	off_centre.footprint_half = Vector3(1.9, 0.7, 1.9)
 	probe.landmark = off_centre
 	_check(results, "the overlap rule sees mirrored copies, not just the authored line",
 			_check_has(probe.validate(), "buried in the landmark footprint"), str(probe.validate()))

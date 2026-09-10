@@ -85,6 +85,8 @@ static func _validate_rejects_misauthored(results: Array) -> void:
 	var nobody := base.duplicate() as HazardConfig
 	nobody.hazard_id = &"probe"
 	nobody.affects_enemies = false
+	# Both halves: a hazard that reaches enemies only is legal, and the rule is about reaching nothing.
+	nobody.affects_player = false
 	_check(results, "a hazard that targets nobody is refused", _bad(nobody, "can never affect anything"))
 	var kind_but_hurts := base.duplicate() as HazardConfig
 	kind_but_hurts.hazard_id = &"probe"
@@ -295,7 +297,10 @@ static func _cooldown_runs_on_game_time(results: Array) -> void:
 		is_equal_approx(accumulated, spikes.victim_cooldown), "accumulated=%s" % str(accumulated))
 	for i in range(200):
 		instance.stamp_victim(1000 + i, 0.0)
-	instance.prune(5.0)
+	# After the last stamp's own next-sweep time (`stamp_victim(42, 10.0)` scheduled one at 11.0):
+	# game time only moves forward, and the sweep is throttled to once per second, so pruning at 5.0
+	# here would be the throttle doing its job rather than the sweep failing to run.
+	instance.prune(12.0)
 	_check(results, "expired cooldowns are swept so a long run does not leak entries",
 		instance.debug_snapshot()["throttled"] == 0, str(instance.debug_snapshot()["throttled"]))
 
@@ -421,8 +426,11 @@ static func _index_reports_its_own_work(results: Array) -> void:
 	index.setup(Vector3.ZERO, 12.0, 1.2)
 	_check(results, "cells are derived from the query radius and stay bounded",
 		index.cells_x >= 4 and index.cells_x <= 17, "cells=%d" % index.cells_x)
+	# Spread across the arena: at 0.2 m apart all forty bodies land in the same pair of cells, and a
+	# query that reads every one of them is correct, not a broken index. The check is "the grid narrows
+	# the work", which needs the work to be spread in the first place.
 	for i in range(40):
-		index.insert(Vector3(-11.0 + float(i % 8) * 0.2, 0.0, -11.0 + int(i / 8.0) * 0.2), 0, 0.0)
+		index.insert(Vector3(-11.0 + float(i % 8) * 3.0, 0.0, -11.0 + int(i / 8.0) * 3.0), 0, 0.0)
 	var before := index.visited
 	for q in range(10):
 		index.query(Vector3(-11.0 + float(q % 5) * 0.2, 0.0, -11.0 + float(q / 5) * 0.2), 1.2, 0)

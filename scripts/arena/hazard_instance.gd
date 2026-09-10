@@ -96,11 +96,11 @@ func advance(delta: float) -> void:
 	if rearm > 0.0:
 		rearm = maxf(rearm - delta, 0.0)
 	if period > 0.0:
-		timer += delta
-		if timer >= period * 2.0:
-			# A hazard that never detonated (paused world, zero victims) must not let its
-			# clock drift arbitrarily far past the period.
-			timer = period
+		# Capped at one period rather than allowed to overshoot and snap back. A pulse that never
+		# detonated (paused world, zero victims, a disabled arena) stays *due*, which is what the next
+		# victim should meet, and the telegraph cannot sit past full while nobody is around. Snapping at
+		# 2x instead left the clock up to a whole period ahead of the burst it had already announced.
+		timer = minf(timer + delta, period)
 
 
 ## True when a periodic burst should fire now; consumes the timer.

@@ -129,5 +129,116 @@ class ScopeShadowTests(unittest.TestCase):
                          msg="locals shadowing their own parameters (a parse error):\n  "
                              + "\n  ".join(offenders[:12]))
 
+class EveryPathReturnsTests(unittest.TestCase):
+    """`Not all code paths return a value` is a parse error, so the whole script fails to load -- which
+    is what happened to the integration harness when `_run_run_definition_integration` finished with
+    `results.append({...})` and no `return results`: every stage in the file reported
+    `Nonexistent function ... (via call)` and none of them had run. GDScript demands a `return`
+    statement in the body; this pins that no declared-return function is written without one. It cannot
+    check that *all* paths return (only the engine can), but the total absence of a `return` is the
+    shape that actually ships, because a reviewer sees the last statement and reads it as the answer.
+    """
+
+    SIGNATURE_RE = re.compile(
+        r"^(?P<indent>\t*)(?:static )?func (?P<name>[A-Za-z_][A-Za-z0-9_]*)\((?P<params>.*)\)"
+        r"\s*->\s*(?P<type>[A-Za-z_][A-Za-z0-9_]*(?:\[[^\]]+\])?)\s*:"
+    )
+    RETURN_RE = re.compile(r"^\t+return\b")
+
+    @staticmethod
+    def _strip(source):
+        out = []
+        for line in source.splitlines():
+            if line.lstrip().startswith("#"):
+                out.append("")
+                continue
+            cut = line.find('"')
+            while cut != -1:
+                if cut > 0 and line[cut - 1] == "\\":
+                    cut = line.find('"', cut + 1)
+                    continue
+                end = cut + 1
+                while end < len(line) and line[end] != '"':
+                    end += 2 if line[end] == "\\" else 1
+                line = line[:cut] + '""' + line[end + 1:]
+                cut = line.find('"', end + 1)
+            out.append(line)
+        return out
+
+    def test_declared_return_functions_return(self):
+        offenders = []
+        for base in ("scripts", "tests"):
+            for path in sorted((ROOT / base).rglob("*.gd")):
+                lines = self._strip(path.read_text(encoding="utf-8"))
+                for i, line in enumerate(lines):
+                    m = self.SIGNATURE_RE.match(line)
+                    if m is None or m.group("type") == "void":
+                        continue
+                    if re.search(r":\s*return\b", line):
+                        continue  # one-liner: `func x() -> T: return y`
+                    body_indent = m.group("indent") + "\t"
+                    returned = False
+                    for body in lines[i + 1:]:
+                        if body.strip() and not body.startswith(body_indent):
+                            break
+                        if body.startswith(body_indent) and self.RETURN_RE.match(body):
+                            returned = True
+                            break
+                    if not returned:
+                        offenders.append(f"{path.relative_to(ROOT)}:{i + 1}: {m.group('name')}()")
+        self.assertEqual([], offenders)
+
+
+class AttachedResourceTests(unittest.TestCase):
+    """A resource that is built, configured and never handed to anything is invisible to every tool and
+    invisible in play: `build_nodes` made a `BoxMesh`, sized it, and dropped it on the floor, so the
+    arena's obstacle bodies were solid but never drawn -- the exact "invisible walls" bug main had just
+    fixed, re-introduced by a merge resolution that preferred the refactored file. The rule: a local
+    `var x := <Type>{Mesh,Shape3D,Shape2D,Material3D,StyleBox,Gradient,Curve}.new()` inside a function
+    must later be used as a value -- attached, passed, or returned -- or it is dead code that should
+    have been a scene property.
+    """
+
+    NEW_RE = re.compile(
+        r"\bvar\s+(?P<name>[A-Za-z_][A-Za-z0-9_]*)\s*:?=\s*[A-Za-z_0-9]*"
+        r"(?:Mesh|Shape3D|Shape2D|Material3D|StyleBox|Gradient|Curve)\.new\(\)"
+    )
+
+    @staticmethod
+    def _strip(source):
+        out = []
+        for line in source.splitlines():
+            if line.lstrip().startswith("#"):
+                out.append("")
+                continue
+            cut = line.find('"')
+            while cut != -1:
+                if cut > 0 and line[cut - 1] == "\\":
+                    cut = line.find('"', cut + 1)
+                    continue
+                end = cut + 1
+                while end < len(line) and line[end] != '"':
+                    end += 2 if line[end] == "\\" else 1
+                line = line[:cut] + '""' + line[end + 1:]
+                cut = line.find('"', end + 1)
+            out.append(line)
+        return out
+
+    def test_built_resources_are_attached(self):
+        offenders = []
+        for path in sorted((ROOT / "scripts").rglob("*.gd")):
+            lines = self._strip(path.read_text(encoding="utf-8"))
+            for i, line in enumerate(lines):
+                m = self.NEW_RE.search(line)
+                if m is None:
+                    continue
+                name = m.group("name")
+                used = re.compile(rf"=\s*{name}\b|\(\s*{name}\s*[,)]|\breturn\s+{name}\b|\[{name}\]")
+                if any(used.search(rest) for rest in lines[i + 1:]):
+                    continue
+                offenders.append(f"{path.relative_to(ROOT)}:{i + 1}: {line.strip()}")
+        self.assertEqual([], offenders)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -224,7 +224,12 @@ static func _obstacle_layouts(results: Array) -> void:
 	_check(results, "the fallback layout scales with arena half-extent", scales_ok)
 	# The Pit's authored layout and the fallback agree: the fallback IS that geometry, and if
 	# the two ever drift the "absence is a documented choice" claim stops being true.
-	var pit_authored := ArenaObstacles.layout_for(_arena_config("default_arena"), 12.0)
+	# The authored rows, not `layout_for`: `layout_for` expands mirrors and the fallback is the
+	# un-expanded pair, so comparing the two measured the expansion rather than the geometry.
+	# Split, not chained: handing `load(path).field` straight to a statically typed `Array[T]` local is
+	# refused in 4.3+ (godot#95568) — the value has to pass through a variable the compiler can see.
+	var pit_cfg: ArenaConfig = _arena_config("default_arena")
+	var pit_authored: Array[ArenaObstaclePlacement] = pit_cfg.obstacle_layout
 	var same := pit_authored.size() == small.size()
 	if same:
 		for i in range(small.size()):
