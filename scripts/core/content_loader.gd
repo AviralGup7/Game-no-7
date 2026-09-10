@@ -94,6 +94,24 @@ static func _validate_references(tables: Dictionary, errors: Array[String], pres
 		for exclusion in upgrade.exclusions:
 			if not upgrades.has(exclusion):
 				errors.append("upgrade %s references unknown exclusion %s" % [String(upgrade.upgrade_id), String(exclusion)])
+	# The announcer's three lines, for shipped arenas only. `ArenaConfig.validate()` refuses to require
+	# them (a hand-built probe arena is legal), so this is the place that knows the difference between a
+	# fixture and content: a file in res://data/arenas/ that leaves the announcer with nothing to say at
+	# wave 1, wave 5 or wave 10 is a hole in the run, not a testing convenience. Named per field,
+	# because "the lore is empty" would not say which beat went quiet.
+	for raw in (tables[&"arenas"] as Dictionary).values():
+		var arena := raw as ArenaConfig
+		if arena == null:
+			continue
+		if arena.lore_intro.is_empty():
+			errors.append("arena %s authors no lore_intro; the run start has nothing to say"
+					% String(arena.arena_id))
+		if arena.lore_mid.is_empty():
+			errors.append("arena %s authors no lore_mid; wave 5 has nothing to say" % String(arena.arena_id))
+		if arena.lore_late.is_empty():
+			errors.append("arena %s authors no lore_late; the tenth wave has nothing to say"
+					% String(arena.arena_id))
+
 	# Hazards: the status a disc stamps has to exist, and a throttled field must re-stamp
 	# it before it lapses (otherwise the pool "blinks" the slow on and off, which reads as
 	# a bug in a game where kiting through hazards is a real tactic). A hazard config with

@@ -198,7 +198,10 @@ static func _fold_matches_brute_force(results: Array) -> void:
 	host.status.apply_effect(haste, 1, host)
 	host.status.apply_effect(weaken, 1, host)
 	host.status.apply_effect(weaken, 1, host)
-	var expected_move := slow.move_speed_factor() * haste.move_speed_factor()
+	# Fields, not calls: `slow`/`haste` are `StatusEffectConfig`s, where `move_speed_factor` is the
+	# authored float; the *method* of that name lives on `StatusEffect`/`StatusManager` (it is the
+	# stacked, resolved value). Calling the field is a parse error, and `:=` on it inferred nothing.
+	var expected_move: float = slow.move_speed_factor * haste.move_speed_factor
 	var expected_outgoing := pow(weaken.damage_factor, 2.0)
 	_check(results, "the cached move factor equals an independent product over the effects",
 		is_equal_approx(host.status.move_speed_factor(), expected_move),

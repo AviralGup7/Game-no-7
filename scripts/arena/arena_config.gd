@@ -70,12 +70,13 @@ func validate() -> Array[String]:
 		problems.append("scene is null for %s" % String(arena_id))
 	if enemy_spawn_min_player_distance < 0.0:
 		problems.append("enemy_spawn_min_player_distance cannot be negative")
-	# Named per field: "an arena's lore is empty" would not say which of the three beats went quiet.
-	for field in ["lore_intro", "lore_mid", "lore_late"]:
-		var value := _lore_field(field)
-		if value.is_empty():
-			problems.append("%s: %s is empty (an arena that owns a scene owns its three lines too)"
-					% [String(arena_id), field])
+	# The announcer's three lines are deliberately NOT required here. `validate()` runs on every
+	# ArenaConfig that loads, including a suite's probe arena and a modder's scratch resource, and a
+	# bare hand-built arena is a legal thing to construct; `Narrator` answers "no copy" with silence
+	# rather than a fallback, so an empty field is a choice, not a corruption. What is not legal is
+	# *shipping* an arena that leaves the announcer mute, and `ContentLoader` is the one that knows
+	# which files are shipped -- the requirement lives there, and the shipped set is pinned by
+	# `tests/python/test_regress_run_modes.py`.
 	if hazard_layout.size() > 64:
 		problems.append("hazard_layout has %d placements; expand mirrors instead of hand-listing" % hazard_layout.size())
 	for placement in hazard_layout:

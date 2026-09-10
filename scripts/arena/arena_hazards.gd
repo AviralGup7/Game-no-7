@@ -172,21 +172,30 @@ func get_debug_snapshot() -> Dictionary:
 
 
 func _authored_layout(arena_id: StringName) -> Array[HazardPlacement]:
+	# A typed local, not `loaded.hazard_layout if loaded != null else []`: that ternary's type is the
+	# plain `Array` the untyped arm contributes, and returning it from a `-> Array[HazardPlacement]`
+	# function is a parse error -- the whole hazard layer stops loading over a shorthand.
+	var out: Array[HazardPlacement] = []
 	if ContentRegistry != null:
 		var arena: ArenaConfig = ContentRegistry.get_arena(arena_id)
 		if arena != null:
 			return arena.hazard_layout
 	var loaded := _load_arena(arena_id)
-	return loaded.hazard_layout if loaded != null else []
+	if loaded != null:
+		out = loaded.hazard_layout
+	return out
 
 
 func _mode_layout(mode_id: StringName) -> Array[HazardPlacement]:
+	var out: Array[HazardPlacement] = []
 	if ContentRegistry != null:
 		var mode: HazardModeLayout = ContentRegistry.get_hazard_mode_layout(mode_id)
 		if mode != null:
 			return mode.extra_placements
 	var loaded := _load_mode(mode_id)
-	return loaded.extra_placements if loaded != null else []
+	if loaded != null:
+		out = loaded.extra_placements
+	return out
 
 
 ## Registry-or-disk resolution, shared by both layouts: the headless harness and editor

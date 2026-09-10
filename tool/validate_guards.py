@@ -163,6 +163,8 @@ def main() -> int:
 
     print("-- run definitions: modes, the prestige ladder, and the arena's own voice --")
     meta_checks = [
+	("scripts/arena/arena.gd", "func set_landmark_block_half(half: Vector3) -> void"),
+	("scripts/core/content_loader.gd", "authors no lore_intro; the run start has nothing to say"),
 	("scripts/arena/arena_obstacles.gd", "static func blocks_nav(box: AABB) -> bool:"),
 	("scripts/meta/narrator.gd", "static func note_enemy_spawned(archetype_id: StringName) -> void"),
 	("scripts/meta/narrator.gd", "static var _seen_archetypes: Dictionary[StringName, bool] = {}"),
@@ -211,6 +213,8 @@ def main() -> int:
     # And the shapes that made the mode layer untrustworthy are refused here too: a Dictionary
     # catalogue, an id-keyed fallback, a per-mode queue builder, a table the loader cannot see.
     meta_absences = [
+	("scripts/arena/arena.gd", "_landmark_half"),
+	("scripts/arena/arena_hazards.gd", "else []"),
 	("scripts/arena/arena.gd", ".has_area("),
 	("scripts/meta/narrator.gd", "const ENEMY_BLURBS"),
     	('scripts/meta/game_mode.gd', 'const CATALOG'),

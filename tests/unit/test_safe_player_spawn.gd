@@ -25,7 +25,10 @@ static func _finite3(v: Vector3) -> bool:
 static func _unstuck(results: Array) -> void:
 	var arena := Arena.new()
 	arena.interior_half = 12.0
-	arena._landmark_half = Vector3(1.9, 0.7, 1.9)
+	# The half-extents the unstuck solver keeps clear. The field this replaced,
+	# `arena._landmark_half`, was a second authored copy of the landmark's shape and is gone; the
+	# setter is the same input with a name that says who owns it.
+	arena.set_landmark_block_half(Vector3(1.9, 0.7, 1.9))
 
 	var buried := arena.unstuck_origin(Vector3(0.0, -2.0, 0.0))
 	_check(results, "centre spawn is pushed off the forge footprint",
@@ -54,7 +57,7 @@ static func _unstuck(results: Array) -> void:
 static func _safe_spawn(results: Array) -> void:
 	var arena := Arena.new()
 	arena.interior_half = 12.0
-	arena._landmark_half = Vector3(0.55, 2.3, 0.55)
+	arena.set_landmark_block_half(Vector3(0.55, 2.3, 0.55))
 	var xf := arena.get_safe_player_spawn()
 	_check(results, "safe spawn origin is finite and on the floor",
 		_finite3(xf.origin) and xf.origin.y >= 0.15,

@@ -96,6 +96,26 @@ shape had to absorb the other side's feature rather than duplicate it.
   line that reads it. A repo-wide sweep for the remaining shape — a private member assigned but not
   declared in its file — found nine hits, all of them `static var` reads, so that class is closed.
 
+- **A fourth headless round, and the pattern held: five more defects, none of them visible to any local
+  gate.** `ArenaHazards._authored_layout()` and `._mode_layout()` returned
+  `loaded.hazard_layout if loaded != null else []` — a ternary whose type is the plain `Array` the untyped
+  arm contributes, refused by the declared `-> Array[HazardPlacement]`, so the hazard layer never loaded and
+  four hazard/nav tests failed on behaviour they were never actually able to exercise. `main`'s new
+  `test_safe_player_spawn.gd` steered the spawn solver through `arena._landmark_half`, the duplicate field
+  phase 5 deleted, and would have been silently broken (`Invalid assignment of property or key`) had the
+  file compiled at all: `Arena` now carries a named seam, `set_landmark_block_half()`, with the production
+  value assigned from the landmark at build, so there is still exactly one copy of the centrepiece's shape
+  in play. `test_status_manager.gd` called `move_speed_factor()` on a `StatusEffectConfig`, where it is a
+  float field — and the `:=` on that call is the same Variant-inference failure as `is_chance`. The arena
+  lore rule ("an arena that owns a scene owns its three lines") was in `ArenaConfig.validate()`, where it
+  rejected every hand-built probe arena in the suites while saying nothing about the shipped files it was
+  written for; it moved to `ContentLoader`, which is the one that knows the difference. And `Boss Rush`'s
+  escalation assertion in `test_game_modes.gd` (and this file's own earlier prose) claimed sizes 4/5/7/9/12
+  for a formula that produces 4/5/7/8/10 — the `.tres` rows and the python mirror were right, the quoted
+  number was not, which is what happens when a number is written from memory instead of from the code.
+  `test_regress_final_sweep.py::ScopeShadowTests` and four new guard needles (the seam, the loader check,
+  the deleted field, and a ban on `else []` in the hazard layer) pin the shapes.
+
 Gates on the merged tree: 768 python tests, `validate_guards.py` 186/0, `validate_resources.py`
 159/159 (with the two new checks verified against planted defects), `check_typed_arch.py` clean,
 `gdparse`/`gdlint` clean on every file the merge touched.

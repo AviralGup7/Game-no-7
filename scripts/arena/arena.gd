@@ -40,6 +40,12 @@ var _nav_grid: ArenaNavGrid = null
 var _obstacles: Array[ArenaObstaclePlacement] = []
 var _landmark: ArenaLandmark = null
 var _config: ArenaConfig = null
+## Half-extents of the box the spawn solver keeps clear of. Production fills it from the built
+## landmark (see `_build_landmark`) and nothing else writes it, which is the whole difference from the
+## `_landmark_half` this file used to author alongside the landmark: that one was a second copy of a
+## shape another object owns, and it went stale the moment the config moved. `set_landmark_block_half`
+## is the suite seam for the solver's input when there is no scene graph to build.
+var _landmark_block_half := Vector3.ZERO
 ## The solid decoration props' footprints (barrels, crates, rubble, braziers), published by
 ## `ArenaDecorator` after `decorate()`. They block nav cells exactly like the hand-authored obstacles,
 ## so AI routes around a barrel instead of pathing straight through it — and they arrive as the same
@@ -243,9 +249,13 @@ func _spawn_landmark(cfg: ArenaLandmarkConfig) -> void:
 	if old != null:
 		old.queue_free()
 	_landmark = null
+	_landmark_block_half = Vector3.ZERO
 	if cfg == null:
 		return
 	_landmark = ArenaLandmark.spawn(self, cfg)
+	if _landmark != null:
+		# Asked once, at build: the footprint is the landmark's own answer about its shape.
+		_landmark_block_half = _landmark.footprint().size * 0.5
 
 
 ## Deterministic, precomputed navigation floor (no runtime baking). Two layers,
@@ -289,6 +299,17 @@ func _build_navigation_floor() -> void:
 ## Register the solid decoration footprints and rebuild the shared nav grid so the AI
 ## routes around what the new colliders block. Called by ArenaDecorator.decorate();
 ## safe to call before any decoration exists (rebuilds with the current set).
+## Suite/tooling seam: state the centrepiece's footprint half-extents without building a landmark.
+## Not a second source of truth -- `_build_landmark` assigns the same value from the real landmark,
+## and a hand-built Arena has no landmark to read.
+func set_landmark_block_half(half: Vector3) -> void:
+	_landmark_block_half = Vector3(
+		maxf(0.0, half.x) if is_finite(half.x) else 0.0,
+		maxf(0.0, half.y) if is_finite(half.y) else 0.0,
+		maxf(0.0, half.z) if is_finite(half.z) else 0.0
+	)
+
+
 func register_decoration_blockers(blockers: Array[AABB]) -> void:
 	# A copy, not a reference: `ArenaDecorator.reset()` clears and refills its own list, and a nav
 	# rebuild must never observe a half-populated one. The Y extent is whatever the prop's box is, and
@@ -358,12 +379,11 @@ func unstuck_origin(p: Vector3) -> Vector3:
 	p.x = clampf(p.x, -half, half)
 	p.z = clampf(p.z, -half, half)
 	p.y = maxf(p.y, 0.15)
-	# The landmark is asked, not mirrored: `_landmark_half` used to be a second copy of its
-	# footprint, which went stale the moment the config changed.
+	# Derived from the landmark when there is one (see `_landmark_block_half`), so the solver and the
+	# centrepiece cannot disagree; 1.35 m of clearance is the player's own body plus a step back.
 	var need := 0.0
-	if _landmark != null:
-		var landmark_size := _landmark.footprint().size
-		need = maxf(landmark_size.x, landmark_size.z) * 0.5 + 1.35
+	if _landmark != null or _landmark_block_half != Vector3.ZERO:
+		need = maxf(_landmark_block_half.x, _landmark_block_half.z) + 1.35
 	var flat := Vector2(p.x, p.z)
 	if need > 0.1 and flat.length() < need:
 		var dir := flat.normalized() if flat.length() > 0.05 else Vector2(0.0, 1.0)

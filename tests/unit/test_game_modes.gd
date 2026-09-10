@@ -72,8 +72,8 @@ static func suite() -> Array:
 		"passed": GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 1, 42).size() == 4
 			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 2, 42).size() == 5
 			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 42).size() == 7
-			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 4, 42).size() == 9
-			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 5, 42).size() == 12
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 4, 42).size() == 8
+			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 5, 42).size() == 10
 			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 3, 42).count(&"heavy") == 1
 			and GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 2, 42).count(&"heavy") == 0,
 		"why": str(GameMode.spawn_queue(GameMode.MODE_BOSS_RUSH, 5, 42)),

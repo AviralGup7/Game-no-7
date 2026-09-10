@@ -177,8 +177,9 @@ file count and the guard-needle count from the tools themselves rather than trus
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call)
 - Validated files: 159/159 (was 85, then 151: +7 authored game modes, +1 prestige ladder)
-- Guard needles: 186 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
-  guard, a bounded export, or an absence; the merge of `main` added nine, of which one refuses
+- Guard needles: 190 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
+  guard, a bounded export, or an absence; the merge of `main` and the three headless rounds that
+  followed added fourteen, of which one refuses
   an engine member that does not exist (`.has_area()` on an `AABB`, a parse error that took two
   passes to surface because another parse error was masking it)
   (the wave-mutator pass added 38, the run-definition pass 76, most of both saying "this Dictionary

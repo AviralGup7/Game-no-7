@@ -111,7 +111,10 @@ static func suite() -> Array:
 		"name": "ember_winds resolves its authored status and stamps both sides",
 		"passed": ember_effect != null and ember_effect.effect_id == &"ember_air" \
 			and is_equal_approx(ember_effect.dot_per_second, 1.5) \
-			and ember.status_stacks == 2 and ember.status_targets_enemies and ember.status_targets_player,
+			# one stack, authored in `data/mutators/ember_winds.tres` and mirrored by
+			# `tests/python/test_regress_wave_mutators.py`; targeting both sides is what `all` means, and
+			# it never meant "apply it twice".
+			and ember.status_stacks == 1 and ember.status_targets_enemies and ember.status_targets_player,
 		"why": "effect=%s" % (ember_effect.effect_id if ember_effect != null else "<unresolved>"),
 	})
 
