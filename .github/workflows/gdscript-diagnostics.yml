@@ -1,0 +1,98 @@
+name: GDScript diagnostics
+
+# Ground-truth diagnostic gate.
+#
+# The main Android workflow pins the engine the project was authored against
+# (4.4.1). Developers on newer engines see a different set of parser/compiler
+# diagnostics, and none of them were visible to CI. This job runs the *same*
+# project through the newer engine and prints every parse error, compile error
+# and GDScript warning it produces, so diagnostics can be triaged instead of
+# guessed at.
+#
+# It is report-only: it uploads the full logs as artifacts and always succeeds
+# on the diagnostics themselves (a failing engine run is still a failure).
+
+on:
+  push:
+    branches: ["arena/01a08a34-game-no-7"]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  DIAG_GODOT_VERSION: "4.7.2-stable"
+
+jobs:
+  gdscript-diagnostics:
+    name: Godot ${{ env.DIAG_GODOT_VERSION }} diagnostics
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Godot ${{ env.DIAG_GODOT_VERSION }}
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.DIAG_GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: false
+
+      - name: Engine version
+        run: godot --version
+
+      # Full project import: surfaces parse/compile errors for every script the
+      # resource importer touches, plus autoload resolution.
+      - name: Import project (full parse pass)
+        shell: bash
+        run: |
+          set +e
+          godot --headless --path . --import > diag-import.log 2>&1
+          echo "import exit: $?"
+          set -e
+          true
+
+      # Every .gd file checked individually, so a script that the importer never
+      # reaches (tests, tooling, unused systems) is still parsed and reported.
+      - name: Per-script check (all GDScript warnings)
+        shell: bash
+        run: |
+          : > diag-check.log
+          find scripts tests -name '*.gd' -type f | sort | while read -r f; do
+            res="res://${f}"
+            echo "===== ${res}" >> diag-check.log
+            godot --headless --path . --check-only --script "${res}" >> diag-check.log 2>&1
+          done
+          echo "checked $(grep -c '^===== res://' diag-check.log) scripts"
+
+      # The project's own headless suite on the newer engine.
+      - name: Headless unit tests
+        shell: bash
+        run: |
+          set +e
+          godot --headless --path . --script res://tests/run_tests.gd > diag-tests.log 2>&1
+          echo "tests exit: $?"
+          set -e
+          tail -40 diag-tests.log
+          true
+
+      - name: Diagnostic summary
+        shell: bash
+        run: |
+          for f in diag-import.log diag-check.log diag-tests.log; do
+            [ -f "$f" ] || continue
+            echo "########## ${f}"
+            grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared' "$f" \
+              | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort | uniq -c | sort -rn | head -200
+          done
+          true
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdscript-diagnostics
+          path: |
+            diag-import.log
+            diag-check.log
+            diag-tests.log
+          if-no-files-found: ignore
