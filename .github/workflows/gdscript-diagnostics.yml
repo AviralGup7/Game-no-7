@@ -5,18 +5,21 @@ name: GDScript diagnostics
 # The main Android workflow pins the engine the project was authored against
 # (4.4.1). Developers on newer engines see a different set of parser/compiler
 # diagnostics, and none of them were visible to CI. This job runs the *same*
-# project through the newer engine and prints every parse error, compile error
-# and GDScript warning it produces, so diagnostics can be triaged instead of
-# guessed at.
+# project through the newer engine and records every parse error, compile error
+# and GDScript warning it produces, so diagnostics can be triaged against real
+# engine output instead of guesswork.
 #
-# It is report-only: it uploads the full logs as artifacts and always succeeds
-# on the diagnostics themselves (a failing engine run is still a failure).
+# The logs are committed back to the branch under docs/godot-runs/ because the
+# Actions log-download endpoint is not reachable from every environment that
+# needs to read them.
 
 on:
   push:
     branches: ["arena/01a08a34-game-no-7"]
-  pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 env:
   DIAG_GODOT_VERSION: "4.7.2-stable"
@@ -42,6 +45,11 @@ jobs:
       - name: Engine version
         run: godot --version
 
+      - name: CLI flags available for diagnostics
+        shell: bash
+        run: |
+          godot --help 2>&1 | grep -iE -- '--(check-only|script|import|headless|verbose|editor|quit)' || true
+
       # Full project import: surfaces parse/compile errors for every script the
       # resource importer touches, plus autoload resolution.
       - name: Import project (full parse pass)
@@ -53,19 +61,6 @@ jobs:
           set -e
           true
 
-      # Every .gd file checked individually, so a script that the importer never
-      # reaches (tests, tooling, unused systems) is still parsed and reported.
-      - name: Per-script check (all GDScript warnings)
-        shell: bash
-        run: |
-          : > diag-check.log
-          find scripts tests -name '*.gd' -type f | sort | while read -r f; do
-            res="res://${f}"
-            echo "===== ${res}" >> diag-check.log
-            godot --headless --path . --check-only --script "${res}" >> diag-check.log 2>&1
-          done
-          echo "checked $(grep -c '^===== res://' diag-check.log) scripts"
-
       # The project's own headless suite on the newer engine.
       - name: Headless unit tests
         shell: bash
@@ -74,19 +69,71 @@ jobs:
           godot --headless --path . --script res://tests/run_tests.gd > diag-tests.log 2>&1
           echo "tests exit: $?"
           set -e
-          tail -40 diag-tests.log
+          tail -30 diag-tests.log || true
+          true
+
+      # Every .gd file checked individually, so a script that the importer never
+      # reaches (tests, tooling, unused systems) is still parsed and reported.
+      # --check-only exits non-zero when a script has errors, so it is tolerated.
+      - name: Per-script check (all GDScript warnings)
+        shell: bash
+        run: |
+          : > diag-check.log
+          find scripts tests -name '*.gd' -type f | sort | while read -r f; do
+            res="res://${f}"
+            {
+              echo "===== ${res}"
+              godot --headless --path . --check-only --script "${res}" 2>&1
+            } >> diag-check.log || true
+          done
+          echo "checked $(grep -c '^===== res://' diag-check.log) scripts"
+          true
+
+      - name: Editor pass (compiles every openable script)
+        shell: bash
+        run: |
+          set +e
+          timeout 600 godot --headless --path . --editor --quit-after 2000 > diag-editor.log 2>&1
+          echo "editor exit: $?"
+          set -e
           true
 
       - name: Diagnostic summary
         shell: bash
         run: |
-          for f in diag-import.log diag-check.log diag-tests.log; do
-            [ -f "$f" ] || continue
-            echo "########## ${f}"
-            grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared' "$f" \
-              | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort | uniq -c | sort -rn | head -200
-          done
+          {
+            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log; do
+              [ -f "$f" ] || continue
+              echo "########## ${f}"
+              grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared|Failed to load' "$f" \
+                | tr -d '\r' | sed 's/[[:space:]]\+/ /g' | sort | uniq -c | sort -rn | head -400
+              echo
+            done
+          } | tee diag-summary.txt
           true
+
+      # The Actions log endpoint is unreachable from some environments, so the
+      # raw logs travel with the branch instead.
+      - name: Publish diagnostic logs to the branch
+        shell: bash
+        run: |
+          set -e
+          mkdir -p docs/godot-runs
+          cp -f diag-import.log   docs/godot-runs/diagnostics-4.7.2-import.log   2>/dev/null || true
+          cp -f diag-tests.log    docs/godot-runs/diagnostics-4.7.2-tests.log    2>/dev/null || true
+          cp -f diag-check.log    docs/godot-runs/diagnostics-4.7.2-check.log    2>/dev/null || true
+          cp -f diag-editor.log   docs/godot-runs/diagnostics-4.7.2-editor.log   2>/dev/null || true
+          cp -f diag-summary.txt  docs/godot-runs/diagnostics-4.7.2-summary.txt  2>/dev/null || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/godot-runs
+          if git diff --cached --quiet; then
+            echo "no diagnostic log changes to publish"
+          else
+            git commit -q -m "diagnostics: Godot 4.7.2-stable run output [skip ci]"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
 
       - name: Upload diagnostic logs
         if: always()
@@ -97,4 +144,6 @@ jobs:
             diag-import.log
             diag-check.log
             diag-tests.log
+            diag-editor.log
+            diag-summary.txt
           if-no-files-found: ignore
