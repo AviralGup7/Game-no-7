@@ -1,45 +1,5 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
-SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:112)
-SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
-SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:126)
-SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:137)
-SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-          at: GDScript::reload (res://scripts/visuals/character_visuals.gd:138)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-          at: GDScript::reload (res://scripts/weapons/weapon_config.gd:96)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/core/content_registry.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
-ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ERROR: Parameter "data.tree" is null.
    at: get_tree (scene/main/node.h:559)
    GDScript backtrace (most recent call first):
@@ -366,13 +326,6 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-SCRIPT ERROR: Invalid call 'String' constructor: res://data/weapons/stormhammer.tres
-          at: _ids (res://tests/unit/test_content_progression.gd:19)
-          GDScript backtrace (most recent call first):
-              [0] _ids (res://tests/unit/test_content_progression.gd:19)
-              [1] suite (res://tests/unit/test_content_progression.gd:34)
-              [2] _run_suites (res://tests/run_tests.gd:136)
-              [3] _initialize (res://tests/run_tests.gd:92)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
@@ -380,7 +333,7 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
-       [0] validated (res://scripts/meta/game_mode.gd:332)
+       [0] validated (res://scripts/meta/game_mode.gd:334)
        [1] suite (res://tests/unit/test_game_modes.gd:35)
        [2] _run_suites (res://tests/run_tests.gd:136)
        [3] _initialize (res://tests/run_tests.gd:92)
@@ -1155,110 +1108,48 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 [diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
-[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 0 weapons, 8 skills, 14 status, 7 pickups, 6 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/ember_scepter.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/gladius.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/moonlance.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sentinel_spear.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/stormhammer.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sunbow.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/twinfangs.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/venom_chain.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/warreaxe.tres
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: [diagnostic] Content validation: game mode challenge pins fixed_weapon gladius, which is not an authored weapon
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] report_error (res://scripts/core/event_bus.gd:104)
-       [1] _surface_validation_errors (res://scripts/core/content_registry.gd:59)
-       [2] _ready (res://scripts/core/content_registry.gd:49)
-ERROR: ContentRegistry halting: 10 invalid/missing content file(s) under res://data (see errors above). Fix the offending .tres before running.
-   at: push_error (core/variant/variant_utility.cpp:1023)
-   GDScript backtrace (most recent call first):
-       [0] _ready (res://scripts/core/content_registry.gd:51)
-SCRIPT ERROR: Assertion failed: ContentRegistry halting on invalid content (see Content validation errors above).
-          at: ContentRegistryService._ready (res://scripts/core/content_registry.gd:52)
-          GDScript backtrace (most recent call first):
-              [0] _ready (res://scripts/core/content_registry.gd:52)
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 6 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
 [diagnostic] GameRoot ready
 [diagnostic] RunAnalytics ready (offline only)
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _sword (res://tests/unit/test_weapons.gd:26)
-          GDScript backtrace (most recent call first):
-              [0] _sword (res://tests/unit/test_weapons.gd:26)
-              [1] suite (res://tests/unit/test_weapons.gd:54)
-              [2] _run_suites (res://tests/run_tests.gd:136)
-              [3] _process (res://tests/run_tests.gd:154)
-SCRIPT ERROR: Invalid call. Nonexistent function 'validate' in base 'Nil'.
-          at: suite (res://tests/unit/test_weapons.gd:55)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_weapons.gd:55)
-              [1] _run_suites (res://tests/run_tests.gd:136)
-              [2] _process (res://tests/run_tests.gd:154)
-SCRIPT ERROR: Invalid call. Nonexistent function 'mount' in base 'GDScript'.
-          at: suite (res://tests/unit/test_character_visuals.gd:12)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_character_visuals.gd:12)
-              [1] _run_suites (res://tests/run_tests.gd:136)
-              [2] _process (res://tests/run_tests.gd:154)
-SCRIPT ERROR: Invalid call. Nonexistent function 'mount' in base 'GDScript'.
-          at: _test_mount_and_poses (res://tests/unit/test_hero_rig.gd:51)
-          GDScript backtrace (most recent call first):
-              [0] _test_mount_and_poses (res://tests/unit/test_hero_rig.gd:51)
-              [1] suite (res://tests/unit/test_hero_rig.gd:14)
-              [2] _run_suites (res://tests/run_tests.gd:136)
-              [3] _process (res://tests/run_tests.gd:154)
-SCRIPT ERROR: Invalid call. Nonexistent function '_mount_config' in base 'GDScript'.
-          at: _test_fallback (res://tests/unit/test_hero_rig.gd:95)
-          GDScript backtrace (most recent call first):
-              [0] _test_fallback (res://tests/unit/test_hero_rig.gd:95)
-              [1] suite (res://tests/unit/test_hero_rig.gd:15)
-              [2] _run_suites (res://tests/run_tests.gd:136)
-              [3] _process (res://tests/run_tests.gd:154)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] suite (res://tests/unit/test_character_visuals.gd:19)
+         [4] _run_suites (res://tests/run_tests.gd:136)
+         [5] _process (res://tests/run_tests.gd:154)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _load_compatible_model (res://scripts/visuals/character_visuals.gd:167)
+         [2] _mount_config (res://scripts/visuals/character_visuals.gd:87)
+         [3] _test_fallback (res://tests/unit/test_hero_rig.gd:95)
+         [4] suite (res://tests/unit/test_hero_rig.gd:15)
+         [5] _run_suites (res://tests/run_tests.gd:136)
+         [6] _process (res://tests/run_tests.gd:154)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _load_compatible_model (res://scripts/visuals/character_visuals.gd:167)
+         [2] _mount_config (res://scripts/visuals/character_visuals.gd:87)
+         [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
+         [4] suite (res://tests/unit/test_hero_rig.gd:15)
+         [5] _run_suites (res://tests/run_tests.gd:136)
+         [6] _process (res://tests/run_tests.gd:154)
+WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _load_compatible_model (res://scripts/visuals/character_visuals.gd:167)
+         [2] _mount_config (res://scripts/visuals/character_visuals.gd:90)
+         [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
+         [4] suite (res://tests/unit/test_hero_rig.gd:15)
+         [5] _run_suites (res://tests/run_tests.gd:136)
+         [6] _process (res://tests/run_tests.gd:154)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 ERROR: Parameter "material" is null.
@@ -1267,227 +1158,61 @@ ERROR: Parameter "material" is null.
        [0] suite (res://tests/unit/test_decorator_collision.gd:53)
        [1] _run_suites (res://tests/run_tests.gd:136)
        [2] _process (res://tests/run_tests.gd:154)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:213)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:230)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:263)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:282)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:306)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:325)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:342)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy probe_basic died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:362)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:399)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:434)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:454)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:477)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:499)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:517)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:521)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:532)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:533)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _make_enemy (res://tests/integration_stages.gd:146)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:536)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _run_boss_integration (res://tests/integration_stages.gd:600)
-              [2] _run_enemy_encounter_integration (res://tests/integration_stages.gd:549)
-              [3] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [4] _process (res://tests/run_tests.gd:161)
+[diagnostic] Enemy probe_exploder died
 [diagnostic] Enemy probe_boss died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _boss_ability_sequence (res://tests/integration_stages.gd:680)
-              [2] _run_boss_integration (res://tests/integration_stages.gd:643)
-              [3] _run_enemy_encounter_integration (res://tests/integration_stages.gd:549)
-              [4] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [5] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _boss_ability_sequence (res://tests/integration_stages.gd:680)
-              [2] _run_boss_integration (res://tests/integration_stages.gd:644)
-              [3] _run_enemy_encounter_integration (res://tests/integration_stages.gd:549)
-              [4] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [5] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _boss_ability_sequence (res://tests/integration_stages.gd:680)
-              [2] _run_boss_integration (res://tests/integration_stages.gd:645)
-              [3] _run_enemy_encounter_integration (res://tests/integration_stages.gd:549)
-              [4] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [5] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:782)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:782)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
@@ -1558,113 +1283,69 @@ ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then cou
        [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
        [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
        [7] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy basic died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:820)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:820)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy splitter died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_split_child (res://scripts/enemies/spawn_manager.gd:456)
-              [2] _dispatch_split (res://scripts/enemies/spawn_manager.gd:431)
-              [3] _dispatch_death_effects (res://scripts/enemies/spawn_manager.gd:414)
-              [4] _on_enemy_despawn_requested (res://scripts/enemies/spawn_manager.gd:374)
-              [5] _on_died (res://scripts/enemies/enemy_base.gd:828)
-              [6] _die (res://scripts/player/health_component.gd:136)
-              [7] take_damage (res://scripts/player/health_component.gd:105)
-              [8] apply_damage (res://scripts/enemies/enemy_base.gd:324)
-              [9] _run_spawn_manager_integration (res://tests/integration_stages.gd:824)
-              [10] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [11] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [12] _process (res://tests/run_tests.gd:161)
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_split_child (res://scripts/enemies/spawn_manager.gd:456)
-              [2] _dispatch_split (res://scripts/enemies/spawn_manager.gd:431)
-              [3] _dispatch_death_effects (res://scripts/enemies/spawn_manager.gd:414)
-              [4] _on_enemy_despawn_requested (res://scripts/enemies/spawn_manager.gd:374)
-              [5] _on_died (res://scripts/enemies/enemy_base.gd:828)
-              [6] _die (res://scripts/player/health_component.gd:136)
-              [7] take_damage (res://scripts/player/health_component.gd:105)
-              [8] apply_damage (res://scripts/enemies/enemy_base.gd:324)
-              [9] _run_spawn_manager_integration (res://tests/integration_stages.gd:824)
-              [10] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [11] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [12] _process (res://tests/run_tests.gd:161)
 [diagnostic] splitter split into 2 x mite
 [diagnostic] Enemy mite died
 [diagnostic] Enemy mite died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:847)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:847)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy basic died
-SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-          at: EnemyBase.initialize (res://scripts/enemies/enemy_base.gd:287)
-          GDScript backtrace (most recent call first):
-              [0] initialize (res://scripts/enemies/enemy_base.gd:287)
-              [1] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-              [2] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-              [3] _run_spawn_manager_integration (res://tests/integration_stages.gd:881)
-              [4] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-              [5] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
-              [6] _process (res://tests/run_tests.gd:161)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:50)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:79)
+         [2] mount (res://scripts/visuals/character_visuals.gd:70)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:288)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:881)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:210)
+         [9] _process (res://tests/run_tests.gd:161)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1070 total, 13 failed
-  FAIL  test_planner_extended.gd :: new enemy + weapon .tres load and validate — bad: gladius
-  FAIL  test_content_progression.gd :: expanded content ids are present — 
-  FAIL  test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[] patterns=[]
-  FAIL  Suite ran no cases: res://tests/unit/test_weapons.gd
-  FAIL  Suite ran no cases: res://tests/unit/test_character_visuals.gd
-  FAIL  encounter :: melee cycle: chase->attack, exactly one hit at windup end, cooldown->chase — state= hits=0 signals=0
-  FAIL  encounter :: reaction beat: a perceived stimulus delays engagement by the reaction time — wary_after_2_frames=false engaged_sooner_or_by_budget=true state=
-  FAIL  encounter :: whiff: target escaping mid-windup aborts to chase without damage — state= hits=0
-  FAIL  encounter :: poise: chip damage does not stagger the windup until the budget breaks — guarded=false after_break=hurt
-  FAIL  encounter :: fast skirmisher back-pedals after landing a hit, then re-engages — retreat=false state=
-  FAIL  encounter :: dasher: telegraph -> charge (override) -> exactly one contact hit -> recovery — dash=false charge=false hits=0 state=
-  FAIL  encounter :: exploder: plants inside fuse range and detonates via the normal death path — fuse=false died=0
-  FAIL  encounter :: ranged: enters ranged state, kites the crowded player, closes when outmatched — ranged=false kite=false close=false
-::error title=GDScript test failures (13)::test_planner_extended.gd :: new enemy + weapon .tres load and validate — bad: gladius%0Atest_content_progression.gd :: expanded content ids are present — %0Atest_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[] patterns=[]%0ASuite ran no cases: res://tests/unit/test_weapons.gd%0ASuite ran no cases: res://tests/unit/test_character_visuals.gd%0Aencounter :: melee cycle: chase->attack, exactly one hit at windup end, cooldown->chase — state= hits=0 signals=0%0Aencounter :: reaction beat: a perceived stimulus delays engagement by the reaction time — wary_after_2_frames=false engaged_sooner_or_by_budget=true state=%0Aencounter :: whiff: target escaping mid-windup aborts to chase without damage — state= hits=0%0Aencounter :: poise: chip damage does not stagger the windup until the budget breaks — guarded=false after_break=hurt%0Aencounter :: fast skirmisher back-pedals after landing a hit, then re-engages — retreat=false state=%0Aencounter :: dasher: telegraph -> charge (override) -> exactly one contact hit -> recovery — dash=false charge=false hits=0 state=%0Aencounter :: exploder: plants inside fuse range and detonates via the normal death path — fuse=false died=0%0Aencounter :: ranged: enters ranged state, kites the crowded player, closes when outmatched — ranged=false kite=false close=false
+GDScript tests: 1095 total, 0 failed
 ========================================
-ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneDummy21GeometryInstanceDummyE
-   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
-WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
-   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
-WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
-   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
-WARNING: 52 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-ERROR: 8 resources still in use at exit (run with --verbose for details).
+ERROR: 2 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:822)
-ERROR: 1 RID allocations of type 'P11GodotBody3D' were leaked at exit.
-ERROR: 1 RID allocations of type 'P12GodotShape3D' were leaked at exit.
-ERROR: 2 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.
-ERROR: 2 RID allocations of type 'N17RendererSceneCull8InstanceE' were leaked at exit.

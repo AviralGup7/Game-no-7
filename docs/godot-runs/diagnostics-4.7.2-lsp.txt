@@ -1,11 +1,3 @@
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:238:17: WARNING: (UNUSED_PARAMETER): The parameter "half" is never used in the function "_centerish()". If this is intended, prefix it with an underscore: "_half".
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:187:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:243:56: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:330:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "i" is declared below in the parent block.
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:336:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:367:50: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:419:13: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/combat/damageable.gd:29:19: WARNING: (UNUSED_PARAMETER): The parameter "payload" is never used in the function "apply_damage()". If this is intended, prefix it with an underscore: "_payload".
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:13:8: WARNING: (UNUSED_SIGNAL): The signal "game_state_changed" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:14:8: WARNING: (UNUSED_SIGNAL): The signal "run_started" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:15:8: WARNING: (UNUSED_SIGNAL): The signal "run_ended" is declared but never explicitly used in the class.
@@ -47,73 +39,6 @@
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:51:8: WARNING: (UNUSED_SIGNAL): The signal "announcement" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:55:8: WARNING: (UNUSED_SIGNAL): The signal "objective_progress" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:58:8: WARNING: (UNUSED_SIGNAL): The signal "objective_resolved" is declared but never explicitly used in the class.
-/home/runner/work/Game-no-7/Game-no-7/scripts/core/game_root.gd:357:24: WARNING: (UNUSED_PARAMETER): The parameter "previous" is never used in the function "_on_state_entered()". If this is intended, prefix it with an underscore: "_previous".
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:170:25: WARNING: (UNUSED_PARAMETER): The parameter "kind" is never used in the function "_on_boss_telegraph()". If this is intended, prefix it with an underscore: "_kind".
 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:31:8: WARNING: (UNUSED_SIGNAL): The signal "state_changed" is declared but never explicitly used in the class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:34:8: WARNING: (UNUSED_SIGNAL): The signal "attack_started" is declared but never explicitly used in the class.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:128:8: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "angle" is declared below in the parent block.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:83:65: WARNING: (UNUSED_PARAMETER): The parameter "cfg" is never used in the function "_investigate()". If this is intended, prefix it with an underscore: "_cfg".
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_ledger.gd:99:28: WARNING: (UNUSED_PARAMETER): The parameter "archetype" is never used in the function "register_direct_spawn()". If this is intended, prefix it with an underscore: "_archetype".
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:339:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:422:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:23: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:38: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:123:21: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:307:43: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:312:46: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/player/player.gd:515:33: WARNING: (UNUSED_PARAMETER): The parameter "weapon_id" is never used in the function "_on_weapon_attack_resolved()". If this is intended, prefix it with an underscore: "_weapon_id".
-/home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:27: WARNING: (UNUSED_PARAMETER): The parameter "shake_amp" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_shake_amp".
-/home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:52: WARNING: (UNUSED_PARAMETER): The parameter "duration" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_duration".
-/home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:118:55: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-/home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:121:24: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-/home/runner/work/Game-no-7/Game-no-7/scripts/ui/run_summary_panel.gd:64:24: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:169:25: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:175:22: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:179:21: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:468:16: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:476:28: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:112:3: ERROR: Function "remove_child()" not found in base Callable.
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:112:9: ERROR: Cannot find member "remove_child" in base "Callable".
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:126:3: ERROR: Function "remove_child()" not found in base Callable.
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:126:9: ERROR: Cannot find member "remove_child" in base "Callable".
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:137:18: ERROR: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:138:21: ERROR: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:104:5: WARNING: (UNUSED_PRIVATE_CLASS_VARIABLE): The class variable "_bus" is declared but never used in the class.
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:323:23: WARNING: (UNUSED_PARAMETER): The parameter "wave_number" is never used in the function "_on_wave_started()". If this is intended, prefix it with an underscore: "_wave_number".
-/home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:352:27: WARNING: (UNUSED_PARAMETER): The parameter "pickup_id" is never used in the function "_on_pickup_collected()". If this is intended, prefix it with an underscore: "_pickup_id".
-/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_manager.gd:335:15: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:100:29: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:101:25: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:102:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:103:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/scripts/weapons/weapon_config.gd:96:5: ERROR: Invalid operands to operator <=, Callable and float.
-/home/runner/work/Game-no-7/Game-no-7/tests/integration_stages.gd:958:45: WARNING: (UNUSED_PARAMETER): The parameter "tree" is never used in the function "_run_run_definition_integration()". If this is intended, prefix it with an underscore: "_tree".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:356:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:679:3: WARNING: (UNUSED_VARIABLE): The local variable "g0" is declared but never used in the block. If this is intended, prefix it with an underscore: "_g0".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:239:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:242:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:266:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:276:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:286:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:293:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:297:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:300:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:303:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:311:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:316:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:320:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:324:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:497:26: WARNING: (UNUSED_PARAMETER): The parameter "panel" is never used in the function "_sliders_match_save()". If this is intended, prefix it with an underscore: "_panel".
-/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:139:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_hazards.gd:436:70: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_minimap_radar.gd:210:66: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_procedural_sfx.gd:65:19: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_wave_mutators.gd:118:25: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.

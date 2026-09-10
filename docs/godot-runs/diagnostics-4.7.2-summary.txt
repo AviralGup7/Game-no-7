@@ -1,22 +1,11 @@
 ########## diag-import.log
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Parse error".
 
 ########## diag-tests.log
      66 ERROR: Parameter "data.tree" is null.
-     32 SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      2 SCRIPT ERROR: Invalid call. Nonexistent function 'mount' in base 'GDScript'.
+      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -24,53 +13,24 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: 52 ObjectDB instances were leaked at exit (run with `--verbose` for details).
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Invalid call. Nonexistent function 'validate' in base 'Nil'.
-      1 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-      1 SCRIPT ERROR: Invalid call. Nonexistent function '_mount_config' in base 'GDScript'.
-      1 SCRIPT ERROR: Invalid call 'String' constructor: res://data/weapons/stormhammer.tres
-      1 SCRIPT ERROR: Assertion failed: ContentRegistry halting on invalid content (see Content validation errors above).
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
-      1 ERROR: [diagnostic] Content validation: game mode challenge pins fixed_weapon gladius, which is not an authored weapon
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/warreaxe.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/venom_chain.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/twinfangs.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sunbow.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/stormhammer.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sentinel_spear.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/moonlance.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/gladius.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/ember_scepter.tres
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: String formatting error: not all arguments converted during string formatting.
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
       1 ERROR: Parameter "material" is null.
-      1 ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneDummy21GeometryInstanceDummyE
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
-      1 ERROR: ContentRegistry halting: 10 invalid/missing content file(s) under res://data (see errors above). Fix the offending .tres before running.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
-      1 ERROR: 2 RID allocations of type 'N17RendererSceneCull8InstanceE' were leaked at exit.
-      1 ERROR: 2 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.
-      1 ERROR: 1 RID allocations of type 'P12GodotShape3D' were leaked at exit.
-      1 ERROR: 1 RID allocations of type 'P11GodotBody3D' were leaked at exit.
+      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    354 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    350 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
     182 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-    116 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-    116 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
      97 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      79 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-     58 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-     58 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-     14 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       3 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
@@ -89,7 +49,6 @@
       2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/validate_asset_imports.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_wave_mutators.gd" with error "Compilation failed".
@@ -99,12 +58,10 @@
       1 ERROR: Failed to load script "res://tests/unit/test_safe_player_spawn.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_progression.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_procedural_sfx.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/unit/test_planner_extended.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_nav_grid.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_minimap_radar.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_meta_misc.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_locomotion_nan.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/unit/test_hero_rig.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_hazards_live.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_hazards.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_game_modes.gd" with error "Compilation failed".
@@ -114,7 +71,6 @@
       1 ERROR: Failed to load script "res://tests/unit/test_decorator_collision.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_content_progression.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_configs.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/unit/test_character_visuals.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_audio_policy.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_arena_world.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_arena_obstacles_node.gd" with error "Compilation failed".
@@ -131,7 +87,6 @@
       1 ERROR: Failed to load script "res://tests/doubles/fake_arena.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_instance.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/weapons/weapon_config.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/weapons/ranged_resolver.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/projectile_pool.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/projectile.gd" with error "Compilation failed".
@@ -140,7 +95,6 @@
       1 ERROR: Failed to load script "res://scripts/waves/wave_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/foot_plant.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/visuals/character_visuals.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/utilities/runtime_soak.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/input_trace.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/virtual_joystick.gd" with error "Compilation failed".
@@ -228,31 +182,13 @@
       1 ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilation failed".
 
 ########## diag-editor.log
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Parse error".
 
 ########## diag-wae-import.log
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Parse error".
 
 ########## diag-wae-tests.log
      66 ERROR: Parameter "data.tree" is null.
-     32 SCRIPT ERROR: Invalid call. Nonexistent function 'has_model' in base 'GDScript'.
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      2 SCRIPT ERROR: Invalid call. Nonexistent function 'mount' in base 'GDScript'.
+      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
@@ -260,135 +196,25 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: 52 ObjectDB instances were leaked at exit (run with `--verbose` for details).
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Invalid call. Nonexistent function 'validate' in base 'Nil'.
-      1 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-      1 SCRIPT ERROR: Invalid call. Nonexistent function '_mount_config' in base 'GDScript'.
-      1 SCRIPT ERROR: Invalid call 'String' constructor: res://data/weapons/stormhammer.tres
-      1 SCRIPT ERROR: Assertion failed: ContentRegistry halting on invalid content (see Content validation errors above).
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
-      1 ERROR: [diagnostic] Content validation: game mode challenge pins fixed_weapon gladius, which is not an authored weapon
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/warreaxe.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/venom_chain.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/twinfangs.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sunbow.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/stormhammer.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sentinel_spear.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/moonlance.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/gladius.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/ember_scepter.tres
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: String formatting error: not all arguments converted during string formatting.
       1 ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
       1 ERROR: Parameter "material" is null.
-      1 ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneDummy21GeometryInstanceDummyE
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
-      1 ERROR: ContentRegistry halting: 10 invalid/missing content file(s) under res://data (see errors above). Fix the offending .tres before running.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
       1 ERROR: 8 resources still in use at exit (run with --verbose for details).
-      1 ERROR: 2 RID allocations of type 'N17RendererSceneCull8InstanceE' were leaked at exit.
-      1 ERROR: 2 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.
-      1 ERROR: 1 RID allocations of type 'P12GodotShape3D' were leaked at exit.
-      1 ERROR: 1 RID allocations of type 'P11GodotBody3D' were leaked at exit.
 
 ########## diag-wae-probe.log
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Assertion failed: ContentRegistry halting on invalid content (see Content validation errors above).
-      1 ERROR: [diagnostic] Content validation: game mode challenge pins fixed_weapon gladius, which is not an authored weapon
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/warreaxe.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/venom_chain.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/twinfangs.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sunbow.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/stormhammer.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/sentinel_spear.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/moonlance.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/gladius.tres
-      1 ERROR: [diagnostic] Content validation: Not a WeaponConfig: res://data/weapons/ember_scepter.tres
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
-      1 ERROR: ContentRegistry halting: 10 invalid/missing content file(s) under res://data (see errors above). Fix the offending .tres before running.
 
 ########## diag-lsp.txt
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_wave_mutators.gd:118:25: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_procedural_sfx.gd:65:19: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_minimap_radar.gd:210:66: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_hazards.gd:436:70: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:139:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:497:26: WARNING: (UNUSED_PARAMETER): The parameter "panel" is never used in the function "_sliders_match_save()". If this is intended, prefix it with an underscore: "_panel".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:324:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:320:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:316:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:311:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:303:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:300:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:297:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:293:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:286:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:276:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:266:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:242:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:239:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_systems_inner.gd:144:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:679:3: WARNING: (UNUSED_VARIABLE): The local variable "g0" is declared but never used in the block. If this is intended, prefix it with an underscore: "_g0".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:356:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:77: WARNING: (UNUSED_PARAMETER): The parameter "a3" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a3".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:57: WARNING: (UNUSED_PARAMETER): The parameter "a2" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a2".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:37: WARNING: (UNUSED_PARAMETER): The parameter "a1" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a1".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/stress_loops_inner.gd:197:17: WARNING: (UNUSED_PARAMETER): The parameter "a0" is never used in the function "<anonymous lambda>()". If this is intended, prefix it with an underscore: "_a0".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/integration_stages.gd:958:45: WARNING: (UNUSED_PARAMETER): The parameter "tree" is never used in the function "_run_run_definition_integration()". If this is intended, prefix it with an underscore: "_tree".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/weapons/weapon_config.gd:96:5: ERROR: Invalid operands to operator <=, Callable and float.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:103:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:102:27: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:101:25: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_planner.gd:100:29: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/waves/wave_manager.gd:335:15: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:352:27: WARNING: (UNUSED_PARAMETER): The parameter "pickup_id" is never used in the function "_on_pickup_collected()". If this is intended, prefix it with an underscore: "_pickup_id".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:323:23: WARNING: (UNUSED_PARAMETER): The parameter "wave_number" is never used in the function "_on_wave_started()". If this is intended, prefix it with an underscore: "_wave_number".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/effect_director.gd:104:5: WARNING: (UNUSED_PRIVATE_CLASS_VARIABLE): The class variable "_bus" is declared but never used in the class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:138:21: ERROR: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:137:18: ERROR: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:126:9: ERROR: Cannot find member "remove_child" in base "Callable".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:126:3: ERROR: Function "remove_child()" not found in base Callable.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:112:9: ERROR: Cannot find member "remove_child" in base "Callable".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/visuals/character_visuals.gd:112:3: ERROR: Function "remove_child()" not found in base Callable.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:476:28: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/performance_monitor.gd:468:16: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:179:21: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:175:22: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:169:25: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/ui/run_summary_panel.gd:64:24: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:121:24: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/ui/damage_number_layer.gd:118:55: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:52: WARNING: (UNUSED_PARAMETER): The parameter "duration" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_duration".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/player/player_feedback.gd:81:27: WARNING: (UNUSED_PARAMETER): The parameter "shake_amp" is never used in the function "play_attack_feedback()". If this is intended, prefix it with an underscore: "_shake_amp".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/player/player.gd:515:33: WARNING: (UNUSED_PARAMETER): The parameter "weapon_id" is never used in the function "_on_weapon_attack_resolved()". If this is intended, prefix it with an underscore: "_weapon_id".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:312:46: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/meta/game_mode.gd:307:43: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:123:21: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:38: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_patterns.gd:108:23: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:422:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_manager.gd:339:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "bus" is declared below in the parent block.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/spawn_ledger.gd:99:28: WARNING: (UNUSED_PARAMETER): The parameter "archetype" is never used in the function "register_direct_spawn()". If this is intended, prefix it with an underscore: "_archetype".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:83:65: WARNING: (UNUSED_PARAMETER): The parameter "cfg" is never used in the function "_investigate()". If this is intended, prefix it with an underscore: "_cfg".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_idle_state.gd:128:8: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "angle" is declared below in the parent block.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:34:8: WARNING: (UNUSED_SIGNAL): The signal "attack_started" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:31:8: WARNING: (UNUSED_SIGNAL): The signal "state_changed" is declared but never explicitly used in the class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:170:25: WARNING: (UNUSED_PARAMETER): The parameter "kind" is never used in the function "_on_boss_telegraph()". If this is intended, prefix it with an underscore: "_kind".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/game_root.gd:357:24: WARNING: (UNUSED_PARAMETER): The parameter "previous" is never used in the function "_on_state_entered()". If this is intended, prefix it with an underscore: "_previous".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:58:8: WARNING: (UNUSED_SIGNAL): The signal "objective_resolved" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:55:8: WARNING: (UNUSED_SIGNAL): The signal "objective_progress" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:51:8: WARNING: (UNUSED_SIGNAL): The signal "announcement" is declared but never explicitly used in the class.
@@ -430,25 +256,8 @@
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:15:8: WARNING: (UNUSED_SIGNAL): The signal "run_ended" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:14:8: WARNING: (UNUSED_SIGNAL): The signal "run_started" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/core/event_bus.gd:13:8: WARNING: (UNUSED_SIGNAL): The signal "game_state_changed" is declared but never explicitly used in the class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/combat/damageable.gd:29:19: WARNING: (UNUSED_PARAMETER): The parameter "payload" is never used in the function "apply_damage()". If this is intended, prefix it with an underscore: "_payload".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:419:13: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:367:50: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:336:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:330:7: WARNING: (CONFUSABLE_LOCAL_DECLARATION): The variable "i" is declared below in the parent block.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:243:56: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_nav_grid.gd:187:32: WARNING: (INTEGER_DIVISION): Integer division. Decimal part will be discarded.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:238:17: WARNING: (UNUSED_PARAMETER): The parameter "half" is never used in the function "_centerish()". If this is intended, prefix it with an underscore: "_half".
 
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-     12 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      2 SCRIPT ERROR: Parse Error: Function "remove_child()" not found in base Callable.
-      2 SCRIPT ERROR: Parse Error: Cannot find member "remove_child" in base "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid operands to operator <=, Callable and float.
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_hide_primitive()" function: argument 1 should be "Node3D" but is "Callable".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_add_ground_shadow()" function: argument 1 should be "Node3D" but is "Callable".
-      1 ERROR: LSP: Failed to parse script: res://scripts/weapons/weapon_config.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/visuals/character_visuals.gd
-      1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Parse error".
 
