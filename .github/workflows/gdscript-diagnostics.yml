@@ -106,6 +106,30 @@ jobs:
       # the diagnostics visible to CI. The setting is injected into the runner's
       # copy of project.godot only and restored afterwards, so the shipped project
       # keeps its normal warn-don't-fail behaviour.
+      # The editor's own analyzer, read over the built-in Language Server. This is
+      # the authoritative source of the diagnostics a developer sees in the
+      # debugger panel; nothing else headless prints them.
+      - name: Editor LSP diagnostics (every analyzer warning with file:line)
+        shell: bash
+        run: |
+          set +e
+          godot --headless --editor --path . > diag-lsp-editor.log 2>&1 &
+          EDITOR_PID=$!
+          for i in $(seq 1 90); do
+            if (exec 3<>/dev/tcp/127.0.0.1/6005) 2>/dev/null; then
+              echo "LSP listening after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          python3 tool/lsp_diagnostics.py --root . --wait 90 > diag-lsp.txt 2> diag-lsp.err
+          echo "lsp exit: $?"
+          tail -3 diag-lsp.err
+          kill "${EDITOR_PID}" 2>/dev/null
+          wait "${EDITOR_PID}" 2>/dev/null
+          set -e
+          true
+
       - name: Warnings as errors (surfaces every analyzer warning with file:line)
         shell: bash
         run: |
@@ -140,7 +164,7 @@ jobs:
           set +e
           set +o pipefail
           {
-            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log diag-wae-import.log diag-wae-tests.log diag-wae-probe.log; do
+            for f in diag-import.log diag-tests.log diag-check.log diag-editor.log diag-wae-import.log diag-wae-tests.log diag-wae-probe.log diag-lsp.txt diag-lsp.err diag-lsp-editor.log; do
               [ -f "$f" ] || continue
               echo "########## ${f}"
               grep -aE 'SCRIPT ERROR|Parse Error|Compile Error|WARNING:|ERROR:|Identifier not found|not declared|Failed to load' "$f" \
@@ -165,6 +189,9 @@ jobs:
           cp -f diag-wae-import.log  docs/godot-runs/diagnostics-4.7.2-wae-import.log 2>/dev/null || true
           cp -f diag-wae-tests.log   docs/godot-runs/diagnostics-4.7.2-wae-tests.log  2>/dev/null || true
           cp -f diag-wae-probe.log   docs/godot-runs/diagnostics-4.7.2-wae-probe.log  2>/dev/null || true
+          cp -f diag-lsp.txt         docs/godot-runs/diagnostics-4.7.2-lsp.txt        2>/dev/null || true
+          cp -f diag-lsp.err         docs/godot-runs/diagnostics-4.7.2-lsp.err        2>/dev/null || true
+          cp -f diag-lsp-editor.log  docs/godot-runs/diagnostics-4.7.2-lsp-editor.log 2>/dev/null || true
           cp -f diag-summary.txt  docs/godot-runs/diagnostics-4.7.2-summary.txt  2>/dev/null || true
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -190,5 +217,8 @@ jobs:
             diag-wae-import.log
             diag-wae-tests.log
             diag-wae-probe.log
+            diag-lsp.txt
+            diag-lsp.err
+            diag-lsp-editor.log
             diag-summary.txt
           if-no-files-found: ignore
