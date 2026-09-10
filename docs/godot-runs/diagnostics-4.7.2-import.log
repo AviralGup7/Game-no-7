@@ -840,11 +840,11 @@ WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 [  23% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
-[  23% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+[  23% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
 [  24% ] [90m[1mreimport[22m | impact_generic_light_000.ogg[39m[0m
 [  24% ] [90m[1mreimport[22m | impact_generic_light_001.ogg[39m[0m
 [  25% ] [90m[1mreimport[22m | checkmark.png[39m[0m
@@ -1619,4 +1619,3 @@ SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current s
           at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-cannot connect to daemon at tcp:5037: Connection refused
