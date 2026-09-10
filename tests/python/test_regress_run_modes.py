@@ -715,6 +715,78 @@ class LoaderAndRegistryTests(Bans, unittest.TestCase):
                          "an arena was added or removed; the lore mirror must move with it")
 
 
+class ExportLiteralTypeTests(Bans, unittest.TestCase):
+    """`@export var x: T = <literal>` — the literal's type has to match `T`.
+
+    Godot 4.4 refuses `NodePath = &"Geometry/Floor"` (a StringName default) with
+    `Parse Error: Cannot assign a value of type "StringName" as "NodePath"`, and that parse error
+    cascades: the file is a dependency of `ArenaConfig`, which is a dependency of `Prestige`, and the
+    headless run then reports failures in `test_nav_grid` and `test_meta_misc` several layers away
+    from the one bad character. `gdparse` — the strongest local parser available here — accepts it,
+    so the shape is pinned at the text level instead. It is stricter than the engine in one place:
+    Godot lets a StringName feed a String field, and this repo declines, because an export's default
+    is what the inspector shows and what a `.tres` writes back — the literal should read like the
+    field it belongs to. The rule is deliberately one-directional: it
+    only fires when the default *starts with a literal of a different family*, so a const expression
+    or a constructor call is never guessed at.
+    """
+
+    LITERAL_FAMILIES = {
+        "node_path": (re.compile(r'^\^"'), "a NodePath literal (^\"...\")"),
+        "string_name": (re.compile(r'^&"'), 'a StringName literal (&"...")'),
+        "string": (re.compile(r'^"'), 'a string literal ("...")'),
+        "number": (re.compile(r"^[-+]?[0-9.]"), "a numeric literal"),
+        "color": (re.compile(r"^Color\("), "a Color(...) constructor"),
+        "vector": (re.compile(r"^Vector[23]i?\("), "a Vector constructor"),
+        "bracket": (re.compile(r"^\["), "an array literal"),
+        "brace": (re.compile(r"^\{"), "a dictionary literal"),
+    }
+    # Declared type -> the families a default may legitimately start with. Anything not listed here
+    # (resource classes, `null`, enums, consts) is left alone.
+    ALLOWED = {
+        "NodePath": {"node_path", "string"},
+        "StringName": {"string_name"},
+        "String": {"string"},
+        "Color": {"color"},
+        "Vector2": {"vector"}, "Vector3": {"vector"},
+        "Vector2i": {"vector"}, "Vector3i": {"vector"},
+        "bool": {"number"},  # true/false are matched separately below
+        "int": {"number"}, "float": {"number"},
+        "PackedStringArray": {"bracket"}, "PackedFloat32Array": {"bracket"},
+        "PackedInt32Array": {"bracket"},
+    }
+
+    def test_no_export_default_is_a_literal_of_the_wrong_type(self) -> None:
+        pattern = re.compile(
+            r"^@export[^\n]*?\bvar ([a-z_0-9]+):\s*([A-Za-z_0-9]+)(?:\[[^\]]*\])?\s*=\s*(\S.*?)\s*$"
+        )
+        hits: list[str] = []
+        for path in sorted((ROOT / "scripts").rglob("*.gd")):
+            rel = str(path.relative_to(ROOT))
+            for n, line in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                stripped = line.strip()
+                if not stripped.startswith("@export") or stripped.lstrip("#").startswith("#"):
+                    continue
+                m = pattern.match(stripped)
+                if not m:
+                    continue
+                name, declared, value = m.group(1), m.group(2), m.group(3)
+                if declared not in self.ALLOWED:
+                    continue
+                if declared == "bool":
+                    if not re.match(r"^(true|false)\b", value):
+                        hits.append(f"{rel}:{n}: bool {name} = {value!r}")
+                    continue
+                if re.match(r"^(null|SELF|[A-Z][A-Z_0-9]+)\b", value):
+                    continue  # null and ALL_CAPS constants are the compiler's business
+                families = self.ALLOWED[declared]
+                if any(rgx.match(value) for key, (rgx, _) in self.LITERAL_FAMILIES.items() if key not in families):
+                    hits.append(f"{rel}:{n}: {declared} {name} = {value!r} "
+                                f"(wants {', '.join(sorted(self.LITERAL_FAMILIES[k][1] for k in families))})")
+        self.assertEqual(hits, [], "an @export default cannot be assigned to its declared type\n"
+                         + "\n".join(hits[:8]))
+
+
 class DocCountTests(Bans, unittest.TestCase):
     """`docs/HARDENING.md` closes with counts (files validated, guard needles, scripts hardened).
 

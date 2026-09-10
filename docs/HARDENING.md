@@ -99,14 +99,16 @@ no soft-lock on missing content.
 ## Regression tests
 
 - `test_regress_batch12_guards` — Dictionary branches
-- `test_regress_enemy_hardening` — enemy validators
+
+Every name below is a file that exists: the four suites this doc used to list
+(`test_regress_enemy_hardening`, `test_regress_combat_hardening`, `test_regress_ui_visuals_audio`,
+`test_regress_export_ranges_and_scoring`) were folded into the sweeps years ago and stopped being
+files, which is the same failure mode as a doc describing a table nobody reads.
+
 - `test_regress_player_hardening` — player finite
 - `test_regress_wave_systems` — wave planner/manager
-- `test_regress_combat_hardening` — combat finite
 - `test_regress_core_utilities` — run_state/rng/weighted
-- `test_regress_ui_visuals_audio` — ui/visuals
 - `test_regress_remaining_risks` — exhaustive sweep
-- `test_regress_export_ranges_and_scoring` — export ranges
 - `test_regress_tooling_and_ci` — CI split pipeline
 - `test_regress_arena_world_data` — the arena's theme/landmark/obstacle data, the death of the
   id-keyed tables and Dictionary records, and every shipped look number audited against the

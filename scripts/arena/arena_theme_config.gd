@@ -61,7 +61,7 @@ extends ValidatedConfig
 ## (`name == &"Floor"`, `String(name).begins_with("Wall")`): renaming a mesh in the editor
 ## silently stopped the tint from applying.
 @export var tint_floor_and_walls: bool = true
-@export var floor_node_path: NodePath = &"Geometry/Floor"
+@export var floor_node_path: NodePath = ^"Geometry/Floor"
 @export var wall_node_prefix: String = "Wall"
 @export var floor_tint: Color = Color(0.66, 0.64, 0.6)
 @export var wall_tint: Color = Color(0.72, 0.7, 0.68)
