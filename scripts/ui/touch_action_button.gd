@@ -1,8 +1,13 @@
 class_name TouchActionButton
 extends Control
-## A touch action button (attack / dodge). Fires `pressed` once per clean press,
-## with multi-touch safety and optional haptic feedback. Anti-repeat: holding does
-## not re-fire.
+## A touch action button (attack / dodge / swap). Fires `pressed` on PRESS-DOWN
+## (not on release): attack and dodge are the most time-critical verbs in a game
+## about dodging telegraphs, and release semantics add the whole tap duration
+## (60-150 ms) as input latency. This matches the engine's own gameplay button —
+## TouchScreenButton.pressed fires "when the button is pressed (down)" — while
+## menu Buttons intentionally stay release-activated. Multi-touch safe (one
+## owning finger per press) with optional haptic feedback. Anti-repeat: holding
+## does not re-fire; sliding off and releasing elsewhere just clears the hold.
 
 signal pressed
 
@@ -43,8 +48,13 @@ func _gui_input(event: InputEvent) -> void:
 			_held = true
 			_touch_index = t.index
 			queue_redraw()
-		elif not t.pressed and _held and t.index == _touch_index:
 			_fire()
+		elif not t.pressed and _held and t.index == _touch_index:
+			# Release only clears the hold: the intent already went out on
+			# press-down, so a release must never fire (or double-fire).
+			_held = false
+			_touch_index = -1
+			queue_redraw()
 	elif event is InputEventMouseButton:
 		# Desktop parity: left-click drives the button exactly like a tap.
 		var mb := event as InputEventMouseButton
@@ -53,20 +63,25 @@ func _gui_input(event: InputEvent) -> void:
 				_held = true
 				_touch_index = -2
 				queue_redraw()
-			elif not mb.pressed and _held and _touch_index == -2:
 				_fire()
+			elif not mb.pressed and _held and _touch_index == -2:
+				_held = false
+				_touch_index = -1
+				queue_redraw()
 
 
 func _fire() -> void:
 	if not _held:
 		return
-	_held = false
-	_touch_index = -1
 	# The command goes out FIRST. Haptics are presentation: a settings lookup or a
 	# vibrate call that throws must never abort _fire() before the gameplay intent
 	# is delivered — that silently kills the button the player just pressed
 	# (the ATTACK button is the only one with vibrate_on_press, which is exactly
 	# why it was the one that stopped answering).
+	# _fire() intentionally does NOT clear the hold: the owning finger stays
+	# tracked until release (anti-repeat + release-outside-cancel). Clearing
+	# here would re-arm mid-press, so a second finger down during the same tap
+	# would double-fire. Release branches and cancel() own the clearing.
 	pressed.emit()
 	if vibrate_on_press:
 		_vibrate()

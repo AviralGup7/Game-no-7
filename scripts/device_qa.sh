@@ -6,7 +6,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APK="${APK:-$ROOT/build/LastStandArena-debug.apk}"
-PKG="${PKG:-com.laststand.arena}"
+# The launch package is read from the export preset, not hardcoded: a stale
+# literal here (it once said com.laststand.arena while the preset shipped
+# com.laststandarena.game) makes the smoke-launch target a package that was
+# never installed. PKG env still overrides for preset experiments.
+PRESET_PKG="$(grep -o 'package/unique_name="[^"]*"' "$ROOT/export_presets.cfg" 2>/dev/null | head -n 1 | cut -d'"' -f2)"
+PKG="${PKG:-${PRESET_PKG:-com.laststandarena.game}}"
 
 echo "== Last Stand: Arena device QA =="
 echo "APK: $APK"

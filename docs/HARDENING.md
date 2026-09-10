@@ -169,17 +169,19 @@ file count and the guard-needle count from the tools themselves rather than trus
 
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 770 python + the headless Godot suites (was 95) — all green. The two branches merged in
+- Tests: 794 python + the headless Godot suites (was 95) — all green. The two branches merged in
   `main` brought their own suites (`test_regress_systems_completion`, `test_regress_solid_props_and
   _buttons`, the camera-containment and minimap sweeps), which is most of that growth; the run-
-  definition pass added `test_regress_run_modes`.
+  definition pass added `test_regress_run_modes`, the mobile-input pass `test_regress_mobile_input_contract`,
+  and the `main` merge (PR #42, save/runtime/enemy-AI hardening) eight more.
 - GDScripts under `scripts/`: 192 (was 139 at the sweep; the subsystem rebuilds since have added
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call)
 - Validated files: 159/159 (was 85, then 151: +7 authored game modes, +1 prestige ladder)
-- Guard needles: 195 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
-  guard, a bounded export, or an absence; the merge of `main` and the four headless rounds that
-  followed added nineteen, of which one refuses
+- Guard needles: 201 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
+  guard, a bounded export, or an absence; the mobile-input pass added six (interruption handlers,
+  back-button routing, press-down fire, layout wiring); the merge of `main` and the four headless
+  rounds that followed added nineteen, of which one refuses
   an engine member that does not exist (`.has_area()` on an `AABB`, a parse error that took two
   passes to surface because another parse error was masking it)
   and two pin the sweeps that closed the fifth round: no resource built with `.new()` inside a

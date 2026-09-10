@@ -157,6 +157,14 @@ func _test_touch() -> void:
 	joystick._begin(2, Vector2(100, 100))
 	joystick._update(Vector2(145, 110))
 	_check("touch stick acquires input", joystick.is_active() and joystick.get_value().length() > 0)
+	var lift := InputEventScreenTouch.new()
+	lift.index = 2
+	lift.pressed = false
+	joystick._input(lift)
+	_check("normal release ends quietly without arming resume-ignore",
+		not joystick.is_active() and joystick.get_value() == Vector2.ZERO and joystick._resume_ignore <= 0.0)
+	joystick._begin(2, Vector2(100, 100))
+	joystick._update(Vector2(145, 110))
 	GameRoot.request_pause()
 	await _settle()
 	_check("modal cancels captured stick", not joystick.is_active() and joystick.get_value() == Vector2.ZERO)
@@ -167,14 +175,25 @@ func _test_touch() -> void:
 	press.index = 3
 	press.pressed = true
 	button._gui_input(press)
+	_check("button fires on press-down", emitted[0] == 1)
+	var second_press := InputEventScreenTouch.new()
+	second_press.index = 4
+	second_press.pressed = true
+	button._gui_input(second_press)
+	_check("second finger cannot double-fire a held button", emitted[0] == 1)
 	var wrong_release := InputEventScreenTouch.new()
 	wrong_release.index = 4
 	wrong_release.pressed = false
 	button._gui_input(wrong_release)
-	_check("other finger cannot fire button", emitted[0] == 0)
+	_check("other finger release neither fires nor clears the hold", emitted[0] == 1 and button._held)
+	var release := InputEventScreenTouch.new()
+	release.index = 3
+	release.pressed = false
+	button._gui_input(release)
+	_check("owning release clears without firing", emitted[0] == 1 and not button._held)
 	button.cancel()
 	button._fire()
-	_check("cancelled button never fires", emitted[0] == 0)
+	_check("cancelled button never fires", emitted[0] == 1)
 	GameRoot.request_resume()
 	await _settle()
 

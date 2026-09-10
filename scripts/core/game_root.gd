@@ -72,6 +72,22 @@ func _ready() -> void:
 	EventBus.report_info("GameRoot ready")
 
 
+func _notification(what: int) -> void:
+	# App interruption auto-pause. Android/iOS background the app WITHOUT
+	# pausing the tree (AudioManager's handler documents the same: it mutes
+	# because the sim keeps running behind other apps), so a player who takes
+	# a call mid-wave would return to a corpse. Desktop alt-tab takes the
+	# same path through WINDOW_FOCUS_OUT — pausing a single-player run on
+	# focus loss is the standard there too. Strictly gated on pausable
+	# states: an ungated call would log an "Illegal pause transition" warning
+	# on every menu alt-tab. No auto-resume: the pause screen owns the return.
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			if _can_pause_from(_current_state):
+				request_pause()
+
+
 func _process(delta: float) -> void:
 	if not _paused and _current_state in [State.PLAYING, State.WAVE_TRANSITION] and _current_run.player_alive:
 		_current_run.elapsed_seconds += delta
