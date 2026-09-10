@@ -109,7 +109,7 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 	var factor := _fit_factor(instance, target_height)
 	if factor <= 0.0:
 		# No usable geometry -> keep the primitive and tear down the mount.
-		mount.remove_child(wrapper)
+		mount_point.remove_child(wrapper)
 		wrapper.free()
 		_report_mount_issue("CharacterVisuals: model has no usable geometry for role %s: %s (primitive kept)" % [String(role), path])
 		return null
@@ -123,7 +123,7 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 	# would double-count the scale and offset the body off the capsule).
 	var measured: Variant = _bounds(instance as Node3D, Transform3D.IDENTITY)
 	if measured == null:
-		mount.remove_child(wrapper)
+		mount_point.remove_child(wrapper)
 		wrapper.free()
 		_report_mount_issue("CharacterVisuals: model has no visible mesh bounds for role %s: %s (primitive kept)" % [String(role), path])
 		return null
@@ -134,8 +134,8 @@ static func _mount_config(body: Node3D, role: StringName, cfg: Dictionary) -> No
 		-bounds.get_center().z
 	)
 
-	_hide_primitive(mount)
-	_add_ground_shadow(mount)
+	_hide_primitive(mount_point)
+	_add_ground_shadow(mount_point)
 	_play_idle(instance as Node3D, String(cfg.get("idle", "")))
 	# HD material pass: anisotropic filtering + role-tuned roughness/metallic so the
 	# authored metal/roughness atlas remains physically distinct under arena lighting.

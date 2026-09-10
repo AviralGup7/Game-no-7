@@ -93,8 +93,8 @@ func validate() -> Array[String]:
 		problems.append("swing_cooldown too small")
 	if windup < 0.0:
 		problems.append("windup cannot be negative")
-	if range <= 0.0:
-		problems.append("range must be > 0")
+	if attack_range <= 0.0:
+		problems.append("attack_range must be > 0")
 	if arc_degrees <= 0.0 or arc_degrees > 360.0:
 		problems.append("arc_degrees must be in (0,360]")
 	if max_targets < 0:

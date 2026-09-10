@@ -32,7 +32,7 @@ func _check(case_name: String, passed: bool, extra: String = "") -> void:
 		print("  PASS: %s" % case_name)
 	else:
 		_failures.append(case_name)
-		push_error("VERIFY FAIL: %s %s" % [name, extra])
+		push_error("VERIFY FAIL: %s %s" % [case_name, extra])
 
 
 func _on_diag(message: String, severity: StringName) -> void:
