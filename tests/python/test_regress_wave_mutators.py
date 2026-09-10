@@ -176,9 +176,31 @@ def number(raw: str) -> float:
     return float(raw)
 
 
+_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "'": "'", "\\": "\\"}
+
+
+def unescape(text: str) -> str:
+    """Reverse the escapes Godot's own .tres writer emits.
+
+    The text resource reader is Latin-1 oriented, so a non-ASCII character in authored copy is stored
+    as `\\u2014` and decoded at load. A python mirror that compares the raw file to the string the
+    game will read has to decode the same way, or every em dash in the data fails the mirror while
+    passing the game (and vice versa: fixing the file to satisfy the test would break the reader).
+    One pass over the escapes, so `\\\\u2014` means a literal backslash-u-2014 and not an em dash.
+    """
+
+    def one(m: re.Match) -> str:
+        c = m.group(1)
+        if c[0] in ("u", "U"):
+            return chr(int(c[1:], 16))
+        return _ESCAPES.get(c, c)
+
+    return re.sub(r"\\(u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|.)", one, text)
+
+
 def string_value(raw: str) -> str:
     """`&"minor"` and `"Swift Horde"` both reduce to their text."""
-    return raw.strip().lstrip("&").strip('"')
+    return unescape(raw.strip().lstrip("&").strip('"'))
 
 
 def exported_names(rel: str) -> list[str]:

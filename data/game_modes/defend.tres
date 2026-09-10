@@ -6,8 +6,8 @@
 script = ExtResource("1_script")
 mode_id = &"defend"
 display_name = "Hold the Line"
-blurb = "Guard the beacon at the arena's heart. If it falls, the run ends — survive the timer to win."
-intro_line = "The beacon must not fall. Hold the centre — everything comes for the light."
+blurb = "Guard the beacon at the arena's heart. If it falls, the run ends \u2014 survive the timer to win."
+intro_line = "The beacon must not fall. Hold the centre \u2014 everything comes for the light."
 victory_line = "Victory. The stand holds."
 objective = &"defend_point"
 score_mult = 1.4

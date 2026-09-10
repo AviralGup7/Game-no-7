@@ -57,8 +57,23 @@ shape had to absorb the other side's feature rather than duplicate it.
   used to contribute zero cases and zero failures — which is exactly how the identical mistake in
   `test_arena_world.gd` stayed silent.
 
+- **The same headless run then found the data itself un-loadable**, in the arena-authored files phase
+  5 and phase 6 wrote: every `Color` in `data/arena_themes/*.tres` and `data/arena_landmarks/*.tres`
+  was written as three components — legal GDScript, and a parse error in a resource file, because the
+  text reader calls the constructor itself and wants it flat and complete — so all three themes and all
+  three landmarks loaded as *nothing*, and the arenas referencing them failed with them. And thirteen
+  lines of authored copy across `data/` and `assets/materials/` held raw em dashes, which the Latin-1
+  text reader reports as "Unicode parsing error: Invalid unicode codepoint (2014)" rather than reading
+  as written. Both were fixed by writing the data the way Godot writes it (`, 1.0` on every `Color`,
+  `\u2014` in place of a raw dash), and both checks are now in `tool/validate_resources.py`, since the
+  class of defect is "the .tres reader is stricter than the language" and the local gates had no idea.
+  The mirror tests had to learn the same lesson: `string_value()` in the run-mode and mutator suites now
+  reverses Godot's escapes, because a python test comparing raw file text to what the engine will hand
+  the game is comparing two different strings.
+
 Gates on the merged tree: 766 python tests, `validate_guards.py` 186/0, `validate_resources.py`
-159/159, `check_typed_arch.py` clean, `gdparse`/`gdlint` clean on every file the merge touched.
+159/159 (with the two new checks verified against planted defects), `check_typed_arch.py` clean,
+`gdparse`/`gdlint` clean on every file the merge touched.
 
 ## [Unreleased] — A run's modes, its ladder and its voice are authored data (2026-09-10)
 

@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/stone/stone_ao.png" id="3_ao"]
 
 [resource]
-resource_name = "Arena Stone — detailed, non-metallic"
+resource_name = "Arena Stone \u2014 detailed, non-metallic"
 albedo_color = Color(0.8, 0.84, 0.88, 1)
 albedo_texture = ExtResource("1_color")
 roughness = 0.9

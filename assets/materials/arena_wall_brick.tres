@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/brick/brick_metal.jpg" id="4_metal"]
 
 [resource]
-resource_name = "Arena Walls — photo aged-brick PBR (HD pass)"
+resource_name = "Arena Walls \u2014 photo aged-brick PBR (HD pass)"
 albedo_color = Color(0.92, 0.9, 0.88, 1)
 albedo_texture = ExtResource("1_color")
 metallic = 1.0

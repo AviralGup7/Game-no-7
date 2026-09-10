@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 mutator_id = &"glass_cannon"
 display_name = "Glass Cannon"
-description = "Everyone hits harder — including you. Enemies deal +40%, take +25%."
+description = "Everyone hits harder \u2014 including you. Enemies deal +40%, take +25%."
 severity = &"major"
 roll_order = 3
 min_wave = 6

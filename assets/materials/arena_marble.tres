@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" path="res://assets/textures/stone/marble_albedo.png" id="1_color"]
 
 [resource]
-resource_name = "Arena Marble — polished photo stone (HD pass)"
+resource_name = "Arena Marble \u2014 polished photo stone (HD pass)"
 albedo_color = Color(0.86, 0.85, 0.85, 1)
 albedo_texture = ExtResource("1_color")
 metallic = 0.05

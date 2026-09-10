@@ -415,6 +415,16 @@ internals:
 - Stable IDs as `StringName`; never magic numbers — put tuning in the relevant `.tres`.
 - Validate new content resources (`validate()` returns problems).
 - Prefer typed resources; keep large logic out of one script.
+- **A `.tres` is not GDScript, and its reader is stricter in two places.** An authored value is a
+  *flat, complete* constructor call — `Color(0.22, 0.42, 0.68, 1.0)`, alpha and all, because the text
+  format calls the constructor itself and does not accept the three-component shorthand legal in code;
+  a short one is a parse error, the resource loads as nothing, and every arena that references it fails
+  with it. And the file must be ASCII: the reader is Latin-1 oriented, so non-ASCII copy is written the
+  way Godot's own writer writes it, as `\u2014` escapes, which the reader unescapes on load. A raw em
+  dash in authored copy is a "Unicode parsing error" and a string the game may not read as you wrote it.
+  `tool/validate_resources.py` fails the build on both; six shipped arena resources had the first and
+  thirteen lines across the data and material files had the second. Scripts are a different story —
+  GDScript source is read as UTF-8, so a literal em dash in `narrator.gd` stays exactly that.
 - **Collision bits come from `CollisionLayers`** (`scripts/core/collision_layers.gd`),
   for bodies *and* for queries. Do not write `collision_mask = 1` in a new script and
   do not re-declare collision bits in an enemy archetype scene; the contract test

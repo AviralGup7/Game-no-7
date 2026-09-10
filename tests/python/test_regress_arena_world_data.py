@@ -475,7 +475,14 @@ class ShippedDataFidelityTests(unittest.TestCase):
                         "ambient_color", "floor_tint", "wall_tint"):
                 got = numbers(fields.get(key))
                 want = look[key]
-                self.assertEqual(len(got), len(want), f"{arena_id}.{key}: not a full Color literal")
+                # Four numbers, not three: the .tres reader calls the constructor itself and wants it
+                # complete, alpha included, while GDScript lets `Color(r, g, b)` stand. Six shipped
+                # theme and landmark files were written the code way and did not load at all; the
+                # channels below are still audited against the table the code used to hold.
+                self.assertEqual(len(got), len(want) + 1,
+                                 f"{arena_id}.{key}: not a full 4-component Color literal")
+                self.assertTrue(close(got[-1], 1.0),
+                                f"{arena_id}.{key}: the authored alpha must stay 1.0, got {got[-1]}")
                 for g, w in zip(got, want):
                     self.assertTrue(close(g, w), f"{arena_id}.{key}: {got} != {want}")
             for key in ("fog_density", "sun_energy", "brightness", "contrast"):
