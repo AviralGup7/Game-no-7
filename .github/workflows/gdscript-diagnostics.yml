@@ -134,6 +134,11 @@ jobs:
       - name: Diagnostic summary
         shell: bash
         run: |
+          # GitHub runs bash with -e -o pipefail; `head` closing the pipe early
+          # gives the upstream sort a SIGPIPE (141) which pipefail turns into a
+          # step failure. Nothing here should ever fail the job.
+          set +e
+          set +o pipefail
           {
             for f in diag-import.log diag-tests.log diag-check.log diag-editor.log diag-wae-import.log diag-wae-tests.log diag-wae-probe.log; do
               [ -f "$f" ] || continue
@@ -148,6 +153,7 @@ jobs:
       # The Actions log endpoint is unreachable from some environments, so the
       # raw logs travel with the branch instead.
       - name: Publish diagnostic logs to the branch
+        if: always()
         shell: bash
         run: |
           set -e
