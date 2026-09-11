@@ -21,8 +21,10 @@ const STAMINA := Color("6cc0ff")      # cool stamina blue
 const XP := Color("c789f0")           # level-up violet
 const DANGER := Color("ff5a52")
 
-const REGULAR: FontFile = preload("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf")
-const BOLD: FontFile = preload("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf")
+# Loaded at class init (after import), not const-preloaded: Godot 4.4.1 has no
+# compile-time loader for `.ttf`, so a typed `preload` fails the whole UI graph.
+static var REGULAR: Font = load("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf") as Font
+static var BOLD: Font = load("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf") as Font
 
 ## Spacing scale — every panel/margin/separation in the UI is a multiple of it,
 ## so gaps stay consistent between screens.

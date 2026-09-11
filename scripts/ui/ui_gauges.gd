@@ -24,6 +24,7 @@ var _compact := false
 var _last_level := 1
 var _last_xp_into := 0
 var _last_xp_required := 1
+var _xp_seeded := false
 
 
 func _init() -> void:

@@ -63,7 +63,7 @@ static func _geometry_contract(results: Array) -> void:
 						continue
 					# Top bar may share a horizontal strip with nothing else;
 					# it must still not cover the thumb cluster.
-					var skip_top := (all_keys[i] == "top_bar" or all_keys[j] == "top_bar") and not (
+					var skip_top: bool = (all_keys[i] == "top_bar" or all_keys[j] == "top_bar") and not (
 						all_keys[i] in controls or all_keys[j] in controls
 					)
 					if skip_top:

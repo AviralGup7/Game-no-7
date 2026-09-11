@@ -95,7 +95,7 @@ static func suite() -> Array:
 			and (round.input_bindings["attack"] as Array).size() == 1,
 		"why": str(round.input_bindings),
 	})
-	var migrated_binds := SaveScript.normalize_save({
+	var migrated_binds = SaveScript.normalize_save({
 		"schema_version": 5,
 		"settings": {"master_volume": 0.4, "input_bindings": binds},
 	})
