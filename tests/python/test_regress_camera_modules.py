@@ -56,6 +56,20 @@ class TouchAndStickTests(unittest.TestCase):
         self.assertNotIn("Input.get_joy_axis", handler)
         self.assertIn('Input.get_axis("camera_look_left", "camera_look_right")', handler)
 
+    def test_move_stick_cannot_turn_the_camera(self):
+        rig = read("scripts/main/camera_rig.gd")
+        self.assertIn("func _is_move_stick_finger(index: int) -> bool:", rig)
+        self.assertIn("not _is_move_stick_finger(drag.index)", rig)
+        self.assertIn("not _is_move_stick_finger(touch.index)", rig)
+        stick = read("scripts/ui/virtual_joystick.gd")
+        self.assertIn('add_to_group("touch_joystick")', stick)
+        self.assertIn("func owns_index(index: int) -> bool:", stick)
+        self.assertIn("accept_event()", stick)
+        handler = read("scripts/main/camera/camera_input_handler.gd")
+        self.assertIn("MOUSE_BUTTON_RIGHT", handler)
+        self.assertIn("MOUSE_MODE_CAPTURED", handler)
+        self.assertNotIn("mouse always turns the lens", handler)
+
 
 class AutoFollowAndFramingTests(unittest.TestCase):
     def test_shooter_profiles_disable_souls_auto_follow(self):

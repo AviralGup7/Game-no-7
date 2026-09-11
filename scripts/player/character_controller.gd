@@ -9,7 +9,7 @@ class_name CharacterController
 @export var acceleration: float = 24.0
 @export var deceleration: float = 30.0
 @export var gravity: float = 18.0
-@export var turn_speed: float = 14.0  # shared combat/visual yaw smoothing (radians/sec)
+@export var turn_speed: float = 18.0  # snap body yaw to the look camera
 
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null

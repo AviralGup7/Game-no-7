@@ -26,8 +26,12 @@ func set_profile(profile: CameraProfile) -> void:
 func handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	if event == null:
 		return
-	# PUBG: mouse always turns the lens (unhandled motion; UI still eats clicks).
-	handle_look_delta(event.relative)
+	# Left-button motion is the movement stick (emulate_mouse_from_touch).
+	# Look is the other finger (ScreenDrag) or RMB / captured mouse.
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
+		handle_look_delta(event.relative)
+	elif DisplayServer.mouse_get_mode() == DisplayServer.MOUSE_MODE_CAPTURED:
+		handle_look_delta(event.relative)
 
 
 ## Mouse (and any other pixel-delta look source). Finite-only: a NaN relative
