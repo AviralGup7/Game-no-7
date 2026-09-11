@@ -283,9 +283,13 @@ func _flush_save() -> bool:
 	# replacement then costs at most the newest save, not the whole profile.
 	var previous: Variant = _read_raw(SAVE_PATH)
 	if previous != null:
-		_write_raw(BACKUP_3_PATH, JSON.stringify(_read_raw(BACKUP_2_PATH)))
-		_write_raw(BACKUP_2_PATH, JSON.stringify(_read_raw(BACKUP_PATH)))
-		_write_raw(BACKUP_PATH, JSON.stringify(previous))
+		# Byte-copy existing generations. Re-stringify of a parsed dict can
+		# scramble key order and break the SHA-256 envelope; writing JSON of
+		# a missing file used to persist the literal "null" and destroy an
+		# older backup on the second save of a new profile.
+		_copy_save_file(BACKUP_2_PATH, BACKUP_3_PATH)
+		_copy_save_file(BACKUP_PATH, BACKUP_2_PATH)
+		_copy_save_file(SAVE_PATH, BACKUP_PATH)
 	var ok := _write_raw(SAVE_PATH, _serialize_save())
 	if ok:
 		_dirty = false
@@ -339,6 +343,24 @@ func _sha256_text(value: String) -> String:
 		return ""
 	hashing.update(value.to_utf8_buffer())
 	return hashing.finish().hex_encode()
+
+
+## Copy one save generation onto another. No-op when the source is missing,
+## unreadable, empty, or the parsed-null tombstone a previous bug wrote.
+func _copy_save_file(from_path: String, to_path: String) -> void:
+	if not FileAccess.file_exists(from_path):
+		return
+	var file := FileAccess.open(from_path, FileAccess.READ)
+	if file == null:
+		return
+	if file.get_length() > MAX_VALID_SAVE_BYTES:
+		file.close()
+		return
+	var text := file.get_as_text()
+	file.close()
+	if text.is_empty() or text == "null":
+		return
+	_write_raw(to_path, text)
 
 
 func _write_raw(path: String, contents: String) -> bool:

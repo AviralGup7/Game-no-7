@@ -87,4 +87,14 @@ static func suite() -> Array:
 	# empty pool -> empty result (graceful, no crash)
 	results.append({"name": "empty pool returns empty (no crash)",
 		"passed": UpgradeSelector.choose_upgrade_choices([], 3, 5, 2, {}).is_empty(), "why": ""})
+
+	# A zero-weight card sitting first must not win a 0.0 roll (acc starts at 0).
+	var zero := _cfg(&"zero_w", 0.1, 1, 0.0)
+	var heavy := _cfg(&"heavy_w", 0.1, 1, 4.0)
+	var picked := UpgradeSelector.choose_upgrade_choices([zero, heavy], 1, 1, 1, {})
+	results.append({
+		"name": "zero-weight candidate is not selected over a positive weight",
+		"passed": picked.size() == 1 and picked[0].upgrade_id == &"heavy_w",
+		"why": "picked=%s" % (str(picked[0].upgrade_id) if not picked.is_empty() else "empty"),
+	})
 	return results

@@ -117,6 +117,8 @@ func is_aim_assist_enabled() -> bool:
 
 
 func _clamp01(value: float) -> float:
+	if not is_finite(value):
+		return 0.0
 	return clampf(value, 0.0, 1.0)
 
 

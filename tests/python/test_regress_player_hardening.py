@@ -87,4 +87,19 @@ class PlayerBindTests(unittest.TestCase):
     def test_character_controller_binds_weapons(self):
         txt=read("scripts/player/character_controller.gd")
         self.assertIn("func bind_weapons(", txt)
+    def test_skills_bind_from_player(self):
+        player=read("scripts/player/player.gd")
+        self.assertIn("_skills.bind_systems(_experience, _status, _weapons, _health, _controller)", player)
+        skills=read("scripts/skills/skill_controller.gd")
+        self.assertIn("func bind_systems(", skills)
+        self.assertIn("_unlocked.clear()", skills)
+        exe=read("scripts/skills/skill_executor.gd")
+        self.assertIn("func bind_systems(", exe)
+        self.assertIn("func _status_of(", exe)
+        self.assertIn("get_status_manager()", exe)
+    def test_pickup_radius_upgrade_is_consumed(self):
+        txt=read("scripts/pickups/pickup.gd")
+        self.assertIn('get_stat(&"pickup_radius_add", 0.0)', txt)
+        self.assertIn("config.collect_radius + _pickup_reach()", txt)
+        self.assertIn("pickup_radius_add", read("data/upgrades/quartermaster.tres"))
 if __name__=="__main__": unittest.main()

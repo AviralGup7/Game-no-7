@@ -102,6 +102,8 @@ func _ready() -> void:
 	_experience.bind_rewards(_health, _stamina, _skills)
 	_stamina.bind_progression(_progression)
 	_controller.bind_weapons(_weapons)
+	if _skills != null:
+		_skills.bind_systems(_experience, _status, _weapons, _health, _controller)
 	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
 	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
 		EventBus.enemy_killed.connect(_on_enemy_kill_heal)

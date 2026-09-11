@@ -8,6 +8,10 @@ extends RefCounted
 
 var _owner_body: Node3D = null
 var _rng: RngService = null
+var _weapons: WeaponManager = null
+var _health: HealthComponent = null
+var _controller: CharacterController = null
+var _status: StatusManager = null
 var _pending_hits: Array = []   # [{config, hits_left, timer, per_hit}]
 var _dashing: Dictionary = {}   # active dash state or {}
 # Wielder progression modifiers, copied as values rather than mutating resources.
@@ -20,6 +24,18 @@ var _status_chance_bonus := 0.0
 func bind(owner_body: Node3D, rng: RngService) -> void:
 	_owner_body = owner_body
 	_rng = rng
+
+
+func bind_systems(
+	weapons: WeaponManager,
+	health: HealthComponent,
+	controller: CharacterController,
+	status: StatusManager
+) -> void:
+	_weapons = weapons
+	_health = health
+	_controller = controller
+	_status = status
 
 
 func set_combat_modifiers(skill_damage: float = 1.0, area_radius: float = 1.0, area_damage: float = 1.0, status_chance: float = 0.0) -> void:
@@ -78,13 +94,22 @@ func tick(delta: float, enemies: Array) -> void:
 
 func _caster_damage() -> float:
 	# Skills scale off the active weapon so weapon progression feeds them.
-	if _owner_body != null:
-		var wm := _owner_body.get_node_or_null("WeaponManager") as WeaponManager
-		if wm != null:
-			var inst := wm.active_instance()
-			if inst != null:
-				return inst.effective_damage()
+	var wm := _weapons
+	if wm == null and _owner_body != null:
+		wm = _owner_body.get_node_or_null("WeaponManager") as WeaponManager
+	if wm != null:
+		var inst := wm.active_instance()
+		if inst != null:
+			return inst.effective_damage()
 	return 10.0
+
+
+func _status_of(node: Node) -> StatusManager:
+	if node is Damageable:
+		return (node as Damageable).get_status_manager()
+	if node != null:
+		return node.get_node_or_null("StatusManager") as StatusManager
+	return null
 
 
 func _skill_damage(cfg: SkillConfig) -> float:
@@ -118,7 +143,7 @@ func _apply_victim_effects(cfg: SkillConfig, victims: Array) -> void:
 		return
 	for v in victims:
 		if v is Node:
-			var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+			var sm := _status_of(v as Node)
 			if sm != null:
 				sm.apply_effects(cfg.victim_effects, _owner_body)
 
@@ -155,7 +180,7 @@ func _do_frost_nova(cfg: SkillConfig, enemies: Array) -> void:
 		var slow_ids: Array[StringName] = [&"slow"]
 		for v in hits:
 			if v is Node:
-				var sm := (v as Node).get_node_or_null("StatusManager") as StatusManager
+				var sm := _status_of(v as Node)
 				if sm != null:
 					sm.apply_effects(slow_ids, _owner_body)
 
@@ -219,10 +244,14 @@ func _do_chain_lightning(cfg: SkillConfig, enemies: Array) -> void:
 func _do_self_effects(cfg: SkillConfig) -> void:
 	if _owner_body == null:
 		return
-	var sm := _owner_body.get_node_or_null("StatusManager") as StatusManager
+	var sm := _status
+	if sm == null:
+		sm = _status_of(_owner_body)
 	if sm != null and not cfg.caster_effects.is_empty():
 		sm.apply_effects(cfg.caster_effects, _owner_body)
-	var wm := _owner_body.get_node_or_null("WeaponManager") as WeaponManager
+	var wm := _weapons
+	if wm == null:
+		wm = _owner_body.get_node_or_null("WeaponManager") as WeaponManager
 	if wm != null:
 		wm.refresh_derived_stats()
 
@@ -230,7 +259,9 @@ func _do_self_effects(cfg: SkillConfig) -> void:
 func _do_heal_surge(cfg: SkillConfig) -> void:
 	if _owner_body == null:
 		return
-	var hp := _owner_body.get_node_or_null("HealthComponent") as HealthComponent
+	var hp := _health
+	if hp == null:
+		hp = _owner_body.get_node_or_null("HealthComponent") as HealthComponent
 	if hp != null and cfg.heal_amount > 0.0:
 		hp.heal(cfg.heal_amount)
 	_do_self_effects(cfg)

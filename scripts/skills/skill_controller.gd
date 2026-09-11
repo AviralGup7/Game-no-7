@@ -22,6 +22,8 @@ var _unlocked: Dictionary = {}  # StringName -> bool
 var _enabled := true
 var _cooldown_multiplier := 1.0
 var _owner_body: Node3D = null
+var _experience: ExperienceComponent = null
+var _status: StatusManager = null
 var _rng := RngService.new()
 var _executor := SkillExecutor.new()
 
@@ -33,6 +35,20 @@ func _ready() -> void:
 	_cooldowns.fill(0.0)
 	_owner_body = get_parent() as Node3D
 	_executor.bind(_owner_body, _rng)
+
+
+## Player wires typed siblings once. Headless fixtures that skip bind() still
+## fall back to get_node_or_null in _current_level / stun / the executor.
+func bind_systems(
+	experience: ExperienceComponent,
+	status: StatusManager,
+	weapons: WeaponManager,
+	health: HealthComponent,
+	controller: CharacterController
+) -> void:
+	_experience = experience
+	_status = status
+	_executor.bind_systems(weapons, health, controller, status)
 
 
 func configure(run_seed: int) -> void:
@@ -118,6 +134,10 @@ func unlock_available() -> int:
 
 
 func _current_level() -> int:
+	if _experience != null:
+		return _experience.get_level()
+	if _owner_body is Player:
+		return (_owner_body as Player).get_level()
 	if _owner_body == null:
 		return -1
 	var experience := _owner_body.get_node_or_null("ExperienceComponent") as ExperienceComponent
@@ -225,9 +245,11 @@ func try_cast_slot(slot: int) -> bool:
 
 
 func _is_caster_stunned() -> bool:
-	if _owner_body == null:
-		return false
-	var sm := _owner_body.get_node_or_null("StatusManager") as StatusManager
+	var sm := _status
+	if sm == null and _owner_body is Damageable:
+		sm = (_owner_body as Damageable).get_status_manager()
+	if sm == null and _owner_body != null:
+		sm = _owner_body.get_node_or_null("StatusManager") as StatusManager
 	return sm != null and sm.is_stunned()
 
 
@@ -250,8 +272,11 @@ func _enemies() -> Array:
 func reset_for_new_run() -> void:
 	_cooldowns.fill(0.0)
 	_executor.reset_scheduled()
+	_unlocked.clear()
+	_current_wave = 1
 	# A new run starts from neutral skill tuning; PlayerBuild reapplies any
-	# permanent/run modifiers immediately after this reset.
+	# permanent/run modifiers immediately after this reset. Starter-kit assign
+	# restores the three loadout unlock flags.
 
 
 func get_debug_snapshot() -> Dictionary:

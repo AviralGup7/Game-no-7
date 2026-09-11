@@ -111,7 +111,11 @@ static func _normalize_run_build(value: Variant) -> Dictionary:
 		return out
 	var data: Dictionary = value
 	out.schema_version = BUILD_SCHEMA_VERSION
-	out.run_seed = maxi(_int_or(_dict_get(data, "seed", 0), 0), 0)
+	# Public contract key is `seed` (RunState.build_snapshot / last_run_build).
+	# Older or mistaken writers used `run_seed`; accept either, write only `seed`.
+	var seed_raw: Variant = _dict_get(data, "seed", _dict_get(data, "run_seed", 0))
+	out.seed = maxi(_int_or(seed_raw, 0), 0)
+	out.erase("run_seed")
 	out.current_wave = maxi(_int_or(_dict_get(data, "current_wave", 0), 0), 0)
 	out.selected_upgrades = _string_int_map(_dict_get(data, "selected_upgrades", {}))
 	out.active_modifiers = _string_list(_dict_get(data, "active_modifiers", []))
