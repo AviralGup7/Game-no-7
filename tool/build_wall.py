@@ -2,7 +2,7 @@
 """Build the 3D wall model from wall.json coordinates and texture_0.webp.
 
 Generates:
-  - data/models/wall/wall.glb (glTF 2.0 binary with embedded PBR textures & modular UV unwrap)
+  - data/models/wall/wall.glb (glTF 2.0 binary with embedded PBR textures & modular 4-panel UV unwrap)
   - data/models/wall/scene.gltf + scene.bin + textures/
   - scenes/environment/wall.tscn (Godot 3D scene)
 
@@ -22,21 +22,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def build_pbr_textures(raw_texture_path: Path, tex_dir: Path) -> dict[str, bytes]:
-    """Generate properly oriented (90 CW) PBR maps."""
     tex_dir.mkdir(parents=True, exist_ok=True)
     albedo_path = tex_dir / "Wall_albedo.png"
     emission_path = tex_dir / "Wall_emission.png"
     normal_path = tex_dir / "Wall_normal.png"
     orm_path = tex_dir / "Wall_ORM.png"
 
-    # 1. Albedo: Rotated 90 CW so text ('SECTOR 07') and trims run horizontally
+    # 1. Albedo: Rotated 90 CW so text and trims run horizontally
     subprocess.run([
         "convert", str(raw_texture_path), "-rotate", "90", str(albedo_path)
     ], check=True)
 
     # 2. Emission map: extract bright cyan and white lights
-    # Cyan lights: high blue and green, lower red
-    # We create a clean mask for glowing indicator strips
     subprocess.run([
         "convert", str(albedo_path),
         "-channel", "R", "-threshold", "70%",
@@ -45,7 +42,7 @@ def build_pbr_textures(raw_texture_path: Path, tex_dir: Path) -> dict[str, bytes
         str(emission_path)
     ], check=True)
 
-    # 3. Normal map: luminance gradient
+    # 3. Normal map
     subprocess.run([
         "convert", str(albedo_path), "-colorspace", "Gray",
         "-define", "convolve:scale=1.5",
@@ -94,35 +91,6 @@ def build_wall_geometry(json_path: Path):
     raw_faces = data["faces"]
     num_v = len(raw_verts)
 
-    # Build adjacency graph for connected components
-    adj = [[] for _ in range(num_v)]
-    for f in raw_faces:
-        for i in range(len(f)):
-            u = f[i]
-            v = f[(i + 1) % len(f)]
-            adj[u].append(v)
-            adj[v].append(u)
-
-    visited = [False] * num_v
-    comp_map = [-1] * num_v
-    components = []
-    for i in range(num_v):
-        if not visited[i]:
-            comp = []
-            stack = [i]
-            visited[i] = True
-            cid = len(components)
-            comp_map[i] = cid
-            while stack:
-                u = stack.pop()
-                comp.append(u)
-                for v in adj[u]:
-                    if not visited[v]:
-                        visited[v] = True
-                        comp_map[v] = cid
-                        stack.append(v)
-            components.append(comp)
-
     # Triangulate faces
     tris = []
     for f in raw_faces:
@@ -156,45 +124,59 @@ def build_wall_geometry(json_path: Path):
         else:
             v_normals[i] = [0.0, 0.0, 1.0]
 
-    # Modular Trim Atlas UV mapping:
-    # Coordinate space is normalized [0, 1] x [0, 1] in the 90 CW rotated atlas
+    # Modular 4-Panel Seamless UV mapping:
     uvs = [[0.0, 0.0] for _ in range(num_v)]
     for i in range(num_v):
         x, y, z = raw_verts[i]
-        cid = comp_map[i]
 
-        if cid == 7:  # Left Pillar (X in [-0.500, -0.451])
-            u = 0.635 + (x - (-0.500)) / 0.049 * 0.070
+        # 1. Structural Pillars (Left, Center, Right)
+        if x < -0.445:
+            u = 0.635 + (x - (-0.500)) / 0.055 * 0.070
             v = 0.010 + (0.134 - y) / 0.267 * 0.980
-        elif cid == 2:  # Center Pillar (X in [-0.029, 0.028])
-            u = 0.635 + (x - (-0.029)) / 0.057 * 0.070
+        elif -0.045 <= x <= 0.045:
+            u = 0.635 + (x - (-0.045)) / 0.090 * 0.070
             v = 0.010 + (0.134 - y) / 0.267 * 0.980
-        elif cid == 1:  # Left Recessed Panel (SECTOR 07 plate framed perfectly)
-            u = 0.382 + (x - (-0.453)) / 0.429 * 0.190
-            v = 0.012 + (0.085 - y) / 0.154 * 0.115
-        elif cid in (3, 5):  # Top Trims (Conduits with cyan lights)
-            u = 0.610 + (abs(x) * 2.5 % 1.0) * 0.350
-            v = 0.010 + (0.132 - y) / 0.045 * 0.110
-        elif cid in (11, 12):  # Bottom Trims (Louvers / Vents)
-            u = 0.150 + (abs(x) * 2.5 % 1.0) * 0.400
-            v = 0.710 + (-0.070 - y) / 0.059 * 0.250
-        elif cid == 0:  # Right Side (Tech Conduits panel + Right Pillar)
-            if x > 0.448:
-                # Right Pillar
-                u = 0.635 + (x - 0.448) / 0.052 * 0.070
-                v = 0.010 + (0.134 - y) / 0.267 * 0.980
+        elif x > 0.445:
+            u = 0.635 + (x - 0.445) / 0.055 * 0.070
+            v = 0.010 + (0.134 - y) / 0.267 * 0.980
+        # 2. Top Trims
+        elif y > 0.085:
+            u = 0.610 + (abs(x) * 4.0 % 1.0) * 0.350
+            v = 0.010 + (0.134 - y) / 0.048 * 0.080
+        # 3. Bottom Louvers
+        elif y < -0.070:
+            u = 0.150 + (abs(x) * 4.0 % 1.0) * 0.350
+            v = 0.720 + (-0.070 - y) / 0.063 * 0.240
+        # 4. Four Square Wall Panels
+        else:
+            if -0.445 <= x < -0.245:
+                # Panel 1: SECTOR 07 / A BRIGHTER TOMORROW
+                px = (x - (-0.445)) / 0.200
+                py = (0.085 - y) / 0.155
+                u = 0.400 + px * 0.157
+                v = 0.010 + py * 0.117
+            elif -0.245 <= x < -0.045:
+                # Panel 2: HUMANITY FORWARDS + DELTA LOGO
+                px = (x - (-0.245)) / 0.200
+                py = (0.085 - y) / 0.155
+                u = 0.166 + px * 0.156
+                v = 0.585 + py * 0.095
+            elif 0.045 <= x < 0.245:
+                # Panel 3: HAZARD CAUTION WARNING
+                px = (x - 0.045) / 0.200
+                py = (0.085 - y) / 0.155
+                u = 0.400 + px * 0.157
+                v = 0.410 + py * 0.117
             else:
-                # Right Tech Conduits
-                u = 0.610 + (x - 0.025) / 0.423 * 0.370
-                v = 0.220 + (0.085 - y) / 0.154 * 0.380
-        else:  # Small indicator brackets / LED fixtures
-            u = 0.020 + (abs(x) * 20.0 % 1.0) * 0.060
-            v = 0.740 + (abs(y) * 20.0 % 1.0) * 0.080
+                # Panel 4: BEVELED TECH PANEL
+                px = (x - 0.245) / 0.200
+                py = (0.085 - y) / 0.155
+                u = 0.400 + px * 0.157
+                v = 0.527 + py * 0.098
 
         uvs[i] = [u, v]
 
     tangents = [[1.0, 0.0, 0.0, 1.0] for _ in range(num_v)]
-
     return raw_verts, tris, v_normals, uvs, tangents
 
 

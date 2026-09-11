@@ -140,19 +140,16 @@ static ShadedVertex transform_vertex(Vertex v, Mat4 model, Mat4 view, Mat4 proj)
     out.normal = v.normal;
     out.uv = v.uv;
 
-    // Apply model matrix
     Vec3 world_p = {
         model.m[0][0]*v.pos.x + model.m[0][1]*v.pos.y + model.m[0][2]*v.pos.z + model.m[0][3],
         model.m[1][0]*v.pos.x + model.m[1][1]*v.pos.y + model.m[1][2]*v.pos.z + model.m[1][3],
         model.m[2][0]*v.pos.x + model.m[2][1]*v.pos.y + model.m[2][2]*v.pos.z + model.m[2][3]
     };
 
-    // View
     float vx = view.m[0][0]*world_p.x + view.m[0][1]*world_p.y + view.m[0][2]*world_p.z + view.m[0][3];
     float vy = view.m[1][0]*world_p.x + view.m[1][1]*world_p.y + view.m[1][2]*world_p.z + view.m[1][3];
     float vz = view.m[2][0]*world_p.x + view.m[2][1]*world_p.y + view.m[2][2]*world_p.z + view.m[2][3];
 
-    // Proj
     float cx = proj.m[0][0]*vx + proj.m[0][1]*vy + proj.m[0][2]*vz + proj.m[0][3];
     float cy = proj.m[1][0]*vx + proj.m[1][1]*vy + proj.m[1][2]*vz + proj.m[1][3];
     float cz = proj.m[2][0]*vx + proj.m[2][1]*vy + proj.m[2][2]*vz + proj.m[2][3];
@@ -228,7 +225,6 @@ static void rasterize_triangle(ShadedVertex v0, ShadedVertex v1, ShadedVertex v2
                                  fmaxf(0.0f, vec3_dot(N, fill_light)) * 0.35f +
                                  fmaxf(0.0f, vec3_dot(N, rim_light)) * 0.20f + 0.32f;
 
-                    // Detect cyan light emission from texture
                     float is_cyan = (tex_col.z > 0.55f && tex_col.y > 0.40f && tex_col.x < 0.40f) ? 1.6f : 0.0f;
 
                     float r = fminf(1.0f, tex_col.x * diff + is_cyan * 0.2f);
@@ -254,7 +250,7 @@ static void draw_border_box(Pixel *fb, int x0, int y0, int w, int h, Pixel borde
     }
 }
 
-static Mesh load_mesh_with_modular_uvs(const char *json_path) {
+static Mesh load_mesh_with_4panel_uvs(const char *json_path) {
     Mesh mesh = {0};
     FILE *f = fopen(json_path, "rb");
     if (!f) return mesh;
@@ -308,101 +304,73 @@ static Mesh load_mesh_with_modular_uvs(const char *json_path) {
         p = strchr(p, ']'); p++;
     }
     for (int i = 0; i < num_v; i++) verts[i].normal = vec3_norm(verts[i].normal);
-
-    // Build Adjacency Graph for Component ID
-    int *head = (int *)malloc(num_v * sizeof(int));
-    int *next = (int *)malloc(num_f * 8 * sizeof(int));
-    int *to = (int *)malloc(num_f * 8 * sizeof(int));
-    for (int i = 0; i < num_v; i++) head[i] = -1;
-    int edge_cnt = 0;
-
-    p = strstr(buf, "\"faces\":");
-    p = strchr(p, '['); p++;
-    for (int i = 0; i < num_f; i++) {
-        p = strchr(p, '[');
-        if (!p) break;
-        int v0, v1, v2, v3;
-        int n = sscanf(p + 1, "%d, %d, %d, %d", &v0, &v1, &v2, &v3);
-        int arr[4] = {v0, v1, v2, v3};
-        for (int k = 0; k < n; k++) {
-            int u = arr[k];
-            int v = arr[(k + 1) % n];
-            to[edge_cnt] = v; next[edge_cnt] = head[u]; head[u] = edge_cnt++;
-            to[edge_cnt] = u; next[edge_cnt] = head[v]; head[v] = edge_cnt++;
-        }
-        p = strchr(p, ']'); p++;
-    }
     free(buf);
 
-    int *comp_map = (int *)malloc(num_v * sizeof(int));
-    for (int i = 0; i < num_v; i++) comp_map[i] = -1;
-    int comp_count = 0;
-    int *stack = (int *)malloc(num_v * sizeof(int));
-
-    for (int i = 0; i < num_v; i++) {
-        if (comp_map[i] == -1) {
-            int top = 0;
-            stack[top++] = i;
-            comp_map[i] = comp_count;
-            while (top > 0) {
-                int u = stack[--top];
-                for (int e = head[u]; e != -1; e = next[e]) {
-                    int v = to[e];
-                    if (comp_map[v] == -1) {
-                        comp_map[v] = comp_count;
-                        stack[top++] = v;
-                    }
-                }
-            }
-            comp_count++;
-        }
-    }
-
-    // Assign modular trim sheet UVs
+    // Assign modular 4-panel seamless UVs
     for (int i = 0; i < num_v; i++) {
         float x = verts[i].pos.x;
         float y = verts[i].pos.y;
         float z = verts[i].pos.z;
-        int cid = comp_map[i];
 
-        if (cid == 7) {  // Left Pillar
-            float u = 0.635f + (x - (-0.500f)) / 0.049f * 0.070f;
+        // 1. Structural Pillars (Left, Center, Right)
+        if (x < -0.445f) {
+            float u = 0.635f + (x - (-0.500f)) / 0.055f * 0.070f;
             float v = 0.010f + (0.134f - y) / 0.267f * 0.980f;
             verts[i].uv = (Vec2){u, v};
-        } else if (cid == 2) {  // Center Pillar
-            float u = 0.635f + (x - (-0.029f)) / 0.057f * 0.070f;
+        } else if (x >= -0.045f && x <= 0.045f) {
+            float u = 0.635f + (x - (-0.045f)) / 0.090f * 0.070f;
             float v = 0.010f + (0.134f - y) / 0.267f * 0.980f;
             verts[i].uv = (Vec2){u, v};
-        } else if (cid == 1) {  // Left Recessed Panel (SECTOR 07 plate framed perfectly)
-            float u = 0.382f + (x - (-0.453f)) / 0.429f * 0.190f;
-            float v = 0.012f + (0.085f - y) / 0.154f * 0.115f;
-            verts[i].uv = (Vec2){u, v};
-        } else if (cid == 3 || cid == 5) {  // Top Trims (Conduits with cyan lights)
-            float u = 0.610f + fmodf(fabsf(x) * 2.5f, 1.0f) * 0.350f;
-            float v = 0.010f + (0.132f - y) / 0.045f * 0.110f;
-            verts[i].uv = (Vec2){u, v};
-        } else if (cid == 11 || cid == 12) {  // Bottom Trims (Louvers / Vents)
-            float u = 0.150f + fmodf(fabsf(x) * 2.5f, 1.0f) * 0.400f;
-            float v = 0.710f + (-0.070f - y) / 0.059f * 0.250f;
-            verts[i].uv = (Vec2){u, v};
-        } else if (cid == 0) {  // Right Side (Tech Conduits + Right Pillar)
-            if (x > 0.448f) {
-                float u = 0.635f + (x - 0.448f) / 0.052f * 0.070f;
-                float v = 0.010f + (0.134f - y) / 0.267f * 0.980f;
-                verts[i].uv = (Vec2){u, v};
-            } else {
-                float u = 0.610f + (x - 0.025f) / 0.423f * 0.370f;
-                float v = 0.220f + (0.085f - y) / 0.154f * 0.380f;
-                verts[i].uv = (Vec2){u, v};
-            }
-        } else {  // Small indicator lights / brackets
-            float u = 0.020f + fmodf(fabsf(x) * 20.0f, 0.060f);
-            float v = 0.740f + fmodf(fabsf(y) * 20.0f, 0.080f);
+        } else if (x > 0.445f) {
+            float u = 0.635f + (x - 0.445f) / 0.055f * 0.070f;
+            float v = 0.010f + (0.134f - y) / 0.267f * 0.980f;
             verts[i].uv = (Vec2){u, v};
         }
+        // 2. Top Trims
+        else if (y > 0.085f) {
+            float u = 0.610f + fmodf(fabsf(x) * 4.0f, 1.0f) * 0.350f;
+            float v = 0.010f + (0.134f - y) / 0.048f * 0.080f;
+            verts[i].uv = (Vec2){u, v};
+        }
+        // 3. Bottom Louvers
+        else if (y < -0.070f) {
+            float u = 0.150f + fmodf(fabsf(x) * 4.0f, 1.0f) * 0.350f;
+            float v = 0.720f + (-0.070f - y) / 0.063f * 0.240f;
+            verts[i].uv = (Vec2){u, v};
+        }
+        // 4. Four Square Wall Panels
+        else {
+            if (x >= -0.445f && x < -0.245f) {
+                // Panel 1: SECTOR 07 / A BRIGHTER TOMORROW
+                float px = (x - (-0.445f)) / 0.200f;
+                float py = (0.085f - y) / 0.155f;
+                float u = 0.400f + px * 0.157f;
+                float v = 0.010f + py * 0.117f;
+                verts[i].uv = (Vec2){u, v};
+            } else if (x >= -0.245f && x < -0.045f) {
+                // Panel 2: HUMANITY FORWARDS + DELTA LOGO
+                float px = (x - (-0.245f)) / 0.200f;
+                float py = (0.085f - y) / 0.155f;
+                float u = 0.166f + px * 0.156f;
+                float v = 0.585f + py * 0.095f;
+                verts[i].uv = (Vec2){u, v};
+            } else if (x >= 0.045f && x < 0.245f) {
+                // Panel 3: HAZARD CAUTION WARNING
+                float px = (x - 0.045f) / 0.200f;
+                float py = (0.085f - y) / 0.155f;
+                float u = 0.400f + px * 0.157f;
+                float v = 0.410f + py * 0.117f;
+                verts[i].uv = (Vec2){u, v};
+            } else {
+                // Panel 4: BEVELED TECH PANEL
+                float px = (x - 0.245f) / 0.200f;
+                float py = (0.085f - y) / 0.155f;
+                float u = 0.400f + px * 0.157f;
+                float v = 0.527f + py * 0.098f;
+                verts[i].uv = (Vec2){u, v};
+            }
+        }
     }
-
-    free(head); free(next); free(to); free(comp_map); free(stack);
 
     mesh.num_vertices = num_v;
     mesh.vertices = verts;
@@ -412,13 +380,13 @@ static Mesh load_mesh_with_modular_uvs(const char *json_path) {
 }
 
 int main() {
-    Mesh mesh = load_mesh_with_modular_uvs("wall.json");
-    Texture albedo = load_ppm("tool/temp_albedo_rot90.ppm");
+    Mesh mesh = load_mesh_with_4panel_uvs("wall.json");
+    system("convert data/models/wall/textures/Wall_albedo.png tool/test_albedo.ppm");
+    Texture albedo = load_ppm("tool/test_albedo.ppm");
 
     Pixel *framebuffer = (Pixel*)malloc(WIDTH * HEIGHT * sizeof(Pixel));
     float *zbuffer = (float*)malloc(WIDTH * HEIGHT * sizeof(float));
 
-    // Dark sleek Sci-Fi background
     for (int y = 0; y < HEIGHT; y++) {
         float ny = (float)y / HEIGHT;
         for (int x = 0; x < WIDTH; x++) {
