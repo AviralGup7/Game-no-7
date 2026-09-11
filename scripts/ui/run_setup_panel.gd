@@ -76,7 +76,9 @@ func present(daily: bool = false) -> void:
 	_heading.text = "DAILY CHALLENGE" if daily else "PREPARE YOUR STAND"
 	var challenge := DailyChallenge.challenge_for_today()
 	_daily_stamp = int(challenge.stamp)
-	var weapon: StringName = challenge.weapon if daily else &"gladius"
+	var weapon: StringName = challenge.weapon if daily else (GameRoot.get_pending_weapon() if GameRoot != null else &"gladius")
+	if weapon == &"":
+		weapon = &"gladius"
 	if not _arena_ids.is_empty(): _arenas.select(maxi(_arena_ids.find(ContentRegistry.get_selected_arena_id()), 0))
 	if not _weapon_ids.is_empty(): _weapons.select(maxi(_weapon_ids.find(weapon), 0))
 	if not _mode_ids.is_empty():
@@ -159,26 +161,32 @@ func _refresh_details() -> void:
 	_weapon_info.text = "%s\n%s  •  Damage %.1f  •  Reach %.1fm  •  Interval %.2fs" % [weapon.description,
 		String(weapon.kind).capitalize(), weapon.base_damage, weapon.attack_range, weapon.swing_cooldown]
 	var fixed := GameMode.fixed_weapon(mode_id)
-	var starter: StringName = DailyChallenge.challenge_for_today().weapon if _daily else (fixed if fixed != &"" else &"gladius")
+	var starter: StringName = DailyChallenge.challenge_for_today().weapon if _daily else (fixed if fixed != &"" else weapon.weapon_id)
 	var starter_config := ContentRegistry.get_weapon(starter)
 	if starter_config == null:
 		_start.disabled = true
 		_feedback.text = "Today's starter could not be loaded. Return to the menu."
 		return
-	var supported := weapon.weapon_id == starter and not weapon.disabled
-	var current := arena.arena_id == ContentRegistry.get_selected_arena_id()
-	# Arena selection is not wired in this build (UiCommands.select_arena only
-	# accepts the already-selected arena); previews stay read-only.
-	var selectable := current
-	_start.disabled = not supported or not selectable
+	_weapons.disabled = _daily or fixed != &""
+	var service := UiCommands.meta(get_tree())
+	var owned := weapon.weapon_id == &"gladius" or (service != null and service.is_weapon_unlocked(weapon.weapon_id))
+	var loadout_locked := not _daily and fixed == &"" and not owned
+	var arena_locked := not _arena_is_playable(arena)
+	_start.disabled = starter_config.disabled or loadout_locked or arena_locked
 	_feedback.text = "Starter: %s. Transform upgrades change how you fight — pick boldly." % starter_config.display_name
-	if not current and not selectable:
-		_feedback.text = "ARENA PREVIEW ONLY — arena selection is not available in this build. Choose the current arena to launch."
-	elif not supported:
-		var service := UiCommands.meta(get_tree())
-		var owned := service != null and service.is_weapon_unlocked(weapon.weapon_id)
-		_feedback.text = ("OWNED" if owned else "CATALOGUE") + " — starter loadout selection is not available in this build. Preview only."
+	if arena_locked:
+		_feedback.text = "LOCKED — reach wave %d to unlock this arena." % arena.unlock_wave
+	elif loadout_locked:
+		_feedback.text = ("OWNED" if owned else "LOCKED") + " — buy this loadout in the Armory before it can start a run."
 	_start.text = "START DAILY RUN" if _daily else "ENTER ARENA"
+
+func _arena_is_playable(arena: ArenaConfig) -> bool:
+	if arena == null:
+		return false
+	if SaveManager.is_arena_unlocked(arena.arena_id):
+		return true
+	return arena.unlock_wave <= maxi(SaveManager.get_best_wave(), 1)
+
 
 func _launch() -> void:
 	if _start.disabled:
@@ -190,9 +198,13 @@ func _launch() -> void:
 		present(true)
 		_feedback.text = "A new UTC challenge is available. Review the updated loadout, then start."
 		return
-	if not UiCommands.select_arena(_arena_ids[_selected_arena_index()]):
+	var arena_id := _arena_ids[_selected_arena_index()]
+	if not UiCommands.select_arena(arena_id):
 		_feedback.text = "Arena selection was declined. Your run has not started."
 		return
+	SaveManager.unlock_arena(String(arena_id))
+	if not _daily:
+		GameRoot.set_pending_weapon(_weapon_ids[_selected_weapon_index()])
 	_start.disabled = true
 	if _daily:
 		GameRoot.start_daily_run()

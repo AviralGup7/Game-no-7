@@ -102,6 +102,11 @@ var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
 var _live_telegraphs := 0
+var _last_boss_at := Vector3.ZERO
+var _has_boss_at := false
+var _burst_cap: int = MAX_BURSTS
+var _ring_cap: int = MAX_RINGS
+var _isolated := false
 
 
 func _ready() -> void:
@@ -110,6 +115,36 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unbind_events()
+
+
+## Hide every burst/ring and drop EventBus listeners while the director stays
+## in the tree (GAME_OVER keeps WorldRoot). UI observers are not touched.
+func isolate_run() -> void:
+	_unbind_events()
+	_hide_all()
+	_isolated = true
+
+
+func is_isolated() -> bool:
+	return _isolated
+
+
+func apply_budget(bursts: int, rings: int) -> void:
+	_burst_cap = clampi(bursts, 1, MAX_BURSTS)
+	_ring_cap = clampi(rings, 1, MAX_RINGS)
+	_trim_to_budget()
+
+
+func burst_cap() -> int:
+	return _burst_cap
+
+
+func ring_cap() -> int:
+	return _ring_cap
+
+
+func _unbind_events() -> void:
 	if EventBus != null:
 		EventBus.unbind(EventBus.enemy_spawned, _on_enemy_spawned)
 		EventBus.unbind(EventBus.enemy_killed, _on_enemy_killed)
@@ -128,8 +163,38 @@ func _exit_tree() -> void:
 	_wired = false
 
 
+func _hide_all() -> void:
+	for p in _bursts:
+		if p != null:
+			p.emitting = false
+	for r in _ring_pool:
+		if r != null:
+			r.visible = false
+	_live_telegraphs = 0
+
+
+func _trim_to_budget() -> void:
+	var live_bursts := 0
+	for p in _bursts:
+		if p == null or not p.emitting:
+			continue
+		live_bursts += 1
+		if live_bursts > _burst_cap:
+			p.emitting = false
+	var live_rings := 0
+	for r in _ring_pool:
+		if r == null or not r.visible:
+			continue
+		live_rings += 1
+		if live_rings > _ring_cap:
+			r.visible = false
+	_prune_telegraph_count()
+
+
 ## Death / impact explosion at a world position (pooled, no autoload dependency).
 func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	if _isolated:
+		return
 	if _reduced_motion() and priority < PRIORITY_SKILL:
 		return
 	var p := _claim_burst(priority)
@@ -152,6 +217,8 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRI
 ## Grunt/heavy windup rings share a small budget so 20 simultaneous swings
 ## cannot drown the pool (boss/skill rings still steal).
 func try_telegraph(for_boss: bool = false) -> bool:
+	if _isolated:
+		return false
 	_prune_telegraph_count()
 	if for_boss:
 		return _can_claim_ring(PRIORITY_BOSS)
@@ -159,16 +226,15 @@ func try_telegraph(for_boss: bool = false) -> bool:
 		return false
 	var bosses_alive := 0
 	if is_inside_tree() and get_tree() != null:
-		for n in get_tree().get_nodes_in_group("enemies"):
-			if n != null and n.get_node_or_null("BossController") != null:
-				if n is Damageable and (n as Damageable).is_alive():
-					bosses_alive += 1
+		for n in get_tree().get_nodes_in_group(BossController.BOSS_GROUP):
+			if n is Damageable and (n as Damageable).is_alive():
+				bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
 	var free_count := 0
 	for r in _ring_pool:
 		if not r.visible:
 			free_count += 1
-	free_count += maxi(0, MAX_RINGS - _ring_pool.size())
+	free_count += maxi(0, _ring_cap - _ring_pool.size())
 	if free_count <= reserve:
 		return false
 	return _can_claim_ring(PRIORITY_SPAWN)
@@ -191,7 +257,7 @@ func _can_claim_ring(priority: int) -> bool:
 	for r in _ring_pool:
 		if not r.visible:
 			return true
-	if _ring_pool.size() < MAX_RINGS:
+	if _ring_pool.size() < MAX_RINGS and _ring_pool.size() < _ring_cap:
 		return true
 	for r in _ring_pool:
 		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
@@ -205,16 +271,12 @@ func _can_claim_ring(priority: int) -> bool:
 
 
 func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	if _isolated:
+		return
 	var ring := _claim_ring(priority)
 	if ring == null:
 		return
-	var grounded := at
-	var floor_y := _floor_hit(at)
-	grounded.y = float(floor_y.get("y", at.y))
-	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
-	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
-	if nrm.length_squared() > 0.01:
-		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
+	_place_ring_on_floor(ring, at)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 	if mi != null:
 		var mat := mi.material_override as StandardMaterial3D
@@ -319,6 +381,22 @@ func _floor_hit(at: Vector3) -> Dictionary:
 	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
 
 
+## Seat a pooled ring on the floor. The Disc child already lies flat at -90° X;
+## look_at() on a vertical normal would stand that disc on its edge. Only tilt
+## for a genuinely sloped hit, and always reset leftover pooled rotation first.
+func _place_ring_on_floor(ring: Node3D, at: Vector3) -> void:
+	if ring == null:
+		return
+	var floor_y := _floor_hit(at)
+	var grounded := at
+	grounded.y = float(floor_y.get("y", at.y))
+	ring.rotation = Vector3.ZERO
+	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
+	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
+	if nrm.length_squared() > 0.01 and absf(nrm.dot(Vector3.UP)) < 0.95:
+		ring.look_at(ring.global_position + nrm, Vector3.UP)
+
+
 func _on_wave_started(_wave_number: int, _planned: int) -> void:
 	var origin := _arena_origin()
 	ring_at(origin, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
@@ -335,6 +413,8 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(boss) and boss is Node3D:
 		at = (boss as Node3D).global_position
+	_last_boss_at = at
+	_has_boss_at = true
 	# Inner danger disc + outer contrast ring so the telegraph reads on sand arenas
 	# and under high-contrast / reduced-motion settings.
 	ring_at(at, Color(1.0, 0.95, 0.15), 6.4, PRIORITY_BOSS)
@@ -344,8 +424,12 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32), 9.5, PRIORITY_BOSS)
-	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
+	# boss_slain only carries the id; the body is already gone. Play at the last
+	# spawned boss origin instead of world zero (which is often outside the pit).
+	var at := _last_boss_at if _has_boss_at else _arena_origin()
+	_has_boss_at = false
+	ring_at(at, Color(1.0, 0.85, 0.32), 9.5, PRIORITY_BOSS)
+	burst_at(at + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
 
 
 func _on_pickup_collected(_pickup_id: StringName, _amount: int, collector: Node) -> void:
@@ -392,7 +476,7 @@ func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 	# Ring with skill-specific shape texture — distinct identity beyond colour.
 	var ring := _claim_ring(PRIORITY_SKILL)
 	if ring != null:
-		ring.global_position = at + Vector3(0.02, 0, 0.02)
+		_place_ring_on_floor(ring, at)
 		var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 		if mi != null:
 			var mat := mi.material_override as StandardMaterial3D
@@ -500,14 +584,22 @@ func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
 # ---------------------- pool management ----------------------
 
 func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
+	if _isolated:
+		return null
 	# No detached "template" Node: every constructed emitter must enter the
 	# owned pool below so world teardown frees its rendering resources.
+	var idle: GPUParticles3D = null
+	var emitting := 0
 	for pooled in _bursts:
-		if not pooled.emitting:
-			pooled.amount = 22
-			return pooled
-	# Grow the pool up to the mobile cap.
-	if _bursts.size() < MAX_BURSTS:
+		if pooled.emitting:
+			emitting += 1
+		elif idle == null:
+			idle = pooled
+	if idle != null and emitting < _burst_cap:
+		idle.amount = 22
+		return idle
+	# Grow the pool up to the mobile cap, but never past the governor budget.
+	if _bursts.size() < MAX_BURSTS and emitting < _burst_cap:
 		var burst := _make_burst_template() as GPUParticles3D
 		if burst == null:
 			return null
@@ -531,10 +623,18 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 
 
 func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
+	if _isolated:
+		return null
+	var idle: Node3D = null
+	var visible_count := 0
 	for pooled in _ring_pool:
-		if not pooled.visible:
-			return pooled
-	if _ring_pool.size() < MAX_RINGS:
+		if pooled.visible:
+			visible_count += 1
+		elif idle == null:
+			idle = pooled
+	if idle != null and visible_count < _ring_cap:
+		return idle
+	if _ring_pool.size() < MAX_RINGS and visible_count < _ring_cap:
 		var ring := _make_ring()
 		if ring != null:
 			add_child(ring)

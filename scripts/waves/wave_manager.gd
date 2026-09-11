@@ -87,9 +87,7 @@ func stop() -> void:
 	_wave_mods = WaveModifiers.neutral()
 	if _transition_timer != null:
 		_transition_timer.stop()
-	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.has_signal("damaged") and _wired_health.damaged.is_connected(_on_player_damaged):
-		_wired_health.damaged.disconnect(_on_player_damaged)
-	_wired_health = null
+	_unbind_player_damage()
 
 
 func get_current_wave() -> int:
@@ -413,15 +411,18 @@ func _wire_director() -> void:
 	_rebind_player_damage()
 
 
+func _unbind_player_damage() -> void:
+	# HealthComponent is a typed ref, so the `damaged` signal is known at compile
+	# time — no has_signal probing.
+	if _wired_health != null and is_instance_valid(_wired_health) and _wired_health.damaged.is_connected(_on_player_damaged):
+		_wired_health.damaged.disconnect(_on_player_damaged)
+	_wired_health = null
+
+
 func _rebind_player_damage() -> void:
 	# Disconnect any previous player's signal so damage is never double-counted
 	# across run rebuilds (old player is queue_free'd but lingers until end of frame).
-	# HealthComponent is a typed ref, so the `damaged` signal is known at compile
-	# time — no has_signal probing.
-	if _wired_health != null and is_instance_valid(_wired_health):
-		if _wired_health.damaged.is_connected(_on_player_damaged):
-			_wired_health.damaged.disconnect(_on_player_damaged)
-	_wired_health = null
+	_unbind_player_damage()
 	if GameRoot == null or GameRoot.get_active_player() == null:
 		return
 	var hp := GameRoot.get_active_player().get_health_component()

@@ -128,14 +128,14 @@ func _build_screens() -> void:
 	# progress to report, so it must not imply one.
 	var status_rule := ColorRect.new()
 	status_rule.name = "StatusRule"
-	status_rule.color = UiTheme.CYAN
+	status_rule.color = UiTheme.GOLD
 	status_rule.custom_minimum_size.y = 3
 	status_rule.mouse_filter = MOUSE_FILTER_IGNORE
 	status_box.add_child(status_rule)
 	UiFactory.button("MAIN MENU", status_box, 22).pressed.connect(func() -> void: GameRoot.request_main_menu())
 
 func _build_pause() -> void:
-	var box := _mount_overlay(&"paused")
+	var box := _mount_overlay(&"paused", 0.58)
 	UiFactory.screen_header(box, "TAKE A BREATH", "PAUSED", 48,
 		"Your run is frozen. Resume when you're ready.")
 	# Resume is the primary action and gets the tallest target; the two
@@ -212,16 +212,18 @@ func _layout() -> void:
 			_numbers.set_minimap_block(Rect2())
 
 static func screen_for_state(state: StringName) -> StringName:
-	if state in [&"starting_run", &"loading", &"error"]: return &"status"
-	if state == &"wave_transition": return &"wave_transition"
-	return state if state in [&"main_menu", &"playing", &"paused", &"upgrade_selection", &"game_over"] else &"status"
+	if state in [GameRoot.State.STARTING_RUN, GameRoot.State.LOADING, GameRoot.State.ERROR]:
+		return &"status"
+	if state == GameRoot.State.WAVE_TRANSITION:
+		return &"wave_transition"
+	return state if state in [GameRoot.State.MAIN_MENU, GameRoot.State.PLAYING, GameRoot.State.PAUSED, GameRoot.State.UPGRADE_SELECTION, GameRoot.State.GAME_OVER] else &"status"
 
 func _show_screen(screen: StringName) -> void:
 	_active_screen = screen
 	var panel_key := &"game_over" if screen in [&"run_summary", &"meta_reward"] else screen
 	for key in _screens:
 		_screens[key].visible = key == panel_key
-	var playing := screen in [&"playing", &"wave_transition"]
+	var playing := screen in [GameRoot.State.PLAYING, GameRoot.State.WAVE_TRANSITION]
 	_backdrop.visible = not playing
 	_hud.visible = playing
 	_touch.visible = playing and (DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"))
@@ -355,18 +357,17 @@ func _on_player_health_track(current: float, _maximum: float) -> void:
 	_bind_player_damage()
 
 
-var _bound_player: Node = null
+var _bound_player: Player = null
 
 
 func _bind_player_damage() -> void:
 	var player := GameRoot.get_active_player() if GameRoot != null else null
-	if player == _bound_player and player != null and player.has_signal("damaged") and player.damaged.is_connected(_on_player_damaged):
+	if player == _bound_player and player != null and player.damaged.is_connected(_on_player_damaged):
 		return
-	if _bound_player != null and is_instance_valid(_bound_player) and _bound_player.has_signal("damaged"):
-		if _bound_player.damaged.is_connected(_on_player_damaged):
-			_bound_player.damaged.disconnect(_on_player_damaged)
+	if _bound_player != null and is_instance_valid(_bound_player) and _bound_player.damaged.is_connected(_on_player_damaged):
+		_bound_player.damaged.disconnect(_on_player_damaged)
 	_bound_player = player
-	if player == null or not player.has_signal("damaged"):
+	if player == null:
 		return
 	if not player.damaged.is_connected(_on_player_damaged):
 		player.damaged.connect(_on_player_damaged)
@@ -376,13 +377,13 @@ func _on_player_damaged(result: DamageResult) -> void:
 	if result == null or not result.accepted or result.final_amount < 1.0 or _numbers == null:
 		return
 	var player := GameRoot.get_active_player() if GameRoot != null else null
-	if not (player is Node3D):
+	if player == null:
 		return
-	var follow: Node3D = player as Node3D
-	if player is Damageable and not (player as Damageable).is_alive():
+	var follow: Node3D = player
+	if not player.is_alive():
 		follow = null
 	_numbers.spawn_damage_number(
-		(player as Node3D).global_position + Vector3.UP * 1.4,
+		player.global_position + Vector3.UP * 1.4,
 		result.final_amount,
 		result.was_critical,
 		Color(1.0, 0.22, 0.08),
@@ -424,6 +425,7 @@ func _apply_settings(settings: SettingsData) -> void:
 				continue
 			monitor.set_tier(tier_idx)
 			_numbers.set_max_live(monitor.max_damage_numbers())
+			PoolGovernor.apply(monitor, self)
 	_layout.call_deferred()
 
 
@@ -442,8 +444,10 @@ func _on_monitor_tier_changed(_old_tier: int, _new_tier: int) -> void:
 	var monitor := monitors[0] as PerformanceMonitor
 	if monitor != null:
 		_numbers.set_max_live(monitor.max_damage_numbers())
+		PoolGovernor.apply(monitor, self)
 
 func get_announcement_banner() -> AnnouncementBanner: return _banner
+func get_game_hud() -> GameHud: return _hud
 func loc(key: StringName) -> String: return UiText.lookup(key)
 func get_debug_snapshot() -> Dictionary:
 	var result := _touch.get_debug_snapshot()

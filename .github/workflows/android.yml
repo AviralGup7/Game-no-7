@@ -23,9 +23,11 @@ on:
 permissions:
   contents: read
 
+# Cancel overlapping PR runs. Do not cancel on push: every push must produce
+# an APK (or a real export failure), not a skipped/cancelled Build Android job.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 defaults:
   run:
@@ -44,8 +46,9 @@ env:
 #  2) godot-tests         — Godot import + headless GDScript tests + import checks
 #  3) build-android       — heavy: JDK + Android SDK + build template + APK export
 #
-#  validate-* run in parallel; build needs both; publish needs build.
-#  Each stage uploads its own reports so failures are trivial to bisect.
+#  validate-* and godot-tests run in parallel; build-android still *needs*
+#  both so the graph is intact, but it runs whenever validate-resources is
+#  green (a headless-suite failure must not skip the APK). Publish needs build.
 # ---------------------------------------------------------------------------
 
 jobs:
@@ -250,11 +253,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # ---- Stage 2: heavy Android build (needs both validations green) ------------
+  # ---- Stage 2: heavy Android build ------------------------------------------
+  # needs: both prior jobs so the graph stays a three-stage pipeline.
+  # if: always() + validate-resources success so a godot-tests failure cannot
+  # skip the APK on push (GitHub skips dependent jobs when a needed job fails).
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
     needs: [validate-resources, godot-tests]
+    if: ${{ always() && needs.validate-resources.result == 'success' }}
     timeout-minutes: 30
     steps:
       - name: Checkout

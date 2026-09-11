@@ -1,14 +1,14 @@
 extends Node3D
 class_name CameraRig
 
-## Perfect third-person following camera – MODULARIZED & IMPROVED.
+## PUBG-style over-the-shoulder third-person shooter camera.
 ##
 ## Architecture (modular):
 ## - CameraInputHandler: gathers manual orbit input
 ## - CameraVelocityTracker: smooth target velocity + move dir
 ## - CameraFocusTracker: predictive focus point with separate H/V smoothing
 ## - CameraOrbitState: pure data (current/target yaw/pitch/distance)
-## - CameraAutoFollowController: Elden Ring style gentle auto-follow with deadzone & toward-camera suppression
+## - CameraAutoFollowController: kept but off in shooter profiles
 ## - CameraOrbitController: manual orbit + smoothing, delegates to auto-follow
 ## - CameraCollisionSolver: sphere-cast + whiskers + ground clearance, fast-in/slow-out
 ## - CameraFramingController: shoulder offset + look-ahead + combat awareness (pull back when surrounded)
@@ -24,12 +24,15 @@ class_name CameraRig
 ## - Mode blending: boss spawn → wider FOV + farther distance, smooth 0.6s blend
 ## - Teleport guard: if target moves >10m in one frame, snap focus & rig instantly (no long glide)
 ## - Vertical damping: Y follows with separate slower lerp (focus_height_lerp) to reduce bobbing on jumps
-## - Better input: touch drag support placeholder, mouse captured vs right-button, gamepad deadzone
+## - Better input: right-half touch look-delta, mouse captured vs right-button, InputMap stick (not double-read)
 ## - Debug snapshot includes all sub-modules
 ##
 ## Design reference – same as before (Elden Ring, Zelda BOTW, God of War 2018, Uncharted/TLOU, GDC Fundamentals)
 
 const CAMERA_GROUP := &"camera_rig"
+const STICK_GROUP := &"touch_joystick"
+## Left of this fraction is the movement stick; look starts to the right of it.
+const LOOK_ZONE_X := 0.38
 
 # Core
 var _target: Node3D = null
@@ -61,6 +64,9 @@ var _hitstop_manager: Node = null
 ## the rig follows the INTERPOLATED player transform instead of the raw 60 Hz
 ## physics-tick value. See _configure_interpolation().
 var _uses_interpolated_target := false
+## Index of the finger currently orbiting. -1 = none. Captured on an unhandled
+## look-zone press so a swipe can keep turning after it crosses the midline.
+var _look_touch_index := -1
 
 
 func _ready() -> void:
@@ -94,6 +100,7 @@ func _ready() -> void:
 
 	set_process(true)
 	set_process_input(true)
+	set_process_unhandled_input(true)
 
 
 func _find_camera() -> Camera3D:
@@ -160,6 +167,7 @@ func add_shake(amplitude: float, duration: float) -> void:
 
 
 func reset_transform() -> void:
+	_look_touch_index = -1
 	_collision.invalidate_cache()
 	_shake.reset()
 	_auto_follow.reset()
@@ -178,10 +186,19 @@ func reset_transform() -> void:
 
 
 func reset_orbit() -> void:
+	_look_touch_index = -1
 	if _target == null:
 		return
-	var yaw := _get_target_facing_yaw()
-	_orbit.reset_orbit(yaw)
+	# Locked: snap behind the player looking at the lock. Unlocked: behind facing.
+	if _mode.is_locked():
+		var lt := _mode.get_lock_target()
+		if lt != null and is_instance_valid(lt):
+			var to_lock := lt.global_position - _target.global_position
+			to_lock.y = 0.0
+			if to_lock.length_squared() > 0.0001:
+				_orbit.reset_orbit(CameraMath.yaw_from_direction(to_lock))
+				return
+	_orbit.reset_orbit(_get_target_facing_yaw())
 
 
 func set_reduced_motion(enabled: bool) -> void:
@@ -282,18 +299,78 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		_input_handler.handle_mouse_motion(event as InputEventMouseMotion)
+	elif event is InputEventScreenTouch:
+		_handle_look_touch(event as InputEventScreenTouch)
 	elif event is InputEventScreenDrag:
-		# Touch drag on right half of screen = camera orbit (mobile)
+		# Second finger on the right starts look. The movement stick's finger
+		# never does, even if it drags across the look half.
 		var drag := event as InputEventScreenDrag
-		var viewport_size := Vector2.ZERO
-		var vp := get_viewport()
-		if vp != null:
-			viewport_size = vp.get_visible_rect().size
-		if viewport_size.x > 0.0 and drag.position.x > viewport_size.x * 0.5:
-			_input_handler.handle_touch_drag(drag.relative)
-	if event.is_action_pressed("camera_reset") or event.is_action_pressed("lock_on"):
-		if not toggle_lock_on():
-			reset_orbit()
+		if drag.index == _look_touch_index:
+			pass
+		elif _look_touch_index < 0 and _is_look_zone(drag.position) and not _is_move_stick_finger(drag.index):
+			_look_touch_index = drag.index
+			_apply_touch_look(drag)
+	# lock_on is owned by Player.request_lock_on — handling it here as well
+	# double-toggled every press (lock then immediately unlock).
+	if event.is_action_pressed("camera_reset"):
+		reset_orbit()
+
+
+## Continues a captured look finger. Named `_input` on purpose: Node._input is
+## the engine callback. The *module* is `_input_handler` so it does not shadow this.
+func _input(event: InputEvent) -> void:
+	if not _enabled or _look_touch_index < 0:
+		return
+	if event is InputEventScreenTouch:
+		var touch := event as InputEventScreenTouch
+		if touch.index == _look_touch_index and not touch.pressed:
+			_look_touch_index = -1
+	elif event is InputEventScreenDrag:
+		var drag := event as InputEventScreenDrag
+		if drag.index == _look_touch_index:
+			_apply_touch_look(drag)
+
+
+func _handle_look_touch(touch: InputEventScreenTouch) -> void:
+	if touch == null:
+		return
+	if touch.pressed:
+		if _look_touch_index < 0 and _is_look_zone(touch.position) and not _is_move_stick_finger(touch.index):
+			_look_touch_index = touch.index
+	elif touch.index == _look_touch_index:
+		_look_touch_index = -1
+
+
+func _is_move_stick_finger(index: int) -> bool:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	for n in tree.get_nodes_in_group(String(STICK_GROUP)):
+		if n is TouchJoystick and (n as TouchJoystick).owns_index(index):
+			return true
+	return false
+
+
+func _is_look_zone(pos: Vector2) -> bool:
+	if not is_finite(pos.x) or not is_finite(pos.y):
+		return false
+	var size := _viewport_size()
+	return size.x > 0.0 and pos.x > size.x * LOOK_ZONE_X
+
+
+func _viewport_size() -> Vector2:
+	var vp := get_viewport()
+	if vp == null:
+		return Vector2.ZERO
+	return vp.get_visible_rect().size
+
+
+func _apply_touch_look(drag: InputEventScreenDrag) -> void:
+	if drag == null:
+		return
+	# Screen-normalized degrees, not pixels * 0.8 * mouse_orbit_sensitivity.
+	# Emulated mouse motion has no pressed button and is dropped by the mouse path.
+	_input_handler.handle_touch_look(drag.relative, _viewport_size())
 
 
 # ------------------------------------------------------------------
@@ -333,11 +410,17 @@ func _process(delta: float) -> void:
 
 	_velocity.tick(curr_pos, delta)
 
-	# 2. Combat framing (counts enemies every interval)
+	# 2. Combat framing (counts enemies every interval, lerps every frame)
 	_framing.tick_combat_framing(delta, curr_pos, get_tree())
+	_update_combat_explore_mode()
 
-	# 3. Orbit (manual + auto-follow) – now includes combat & mode for distance
-	_orbit.tick(delta, _velocity, global_position, _focus.focus_point, _framing, _mode, _reduced_motion)
+	# 3. Orbit (manual + auto-follow + lock yaw) – combat & mode for distance
+	var lock_pos := Vector3.ZERO
+	if _mode.is_locked():
+		var lt := _mode.get_lock_target()
+		if lt != null:
+			lock_pos = lt.global_position
+	_orbit.tick(delta, _velocity, global_position, _focus.focus_point, _framing, _mode, _reduced_motion, lock_pos)
 
 	# 4. Focus with prediction
 	_focus.tick(curr_pos, delta, _reduced_motion)
@@ -375,8 +458,9 @@ func _process(delta: float) -> void:
 func _apply_follow(weight: float, delta_for_fov: float = 0.016) -> void:
 	if _profile == null or _target == null:
 		return
-	_velocity.tick(_target.global_position, delta_for_fov)
-	_focus.tick(_target.global_position, delta_for_fov, _reduced_motion)
+	var follow_pos := _target_position_render()
+	_velocity.tick(follow_pos, delta_for_fov)
+	_focus.tick(follow_pos, delta_for_fov, _reduced_motion)
 	var desired := _framing.calculate_desired_position(_focus.focus_point, _orbit_state)
 	var collided := _collision.solve(_focus.focus_point, desired, _orbit_state, _target, get_world_3d())
 	_apply_follow_position(collided, weight)
@@ -385,7 +469,7 @@ func _apply_follow(weight: float, delta_for_fov: float = 0.016) -> void:
 
 
 func _update_look_at() -> void:
-	if _camera == null or _focus.focus_point == Vector3.ZERO:
+	if _camera == null:
 		return
 
 	var cam_origin := _camera.global_position
@@ -404,9 +488,9 @@ func _update_look_at() -> void:
 			midpoint.y = _focus.focus_point.y
 			look_target = midpoint
 		else:
-			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
+			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
 	else:
-		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
+		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
 
 	if not CameraMath.is_finite_v3(cam_origin) or not CameraMath.is_finite_v3(look_target):
 		# Never hand Transform3D.looking_at() a NaN: the resulting basis is non-
@@ -536,6 +620,19 @@ func _update_lock_on_target() -> void:
 		_mode.set_lock_target(_pick_lock_candidate())
 
 
+func _update_combat_explore_mode() -> void:
+	if _mode.is_locked():
+		return
+	if _profile != null and _profile.profile_id == &"boss":
+		return
+	if _mode.current_mode == CameraModeController.Mode.BOSS:
+		return
+	if _framing.get_enemy_count() >= 2:
+		_mode.set_mode(CameraModeController.Mode.COMBAT)
+	elif _framing.get_enemy_count() == 0:
+		_mode.set_mode(CameraModeController.Mode.EXPLORE)
+
+
 func _get_target_facing_yaw() -> float:
 	if _target == null:
 		return _orbit_state.current_yaw if _orbit_state != null else 0.0
@@ -573,7 +670,7 @@ func _test_hitstop_manager() -> void:
 func _find_node_by_class(root: Node, cls_name: String) -> Node:
 	if root == null:
 		return null
-	if root is HitstopManager:
+	if cls_name == "HitstopManager" and root is HitstopManager:
 		return root
 	for child in root.get_children():
 		var found := _find_node_by_class(child as Node, cls_name)

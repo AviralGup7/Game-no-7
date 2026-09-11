@@ -112,7 +112,9 @@ class ShooterTests(unittest.TestCase):
 
     def test_aim_is_selected_before_weapon_starts_and_3d_spread_is_used(self):
         player=(ROOT/'scripts/player/player.gd').read_text().split('func _try_attack()',1)[1].split('\n\nfunc ',1)[0]
-        self.assertLess(player.index('_aim_attack()'),player.index('_weapons.request_attack()'))
+        self.assertLess(player.index('_aim_attack()'),player.index('_combat.try_start()'))
+        combat=(ROOT/'scripts/player/player_combat.gd').read_text()
+        self.assertIn('_weapons.request_attack() > 0', combat)
         manager=(ROOT/'scripts/weapons/weapon_manager.gd').read_text()
         self.assertIn('RangedResolver.aimed_directions(_shot_direction',manager)
         self.assertIn('world.direct_space_state.intersect_ray(query)',manager)

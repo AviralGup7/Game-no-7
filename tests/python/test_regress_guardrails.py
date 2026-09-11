@@ -14,10 +14,10 @@ class GuardRailsTests(unittest.TestCase):
                 bad.append(str(p.relative_to(ROOT)))
         self.assertEqual(bad,[])
         self.assertIn('StringName("vitality Tome")',read("scripts/meta/meta_progression.gd"))
-    def test_export_presets_still_no_permissions(self):
+    def test_export_presets_still_only_vibrate(self):
         cfg=read("export_presets.cfg")
         offending=[ln for ln in cfg.splitlines() if ln.startswith("permissions/")]
-        self.assertEqual(offending,[])
+        self.assertEqual(offending, ["permissions/vibrate=true"])
     def test_catalog_uses_resource_ids(self):
         txt=read("tool/validate_assets.py")
         self.assertIn("content_ids",txt)

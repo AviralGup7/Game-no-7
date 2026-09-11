@@ -16,5 +16,10 @@ animation_map = {
 "run": "Running_A",
 "attack": "Fire",
 "hurt": "Hit_A",
-"death": "Death_A"
+"death": "Death_A",
+"stun": "Hit_A",
+"cast": "Cast",
+"telegraph": "Cast",
+"dash": "Dodge_Forward",
+"spawn": "Idle"
 }

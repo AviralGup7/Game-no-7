@@ -93,6 +93,11 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 	var amount := payload.amount
 	# Damage mitigation: clamp so it can never accidentally heal or go negative.
 	amount = clampf(_mitigate(amount, payload), 0.0, INF)
+	# Fully absorbed / zero-amount hits are blocked, not accepted: a shield that
+	# eats the whole swing must not stagger, proc on-hit status, or emit damaged.
+	if amount <= 0.0:
+		result.ignored_reason = DamageResult.IGNORE_BLOCKED
+		return result
 	result.accepted = true
 	result.final_amount = amount
 	result.was_critical = payload.was_critical

@@ -31,6 +31,7 @@ var _touch_seen := false
 
 
 func _ready() -> void:
+	add_to_group("touch_joystick")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	modulate.a = opacity
@@ -60,13 +61,16 @@ func _gui_input(event: InputEvent) -> void:
 			t.index, str(_finite_vec(t.position)), str(t.pressed), str(_active), _touch_index])
 		if t.pressed and not _active:
 			_begin(t.index, t.position)
+			accept_event()
 		elif not t.pressed:
 			if _active and t.index == _touch_index:
 				_end()
+				accept_event()
 	elif event is InputEventScreenDrag:
 		var d := event as InputEventScreenDrag
 		if _active and d.index == _touch_index:
 			_update(d.position)
+			accept_event()
 		elif _active and d.index != _touch_index:
 			InputTrace.record("drag_mismatch", "i=%d own=%d" % [d.index, _touch_index])
 	elif event is InputEventMouseButton:
@@ -79,10 +83,13 @@ func _gui_input(event: InputEvent) -> void:
 			return
 		if mb.pressed and not _active:
 			_begin(_MOUSE_INDEX, mb.position)
+			accept_event()
 		elif not mb.pressed and _active and _touch_index == _MOUSE_INDEX:
 			_end()
+			accept_event()
 	elif event is InputEventMouseMotion and _active and _touch_index == _MOUSE_INDEX:
 		_update((event as InputEventMouseMotion).position)
+		accept_event()
 
 
 func _safe_radius() -> float:
@@ -163,6 +170,10 @@ func get_value() -> Vector2:
 
 func is_active() -> bool:
 	return _active
+
+
+func owns_index(index: int) -> bool:
+	return _active and _touch_index == index
 
 
 func cancel() -> void:

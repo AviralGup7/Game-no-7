@@ -47,9 +47,6 @@ func tick(target_pos: Vector3, delta: float, reduced_motion: bool = false) -> vo
 	focus_point.z = lerpf(focus_point.z, desired_focus.z, w_h)
 	focus_point.y = lerpf(focus_point.y, desired_focus.y, w_v)
 
-	if focus_point == Vector3.ZERO:
-		focus_point = desired_focus
-
 func snap_to(pos: Vector3) -> void:
 	focus_point = pos
 	desired_focus = pos

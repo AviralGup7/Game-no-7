@@ -28,8 +28,13 @@ static func find_targets_in_arc(
 		var offset := Vector3.ZERO
 		if node != null:
 			offset = (node.global_position - origin) * Vector3(1, 0, 1)
+		var extra := 0.0
+		var damageable := t as Damageable
+		if damageable != null:
+			extra = maxf(damageable.get_hit_radius(), 0.0)
+		var reach := attack_range + extra
 		var dist_sq := offset.length_squared()
-		if dist_sq > attack_range * attack_range:
+		if dist_sq > reach * reach:
 			continue
 		if dist_sq < 0.0001:
 			out.append(t)

@@ -16,7 +16,7 @@ const STATE_IDS := [
 	&"idle", &"chase", &"attack", &"hurt", &"dead", &"ranged", &"dash", &"fuse",
 ]
 
-var _event_bus: Node = null
+var _event_bus: EventBusService = null
 var _event_bus_resolved := false
 # State enter/exit and signal callbacks are synchronous. Queue re-entrant
 # requests so one enemy can never have two states active during one transition.
@@ -40,11 +40,11 @@ func _ready() -> void:
 	_register(EnemyFuseState.new())
 
 
-func _eb() -> Node:
+func _eb() -> EventBusService:
 	if not _event_bus_resolved:
 		_event_bus_resolved = true
 		if is_inside_tree():
-			_event_bus = get_node_or_null("/root/EventBus")
+			_event_bus = get_node_or_null("/root/EventBus") as EventBusService
 	return _event_bus
 
 
@@ -114,8 +114,7 @@ func _commit_state(state_id: StringName) -> bool:
 	_current = _states[state_id]
 	_current.enter(_host)
 	state_changed.emit(previous, state_id)
-	if _host.has_signal("state_changed"):
-		_host.emit_signal("state_changed", previous, state_id)
+	_host.state_changed.emit(previous, state_id)
 	_transitioning = false
 	if _queued_state != &"":
 		var queued := _queued_state

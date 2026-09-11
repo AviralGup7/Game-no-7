@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="WaveConfig" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/waves/wave_config.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/waves/wave_spawn_entry.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="e1"]
+script = ExtResource("2_entry")
+archetype_id = &"basic"
+count = 12
+spawn_weight = 1.0
+elite_chance = 0.12
+spawn_tags = Array[StringName]([])
+
+[sub_resource type="Resource" id="e2"]
+script = ExtResource("2_entry")
+archetype_id = &"fast"
+count = 6
+spawn_weight = 0.85
+elite_chance = 0.1
+spawn_tags = Array[StringName]([&"flank"])
+
+[sub_resource type="Resource" id="e3"]
+script = ExtResource("2_entry")
+archetype_id = &"heavy"
+count = 3
+spawn_weight = 0.65
+elite_chance = 0.12
+spawn_tags = Array[StringName]([&"frontline"])
+
+[sub_resource type="Resource" id="e4"]
+script = ExtResource("2_entry")
+archetype_id = &"ranged"
+count = 3
+spawn_weight = 0.7
+elite_chance = 0.08
+spawn_tags = Array[StringName]([&"backline"])
+
+[sub_resource type="Resource" id="e5"]
+script = ExtResource("2_entry")
+archetype_id = &"dasher"
+count = 2
+spawn_weight = 0.55
+elite_chance = 0.05
+spawn_tags = Array[StringName]([&"flank"])
+
+[sub_resource type="Resource" id="e6"]
+script = ExtResource("2_entry")
+archetype_id = &"exploder"
+count = 1
+spawn_weight = 0.4
+elite_chance = 0.0
+spawn_tags = Array[StringName]([&"suicide"])
+
+[resource]
+script = ExtResource("1_script")
+wave_number = 9
+spawn_entries = Array[WaveSpawnEntry]([SubResource("e1"), SubResource("e2"), SubResource("e3"), SubResource("e4"), SubResource("e5"), SubResource("e6")])
+spawn_interval = 0.45
+maximum_simultaneous_enemies = 18
+transition_delay = 3.2
+completion_bonus = 200
+upgrade_after_completion = false
+arena_modifier_ids = Array[StringName]([&"bounty_hunt"])
+announcement_text_key = &"wave_started"
+difficulty_rating = 2.9

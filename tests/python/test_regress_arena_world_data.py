@@ -46,8 +46,8 @@ NAV_GD = "scripts/arena/arena_nav_grid.gd"
 DECOR_GD = "scripts/arena/arena_decorator.gd"
 
 ARENAS = ("default_arena", "ember_crucible", "frost_hollow")
-INTERIOR_HALF = 12.0
-AXIS_SPAWNS = ((11.0, 0.0), (-11.0, 0.0), (0.0, 11.0), (0.0, -11.0))
+INTERIOR_HALF = 18.0
+AXIS_SPAWNS = ((16.0, 0.0), (-16.0, 0.0), (0.0, 16.0), (0.0, -16.0))
 # Spawn jitter (1.2 m) + the safety margin SpawnManager adds (0.5 m). An obstacle closer than
 # foot + this to a spawn marker can be touched by a legal jittered spawn, which is the bug the
 # ember ring used to have at 8.5 m.
@@ -288,8 +288,10 @@ class IdTablesAreGoneTests(unittest.TestCase):
         every prop in a shipped arena. That needs a visual sign-off this repository cannot get
         without an engine, so the branch stays -- bounded, counted, and named in the docs."""
         src = code(DECOR_GD)
-        self.assertEqual(src.count("match String(arena_id)"), 1,
+        self.assertEqual(src.count("match String(_composition_id(arena_id))"), 1,
                          "the decor branch may stay exactly one; a second one means the tables are back")
+        self.assertIn("func _composition_id(", src,
+                      "dressing must follow the live theme/config, not a second id table")
         self.assertIn("per-arena", read("docs/EXTENDING.md").lower(),
                       "the exception has to be discoverable where a modder reads it")
 
@@ -587,7 +589,8 @@ class ConsumerWiringTests(unittest.TestCase):
         src = code(ARENA_GD)
         self.assertIn("func apply_theme() -> void:", src,
                       "apply_theme went back to taking an arena id (which is how a table miss became invisible)")
-        self.assertIn("_config = _resolve_config(_resolve_arena_id())", src)
+        self.assertIn("arena_id = _resolve_arena_id()", src)
+        self.assertIn("_config = _resolve_config(arena_id)", src)
         self.assertIn("func _resolve_config(", src)
         self.assertIn("ContentRegistry != null", src, "registry must be consulted first: it is already validated")
         self.assertIn('ResourceLoader.exists(path)', src, "the disk fallback must not load() a missing path")

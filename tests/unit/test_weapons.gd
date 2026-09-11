@@ -11,8 +11,11 @@ extends RefCounted
 
 class DummyTarget extends Damageable:
 	var hp := 100.0
+	var hit_radius := 0.0
 	func is_alive() -> bool:
 		return hp > 0.0
+	func get_hit_radius() -> float:
+		return hit_radius
 	func apply_damage(payload: DamagePayload) -> DamageResult:
 		var r := DamageResult.new()
 		hp -= payload.amount
@@ -172,7 +175,57 @@ static func suite() -> Array:
 		"why": "",
 	})
 
-	for d in [front, near_side, behind, far]:
+	# --- WeaponInstance: authored pity actually fires on player swings ---
+	var pity_cfg := _sword()
+	pity_cfg.crit_chance = 0.0
+	var pity_inst := WeaponInstance.new(pity_cfg, 11)
+	var pity_critted := false
+	for i in range(8):
+		if pity_inst.roll_crit():
+			pity_critted = true
+	results.append({
+		"name": "WeaponInstance zero-chance never crits but pity accrues",
+		"passed": not pity_critted and int(pity_inst.get_debug_snapshot().get("crit_pity", -1)) == 8,
+		"why": "pity=%s" % str(pity_inst.get_debug_snapshot().get("crit_pity", -1)),
+	})
+	pity_cfg.crit_chance = 1.0
+	var forced_crit := pity_inst.roll_crit()
+	results.append({
+		"name": "WeaponInstance pity resets after a crit",
+		"passed": forced_crit and int(pity_inst.get_debug_snapshot().get("crit_pity", -1)) == 0,
+		"why": "",
+	})
+	pity_inst.reset()
+	results.append({
+		"name": "WeaponInstance reset clears pity",
+		"passed": int(pity_inst.get_debug_snapshot().get("crit_pity", -1)) == 0,
+		"why": "",
+	})
+
+	# --- MeleeResolver: Damageable.get_hit_radius pads reach ---
+	var bulky := _melee_dummy(Vector3(0, 0, -4.5))
+	bulky.hit_radius = 2.0
+	var bulky_hits := MeleeResolver.select_targets(Vector3.ZERO, Vector3(0, 0, -1), [bulky], swing)
+	var too_far := _melee_dummy(Vector3(0, 0, -6.0))
+	too_far.hit_radius = 2.0
+	var too_far_hits := MeleeResolver.select_targets(Vector3.ZERO, Vector3(0, 0, -1), [too_far], swing)
+	results.append({
+		"name": "MeleeResolver uses Damageable.get_hit_radius for reach",
+		"passed": bulky_hits == [bulky] and too_far_hits.is_empty(),
+		"why": "bulky=%d far=%d" % [bulky_hits.size(), too_far_hits.size()],
+	})
+
+	# --- Hitscan: same radius seam ---
+	var beam_target := _melee_dummy(Vector3(0.7, 0, -5.0))
+	beam_target.hit_radius = 0.5
+	var beam_hits := RangedResolver.hitscan(Vector3.ZERO, Vector3(0, 0, -1), [beam_target], 10.0, 0.4)
+	results.append({
+		"name": "RangedResolver hitscan includes get_hit_radius",
+		"passed": beam_hits.size() == 1 and beam_hits[0]["target"] == beam_target,
+		"why": "hits=%d" % beam_hits.size(),
+	})
+
+	for d in [front, near_side, behind, far, bulky, too_far, beam_target]:
 		d.get_parent().remove_child(d)
 		d.free()
 	return results

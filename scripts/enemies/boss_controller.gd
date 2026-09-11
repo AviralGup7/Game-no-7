@@ -42,7 +42,7 @@ const ENRAGED_ABILITY_INTERVAL := 2.6
 const PHASE_STAGGER := 0.8
 
 var _host: EnemyBase = null
-var _health: Node = null
+var _health: HealthComponent = null
 var _phases: Array = []        # [{threshold, name, damage_mult, speed_mult, abilities, interval}]
 var _phase := 0                # 0-based index of the CURRENT phase
 var _enraged := false
@@ -64,10 +64,10 @@ func _ready() -> void:
 	_host = get_parent() as EnemyBase
 	if _host != null:
 		_host.add_to_group(BOSS_GROUP)
-		_health = _host.get_node_or_null("HealthComponent")
-		if _health != null and _health.has_signal("health_changed"):
+		_health = _host.get_health_component()
+		if _health != null and not _health.health_changed.is_connected(_on_health_changed):
 			_health.health_changed.connect(_on_health_changed)
-		if _host.has_signal("died"):
+		if not _host.died.is_connected(_on_boss_died):
 			_host.died.connect(_on_boss_died)
 	if _phases.is_empty():
 		if not phase_plan.is_empty():
@@ -80,10 +80,10 @@ func _ready() -> void:
 			configure_phases(_default_phases())
 
 
-func _eb() -> Node:
+func _eb() -> EventBusService:
 	if not is_inside_tree():
 		return null
-	return get_node_or_null("/root/EventBus")
+	return get_node_or_null("/root/EventBus") as EventBusService
 
 
 ## Phases sorted by descending threshold; phase 0 is the intro phase (1.0).
@@ -206,7 +206,7 @@ func _advance_to(index: int) -> void:
 	# Enrage on the final phase: cleanse control effects + roar.
 	if _phase >= _phases.size() - 1 and not _enraged:
 		_enraged = true
-		var sm := _host.get_node_or_null("StatusManager") as StatusManager
+		var sm := _host.get_status_manager()
 		if sm != null:
 			sm.cleanse_all(true)
 	# Phase transition stagger: the boss reels, giving a short breathing room.
@@ -235,7 +235,7 @@ func _apply_phase_visuals(phase: int) -> void:
 	# let a cosmetic failure propagate back into the phase-transition path.
 	if _host == null or not _host.is_inside_tree():
 		return
-	var feedback := _host.get_node_or_null("EnemyFeedback")
+	var feedback := _host.get_feedback()
 	var tint := Color.WHITE
 	match phase:
 		0:
@@ -379,9 +379,9 @@ func _resolve_shockwave() -> void:
 
 func _exit_tree() -> void:
 	# Prevent stale boss health_changed/died connections after despawn/reuse.
-	if _health != null and _health.has_signal("health_changed") and _health.health_changed.is_connected(_on_health_changed):
+	if _health != null and is_instance_valid(_health) and _health.health_changed.is_connected(_on_health_changed):
 		_health.health_changed.disconnect(_on_health_changed)
-	if _host != null and _host.has_signal("died") and _host.died.is_connected(_on_boss_died):
+	if _host != null and is_instance_valid(_host) and _host.died.is_connected(_on_boss_died):
 		_host.died.disconnect(_on_boss_died)
 
 

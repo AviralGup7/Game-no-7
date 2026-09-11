@@ -100,11 +100,16 @@ static func _weighted_pick(candidates: Array[UpgradeConfig], rng: RandomNumberGe
 		return candidates[0]
 	var roll := rng.randf_range(0.0, total)
 	var acc := 0.0
+	var last_positive: UpgradeConfig = candidates[0]
 	for c in candidates:
-		acc += maxf(c.weight, 0.0)
+		var w := maxf(c.weight, 0.0) if c != null and is_finite(c.weight) else 0.0
+		if w <= 0.0:
+			continue
+		acc += w
+		last_positive = c
 		if roll <= acc:
 			return c
-	return candidates[candidates.size() - 1]
+	return last_positive
 
 
 ## Deterministic seed mixing run_seed + wave_number.

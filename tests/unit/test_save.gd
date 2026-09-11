@@ -85,4 +85,54 @@ static func suite() -> Array:
 		"passed": sd.graphics_quality == &"ultra",
 		"why": "",
 	})
+	var binds := {"attack": [{"kind": "keycode", "code": 32}]}
+	sd.set_input_bindings(binds)
+	var round := SettingsData.new()
+	round.from_dict(sd.to_dict())
+	results.append({
+		"name": "input_bindings round-trip through settings dict",
+		"passed": round.input_bindings.has("attack")
+			and (round.input_bindings["attack"] as Array).size() == 1,
+		"why": str(round.input_bindings),
+	})
+	var migrated_binds = SaveScript.normalize_save({
+		"schema_version": 5,
+		"settings": {"master_volume": 0.4, "input_bindings": binds},
+	})
+	var settings_out: Dictionary = migrated_binds.get("settings", {})
+	results.append({
+		"name": "schema 5 settings keep remaps on migrate to current",
+		"passed": int(migrated_binds.get("schema_version", 0)) == int(SaveScript.SCHEMA_VERSION)
+			and (settings_out.get("input_bindings", {}) as Dictionary).has("attack"),
+		"why": str(settings_out.get("input_bindings", {})),
+	})
+
+	var seeded := SaveSchema.normalize_save({
+		"schema_version": 6,
+		"last_run_build": {"seed": 42, "current_wave": 7, "equipped_weapons": ["gladius"]},
+	})
+	var seeded_build: Dictionary = seeded.get("last_run_build", {})
+	results.append({
+		"name": "last_run_build keeps a positive seed under the seed key",
+		"passed": int(seeded_build.get("seed", 0)) == 42
+			and not seeded_build.has("run_seed")
+			and (seeded_build.get("equipped_weapons", []) as Array) == ["gladius"],
+		"why": str(seeded_build),
+	})
+	var alias := SaveSchema.normalize_save({
+		"schema_version": 6,
+		"last_run_build": {"run_seed": 99},
+	})
+	results.append({
+		"name": "run_seed alias migrates onto seed",
+		"passed": int((alias.get("last_run_build", {}) as Dictionary).get("seed", 0)) == 99
+			and not (alias.get("last_run_build", {}) as Dictionary).has("run_seed"),
+		"why": str(alias.get("last_run_build", {})),
+	})
+	sd.set_master_volume(NAN)
+	results.append({
+		"name": "NaN volume becomes 0 instead of poisoning settings",
+		"passed": is_equal_approx(sd.master_volume, 0.0),
+		"why": "got %s" % str(sd.master_volume),
+	})
 	return results

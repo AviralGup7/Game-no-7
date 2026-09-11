@@ -102,13 +102,45 @@ const _TUNED: Dictionary = {
 	"ui_confirm": [&"UI", 2, 0.05, 0.0, 0.0],
 	"ui_back": [&"UI", 2, 0.05, 0.0, 0.0],
 	"upgrade_select": [&"UI", 2, 0.05, 0.0, 0.0],
+	# Combat verbs that used the generic default (SFX bus, cap 4, no cooldown).
+	"enemy_attack": [&"SFX", 6, 0.04, 0.0, 0.03],
+	"skill_cast": [&"SFX", 2, 0.08, 0.0, 0.0],
+	"skill_ready": [&"SFX", 2, 0.10, 0.0, 0.0],
+	"boss_phase_changed": [&"SFX", 1, 0.4, 0.0, 0.0],
+	"item_drop": [&"SFX", 4, 0.05, 1.0, 0.05],
+	"player_attack": [&"SFX", 4, 0.04, 0.0, 0.03],
+	"player_reload": [&"SFX", 2, 0.08, 0.0, 0.0],
+	"player_switch": [&"SFX", 2, 0.08, 0.0, 0.0],
 	# Music ids (defensive: they should never reach play_sfx).
 	"music_menu": [&"Music", 1, 0.0, 0.0, 0.0],
 	"music_calm": [&"Music", 1, 0.0, 0.0, 0.0],
 	"music_battle": [&"Music", 1, 0.0, 0.0, 0.0],
 	"music_boss": [&"Music", 1, 0.0, 0.0, 0.0],
 	"music_victory": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_battle_l2": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_battle_l3": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_boss_l2": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_boss_l3": [&"Music", 1, 0.0, 0.0, 0.0],
+	"music_calm_l2": [&"Music", 1, 0.0, 0.0, 0.0],
 }
+
+## World Foley: claimed on the spatial 3D pool, never the UI 2D bank.
+const WORLD_CUES: Array[StringName] = [
+	&"enemy_hit", &"enemy_death", &"enemy_attack", &"enemy_spawn",
+	&"enemy_windup", &"enemy_dash", &"enemy_explosion",
+]
+
+
+static func is_world_cue(cue_id: StringName) -> bool:
+	return cue_id in WORLD_CUES
+
+
+static func is_ui_bus(bus: StringName) -> bool:
+	return bus == &"UI"
+
+
+static func is_music_bus(bus: StringName) -> bool:
+	return bus == &"Music"
 
 
 static func for_cue(target_cue_id: StringName) -> AudioConfig:

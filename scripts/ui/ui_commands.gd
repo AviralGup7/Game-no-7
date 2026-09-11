@@ -22,12 +22,10 @@ static func purchase(tree: SceneTree, id: StringName) -> bool:
 	return service.purchase(id) if service != null else false
 
 
-## Arena selection is a not-yet-wired feature: launching only succeeds for the
-## currently selected arena (ContentRegistry owns selection). The old
-## GameRoot.has_method("request_arena_selection") probe suggested a runtime
-## capability check; no such method exists, so the probe was always false.
+## Arena selection for the next run. GameRoot validates availability and
+## ContentRegistry owns the live selection used by world build.
 static func select_arena(id: StringName) -> bool:
-	return id == ContentRegistry.get_selected_arena_id()
+	return GameRoot.request_arena_selection(id)
 
 
 ## Typed player-command dispatch for the touch buttons and skill bar. Returns

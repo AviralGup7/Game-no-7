@@ -9,7 +9,7 @@ class_name CharacterController
 @export var acceleration: float = 24.0
 @export var deceleration: float = 30.0
 @export var gravity: float = 18.0
-@export var turn_speed: float = 14.0  # shared combat/visual yaw smoothing (radians/sec)
+@export var turn_speed: float = 18.0  # snap body yaw to the look camera
 
 var _last_move_input := Vector2.ZERO
 var _owner_body: CharacterBody3D = null
@@ -21,9 +21,15 @@ var _non_finite_reported := false
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
-	_weapons = get_parent().get_node_or_null("WeaponManager") as WeaponManager
+	if _owner_body != null:
+		_weapons = _owner_body.get_node_or_null("WeaponManager") as WeaponManager
 	if _owner_body == null:
 		push_warning("CharacterController parent is not a CharacterBody3D")
+
+
+## Player wires the attack authority once so tick/dash do not string-look it.
+func bind_weapons(weapons: WeaponManager) -> void:
+	_weapons = weapons
 
 
 ## Advance the body for one physics step. move_input is a normalized joystick/axis
@@ -58,11 +64,11 @@ func tick(move_input: Vector2, delta: float) -> void:
 	if dir.length_squared() > 0.001:
 		vel.x = move_toward(vel.x, target_h.x, acceleration * delta)
 		vel.z = move_toward(vel.z, target_h.z, acceleration * delta)
-		if not locked:
-			_turn_toward(dir, delta)
 	else:
 		vel.x = move_toward(vel.x, 0.0, deceleration * delta)
 		vel.z = move_toward(vel.z, 0.0, deceleration * delta)
+	if not locked:
+		_face_look_yaw(dir, delta)
 
 	_apply_velocity(vel)
 
@@ -114,6 +120,17 @@ func _turn_toward(dir: Vector3, delta: float) -> void:
 	rot.y = rotate_toward(rot.y, target_yaw, turn_speed * delta)
 	if _is_finite_v3(rot):
 		_owner_body.global_rotation = rot
+
+
+## PUBG: body faces the camera yaw (strafe does not spin the hero). Headless
+## fixtures have no Camera3D, so they keep facing the move vector.
+func _face_look_yaw(move_dir: Vector3, delta: float) -> void:
+	var vp := get_viewport()
+	var cam: Camera3D = vp.get_camera_3d() if vp != null else null
+	if cam != null:
+		_turn_toward(Vector3(-sin(_camera_yaw()), 0.0, -cos(_camera_yaw())), delta)
+	elif move_dir.length_squared() > 0.001:
+		_turn_toward(move_dir, delta)
 
 
 func face_direction(direction: Vector3) -> void:

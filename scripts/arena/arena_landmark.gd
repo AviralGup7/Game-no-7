@@ -86,6 +86,8 @@ func build(cfg: ArenaLandmarkConfig) -> void:
 
 
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if _pulse_mats.is_empty() and _spin == null:
 		return
 	_time += delta
@@ -365,7 +367,8 @@ func _add_collision(cfg: ArenaLandmarkConfig) -> void:
 func _rock_mat(tint: Color, rough: float) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = tint
-	mat.albedo_texture = load(ROCK_ALBEDO)
+	if ResourceLoader.exists(ROCK_ALBEDO):
+		mat.albedo_texture = load(ROCK_ALBEDO)
 	mat.roughness = rough
 	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return mat

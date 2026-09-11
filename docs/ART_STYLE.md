@@ -28,8 +28,8 @@ strong, shared material budgets bounded and mobile performance measured.
 | Pickup / bonus | gold `#ffd25e` | currency/upgrade pickups |
 | Arena ground | mid neutral `#6c856b` | low saturation to contrast actors |
 | Environment | desaturated warm/cool props | rocks, walls, decoration |
-| UI panel | translucent dark `#14181f` | consistent panels/overlays |
-| UI accent | `#7fc7ff` / `#ff8f5e` | CTAs and highlights |
+| UI panel | ember-black `#140c08` over the painted coliseum | leather / bronze plates |
+| UI accent | gold `#e8b44a` / copper `#e08a45` | CTAs, ranks, energy |
 
 Use high-contrast variant (settings toggle) for accessibility.
 
@@ -54,7 +54,9 @@ Use high-contrast variant (settings toggle) for accessibility.
 
 ## Scale & proportion
 
-- Arena floor ~26 × 26 m; walls ~3 m high.
+- Arena floor ~38 × 38 m; walls ~3 m high. The Pit's north half is a designed
+  loading-dock warehouse (aisles / three bays / office annex) opening onto a
+  south apron around the landmark — not random clutter.
 - Humanoids ~1.8–2 m tall. Keep actors in a similar XZ footprint (capsule ~0.45 m r).
 - Camera sits behind/above player (see `data/cameras/default.tres`).
 

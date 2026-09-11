@@ -19,10 +19,16 @@ const SWEEP_RADIUS := 0.25
 var _idle: Array[Projectile] = []
 var _active: Array[Projectile] = []
 var _fallback_mesh: CapsuleMesh = null
+## Live-in-air cap from the performance governor. -1 means "pool_size".
+## Fire never lets `_active` grow past this even when idle leftover remains.
+var _live_cap: int = -1
+## GAME_OVER freeze: fire() returns null until a new pool is built.
+var _isolated := false
 
 
 func _ready() -> void:
 	add_to_group("projectile_pool")
+	Projectile.ensure_shared_tints()
 	_fallback_mesh = CapsuleMesh.new()
 	_fallback_mesh.radius = 0.045
 	_fallback_mesh.height = 0.4
@@ -87,11 +93,13 @@ func _make_fallback_projectile() -> Projectile:
 
 ## Fire one projectile. `config` is forwarded to Projectile.launch() (must at
 ## least carry origin + direction). Returns the projectile, or null if the pool
-## node is not inside the tree.
+## node is not inside the tree or the run has been isolated.
 func fire(config: Dictionary) -> Projectile:
-	if not is_inside_tree():
+	if _isolated or not is_inside_tree():
 		return null
 	var p := _obtain()
+	if p == null:
+		return null
 	p.launch(config)
 	return p
 
@@ -111,7 +119,15 @@ func fire_volley(config: Dictionary, directions: Array[Vector3]) -> Array[Projec
 
 func _obtain() -> Projectile:
 	var p: Projectile = null
-	if not _idle.is_empty():
+	var cap := live_cap()
+	# Governor cap wins over leftover idle: a LOW phone with a 48-slot pool
+	# still cannot keep 48 shots in the air.
+	if cap > 0 and _active.size() >= cap and not _active.is_empty():
+		p = _active.pop_front()
+		if p != null:
+			p.pool_reset()
+		pool_exhausted_recycled.emit()
+	elif not _idle.is_empty():
 		p = _idle.pop_back()
 	elif not _active.is_empty():
 		# Recycle the oldest active projectile (deterministic, no allocation).
@@ -154,6 +170,36 @@ func release_all() -> void:
 		release(p)
 
 
+## Drain every in-flight shot and refuse further fire() until a new pool is
+## built. Called from RunIsolation at GAME_OVER while WorldRoot stays up.
+func isolate_run() -> void:
+	release_all()
+	_isolated = true
+
+
+func is_isolated() -> bool:
+	return _isolated
+
+
+## Push a live-in-air cap. Extra active shots are recycled oldest-first so a
+## tier drop cannot leave a HIGH volley simulating on a LOW phone.
+func apply_budget(cap: int) -> void:
+	_live_cap = clampi(cap, 1, maxi(pool_size, 1))
+	while _active.size() > live_cap() and not _active.is_empty():
+		var oldest: Projectile = _active.pop_front()
+		if oldest == null:
+			continue
+		oldest.pool_reset()
+		if oldest not in _idle:
+			_idle.append(oldest)
+
+
+func live_cap() -> int:
+	if _live_cap > 0:
+		return _live_cap
+	return maxi(pool_size, 1)
+
+
 func idle_count() -> int:
 	return _idle.size()
 
@@ -163,4 +209,10 @@ func active_count() -> int:
 
 
 func get_debug_snapshot() -> Dictionary:
-	return {"idle": _idle.size(), "active": _active.size(), "pool_size": pool_size}
+	return {
+		"idle": _idle.size(),
+		"active": _active.size(),
+		"pool_size": pool_size,
+		"live_cap": live_cap(),
+		"isolated": _isolated,
+	}

@@ -33,6 +33,18 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unbind_run_events()
+
+
+## GAME_OVER freeze: the player stays in the tree, so a lingering
+## projectile_fired would still request a shot sting. Unbind the run-scoped
+## listener; UI audio is owned by AudioManager's UI bank and is not touched.
+func isolate_run() -> void:
+	_unbind_run_events()
+	_step_travel = 0.0
+
+
+func _unbind_run_events() -> void:
 	if EventBus != null and EventBus.projectile_fired.is_connected(_on_shot):
 		EventBus.projectile_fired.disconnect(_on_shot)
 

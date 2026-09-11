@@ -44,6 +44,29 @@ class CIPipelineTests(unittest.TestCase):
     def test_build_needs_both(self):
         txt = read(".github/workflows/android.yml")
         self.assertIn("needs: [validate-resources, godot-tests]", txt)
+    def test_apk_job_runs_when_validate_succeeds(self):
+        # GitHub skips a needed job's dependents on failure unless if: always().
+        # The APK must still export on every push even if godot-tests fails.
+        txt = read(".github/workflows/android.yml")
+        self.assertIn("always()", txt)
+        self.assertIn("needs.validate-resources.result", txt)
+        self.assertIn("== 'success'", txt)
+        self.assertIn("cancel-in-progress: ${{ github.event_name == 'pull_request' }}", txt)
+    def test_workflows_have_operational_guardrails(self):
+        android = read(".github/workflows/android.yml")
+        diag = read(".github/workflows/gdscript-diagnostics.yml")
+        for txt in (android, diag):
+            self.assertIn("concurrency:", txt)
+            self.assertIn("cancel-in-progress:", txt)
+            self.assertIn("paths-ignore:", txt)
+            self.assertIn("retention-days:", txt)
+        self.assertIn("permissions:\n  contents: read", android)
+        self.assertIn("permissions:\n  contents: read", diag)
+        self.assertIn("contents: write", diag)
+    def test_diagnostics_workflow_not_pinned_to_stale_arena_branch(self):
+        txt = read(".github/workflows/gdscript-diagnostics.yml")
+        self.assertIn('branches: ["main", "arena/**"]', txt)
+        self.assertNotIn("arena/01a08a34-game-no-7", txt)
     def test_publish_needs_build(self):
         txt = read(".github/workflows/android.yml")
         self.assertIn("needs: build-android", txt)

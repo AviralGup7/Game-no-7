@@ -12,13 +12,17 @@ def read(rel: str) -> str:
 
 
 class LockOnTests(unittest.TestCase):
-    def test_camera_reset_toggles_lock(self):
+    def test_lock_on_is_not_double_toggled(self):
         txt = read("scripts/main/camera_rig.gd")
         self.assertIn("func toggle_lock_on() -> bool:", txt)
-        self.assertIn("if not toggle_lock_on():", txt)
         self.assertIn("lock_on_midpoint_factor", txt)
         self.assertIn('_swap_profile(&"combat")', txt)
         self.assertIn('_swap_profile(&"boss")', txt)
+        # camera_reset snaps the boom; lock_on is owned by Player.request_lock_on.
+        # Sharing one handler double-toggled every press (lock, then unlock).
+        self.assertIn('event.is_action_pressed("camera_reset")', txt)
+        self.assertNotIn('event.is_action_pressed("lock_on")', txt)
+        self.assertNotIn("if not toggle_lock_on():", txt)
 
     def test_lock_on_input_exists(self):
         txt = read("project.godot")

@@ -24,11 +24,19 @@ class LayoutSolverTests(unittest.TestCase):
     def test_solver_exists_and_is_pure(self):
         txt = read("scripts/ui/ui_layout.gd")
         self.assertIn("class_name UiLayout", txt)
-        for func in ("compute", "sanitize", "place", "is_collapsed", "gutter"):
+        for func in ("compute", "sanitize", "place", "is_collapsed", "gutter", "is_compact"):
             self.assertIn("static func %s(" % func, txt)
         # A pure solver must not reach into the tree or singletons.
         for forbidden in ("get_tree()", "get_viewport(", "DisplayServer.", "EventBus."):
             self.assertNotIn(forbidden, txt)
+        # Portrait phones (1080x2340) are compact even though width >= 900.
+        self.assertIn("size.x < NARROW_WIDTH or size.x < size.y", txt)
+        self.assertNotIn("return size.x < 900.0\n", txt)
+
+    def test_short_viewport_shrinks_the_action_cluster(self):
+        txt = read("scripts/ui/ui_layout.gd")
+        self.assertIn("cluster.size.y = maxf(minf(cluster.size.y, room), MIN_TOUCH)", txt)
+        self.assertIn("static func _action_rects(", txt)
 
     def test_solver_publishes_every_overlay_rect(self):
         txt = read("scripts/ui/ui_layout.gd")
@@ -107,6 +115,33 @@ class ThemeConsistencyTests(unittest.TestCase):
         self.assertIn('theme.set_font("font", "Label", REGULAR)', txt)
         self.assertIn('theme.set_font("font", "RichTextLabel", REGULAR)', txt)
 
+    def test_arena_chrome_files_are_present(self):
+        chrome = ROOT / "data" / "ui" / "chrome"
+        for name in (
+            "menu_backdrop.jpg",
+            "panel.png",
+            "btn_gold.png",
+            "btn_dark.png",
+            "icon_play.png",
+            "icon_pause.png",
+            "icon_gear.png",
+            "icon_trophy.png",
+            "icon_star.png",
+            "icon_gamepad.png",
+            "icon_home.png",
+            "icon_return.png",
+            "hud_frame.png",
+        ):
+            self.assertTrue((chrome / name).is_file(), name)
+        theme = read("scripts/ui/ui_theme.gd")
+        self.assertIn('res://data/ui/chrome/', theme)
+        self.assertIn("static func skin(", theme)
+        self.assertIn("hud_frame.png", read("scripts/ui/game_hud.gd"))
+        backdrop = read("scripts/ui/menu_backdrop.gd")
+        self.assertIn("draw_arc", backdrop)
+        self.assertNotIn("menu_backdrop.jpg", backdrop)  # Keep the sci-fi vector menu, not the incoming coliseum.
+        self.assertIn("resized.connect(queue_redraw)", backdrop)
+
     def test_factory_never_emits_a_small_button(self):
         txt = read("scripts/ui/ui_factory.gd")
         self.assertIn("maxf(min_size.y, UiTheme.TOUCH_MIN)", txt)
@@ -152,6 +187,15 @@ class ResponsiveScreenTests(unittest.TestCase):
         self.assertIn("do not overlap", txt)
         self.assertIn("meets touch floor", txt)
         self.assertIn("Vector2(1080, 2340)", txt)  # tall portrait Android
+        self.assertIn('"res://tests/unit/test_ui_layout.gd"', read("tests/run_tests.gd"))
+
+    def test_hud_rewrites_compact_captions_on_layout(self):
+        hud = read("scripts/ui/game_hud.gd")
+        self.assertIn("_refresh_wave_label()", hud)
+        self.assertIn("_score_label.visible = not _compact", hud)
+        self.assertIn("_gauges.set_compact(_compact)", hud)
+        gauges = read("scripts/ui/ui_gauges.gd")
+        self.assertIn('stamina_caption.text = "STA %d/%d"', gauges)
 
 
 if __name__ == "__main__":

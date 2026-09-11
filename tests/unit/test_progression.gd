@@ -105,4 +105,12 @@ static func suite() -> Array:
 	# no modifier present returns base unchanged
 	var fresh := ProgressionComponent.new()
 	results.append({"name": "unmodified stat returns base", "passed": is_equal_approx(fresh.get_stat(&"move_speed_multiplier", 6.0), 6.0), "why": ""})
+
+	var qprog := ProgressionComponent.new()
+	qprog.apply_upgrade(_cfg(&"quartermaster", {"pickup_radius_add": 0.75}))
+	results.append({
+		"name": "pickup_radius_add is additive from 0",
+		"passed": is_equal_approx(qprog.get_stat(&"pickup_radius_add", 0.0), 0.75),
+		"why": "%f" % qprog.get_stat(&"pickup_radius_add", 0.0),
+	})
 	return results

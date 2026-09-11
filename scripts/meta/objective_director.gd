@@ -41,6 +41,7 @@ var _kill_counter := 0
 var _last_emitted := -1
 
 var _pickups: PickupManager = null
+var _bus := EventBindings.new()
 
 
 func _ready() -> void:
@@ -67,15 +68,23 @@ func configure(mode_id: StringName, arena_center: Vector3, pickups: PickupManage
 		_relics_banked = 0
 		_relic_target = maxi(GameMode.collect_target(_mode_id), 1)
 		_kill_counter = 0
-		if not EventBus.enemy_killed.is_connected(_on_enemy_killed):
-			EventBus.enemy_killed.connect(_on_enemy_killed)
-		if not EventBus.pickup_collected.is_connected(_on_pickup_collected):
-			EventBus.pickup_collected.connect(_on_pickup_collected)
+		_bus.bind(EventBus.enemy_killed, _on_enemy_killed)
+		_bus.bind(EventBus.pickup_collected, _on_pickup_collected)
 	# run_started (emitted just after world build) makes the HUD reseed and clear
 	# the objective line; re-emit afterwards so the objective is visible from turn one.
-	if not EventBus.run_started.is_connected(_on_run_started):
-		EventBus.run_started.connect(_on_run_started)
+	_bus.bind(EventBus.run_started, _on_run_started)
 	_emit_progress()
+
+
+func _exit_tree() -> void:
+	_bus.unbind_all()
+
+
+## GAME_OVER freeze: stop relic drops / beacon ticks from lingering deaths
+## while WorldRoot (and this director) stay up for the summary camera.
+func isolate_run() -> void:
+	_bus.unbind_all()
+	_active = false
 
 
 func is_active() -> bool:

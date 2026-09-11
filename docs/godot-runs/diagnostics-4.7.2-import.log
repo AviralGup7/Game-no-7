@@ -5,27 +5,11 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
-SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:70)
-SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:24)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "REGULAR" constant because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:24)
-SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:25)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "BOLD" constant because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:25)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
-ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (264 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (277 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | Arena[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | ArenaConfig[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | ArenaDecorator[39m[0m
@@ -34,134 +18,141 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [   1% ] [90m[1mupdate_scripts_classes[22m | ArenaLandmarkConfig[39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | ArenaNavGrid[39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | ArenaObstacles[39m[0m
-[   3% ] [90m[1mupdate_scripts_classes[22m | ArenaObstaclePlacement[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | ArenaObstaclePlacement[39m[0m
 [   3% ] [90m[1mupdate_scripts_classes[22m | ArenaThemeConfig[39m[0m
 [   3% ] [90m[1mupdate_scripts_classes[22m | HazardConfig[39m[0m
-[   4% ] [90m[1mupdate_scripts_classes[22m | HazardInstance[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | HazardInstance[39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | HazardMarker[39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | HazardModeLayout[39m[0m
 [   5% ] [90m[1mupdate_scripts_classes[22m | HazardPlacement[39m[0m
 [   5% ] [90m[1mupdate_scripts_classes[22m | TorchFlicker[39m[0m
-[   6% ] [90m[1mupdate_scripts_classes[22m | AudioAssetIntegrator[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | AudioAssetIntegrator[39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | AudioConfig[39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | MixSnapshot[39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | MusicManager[39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | ProceduralSfx[39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | SfxPolicy[39m[0m
-[   8% ] [90m[1mupdate_scripts_classes[22m | AreaDamage[39m[0m
-[   8% ] [90m[1mupdate_scripts_classes[22m | CombatLog[39m[0m
-[   9% ] [90m[1mupdate_scripts_classes[22m | CombatQuery[39m[0m
-[   9% ] [90m[1mupdate_scripts_classes[22m | CriticalSystem[39m[0m
-[   9% ] [90m[1mupdate_scripts_classes[22m | Damageable[39m[0m
-[  10% ] [90m[1mupdate_scripts_classes[22m | DamagePayload[39m[0m
-[  10% ] [90m[1mupdate_scripts_classes[22m | DamageResult[39m[0m
-[  10% ] [90m[1mupdate_scripts_classes[22m | HitstopManager[39m[0m
-[  11% ] [90m[1mupdate_scripts_classes[22m | CollisionLayers[39m[0m
-[  11% ] [90m[1mupdate_scripts_classes[22m | ContentLoader[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | SpatialAttenuation[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | SpatialVoicePool[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | VoiceBank[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | AreaDamage[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | CombatLog[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | CombatQuery[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | CriticalSystem[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | Damageable[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | DamagePayload[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | DamageResult[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | HitstopManager[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | CollisionLayers[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | ContentLoader[39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | ContentRegistryService[39m[0m
-[  12% ] [90m[1mupdate_scripts_classes[22m | EventBindings[39m[0m
-[  12% ] [90m[1mupdate_scripts_classes[22m | EventBusService[39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | GameRootService[39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | RunScorekeeper[39m[0m
-[  14% ] [90m[1mupdate_scripts_classes[22m | RunState[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | EventBindings[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | EventBusService[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | GameRootService[39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | RunIsolation[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | RunScorekeeper[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | RunState[39m[0m
 [  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  15% ] [90m[1mupdate_scripts_classes[22m | UpgradeService[39m[0m
-[  15% ] [90m[1mupdate_scripts_classes[22m | ValidatedConfig[39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | DebugErrorHandlerService[39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | DebugErrorOverlay[39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | DebugLogBuffer[39m[0m
-[  17% ] [90m[1mupdate_scripts_classes[22m | DebugModeToggle[39m[0m
-[  17% ] [90m[1mupdate_scripts_classes[22m | ErrorReport[39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | BossController[39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | BossPhaseConfig[39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | EnemyAnimator[39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | EnemyAttackState[39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | EnemyAudio[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | UpgradeService[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | ValidatedConfig[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DebugErrorHandlerService[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DebugErrorOverlay[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | DebugLogBuffer[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | DebugModeToggle[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | ErrorReport[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | BossController[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | BossPhaseConfig[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | EnemyAnimator[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | EnemyAttackState[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | EnemyAudio[39m[0m
 [  20% ] [90m[1mupdate_scripts_classes[22m | EnemyBase[39m[0m
-[  20% ] [90m[1mupdate_scripts_classes[22m | EnemyChaseState[39m[0m
-[  20% ] [90m[1mupdate_scripts_classes[22m | EnemyConfig[39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | EnemyDashState[39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | EnemyDeadState[39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | EliteAffix[39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | EnemyFeedback[39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | EnemyFuseState[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyHurtState[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyIdleState[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyLocomotion[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyNavigator[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyPack[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyPerception[39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyPersonality[39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyRangedState[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | EnemyChaseState[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | EnemyClipCatalog[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | EnemyConfig[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | EnemyDashState[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | EnemyDeadState[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | EliteAffix[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyFeedback[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyFuseState[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyHurtState[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyIdleState[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyLocomotion[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyNavigator[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyPack[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyPerception[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyPersonality[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyRangedState[39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | EnemyState[39m[0m
-[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyStateMachine[39m[0m
-[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyStriker[39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | SpawnLedger[39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | SpawnManager[39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | SpawnPatterns[39m[0m
-[  28% ] [90m[1mupdate_scripts_classes[22m | SpawnPlacer[39m[0m
-[  28% ] [90m[1mupdate_scripts_classes[22m | CameraAutoFollowController[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | EnemyStateMachine[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | EnemyStriker[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | SpawnLedger[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | SpawnManager[39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | SpawnPatterns[39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | SpawnPlacer[39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | CameraAutoFollowController[39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | CameraCollisionSolver[39m[0m
-[  29% ] [90m[1mupdate_scripts_classes[22m | CameraFocusTracker[39m[0m
-[  29% ] [90m[1mupdate_scripts_classes[22m | CameraFovController[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | CameraFocusTracker[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | CameraFovController[39m[0m
 [  30% ] [90m[1mupdate_scripts_classes[22m | CameraFramingController[39m[0m
-[  30% ] [90m[1mupdate_scripts_classes[22m | CameraInputHandler[39m[0m
-[  30% ] [90m[1mupdate_scripts_classes[22m | CameraMath[39m[0m
-[  31% ] [90m[1mupdate_scripts_classes[22m | CameraModeController[39m[0m
-[  31% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitController[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | CameraInputHandler[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | CameraMath[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | CameraModeController[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitController[39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitState[39m[0m
-[  32% ] [90m[1mupdate_scripts_classes[22m | CameraShakeController[39m[0m
-[  32% ] [90m[1mupdate_scripts_classes[22m | CameraVelocityTracker[39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | CameraShakeController[39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | CameraVelocityTracker[39m[0m
 [  33% ] [90m[1mupdate_scripts_classes[22m | CameraProfile[39m[0m
-[  33% ] [90m[1mupdate_scripts_classes[22m | CameraRig[39m[0m
-[  33% ] [90m[1mupdate_scripts_classes[22m | Main[39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | CameraRig[39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | Main[39m[0m
 [  34% ] [90m[1mupdate_scripts_classes[22m | Achievements[39m[0m
-[  34% ] [90m[1mupdate_scripts_classes[22m | ChallengeTier[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | ChallengeTier[39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | Cosmetics[39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | DailyChallenge[39m[0m
-[  35% ] [90m[1mupdate_scripts_classes[22m | GameMode[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | GameMode[39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | GameModeConfig[39m[0m
-[  36% ] [90m[1mupdate_scripts_classes[22m | GameModeWavePlan[39m[0m
-[  36% ] [90m[1mupdate_scripts_classes[22m | MetaProgression[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | GameModeWavePlan[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | MetaProgression[39m[0m
 [  37% ] [90m[1mupdate_scripts_classes[22m | Narrator[39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | ObjectiveDirector[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | ObjectiveDirector[39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | Prestige[39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | PrestigeLadderConfig[39m[0m
-[  38% ] [90m[1mupdate_scripts_classes[22m | PrestigeUnlock[39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | PrestigeUnlock[39m[0m
 [  39% ] [90m[1mupdate_scripts_classes[22m | DropTable[39m[0m
 [  39% ] [90m[1mupdate_scripts_classes[22m | Pickup[39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | PickupConfig[39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | PickupManager[39m[0m
-[  40% ] [90m[1mupdate_scripts_classes[22m | AttackBuffer[39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | AttackBuffer[39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | CharacterController[39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | DodgeController[39m[0m
-[  41% ] [90m[1mupdate_scripts_classes[22m | ExperienceComponent[39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | ExperienceComponent[39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | HealthComponent[39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | Player[39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | PlayerAnimation[39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | PlayerAudio[39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | PlayerBuild[39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | PlayerCombat[39m[0m
 [  44% ] [90m[1mupdate_scripts_classes[22m | PlayerEquipment[39m[0m
 [  44% ] [90m[1mupdate_scripts_classes[22m | PlayerFeedback[39m[0m
-[  44% ] [90m[1mupdate_scripts_classes[22m | PlayerLocomotion[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | PlayerLocomotion[39m[0m
 [  45% ] [90m[1mupdate_scripts_classes[22m | ProgressionComponent[39m[0m
-[  45% ] [90m[1mupdate_scripts_classes[22m | StaminaComponent[39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | StaminaComponent[39m[0m
 [  46% ] [90m[1mupdate_scripts_classes[22m | TargetingComponent[39m[0m
 [  46% ] [90m[1mupdate_scripts_classes[22m | BuildEffects[39m[0m
-[  46% ] [90m[1mupdate_scripts_classes[22m | UpgradeConfig[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | UpgradeConfig[39m[0m
 [  47% ] [90m[1mupdate_scripts_classes[22m | UpgradeSelector[39m[0m
 [  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  47% ] [90m[1mupdate_scripts_classes[22m | SaveSchema[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | SaveSchema[39m[0m
 [  48% ] [90m[1mupdate_scripts_classes[22m | SettingsData[39m[0m
 [  48% ] [90m[1mupdate_scripts_classes[22m | SkillConfig[39m[0m
 [  49% ] [90m[1mupdate_scripts_classes[22m | SkillController[39m[0m
 [  49% ] [90m[1mupdate_scripts_classes[22m | SkillExecutor[39m[0m
-[  49% ] [90m[1mupdate_scripts_classes[22m | StatusEffect[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | StatusEffect[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | StatusEffectConfig[39m[0m
 [  50% ] [90m[1mupdate_scripts_classes[22m | StatusManager[39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | AchievementGallery[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | AchievementGallery[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | AnnouncementBanner[39m[0m
 [  51% ] [90m[1mupdate_scripts_classes[22m | ArmoryPanel[39m[0m
 [  52% ] [90m[1mupdate_scripts_classes[22m | BossHealthBar[39m[0m
@@ -180,20 +171,21 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  56% ] [90m[1mupdate_scripts_classes[22m | TouchControls[39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | TutorialManager[39m[0m
 [  57% ] [90m[1mupdate_scripts_classes[22m | UiCommands[39m[0m
-[  58% ] [90m[1mupdate_scripts_classes[22m | UiFactory[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | UiFactory[39m[0m
 [  58% ] [90m[1mupdate_scripts_classes[22m | UiGauges[39m[0m
 [  58% ] [90m[1mupdate_scripts_classes[22m | UiLayout[39m[0m
-[  59% ] [90m[1mupdate_scripts_classes[22m | UiModal[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | UiModal[39m[0m
 [  59% ] [90m[1mupdate_scripts_classes[22m | UiRoot[39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | UiText[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | UiText[39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | UiTheme[39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | UpgradePanel[39m[0m
-[  61% ] [90m[1mupdate_scripts_classes[22m | TouchJoystick[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | TouchJoystick[39m[0m
 [  61% ] [90m[1mupdate_scripts_classes[22m | InputRemapper[39m[0m
 [  61% ] [90m[1mupdate_scripts_classes[22m | InputTrace[39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | JsonHelpers[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | JsonHelpers[39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | ObjectPool[39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | PerformanceMonitor[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | PerformanceMonitor[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | PoolGovernor[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | RadiusSpatialIndex[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | RngService[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | RuntimeSoak[39m[0m
@@ -201,31 +193,33 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  64% ] [90m[1mupdate_scripts_classes[22m | CharacterVisuals[39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | EffectDirector[39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | FootPlant[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | HdMaterials[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | HdMaterials[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | HeroRigContract[39m[0m
 [  66% ] [90m[1mupdate_scripts_classes[22m | ModelVisual[39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | PlayerCosmetics[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | PlayerCosmetics[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | RingFade[39m[0m
 [  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  68% ] [90m[1mupdate_scripts_classes[22m | DifficultyDirector[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | DifficultyDirector[39m[0m
 [  68% ] [90m[1mupdate_scripts_classes[22m | Scoring[39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | WaveConfig[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | WaveConfig[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | WaveManager[39m[0m
 [  69% ] [90m[1mupdate_scripts_classes[22m | WaveModifiers[39m[0m
-[  70% ] [90m[1mupdate_scripts_classes[22m | WaveMutators[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | WaveMutators[39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | WaveMutatorConfig[39m[0m
 [  70% ] [90m[1mupdate_scripts_classes[22m | WavePlanner[39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | WaveSpawnEntry[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | WaveSpawnEntry[39m[0m
 [  71% ] [90m[1mupdate_scripts_classes[22m | MeleeResolver[39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | Projectile[39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | ProjectilePool[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | Projectile[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | ProjectilePool[39m[0m
 [  72% ] [90m[1mupdate_scripts_classes[22m | RangedResolver[39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | WeaponConfig[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | WeaponConfig[39m[0m
 [  73% ] [90m[1mupdate_scripts_classes[22m | WeaponInstance[39m[0m
 [  73% ] [90m[1mupdate_scripts_classes[22m | WeaponManager[39m[0m
-[  74% ] [90m[1mupdate_scripts_classes[22m | FakeArena[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | FakeArena[39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | FakeClock[39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | FakeSaveStorage[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | FakeSaveStorage[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -238,12 +232,13 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -254,7 +249,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  86% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -262,12 +257,13 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  92% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -278,12 +274,13 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -292,256 +289,275 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
-[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (238 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (256 steps)[39m[0m
 [   0% ] [90m[1m_update_scan_actions[22m | arena_boss.ogg[39m[0m
 [   0% ] [90m[1m_update_scan_actions[22m | arena_calm.ogg[39m[0m
 [   0% ] [90m[1m_update_scan_actions[22m | arena_gameplay.ogg[39m[0m
 [   1% ] [90m[1m_update_scan_actions[22m | arena_menu.ogg[39m[0m
 [   1% ] [90m[1m_update_scan_actions[22m | arena_victory.ogg[39m[0m
-[   2% ] [90m[1m_update_scan_actions[22m | footstep_concrete_000.ogg[39m[0m
+[   1% ] [90m[1m_update_scan_actions[22m | footstep_concrete_000.ogg[39m[0m
 [   2% ] [90m[1m_update_scan_actions[22m | footstep_concrete_001.ogg[39m[0m
 [   2% ] [90m[1m_update_scan_actions[22m | footstep_concrete_002.ogg[39m[0m
 [   3% ] [90m[1m_update_scan_actions[22m | footstep_concrete_003.ogg[39m[0m
 [   3% ] [90m[1m_update_scan_actions[22m | impact_bell_heavy_000.ogg[39m[0m
-[   4% ] [90m[1m_update_scan_actions[22m | impact_generic_light_000.ogg[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | impact_generic_light_000.ogg[39m[0m
 [   4% ] [90m[1m_update_scan_actions[22m | impact_generic_light_001.ogg[39m[0m
-[   5% ] [90m[1m_update_scan_actions[22m | impact_punch_heavy_000.ogg[39m[0m
+[   4% ] [90m[1m_update_scan_actions[22m | impact_punch_heavy_000.ogg[39m[0m
 [   5% ] [90m[1m_update_scan_actions[22m | impact_punch_medium_000.ogg[39m[0m
 [   5% ] [90m[1m_update_scan_actions[22m | impact_punch_medium_001.ogg[39m[0m
-[   6% ] [90m[1m_update_scan_actions[22m | impact_soft_heavy_000.ogg[39m[0m
+[   5% ] [90m[1m_update_scan_actions[22m | impact_soft_heavy_000.ogg[39m[0m
 [   6% ] [90m[1m_update_scan_actions[22m | impact_wood_heavy_000.ogg[39m[0m
-[   7% ] [90m[1m_update_scan_actions[22m | impact_wood_medium_000.ogg[39m[0m
+[   6% ] [90m[1m_update_scan_actions[22m | impact_wood_medium_000.ogg[39m[0m
 [   7% ] [90m[1m_update_scan_actions[22m | back_001.wav[39m[0m
 [   7% ] [90m[1m_update_scan_actions[22m | click_001.wav[39m[0m
-[   8% ] [90m[1m_update_scan_actions[22m | confirmation_001.wav[39m[0m
+[   7% ] [90m[1m_update_scan_actions[22m | confirmation_001.wav[39m[0m
 [   8% ] [90m[1m_update_scan_actions[22m | confirmation_002.wav[39m[0m
-[   9% ] [90m[1m_update_scan_actions[22m | error_006.wav[39m[0m
-[   9% ] [90m[1m_update_scan_actions[22m | open_001.wav[39m[0m
-[  10% ] [90m[1m_update_scan_actions[22m | chop.ogg[39m[0m
-[  10% ] [90m[1m_update_scan_actions[22m | cloth_1.ogg[39m[0m
+[   8% ] [90m[1m_update_scan_actions[22m | error_006.wav[39m[0m
+[   8% ] [90m[1m_update_scan_actions[22m | open_001.wav[39m[0m
+[   9% ] [90m[1m_update_scan_actions[22m | chop.ogg[39m[0m
+[   9% ] [90m[1m_update_scan_actions[22m | cloth_1.ogg[39m[0m
 [  10% ] [90m[1m_update_scan_actions[22m | cloth_2.ogg[39m[0m
-[  11% ] [90m[1m_update_scan_actions[22m | cloth_3.ogg[39m[0m
-[  11% ] [90m[1m_update_scan_actions[22m | draw_knife_1.ogg[39m[0m
-[  12% ] [90m[1m_update_scan_actions[22m | drop_leather.ogg[39m[0m
-[  12% ] [90m[1m_update_scan_actions[22m | handle_coins.ogg[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | cloth_3.ogg[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | draw_knife_1.ogg[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | drop_leather.ogg[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | handle_coins.ogg[39m[0m
 [  12% ] [90m[1m_update_scan_actions[22m | handle_coins_2.ogg[39m[0m
-[  13% ] [90m[1m_update_scan_actions[22m | knife_slice.ogg[39m[0m
-[  13% ] [90m[1m_update_scan_actions[22m | knife_slice_2.ogg[39m[0m
-[  14% ] [90m[1m_update_scan_actions[22m | Knight.glb[39m[0m
-[  14% ] [90m[1m_update_scan_actions[22m | knight_texture.png[39m[0m
-[  15% ] [90m[1m_update_scan_actions[22m | Rat.glb[39m[0m
-[  15% ] [90m[1m_update_scan_actions[22m | Spider.glb[39m[0m
-[  15% ] [90m[1m_update_scan_actions[22m | BlueDemon.gltf[39m[0m
-[  16% ] [90m[1m_update_scan_actions[22m | Demon.gltf[39m[0m
-[  16% ] [90m[1m_update_scan_actions[22m | Skeleton_Mage.glb[39m[0m
-[  17% ] [90m[1m_update_scan_actions[22m | Skeleton_Minion.glb[39m[0m
-[  17% ] [90m[1m_update_scan_actions[22m | Skeleton_Rogue.glb[39m[0m
-[  17% ] [90m[1m_update_scan_actions[22m | skeleton_texture.png[39m[0m
-[  18% ] [90m[1m_update_scan_actions[22m | Skeleton_Warrior.glb[39m[0m
-[  18% ] [90m[1m_update_scan_actions[22m | ArenaWarden.glb[39m[0m
-[  19% ] [90m[1m_update_scan_actions[22m | WardenGladius.glb[39m[0m
-[  19% ] [90m[1m_update_scan_actions[22m | Warden_base_color.png[39m[0m
-[  20% ] [90m[1m_update_scan_actions[22m | Warden_normal.png[39m[0m
-[  20% ] [90m[1m_update_scan_actions[22m | Warden_ORM.png[39m[0m
-[  20% ] [90m[1m_update_scan_actions[22m | circle_01.png[39m[0m
-[  21% ] [90m[1m_update_scan_actions[22m | circle_05.png[39m[0m
-[  21% ] [90m[1m_update_scan_actions[22m | dirt_01.png[39m[0m
-[  22% ] [90m[1m_update_scan_actions[22m | flame_01.png[39m[0m
-[  22% ] [90m[1m_update_scan_actions[22m | flare_01.png[39m[0m
-[  23% ] [90m[1m_update_scan_actions[22m | light_01.png[39m[0m
-[  23% ] [90m[1m_update_scan_actions[22m | magic_01.png[39m[0m
-[  23% ] [90m[1m_update_scan_actions[22m | magic_03.png[39m[0m
-[  24% ] [90m[1m_update_scan_actions[22m | smoke_01.png[39m[0m
-[  24% ] [90m[1m_update_scan_actions[22m | smoke_03.png[39m[0m
-[  25% ] [90m[1m_update_scan_actions[22m | spark_01.png[39m[0m
-[  25% ] [90m[1m_update_scan_actions[22m | spark_04.png[39m[0m
-[  25% ] [90m[1m_update_scan_actions[22m | star_01.png[39m[0m
-[  26% ] [90m[1m_update_scan_actions[22m | star_04.png[39m[0m
-[  26% ] [90m[1m_update_scan_actions[22m | trace_01.png[39m[0m
-[  27% ] [90m[1m_update_scan_actions[22m | banner_blue.glb[39m[0m
-[  27% ] [90m[1m_update_scan_actions[22m | banner_green.glb[39m[0m
-[  28% ] [90m[1m_update_scan_actions[22m | banner_red.glb[39m[0m
-[  28% ] [90m[1m_update_scan_actions[22m | banner_shield_blue.glb[39m[0m
-[  28% ] [90m[1m_update_scan_actions[22m | banner_shield_red.glb[39m[0m
-[  29% ] [90m[1m_update_scan_actions[22m | banner_shield_yellow.glb[39m[0m
-[  29% ] [90m[1m_update_scan_actions[22m | banner_yellow.glb[39m[0m
-[  30% ] [90m[1m_update_scan_actions[22m | barrel_large.glb[39m[0m
-[  30% ] [90m[1m_update_scan_actions[22m | barrel_large_decorated.glb[39m[0m
-[  30% ] [90m[1m_update_scan_actions[22m | barrel_small.glb[39m[0m
-[  31% ] [90m[1m_update_scan_actions[22m | barrel_small_stack.glb[39m[0m
-[  31% ] [90m[1m_update_scan_actions[22m | barrier.glb[39m[0m
-[  32% ] [90m[1m_update_scan_actions[22m | barrier_column.glb[39m[0m
-[  32% ] [90m[1m_update_scan_actions[22m | barrier_corner.glb[39m[0m
-[  33% ] [90m[1m_update_scan_actions[22m | box_large.glb[39m[0m
-[  33% ] [90m[1m_update_scan_actions[22m | box_small.glb[39m[0m
-[  33% ] [90m[1m_update_scan_actions[22m | box_small_decorated.glb[39m[0m
-[  34% ] [90m[1m_update_scan_actions[22m | box_stacked.glb[39m[0m
-[  34% ] [90m[1m_update_scan_actions[22m | candle_lit.glb[39m[0m
-[  35% ] [90m[1m_update_scan_actions[22m | candle_thin_lit.glb[39m[0m
-[  35% ] [90m[1m_update_scan_actions[22m | candle_triple.glb[39m[0m
-[  35% ] [90m[1m_update_scan_actions[22m | column.glb[39m[0m
-[  36% ] [90m[1m_update_scan_actions[22m | crates_stacked.glb[39m[0m
-[  36% ] [90m[1m_update_scan_actions[22m | floor_dirt_large.glb[39m[0m
-[  37% ] [90m[1m_update_scan_actions[22m | floor_tile_big_spikes.glb[39m[0m
-[  37% ] [90m[1m_update_scan_actions[22m | floor_tile_grate.glb[39m[0m
-[  38% ] [90m[1m_update_scan_actions[22m | floor_tile_grate_open.glb[39m[0m
-[  38% ] [90m[1m_update_scan_actions[22m | floor_tile_large.glb[39m[0m
-[  38% ] [90m[1m_update_scan_actions[22m | floor_tile_small.glb[39m[0m
-[  39% ] [90m[1m_update_scan_actions[22m | floor_tile_small_broken_A.glb[39m[0m
-[  39% ] [90m[1m_update_scan_actions[22m | pillar.glb[39m[0m
-[  40% ] [90m[1m_update_scan_actions[22m | pillar_decorated.glb[39m[0m
-[  40% ] [90m[1m_update_scan_actions[22m | rubble_half.glb[39m[0m
-[  41% ] [90m[1m_update_scan_actions[22m | rubble_large.glb[39m[0m
-[  41% ] [90m[1m_update_scan_actions[22m | stairs.glb[39m[0m
-[  41% ] [90m[1m_update_scan_actions[22m | sword_shield.glb[39m[0m
-[  42% ] [90m[1m_update_scan_actions[22m | sword_shield_gold.glb[39m[0m
-[  42% ] [90m[1m_update_scan_actions[22m | torch_lit.glb[39m[0m
-[  43% ] [90m[1m_update_scan_actions[22m | torch_mounted.glb[39m[0m
-[  43% ] [90m[1m_update_scan_actions[22m | trunk_medium_A.glb[39m[0m
-[  43% ] [90m[1m_update_scan_actions[22m | wall.glb[39m[0m
-[  44% ] [90m[1m_update_scan_actions[22m | wall_arched.glb[39m[0m
-[  44% ] [90m[1m_update_scan_actions[22m | wall_broken.glb[39m[0m
-[  45% ] [90m[1m_update_scan_actions[22m | wall_corner.glb[39m[0m
-[  45% ] [90m[1m_update_scan_actions[22m | wall_cracked.glb[39m[0m
-[  46% ] [90m[1m_update_scan_actions[22m | wall_doorway.glb[39m[0m
-[  46% ] [90m[1m_update_scan_actions[22m | wall_endcap.glb[39m[0m
-[  46% ] [90m[1m_update_scan_actions[22m | wall_gated.glb[39m[0m
-[  47% ] [90m[1m_update_scan_actions[22m | wall_half.glb[39m[0m
-[  47% ] [90m[1m_update_scan_actions[22m | wall_pillar.glb[39m[0m
-[  48% ] [90m[1m_update_scan_actions[22m | Rajdhani-Bold.ttf[39m[0m
-[  48% ] [90m[1m_update_scan_actions[22m | Rajdhani-Regular.ttf[39m[0m
-[  48% ] [90m[1m_update_scan_actions[22m | bottle_A_labeled_green.glb[39m[0m
-[  49% ] [90m[1m_update_scan_actions[22m | chest.glb[39m[0m
-[  49% ] [90m[1m_update_scan_actions[22m | chest_gold.glb[39m[0m
-[  50% ] [90m[1m_update_scan_actions[22m | coin.glb[39m[0m
-[  50% ] [90m[1m_update_scan_actions[22m | coin_stack_small.glb[39m[0m
-[  51% ] [90m[1m_update_scan_actions[22m | key.glb[39m[0m
-[  51% ] [90m[1m_update_scan_actions[22m | Chest_Closed.glb[39m[0m
-[  51% ] [90m[1m_update_scan_actions[22m | Chest_Ingots.glb[39m[0m
-[  52% ] [90m[1m_update_scan_actions[22m | Coin_Star.glb[39m[0m
-[  52% ] [90m[1m_update_scan_actions[22m | Crystal1.glb[39m[0m
-[  53% ] [90m[1m_update_scan_actions[22m | Crystal2.glb[39m[0m
-[  53% ] [90m[1m_update_scan_actions[22m | Heart.glb[39m[0m
-[  53% ] [90m[1m_update_scan_actions[22m | Potion1_Filled.glb[39m[0m
-[  54% ] [90m[1m_update_scan_actions[22m | Potion3_Filled.glb[39m[0m
-[  54% ] [90m[1m_update_scan_actions[22m | brick_albedo.jpg[39m[0m
-[  55% ] [90m[1m_update_scan_actions[22m | brick_ao.jpg[39m[0m
-[  55% ] [90m[1m_update_scan_actions[22m | brick_metal.jpg[39m[0m
-[  56% ] [90m[1m_update_scan_actions[22m | brick_normal.jpg[39m[0m
-[  56% ] [90m[1m_update_scan_actions[22m | aluminium_albedo.png[39m[0m
-[  56% ] [90m[1m_update_scan_actions[22m | aluminium_normal.png[39m[0m
-[  57% ] [90m[1m_update_scan_actions[22m | moonless_golf_1k.hdr[39m[0m
-[  57% ] [90m[1m_update_scan_actions[22m | spruit_sunrise_1k.hdr[39m[0m
-[  58% ] [90m[1m_update_scan_actions[22m | venice_sunset_1k.hdr[39m[0m
-[  58% ] [90m[1m_update_scan_actions[22m | rock_albedo.png[39m[0m
-[  58% ] [90m[1m_update_scan_actions[22m | rock_ao.png[39m[0m
-[  59% ] [90m[1m_update_scan_actions[22m | rock_metal.png[39m[0m
-[  59% ] [90m[1m_update_scan_actions[22m | rock_normal.png[39m[0m
-[  60% ] [90m[1m_update_scan_actions[22m | marble_albedo.png[39m[0m
-[  60% ] [90m[1m_update_scan_actions[22m | stone_albedo.png[39m[0m
-[  61% ] [90m[1m_update_scan_actions[22m | stone_ao.png[39m[0m
-[  61% ] [90m[1m_update_scan_actions[22m | stone_normal.png[39m[0m
-[  61% ] [90m[1m_update_scan_actions[22m | wood_albedo.png[39m[0m
-[  62% ] [90m[1m_update_scan_actions[22m | audioOff.png[39m[0m
-[  62% ] [90m[1m_update_scan_actions[22m | audioOn.png[39m[0m
-[  63% ] [90m[1m_update_scan_actions[22m | checkmark.png[39m[0m
-[  63% ] [90m[1m_update_scan_actions[22m | contrast.png[39m[0m
-[  64% ] [90m[1m_update_scan_actions[22m | cross.png[39m[0m
-[  64% ] [90m[1m_update_scan_actions[22m | gamepad.png[39m[0m
-[  64% ] [90m[1m_update_scan_actions[22m | gear.png[39m[0m
-[  65% ] [90m[1m_update_scan_actions[22m | home.png[39m[0m
-[  65% ] [90m[1m_update_scan_actions[22m | joystick.png[39m[0m
-[  66% ] [90m[1m_update_scan_actions[22m | musicOff.png[39m[0m
-[  66% ] [90m[1m_update_scan_actions[22m | musicOn.png[39m[0m
-[  66% ] [90m[1m_update_scan_actions[22m | pause.png[39m[0m
-[  67% ] [90m[1m_update_scan_actions[22m | phone.png[39m[0m
-[  67% ] [90m[1m_update_scan_actions[22m | play.png[39m[0m
-[  68% ] [90m[1m_update_scan_actions[22m | return.png[39m[0m
-[  68% ] [90m[1m_update_scan_actions[22m | star.png[39m[0m
-[  69% ] [90m[1m_update_scan_actions[22m | target.png[39m[0m
-[  69% ] [90m[1m_update_scan_actions[22m | trophy.png[39m[0m
-[  69% ] [90m[1m_update_scan_actions[22m | blue_button00.png[39m[0m
-[  70% ] [90m[1m_update_scan_actions[22m | blue_button01.png[39m[0m
-[  70% ] [90m[1m_update_scan_actions[22m | blue_button02.png[39m[0m
-[  71% ] [90m[1m_update_scan_actions[22m | blue_button03.png[39m[0m
-[  71% ] [90m[1m_update_scan_actions[22m | blue_checkmark.png[39m[0m
-[  71% ] [90m[1m_update_scan_actions[22m | blue_circle.png[39m[0m
-[  72% ] [90m[1m_update_scan_actions[22m | blue_panel.png[39m[0m
-[  72% ] [90m[1m_update_scan_actions[22m | blue_sliderRight.png[39m[0m
-[  73% ] [90m[1m_update_scan_actions[22m | grey_box.png[39m[0m
-[  73% ] [90m[1m_update_scan_actions[22m | grey_button00.png[39m[0m
-[  74% ] [90m[1m_update_scan_actions[22m | grey_button01.png[39m[0m
-[  74% ] [90m[1m_update_scan_actions[22m | grey_panel.png[39m[0m
-[  74% ] [90m[1m_update_scan_actions[22m | grey_sliderEnd.png[39m[0m
-[  75% ] [90m[1m_update_scan_actions[22m | grey_sliderHorizontal.png[39m[0m
-[  75% ] [90m[1m_update_scan_actions[22m | yellow_button00.png[39m[0m
-[  76% ] [90m[1m_update_scan_actions[22m | yellow_button01.png[39m[0m
-[  76% ] [90m[1m_update_scan_actions[22m | yellow_panel.png[39m[0m
-[  76% ] [90m[1m_update_scan_actions[22m | arrow_horizontal.png[39m[0m
-[  77% ] [90m[1m_update_scan_actions[22m | arrow_right.png[39m[0m
-[  77% ] [90m[1m_update_scan_actions[22m | award.png[39m[0m
-[  78% ] [90m[1m_update_scan_actions[22m | bow.png[39m[0m
-[  78% ] [90m[1m_update_scan_actions[22m | crown_a.png[39m[0m
-[  79% ] [90m[1m_update_scan_actions[22m | exploding.png[39m[0m
-[  79% ] [90m[1m_update_scan_actions[22m | fire.png[39m[0m
-[  79% ] [90m[1m_update_scan_actions[22m | flask_full.png[39m[0m
-[  80% ] [90m[1m_update_scan_actions[22m | hand.png[39m[0m
-[  80% ] [90m[1m_update_scan_actions[22m | hourglass.png[39m[0m
-[  81% ] [90m[1m_update_scan_actions[22m | pawn_skip.png[39m[0m
-[  81% ] [90m[1m_update_scan_actions[22m | pawn_up.png[39m[0m
-[  82% ] [90m[1m_update_scan_actions[22m | pouch.png[39m[0m
-[  82% ] [90m[1m_update_scan_actions[22m | shield.png[39m[0m
-[  82% ] [90m[1m_update_scan_actions[22m | skull.png[39m[0m
-[  83% ] [90m[1m_update_scan_actions[22m | suit_hearts.png[39m[0m
-[  83% ] [90m[1m_update_scan_actions[22m | suit_hearts_broken.png[39m[0m
-[  84% ] [90m[1m_update_scan_actions[22m | sword.png[39m[0m
-[  84% ] [90m[1m_update_scan_actions[22m | timer_0.png[39m[0m
-[  84% ] [90m[1m_update_scan_actions[22m | tokens.png[39m[0m
-[  85% ] [90m[1m_update_scan_actions[22m | axe_1handed.gltf[39m[0m
-[  85% ] [90m[1m_update_scan_actions[22m | axe_2handed.gltf[39m[0m
-[  86% ] [90m[1m_update_scan_actions[22m | barbarian_texture.png[39m[0m
-[  86% ] [90m[1m_update_scan_actions[22m | dagger.gltf[39m[0m
-[  87% ] [90m[1m_update_scan_actions[22m | knight_texture.png[39m[0m
-[  87% ] [90m[1m_update_scan_actions[22m | rogue_texture.png[39m[0m
-[  87% ] [90m[1m_update_scan_actions[22m | shield_badge.gltf[39m[0m
-[  88% ] [90m[1m_update_scan_actions[22m | shield_round.gltf[39m[0m
-[  88% ] [90m[1m_update_scan_actions[22m | sword_1handed.gltf[39m[0m
-[  89% ] [90m[1m_update_scan_actions[22m | sword_2handed.gltf[39m[0m
-[  89% ] [90m[1m_update_scan_actions[22m | Arrow.glb[39m[0m
-[  89% ] [90m[1m_update_scan_actions[22m | Axe_Double.glb[39m[0m
-[  90% ] [90m[1m_update_scan_actions[22m | Bow_Golden.glb[39m[0m
-[  90% ] [90m[1m_update_scan_actions[22m | Dagger.glb[39m[0m
-[  91% ] [90m[1m_update_scan_actions[22m | Hammer_Double.glb[39m[0m
-[  91% ] [90m[1m_update_scan_actions[22m | Spear.glb[39m[0m
-[  92% ] [90m[1m_update_scan_actions[22m | Sword_Golden.glb[39m[0m
-[  92% ] [90m[1m_update_scan_actions[22m | Skeleton_Arrow.gltf[39m[0m
-[  92% ] [90m[1m_update_scan_actions[22m | Skeleton_Axe.gltf[39m[0m
-[  93% ] [90m[1m_update_scan_actions[22m | Skeleton_Blade.gltf[39m[0m
-[  93% ] [90m[1m_update_scan_actions[22m | Skeleton_Crossbow.gltf[39m[0m
-[  94% ] [90m[1m_update_scan_actions[22m | Skeleton_Shield_Large_A.gltf[39m[0m
-[  94% ] [90m[1m_update_scan_actions[22m | Skeleton_Shield_Small_A.gltf[39m[0m
-[  94% ] [90m[1m_update_scan_actions[22m | Skeleton_Staff.gltf[39m[0m
-[  95% ] [90m[1m_update_scan_actions[22m | skeleton_texture.png[39m[0m
-[  95% ] [90m[1m_update_scan_actions[22m | enemy_dash.wav[39m[0m
-[  96% ] [90m[1m_update_scan_actions[22m | enemy_explosion.wav[39m[0m
-[  96% ] [90m[1m_update_scan_actions[22m | enemy_windup.wav[39m[0m
+[  12% ] [90m[1m_update_scan_actions[22m | knife_slice.ogg[39m[0m
+[  12% ] [90m[1m_update_scan_actions[22m | knife_slice_2.ogg[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | Knight.glb[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | knight_texture.png[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | Rat.glb[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | Spider.glb[39m[0m
+[  14% ] [90m[1m_update_scan_actions[22m | BlueDemon.gltf[39m[0m
+[  15% ] [90m[1m_update_scan_actions[22m | Demon.gltf[39m[0m
+[  15% ] [90m[1m_update_scan_actions[22m | Skeleton_Mage.glb[39m[0m
+[  15% ] [90m[1m_update_scan_actions[22m | Skeleton_Minion.glb[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | Skeleton_Rogue.glb[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | skeleton_texture.png[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | Skeleton_Warrior.glb[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | ArenaWarden.glb[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | WardenGladius.glb[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | Warden_base_color.png[39m[0m
+[  18% ] [90m[1m_update_scan_actions[22m | Warden_normal.png[39m[0m
+[  19% ] [90m[1m_update_scan_actions[22m | Warden_ORM.png[39m[0m
+[  19% ] [90m[1m_update_scan_actions[22m | circle_01.png[39m[0m
+[  19% ] [90m[1m_update_scan_actions[22m | circle_05.png[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | dirt_01.png[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | flame_01.png[39m[0m
+[  21% ] [90m[1m_update_scan_actions[22m | flare_01.png[39m[0m
+[  21% ] [90m[1m_update_scan_actions[22m | light_01.png[39m[0m
+[  21% ] [90m[1m_update_scan_actions[22m | magic_01.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | magic_03.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | smoke_01.png[39m[0m
+[  22% ] [90m[1m_update_scan_actions[22m | smoke_03.png[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | spark_01.png[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | spark_04.png[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | star_01.png[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | star_04.png[39m[0m
+[  24% ] [90m[1m_update_scan_actions[22m | trace_01.png[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | banner_blue.glb[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | banner_green.glb[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | banner_red.glb[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | banner_shield_blue.glb[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | banner_shield_red.glb[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | banner_shield_yellow.glb[39m[0m
+[  27% ] [90m[1m_update_scan_actions[22m | banner_yellow.glb[39m[0m
+[  28% ] [90m[1m_update_scan_actions[22m | barrel_large.glb[39m[0m
+[  28% ] [90m[1m_update_scan_actions[22m | barrel_large_decorated.glb[39m[0m
+[  28% ] [90m[1m_update_scan_actions[22m | barrel_small.glb[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | barrel_small_stack.glb[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | barrier.glb[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | barrier_column.glb[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | barrier_corner.glb[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | box_large.glb[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | box_small.glb[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | box_small_decorated.glb[39m[0m
+[  31% ] [90m[1m_update_scan_actions[22m | box_stacked.glb[39m[0m
+[  32% ] [90m[1m_update_scan_actions[22m | candle_lit.glb[39m[0m
+[  32% ] [90m[1m_update_scan_actions[22m | candle_thin_lit.glb[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | candle_triple.glb[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | column.glb[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | crates_stacked.glb[39m[0m
+[  34% ] [90m[1m_update_scan_actions[22m | floor_dirt_large.glb[39m[0m
+[  34% ] [90m[1m_update_scan_actions[22m | floor_tile_big_spikes.glb[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | floor_tile_grate.glb[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | floor_tile_grate_open.glb[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | floor_tile_large.glb[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | floor_tile_small.glb[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | floor_tile_small_broken_A.glb[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | pillar.glb[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | pillar_decorated.glb[39m[0m
+[  37% ] [90m[1m_update_scan_actions[22m | rubble_half.glb[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | rubble_large.glb[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | stairs.glb[39m[0m
+[  38% ] [90m[1m_update_scan_actions[22m | sword_shield.glb[39m[0m
+[  39% ] [90m[1m_update_scan_actions[22m | sword_shield_gold.glb[39m[0m
+[  39% ] [90m[1m_update_scan_actions[22m | torch_lit.glb[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | torch_mounted.glb[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | trunk_medium_A.glb[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | wall.glb[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | wall_arched.glb[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | wall_broken.glb[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | wall_corner.glb[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | wall_cracked.glb[39m[0m
+[  42% ] [90m[1m_update_scan_actions[22m | wall_doorway.glb[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | wall_endcap.glb[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | wall_gated.glb[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | wall_half.glb[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | wall_pillar.glb[39m[0m
+[  44% ] [90m[1m_update_scan_actions[22m | Rajdhani-Bold.ttf[39m[0m
+[  45% ] [90m[1m_update_scan_actions[22m | Rajdhani-Regular.ttf[39m[0m
+[  45% ] [90m[1m_update_scan_actions[22m | bottle_A_labeled_green.glb[39m[0m
+[  45% ] [90m[1m_update_scan_actions[22m | chest.glb[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | chest_gold.glb[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | coin.glb[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | coin_stack_small.glb[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | key.glb[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | Chest_Closed.glb[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | Chest_Ingots.glb[39m[0m
+[  48% ] [90m[1m_update_scan_actions[22m | Coin_Star.glb[39m[0m
+[  49% ] [90m[1m_update_scan_actions[22m | Crystal1.glb[39m[0m
+[  49% ] [90m[1m_update_scan_actions[22m | Crystal2.glb[39m[0m
+[  49% ] [90m[1m_update_scan_actions[22m | Heart.glb[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | Potion1_Filled.glb[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | Potion3_Filled.glb[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | brick_albedo.jpg[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | brick_ao.jpg[39m[0m
+[  51% ] [90m[1m_update_scan_actions[22m | brick_metal.jpg[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | brick_normal.jpg[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | aluminium_albedo.png[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | aluminium_normal.png[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | moonless_golf_1k.hdr[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | spruit_sunrise_1k.hdr[39m[0m
+[  54% ] [90m[1m_update_scan_actions[22m | venice_sunset_1k.hdr[39m[0m
+[  54% ] [90m[1m_update_scan_actions[22m | rock_albedo.png[39m[0m
+[  54% ] [90m[1m_update_scan_actions[22m | rock_ao.png[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | rock_metal.png[39m[0m
+[  55% ] [90m[1m_update_scan_actions[22m | rock_normal.png[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | marble_albedo.png[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | stone_albedo.png[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | stone_ao.png[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | stone_normal.png[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | wood_albedo.png[39m[0m
+[  57% ] [90m[1m_update_scan_actions[22m | audioOff.png[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | audioOn.png[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | checkmark.png[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | contrast.png[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | cross.png[39m[0m
+[  59% ] [90m[1m_update_scan_actions[22m | gamepad.png[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | gear.png[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | home.png[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | joystick.png[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | musicOff.png[39m[0m
+[  61% ] [90m[1m_update_scan_actions[22m | musicOn.png[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | pause.png[39m[0m
+[  62% ] [90m[1m_update_scan_actions[22m | phone.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | play.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | return.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | star.png[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | target.png[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | trophy.png[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | blue_button00.png[39m[0m
+[  65% ] [90m[1m_update_scan_actions[22m | blue_button01.png[39m[0m
+[  65% ] [90m[1m_update_scan_actions[22m | blue_button02.png[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | blue_button03.png[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | blue_checkmark.png[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | blue_circle.png[39m[0m
+[  67% ] [90m[1m_update_scan_actions[22m | blue_panel.png[39m[0m
+[  67% ] [90m[1m_update_scan_actions[22m | blue_sliderRight.png[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | grey_box.png[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | grey_button00.png[39m[0m
+[  68% ] [90m[1m_update_scan_actions[22m | grey_button01.png[39m[0m
+[  69% ] [90m[1m_update_scan_actions[22m | grey_panel.png[39m[0m
+[  69% ] [90m[1m_update_scan_actions[22m | grey_sliderEnd.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | grey_sliderHorizontal.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | yellow_button00.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | yellow_button01.png[39m[0m
+[  71% ] [90m[1m_update_scan_actions[22m | yellow_panel.png[39m[0m
+[  71% ] [90m[1m_update_scan_actions[22m | arrow_horizontal.png[39m[0m
+[  71% ] [90m[1m_update_scan_actions[22m | arrow_right.png[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | award.png[39m[0m
+[  72% ] [90m[1m_update_scan_actions[22m | bow.png[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | crown_a.png[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | exploding.png[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | fire.png[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | flask_full.png[39m[0m
+[  74% ] [90m[1m_update_scan_actions[22m | hand.png[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | hourglass.png[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | pawn_skip.png[39m[0m
+[  75% ] [90m[1m_update_scan_actions[22m | pawn_up.png[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | pouch.png[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | shield.png[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | skull.png[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | suit_hearts.png[39m[0m
+[  77% ] [90m[1m_update_scan_actions[22m | suit_hearts_broken.png[39m[0m
+[  78% ] [90m[1m_update_scan_actions[22m | sword.png[39m[0m
+[  78% ] [90m[1m_update_scan_actions[22m | timer_0.png[39m[0m
+[  78% ] [90m[1m_update_scan_actions[22m | tokens.png[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | axe_1handed.gltf[39m[0m
+[  79% ] [90m[1m_update_scan_actions[22m | axe_2handed.gltf[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | barbarian_texture.png[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | dagger.gltf[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | knight_texture.png[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | rogue_texture.png[39m[0m
+[  81% ] [90m[1m_update_scan_actions[22m | shield_badge.gltf[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | shield_round.gltf[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | sword_1handed.gltf[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | sword_2handed.gltf[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | Arrow.glb[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | Axe_Double.glb[39m[0m
+[  84% ] [90m[1m_update_scan_actions[22m | Bow_Golden.glb[39m[0m
+[  84% ] [90m[1m_update_scan_actions[22m | Dagger.glb[39m[0m
+[  84% ] [90m[1m_update_scan_actions[22m | Hammer_Double.glb[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | Spear.glb[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | Sword_Golden.glb[39m[0m
+[  85% ] [90m[1m_update_scan_actions[22m | Skeleton_Arrow.gltf[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | Skeleton_Axe.gltf[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | Skeleton_Blade.gltf[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | Skeleton_Crossbow.gltf[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | Skeleton_Shield_Large_A.gltf[39m[0m
+[  87% ] [90m[1m_update_scan_actions[22m | Skeleton_Shield_Small_A.gltf[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | Skeleton_Staff.gltf[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | skeleton_texture.png[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | enemy_dash.wav[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | enemy_explosion.wav[39m[0m
+[  89% ] [90m[1m_update_scan_actions[22m | enemy_windup.wav[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | Metal_normal.png[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | WetConcrete_baseColor.png[39m[0m
+[  91% ] [90m[1m_update_scan_actions[22m | WetConcrete_metallicRoughness.png[39m[0m
+[  91% ] [90m[1m_update_scan_actions[22m | WetConcrete_normal.png[39m[0m
+[  91% ] [90m[1m_update_scan_actions[22m | scene.gltf[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | btn_dark.png[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | btn_gold.png[39m[0m
+[  92% ] [90m[1m_update_scan_actions[22m | hud_frame.png[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | icon_gamepad.png[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | icon_gear.png[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | icon_home.png[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | icon_pause.png[39m[0m
+[  94% ] [90m[1m_update_scan_actions[22m | icon_play.png[39m[0m
+[  95% ] [90m[1m_update_scan_actions[22m | icon_return.png[39m[0m
+[  95% ] [90m[1m_update_scan_actions[22m | icon_star.png[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | icon_trophy.png[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | menu_backdrop.jpg[39m[0m
+[  96% ] [90m[1m_update_scan_actions[22m | panel.png[39m[0m
 [  97% ] [90m[1m_update_scan_actions[22m | ui_gameplay_hud.png[39m[0m
 [  97% ] [90m[1m_update_scan_actions[22m | ui_main_menu.png[39m[0m
-[  97% ] [90m[1m_update_scan_actions[22m | ui_pause.png[39m[0m
+[  98% ] [90m[1m_update_scan_actions[22m | ui_pause.png[39m[0m
 [  98% ] [90m[1m_update_scan_actions[22m | ui_run_summary.png[39m[0m
 [  98% ] [90m[1m_update_scan_actions[22m | ui_upgrade.png[39m[0m
 [  99% ] [90m[1m_update_scan_actions[22m | icon.svg[39m[0m
 [92m[ DONE ][39m [1m_update_scan_actions[22m
 [0m
-[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (238 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (256 steps)[39m[0m
 [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   0% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   1% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   1% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   1% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   2% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   2% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[   2% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   3% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   3% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   3% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   4% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -554,6 +570,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [   7% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   7% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   7% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[   8% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   8% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   8% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [   9% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -570,6 +587,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  13% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  14% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  15% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  15% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  15% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -582,21 +600,23 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  18% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  19% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  19% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  19% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  20% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  21% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  21% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  21% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  23% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  22% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  23% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  23% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  24% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  24% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  24% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  25% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  26% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  26% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  26% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  27% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -606,9 +626,10 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  28% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  29% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  30% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  30% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  30% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  31% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  31% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  31% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  32% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -623,6 +644,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  35% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  36% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  36% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  36% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  37% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  38% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -632,9 +654,10 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  39% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  40% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  41% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  41% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  41% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  42% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  42% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  42% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  43% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -644,26 +667,28 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  44% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  46% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  45% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  46% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  46% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  47% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  47% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  48% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  47% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  48% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  48% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  49% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  49% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  49% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  51% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  50% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  51% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  51% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  52% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  52% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  52% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  53% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  53% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  53% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  54% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  54% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  54% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  55% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -673,9 +698,10 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  56% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  57% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  57% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  57% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  58% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  58% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  58% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  59% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  59% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  59% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  60% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -685,6 +711,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  61% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  62% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  63% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  63% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  63% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  64% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -699,9 +726,10 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  67% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  68% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  68% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  68% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  69% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  69% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  69% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  70% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  71% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -711,21 +739,23 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  72% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  73% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  73% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  74% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  73% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  74% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  74% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  76% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  75% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  76% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  76% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  77% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  78% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  78% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  78% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  79% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  79% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  79% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  80% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  80% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  80% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  81% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -738,6 +768,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  84% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  84% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  84% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  85% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  86% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -754,6 +785,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  90% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  91% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  91% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  91% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  92% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  92% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  92% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -766,9 +798,10 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [  95% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  96% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  96% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  96% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  97% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  97% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
-[  97% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
+[  98% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  98% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  98% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
 [  99% ] [90m[1mreimport[22m | Preparing files to reimport...[39m[0m
@@ -778,541 +811,544 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 [   0% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
 [   1% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
 [   1% ] [90m[1mreimport[22m | knife_slice_2.ogg[39m[0m
-[   2% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
+[   1% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
 [   2% ] [90m[1mreimport[22m | handle_coins_2.ogg[39m[0m
 [   2% ] [90m[1mreimport[22m | handle_coins.ogg[39m[0m
 [   3% ] [90m[1mreimport[22m | drop_leather.ogg[39m[0m
 [   3% ] [90m[1mreimport[22m | draw_knife_1.ogg[39m[0m
-[   4% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
+[   3% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
 [   4% ] [90m[1mreimport[22m | cloth_2.ogg[39m[0m
-[   5% ] [90m[1mreimport[22m | cloth_1.ogg[39m[0m
+[   4% ] [90m[1mreimport[22m | cloth_1.ogg[39m[0m
 [   5% ] [90m[1mreimport[22m | chop.ogg[39m[0m
 [   5% ] [90m[1mreimport[22m | impact_wood_medium_000.ogg[39m[0m
-[   6% ] [90m[1mreimport[22m | impact_wood_heavy_000.ogg[39m[0m
+[   5% ] [90m[1mreimport[22m | impact_wood_heavy_000.ogg[39m[0m
 [   6% ] [90m[1mreimport[22m | impact_soft_heavy_000.ogg[39m[0m
+[   6% ] [90m[1mreimport[22m | arena_calm.ogg[39m[0m
 [   7% ] [90m[1mreimport[22m | arena_boss.ogg[39m[0m
-[   7% ] [90m[1mreimport[22m | arena_calm.ogg[39m[0m
 [   7% ] [90m[1mreimport[22m | arena_gameplay.ogg[39m[0m
-[   8% ] [90m[1mreimport[22m | arena_menu.ogg[39m[0m
+[   7% ] [90m[1mreimport[22m | arena_menu.ogg[39m[0m
 [   8% ] [90m[1mreimport[22m | arena_victory.ogg[39m[0m
-[   9% ] [90m[1mreimport[22m | footstep_concrete_000.ogg[39m[0m
-[   9% ] [90m[1mreimport[22m | footstep_concrete_001.ogg[39m[0m
-[  10% ] [90m[1mreimport[22m | footstep_concrete_002.ogg[39m[0m
-[  10% ] [90m[1mreimport[22m | footstep_concrete_003.ogg[39m[0m
+[   8% ] [90m[1mreimport[22m | footstep_concrete_000.ogg[39m[0m
+[   8% ] [90m[1mreimport[22m | footstep_concrete_001.ogg[39m[0m
+[   9% ] [90m[1mreimport[22m | footstep_concrete_002.ogg[39m[0m
+[   9% ] [90m[1mreimport[22m | footstep_concrete_003.ogg[39m[0m
 [  10% ] [90m[1mreimport[22m | impact_bell_heavy_000.ogg[39m[0m
-[  11% ] [90m[1mreimport[22m | impact_punch_medium_001.ogg[39m[0m
-[  11% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
-[  12% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
-[  12% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
+[  10% ] [90m[1mreimport[22m | impact_generic_light_000.ogg[39m[0m
+[  10% ] [90m[1mreimport[22m | impact_generic_light_001.ogg[39m[0m
+[  11% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
+[  11% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
 [  12% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
-[  13% ] [90m[1mreimport[22m | knife_slice_2.ogg[39m[0m
-[  13% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
-[  14% ] [90m[1mreimport[22m | handle_coins_2.ogg[39m[0m
-[  14% ] [90m[1mreimport[22m | handle_coins.ogg[39m[0m
-[  15% ] [90m[1mreimport[22m | drop_leather.ogg[39m[0m
-[  15% ] [90m[1mreimport[22m | draw_knife_1.ogg[39m[0m
-[  15% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
-[  16% ] [90m[1mreimport[22m | cloth_2.ogg[39m[0m
-[  16% ] [90m[1mreimport[22m | cloth_1.ogg[39m[0m
-[  17% ] [90m[1mreimport[22m | chop.ogg[39m[0m
-[  17% ] [90m[1mreimport[22m | impact_wood_medium_000.ogg[39m[0m
-[  17% ] [90m[1mreimport[22m | impact_wood_heavy_000.ogg[39m[0m
-[  18% ] [90m[1mreimport[22m | impact_soft_heavy_000.ogg[39m[0m
-[  18% ] [90m[1mreimport[22m | arena_boss.ogg[39m[0m
-[  19% ] [90m[1mreimport[22m | arena_calm.ogg[39m[0m
-[  19% ] [90m[1mreimport[22m | arena_gameplay.ogg[39m[0m
-[  20% ] [90m[1mreimport[22m | arena_menu.ogg[39m[0m
-[  20% ] [90m[1mreimport[22m | arena_victory.ogg[39m[0m
-[  20% ] [90m[1mreimport[22m | footstep_concrete_000.ogg[39m[0m
-[  21% ] [90m[1mreimport[22m | footstep_concrete_001.ogg[39m[0m
-[  21% ] [90m[1mreimport[22m | footstep_concrete_002.ogg[39m[0m
-[  22% ] [90m[1mreimport[22m | footstep_concrete_003.ogg[39m[0m
-[  22% ] [90m[1mreimport[22m | impact_bell_heavy_000.ogg[39m[0m
+[  12% ] [90m[1mreimport[22m | knife_slice_2.ogg[39m[0m
+[  12% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
+[  13% ] [90m[1mreimport[22m | handle_coins_2.ogg[39m[0m
+[  13% ] [90m[1mreimport[22m | handle_coins.ogg[39m[0m
+[  14% ] [90m[1mreimport[22m | drop_leather.ogg[39m[0m
+[  14% ] [90m[1mreimport[22m | draw_knife_1.ogg[39m[0m
+[  14% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
+[  15% ] [90m[1mreimport[22m | cloth_2.ogg[39m[0m
+[  15% ] [90m[1mreimport[22m | cloth_1.ogg[39m[0m
+[  15% ] [90m[1mreimport[22m | chop.ogg[39m[0m
+[  16% ] [90m[1mreimport[22m | impact_wood_medium_000.ogg[39m[0m
+[  16% ] [90m[1mreimport[22m | impact_wood_heavy_000.ogg[39m[0m
+[  17% ] [90m[1mreimport[22m | impact_soft_heavy_000.ogg[39m[0m
+[  17% ] [90m[1mreimport[22m | arena_calm.ogg[39m[0m
+[  17% ] [90m[1mreimport[22m | arena_boss.ogg[39m[0m
+[  18% ] [90m[1mreimport[22m | arena_gameplay.ogg[39m[0m
+[  18% ] [90m[1mreimport[22m | arena_menu.ogg[39m[0m
+[  19% ] [90m[1mreimport[22m | arena_victory.ogg[39m[0m
+[  19% ] [90m[1mreimport[22m | footstep_concrete_000.ogg[39m[0m
+[  19% ] [90m[1mreimport[22m | footstep_concrete_001.ogg[39m[0m
+[  20% ] [90m[1mreimport[22m | footstep_concrete_002.ogg[39m[0m
+[  20% ] [90m[1mreimport[22m | footstep_concrete_003.ogg[39m[0m
+[  21% ] [90m[1mreimport[22m | impact_bell_heavy_000.ogg[39m[0m
+[  21% ] [90m[1mreimport[22m | impact_generic_light_000.ogg[39m[0m
+[  21% ] [90m[1mreimport[22m | impact_generic_light_001.ogg[39m[0m
+[  22% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
+[  22% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
-[  23% ] [90m[1mreimport[22m | impact_punch_medium_001.ogg[39m[0m
+[  22% ] [90m[1mreimport[22m | impact_punch_medium_001.ogg[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
-[  23% ] [90m[1mreimport[22m | impact_punch_medium_000.ogg[39m[0m
-[  23% ] [90m[1mreimport[22m | impact_punch_heavy_000.ogg[39m[0m
+[  23% ] [90m[1mreimport[22m | phone.png[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
-[  24% ] [90m[1mreimport[22m | impact_generic_light_000.ogg[39m[0m
-[  24% ] [90m[1mreimport[22m | impact_generic_light_001.ogg[39m[0m
-[  25% ] [90m[1mreimport[22m | checkmark.png[39m[0m
-[  25% ] [90m[1mreimport[22m | contrast.png[39m[0m
-[  25% ] [90m[1mreimport[22m | cross.png[39m[0m
-[  26% ] [90m[1mreimport[22m | gamepad.png[39m[0m
-[  26% ] [90m[1mreimport[22m | gear.png[39m[0m
-[  27% ] [90m[1mreimport[22m | home.png[39m[0m
-[  27% ] [90m[1mreimport[22m | joystick.png[39m[0m
-[  28% ] [90m[1mreimport[22m | musicOff.png[39m[0m
-[  28% ] [90m[1mreimport[22m | musicOn.png[39m[0m
-[  28% ] [90m[1mreimport[22m | pause.png[39m[0m
-[  29% ] [90m[1mreimport[22m | phone.png[39m[0m
-[  29% ] [90m[1mreimport[22m | play.png[39m[0m
-[  30% ] [90m[1mreimport[22m | return.png[39m[0m
-[  30% ] [90m[1mreimport[22m | star.png[39m[0m
-[  30% ] [90m[1mreimport[22m | target.png[39m[0m
-[  31% ] [90m[1mreimport[22m | trophy.png[39m[0m
-[  31% ] [90m[1mreimport[22m | blue_button00.png[39m[0m
-[  32% ] [90m[1mreimport[22m | blue_button01.png[39m[0m
-[  32% ] [90m[1mreimport[22m | blue_button02.png[39m[0m
-[  33% ] [90m[1mreimport[22m | blue_button03.png[39m[0m
-[  33% ] [90m[1mreimport[22m | brick_albedo.jpg[39m[0m
+[  23% ] [90m[1mreimport[22m | pause.png[39m[0m
+[  24% ] [90m[1mreimport[22m | musicOn.png[39m[0m
+[  24% ] [90m[1mreimport[22m | musicOff.png[39m[0m
+[  24% ] [90m[1mreimport[22m | joystick.png[39m[0m
+[  25% ] [90m[1mreimport[22m | home.png[39m[0m
+[  25% ] [90m[1mreimport[22m | play.png[39m[0m
+[  26% ] [90m[1mreimport[22m | return.png[39m[0m
+[  26% ] [90m[1mreimport[22m | star.png[39m[0m
+[  26% ] [90m[1mreimport[22m | target.png[39m[0m
+[  27% ] [90m[1mreimport[22m | trophy.png[39m[0m
+[  27% ] [90m[1mreimport[22m | blue_button00.png[39m[0m
+[  28% ] [90m[1mreimport[22m | blue_button01.png[39m[0m
+[  28% ] [90m[1mreimport[22m | blue_button02.png[39m[0m
+[  28% ] [90m[1mreimport[22m | blue_button03.png[39m[0m
+[  29% ] [90m[1mreimport[22m | blue_checkmark.png[39m[0m
+[  29% ] [90m[1mreimport[22m | blue_circle.png[39m[0m
+[  29% ] [90m[1mreimport[22m | blue_panel.png[39m[0m
+[  30% ] [90m[1mreimport[22m | blue_sliderRight.png[39m[0m
+[  30% ] [90m[1mreimport[22m | grey_box.png[39m[0m
+[  31% ] [90m[1mreimport[22m | grey_button00.png[39m[0m
+[  31% ] [90m[1mreimport[22m | grey_button01.png[39m[0m
+[  31% ] [90m[1mreimport[22m | grey_panel.png[39m[0m
+[  32% ] [90m[1mreimport[22m | grey_sliderEnd.png[39m[0m
+[  32% ] [90m[1mreimport[22m | brick_albedo.jpg[39m[0m
 [  33% ] [90m[1mreimport[22m | brick_ao.jpg[39m[0m
-[  34% ] [90m[1mreimport[22m | brick_metal.jpg[39m[0m
-[  34% ] [90m[1mreimport[22m | brick_normal.jpg[39m[0m
-[  35% ] [90m[1mreimport[22m | aluminium_albedo.png[39m[0m
-[  35% ] [90m[1mreimport[22m | aluminium_normal.png[39m[0m
+[  33% ] [90m[1mreimport[22m | brick_metal.jpg[39m[0m
+[  33% ] [90m[1mreimport[22m | brick_normal.jpg[39m[0m
+[  34% ] [90m[1mreimport[22m | aluminium_albedo.png[39m[0m
+[  34% ] [90m[1mreimport[22m | aluminium_normal.png[39m[0m
 [  35% ] [90m[1mreimport[22m | moonless_golf_1k.hdr[39m[0m
-[  36% ] [90m[1mreimport[22m | spruit_sunrise_1k.hdr[39m[0m
-[  36% ] [90m[1mreimport[22m | venice_sunset_1k.hdr[39m[0m
-[  37% ] [90m[1mreimport[22m | rock_albedo.png[39m[0m
-[  37% ] [90m[1mreimport[22m | rock_ao.png[39m[0m
-[  38% ] [90m[1mreimport[22m | rock_metal.png[39m[0m
-[  38% ] [90m[1mreimport[22m | rock_normal.png[39m[0m
-[  38% ] [90m[1mreimport[22m | marble_albedo.png[39m[0m
-[  39% ] [90m[1mreimport[22m | stone_albedo.png[39m[0m
-[  39% ] [90m[1mreimport[22m | stone_ao.png[39m[0m
-[  40% ] [90m[1mreimport[22m | stone_normal.png[39m[0m
-[  40% ] [90m[1mreimport[22m | wood_albedo.png[39m[0m
-[  41% ] [90m[1mreimport[22m | audioOff.png[39m[0m
-[  41% ] [90m[1mreimport[22m | audioOn.png[39m[0m
-[  41% ] [90m[1mreimport[22m | hourglass.png[39m[0m
-[  42% ] [90m[1mreimport[22m | pawn_skip.png[39m[0m
-[  42% ] [90m[1mreimport[22m | pawn_up.png[39m[0m
-[  43% ] [90m[1mreimport[22m | pouch.png[39m[0m
-[  43% ] [90m[1mreimport[22m | shield.png[39m[0m
-[  43% ] [90m[1mreimport[22m | skull.png[39m[0m
-[  44% ] [90m[1mreimport[22m | suit_hearts.png[39m[0m
-[  44% ] [90m[1mreimport[22m | suit_hearts_broken.png[39m[0m
-[  45% ] [90m[1mreimport[22m | sword.png[39m[0m
-[  45% ] [90m[1mreimport[22m | timer_0.png[39m[0m
-[  46% ] [90m[1mreimport[22m | tokens.png[39m[0m
-[  46% ] [90m[1mreimport[22m | barbarian_texture.png[39m[0m
-[  46% ] [90m[1mreimport[22m | knight_texture.png[39m[0m
-[  47% ] [90m[1mreimport[22m | rogue_texture.png[39m[0m
-[  47% ] [90m[1mreimport[22m | skeleton_texture.png[39m[0m
-[  48% ] [90m[1mreimport[22m | ui_gameplay_hud.png[39m[0m
-[  48% ] [90m[1mreimport[22m | icon.svg[39m[0m
-[  48% ] [90m[1mreimport[22m | ui_upgrade.png[39m[0m
-[  49% ] [90m[1mreimport[22m | ui_run_summary.png[39m[0m
-[  49% ] [90m[1mreimport[22m | ui_pause.png[39m[0m
+[  35% ] [90m[1mreimport[22m | spruit_sunrise_1k.hdr[39m[0m
+[  35% ] [90m[1mreimport[22m | venice_sunset_1k.hdr[39m[0m
+[  36% ] [90m[1mreimport[22m | rock_albedo.png[39m[0m
+[  36% ] [90m[1mreimport[22m | rock_ao.png[39m[0m
+[  36% ] [90m[1mreimport[22m | rock_metal.png[39m[0m
+[  37% ] [90m[1mreimport[22m | rock_normal.png[39m[0m
+[  37% ] [90m[1mreimport[22m | marble_albedo.png[39m[0m
+[  38% ] [90m[1mreimport[22m | stone_albedo.png[39m[0m
+[  38% ] [90m[1mreimport[22m | stone_ao.png[39m[0m
+[  38% ] [90m[1mreimport[22m | stone_normal.png[39m[0m
+[  39% ] [90m[1mreimport[22m | wood_albedo.png[39m[0m
+[  39% ] [90m[1mreimport[22m | audioOff.png[39m[0m
+[  40% ] [90m[1mreimport[22m | audioOn.png[39m[0m
+[  40% ] [90m[1mreimport[22m | checkmark.png[39m[0m
+[  40% ] [90m[1mreimport[22m | contrast.png[39m[0m
+[  41% ] [90m[1mreimport[22m | cross.png[39m[0m
+[  41% ] [90m[1mreimport[22m | gamepad.png[39m[0m
+[  42% ] [90m[1mreimport[22m | gear.png[39m[0m
+[  42% ] [90m[1mreimport[22m | rogue_texture.png[39m[0m
+[  42% ] [90m[1mreimport[22m | skeleton_texture.png[39m[0m
+[  43% ] [90m[1mreimport[22m | Metal_normal.png[39m[0m
+[  43% ] [90m[1mreimport[22m | WetConcrete_baseColor.png[39m[0m
+[  43% ] [90m[1mreimport[22m | WetConcrete_metallicRoughness.png[39m[0m
+[  44% ] [90m[1mreimport[22m | WetConcrete_normal.png[39m[0m
+[  44% ] [90m[1mreimport[22m | btn_dark.png[39m[0m
+[  45% ] [90m[1mreimport[22m | btn_gold.png[39m[0m
+[  45% ] [90m[1mreimport[22m | hud_frame.png[39m[0m
+[  45% ] [90m[1mreimport[22m | icon_gamepad.png[39m[0m
+[  46% ] [90m[1mreimport[22m | icon_gear.png[39m[0m
+[  46% ] [90m[1mreimport[22m | icon_home.png[39m[0m
+[  47% ] [90m[1mreimport[22m | icon_pause.png[39m[0m
+[  47% ] [90m[1mreimport[22m | icon_play.png[39m[0m
+[  47% ] [90m[1mreimport[22m | icon_return.png[39m[0m
+[  48% ] [90m[1mreimport[22m | icon_star.png[39m[0m
+[  48% ] [90m[1mreimport[22m | icon_trophy.png[39m[0m
+[  49% ] [90m[1mreimport[22m | menu_backdrop.jpg[39m[0m
+[  49% ] [90m[1mreimport[22m | panel.png[39m[0m
+[  49% ] [90m[1mreimport[22m | ui_gameplay_hud.png[39m[0m
 [  50% ] [90m[1mreimport[22m | ui_main_menu.png[39m[0m
-[  50% ] [90m[1mreimport[22m | blue_checkmark.png[39m[0m
-[  51% ] [90m[1mreimport[22m | blue_circle.png[39m[0m
-[  51% ] [90m[1mreimport[22m | blue_panel.png[39m[0m
-[  51% ] [90m[1mreimport[22m | blue_sliderRight.png[39m[0m
-[  52% ] [90m[1mreimport[22m | grey_box.png[39m[0m
-[  52% ] [90m[1mreimport[22m | grey_button00.png[39m[0m
-[  53% ] [90m[1mreimport[22m | grey_button01.png[39m[0m
-[  53% ] [90m[1mreimport[22m | grey_panel.png[39m[0m
-[  53% ] [90m[1mreimport[22m | grey_sliderEnd.png[39m[0m
-[  54% ] [90m[1mreimport[22m | grey_sliderHorizontal.png[39m[0m
-[  54% ] [90m[1mreimport[22m | yellow_button00.png[39m[0m
-[  55% ] [90m[1mreimport[22m | yellow_button01.png[39m[0m
-[  55% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
-[  56% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
-[  56% ] [90m[1mreimport[22m | knife_slice_2.ogg[39m[0m
-[  56% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
-[  57% ] [90m[1mreimport[22m | handle_coins_2.ogg[39m[0m
-[  57% ] [90m[1mreimport[22m | handle_coins.ogg[39m[0m
-[  58% ] [90m[1mreimport[22m | drop_leather.ogg[39m[0m
-[  58% ] [90m[1mreimport[22m | draw_knife_1.ogg[39m[0m
-[  58% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
-[  59% ] [90m[1mreimport[22m | banner_blue.glb[39m[0m
+[  50% ] [90m[1mreimport[22m | ui_pause.png[39m[0m
+[  50% ] [90m[1mreimport[22m | ui_run_summary.png[39m[0m
+[  51% ] [90m[1mreimport[22m | ui_upgrade.png[39m[0m
+[  51% ] [90m[1mreimport[22m | icon.svg[39m[0m
+[  52% ] [90m[1mreimport[22m | grey_sliderHorizontal.png[39m[0m
+[  52% ] [90m[1mreimport[22m | yellow_button00.png[39m[0m
+[  52% ] [90m[1mreimport[22m | yellow_button01.png[39m[0m
+[  53% ] [90m[1mreimport[22m | yellow_panel.png[39m[0m
+[  53% ] [90m[1mreimport[22m | arrow_horizontal.png[39m[0m
+[  54% ] [90m[1mreimport[22m | arrow_right.png[39m[0m
+[  54% ] [90m[1mreimport[22m | award.png[39m[0m
+[  54% ] [90m[1mreimport[22m | bow.png[39m[0m
+[  55% ] [90m[1mreimport[22m | crown_a.png[39m[0m
+[  55% ] [90m[1mreimport[22m | exploding.png[39m[0m
+[  56% ] [90m[1mreimport[22m | fire.png[39m[0m
+[  56% ] [90m[1mreimport[22m | flask_full.png[39m[0m
+[  56% ] [90m[1mreimport[22m | hand.png[39m[0m
+[  57% ] [90m[1mreimport[22m | hourglass.png[39m[0m
+[  57% ] [90m[1mreimport[22m | pawn_skip.png[39m[0m
+[  57% ] [90m[1mreimport[22m | pawn_up.png[39m[0m
+[  58% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
+[  58% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
+[  59% ] [90m[1mreimport[22m | knife_slice_2.ogg[39m[0m
+[  59% ] [90m[1mreimport[22m | knife_slice.ogg[39m[0m
+[  59% ] [90m[1mreimport[22m | handle_coins_2.ogg[39m[0m
+[  60% ] [90m[1mreimport[22m | handle_coins.ogg[39m[0m
+[  60% ] [90m[1mreimport[22m | drop_leather.ogg[39m[0m
+[  61% ] [90m[1mreimport[22m | draw_knife_1.ogg[39m[0m
+[  61% ] [90m[1mreimport[22m | cloth_3.ogg[39m[0m
+[  61% ] [90m[1mreimport[22m | Arrow.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  59% ] [90m[1mreimport[22m | WardenGladius.glb[39m[0m
+[  62% ] [90m[1mreimport[22m | Axe_Double.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  60% ] [90m[1mreimport[22m | ArenaWarden.glb[39m[0m
+[  62% ] [90m[1mreimport[22m | sword_2handed.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  60% ] [90m[1mreimport[22m | Skeleton_Warrior.glb[39m[0m
+[  63% ] [90m[1mreimport[22m | sword_1handed.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  61% ] [90m[1mreimport[22m | Skeleton_Rogue.glb[39m[0m
+[  63% ] [90m[1mreimport[22m | shield_round.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  61% ] [90m[1mreimport[22m | Skeleton_Minion.glb[39m[0m
+[  63% ] [90m[1mreimport[22m | shield_badge.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  61% ] [90m[1mreimport[22m | Skeleton_Mage.glb[39m[0m
+[  64% ] [90m[1mreimport[22m | dagger.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  62% ] [90m[1mreimport[22m | Knight.glb[39m[0m
+[  64% ] [90m[1mreimport[22m | axe_2handed.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  62% ] [90m[1mreimport[22m | Skeleton_Staff.gltf[39m[0m
+[  64% ] [90m[1mreimport[22m | axe_1handed.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  63% ] [90m[1mreimport[22m | Skeleton_Shield_Small_A.gltf[39m[0m
+[  65% ] [90m[1mreimport[22m | banner_blue.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  63% ] [90m[1mreimport[22m | Skeleton_Shield_Large_A.gltf[39m[0m
+[  65% ] [90m[1mreimport[22m | Knight.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  64% ] [90m[1mreimport[22m | Skeleton_Crossbow.gltf[39m[0m
+[  66% ] [90m[1mreimport[22m | Rat.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  64% ] [90m[1mreimport[22m | Skeleton_Blade.gltf[39m[0m
+[  66% ] [90m[1mreimport[22m | Spider.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  64% ] [90m[1mreimport[22m | Skeleton_Axe.gltf[39m[0m
+[  66% ] [90m[1mreimport[22m | BlueDemon.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  65% ] [90m[1mreimport[22m | Skeleton_Arrow.gltf[39m[0m
+[  67% ] [90m[1mreimport[22m | Demon.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  65% ] [90m[1mreimport[22m | Sword_Golden.glb[39m[0m
+[  67% ] [90m[1mreimport[22m | Skeleton_Mage.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  66% ] [90m[1mreimport[22m | Spear.glb[39m[0m
+[  68% ] [90m[1mreimport[22m | Skeleton_Minion.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  66% ] [90m[1mreimport[22m | Hammer_Double.glb[39m[0m
+[  68% ] [90m[1mreimport[22m | Skeleton_Rogue.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  66% ] [90m[1mreimport[22m | Dagger.glb[39m[0m
+[  68% ] [90m[1mreimport[22m | Skeleton_Warrior.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  67% ] [90m[1mreimport[22m | Bow_Golden.glb[39m[0m
+[  69% ] [90m[1mreimport[22m | ArenaWarden.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  67% ] [90m[1mreimport[22m | Axe_Double.glb[39m[0m
+[  69% ] [90m[1mreimport[22m | WardenGladius.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  68% ] [90m[1mreimport[22m | Arrow.glb[39m[0m
+[  70% ] [90m[1mreimport[22m | scene.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  68% ] [90m[1mreimport[22m | sword_2handed.gltf[39m[0m
+[  70% ] [90m[1mreimport[22m | Skeleton_Staff.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  69% ] [90m[1mreimport[22m | sword_1handed.gltf[39m[0m
+[  70% ] [90m[1mreimport[22m | Skeleton_Shield_Small_A.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  69% ] [90m[1mreimport[22m | shield_round.gltf[39m[0m
+[  71% ] [90m[1mreimport[22m | Skeleton_Shield_Large_A.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  69% ] [90m[1mreimport[22m | shield_badge.gltf[39m[0m
+[  71% ] [90m[1mreimport[22m | Skeleton_Crossbow.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  70% ] [90m[1mreimport[22m | Rat.glb[39m[0m
+[  71% ] [90m[1mreimport[22m | Skeleton_Blade.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  70% ] [90m[1mreimport[22m | dagger.gltf[39m[0m
+[  72% ] [90m[1mreimport[22m | Skeleton_Axe.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  71% ] [90m[1mreimport[22m | Spider.glb[39m[0m
+[  72% ] [90m[1mreimport[22m | Skeleton_Arrow.gltf[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  71% ] [90m[1mreimport[22m | axe_2handed.gltf[39m[0m
+[  73% ] [90m[1mreimport[22m | Sword_Golden.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  71% ] [90m[1mreimport[22m | axe_1handed.gltf[39m[0m
+[  73% ] [90m[1mreimport[22m | Spear.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  72% ] [90m[1mreimport[22m | BlueDemon.gltf[39m[0m
+[  73% ] [90m[1mreimport[22m | Hammer_Double.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  72% ] [90m[1mreimport[22m | Demon.gltf[39m[0m
+[  74% ] [90m[1mreimport[22m | Dagger.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  73% ] [90m[1mreimport[22m | rubble_large.glb[39m[0m
+[  74% ] [90m[1mreimport[22m | Bow_Golden.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  73% ] [90m[1mreimport[22m | stairs.glb[39m[0m
+[  75% ] [90m[1mreimport[22m | rubble_large.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  74% ] [90m[1mreimport[22m | sword_shield.glb[39m[0m
+[  75% ] [90m[1mreimport[22m | stairs.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  74% ] [90m[1mreimport[22m | sword_shield_gold.glb[39m[0m
+[  75% ] [90m[1mreimport[22m | sword_shield.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  74% ] [90m[1mreimport[22m | torch_lit.glb[39m[0m
+[  76% ] [90m[1mreimport[22m | sword_shield_gold.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  75% ] [90m[1mreimport[22m | torch_mounted.glb[39m[0m
+[  76% ] [90m[1mreimport[22m | torch_lit.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  75% ] [90m[1mreimport[22m | trunk_medium_A.glb[39m[0m
+[  77% ] [90m[1mreimport[22m | torch_mounted.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  76% ] [90m[1mreimport[22m | wall.glb[39m[0m
+[  77% ] [90m[1mreimport[22m | trunk_medium_A.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  76% ] [90m[1mreimport[22m | wall_arched.glb[39m[0m
+[  77% ] [90m[1mreimport[22m | wall.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  76% ] [90m[1mreimport[22m | wall_broken.glb[39m[0m
+[  78% ] [90m[1mreimport[22m | wall_arched.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  77% ] [90m[1mreimport[22m | wall_corner.glb[39m[0m
+[  78% ] [90m[1mreimport[22m | wall_broken.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  77% ] [90m[1mreimport[22m | wall_cracked.glb[39m[0m
+[  78% ] [90m[1mreimport[22m | wall_corner.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  78% ] [90m[1mreimport[22m | wall_doorway.glb[39m[0m
+[  79% ] [90m[1mreimport[22m | wall_cracked.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  78% ] [90m[1mreimport[22m | Potion3_Filled.glb[39m[0m
+[  79% ] [90m[1mreimport[22m | wall_doorway.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  79% ] [90m[1mreimport[22m | Potion1_Filled.glb[39m[0m
+[  80% ] [90m[1mreimport[22m | wall_endcap.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  79% ] [90m[1mreimport[22m | Heart.glb[39m[0m
+[  80% ] [90m[1mreimport[22m | wall_gated.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  79% ] [90m[1mreimport[22m | Crystal2.glb[39m[0m
+[  80% ] [90m[1mreimport[22m | wall_half.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  80% ] [90m[1mreimport[22m | Crystal1.glb[39m[0m
+[  81% ] [90m[1mreimport[22m | wall_pillar.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  80% ] [90m[1mreimport[22m | Coin_Star.glb[39m[0m
+[  81% ] [90m[1mreimport[22m | bottle_A_labeled_green.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  81% ] [90m[1mreimport[22m | Chest_Ingots.glb[39m[0m
+[  82% ] [90m[1mreimport[22m | chest.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  81% ] [90m[1mreimport[22m | Chest_Closed.glb[39m[0m
-[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
-[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
-[  99% ] [90m[1mimport[22m | Saving...[39m[0m
-[92m[ DONE ][39m [1mimport[22m
-[0m
-[  82% ] [90m[1mreimport[22m | key.glb[39m[0m
-[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
-[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
-[  99% ] [90m[1mimport[22m | Saving...[39m[0m
-[92m[ DONE ][39m [1mimport[22m
-[0m
-[  82% ] [90m[1mreimport[22m | coin_stack_small.glb[39m[0m
+[  82% ] [90m[1mreimport[22m | chest_gold.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1326,63 +1362,84 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  83% ] [90m[1mreimport[22m | chest_gold.glb[39m[0m
+[  83% ] [90m[1mreimport[22m | coin_stack_small.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  83% ] [90m[1mreimport[22m | chest.glb[39m[0m
+[  83% ] [90m[1mreimport[22m | key.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  84% ] [90m[1mreimport[22m | bottle_A_labeled_green.glb[39m[0m
+[  84% ] [90m[1mreimport[22m | Chest_Closed.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  84% ] [90m[1mreimport[22m | wall_endcap.glb[39m[0m
+[  84% ] [90m[1mreimport[22m | Chest_Ingots.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  84% ] [90m[1mreimport[22m | wall_gated.glb[39m[0m
+[  84% ] [90m[1mreimport[22m | Coin_Star.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  85% ] [90m[1mreimport[22m | wall_pillar.glb[39m[0m
+[  85% ] [90m[1mreimport[22m | Crystal1.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  85% ] [90m[1mreimport[22m | wall_half.glb[39m[0m
+[  85% ] [90m[1mreimport[22m | Crystal2.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  86% ] [90m[1mreimport[22m | banner_green.glb[39m[0m
+[  85% ] [90m[1mreimport[22m | Heart.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  86% ] [90m[1mreimport[22m | banner_red.glb[39m[0m
+[  86% ] [90m[1mreimport[22m | Potion1_Filled.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  86% ] [90m[1mreimport[22m | Potion3_Filled.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  87% ] [90m[1mreimport[22m | banner_green.glb[39m[0m
+[   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
+[   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
+[   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
+[  99% ] [90m[1mimport[22m | Saving...[39m[0m
+[92m[ DONE ][39m [1mimport[22m
+[0m
+[  87% ] [90m[1mreimport[22m | banner_red.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1396,28 +1453,28 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  87% ] [90m[1mreimport[22m | banner_shield_red.glb[39m[0m
+[  88% ] [90m[1mreimport[22m | banner_shield_red.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  87% ] [90m[1mreimport[22m | banner_shield_yellow.glb[39m[0m
+[  88% ] [90m[1mreimport[22m | banner_shield_yellow.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  88% ] [90m[1mreimport[22m | banner_yellow.glb[39m[0m
+[  89% ] [90m[1mreimport[22m | banner_yellow.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  88% ] [90m[1mreimport[22m | barrel_large.glb[39m[0m
+[  89% ] [90m[1mreimport[22m | barrel_large.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1431,28 +1488,28 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  89% ] [90m[1mreimport[22m | barrel_small.glb[39m[0m
+[  90% ] [90m[1mreimport[22m | barrel_small.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  89% ] [90m[1mreimport[22m | barrel_small_stack.glb[39m[0m
+[  90% ] [90m[1mreimport[22m | barrel_small_stack.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  90% ] [90m[1mreimport[22m | barrier.glb[39m[0m
+[  91% ] [90m[1mreimport[22m | barrier.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  90% ] [90m[1mreimport[22m | barrier_column.glb[39m[0m
+[  91% ] [90m[1mreimport[22m | barrier_column.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1466,7 +1523,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  91% ] [90m[1mreimport[22m | box_large.glb[39m[0m
+[  92% ] [90m[1mreimport[22m | box_large.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1487,7 +1544,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  92% ] [90m[1mreimport[22m | box_stacked.glb[39m[0m
+[  93% ] [90m[1mreimport[22m | box_stacked.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1501,7 +1558,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  93% ] [90m[1mreimport[22m | candle_thin_lit.glb[39m[0m
+[  94% ] [90m[1mreimport[22m | candle_thin_lit.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1522,7 +1579,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  94% ] [90m[1mreimport[22m | crates_stacked.glb[39m[0m
+[  95% ] [90m[1mreimport[22m | crates_stacked.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1536,7 +1593,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  95% ] [90m[1mreimport[22m | floor_tile_big_spikes.glb[39m[0m
+[  96% ] [90m[1mreimport[22m | floor_tile_big_spikes.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1571,7 +1628,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
 [0m
-[  97% ] [90m[1mreimport[22m | floor_tile_small_broken_A.glb[39m[0m
+[  98% ] [90m[1mreimport[22m | floor_tile_small_broken_A.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
@@ -1602,7 +1659,7 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  99% ] [90m[1mreimport[22m | Finalizing Asset Import...[39m[0m
 [92m[ DONE ][39m [1mreimport[22m
 [0m
-[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (238 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | Started (Re)Importing Assets (256 steps)[39m[0m
 [   0% ] [90m[1mreimport[22m | Executing post-reimport operations...[39m[0m
 [92m[ DONE ][39m [1mreimport[22m
 [0m
@@ -1611,3 +1668,4 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
+cannot connect to daemon at tcp:5037: Connection refused

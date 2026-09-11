@@ -26,6 +26,9 @@ const ARENA_GROUP := &"arena"
 @export var arena_id: StringName = &"default_arena"
 ## Interior half-extent used to keep actors in-bounds and build the nav floor.
 @export var interior_half: float = 12.0
+## Player walk box including the north warehouse yard (outside the Pit square).
+## Combat nav and enemy spawns stay on `interior_half`.
+@export var bounds_half: float = 32.0
 @export var min_spawn_distance: float = 6.0
 ## Nav grid cell size (meters). 0.5 keeps paths smooth on a 24 m arena at a
 ## trivial cost (one shared grid, rebuilt only when the player crosses a cell).
@@ -57,19 +60,23 @@ var _flow_tick := 0.0
 
 func _ready() -> void:
 	add_to_group(ARENA_GROUP)
-	_config = _resolve_config(_resolve_arena_id())
+	# The export is the scene default; the live run may have picked a different
+	# arena. Pin the resolved id so get_arena_id() matches the world we built.
+	arena_id = _resolve_arena_id()
+	_config = _resolve_config(arena_id)
 	# Order matters: theme (landmark) and obstacles must exist before the
-	# navigation floor is built from their footprints.
+	# navigation floor is built from their footprints. apply_theme() rebuilds
+	# nav after the centrepiece, including the config-less greybox case.
 	_spawn_obstacles()
-	# Presentation: give the active arena its authored lighting/sky/mood + centrepiece.
 	apply_theme()
-	_build_navigation_floor()
 
 
 ## Low-rate refresh of the shared flow field toward the player. Rebuilding only
 ## happens when the player crosses a grid cell, so this is a few hundred cheap
 ## ops per second at worst (the 1500-enemy flow-field pattern from Manymies).
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if _nav_grid == null or not is_inside_tree():
 		return
 	# No enemies on the field: nothing reads the flow field, so skip the 10 Hz
@@ -106,8 +113,12 @@ func _spawn_obstacles() -> void:
 		parent.name = "Obstacles"
 		add_child(parent)
 	else:
+		# Immediate free: queue_free leaves dying Obstacle children occupying
+		# the name until end-of-frame, so a rebuild silently auto-renames the
+		# replacements (the same WorldRoot collision main.gd already documents).
 		for c in parent.get_children():
-			c.queue_free()
+			parent.remove_child(c)
+			c.free()
 	var mat: Material = null
 	var res := load(OBSTACLE_MATERIAL)
 	if res is Material:
@@ -120,6 +131,8 @@ func _spawn_obstacles() -> void:
 ## centrepiece, so the shared nav grid is refreshed at the end of it.
 func apply_theme() -> void:
 	if _config == null:
+		# Greybox / missing .tres: still build nav from obstacles so AI has a floor.
+		_rebuild_navigation_floor()
 		return
 	if _config.theme != null:
 		_apply_sky_and_light(_config.theme)
@@ -250,7 +263,8 @@ func _tint_mesh(mi: MeshInstance3D, tint: Color) -> void:
 func _spawn_landmark(cfg: ArenaLandmarkConfig) -> void:
 	var old := get_node_or_null("Landmark")
 	if old != null:
-		old.queue_free()
+		remove_child(old)
+		old.free()
 	_landmark = null
 	_landmark_block_half = Vector3.ZERO
 	if cfg == null:
@@ -347,6 +361,12 @@ func get_landmark() -> ArenaLandmark:
 
 func get_interior_half() -> float:
 	return interior_half
+
+
+func get_bounds_half() -> float:
+	if not is_finite(bounds_half) or bounds_half < interior_half:
+		return interior_half
+	return bounds_half
 
 
 func get_min_spawn_distance() -> float:

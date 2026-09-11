@@ -25,16 +25,18 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	clip_text = false
-	# The coach line hangs off the bottom of the banner rect and follows it on
-	# every resize, so it can never land on top of the announcement text.
+	# The coach line hangs off the bottom of the banner rect (positive offsets
+	# below a bottom-wide anchor) so it never covers the announcement text.
 	_coach = UiFactory.label("", self, 20)
 	_coach.set_anchors_preset(PRESET_BOTTOM_WIDE)
-	_coach.offset_top = 4
-	_coach.offset_bottom = 40
-	_coach.position.y = size.y + 4.0
+	_coach.offset_left = 0.0
+	_coach.offset_right = 0.0
+	_place_coach()
 	_coach.modulate = UiTheme.CYAN
 	_coach.add_theme_color_override("font_outline_color", Color.BLACK)
 	_coach.add_theme_constant_override("outline_size", 6)
+	if not resized.is_connected(_place_coach):
+		resized.connect(_place_coach)
 	if EventBus != null and not EventBus.announcement.is_connected(_on_announcement):
 		EventBus.announcement.connect(_on_announcement)
 	if EventBus != null and not EventBus.wave_completed.is_connected(_on_wave_cleared):
@@ -66,7 +68,16 @@ func _on_wave_cleared(wave: int, bonus: int) -> void:
 	announce("WAVE %d CLEARED / +%d SCORE" % [wave, bonus], &"victory")
 
 
+func _place_coach() -> void:
+	if _coach == null:
+		return
+	_coach.offset_top = 4.0
+	_coach.offset_bottom = 44.0
+
+
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	if _timer > 0.0:
 		_timer -= delta
 		if _timer <= FADE_SECONDS:
@@ -118,7 +129,7 @@ func set_coach(message: String) -> void:
 		return
 	_coach.text = message
 	_coach.scale = Vector2.ONE
-	_coach.position.y = size.y + 4.0
+	_place_coach()
 
 func clear_pending() -> void:
 	_queue.clear()

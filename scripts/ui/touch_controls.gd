@@ -64,7 +64,11 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	var stick: Rect2 = UiLayout.sanitize(plan["stick"], view)
 	joystick.position = stick.position
 	joystick.size = stick.size
-	joystick.radius = clampf(minf(stick.size.x, stick.size.y) * 0.42, 64.0, 96.0)
+	# Diameter must fit inside the solved stick rect: a 64 px floor used to
+	# overflow a compact/short stick (110 px) and draw over the skill bar.
+	var stick_short := minf(stick.size.x, stick.size.y)
+	var max_r := maxf(stick_short * 0.5 - 6.0, 24.0)
+	joystick.radius = clampf(stick_short * 0.42, minf(64.0, max_r), minf(96.0, max_r))
 	var keys := ["attack", "dodge", "swap", "reload"]
 	for i in range(_buttons.size()):
 		var rect: Rect2 = UiLayout.sanitize(plan[keys[i]], view)

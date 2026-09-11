@@ -7,6 +7,9 @@ class ArenaGuards(unittest.TestCase):
         txt=read("scripts/arena/arena.gd")
         self.assertIn("is_inside_tree()", txt)
         self.assertIn("get_nodes_in_group", txt)
+        self.assertIn("arena_id = _resolve_arena_id()", txt)
+        self.assertIn("old.free()", txt)
+        self.assertNotIn("old.queue_free()", txt)
     def test_player_aim_guarded(self):
         txt=read("scripts/player/player.gd")
         self.assertIn("is_inside_tree()", txt)
