@@ -41,10 +41,10 @@
       1 ERROR: 8 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    367 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    190 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-     97 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     80 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    384 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    194 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+     99 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+     82 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       4 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
       4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
