@@ -1687,10 +1687,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:170)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1274 total, 2 failed
-  FAIL  test_camera_modules.gd :: quarter-width swipe is 135 degrees of yaw — got (0.0, 0.0)
-  FAIL  test_camera_modules.gd :: manual look writes current_yaw the same frame — got 0.0000 want -2.3562
-::error title=GDScript test failures (2)::test_camera_modules.gd :: quarter-width swipe is 135 degrees of yaw — got (0.0, 0.0)%0Atest_camera_modules.gd :: manual look writes current_yaw the same frame — got 0.0000 want -2.3562
+GDScript tests: 1275 total, 0 failed
 ========================================
 WARNING: 38 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
