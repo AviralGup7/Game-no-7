@@ -1036,11 +1036,11 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [   9% ] [90m[1mreimport[22m | impact_punch_medium_001.ogg[39m[0m
 [   9% ] [90m[1mreimport[22m | impact_soft_heavy_000.ogg[39m[0m
 [   9% ] [90m[1mreimport[22m | Rajdhani-Bold.ttf[39m[0m
-[  10% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+[  10% ] [90m[1mreimport[22m | Rajdhani-Regular.ttf[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
@@ -2162,4 +2162,3 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-cannot connect to daemon at tcp:5037: Connection refused
