@@ -293,10 +293,13 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
-> `arena.gd` is 462 lines now. That is features, not tables coming back: solid decoration props
+> `arena.gd` is 556 lines now. That is features, not tables coming back: solid decoration props
 > publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
-> `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
-> rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.
+> `Arena.register_decoration_blockers`, so AI paths around a barrel), hazard markers were
+> rebuilt on the authored hazard data, and the three former arenas became one multi-room dungeon
+> — `DungeonGenerator` builds interior walls (each a body + mesh + nav footprint) and
+> `ArenaConfig.extra_landmarks` mounts the forge and crystal centrepieces in their wings. The
+> 533 → 354 number above stays as the sweep reported it.
 > (The last three lines are the engine-contract comment where `_apply_sky_and_light` sets
 > `env.sky` — the canonical Godot-4 name the engine-api gate pins, not the Godot-3 compat alias
 > `background_sky` that lived there before.)
@@ -306,6 +309,7 @@ Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 53
 | --- | --- | --- |
 | `theme` | `ArenaThemeConfig` (`data/arena_themes/<arena_id>.tres`) | `THEMES` + `PANORAMA_SKIES` |
 | `landmark` | `ArenaLandmarkConfig` (`data/arena_landmarks/<name>.tres`) | the `match kind` + `_:` arms in `_spawn_landmark` / `_add_landmark_collision` |
+| `extra_landmarks` | `Array[ArenaLandmarkPlacement]` (a shared landmark config + per-wing position) | the *second and third* arenas' centrepieces, now wings of one dungeon |
 | `obstacle_layout` | `Array[ArenaObstaclePlacement]` | the `match String(arena_id)` table and its Dictionary records |
 
 Four structural rules carry the rest:

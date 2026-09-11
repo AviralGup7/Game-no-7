@@ -45,7 +45,9 @@ CONFIG_GD = "scripts/arena/arena_config.gd"
 NAV_GD = "scripts/arena/arena_nav_grid.gd"
 DECOR_GD = "scripts/arena/arena_decorator.gd"
 
-ARENAS = ("default_arena", "ember_crucible", "frost_hollow")
+ARENAS = ("default_arena",)
+# Wing centrepieces merged in from the former separate arenas, authored as placements.
+WING_LANDMARK_IDS = ("forge", "crystal")
 INTERIOR_HALF = 18.0
 AXIS_SPAWNS = ((16.0, 0.0), (-16.0, 0.0), (0.0, 16.0), (0.0, -16.0))
 # Spawn jitter (1.2 m) + the safety margin SpawnManager adds (0.5 m). An obstacle closer than
@@ -109,6 +111,30 @@ def landmark_file(arena_id: str) -> dict[str, str]:
     return resource_block(ROOT / ext.group(1).replace("res://", ""))
 
 
+def wing_landmark_origins(arena_id: str) -> list[tuple[str, float, float, tuple[float, float, float]]]:
+    """(landmark_id, x, z, footprint_half) per extra_landmarks placement, resolved through the
+    placement's config reference so a broken link or a moved wing is a test error."""
+    text = read(f"data/arenas/{arena_id}.tres")
+    layout = re.search(r"extra_landmarks = Array\[ArenaLandmarkPlacement\]\(\[(.*?)\]\)", text, re.S)
+    assert layout is not None, f"{arena_id}.tres authors no extra_landmarks"
+    out = []
+    for rid in re.findall(r'SubResource\("([^"]+)"\)', layout.group(1)):
+        block = re.search(r'\[sub_resource type="Resource" id="%s"\]\n(.*?)(?=\n\[|\Z)' % re.escape(rid),
+                          text, re.S)
+        assert block is not None, f"{arena_id}: landmark placement {rid} referenced but undefined"
+        body = block.group(1)
+        x, _y, z = numbers(re.search(r"position = Vector3\(([^)]*)\)", body).group(1))
+        cfg = re.search(r'config = ExtResource\("([^"]+)"\)', body)
+        assert cfg, f"{arena_id}/{rid}: wing landmark placement has no config reference"
+        ext = re.search(r'\[ext_resource type="Resource" path="([^"]+)" id="%s"\]' % re.escape(cfg.group(1)), text)
+        assert ext, f"{arena_id}/{rid}: config reference has no path"
+        fields = resource_block(ROOT / ext.group(1).replace("res://", ""))
+        lm = re.search(r'landmark_id = &"(\w+)"', read(ext.group(1).replace("res://", "")))
+        half = numbers(fields.get("footprint_half"))
+        out.append((lm.group(1) if lm else "?", x, z, half))
+    return out
+
+
 def expanded_obstacles(arena_id: str) -> list[tuple[float, float, float, float, float, float]]:
     """(x, z, half_x, half_y, half_z, index) per *placed* obstacle, mirrors expanded, in the
     order ArenaObstacles.expand() produces them."""
@@ -147,22 +173,6 @@ def expanded_obstacles(arena_id: str) -> list[tuple[float, float, float, float, 
 # --------------------------------------------------------------------------------
 
 SHIPPED_LOOK = {
-    "ember_crucible": {
-        "sky_top": (0.06, 0.015, 0.01), "sky_horizon": (0.28, 0.1, 0.04),
-        "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.62, 0.26, 0.1),
-        "sun_color": (1.0, 0.5, 0.2), "ambient_color": (0.85, 0.45, 0.28),
-        "floor_tint": (0.58, 0.68, 0.78), "wall_tint": (0.7, 0.78, 0.88),
-        "fog_density": 0.02, "sun_energy": 1.7, "brightness": 1.0, "contrast": 1.1,
-        "panorama": "venice_sunset_1k.hdr",
-    },
-    "frost_hollow": {
-        "sky_top": (0.01, 0.04, 0.07), "sky_horizon": (0.08, 0.22, 0.3),
-        "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.62, 0.72, 0.9),
-        "sun_color": (0.7, 0.8, 1.0), "ambient_color": (0.68, 0.8, 1.0),
-        "floor_tint": (0.58, 0.68, 0.78), "wall_tint": (0.7, 0.78, 0.88),
-        "fog_density": 0.017, "sun_energy": 1.35, "brightness": 0.98, "contrast": 1.08,
-        "panorama": "moonless_golf_1k.hdr",
-    },
     "default_arena": {
         "sky_top": (0.015, 0.025, 0.06), "sky_horizon": (0.12, 0.18, 0.28),
         "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.66, 0.68, 0.72),
@@ -182,34 +192,30 @@ SHARED_LOOK = {"ambient_energy": 0.85, "glow_intensity": 0.55, "glow_bloom": 0.0
 # which were two hand-kept numbers before this type existed.
 SHIPPED_LANDMARKS = {
     "default_arena": ("obelisk", "box", (0.55, 2.3, 0.55), (0.85, 0.75, 0.45), 1.2, 1.1, 6.0, 2.0),
-    "ember_crucible": ("forge", "cylinder", (1.9, 0.7, 1.9), (1.0, 0.42, 0.1), 4.5, 2.2, 8.0, 1.2),
-    "frost_hollow": ("crystal", "cylinder", (1.4, 1.6, 1.4), (0.45, 0.75, 1.0), 1.8, 1.8, 7.0, 1.5),
+}
+# The wing centrepieces the former separate arenas contributed, keyed by landmark id. They are
+# still shipped as `data/arena_landmarks/<id>.tres`, now mounted via `extra_landmarks`.
+SHIPPED_WING_LANDMARKS = {
+    "forge": ("forge", "cylinder", (1.9, 0.7, 1.9), (1.0, 0.42, 0.1), 4.5, 2.2, 8.0, 1.2),
+    "crystal": ("crystal", "cylinder", (1.4, 1.6, 1.4), (0.45, 0.75, 1.0), 1.8, 1.8, 7.0, 1.5),
 }
 # The landmark body materials as they were hard-coded per kind.
 SHIPPED_LANDMARK_MATERIALS = {
     "default_arena": ((0.6, 0.56, 0.5), 0.78),
-    "ember_crucible": ((0.32, 0.26, 0.24), 0.8),
-    "frost_hollow": ((0.75, 0.85, 1.0, 0.9), 0.15),
+    "forge": ((0.32, 0.26, 0.24), 0.8),
+    "crystal": ((0.75, 0.85, 1.0, 0.9), 0.15),
 }
-# The full placed set of each arena, exactly as the deleted `match String(arena_id)` table
-# emitted it (positions already mirrored out, in table order). 6 / 8 / 8 obstacles.
+# The full placed set of the merged dungeon, exactly as `ArenaObstacles.expand()` emits it
+# (positions mirrored out, in authoring order). 13 obstacles across the hall and wings.
 SHIPPED_OBSTACLES = {
     "default_arena": (
         (6.5, 6.5, 0.8, 1.5, 0.8), (-6.5, 6.5, 0.8, 1.5, 0.8),
         (6.5, -6.5, 0.8, 1.5, 0.8), (-6.5, -6.5, 0.8, 1.5, 0.8),
         (3.6, 0.0, 0.7, 1.15, 0.7), (-3.6, 0.0, 0.7, 1.15, 0.7),
-    ),
-    "ember_crucible": (
-        (8.0, 0.0, 0.8, 1.5, 0.8), (-8.0, 0.0, 0.8, 1.5, 0.8),
-        (0.0, 8.0, 0.8, 1.5, 0.8), (0.0, -8.0, 0.8, 1.5, 0.8),
-        (8.0, 8.0, 0.7, 1.15, 0.7), (-8.0, 8.0, 0.7, 1.15, 0.7),
-        (8.0, -8.0, 0.7, 1.15, 0.7), (-8.0, -8.0, 0.7, 1.15, 0.7),
-    ),
-    "frost_hollow": (
-        (7.5, 7.5, 0.8, 1.5, 0.8), (-7.5, 7.5, 0.8, 1.5, 0.8),
-        (7.5, -7.5, 0.8, 1.5, 0.8), (-7.5, -7.5, 0.8, 1.5, 0.8),
-        (4.5, 7.5, 0.7, 1.15, 0.7), (-4.5, 7.5, 0.7, 1.15, 0.7),
-        (4.5, -7.5, 0.7, 1.15, 0.7), (-4.5, -7.5, 0.7, 1.15, 0.7),
+        (16.0, 4.0, 0.7, 1.15, 0.7), (16.0, -4.0, 0.7, 1.15, 0.7),
+        (4.0, 16.0, 0.7, 1.15, 0.7), (-4.0, 16.0, 0.7, 1.15, 0.7),
+        (-14.0, 4.0, 0.8, 1.5, 0.8), (-14.0, -4.0, 0.8, 1.5, 0.8),
+        (6.0, -14.0, 0.8, 1.5, 0.8),
     ),
 }
 # The clearance `ArenaConfig.validate()` allows between a placement centre and the landmark box
@@ -283,17 +289,19 @@ class IdTablesAreGoneTests(unittest.TestCase):
         self.assertIn("theme.wall_node_prefix", src)
         self.assertIn('@export var floor_node_path: NodePath', code(THEME_GD))
 
-    def test_decorator_is_the_one_documented_id_branch(self):
-        """The decor scatter is seeded from the arena id, so re-keying it to data would move
-        every prop in a shipped arena. That needs a visual sign-off this repository cannot get
-        without an engine, so the branch stays -- bounded, counted, and named in the docs."""
+    def test_decorator_has_no_arena_id_branch(self):
+        """The three former arenas are one merged dungeon now, so the decorator no longer keys
+        its dressing off an arena id at all — `_compose_dungeon` dresses the whole map, and a
+        per-arena branch would be a table sneaking back in."""
         src = code(DECOR_GD)
-        self.assertEqual(src.count("match String(_composition_id(arena_id))"), 1,
-                         "the decor branch may stay exactly one; a second one means the tables are back")
-        self.assertIn("func _composition_id(", src,
-                      "dressing must follow the live theme/config, not a second id table")
-        self.assertIn("per-arena", read("docs/EXTENDING.md").lower(),
-                      "the exception has to be discoverable where a modder reads it")
+        self.assertNotIn("match String(_composition_id(arena_id))", src,
+                         "the per-arena decor branch came back; one map means one composition")
+        self.assertNotIn("func _composition_id(", src,
+                         "dressing must not re-derive a second id from the theme/config")
+        self.assertIn("func _compose_dungeon(", src,
+                      "the merged dungeon's dressing must be a single authored composition")
+        self.assertIn("extra_landmarks", read("docs/EXTENDING.md"),
+                      "the single-dungeon wing-centrepiece model has to be discoverable where a modder reads")
 
 
 class RecordTypesAreGoneTests(unittest.TestCase):
@@ -330,8 +338,8 @@ class RecordTypesAreGoneTests(unittest.TestCase):
         self.assertIn("static func blocks_nav(box: AABB) -> bool:", obstacles)
         self.assertIn("return box.size.x > 0.0 and box.size.z > 0.0", obstacles)
         arena = code(ARENA_GD)
-        self.assertEqual(arena.count("ArenaObstacles.blocks_nav("), 2,
-                         "the landmark and the decoration props must ask the same function")
+        self.assertEqual(arena.count("ArenaObstacles.blocks_nav("), 3,
+                         "the landmark, wing landmarks and decoration props must ask the same function")
         for rel in (ARENA_GD, OBSTACLES_GD, BUILDER_GD, NAV_GD):
             self.assertNotIn(".has_area(", code(rel),
                              f"{rel} asks an AABB for the Rect2 member again")
@@ -447,7 +455,7 @@ class ShippedDataFidelityTests(unittest.TestCase):
     def test_arenas_author_their_whole_world(self):
         for arena_id in ARENAS:
             text = read(f"data/arenas/{arena_id}.tres")
-            for field in ("theme", "landmark", "obstacle_layout"):
+            for field in ("theme", "landmark", "extra_landmarks", "obstacle_layout"):
                 self.assertIn(f"{field} = ", text, f"{arena_id} does not author {field}")
             for m in re.finditer(r'(theme|landmark) = ExtResource\("([^"]+)"\)', text):
                 ext = re.search(r'path="([^"]+)" id="%s"\]' % re.escape(m.group(2)), text)
@@ -502,30 +510,38 @@ class ShippedDataFidelityTests(unittest.TestCase):
             fields = theme_file(arena_id)
             self.assertEqual(fields.get("panorama_path"), '""')
             skies.add(fields["sky_top"])
-        self.assertEqual(len(skies), 3)
+        self.assertEqual(len(skies), len(ARENAS))
 
     def test_landmark_numbers_match_the_deleted_shapes(self):
         for arena_id, (kind, shape, half, accent, emissive, energy, rng, offy) in SHIPPED_LANDMARKS.items():
             fields = landmark_file(arena_id)
-            self.assertEqual(fields.get("kind"), f'&"{kind}"', f"{arena_id} lost its landmark kind")
-            self.assertEqual(fields.get("shape"), f'&"{shape}"', f"{arena_id} changed its collision shape")
-            got_half = numbers(fields.get("footprint_half"))
-            for g, w in zip(got_half, half):
-                self.assertTrue(close(g, w), f"{arena_id} footprint {got_half} != {half}")
-            self.assertTrue(close(numbers(fields.get("emissive_energy"))[0], emissive))
-            self.assertTrue(close(numbers(fields.get("light_energy"))[0], energy))
-            self.assertTrue(close(numbers(fields.get("light_range"))[0], rng))
-            self.assertTrue(close(numbers(fields.get("light_offset_y"))[0], offy))
-            self.assertEqual(numbers(fields.get("accent_color"))[:3], accent,
-                             f"{arena_id} accent moved: {fields.get('accent_color')}")
-            tint, rough = SHIPPED_LANDMARK_MATERIALS[arena_id]
-            self.assertEqual(numbers(fields.get("material_tint"))[:len(tint)], tint,
-                             f"{arena_id} landmark material tint moved")
-            self.assertTrue(close(numbers(fields.get("material_roughness"))[0], rough))
-            # A landmark stands on the floor: position 0, and the nav box is the authored half
-            # extents, not a second number kept by hand.
-            self.assertEqual(numbers(fields.get("position")), (0.0, 0.0, 0.0),
-                             f"{arena_id}'s landmark is off the floor")
+            self._check_landmark_fields(arena_id, kind, shape, half, accent, emissive, energy, rng, offy, fields)
+        # The former separate arenas' centrepieces are still shipped as landmark resources,
+        # now mounted as wing placements rather than each owning an arena.
+        for lm_id, (kind, shape, half, accent, emissive, energy, rng, offy) in SHIPPED_WING_LANDMARKS.items():
+            fields = resource_block(ROOT / "data" / "arena_landmarks" / f"{lm_id}.tres")
+            self._check_landmark_fields(lm_id, kind, shape, half, accent, emissive, energy, rng, offy, fields)
+
+    def _check_landmark_fields(self, name, kind, shape, half, accent, emissive, energy, rng, offy, fields):
+        self.assertEqual(fields.get("kind"), f'&"{kind}"', f"{name} lost its landmark kind")
+        self.assertEqual(fields.get("shape"), f'&"{shape}"', f"{name} changed its collision shape")
+        got_half = numbers(fields.get("footprint_half"))
+        for g, w in zip(got_half, half):
+            self.assertTrue(close(g, w), f"{name} footprint {got_half} != {half}")
+        self.assertTrue(close(numbers(fields.get("emissive_energy"))[0], emissive))
+        self.assertTrue(close(numbers(fields.get("light_energy"))[0], energy))
+        self.assertTrue(close(numbers(fields.get("light_range"))[0], rng))
+        self.assertTrue(close(numbers(fields.get("light_offset_y"))[0], offy))
+        self.assertEqual(numbers(fields.get("accent_color"))[:3], accent,
+                         f"{name} accent moved: {fields.get('accent_color')}")
+        tint, rough = SHIPPED_LANDMARK_MATERIALS[name]
+        self.assertEqual(numbers(fields.get("material_tint"))[:len(tint)], tint,
+                         f"{name} landmark material tint moved")
+        self.assertTrue(close(numbers(fields.get("material_roughness"))[0], rough))
+        # A landmark stands on the floor: position 0, and the nav box is the authored half
+        # extents, not a second number kept by hand.
+        self.assertEqual(numbers(fields.get("position")), (0.0, 0.0, 0.0),
+                         f"{name}'s landmark is off the floor")
 
     def test_obstacle_layouts_are_the_placed_set_that_shipped(self):
         for arena_id, want in SHIPPED_OBSTACLES.items():
@@ -539,8 +555,10 @@ class ShippedDataFidelityTests(unittest.TestCase):
                                 f"{arena_id}: obstacle size ({hx}, {hy}, {hz}) != ({whx}, {why}, {whz})")
 
     def test_fallback_is_the_pit_layout_and_shares_its_numbers(self):
-        """The fallback exists for arenas that author nothing; it is only defensible while it
-        is the same geometry The Pit ships, scaled by the floor size."""
+        """The fallback exists for arenas that author nothing (a greybox scene or a probe). The
+        shipped dungeon authors its own layout now, so the fallback is a self-consistent safety
+        net rather than the shipped geometry; its numbers are still pinned so a "cleanup" cannot
+        silently change what a config-less arena shows."""
         src = code(OBSTACLES_GD)
         self.assertIn("Vector3(6.5 * s, 0.0, 6.5 * s)", src, "the fallback's corner ring moved")
         self.assertIn("Vector3(3.6 * s, 0.0, 0.0)", src, "the fallback's gate moved")
@@ -552,7 +570,7 @@ class ShippedDataFidelityTests(unittest.TestCase):
             self.assertEqual(got, value, f"the fallback's {name} drifted from the authored size")
         placed = [tuple(o[:5]) for o in expanded_obstacles("default_arena")]
         self.assertEqual(placed, list(SHIPPED_OBSTACLES["default_arena"]),
-                         "The Pit no longer authors what the fallback generates")
+                         "The shipped dungeon's authored layout drifted from its data")
 
     def test_shipped_layouts_respect_their_arena_bounds(self):
         """ArenaConfig cannot check this (the interior half-extent lives on the scene), so the
@@ -572,7 +590,8 @@ class ShippedDataFidelityTests(unittest.TestCase):
 
     def test_no_shipped_obstacle_is_buried_in_its_landmark(self):
         """Same rule as ArenaConfig._obstacle_landmark_overlap, run from the data side, so a
-        shipped layout is proven to satisfy the rule before the rule can halt startup."""
+        shipped layout is proven to satisfy the rule before the rule can halt startup. Both the
+        central landmark and the wing centrepieces are checked."""
         for arena_id in ARENAS:
             fields = landmark_file(arena_id)
             half = numbers(fields.get("footprint_half"))
@@ -582,6 +601,13 @@ class ShippedDataFidelityTests(unittest.TestCase):
                 buried = (abs(x - origin[0]) < half[0] * scale + LANDMARK_CLEARANCE
                           and abs(z - origin[2]) < half[2] * scale + LANDMARK_CLEARANCE)
                 self.assertFalse(buried, f"{arena_id}: obstacle at ({x}, {z}) sits inside the landmark box")
+            for lm_id, wx, wz, half in wing_landmark_origins(arena_id):
+                self.assertIn(lm_id, WING_LANDMARK_IDS, f"{arena_id}: unexpected wing landmark {lm_id}")
+                for (x, z, _hx, _hy, _hz, _i) in expanded_obstacles(arena_id):
+                    buried = (abs(x - wx) < half[0] + LANDMARK_CLEARANCE
+                              and abs(z - wz) < half[2] + LANDMARK_CLEARANCE)
+                    self.assertFalse(buried,
+                                     f"{arena_id}: obstacle at ({x}, {z}) sits inside the {lm_id} wing landmark box")
 
 
 class ConsumerWiringTests(unittest.TestCase):

@@ -89,8 +89,9 @@ so a `1.0` resistance floors at 0, never negative damage.
 
 An arena is a scene plus one `.tres`. The scene provides geometry and markers; the
 `ArenaConfig` provides gameplay *and* the world — hazards, look, centrepiece, cover. Nothing
-in `scripts/arena/` knows your arena's id (the one documented exception is the prop scatter,
-step 7).
+in `scripts/arena/` knows your arena's id. The shipped game now has a single map: the merged
+Foundry Depths dungeon (`data/arenas/default_arena.tres`), whose interior walls come from
+`DungeonGenerator` and whose wing centrepieces come from `extra_landmarks`.
 
 1. Create `res://scenes/arena/<name>_arena.tscn` following the canonical arena tree:
    `PlayerStart`, `SpawnPoints`/markers in group `enemy_spawn_point`, colliders,
@@ -134,14 +135,17 @@ step 7).
    an obstacle buried in the centrepiece are all startup errors. The look and the cover are
    referenced by hard resource reference, so a renamed or moved `.tres` is an editor error,
    not a runtime miss.
-7. **The one remaining per-arena branch**: `ArenaDecorator.decorate()` still matches the arena
-   id to choose its prop clutter (braziers vs ice shards vs the stone circle). That scatter is
-   seeded from the id, so moving it to data would move every prop in a shipped arena — a visual
-   change no headless test can sign off. A new arena gets the default coliseum decoration until
-   someone adds a composition there. `tests/python/test_regress_arena_world_data.py` pins it to
-   exactly one `match String(arena_id)` in the file and fails if a second one appears anywhere
-   in `scripts/arena/`.
-8. Unlock it via `SaveManager.unlock_arena("<name>")` (or ship pre-unlocked).
+7. **Wing centrepieces**: to stand more than one landmark in the same map (the forge in the
+   reactor wing, the crystal in the cryo wing), append an `ArenaLandmarkPlacement` to
+   `extra_landmarks` — a hard reference to a `data/arena_landmarks/*.tres` plus a per-wing
+   `position`. The placement's config is duplicated before repositioning, so the shared
+   landmark resource is never mutated. `ArenaDecorator.decorate()` dresses the one merged
+   dungeon with authored per-wing props (`_compose_dungeon`); there is no arena-id branch in
+   the decorator any more.
+8. **Interior walls**: `DungeonGenerator.walls()` returns the deterministic room shell (a
+   Grand Hall ringed by four wings, each with a centred doorway). The Arena builds each wall
+   as a `StaticBody3D` + brick mesh + nav footprint, so the AI routes through the doorways,
+   never through a wall.
 
 **Scattered decoration is physical.** Anything `ArenaDecorator` scatters as a floor prop gets a
 `StaticBody3D` on `CollisionLayers.WORLD_BODY_LAYER` and publishes its axis-aligned footprint (an

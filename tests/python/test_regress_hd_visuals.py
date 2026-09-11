@@ -46,11 +46,11 @@ class HdVisualsTests(unittest.TestCase):
         self.assertIn("ProceduralSkyMaterial", txt)
         self.assertIn("theme.panorama_path", txt)
         skies = set()
-        for arena_id in ("default_arena", "ember_crucible", "frost_hollow"):
+        for arena_id in ("default_arena",):
             theme = read(f"data/arena_themes/{arena_id}.tres")
             self.assertIn('panorama_path = ""', theme)
             skies.add(re.search(r'^sky_top = (.+)$', theme, re.M).group(1))
-        self.assertEqual(len(skies), 3)
+        self.assertEqual(len(skies), 1)
 
     def test_hd_materials_polish_wired_on_all_mount_paths(self):
         hd = read("scripts/visuals/hd_materials.gd")

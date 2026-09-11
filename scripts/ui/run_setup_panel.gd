@@ -1,12 +1,14 @@
 class_name RunSetupPanel
 extends Control
 ## Catalogue/selection presentation. No unlocks or run fields are modified here.
+##
+## There is exactly one map (the merged Foundry Depths dungeon), so this panel no longer
+## offers an arena picker: the old "02 ARENA" selector and its unlock milestone are gone,
+## and the single dungeon's intel is shown as a fixed card instead.
 signal back_requested()
 var _daily := false
-var _arena_ids: Array[StringName] = []
 var _weapon_ids: Array = []
 var _mode_ids: Array[StringName] = []
-var _arenas: OptionButton
 var _weapons: OptionButton
 var _modes: OptionButton
 var _arena_info: Label
@@ -22,7 +24,7 @@ func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	var body := UiFactory.center_box(self)
 	_heading = UiFactory.title("PREPARE YOUR STAND", body, 34)
-	UiFactory.label("01  MODE     /     02  ARENA     /     03  LOADOUT", body, 18).modulate = UiTheme.CYAN
+	UiFactory.label("01  MODE     /     02  LOADOUT", body, 18).modulate = UiTheme.CYAN
 	_daily_info = UiFactory.label("", body, 20)
 
 	# Mode picker.
@@ -34,18 +36,11 @@ func _ready() -> void:
 		_modes.add_item(GameMode.display_name(id))
 	_modes.item_selected.connect(_on_option_picked)
 
-	# Arena picker — discover supplied arena resources rather than keeping a list.
-	var arena := UiFactory.select_card(body, "ARENA INTEL")
-	_arenas = arena.option
+	# Arena intel — a fixed card, not a picker: the run always plays the one merged dungeon.
+	var arena := UiFactory.select_card(body, "THE DUNGEON")
+	arena.option.queue_free()
 	_arena_info = arena.desc
-	for raw_file in DirAccess.get_files_at("res://data/arenas"):
-		var file := raw_file.trim_suffix(".remap")
-		if file.ends_with(".tres"):
-			var config := load("res://data/arenas/" + file) as ArenaConfig
-			if config != null and config.arena_id not in _arena_ids:
-				_arena_ids.append(config.arena_id)
-				_arenas.add_item(config.display_name)
-	_arenas.item_selected.connect(_on_option_picked)
+	_arena_info.text = _arena_intel()
 
 	# Weapon (starter loadout) picker.
 	var weapon := UiFactory.select_card(body, "LOADOUT INTEL")
@@ -59,14 +54,26 @@ func _ready() -> void:
 
 	_feedback = UiFactory.label("", body, 20)
 	_feedback.modulate = UiTheme.GOLD
-	_start = UiFactory.primary("ENTER ARENA", body, 24, Vector2(300, 104))
+	_start = UiFactory.primary("ENTER THE DEPTHS", body, 24, Vector2(300, 104))
 	UiTheme.decorate(_start, "play")
 	_start.pressed.connect(_launch)
 	UiFactory.button("BACK", body, 20).pressed.connect(func() -> void: back_requested.emit())
 
 
+## The single map's name + lore, read off its config (there is only one `res://data/arenas/*.tres`).
+func _arena_intel() -> String:
+	var arena := ContentRegistry.get_arena(&"default_arena")
+	if arena == null:
+		return "The Foundry Depths\nA single dungeon, three wings."
+	return "%s\n%s\n%s" % [
+		arena.display_name,
+		arena.lore_intro,
+		" / ".join(arena.tags) if not arena.tags.is_empty() else "hazards live",
+	]
+
+
 ## Every OptionButton refresh on the same live details line when the player picks
-## a different mode / arena / loadout.
+## a different mode / loadout.
 func _on_option_picked(_index: int) -> void:
 	UiFactory.play_press("OPTION")
 	_refresh_details()
@@ -79,7 +86,6 @@ func present(daily: bool = false) -> void:
 	var weapon: StringName = challenge.weapon if daily else (GameRoot.get_pending_weapon() if GameRoot != null else &"gladius")
 	if weapon == &"":
 		weapon = &"gladius"
-	if not _arena_ids.is_empty(): _arenas.select(maxi(_arena_ids.find(ContentRegistry.get_selected_arena_id()), 0))
 	if not _weapon_ids.is_empty(): _weapons.select(maxi(_weapon_ids.find(weapon), 0))
 	if not _mode_ids.is_empty():
 		var pending := GameMode.MODE_STANDARD
@@ -103,9 +109,6 @@ func present(daily: bool = false) -> void:
 
 ## OptionButton.selected is -1 until something is picked (and stays -1 if the
 ## list is rebuilt), which would index the id arrays out of bounds.
-func _selected_arena_index() -> int:
-	return clampi(_arenas.selected, 0, maxi(_arena_ids.size() - 1, 0))
-
 func _selected_weapon_index() -> int:
 	return clampi(_weapons.selected, 0, maxi(_weapon_ids.size() - 1, 0))
 
@@ -118,14 +121,13 @@ func _selected_mode() -> StringName:
 	return _mode_ids[_selected_mode_index()]
 
 func _refresh_details() -> void:
-	if _arena_ids.is_empty() or _weapon_ids.is_empty():
+	if _weapon_ids.is_empty():
 		_start.disabled = true
 		_feedback.text = "Content unavailable. Return to the menu and try again."
 		return
 	var mode_id := _selected_mode() if not _daily else GameMode.MODE_STANDARD
-	var arena := ContentRegistry.get_arena(_arena_ids[_selected_arena_index()])
 	var weapon := ContentRegistry.get_weapon(_weapon_ids[_selected_weapon_index()])
-	if arena == null or weapon == null:
+	if weapon == null:
 		_start.disabled = true
 		_feedback.text = "This content could not be loaded."
 		return
@@ -149,15 +151,6 @@ func _refresh_details() -> void:
 			var cap := GameMode.max_waves_for(mode_id, rank)
 			obj_line = ("Clear %d waves" % cap) if cap > 0 else "Endless waves"
 	_mode_info.text += "\nObjective: %s  •  Score x%.2f" % [obj_line, GameMode.score_multiplier_for(mode_id, rank)]
-	# The arena's own lore line, read off the config rather than through Narrator's id lookup: the
-	# panel already holds the config, and ArenaConfig.validate() requires the three lines, so the old
-	# "fall back to the tags, or to 'Classic survival'" chain was a way for an arena to describe
-	# itself as somebody else.
-	_arena_info.text = "%s\n%s\n%s  •  Unlock milestone: wave %d" % [
-		arena.display_name,
-		arena.lore_intro,
-		" / ".join(arena.tags) if not arena.tags.is_empty() else "hazards live",
-		arena.unlock_wave]
 	_weapon_info.text = "%s\n%s  •  Damage %.1f  •  Reach %.1fm  •  Interval %.2fs" % [weapon.description,
 		String(weapon.kind).capitalize(), weapon.base_damage, weapon.attack_range, weapon.swing_cooldown]
 	var fixed := GameMode.fixed_weapon(mode_id)
@@ -171,21 +164,11 @@ func _refresh_details() -> void:
 	var service := UiCommands.meta(get_tree())
 	var owned := weapon.weapon_id == &"gladius" or (service != null and service.is_weapon_unlocked(weapon.weapon_id))
 	var loadout_locked := not _daily and fixed == &"" and not owned
-	var arena_locked := not _arena_is_playable(arena)
-	_start.disabled = starter_config.disabled or loadout_locked or arena_locked
+	_start.disabled = starter_config.disabled or loadout_locked
 	_feedback.text = "Starter: %s. Transform upgrades change how you fight — pick boldly." % starter_config.display_name
-	if arena_locked:
-		_feedback.text = "LOCKED — reach wave %d to unlock this arena." % arena.unlock_wave
-	elif loadout_locked:
+	if loadout_locked:
 		_feedback.text = ("OWNED" if owned else "LOCKED") + " — buy this loadout in the Armory before it can start a run."
-	_start.text = "START DAILY RUN" if _daily else "ENTER ARENA"
-
-func _arena_is_playable(arena: ArenaConfig) -> bool:
-	if arena == null:
-		return false
-	if SaveManager.is_arena_unlocked(arena.arena_id):
-		return true
-	return arena.unlock_wave <= maxi(SaveManager.get_best_wave(), 1)
+	_start.text = "START DAILY RUN" if _daily else "ENTER THE DEPTHS"
 
 
 func _launch() -> void:
@@ -198,11 +181,10 @@ func _launch() -> void:
 		present(true)
 		_feedback.text = "A new UTC challenge is available. Review the updated loadout, then start."
 		return
-	var arena_id := _arena_ids[_selected_arena_index()]
-	if not UiCommands.select_arena(arena_id):
-		_feedback.text = "Arena selection was declined. Your run has not started."
+	# One map: pin the merged dungeon explicitly so the run never depends on a stale selection.
+	if not UiCommands.select_arena(&"default_arena"):
+		_feedback.text = "The dungeon could not be loaded. Your run has not started."
 		return
-	SaveManager.unlock_arena(String(arena_id))
 	if not _daily:
 		GameRoot.set_pending_weapon(_weapon_ids[_selected_weapon_index()])
 	_start.disabled = true

@@ -259,17 +259,17 @@ static func suite() -> Array:
 
 	# --- Narrator: the arena's voice is the arena's own ---
 	results.append({
-		"name": "Narrator has arena lore for all three arenas",
+		"name": "Narrator has arena lore for the merged dungeon",
 		"passed": not Narrator.arena_intro(&"default_arena").is_empty()
-			and not Narrator.arena_intro(&"ember_crucible").is_empty()
-			and not Narrator.arena_intro(&"frost_hollow").is_empty(),
+			and not Narrator.arena_mid(&"default_arena").is_empty()
+			and not Narrator.arena_late(&"default_arena").is_empty(),
 		"why": "",
 	})
 	results.append({
 		"name": "An unknown arena says nothing instead of quoting The Pit",
 		"passed": Narrator.arena_intro(&"no_such_arena").is_empty()
 			and Narrator.arena_mid(&"no_such_arena").is_empty()
-			and Narrator.arena_intro(&"frost_hollow") != Narrator.arena_intro(&"default_arena"),
+			and Narrator.arena_intro(&"frost_hollow").is_empty(),
 		"why": "ARENA_LORE.get(id, ARENA_LORE[default]) gave every new arena the first arena's voice",
 	})
 	results.append({

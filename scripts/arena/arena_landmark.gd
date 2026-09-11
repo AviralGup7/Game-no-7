@@ -11,7 +11,7 @@ extends Node3D
 ##
 ## Every silhouette also carries its own floor art: a plinth disc seated on the dais, an
 ## emissive rim at the plinth's edge, and a wide accent ring on the arena floor outside the
-## dais. The three arenas read differently from across the room without a single texture.
+## dais. The three silhouettes read differently from across the dungeon without a single texture.
 ##
 ## The landmark idles: registered emissive materials breathe on one shared pulse and the
 ## forge's lava (with its dark crust chips riding on top) rotates slowly. Presentation only —
