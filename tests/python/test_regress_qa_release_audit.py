@@ -211,6 +211,38 @@ class UiTestRunnerIndentTests(unittest.TestCase):
         )
 
 
+class UiTestRunnerInferenceTests(unittest.TestCase):
+    """Godot 4.4.1 cannot infer `:=` through an untyped `_ui`.
+
+    CI failed the next UI job with:
+      Parse Error: Cannot infer the type of "browsed" variable because the
+      value doesn't have a set type.
+      at: GDScript::reload (res://tests/ui/ui_test_runner.gd:61)
+    """
+
+    def test_ui_root_is_typed(self):
+        txt = read("tests/ui/ui_test_runner.gd")
+        self.assertRegex(txt, r"var _ui:\s*UiRoot")
+        self.assertIn("instantiate() as UiRoot", txt)
+
+    def test_no_inferred_local_reads_untyped_ui(self):
+        txt = read("tests/ui/ui_test_runner.gd")
+        bad = re.findall(r"^[ \t]+var \w+ := .*_ui\.", txt, re.M)
+        self.assertEqual(
+            bad,
+            [],
+            ":= through _ui needs an explicit type: %s" % bad,
+        )
+
+    def test_browsed_arena_id_is_explicitly_typed(self):
+        txt = read("tests/ui/ui_test_runner.gd")
+        self.assertRegex(
+            txt,
+            r"var browsed:\s*StringName\s*=",
+            "browsed must be StringName; := cannot infer it from _arena_ids",
+        )
+
+
 class OptionButtonIndexBoundsTests(unittest.TestCase):
     """OptionButton.selected is -1 before a pick; indexing the id arrays with it
     would read out of bounds."""
