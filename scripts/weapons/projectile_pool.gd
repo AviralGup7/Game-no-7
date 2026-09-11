@@ -23,6 +23,7 @@ var _fallback_mesh: SphereMesh = null
 
 func _ready() -> void:
 	add_to_group("projectile_pool")
+	Projectile.ensure_shared_tints()
 	_fallback_mesh = SphereMesh.new()
 	_fallback_mesh.radius = 0.18
 	_fallback_mesh.height = 0.36

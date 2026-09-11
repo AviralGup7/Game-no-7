@@ -134,6 +134,9 @@ class HotPathTests(unittest.TestCase):
         src = read("scripts/weapons/projectile.gd")
         self.assertIn("_shared_player_mat", src)
         self.assertIn("_shared_enemy_mat", src)
+        self.assertIn("func ensure_shared_tints()", src)
+        apply = src.split("func _apply_team_tint()")[1].split("func _on_body_entered")[0]
+        self.assertNotIn("StandardMaterial3D.new()", apply)
 
 
 class EventBusLifecycleTests(unittest.TestCase):
