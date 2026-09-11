@@ -60,6 +60,7 @@ var _machine: EnemyStateMachine = null
 var _feedback: EnemyFeedback = null
 var _audio: EnemyAudio = null
 var _status: StatusManager = null
+var _boss: BossController = null
 
 var _target: Node3D = null
 var _locomotion := EnemyLocomotion.new()
@@ -120,7 +121,7 @@ var _run_time := 0.0
 ## Elite affix cache (set via set_elite; queried by cadence/vampiric hooks).
 var _elite_affixes: Array[StringName] = []
 
-var _event_bus: Node = null
+var _event_bus: EventBusService = null
 var _event_bus_resolved := false
 
 
@@ -148,6 +149,7 @@ func _resolve_components() -> void:
 	_feedback = get_node_or_null("EnemyFeedback") as EnemyFeedback
 	_audio = get_node_or_null("EnemyAudio") as EnemyAudio
 	_status = get_node_or_null("StatusManager") as StatusManager
+	_boss = get_node_or_null("BossController") as BossController
 
 
 ## Fail fast when a REQUIRED component is missing: debug/test builds assert on the
@@ -169,11 +171,11 @@ func _check_required_components() -> bool:
 
 ## Lazy, cached autoload lookup: identical to a direct reference in-game, null-safe
 ## under the bare headless test SceneTree (run_tests.gd is autoload-free by design).
-func _eb() -> Node:
+func _eb() -> EventBusService:
 	if not _event_bus_resolved:
 		_event_bus_resolved = true
 		if is_inside_tree():
-			_event_bus = get_node_or_null("/root/EventBus")
+			_event_bus = get_node_or_null("/root/EventBus") as EventBusService
 	return _event_bus
 
 
@@ -732,7 +734,7 @@ func _show_attack_telegraph_ring() -> void:
 		radius = clampf(cfg.attack_range * 0.85, 1.1, 3.4)
 		if cfg.visual_scale > 1.15:
 			radius *= 1.25
-	var is_boss := get_node_or_null("BossController") != null
+	var is_boss := get_boss_controller() != null
 	if not director.try_telegraph(is_boss):
 		return
 	var prio := EffectDirector.PRIORITY_BOSS if is_boss else EffectDirector.PRIORITY_SPAWN
@@ -936,7 +938,21 @@ func get_status_manager() -> StatusManager:
 
 
 func get_health_component() -> HealthComponent:
+	if _health == null:
+		_health = get_node_or_null("HealthComponent") as HealthComponent
 	return _health
+
+
+func get_boss_controller() -> BossController:
+	if _boss == null:
+		_boss = get_node_or_null("BossController") as BossController
+	return _boss
+
+
+func get_feedback() -> EnemyFeedback:
+	if _feedback == null:
+		_feedback = get_node_or_null("EnemyFeedback") as EnemyFeedback
+	return _feedback
 
 
 func get_hit_radius() -> float:

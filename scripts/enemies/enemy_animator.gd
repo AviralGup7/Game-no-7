@@ -42,19 +42,32 @@ func _ready() -> void:
 	_mount_model()
 	if _host == null:
 		return
-	if _host.has_signal("state_changed") and not _host.state_changed.is_connected(_on_state_changed):
+	if not _host.state_changed.is_connected(_on_state_changed):
 		_host.state_changed.connect(_on_state_changed)
-	if _host.has_signal("attack_started") and not _host.attack_started.is_connected(_on_attack_started):
+	if not _host.attack_started.is_connected(_on_attack_started):
 		_host.attack_started.connect(_on_attack_started)
-	if _host.has_signal("died") and not _host.died.is_connected(_on_died):
+	if not _host.died.is_connected(_on_died):
 		_host.died.connect(_on_died)
 	if EventBus != null and not EventBus.status_applied.is_connected(_on_status_applied):
 		EventBus.status_applied.connect(_on_status_applied)
-	# Boss telegraphs drive a cast-like anticipation where available.
-	var boss := _host.get_node_or_null("BossController")
-	if boss != null and boss.has_signal("telegraph_started"):
-		if not boss.telegraph_started.is_connected(_on_boss_telegraph):
-			boss.telegraph_started.connect(_on_boss_telegraph)
+	var boss := _host.get_boss_controller()
+	if boss != null and not boss.telegraph_started.is_connected(_on_boss_telegraph):
+		boss.telegraph_started.connect(_on_boss_telegraph)
+
+
+func _exit_tree() -> void:
+	if _host != null and is_instance_valid(_host):
+		if _host.state_changed.is_connected(_on_state_changed):
+			_host.state_changed.disconnect(_on_state_changed)
+		if _host.attack_started.is_connected(_on_attack_started):
+			_host.attack_started.disconnect(_on_attack_started)
+		if _host.died.is_connected(_on_died):
+			_host.died.disconnect(_on_died)
+		var boss := _host.get_boss_controller()
+		if boss != null and is_instance_valid(boss) and boss.telegraph_started.is_connected(_on_boss_telegraph):
+			boss.telegraph_started.disconnect(_on_boss_telegraph)
+	if EventBus != null and EventBus.status_applied.is_connected(_on_status_applied):
+		EventBus.status_applied.disconnect(_on_status_applied)
 
 
 func _mount_model() -> void:
@@ -96,6 +109,8 @@ func _mount_model() -> void:
 
 func _process(_delta: float) -> void:
 	if _player == null or _host == null or _dead:
+		return
+	if not is_finite(_delta) or _delta < 0.0:
 		return
 	# Pace the run cycle with actual movement speed so slow brutes plod and fast
 	# skirmishers scamper.

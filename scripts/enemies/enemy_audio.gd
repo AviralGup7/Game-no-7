@@ -49,8 +49,8 @@ func play_windup() -> void:
 		return
 	var manager := _am()
 	if manager != null:
-		var host := get_parent()
-		var boss_tell := host != null and host.get_node_or_null("BossController") != null
+		var host := get_parent() as EnemyBase
+		var boss_tell := host != null and host.get_boss_controller() != null
 		AudioManager.duck_music(1.1 if boss_tell else 0.22, 5.0)
 
 

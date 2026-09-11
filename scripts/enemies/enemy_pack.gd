@@ -41,7 +41,7 @@ const SEP_PERIOD := 0.12
 const SEP_WEIGHT := 0.6
 
 var _host: EnemyBase = null
-var _bus: Node = null
+var _bus: EventBusService = null
 
 var _fear_times: Array[float] = []
 var _fear_left := 0.0
@@ -73,16 +73,16 @@ func reset() -> void:
 
 ## Wire the EventBus signals (idempotent). Called by EnemyBase once the bus
 ## resolves; a bare headless harness never has one and stays silent.
-func connect_signals(bus: Node) -> void:
+func connect_signals(bus: EventBusService) -> void:
 	if _bus != null or bus == null:
 		return
-	if bus.has_signal("enemy_damaged") and not bus.enemy_damaged.is_connected(on_ally_damaged):
+	if not bus.enemy_damaged.is_connected(on_ally_damaged):
 		bus.enemy_damaged.connect(on_ally_damaged)
-	if bus.has_signal("enemy_killed") and not bus.enemy_killed.is_connected(on_ally_killed):
+	if not bus.enemy_killed.is_connected(on_ally_killed):
 		bus.enemy_killed.connect(on_ally_killed)
-	if bus.has_signal("projectile_fired") and not bus.projectile_fired.is_connected(on_projectile_fired):
+	if not bus.projectile_fired.is_connected(on_projectile_fired):
 		bus.projectile_fired.connect(on_projectile_fired)
-	if bus.has_signal("skill_cast") and not bus.skill_cast.is_connected(on_skill_cast):
+	if not bus.skill_cast.is_connected(on_skill_cast):
 		bus.skill_cast.connect(on_skill_cast)
 	_bus = bus
 
@@ -92,17 +92,14 @@ func disconnect_signals() -> void:
 	if _bus == null or not is_instance_valid(_bus):
 		_bus = null
 		return
-	var handlers := {
-		"enemy_damaged": on_ally_damaged,
-		"enemy_killed": on_ally_killed,
-		"projectile_fired": on_projectile_fired,
-		"skill_cast": on_skill_cast,
-	}
-	for sig_name in handlers:
-		if _bus.has_signal(sig_name):
-			var cb: Callable = handlers[sig_name]
-			if _bus.is_connected(sig_name, cb):
-				_bus.disconnect(sig_name, cb)
+	if _bus.enemy_damaged.is_connected(on_ally_damaged):
+		_bus.enemy_damaged.disconnect(on_ally_damaged)
+	if _bus.enemy_killed.is_connected(on_ally_killed):
+		_bus.enemy_killed.disconnect(on_ally_killed)
+	if _bus.projectile_fired.is_connected(on_projectile_fired):
+		_bus.projectile_fired.disconnect(on_projectile_fired)
+	if _bus.skill_cast.is_connected(on_skill_cast):
+		_bus.skill_cast.disconnect(on_skill_cast)
 	_bus = null
 
 
