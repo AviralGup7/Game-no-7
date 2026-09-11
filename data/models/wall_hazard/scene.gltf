@@ -15,13 +15,13 @@
   ],
   "nodes": [
     {
-      "name": "Wall",
+      "name": "Wall_Hazard",
       "mesh": 0
     }
   ],
   "materials": [
     {
-      "name": "Wall_SciFi_PBR",
+      "name": "Wall_Hazard_PBR",
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 0
@@ -66,20 +66,20 @@
   ],
   "images": [
     {
-      "name": "Wall_SciFi_PBR_BaseColor",
-      "uri": "textures/Wall_albedo.png"
+      "name": "Wall_Hazard_PBR_BaseColor",
+      "uri": "textures/Wall_Hazard_albedo.png"
     },
     {
-      "name": "Wall_SciFi_PBR_Normal",
-      "uri": "textures/Wall_normal.png"
+      "name": "Wall_Hazard_PBR_Normal",
+      "uri": "textures/Wall_Hazard_normal.png"
     },
     {
-      "name": "Wall_SciFi_PBR_ORM",
-      "uri": "textures/Wall_ORM.png"
+      "name": "Wall_Hazard_PBR_ORM",
+      "uri": "textures/Wall_Hazard_ORM.png"
     },
     {
-      "name": "Wall_SciFi_PBR_Emission",
-      "uri": "textures/Wall_emission.png"
+      "name": "Wall_Hazard_PBR_Emission",
+      "uri": "textures/Wall_Hazard_emission.png"
     }
   ],
   "samplers": [
@@ -92,7 +92,7 @@
   ],
   "meshes": [
     {
-      "name": "Wall_Mesh",
+      "name": "Wall_Hazard_Mesh",
       "primitives": [
         {
           "attributes": {
@@ -176,12 +176,12 @@
       "count": 11857,
       "type": "VEC2",
       "min": [
-        0.1506422080000001,
-        0.009456779026217398
+        0.015029325999999964,
+        0.015106815483871038
       ],
       "max": [
-        0.953781928,
-        0.9900864749063668
+        0.979996061,
+        0.9800291191011236
       ]
     }
   ],

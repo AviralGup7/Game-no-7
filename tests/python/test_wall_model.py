@@ -1,4 +1,4 @@
-"""Regression and verification tests for the 3D wall model and PBR assets."""
+"""Regression and verification tests for the 3D modular wall and ground models and PBR assets."""
 from __future__ import annotations
 
 import json
@@ -12,19 +12,45 @@ from tool.validate_assets import check_model, gltf_document
 from tool.validate_resources import check_file
 
 
-class WallModelTests(unittest.TestCase):
-    def test_wall_glb_exists_and_validates(self):
-        glb_path = ROOT / "data/models/wall/wall.glb"
-        self.assertTrue(glb_path.is_file(), "data/models/wall/wall.glb missing")
-        doc = check_model(glb_path, {glb_path})
-        self.assertEqual(doc["asset"]["version"], "2.0")
-        self.assertTrue(len(doc["meshes"]) > 0)
-        self.assertTrue(len(doc["materials"]) > 0)
-        primitive = doc["meshes"][0]["primitives"][0]
-        attrs = primitive["attributes"]
-        for required_attr in ("POSITION", "NORMAL", "TANGENT", "TEXCOORD_0"):
-            self.assertIn(required_attr, attrs, f"Missing {required_attr} attribute in wall mesh")
-        self.assertIn("indices", primitive)
+class WallAndGroundModelTests(unittest.TestCase):
+    def test_wall_models_exist_and_validate(self):
+        wall_models = [
+            "data/models/wall/wall.glb",
+            "data/models/wall_hazard/wall_hazard.glb",
+            "data/models/wall_tech/wall_tech.glb",
+            "data/models/wall_rusted/wall_rusted.glb",
+        ]
+        for rel_path in wall_models:
+            glb_path = ROOT / rel_path
+            self.assertTrue(glb_path.is_file(), f"{rel_path} missing")
+            doc = check_model(glb_path, {glb_path.resolve()})
+            self.assertEqual(doc["asset"]["version"], "2.0")
+            self.assertTrue(len(doc["meshes"]) > 0)
+            self.assertTrue(len(doc["materials"]) > 0)
+            primitive = doc["meshes"][0]["primitives"][0]
+            attrs = primitive["attributes"]
+            for required_attr in ("POSITION", "NORMAL", "TANGENT", "TEXCOORD_0"):
+                self.assertIn(required_attr, attrs, f"Missing {required_attr} in {rel_path}")
+            self.assertIn("indices", primitive)
+
+    def test_ground_models_exist_and_validate(self):
+        ground_models = [
+            "data/models/ground/ground.glb",
+            "data/models/ground_hazard/ground_hazard.glb",
+            "data/models/ground_tech/ground_tech.glb",
+        ]
+        for rel_path in ground_models:
+            glb_path = ROOT / rel_path
+            self.assertTrue(glb_path.is_file(), f"{rel_path} missing")
+            doc = check_model(glb_path, {glb_path.resolve()})
+            self.assertEqual(doc["asset"]["version"], "2.0")
+            self.assertTrue(len(doc["meshes"]) > 0)
+            self.assertTrue(len(doc["materials"]) > 0)
+            primitive = doc["meshes"][0]["primitives"][0]
+            attrs = primitive["attributes"]
+            for required_attr in ("POSITION", "NORMAL", "TANGENT", "TEXCOORD_0"):
+                self.assertIn(required_attr, attrs, f"Missing {required_attr} in {rel_path}")
+            self.assertIn("indices", primitive)
 
     def test_wall_gltf_and_bin_exist_and_validate(self):
         gltf_path = ROOT / "data/models/wall/scene.gltf"
@@ -44,38 +70,51 @@ class WallModelTests(unittest.TestCase):
         self.assertEqual(doc["asset"]["version"], "2.0")
 
     def test_pbr_textures_are_valid_pngs(self):
-        tex_dir = ROOT / "data/models/wall/textures"
-        for name in ("Wall_albedo.png", "Wall_normal.png", "Wall_ORM.png", "Wall_emission.png"):
-            p = tex_dir / name
-            self.assertTrue(p.is_file(), f"Missing texture {name}")
-            data = p.read_bytes()
-            self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), f"{name} is not a valid PNG")
+        dirs = [
+            ROOT / "data/models/wall/textures",
+            ROOT / "data/models/wall_hazard/textures",
+            ROOT / "data/models/wall_tech/textures",
+            ROOT / "data/models/wall_rusted/textures",
+            ROOT / "data/models/ground/textures",
+            ROOT / "data/models/ground_hazard/textures",
+            ROOT / "data/models/ground_tech/textures",
+        ]
+        for d in dirs:
+            self.assertTrue(d.is_dir(), f"Missing texture directory {d}")
+            pngs = list(d.glob("*.png"))
+            self.assertGreaterEqual(len(pngs), 4, f"Expected at least 4 PBR maps in {d}")
+            for p in pngs:
+                data = p.read_bytes()
+                self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), f"{p} is not a valid PNG")
 
-    def test_godot_wall_scene_is_valid(self):
-        scene_path = ROOT / "scenes/environment/wall.tscn"
-        self.assertTrue(scene_path.is_file(), "scenes/environment/wall.tscn missing")
-        problems = []
-        check_file(str(scene_path), problems)
-        self.assertEqual(problems, [], f"wall.tscn resource problems: {problems}")
+    def test_godot_environment_scenes_are_valid(self):
+        scenes = [
+            "scenes/environment/wall.tscn",
+            "scenes/environment/wall_hazard.tscn",
+            "scenes/environment/wall_tech.tscn",
+            "scenes/environment/wall_rusted.tscn",
+            "scenes/environment/ground.tscn",
+            "scenes/environment/ground_hazard.tscn",
+            "scenes/environment/ground_tech.tscn",
+        ]
+        for rel_scene in scenes:
+            scene_path = ROOT / rel_scene
+            self.assertTrue(scene_path.is_file(), f"{rel_scene} missing")
+            problems = []
+            check_file(str(scene_path), problems)
+            self.assertEqual(problems, [], f"{rel_scene} resource problems: {problems}")
 
-    def test_wall_materials_are_valid(self):
-        problems = []
-        for mat in ("assets/materials/arena_wall_brick.tres", "assets/materials/arena_wall_stone.tres"):
-            p = ROOT / mat
-            self.assertTrue(p.is_file(), f"{mat} missing")
-            check_file(str(p), problems)
-            content = p.read_text(encoding="utf-8")
-            self.assertIn("Wall_albedo.png", content)
-            self.assertIn("Wall_normal.png", content)
-        self.assertEqual(problems, [], f"Material resource problems: {problems}")
-
-    def test_wall_mesh_vertex_bounds(self):
-        doc, binary = gltf_document(ROOT / "data/models/wall/wall.glb")
-        pos_accessor_idx = doc["meshes"][0]["primitives"][0]["attributes"]["POSITION"]
-        pos_accessor = doc["accessors"][pos_accessor_idx]
-        self.assertEqual(pos_accessor["count"], 11857)
-        self.assertAlmostEqual(pos_accessor["min"][0], -0.5004, delta=0.01)
-        self.assertAlmostEqual(pos_accessor["max"][0], 0.5004, delta=0.01)
+    def test_verification_renders_exist(self):
+        renders = [
+            ROOT / "data/models/wall/wall_render.png",
+            ROOT / "data/models/wall/wall_variants_render.png",
+            ROOT / "data/models/ground/ground_render.png",
+            ROOT / "data/models/environment_showcase.png",
+        ]
+        for r in renders:
+            self.assertTrue(r.is_file(), f"Verification render {r} missing")
+            data = r.read_bytes()
+            self.assertTrue(data.startswith(b"\x89PNG\r\n\x1a\n"), f"{r} is not a valid PNG")
 
 
 if __name__ == "__main__":

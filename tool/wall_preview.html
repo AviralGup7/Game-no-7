@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
-  3D Wall Model Review & Real-Time Inspector
-  Inspects the 3D wall model built from wall.json + texture_0.webp with Three.js.
+  3D Modular Environment & Wall Inspector
+  Inspects 3D modular walls and ground tiles with Three.js.
 
   Run: python3 tool/serve_art.py --port 8000
   Open: http://localhost:8000/tool/wall_preview.html
@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Last Stand · 3D Wall Inspector</title>
+<title>Last Stand · 3D Modular Environment Inspector</title>
 <style>
 :root {
   color-scheme: dark;
@@ -93,7 +93,7 @@ header {
 main {
   height: calc(100vh - 64px);
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
 }
 aside {
   background: var(--panel);
@@ -212,7 +212,7 @@ p {
     <div class="mark">VII</div>
     <div>
       <strong>LAST STAND</strong>
-      <div class="eyebrow">Arena · 3D Wall Inspector</div>
+      <div class="eyebrow">Arena · 3D Modular Environment</div>
     </div>
   </div>
   <div class="header-right">
@@ -224,17 +224,36 @@ p {
 <main>
   <aside>
     <div>
-      <div class="eyebrow">SCI-FI ARCHITECTURE</div>
-      <h1>Modular 3D Wall</h1>
-      <p>Bespoke 3D model generated from <code>wall.json</code> (11,857 verts, 22,442 tris) with PBR textures baked from <code>texture_0.webp</code>.</p>
+      <div class="eyebrow">SCI-FI ARCHITECTURE &amp; ENVIRONMENT</div>
+      <h1>Modular 3D Assets</h1>
+      <p>Modular 3D walls &amp; ground tiles with dedicated PBR textures (Military Sector 07, Industrial Hazard, Quantum Tech, Derelict Wasteland).</p>
     </div>
 
     <div>
-      <div class="section-title">Assembly Mode</div>
+      <div class="section-title">Model Category</div>
       <div class="btn-group">
-        <button id="mode-single" class="active">Single Bay</button>
-        <button id="mode-segment3">3x Wall Array</button>
-        <button id="mode-perimeter">Perimeter Wall</button>
+        <button id="cat-walls" class="active">Wall Types</button>
+        <button id="cat-grounds">Ground Tiles</button>
+        <button id="cat-assembly">Full Environment</button>
+      </div>
+    </div>
+
+    <div id="section-wall-variants">
+      <div class="section-title">Wall Theme Variant</div>
+      <div class="btn-group">
+        <button id="var-wall-mil" class="active">Military (Sector 07)</button>
+        <button id="var-wall-haz">Industrial Hazard</button>
+        <button id="var-wall-tech">Quantum Tech</button>
+        <button id="var-wall-rust">Derelict Rusted</button>
+      </div>
+    </div>
+
+    <div id="section-ground-variants" style="display:none;">
+      <div class="section-title">Ground Tile Variant</div>
+      <div class="btn-group">
+        <button id="var-gnd-mil" class="active">Diamond Tread</button>
+        <button id="var-gnd-haz">Hazard Reactor Grate</button>
+        <button id="var-gnd-tech">Quantum Hex Grid</button>
       </div>
     </div>
 
@@ -244,7 +263,6 @@ p {
         <button id="mat-pbr" class="active">PBR Shaded</button>
         <button id="mat-wire">Wireframe</button>
         <button id="mat-normals">Normals</button>
-        <button id="mat-emission">Emission</button>
       </div>
     </div>
 
@@ -258,14 +276,12 @@ p {
     </div>
 
     <div>
-      <div class="section-title">Asset Provenance</div>
+      <div class="section-title">Asset Inventory</div>
       <p style="font-size: 11px; line-height: 1.6;">
-        • <strong>Coordinates:</strong> <code>wall.json</code><br>
-        • <strong>Texture:</strong> <code>texture_0.webp</code> (2048×2048)<br>
-        • <strong>GLB Model:</strong> <code>data/models/wall/wall.glb</code><br>
-        • <strong>glTF Scene:</strong> <code>data/models/wall/scene.gltf</code><br>
-        • <strong>Godot Scene:</strong> <code>scenes/environment/wall.tscn</code><br>
-        • <strong>Dimensions:</strong> 1.00m W × 0.27m H × 0.05m D
+        • <strong>Walls:</strong> <code>wall.glb</code>, <code>wall_hazard.glb</code>, <code>wall_tech.glb</code>, <code>wall_rusted.glb</code><br>
+        • <strong>Ground:</strong> <code>ground.glb</code>, <code>ground_hazard.glb</code>, <code>ground_tech.glb</code><br>
+        • <strong>Godot Scenes:</strong> <code>scenes/environment/*.tscn</code><br>
+        • <strong>PBR Textures:</strong> 2K Albedo, Normal, ORM, Emission
       </p>
     </div>
   </aside>
@@ -275,7 +291,7 @@ p {
     <div class="stage-top">
       <div>
         <div class="eyebrow">PRODUCTION GLTF 2.0 / PBR ASSET</div>
-        <div style="font-size: 16px; font-weight: 500; font-family: Georgia, serif;" id="view-caption">Single Modular Wall Bay</div>
+        <div style="font-size: 16px; font-weight: 500; font-family: Georgia, serif;" id="view-caption">Military Sector 07 Modular Wall Bay</div>
       </div>
       <div class="stage-actions">
         <button id="btn-turntable" aria-pressed="false">Turntable: Off</button>
@@ -285,16 +301,16 @@ p {
 
     <div class="footer-bar">
       <div>
-        <span>Vertices: <strong id="stat-verts">11,857</strong></span> &nbsp;|&nbsp;
-        <span>Triangles: <strong id="stat-tris">22,442</strong></span> &nbsp;|&nbsp;
-        <span>PBR Maps: <strong>4 (2K)</strong></span>
+        <span>Model: <strong id="stat-model">wall.glb</strong></span> &nbsp;|&nbsp;
+        <span>PBR Resolution: <strong>2048×2048</strong></span> &nbsp;|&nbsp;
+        <span>Format: <strong>glTF 2.0 Binary</strong></span>
       </div>
       <div class="badge">● glTF 2.0 Verified Valid</div>
     </div>
 
     <div class="loading" id="loading">
-      <div class="eyebrow">LOADING 3D ASSET</div>
-      <span>Parsing wall geometry &amp; PBR texture maps…</span>
+      <div class="eyebrow">LOADING 3D ASSETS</div>
+      <span>Parsing 3D models &amp; PBR texture maps…</span>
     </div>
   </section>
 </main>
@@ -307,6 +323,7 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 const viewport = document.getElementById('viewport');
 const loading = document.getElementById('loading');
 const viewCaption = document.getElementById('view-caption');
+const statModel = document.getElementById('stat-model');
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0e151a);
@@ -328,7 +345,7 @@ controls.dampingFactor = 0.05;
 controls.target.set(0, 0, 0);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.8);
+const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.85);
 scene.add(ambientLight);
 
 const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
@@ -340,146 +357,161 @@ const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.0);
 fillLight.position.set(-2, -1, -2);
 scene.add(fillLight);
 
-// Floor grid
-const grid = new THREE.GridHelper(6, 12, 0x38bdf8, 0x1f2937);
-grid.position.y = -0.135;
-scene.add(grid);
+const envRoot = new THREE.Group();
+scene.add(envRoot);
 
-const wallRoot = new THREE.Group();
-scene.add(wallRoot);
-
-let baseWallMesh = null;
-let originalMaterial = null;
 let turntable = false;
-let currentMode = 'single';
+let currentCategory = 'walls';
+let currentWallVar = 'wall';
+let currentGndVar = 'ground';
+let currentMatMode = 'pbr';
 
+const cachedModels = {};
 const loader = new GLTFLoader();
-loader.load('/data/models/wall/wall.glb', (gltf) => {
-  loading.classList.add('hidden');
-  baseWallMesh = gltf.scene.children[0];
-  if (baseWallMesh.isMesh) {
-    originalMaterial = baseWallMesh.material;
-  } else {
-    baseWallMesh.traverse(child => {
-      if (child.isMesh && !originalMaterial) originalMaterial = child.material;
-    });
-  }
-  buildDisplayMode('single');
-}, undefined, (err) => {
-  console.error('Error loading GLB:', err);
-  loading.innerHTML = '<span style="color:#ef4444">Failed to load wall.glb</span>';
-});
 
-function clearWallRoot() {
-  while (wallRoot.children.length > 0) {
-    wallRoot.remove(wallRoot.children[0]);
-  }
+function loadGLTF(path) {
+  return new Promise((resolve, reject) => {
+    if (cachedModels[path]) {
+      resolve(cachedModels[path].clone(true));
+      return;
+    }
+    loader.load(path, (gltf) => {
+      cachedModels[path] = gltf.scene;
+      resolve(gltf.scene.clone(true));
+    }, undefined, reject);
+  });
 }
 
-function buildDisplayMode(mode) {
-  currentMode = mode;
-  clearWallRoot();
-  if (!baseWallMesh) return;
+async function renderScene() {
+  loading.classList.remove('hidden');
+  while (envRoot.children.length > 0) {
+    envRoot.remove(envRoot.children[0]);
+  }
 
-  if (mode === 'single') {
-    const clone = baseWallMesh.clone(true);
-    clone.position.set(0, 0, 0);
-    wallRoot.add(clone);
-    controls.target.set(0, 0, 0);
-    camera.position.set(0, 0.05, 1.4);
-    viewCaption.textContent = 'Single Modular Wall Bay (1.00m × 0.27m)';
-  } else if (mode === 'segment3') {
-    for (let i = -1; i <= 1; i++) {
-      const clone = baseWallMesh.clone(true);
-      clone.position.set(i * 1.0, 0, 0);
-      wallRoot.add(clone);
+  try {
+    if (currentCategory === 'walls') {
+      const glbPath = `/data/models/${currentWallVar}/${currentWallVar}.glb`;
+      statModel.textContent = `${currentWallVar}.glb`;
+      const model = await loadGLTF(glbPath);
+      model.position.set(0, 0, 0);
+      envRoot.add(model);
+      controls.target.set(0, 0, 0);
+      camera.position.set(0, 0.05, 1.4);
+
+      const titles = {
+        'wall': 'Military Sector 07 Modular Wall Bay (1.00m × 0.27m)',
+        'wall_hazard': 'Industrial Reactor Hazard Wall Bay (1.00m × 0.27m)',
+        'wall_tech': 'Quantum Cryo Tech Lab Wall Bay (1.00m × 0.27m)',
+        'wall_rusted': 'Derelict Wasteland Corroded Wall Bay (1.00m × 0.27m)'
+      };
+      viewCaption.textContent = titles[currentWallVar] || currentWallVar;
+
+    } else if (currentCategory === 'grounds') {
+      const glbPath = `/data/models/${currentGndVar}/${currentGndVar}.glb`;
+      statModel.textContent = `${currentGndVar}.glb`;
+      const model = await loadGLTF(glbPath);
+      model.position.set(0, 0, 0);
+      envRoot.add(model);
+      controls.target.set(0, 0, 0);
+      camera.position.set(0.9, 1.0, 1.2);
+
+      const titles = {
+        'ground': 'Military Diamond Tread Ground Tile (1.00m × 1.00m)',
+        'ground_hazard': 'Industrial Hazard Reactor Grate Tile (1.00m × 1.00m)',
+        'ground_tech': 'Quantum Hex Power Grid Ground Tile (1.00m × 1.00m)'
+      };
+      viewCaption.textContent = titles[currentGndVar] || currentGndVar;
+
+    } else if (currentCategory === 'assembly') {
+      statModel.textContent = 'Assembly (Walls + Grounds)';
+      viewCaption.textContent = 'Modular 3D Environment Assembly (2x2 Platform + Wall Perimeter)';
+
+      const wPath = `/data/models/${currentWallVar}/${currentWallVar}.glb`;
+      const gPath = `/data/models/${currentGndVar}/${currentGndVar}.glb`;
+
+      const wModel = await loadGLTF(wPath);
+      const gModel = await loadGLTF(gPath);
+
+      // 2x2 Ground tiles
+      for (let gz = -1; gz <= 0; gz++) {
+        for (let gx = -1; gx <= 0; gx++) {
+          const tile = gModel.clone(true);
+          tile.position.set(gx * 1.0 + 0.5, 0, gz * 1.0 + 0.5);
+          envRoot.add(tile);
+        }
+      }
+
+      // 2 Wall bays along back edge
+      for (let bx = -1; bx <= 0; bx++) {
+        const wall = wModel.clone(true);
+        wall.position.set(bx * 1.00087 + 0.5, 0.134, -0.5);
+        envRoot.add(wall);
+      }
+
+      controls.target.set(0, 0.1, 0);
+      camera.position.set(1.4, 1.0, 1.8);
     }
-    controls.target.set(0, 0, 0);
-    camera.position.set(0, 0.1, 3.2);
-    viewCaption.textContent = '3-Bay Wall Segment (3.00m Span)';
-  } else if (mode === 'perimeter') {
-    // Build square perimeter enclosure
-    const size = 3;
-    const half = (size - 1) * 0.5 * 1.0;
-    for (let i = 0; i < size; i++) {
-      const x = (i - 1) * 1.0;
-      // North
-      const wN = baseWallMesh.clone(true);
-      wN.position.set(x, 0, -half - 0.5);
-      wallRoot.add(wN);
-      // South
-      const wS = baseWallMesh.clone(true);
-      wS.position.set(x, 0, half + 0.5);
-      wS.rotation.y = Math.PI;
-      wallRoot.add(wS);
-      // West
-      const wW = baseWallMesh.clone(true);
-      wW.position.set(-half - 0.5, 0, x);
-      wW.rotation.y = Math.PI / 2;
-      wallRoot.add(wW);
-      // East
-      const wE = baseWallMesh.clone(true);
-      wE.position.set(half + 0.5, 0, x);
-      wE.rotation.y = -Math.PI / 2;
-      wallRoot.add(wE);
-    }
-    controls.target.set(0, 0, 0);
-    camera.position.set(2.5, 2.0, 3.0);
-    viewCaption.textContent = 'Perimeter Enclosure Array (12 Modular Bays)';
+
+    applyMaterialMode(currentMatMode);
+  } catch (err) {
+    console.error('Failed to load asset:', err);
+  } finally {
+    loading.classList.add('hidden');
   }
 }
-
-// Mode Buttons
-document.getElementById('mode-single').onclick = (e) => {
-  setActive(e.target);
-  buildDisplayMode('single');
-};
-document.getElementById('mode-segment3').onclick = (e) => {
-  setActive(e.target);
-  buildDisplayMode('segment3');
-};
-document.getElementById('mode-perimeter').onclick = (e) => {
-  setActive(e.target);
-  buildDisplayMode('perimeter');
-};
-
-// Material Display Modes
-document.getElementById('mat-pbr').onclick = (e) => {
-  setActive(e.target);
-  applyMaterialMode('pbr');
-};
-document.getElementById('mat-wire').onclick = (e) => {
-  setActive(e.target);
-  applyMaterialMode('wire');
-};
-document.getElementById('mat-normals').onclick = (e) => {
-  setActive(e.target);
-  applyMaterialMode('normals');
-};
-document.getElementById('mat-emission').onclick = (e) => {
-  setActive(e.target);
-  applyMaterialMode('emission');
-};
 
 function applyMaterialMode(mode) {
-  wallRoot.traverse(child => {
+  currentMatMode = mode;
+  envRoot.traverse(child => {
     if (!child.isMesh) return;
     if (mode === 'pbr') {
-      child.material = originalMaterial;
       child.material.wireframe = false;
     } else if (mode === 'wire') {
-      child.material = originalMaterial.clone();
       child.material.wireframe = true;
     } else if (mode === 'normals') {
-      child.material = new THREE.MeshNormalMaterial({ wireframe: false });
-    } else if (mode === 'emission') {
-      child.material = new THREE.MeshBasicMaterial({
-        map: originalMaterial.emissiveMap || originalMaterial.map,
-        color: 0x38bdf8
-      });
+      child.material = new THREE.MeshNormalMaterial();
     }
   });
 }
+
+// Category selection
+document.getElementById('cat-walls').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'walls';
+  document.getElementById('section-wall-variants').style.display = 'block';
+  document.getElementById('section-ground-variants').style.display = 'none';
+  renderScene();
+};
+document.getElementById('cat-grounds').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'grounds';
+  document.getElementById('section-wall-variants').style.display = 'none';
+  document.getElementById('section-ground-variants').style.display = 'block';
+  renderScene();
+};
+document.getElementById('cat-assembly').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'assembly';
+  document.getElementById('section-wall-variants').style.display = 'block';
+  document.getElementById('section-ground-variants').style.display = 'block';
+  renderScene();
+};
+
+// Wall variants
+document.getElementById('var-wall-mil').onclick = (e) => { setActive(e.target); currentWallVar = 'wall'; renderScene(); };
+document.getElementById('var-wall-haz').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_hazard'; renderScene(); };
+document.getElementById('var-wall-tech').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_tech'; renderScene(); };
+document.getElementById('var-wall-rust').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_rusted'; renderScene(); };
+
+// Ground variants
+document.getElementById('var-gnd-mil').onclick = (e) => { setActive(e.target); currentGndVar = 'ground'; renderScene(); };
+document.getElementById('var-gnd-haz').onclick = (e) => { setActive(e.target); currentGndVar = 'ground_hazard'; renderScene(); };
+document.getElementById('var-gnd-tech').onclick = (e) => { setActive(e.target); currentGndVar = 'ground_tech'; renderScene(); };
+
+// Material Display Modes
+document.getElementById('mat-pbr').onclick = (e) => { setActive(e.target); applyMaterialMode('pbr'); };
+document.getElementById('mat-wire').onclick = (e) => { setActive(e.target); applyMaterialMode('wire'); };
+document.getElementById('mat-normals').onclick = (e) => { setActive(e.target); applyMaterialMode('normals'); };
 
 // Lighting Presets
 document.getElementById('light-dawn').onclick = (e) => {
@@ -513,7 +545,7 @@ btnTurntable.onclick = () => {
 };
 
 document.getElementById('btn-reset').onclick = () => {
-  buildDisplayMode(currentMode);
+  renderScene();
 };
 
 function setActive(btn) {
@@ -530,12 +562,14 @@ window.addEventListener('resize', () => {
 function animate() {
   requestAnimationFrame(animate);
   if (turntable) {
-    wallRoot.rotation.y += 0.008;
+    envRoot.rotation.y += 0.008;
   }
   controls.update();
   renderer.render(scene, camera);
 }
 animate();
+
+renderScene();
 </script>
 </body>
 </html>

@@ -15,13 +15,13 @@
   ],
   "nodes": [
     {
-      "name": "Wall",
+      "name": "Ground_Hazard",
       "mesh": 0
     }
   ],
   "materials": [
     {
-      "name": "Wall_SciFi_PBR",
+      "name": "Ground_Hazard_PBR",
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 0
@@ -66,20 +66,20 @@
   ],
   "images": [
     {
-      "name": "Wall_SciFi_PBR_BaseColor",
-      "uri": "textures/Wall_albedo.png"
+      "name": "Ground_Hazard_PBR_BaseColor",
+      "uri": "textures/Ground_Hazard_albedo.png"
     },
     {
-      "name": "Wall_SciFi_PBR_Normal",
-      "uri": "textures/Wall_normal.png"
+      "name": "Ground_Hazard_PBR_Normal",
+      "uri": "textures/Ground_Hazard_normal.png"
     },
     {
-      "name": "Wall_SciFi_PBR_ORM",
-      "uri": "textures/Wall_ORM.png"
+      "name": "Ground_Hazard_PBR_ORM",
+      "uri": "textures/Ground_Hazard_ORM.png"
     },
     {
-      "name": "Wall_SciFi_PBR_Emission",
-      "uri": "textures/Wall_emission.png"
+      "name": "Ground_Hazard_PBR_Emission",
+      "uri": "textures/Ground_Hazard_emission.png"
     }
   ],
   "samplers": [
@@ -92,7 +92,7 @@
   ],
   "meshes": [
     {
-      "name": "Wall_Mesh",
+      "name": "Ground_Hazard_Mesh",
       "primitives": [
         {
           "attributes": {
@@ -111,51 +111,51 @@
     {
       "bufferView": 0,
       "componentType": 5125,
-      "count": 67326,
+      "count": 2424,
       "type": "SCALAR",
       "min": [
         0
       ],
       "max": [
-        11856
+        532
       ]
     },
     {
       "bufferView": 1,
       "componentType": 5126,
-      "count": 11857,
+      "count": 533,
       "type": "VEC3",
       "min": [
-        -0.5004069999999999,
-        -0.13302355999999996,
-        -0.022685720000000006
+        -0.5,
+        -0.06,
+        -0.5
       ],
       "max": [
-        0.5004637,
-        0.13414799999999996,
-        0.022281800000000004
+        0.5,
+        0.018,
+        0.5
       ]
     },
     {
       "bufferView": 2,
       "componentType": 5126,
-      "count": 11857,
+      "count": 533,
       "type": "VEC3",
       "min": [
-        -0.9999998752893063,
-        -0.9999988307835702,
-        -0.9999998697809843
+        -0.9960349739675667,
+        -1.0,
+        -0.9960349739675667
       ],
       "max": [
-        0.9999998175018349,
-        0.9999999977148358,
-        0.999999952960739
+        0.9960349739675667,
+        0.9977575653851118,
+        0.9960349739675667
       ]
     },
     {
       "bufferView": 3,
       "componentType": 5126,
-      "count": 11857,
+      "count": 533,
       "type": "VEC4",
       "min": [
         1.0,
@@ -173,15 +173,15 @@
     {
       "bufferView": 4,
       "componentType": 5126,
-      "count": 11857,
+      "count": 533,
       "type": "VEC2",
       "min": [
-        0.1506422080000001,
-        0.009456779026217398
+        0.001,
+        0.001
       ],
       "max": [
-        0.953781928,
-        0.9900864749063668
+        0.999,
+        0.999
       ]
     }
   ],
@@ -189,38 +189,38 @@
     {
       "buffer": 0,
       "byteOffset": 0,
-      "byteLength": 269304,
+      "byteLength": 9696,
       "target": 34963
     },
     {
       "buffer": 0,
-      "byteOffset": 269304,
-      "byteLength": 142284,
+      "byteOffset": 9696,
+      "byteLength": 6396,
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteOffset": 411588,
-      "byteLength": 142284,
+      "byteOffset": 16092,
+      "byteLength": 6396,
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteOffset": 553872,
-      "byteLength": 189712,
+      "byteOffset": 22488,
+      "byteLength": 8528,
       "target": 34962
     },
     {
       "buffer": 0,
-      "byteOffset": 743584,
-      "byteLength": 94856,
+      "byteOffset": 31016,
+      "byteLength": 4264,
       "target": 34962
     }
   ],
   "buffers": [
     {
       "uri": "scene.bin",
-      "byteLength": 838440
+      "byteLength": 35280
     }
   ]
 }
