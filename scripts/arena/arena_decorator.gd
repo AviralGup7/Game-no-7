@@ -76,7 +76,11 @@ var _blockers: Array[AABB] = []
 func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
 	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
-	match String(arena_id):
+	# Composition follows the live config/theme when the decorator sits under an
+	# Arena (so a new .tres that reuses ember_crucible's theme gets the forge
+	# dressing without a new match arm). The public arena_id argument remains
+	# the seed mixer and the headless fallback.
+	match String(_composition_id(arena_id)):
 		"ember_crucible":
 			_compose_ember(arena_half)
 		"frost_hollow":
@@ -84,6 +88,18 @@ func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 		_:
 			_compose_default(arena_half)
 	_publish_blockers()
+
+
+func _composition_id(arena_id: StringName) -> StringName:
+	var arena := get_parent() as Arena
+	if arena != null:
+		var cfg := arena.get_config()
+		if cfg != null:
+			if cfg.theme != null and not String(cfg.theme.theme_id).is_empty():
+				return cfg.theme.theme_id
+			if cfg.arena_id != &"":
+				return cfg.arena_id
+	return arena_id
 
 
 func clear() -> void:

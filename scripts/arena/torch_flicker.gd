@@ -67,6 +67,8 @@ func _build_glow() -> void:
 
 
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_time += delta
 	# Two incommensurate sine bands + a slow drift give a lively, non-periodic feel.
 	var a := sin(_time * 11.3 + _phase_a)

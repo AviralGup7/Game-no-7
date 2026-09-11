@@ -7,6 +7,7 @@ var _active := false
 var _elapsed := 0.0
 var _duration := 0.6
 var _base_scale := 1.0
+var _start_alpha := 0.45
 
 
 func _ready() -> void:
@@ -21,11 +22,15 @@ func trigger(duration: float) -> void:
 	_active = true
 	visible = true
 	# Reset material alpha so reused pooled rings do not start invisible for one frame.
+	# Honor an already-authored alpha (boss / high-contrast rings set 0.85–0.95)
+	# instead of flattening every reuse to the grunt default.
 	var mi := get_node_or_null("Disc") as MeshInstance3D
 	if mi != null and mi.material_override is StandardMaterial3D:
 		var mat := mi.material_override as StandardMaterial3D
 		var c: Color = mat.albedo_color
-		c.a = 0.45
+		if c.a <= 0.01:
+			c.a = 0.45
+		_start_alpha = c.a
 		mat.albedo_color = c
 	set_process(true)
 
@@ -42,7 +47,7 @@ func _process(delta: float) -> void:
 	if mi != null and mi.material_override is StandardMaterial3D:
 		var mat := mi.material_override as StandardMaterial3D
 		var c: Color = mat.albedo_color
-		c.a = 0.45 * (1.0 - t)
+		c.a = _start_alpha * (1.0 - t)
 		mat.albedo_color = c
 	if t >= 1.0:
 		_active = false

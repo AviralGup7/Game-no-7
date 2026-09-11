@@ -102,6 +102,8 @@ var _burst_prios: Dictionary = {} # GPUParticles3D -> int
 var _ring_prios: Dictionary = {} # Node3D -> int
 var _wired := false
 var _live_telegraphs := 0
+var _last_boss_at := Vector3.ZERO
+var _has_boss_at := false
 
 
 func _ready() -> void:
@@ -159,10 +161,9 @@ func try_telegraph(for_boss: bool = false) -> bool:
 		return false
 	var bosses_alive := 0
 	if is_inside_tree() and get_tree() != null:
-		for n in get_tree().get_nodes_in_group("enemies"):
-			if n != null and n.get_node_or_null("BossController") != null:
-				if n is Damageable and (n as Damageable).is_alive():
-					bosses_alive += 1
+		for n in get_tree().get_nodes_in_group(BossController.BOSS_GROUP):
+			if n is Damageable and (n as Damageable).is_alive():
+				bosses_alive += 1
 	var reserve := BOSS_RING_RESERVE if bosses_alive > 0 else 0
 	var free_count := 0
 	for r in _ring_pool:
@@ -208,13 +209,7 @@ func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRI
 	var ring := _claim_ring(priority)
 	if ring == null:
 		return
-	var grounded := at
-	var floor_y := _floor_hit(at)
-	grounded.y = float(floor_y.get("y", at.y))
-	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
-	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
-	if nrm.length_squared() > 0.01:
-		ring.look_at(ring.global_position + nrm, Vector3.FORWARD if absf(nrm.dot(Vector3.UP)) > 0.95 else Vector3.UP)
+	_place_ring_on_floor(ring, at)
 	var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 	if mi != null:
 		var mat := mi.material_override as StandardMaterial3D
@@ -319,6 +314,22 @@ func _floor_hit(at: Vector3) -> Dictionary:
 	return {"y": float(hit.position.y), "normal": hit.get("normal", Vector3.UP)}
 
 
+## Seat a pooled ring on the floor. The Disc child already lies flat at -90° X;
+## look_at() on a vertical normal would stand that disc on its edge. Only tilt
+## for a genuinely sloped hit, and always reset leftover pooled rotation first.
+func _place_ring_on_floor(ring: Node3D, at: Vector3) -> void:
+	if ring == null:
+		return
+	var floor_y := _floor_hit(at)
+	var grounded := at
+	grounded.y = float(floor_y.get("y", at.y))
+	ring.rotation = Vector3.ZERO
+	ring.global_position = grounded + Vector3(0.02, 0.03, 0.02)
+	var nrm: Vector3 = floor_y.get("normal", Vector3.UP)
+	if nrm.length_squared() > 0.01 and absf(nrm.dot(Vector3.UP)) < 0.95:
+		ring.look_at(ring.global_position + nrm, Vector3.UP)
+
+
 func _on_wave_started(_wave_number: int, _planned: int) -> void:
 	var origin := _arena_origin()
 	ring_at(origin, Color(0.85, 0.45, 0.22), 6.5, PRIORITY_SPAWN)
@@ -335,6 +346,8 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	var at := Vector3.ZERO
 	if is_instance_valid(boss) and boss is Node3D:
 		at = (boss as Node3D).global_position
+	_last_boss_at = at
+	_has_boss_at = true
 	# Inner danger disc + outer contrast ring so the telegraph reads on sand arenas
 	# and under high-contrast / reduced-motion settings.
 	ring_at(at, Color(1.0, 0.95, 0.15), 6.4, PRIORITY_BOSS)
@@ -344,8 +357,12 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
-	ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32), 9.5, PRIORITY_BOSS)
-	burst_at(Vector3.ZERO + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
+	# boss_slain only carries the id; the body is already gone. Play at the last
+	# spawned boss origin instead of world zero (which is often outside the pit).
+	var at := _last_boss_at if _has_boss_at else _arena_origin()
+	_has_boss_at = false
+	ring_at(at, Color(1.0, 0.85, 0.32), 9.5, PRIORITY_BOSS)
+	burst_at(at + Vector3(0, 0.5, 0), Color(1.0, 0.88, 0.4), 2.2, PRIORITY_BOSS)
 
 
 func _on_pickup_collected(_pickup_id: StringName, _amount: int, collector: Node) -> void:
@@ -392,7 +409,7 @@ func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 	# Ring with skill-specific shape texture — distinct identity beyond colour.
 	var ring := _claim_ring(PRIORITY_SKILL)
 	if ring != null:
-		ring.global_position = at + Vector3(0.02, 0, 0.02)
+		_place_ring_on_floor(ring, at)
 		var mi := ring.get_node_or_null("Disc") as MeshInstance3D
 		if mi != null:
 			var mat := mi.material_override as StandardMaterial3D

@@ -288,8 +288,10 @@ class IdTablesAreGoneTests(unittest.TestCase):
         every prop in a shipped arena. That needs a visual sign-off this repository cannot get
         without an engine, so the branch stays -- bounded, counted, and named in the docs."""
         src = code(DECOR_GD)
-        self.assertEqual(src.count("match String(arena_id)"), 1,
+        self.assertEqual(src.count("match String(_composition_id(arena_id))"), 1,
                          "the decor branch may stay exactly one; a second one means the tables are back")
+        self.assertIn("func _composition_id(", src,
+                      "dressing must follow the live theme/config, not a second id table")
         self.assertIn("per-arena", read("docs/EXTENDING.md").lower(),
                       "the exception has to be discoverable where a modder reads it")
 
@@ -590,7 +592,8 @@ class ConsumerWiringTests(unittest.TestCase):
         src = code(ARENA_GD)
         self.assertIn("func apply_theme() -> void:", src,
                       "apply_theme went back to taking an arena id (which is how a table miss became invisible)")
-        self.assertIn("_config = _resolve_config(_resolve_arena_id())", src)
+        self.assertIn("arena_id = _resolve_arena_id()", src)
+        self.assertIn("_config = _resolve_config(arena_id)", src)
         self.assertIn("func _resolve_config(", src)
         self.assertIn("ContentRegistry != null", src, "registry must be consulted first: it is already validated")
         self.assertIn('ResourceLoader.exists(path)', src, "the disk fallback must not load() a missing path")
