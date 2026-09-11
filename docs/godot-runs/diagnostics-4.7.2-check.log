@@ -13,7 +13,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -46,7 +46,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -98,7 +98,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -134,7 +134,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -161,7 +161,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -190,7 +190,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -219,7 +219,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -252,7 +252,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -330,7 +330,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -358,7 +358,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -392,7 +392,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -421,7 +421,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -476,6 +476,41 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/core/run_analytics.gd:19)
 ERROR: Failed to load script "res://scripts/core/run_analytics.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/core/run_isolation.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile_pool.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:47)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/objective_director.gd:71)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:108)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/run_isolation.gd:0)
+ERROR: Failed to load script "res://scripts/core/run_isolation.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/core/run_scorekeeper.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -573,7 +608,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -605,7 +640,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Compilation failed".
@@ -626,7 +661,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -657,7 +692,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -682,7 +717,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -710,7 +745,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -733,7 +768,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -758,7 +793,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -783,7 +818,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -814,7 +849,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -843,7 +878,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -868,7 +903,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -891,7 +926,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -916,7 +951,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -942,7 +977,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
@@ -1023,7 +1058,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1147,7 +1182,7 @@ ERROR: Failed to load script "res://scripts/meta/narrator.gd" with error "Compil
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/meta/objective_director.gd:70)
+          at: GDScript::reload (res://scripts/meta/objective_director.gd:71)
 ERROR: Failed to load script "res://scripts/meta/objective_director.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/meta/prestige.gd
@@ -1180,7 +1215,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:33)
+          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:47)
 ERROR: Failed to load script "res://scripts/pickups/pickup_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/player/attack_buffer.gd
@@ -1196,7 +1231,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1227,7 +1262,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1300,7 +1335,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1351,7 +1386,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1462,7 +1497,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1480,7 +1515,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1529,7 +1564,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1602,7 +1637,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1746,6 +1781,43 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/utilities/performance_monitor.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://scripts/utilities/pool_governor.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile_pool.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:47)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/objective_director.gd:71)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:108)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/run_isolation.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/utilities/pool_governor.gd:0)
+ERROR: Failed to load script "res://scripts/utilities/pool_governor.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/utilities/radius_spatial_index.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -1769,7 +1841,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/visuals/foot_plant.gd
@@ -1780,7 +1852,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1862,7 +1934,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1891,7 +1963,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1916,7 +1988,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1943,7 +2015,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1971,7 +2043,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2027,7 +2099,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2127,7 +2199,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2173,7 +2245,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2198,7 +2270,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2231,7 +2303,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2291,7 +2363,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2335,7 +2407,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2411,7 +2483,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2465,7 +2537,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2500,7 +2572,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2536,7 +2608,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2587,7 +2659,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2616,7 +2688,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2638,7 +2710,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2669,6 +2741,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/unit/test_planner_extended.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://tests/unit/test_pool_governor.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://tests/unit/test_presentation_scripts.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2693,6 +2768,45 @@ ERROR: Failed to load script "res://tests/unit/test_progression.gd" with error "
 ===== res://tests/unit/test_rng_tables.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://tests/unit/test_run_isolation.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile_pool.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:47)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/objective_director.gd:71)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:108)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/run_isolation.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/utilities/pool_governor.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_run_isolation.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_run_isolation.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_safe_player_spawn.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2727,7 +2841,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2758,7 +2872,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2815,7 +2929,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
