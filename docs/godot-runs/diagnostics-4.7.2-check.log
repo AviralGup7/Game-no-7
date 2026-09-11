@@ -2237,9 +2237,9 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/ui/ui_root.gd:51)
 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:61)
-ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
+SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+          at: GDScript::reload (res://tests/ui/ui_test_runner.gd:31)
+ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_area_combat.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
