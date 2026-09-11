@@ -3,15 +3,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ERROR: Parameter "data.tree" is null.
    at: get_tree (scene/main/node.h:559)
    GDScript backtrace (most recent call first):
-       [0] _autoload_node (res://scripts/status/status_manager.gd:450)
-       [1] _event_bus (res://scripts/status/status_manager.gd:439)
-       [2] apply_effect (res://scripts/status/status_manager.gd:129)
-       [3] suite (res://tests/unit/test_status_skills.gd:106)
-       [4] _run_suites (res://tests/run_tests.gd:140)
-       [5] _initialize (res://tests/run_tests.gd:96)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
        [0] _begin (res://scripts/ui/virtual_joystick.gd:101)
        [1] _joystick (res://tests/unit/test_locomotion_nan.gd:45)
        [2] suite (res://tests/unit/test_locomotion_nan.gd:18)

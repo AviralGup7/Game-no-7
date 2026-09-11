@@ -1,5 +1,69 @@
 # Changelog
 
+## [Unreleased] — Documentation consolidation (2026-09-11)
+
+`docs/` reduced from 34 to 20 markdown files. Canonical/reference docs (pinned by
+regression tests or code comments) are kept; process artifacts, one-off research
+notes and duplicates were deleted or merged.
+
+- **Deleted (waste — historical/process artifacts, unreferenced):**
+  `AGENT5_UI_HANDOFF`, `RECHECK`, `RELEASE_CANDIDATE_REPORT`, `QA_RELEASE_AUDIT`,
+  `MILESTONES_2_7_SUMMARY`, `MILESTONE0_AUDIT`, `GAME_ROOT_LIFECYCLE_RESEARCH`,
+  `INPUT_REMAP_RESEARCH`, `OBJECT_POOL_RESEARCH`, `WEIGHTED_TABLE_RESEARCH`.
+- **Merged (duplicates → one doc):**
+  - `CAMERA_MODULAR` + `CAMERA_PERFECT` → **`CAMERA.md`** (modules, coordinator loop,
+    design principles, profiles, references).
+  - `PLAYER_IMPLEMENTATION` + `MOVEMENT_STABILITY` + `STARTUP_STABILITY` → **`PLAYER.md`**
+    (player contract + tuning, NaN-crash postmortem, boot/visibility postmortem).
+  - `ENEMY_AI_ROBUSTNESS_RESEARCH` → appended as §5 of `ENEMY_AI_RESEARCH.md`.
+  - `MILESTONE0_AUDIT` determinism contract → new `## Determinism` section in
+    `ARCHITECTURE.md`.
+- **Updated pointers:** `tool/validate_guards.py` (movement-stability rationale),
+  `tests/python/test_regress_enemy_ai_hardening.py`, `tests/python/test_regress_milestones_2_to_7.py`,
+  and the README repository map + documentation table.
+- **Verification:** 910 Python tests, engine-API contract, typed-architecture gate,
+  guard gate (201) and resource gate (159) all green. No runtime/device claims.
+
+## [Unreleased] — Forensic-audit remediation: version alignment + detached-node error spam (2026-09-11)
+
+Follow-up to the read-only game forensic audit (`GAME_FORENSIC_AUDIT.md`). Only the
+two statically-actionable, non-duplicative defects were fixed; everything else in
+the audit was triaged as intentional test noise, reserved public surface, or a
+runtime/device-dependent gap (deferred — see below).
+
+- **Android version metadata now matches the project version.** `export_presets.cfg`
+  carried `version/name="0.6.0"` / `version/code=3` while `project.godot` declared
+  `0.7.0`. Bumped to `version/name="0.7.0"` / `version/code=4` so `scripts/release.sh`
+  tag matching and the APK manifest agree with the codebase. The milestone regression
+  pin (`tests/python/test_regress_milestones_2_to_7.py`) was widened to accept `0.7.0`.
+  Offline gates re-run green: 910 Python tests, engine-API contract, typed-architecture
+  gate, guard gate (201), resource gate (159).
+- **`StatusManager._autoload_node` no longer logs `Parameter "data.tree" is null`.**
+  `Node.get_tree()` on a node outside the tree returns null *and* emits an engine error.
+  Detached `StatusManager` fixtures (e.g. `test_status_skills.gd`) therefore produced
+  66 identical error lines per headless run. The resolver now checks `is_inside_tree()`
+  before calling `get_tree()` and keeps the `Engine.get_main_loop()` fallback, so
+  behavior is unchanged but the error channel is clean.
+
+Triage outcomes recorded so no future pass wastes effort re-investigating them:
+
+- **"Parse JSON failed … got 'not'"** — produced by the deliberate negative test
+  `JsonHelpers.parse_safe("not json", …)` in `test_meta_misc.gd`; all four `JSON.parse_string`
+  call sites handle failure. Expected noise, not a defect.
+- **"incomplete hero … WardenGladius.glb (trying fallback)"** — produced by
+  `test_hero_rig.gd::_test_fallback`, which feeds a no-rig mesh to prove the
+  `HeroRigContract` fallback gate. Expected noise, not a defect.
+- **Listener-less EventBus signals (`skill_unlocked`, `status_expired`,
+  `wave_mutator_applied`, `tutorial_step_completed`)** — all four are emitted with zero
+  listeners today but are intentionally retained public surface (documented in the
+  Godot 4.7.2 diagnostics report). Wiring fake listeners just to silence a warning
+  was deliberately avoided.
+- **PCK encryption** — left off: enabling `encrypt_pck` without a configured script
+  encryption key fails the Android export. This is a release-signing-time step, not a
+  pre-release bug.
+- **ObjectDB/resources "leaked at exit"** — confined to the headless test harness and
+  only nameable with `--verbose`; requires an authorized runtime trace before any fix.
+
 ## [Unreleased] — Arena art pass: per-arena dressing, landmark floor art, hazard models (2026-09-10)
 
 - **Downloaded 13 KayKit dungeon models** (same reviewed pack + pinned rev, CC0,

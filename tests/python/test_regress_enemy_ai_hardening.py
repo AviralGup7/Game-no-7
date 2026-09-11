@@ -34,7 +34,7 @@ class EnemyAiHardeningTests(unittest.TestCase):
         self.assertIn("not is_finite(delta)", text)
 
     def test_research_document_exists(self):
-        text = read("docs/ENEMY_AI_ROBUSTNESS_RESEARCH.md")
+        text = read("docs/ENEMY_AI_RESEARCH.md")
         self.assertIn("EnemyStateMachine", text)
         self.assertIn("EnemyPerception", text)
         self.assertIn("EnemyNavigator", text)

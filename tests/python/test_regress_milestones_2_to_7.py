@@ -144,7 +144,7 @@ class Milestone6_AndroidPerf(unittest.TestCase):
         self.assertIn("Mobile", txt)
         txt2 = read("export_presets.cfg")
         self.assertIn("arm64-v8a=true", txt2)
-        self.assertTrue('version/name="0.6.0"' in txt2 or 'version/name="0.5.0"' in txt2)
+        self.assertTrue('version/name="0.7.0"' in txt2 or 'version/name="0.6.0"' in txt2 or 'version/name="0.5.0"' in txt2)
         txt3 = read(".github/workflows/android.yml")
         self.assertIn("validate-resources", txt3)
         self.assertIn("godot-tests", txt3)
@@ -161,7 +161,7 @@ class Milestone7_CleanupDocs(unittest.TestCase):
                     bad.append(str(p))
         self.assertEqual(bad, [], msg=str(bad))
     def test_determinism_documented(self):
-        txt = read("docs/MILESTONE0_AUDIT.md")
+        txt = read("docs/ARCHITECTURE.md")
         self.assertIn("Determinism", txt)
         self.assertIn("RngService", txt)
     def test_milestone1_doc_exists(self):

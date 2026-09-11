@@ -168,3 +168,24 @@ cost memory, be nondeterministic, and still need the grid for LOS checks.
 * **No hazard pathing**: the design (per `ArenaHazards`) treats kiting
   enemies through vents as a *player* strategy — so the AI does not
   auto-dodge hazards; only geometry blocks intent.
+
+## 5. Robustness hardening (NaN / re-entrancy)
+
+A follow-up hardening pass (previously `docs/ENEMY_AI_ROBUSTNESS_RESEARCH.md`,
+merged here) closed the failure modes of the three high-frequency AI modules:
+
+- **`EnemyStateMachine`** no longer changes state while `enter()`/`exit()` or
+  `state_changed` listeners request another transition: re-entrant requests are
+  serialized (one active state at a time; queued follow-ups drain only after the
+  current hook completes). Forced transitions (hurt/dead) supersede a normal queued
+  transition; competing normal requests are diagnosed and rejected.
+- **`EnemyPerception`** rejects NaN/infinity configuration, frame deltas, positions,
+  intensities and memory durations, and resets safely on invalid target/spatial
+  input — a poisoned reaction timer or investigation point can no longer lock an
+  enemy or leak into navigation.
+- **`EnemyNavigator`** validates every vector and substitutes a safe refresh
+  interval; invalid inputs return a zero/fallback direction instead of propagating
+  NaN into `CharacterBody` velocity.
+- Valid-input behaviour (LOS, FOV, flow-field, A*, legacy fallback) is unchanged.
+
+Pinned by `tests/python/test_regress_enemy_ai_hardening.py`.

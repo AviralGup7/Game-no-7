@@ -138,7 +138,9 @@ scripts/       core autoloads + per-system controllers/state
 data/          typed .tres content: enemies, upgrades, arenas, cameras, weapons,
                skills, status, pickups, waves, audio
 tests/         unit suites + doubles + run_tests.gd (headless runner)
-docs/          BUILD.md, ART_STYLE.md, EXTENDING.md
+docs/          canonical guides (BUILD, ARCHITECTURE, EXTENDING, ART_STYLE) +
+               per-system notes (camera, player, audio, enemy AI, performance,
+               Android, assets, saves, minimap)
 tool/          repository/resource validation tooling
 scripts/       build automation (build_android.sh, download_assets.py)
 .github/       CI workflow that builds + tests from a fresh clone
@@ -152,11 +154,25 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 | Doc | Purpose |
 |---|---|
 | `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
-| `docs/ANDROID_PERMISSIONS.md` | why the app requests no Android permissions + how to verify |
+| `docs/ARCHITECTURE.md` | Systems map, ownership, determinism, timing + hardening contracts |
+| `docs/EXTENDING.md` | Step-by-step extension guides (enemy / upgrade / arena / weapon / cue / UI) |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
-| `docs/HERO_FIDELITY.md` | New Warden, retarget recipe, complete clip/socket gate + validation limits |
+| `docs/ANDROID_PERMISSIONS.md` | why the app requests no Android permissions + how to verify |
+| `docs/ANDROID_PERFORMANCE.md` | Mobile performance posture + adaptive quality governor |
+| `docs/PERFORMANCE_GOVERNOR.md` | Frame-time governor algorithm write-up |
+| `docs/DEBUG_MODE.md` | Debug-mode error trap (freeze + copyable report) |
+| `docs/DEVICE_QA.md` | On-device play checklist |
+| `docs/HARDENING.md` | Hardening pass summary + pinned contracts |
+| `docs/PLAYER.md` | Player contract + movement/startup stability postmortems |
+| `docs/CAMERA.md` | Modular third-person camera rig + design principles |
+| `docs/ENEMY_AI_RESEARCH.md` | Enemy AI design ("feels human") + robustness hardening |
+| `docs/AUDIO_ENGINE.md` | SFX voice management, click-safe playback, music ownership |
+| `docs/MINIMAP_RADAR.md` | Minimap/radar design |
+| `docs/SAVE_RESILIENCE.md` | Save backup generations, migration + corruption recovery |
 | `docs/ASSET_CATALOG.md` | Downloaded asset inventory, file/role map, animation names + integration status |
-| `docs/EXTENDING.md` | Step-by-step extension guides |
+| `docs/ASSET_AUDIT.md` | Asset quality audit + limitations |
+| `docs/HERO_FIDELITY.md` | Warden, retarget recipe, complete clip/socket gate + validation limits |
+| `docs/REFACTOR_PLAN.md` | Typed-architecture refactor plan |
 | `THIRD_PARTY_ASSETS.md` | Visual asset licences + provenance |
 | `AUDIO_MANIFEST.md` | Audio asset licences + provenance |
 | `CHANGELOG.md` | Per-phase progress |

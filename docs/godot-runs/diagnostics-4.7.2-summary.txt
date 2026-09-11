@@ -10,7 +10,7 @@
       1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
 
 ########## diag-tests.log
-     66 ERROR: Parameter "data.tree" is null.
+     65 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       3 ERROR: Parameter "material" is null.
@@ -196,7 +196,7 @@
 ########## diag-wae-import.log
 
 ########## diag-wae-tests.log
-     66 ERROR: Parameter "data.tree" is null.
+     65 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
       3 ERROR: Parameter "material" is null.
