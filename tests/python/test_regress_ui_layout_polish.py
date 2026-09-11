@@ -115,6 +115,25 @@ class ThemeConsistencyTests(unittest.TestCase):
         self.assertIn('theme.set_font("font", "Label", REGULAR)', txt)
         self.assertIn('theme.set_font("font", "RichTextLabel", REGULAR)', txt)
 
+    def test_arena_chrome_files_are_present(self):
+        chrome = ROOT / "data" / "ui" / "chrome"
+        for name in (
+            "menu_backdrop.jpg",
+            "panel.png",
+            "btn_gold.png",
+            "btn_dark.png",
+            "icon_play.png",
+            "icon_pause.png",
+            "icon_gear.png",
+        ):
+            self.assertTrue((chrome / name).is_file(), name)
+        theme = read("scripts/ui/ui_theme.gd")
+        self.assertIn('res://data/ui/chrome/', theme)
+        self.assertIn("static func skin(", theme)
+        backdrop = read("scripts/ui/menu_backdrop.gd")
+        self.assertIn("menu_backdrop.jpg", backdrop)
+        self.assertIn("STRETCH_KEEP_ASPECT_COVERED", backdrop)
+
     def test_factory_never_emits_a_small_button(self):
         txt = read("scripts/ui/ui_factory.gd")
         self.assertIn("maxf(min_size.y, UiTheme.TOUCH_MIN)", txt)

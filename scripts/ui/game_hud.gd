@@ -156,7 +156,7 @@ func _value_chip(parent: Node, accent: Color, text: String) -> Label:
 ## Shared translucent plate chrome for the top strip and the gauges dock. One
 ## definition so both always read alike.
 func _scrim() -> StyleBoxFlat:
-	var style := UiTheme.glass(Color(0.05, 0.08, 0.14, 0.78))
+	var style := UiTheme.glass(Color(0.07, 0.03, 0.02, 0.82))
 	style.set_corner_radius_all(UiTheme.RADIUS)
 	style.content_margin_left = 18
 	style.content_margin_right = 18

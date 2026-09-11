@@ -28,8 +28,8 @@ strong, shared material budgets bounded and mobile performance measured.
 | Pickup / bonus | gold `#ffd25e` | currency/upgrade pickups |
 | Arena ground | mid neutral `#6c856b` | low saturation to contrast actors |
 | Environment | desaturated warm/cool props | rocks, walls, decoration |
-| UI panel | translucent dark `#14181f` | consistent panels/overlays |
-| UI accent | `#7fc7ff` / `#ff8f5e` | CTAs and highlights |
+| UI panel | ember-black `#140c08` over the painted coliseum | leather / bronze plates |
+| UI accent | gold `#e8b44a` / copper `#e08a45` | CTAs, ranks, energy |
 
 Use high-contrast variant (settings toggle) for accessibility.
 

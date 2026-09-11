@@ -114,7 +114,7 @@ func _draw() -> void:
 	var r := minf(radius, minf(size.x, size.y) * 0.5)
 	# Touch feedback: pressed grows a gold ring and brightens the disc, so a tap
 	# is confirmed visually even when the thumb hides the label.
-	var col := Color("3f6b86") if _held else Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.82)
+	var col := Color("5a3418") if _held else Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.82)
 	draw_circle(center, r, col)
 	draw_arc(center, r, 0.0, TAU, 48, UiTheme.GOLD if _held else UiTheme.CYAN, 4.0 if _held else 3.0)
 	if _held:

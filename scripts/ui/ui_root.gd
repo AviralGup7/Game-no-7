@@ -127,14 +127,14 @@ func _build_screens() -> void:
 	# progress to report, so it must not imply one.
 	var status_rule := ColorRect.new()
 	status_rule.name = "StatusRule"
-	status_rule.color = UiTheme.CYAN
+	status_rule.color = UiTheme.GOLD
 	status_rule.custom_minimum_size.y = 3
 	status_rule.mouse_filter = MOUSE_FILTER_IGNORE
 	status_box.add_child(status_rule)
 	UiFactory.button("MAIN MENU", status_box, 22).pressed.connect(func() -> void: GameRoot.request_main_menu())
 
 func _build_pause() -> void:
-	var box := _mount_overlay(&"paused")
+	var box := _mount_overlay(&"paused", 0.58)
 	UiFactory.screen_header(box, "TAKE A BREATH", "PAUSED", 48,
 		"Your run is frozen. Resume when you're ready.")
 	# Resume is the primary action and gets the tallest target; the two
