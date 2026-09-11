@@ -963,8 +963,8 @@ static func _run_run_definition_integration(_tree: SceneTree) -> Array:
 	var listener := func(text_key: StringName, text: String, _severity: StringName) -> void:
 		heard.append([String(text_key), text])
 	EventBus.announcement.connect(listener)
-	Narrator.announce_wave(GameMode.MODE_CAMPAIGN, &"frost_hollow", 5)
-	Narrator.announce_wave(GameMode.MODE_SURVIVAL, &"ember_crucible", 1)
+	Narrator.announce_wave(GameMode.MODE_CAMPAIGN, &"default_arena", 5)
+	Narrator.announce_wave(GameMode.MODE_SURVIVAL, &"default_arena", 1)
 	Narrator.announce_wave(GameMode.MODE_COLLECT, &"default_arena", 2)
 	EventBus.announcement.disconnect(listener)
 	# Exactly two announcements from three calls: the third (Relic Hunt, wave 2) has no authored beat

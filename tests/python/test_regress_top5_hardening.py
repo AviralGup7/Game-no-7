@@ -71,27 +71,24 @@ class NavGridHardeningTests(unittest.TestCase):
         self.assertIn("_cell_touches_blocked", src)
         self.assertIn("tax = 0.35", src)
 
-    def test_ember_corners_clear_axis_spawns(self):
-        """The authored Ember layout keeps a jitter-proof gap to the axis spawn markers.
+    def test_dungeon_wings_clear_axis_spawns(self):
+        """The merged dungeon's authored obstacles keep a jitter-proof gap to the axis spawn
+        markers, exactly as the three separate arenas did before they were merged.
 
-        This used to grep `Vector3(8.0 * s, 0.0, 8.0 * s)` out of ArenaObstacles. The
-        numbers moved into data (ArenaConfig.obstacle_layout), where they are now read
-        exactly as the game reads them -- which makes the *guarantee* assertible instead of
-        the expression that produced it. The history the old literal carried is preserved
-        in the .tres and restated here: 8.5 sat each corner exactly 2.5 m from a +-11 spawn
-        (foot 0.8 + jitter 1.2 + safety 0.5), i.e. zero margin.
+        This used to grep `Vector3(8.0 * s, 0.0, 8.0 * s)` out of ArenaObstacles; the numbers
+        then moved into data (ArenaConfig.obstacle_layout), and are now the one dungeon's
+        layout. The guarantee — no obstacle can be touched by a legal jittered spawn — is
+        assertible against the data the game reads.
         """
-        placements = obstacle_layout("ember_crucible")
-        self.assertGreaterEqual(len(placements), 8, f"expected the 8 expanded obstacles, got {len(placements)}")
+        placements = obstacle_layout("default_arena")
+        self.assertGreaterEqual(len(placements), 8, f"expected at least 8 expanded obstacles, got {len(placements)}")
         spawns = [(16.0, 0.0), (-16.0, 0.0), (0.0, 16.0), (0.0, -16.0)]
         for (px, pz, hx, hz) in placements:
             foot = max(hx, hz)
             for (sx, sz) in spawns:
                 gap = math.hypot(px - sx, pz - sz)
                 self.assertGreater(gap, foot + 1.2 + 0.5,
-                                   f"ember obstacle at ({px}, {pz}) can be touched by spawn jitter at ({sx}, {sz})")
-        radii = {abs(px) for (px, pz, _hx, _hz) in placements if abs(pz) < 0.01}
-        self.assertEqual(radii, {8.0}, f"cardinal pillars must ring the forge at exactly 8.0 m, got {radii}")
+                                   f"dungeon obstacle at ({px}, {pz}) can be touched by spawn jitter at ({sx}, {sz})")
 
     def test_default_gate_towers_leave_throat(self):
         """The Pit's twin rubble towers must leave a passable throat beside the obelisk."""

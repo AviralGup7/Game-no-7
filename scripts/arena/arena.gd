@@ -36,12 +36,23 @@ const ARENA_GROUP := &"arena"
 
 const ARENA_CONFIG_DIR := "res://data/arenas/"
 const OBSTACLE_MATERIAL := "res://assets/materials/arena_wall_stone.tres"
+## Interior dungeon walls use the same brick the perimeter shell draws, so the rooms read
+## as one structure rather than grey boxes on a stone floor.
+const DUNGEON_WALL_MATERIAL := "res://assets/materials/arena_wall_brick.tres"
 
 var _nav_grid: ArenaNavGrid = null
 ## The one source of truth for the interior: the authored placements, expanded for symmetry.
 ## Collision bodies, meshes and nav blockers are all built from this array, never re-derived.
 var _obstacles: Array[ArenaObstaclePlacement] = []
 var _landmark: ArenaLandmark = null
+## Wing centrepieces (forge, crystal), merged in from the former separate arenas. Their
+## footprints join the nav grid exactly like the central landmark's, so the AI routes around
+## a wing landmark instead of walking through it.
+var _wing_landmarks: Array[ArenaLandmark] = []
+## Footprints of the generated dungeon walls, produced once by `DungeonGenerator` and fed to
+## the shared nav grid alongside obstacles, landmarks and decoration so nothing routes
+## through a wall.
+var _dungeon_blockers: Array[AABB] = []
 var _config: ArenaConfig = null
 ## Half-extents of the box the spawn solver keeps clear of. Production fills it from the built
 ## landmark (see `_build_landmark`) and nothing else writes it, which is the whole difference from the
@@ -68,6 +79,7 @@ func _ready() -> void:
 	# navigation floor is built from their footprints. apply_theme() rebuilds
 	# nav after the centrepiece, including the config-less greybox case.
 	_spawn_obstacles()
+	_build_dungeon_shell()
 	apply_theme()
 
 
@@ -138,6 +150,7 @@ func apply_theme() -> void:
 		_apply_sky_and_light(_config.theme)
 		_tint_surfaces(_config.theme)
 	_spawn_landmark(_config.landmark)
+	_spawn_extra_landmarks(_config.extra_landmarks)
 	# Landmark footprint changed: refresh the shared nav grid so the AI's
 	# intent avoids it exactly as the physics body blocks the bodies.
 	_rebuild_navigation_floor()
@@ -275,6 +288,76 @@ func _spawn_landmark(cfg: ArenaLandmarkConfig) -> void:
 		_landmark_block_half = _landmark.footprint().size * 0.5
 
 
+## Wing centrepieces, merged in from the former separate arenas. They live under their own
+## holder (so a theme switch frees them without touching the central landmark) and each
+## keeps a stable, id-derived name rather than three nodes all called "Landmark". A placement
+## carries the shared landmark config plus a per-wing position; the config is duplicated
+## before repositioning so a shared resource is never mutated in place.
+func _spawn_extra_landmarks(placements: Array[ArenaLandmarkPlacement]) -> void:
+	var parent := get_node_or_null("WingLandmarks") as Node3D
+	if parent == null:
+		parent = Node3D.new()
+		parent.name = "WingLandmarks"
+		add_child(parent)
+	else:
+		for c in parent.get_children():
+			parent.remove_child(c)
+			c.free()
+	_wing_landmarks.clear()
+	for place in placements:
+		if place == null or place.config == null:
+			continue
+		var cfg := place.config.duplicate(true) as ArenaLandmarkConfig
+		cfg.position = place.position
+		var lm := ArenaLandmark.spawn(parent, cfg)
+		if lm == null:
+			continue
+		if cfg.landmark_id != &"":
+			lm.name = "Landmark_%s" % String(cfg.landmark_id)
+		_wing_landmarks.append(lm)
+
+
+## The dungeon's interior walls: the room structure that turns the former flat floor into a
+## connected set of rooms. Built from `DungeonGenerator`, the same way the authored
+## `obstacle_layout` is built from `ArenaObstacles` — one wall entry becomes a StaticBody3D,
+## a brick mesh and a nav footprint, so physics and the AI's intent never disagree.
+func _build_dungeon_shell() -> void:
+	var parent := get_node_or_null("DungeonWalls") as Node3D
+	if parent == null:
+		parent = Node3D.new()
+		parent.name = "DungeonWalls"
+		add_child(parent)
+	else:
+		for c in parent.get_children():
+			parent.remove_child(c)
+			c.free()
+	_dungeon_blockers.clear()
+	var mat: Material = null
+	var res := load(DUNGEON_WALL_MATERIAL)
+	if res is Material:
+		mat = res
+	for w in DungeonGenerator.walls():
+		var body := StaticBody3D.new()
+		body.name = "DungeonWall"
+		body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+		body.collision_mask = CollisionLayers.NO_LAYER
+		var shape := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = w.size
+		shape.shape = box
+		body.add_child(shape)
+		var mesh := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = w.size
+		mesh.mesh = bm
+		if mat != null:
+			mesh.material_override = mat
+		body.add_child(mesh)
+		body.position = w.position
+		parent.add_child(body)
+		_dungeon_blockers.append(w.footprint())
+
+
 ## Deterministic, precomputed navigation floor (no runtime baking). Two layers,
 ## built from the same obstacle set that owns the collision shapes:
 ##   * ArenaNavGrid — authoritative for enemy steering: shared flow field +
@@ -306,6 +389,15 @@ func _build_navigation_floor() -> void:
 		var landmark_box := _landmark.footprint()
 		if ArenaObstacles.blocks_nav(landmark_box):
 			blockers.append(landmark_box)
+	for lm in _wing_landmarks:
+		if lm != null:
+			var wing_box := lm.footprint()
+			if ArenaObstacles.blocks_nav(wing_box):
+				blockers.append(wing_box)
+	# The generated dungeon walls block nav exactly like the hand-authored obstacles: one
+	# list, so the AI's intent cannot disagree with the physics bodies.
+	for foot in _dungeon_blockers:
+		blockers.append(foot)
 	# Solid decoration props are obstacles too: physics blocks their bodies, this blocks the AI's
 	# intent through them, from the same footprints — one list, so the two cannot disagree.
 	for foot in _decoration_blockers:
@@ -450,6 +542,8 @@ func get_debug_snapshot() -> Dictionary:
 		"spawn_point_count": get_spawn_points().size(),
 		"player_start": _vec_string(get_player_start()),
 		"obstacles": _obstacles.size(),
+		"dungeon_walls": _dungeon_blockers.size(),
+		"wing_landmarks": _wing_landmarks.size(),
 		"theme": String(_config.theme.theme_id) if _config != null and _config.theme != null else "scene",
 		"landmark": String(_config.landmark.kind) if _config != null and _config.landmark != null else "none",
 		"nav_grid": grid,

@@ -38,7 +38,14 @@ class ArenaAndLoadoutWiringTests(unittest.TestCase):
         txt = read("scripts/ui/run_setup_panel.gd")
         self.assertNotIn("not available in this build", txt)
         self.assertIn("GameRoot.set_pending_weapon", txt)
-        self.assertIn("func _arena_is_playable", txt)
+        self.assertNotIn("func _arena_is_playable", txt,
+                         "the single dungeon is always playable; the per-arena unlock gate is gone")
+
+    def test_run_setup_pins_the_single_dungeon(self) -> None:
+        txt = read("scripts/ui/run_setup_panel.gd")
+        self.assertIn('select_arena(&"default_arena")', txt,
+                      "the run must launch the one merged dungeon, not a stale selection")
+        self.assertNotIn("_arenas.add_item", txt, "the arena picker must stay removed")
 
 
 class RemapPersistenceTests(unittest.TestCase):
