@@ -1,20 +1,27 @@
 ########## diag-import.log
+     13 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      2 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
       1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
       1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
       1 SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "REGULAR" constant because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "BOLD" constant because the value doesn't have a set type.
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/audio/audio_manager.gd' is not compiling.
 
 ########## diag-tests.log
      66 ERROR: Parameter "data.tree" is null.
+     12 SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      5 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       3 ERROR: Parameter "material" is null.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
@@ -22,12 +29,15 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+      1 WARNING: [diagnostic] AudioAssetIntegrator: autoloads not ready
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 41 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -35,17 +45,21 @@
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: Failed to load script "res://tests/unit/test_ui_layout.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_spatial_audio.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/audio/audio_manager.gd' does not inherit from 'Node'.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
     388 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    196 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    195 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
     137 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
     100 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
+      5 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
       4 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
       4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
@@ -63,8 +77,11 @@
       2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
       1 SCRIPT ERROR: Parse Error: Expected statement, found "Indent" instead.
+      1 SCRIPT ERROR: Parse Error: Expected indented block after "if" block.
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
@@ -74,6 +91,7 @@
       1 ERROR: Failed to load script "res://tests/unit/test_systems_completion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_status_skills.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_status_manager.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://tests/unit/test_spatial_audio.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://tests/unit/test_safe_player_spawn.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_progression.gd" with error "Compilation failed".
@@ -192,9 +210,10 @@
       1 ERROR: Failed to load script "res://scripts/combat/damageable.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/combat/combat_query.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/combat/area_damage.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/audio/spatial_voice_pool.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/audio/procedural_sfx.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/audio/music_manager.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/audio/audio_asset_integrator.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/hazard_placement.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/hazard_mode_layout.gd" with error "Compilation failed".
@@ -208,17 +227,32 @@
       1 ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilation failed".
 
 ########## diag-editor.log
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
+      2 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/audio/audio_manager.gd' is not compiling.
 
 ########## diag-wae-import.log
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
+      2 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/audio/audio_manager.gd' is not compiling.
 
 ########## diag-wae-tests.log
      66 ERROR: Parameter "data.tree" is null.
+     12 SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      5 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
       3 WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/WardenGladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: 1H_Melee_Attack_Slice_Horizontal, clip: 1H_Melee_Attack_Slice_Diagonal, clip: 1H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Chop, clip: 2H_Melee_Attack_Slice, clip: 2H_Melee_Attack_Spin, clip: 2H_Melee_Attack_Stab, clip: Dualwield_Melee_Attack_Slice, clip: 2H_Ranged_Shoot, clip: 2H_Ranged_Reload, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right, clip: Hit_A, clip: Death_A, clip: Spellcast_Shoot, clip: Spellcast_Raise, clip: Cheer (trying fallback)
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       3 ERROR: Parameter "material" is null.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
@@ -226,12 +260,15 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+      1 WARNING: [diagnostic] AudioAssetIntegrator: autoloads not ready
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 41 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -239,15 +276,29 @@
       1 ERROR: Not supported by this display server.
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: Failed to load script "res://tests/unit/test_ui_layout.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/unit/test_spatial_audio.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/audio/audio_manager.gd' does not inherit from 'Node'.
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
 
 ########## diag-wae-probe.log
+     12 SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+      2 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 WARNING: [diagnostic] AudioAssetIntegrator: autoloads not ready
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+      1 ERROR: Failed to instantiate an autoload, script 'res://scripts/audio/audio_manager.gd' does not inherit from 'Node'.
 
 ########## diag-lsp.txt
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_ui_layout.gd:66:23: ERROR: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_spatial_audio.gd:366:30: ERROR: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_spatial_audio.gd:365:8: ERROR: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_spatial_audio.gd:364:8: ERROR: Could not resolve class "SpatialVoicePool", because of a parser error.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:98:24: ERROR: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:273:2: ERROR: Unexpected "await" in class body.
@@ -285,18 +336,36 @@
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:232:1: ERROR: Expected statement, found "Indent" instead.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_gauges.gd:150:5: ERROR: Identifier "_xp_seeded" not declared in the current scope.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/ui/ui_gauges.gd:118:2: ERROR: Identifier "_xp_seeded" not declared in the current scope.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:332:19: WARNING: (SHADOWED_VARIABLE): The local function parameter "_clip" is shadowing an already-declared function at line 417 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/spatial_voice_pool.gd:115:35: ERROR: Expected indented block after "if" block.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_manager.gd:54:13: ERROR: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_manager.gd:317:55: ERROR: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_manager.gd:316:19: ERROR: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_manager.gd:122:13: ERROR: Could not resolve class "SpatialVoicePool", because of a parser error.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
 
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
+      3 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       2 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
+      2 SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
       1 SCRIPT ERROR: Parse Error: Expected statement, found "Indent" instead.
+      1 SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
       1 Identifier "_xp_seeded" not declared in the current scope.
       1 ERROR: LSP: Failed to parse script: res://tests/unit/test_ui_layout.gd
+      1 ERROR: LSP: Failed to parse script: res://tests/unit/test_spatial_audio.gd
       1 ERROR: LSP: Failed to parse script: res://tests/unit/test_save.gd
       1 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
       1 ERROR: LSP: Failed to parse script: res://scripts/ui/ui_gauges.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/audio/spatial_voice_pool.gd
+      1 ERROR: LSP: Failed to parse script: res://scripts/audio/audio_manager.gd
       1 ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+      1 ERROR: Failed to create an autoload, script 'res://scripts/audio/audio_manager.gd' is not compiling.
 

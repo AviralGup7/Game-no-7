@@ -5,6 +5,24 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:54)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:122)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:316)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:317)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+ERROR: Failed to create an autoload, script 'res://scripts/audio/audio_manager.gd' is not compiling.
+   at: _create_autoload (editor/settings/editor_autoload_settings.cpp:340)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
@@ -27,6 +45,9 @@ ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse e
 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
 Expected statement, found "Indent" instead.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
+ERROR: LSP: Failed to parse script: res://tests/unit/test_spatial_audio.gd
+Could not resolve class "SpatialVoicePool", because of a parser error.
+   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://tests/unit/test_save.gd
 Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
@@ -35,6 +56,12 @@ Cannot infer the type of "skip_top" variable because the value doesn't have a se
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://scripts/ui/ui_gauges.gd
 Identifier "_xp_seeded" not declared in the current scope.
+   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
+ERROR: LSP: Failed to parse script: res://scripts/audio/spatial_voice_pool.gd
+Expected indented block after "if" block.
+   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
+ERROR: LSP: Failed to parse script: res://scripts/audio/audio_manager.gd
+Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1

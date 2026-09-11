@@ -1,6 +1,24 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 treat_warnings_as_errors=true
+SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:54)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:122)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:316)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:317)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+ERROR: Failed to instantiate an autoload, script 'res://scripts/audio/audio_manager.gd' does not inherit from 'Node'.
+   at: start (main/main.cpp:4539)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
@@ -17,7 +35,97 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_cue' in base 'Nil'.
+          at: ContentRegistryService.register_audio_cue (res://scripts/core/content_registry.gd:105)
+          GDScript backtrace (most recent call first):
+              [0] register_audio_cue (res://scripts/core/content_registry.gd:105)
+              [1] _register_audio_cues (res://scripts/core/content_registry.gd:97)
+              [2] refresh_all (res://scripts/core/content_registry.gd:85)
+              [3] _ready (res://scripts/core/content_registry.gd:37)
+WARNING: [diagnostic] AudioAssetIntegrator: autoloads not ready
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] register (res://scripts/audio/audio_asset_integrator.gd:49)
+         [2] refresh_all (res://scripts/core/content_registry.gd:89)
+         [3] _ready (res://scripts/core/content_registry.gd:37)
 [diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
 [diagnostic] GameRoot ready
 [diagnostic] RunAnalytics ready (offline only)

@@ -9,7 +9,7 @@ ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilat
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -42,7 +42,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:146)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -94,7 +94,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -130,7 +130,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -157,7 +157,7 @@ ERROR: Failed to load script "res://scripts/arena/hazard_config.gd" with error "
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -186,7 +186,7 @@ ERROR: Failed to load script "res://scripts/arena/hazard_instance.gd" with error
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -215,7 +215,7 @@ ERROR: Failed to load script "res://scripts/arena/hazard_marker.gd" with error "
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -248,7 +248,7 @@ ERROR: Failed to load script "res://scripts/arena/hazard_mode_layout.gd" with er
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -289,10 +289,19 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/audio/audio_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:66)
-ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:54)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:122)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:316)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:317)
+ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/audio/mix_snapshot.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/audio/music_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -304,17 +313,30 @@ ERROR: Failed to load script "res://scripts/audio/music_manager.gd" with error "
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/audio/procedural_sfx.gd:36)
+          at: GDScript::reload (res://scripts/audio/procedural_sfx.gd:44)
 ERROR: Failed to load script "res://scripts/audio/procedural_sfx.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/audio/sfx_policy.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/audio/spatial_attenuation.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/audio/spatial_voice_pool.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Expected indented block after "if" block.
+          at: GDScript::reload (res://scripts/audio/spatial_voice_pool.gd:115)
+ERROR: Failed to load script "res://scripts/audio/spatial_voice_pool.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/audio/voice_bank.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/combat/area_damage.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -342,7 +364,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -376,7 +398,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -405,7 +427,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -542,7 +564,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/enemies/enemy_animator.gd:51)
+          at: GDScript::reload (res://scripts/enemies/enemy_animator.gd:67)
 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/enemies/enemy_attack_state.gd
@@ -557,7 +579,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -574,7 +596,7 @@ ERROR: Failed to load script "res://scripts/enemies/enemy_attack_state.gd" with 
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/enemies/enemy_base.gd
@@ -589,7 +611,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -610,7 +632,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -623,6 +645,9 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/enemy_chase_state.gd:0)
 ERROR: Failed to load script "res://scripts/enemies/enemy_chase_state.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/enemies/enemy_clip_catalog.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/enemies/enemy_config.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -638,7 +663,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -663,7 +688,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -691,7 +716,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -714,7 +739,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -739,7 +764,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -764,7 +789,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -795,7 +820,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -824,7 +849,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -849,7 +874,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -872,7 +897,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -897,7 +922,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -925,7 +950,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1004,7 +1029,7 @@ ERROR: Failed to load script "res://scripts/player/player.gd" with error "Compil
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1177,7 +1202,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1208,7 +1233,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1281,7 +1306,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1332,7 +1357,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1443,7 +1468,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1461,7 +1486,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1510,7 +1535,7 @@ ERROR: Failed to load script "res://scripts/ui/boss_health_bar.gd" with error "C
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1583,7 +1608,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -1757,7 +1782,7 @@ ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with err
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1839,7 +1864,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1868,7 +1893,7 @@ ERROR: Failed to load script "res://scripts/weapons/melee_resolver.gd" with erro
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1893,7 +1918,7 @@ ERROR: Failed to load script "res://scripts/weapons/projectile.gd" with error "C
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1920,7 +1945,7 @@ ERROR: Failed to load script "res://scripts/weapons/projectile_pool.gd" with err
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -1948,7 +1973,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2004,7 +2029,7 @@ ERROR: Failed to load script "res://tests/integration/android_performance.gd" wi
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2104,7 +2129,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2150,7 +2175,7 @@ ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Pars
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2175,7 +2200,7 @@ ERROR: Failed to load script "res://tests/unit/test_area_combat.gd" with error "
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2208,7 +2233,7 @@ ERROR: Failed to load script "res://tests/unit/test_arena_obstacles_node.gd" wit
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2268,7 +2293,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2312,7 +2337,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
           at: GDScript::reload (res://scripts/arena/arena.gd:146)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2388,7 +2413,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2442,7 +2467,7 @@ ERROR: Failed to load script "res://tests/unit/test_game_modes.gd" with error "C
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2477,7 +2502,7 @@ ERROR: Failed to load script "res://tests/unit/test_hazards.gd" with error "Comp
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2513,7 +2538,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:104)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2566,7 +2591,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2595,7 +2620,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/visuals/effect_director.gd:115)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2615,7 +2640,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2657,7 +2682,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/audio/procedural_sfx.gd:36)
+          at: GDScript::reload (res://scripts/audio/procedural_sfx.gd:44)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://tests/unit/test_procedural_sfx.gd:0)
 ERROR: Failed to load script "res://tests/unit/test_procedural_sfx.gd" with error "Compilation failed".
@@ -2693,11 +2718,22 @@ ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse e
 ===== res://tests/unit/test_scoring.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://tests/unit/test_spatial_audio.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:364)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:365)
+SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:366)
+ERROR: Failed to load script "res://tests/unit/test_spatial_audio.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_status_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2728,7 +2764,7 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/combat/damageable.gd:0)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
@@ -2789,7 +2825,7 @@ ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compil
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:54)
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
           at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
