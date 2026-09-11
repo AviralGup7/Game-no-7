@@ -1620,3 +1620,4 @@ SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current s
           at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+cannot connect to daemon at tcp:5037: Connection refused
