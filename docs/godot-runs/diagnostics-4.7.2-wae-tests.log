@@ -1394,7 +1394,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:167)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1149 total, 2 failed
+GDScript tests: 1159 total, 2 failed
   FAIL  Suite failed to compile: res://tests/unit/test_save.gd
   FAIL  Suite failed to compile: res://tests/unit/test_ui_layout.gd
 ::error title=GDScript test failures (2)::Suite failed to compile: res://tests/unit/test_save.gd%0ASuite failed to compile: res://tests/unit/test_ui_layout.gd

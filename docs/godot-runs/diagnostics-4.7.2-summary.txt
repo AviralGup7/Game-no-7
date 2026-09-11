@@ -25,7 +25,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 19 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
@@ -38,13 +38,13 @@
       1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 2 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 8 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    349 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    180 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-     95 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     78 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    367 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    190 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+     97 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+     80 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       4 SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
       4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
@@ -147,6 +147,7 @@
       1 ERROR: Failed to load script "res://scripts/progression/build_effects.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/progression_component.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_locomotion.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_combat.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_build.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/dodge_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/pickups/pickup_manager.gd" with error "Compilation failed".
