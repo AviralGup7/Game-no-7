@@ -37,9 +37,19 @@ class LockOnOwnershipTests(unittest.TestCase):
 class TouchAndStickTests(unittest.TestCase):
     def test_touch_drag_uses_look_delta_not_fake_mouse(self):
         rig = read("scripts/main/camera_rig.gd")
-        self.assertIn("_input_handler.handle_look_delta(drag.relative * 0.8)", rig)
+        self.assertIn("_input_handler.handle_touch_look(", rig)
+        self.assertIn("LOOK_ZONE_X", rig)
+        self.assertIn("_look_touch_index", rig)
+        self.assertNotIn("drag.relative * 0.8", rig)
         handler = read("scripts/main/camera/camera_input_handler.gd")
         self.assertIn("func handle_look_delta(relative: Vector2) -> void:", handler)
+        self.assertIn("func handle_touch_look(relative: Vector2, viewport_size: Vector2) -> void:", handler)
+        self.assertIn("touch_orbit_yaw_per_screen", handler)
+        orbit = read("scripts/main/camera/camera_orbit_controller.gd")
+        self.assertIn("orbit.current_yaw -= yaw_delta", orbit)
+        self.assertIn("orbit.current_pitch += pitch_delta", orbit)
+        profile = read("scripts/main/camera_profile.gd")
+        self.assertIn("touch_orbit_yaw_per_screen: float = 540.0", profile)
 
     def test_gamepad_stick_is_not_read_twice(self):
         handler = read("scripts/main/camera/camera_input_handler.gd")

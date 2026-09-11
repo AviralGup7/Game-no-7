@@ -39,6 +39,10 @@ extends Resource
 @export var orbit_speed_deg: float = 95.0
 @export var orbit_input_deadzone: float = 0.12
 @export var mouse_orbit_sensitivity: float = 0.22
+## Finger look: yaw degrees for a full-width swipe. 0.22 deg/px * 0.8 made a
+## 200 px sweep ~35° then yaw-smoothing ate most of it during the gesture.
+@export var touch_orbit_yaw_per_screen: float = 540.0
+@export var touch_orbit_pitch_per_screen: float = 200.0
 
 # --- Framing & Prediction (modular: CameraFocusTracker, CameraFramingController) ---
 @export_group("Framing & Prediction")
@@ -187,6 +191,19 @@ func _clamp_profile_fields() -> void:
 
 	collision_radius = clampf(collision_radius, 0.05, 1.5)
 	ground_clearance = clampf(ground_clearance, 0.1, 3.0)
+
+	if not is_finite(mouse_orbit_sensitivity) or mouse_orbit_sensitivity <= 0.0:
+		mouse_orbit_sensitivity = 0.22
+	else:
+		mouse_orbit_sensitivity = clampf(mouse_orbit_sensitivity, 0.04, 2.0)
+	if not is_finite(touch_orbit_yaw_per_screen) or touch_orbit_yaw_per_screen < 90.0:
+		touch_orbit_yaw_per_screen = 540.0
+	else:
+		touch_orbit_yaw_per_screen = clampf(touch_orbit_yaw_per_screen, 90.0, 1080.0)
+	if not is_finite(touch_orbit_pitch_per_screen) or touch_orbit_pitch_per_screen < 45.0:
+		touch_orbit_pitch_per_screen = 200.0
+	else:
+		touch_orbit_pitch_per_screen = clampf(touch_orbit_pitch_per_screen, 45.0, 360.0)
 
 	combat_enemy_radius = clampf(combat_enemy_radius, 2.0, 20.0)
 	combat_check_interval = clampf(combat_check_interval, 0.05, 1.0)

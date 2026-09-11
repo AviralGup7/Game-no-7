@@ -33,9 +33,15 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 	if has_manual:
 		if auto_follow != null:
 			auto_follow.notify_manual_input()
-		# gather() already returns this-frame degrees.
-		orbit.target_yaw -= deg_to_rad(manual.x)
-		orbit.target_pitch += deg_to_rad(manual.y)
+		# gather() already returns this-frame degrees. Write current AND target
+		# so a finger swipe turns the lens with the thumb instead of sitting in
+		# the yaw-smoothing lag (exp_weight(3.2) is ~5% per 60 Hz frame).
+		var yaw_delta := deg_to_rad(manual.x)
+		var pitch_delta := deg_to_rad(manual.y)
+		orbit.target_yaw -= yaw_delta
+		orbit.current_yaw -= yaw_delta
+		orbit.target_pitch += pitch_delta
+		orbit.current_pitch += pitch_delta
 	elif mode != null and mode.is_locked() and CameraMath.is_finite_v3(lock_pos):
 		# Zelda-style: sit behind the player, looking toward the lock. Manual
 		# orbit above still wins for the frame, so the right stick is not trapped.
@@ -49,11 +55,10 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, cam_pos: Vector
 	elif auto_follow != null:
 		auto_follow.tick(delta, velocity_tracker, orbit, cam_pos, focus_pos)
 
-	orbit.target_pitch = clampf(
-		orbit.target_pitch,
-		deg_to_rad(_profile.min_pitch_deg),
-		deg_to_rad(_profile.max_pitch_deg)
-	)
+	var pitch_min := deg_to_rad(_profile.min_pitch_deg)
+	var pitch_max := deg_to_rad(_profile.max_pitch_deg)
+	orbit.target_pitch = clampf(orbit.target_pitch, pitch_min, pitch_max)
+	orbit.current_pitch = clampf(orbit.current_pitch, pitch_min, pitch_max)
 
 	var base_dist := _profile.get_clamped_distance()
 	if mode != null:

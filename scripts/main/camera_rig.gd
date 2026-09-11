@@ -30,6 +30,8 @@ class_name CameraRig
 ## Design reference – same as before (Elden Ring, Zelda BOTW, God of War 2018, Uncharted/TLOU, GDC Fundamentals)
 
 const CAMERA_GROUP := &"camera_rig"
+## Left of this fraction is the movement stick; look starts to the right of it.
+const LOOK_ZONE_X := 0.38
 
 # Core
 var _target: Node3D = null
@@ -61,6 +63,9 @@ var _hitstop_manager: Node = null
 ## the rig follows the INTERPOLATED player transform instead of the raw 60 Hz
 ## physics-tick value. See _configure_interpolation().
 var _uses_interpolated_target := false
+## Index of the finger currently orbiting. -1 = none. Captured on an unhandled
+## look-zone press so a swipe can keep turning after it crosses the midline.
+var _look_touch_index := -1
 
 
 func _ready() -> void:
@@ -94,6 +99,7 @@ func _ready() -> void:
 
 	set_process(true)
 	set_process_input(true)
+	set_process_unhandled_input(true)
 
 
 func _find_camera() -> Camera3D:
@@ -160,6 +166,7 @@ func add_shake(amplitude: float, duration: float) -> void:
 
 
 func reset_transform() -> void:
+	_look_touch_index = -1
 	_collision.invalidate_cache()
 	_shake.reset()
 	_auto_follow.reset()
@@ -178,6 +185,7 @@ func reset_transform() -> void:
 
 
 func reset_orbit() -> void:
+	_look_touch_index = -1
 	if _target == null:
 		return
 	# Locked: snap behind the player looking at the lock. Unlocked: behind facing.
@@ -290,21 +298,68 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		_input_handler.handle_mouse_motion(event as InputEventMouseMotion)
+	elif event is InputEventScreenTouch:
+		_handle_look_touch(event as InputEventScreenTouch)
 	elif event is InputEventScreenDrag:
-		# Touch drag on the right half of the screen = camera orbit. Must go
-		# through handle_look_delta: a synthetic MouseMotion has no pressed
-		# button and is not captured, so handle_mouse_motion would drop it.
+		# First drag of a look (or a device that skips ScreenTouch). Captured
+		# fingers are applied in `_input` so a Control cannot eat the rest of
+		# the swipe. Skip here when already captured to avoid double-apply.
 		var drag := event as InputEventScreenDrag
-		var viewport_size := Vector2.ZERO
-		var vp := get_viewport()
-		if vp != null:
-			viewport_size = vp.get_visible_rect().size
-		if viewport_size.x > 0.0 and drag.position.x > viewport_size.x * 0.5:
-			_input_handler.handle_look_delta(drag.relative * 0.8)
+		if drag.index != _look_touch_index:
+			if _is_look_zone(drag.position):
+				_look_touch_index = drag.index
+				_apply_touch_look(drag)
 	# lock_on is owned by Player.request_lock_on — handling it here as well
 	# double-toggled every press (lock then immediately unlock).
 	if event.is_action_pressed("camera_reset"):
 		reset_orbit()
+
+
+## Continues a captured look finger. Named `_input` on purpose: Node._input is
+## the engine callback. The *module* is `_input_handler` so it does not shadow this.
+func _input(event: InputEvent) -> void:
+	if not _enabled or _look_touch_index < 0:
+		return
+	if event is InputEventScreenTouch:
+		var touch := event as InputEventScreenTouch
+		if touch.index == _look_touch_index and not touch.pressed:
+			_look_touch_index = -1
+	elif event is InputEventScreenDrag:
+		var drag := event as InputEventScreenDrag
+		if drag.index == _look_touch_index:
+			_apply_touch_look(drag)
+
+
+func _handle_look_touch(touch: InputEventScreenTouch) -> void:
+	if touch == null:
+		return
+	if touch.pressed:
+		if _look_touch_index < 0 and _is_look_zone(touch.position):
+			_look_touch_index = touch.index
+	elif touch.index == _look_touch_index:
+		_look_touch_index = -1
+
+
+func _is_look_zone(pos: Vector2) -> bool:
+	if not is_finite(pos.x) or not is_finite(pos.y):
+		return false
+	var size := _viewport_size()
+	return size.x > 0.0 and pos.x > size.x * LOOK_ZONE_X
+
+
+func _viewport_size() -> Vector2:
+	var vp := get_viewport()
+	if vp == null:
+		return Vector2.ZERO
+	return vp.get_visible_rect().size
+
+
+func _apply_touch_look(drag: InputEventScreenDrag) -> void:
+	if drag == null:
+		return
+	# Screen-normalized degrees, not pixels * 0.8 * mouse_orbit_sensitivity.
+	# Emulated mouse motion has no pressed button and is dropped by the mouse path.
+	_input_handler.handle_touch_look(drag.relative, _viewport_size())
 
 
 # ------------------------------------------------------------------

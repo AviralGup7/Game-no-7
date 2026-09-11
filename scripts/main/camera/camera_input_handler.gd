@@ -11,6 +11,7 @@ extends RefCounted
 ## ignored — right-half drag therefore did nothing on a phone.
 
 var _mouse_accum := Vector2.ZERO
+var _touch_accum := Vector2.ZERO
 var _profile: CameraProfile = null
 
 
@@ -31,12 +32,29 @@ func handle_mouse_motion(event: InputEventMouseMotion) -> void:
 		handle_look_delta(event.relative)
 
 
-## Touch (and any other non-mouse look source) feeds pixels here. Finite-only:
-## a NaN relative would latch the orbit yaw for the rest of the run.
+## Mouse (and any other pixel-delta look source). Finite-only: a NaN relative
+## would latch the orbit yaw for the rest of the run.
 func handle_look_delta(relative: Vector2) -> void:
 	if not is_finite(relative.x) or not is_finite(relative.y):
 		return
 	_mouse_accum += relative
+
+
+## Finger look in degrees, sized to the viewport so a swipe is the same turn on
+## a 720p window and a 1080p phone. Does not go through mouse_orbit_sensitivity.
+func handle_touch_look(relative: Vector2, viewport_size: Vector2) -> void:
+	if _profile == null:
+		return
+	if not is_finite(relative.x) or not is_finite(relative.y):
+		return
+	var width := viewport_size.x
+	var height := viewport_size.y
+	if not is_finite(width) or width < 1.0:
+		width = 1280.0
+	if not is_finite(height) or height < 1.0:
+		height = 720.0
+	_touch_accum.x += (relative.x / width) * _profile.touch_orbit_yaw_per_screen
+	_touch_accum.y += (relative.y / height) * _profile.touch_orbit_pitch_per_screen
 
 
 func gather(delta: float) -> Vector2:
@@ -44,6 +62,7 @@ func gather(delta: float) -> Vector2:
 		return Vector2.ZERO
 	if not is_finite(delta) or delta <= 0.0:
 		_mouse_accum = Vector2.ZERO
+		_touch_accum = Vector2.ZERO
 		return Vector2.ZERO
 
 	var analog_yaw := 0.0

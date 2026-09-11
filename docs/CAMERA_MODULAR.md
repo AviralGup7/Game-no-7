@@ -12,9 +12,9 @@ Pure static helpers – no state.
 Used everywhere to avoid duplication.
 
 ### 2. CameraInputHandler (`camera_input_handler.gd`)
-- Gathers yaw/pitch from: actions `camera_look_left/right/up/down` (the InputMap already includes the right stick — do not also read `JOY_AXIS_RIGHT_*`), mouse motion (right/middle button or captured), and `handle_look_delta` for right-half touch drag.
+- Gathers yaw/pitch from: actions `camera_look_left/right/up/down` (the InputMap already includes the right stick — do not also read `JOY_AXIS_RIGHT_*`), mouse motion (right/middle button or captured), `handle_look_delta` (pixels × `mouse_orbit_sensitivity`), and `handle_touch_look` (screen-fraction × `touch_orbit_yaw_per_screen`, default 540° per width).
 - Deadzone handling, mouse sensitivity, accumulation decay.
-- `reset()` clears mouse accum.
+- `reset()` clears mouse and touch accum.
 
 ### 3. CameraVelocityTracker (`camera_velocity_tracker.gd`)
 - Tracks target `velocity`, `speed`, `move_dir`, `last_position`.
@@ -37,7 +37,7 @@ Used everywhere to avoid duplication.
 
 ### 7. CameraOrbitController (`camera_orbit_controller.gd`)
 - Composes input + auto-follow + state.
-- Manual orbit: `target_yaw -= input.x * orbit_speed * dt *6`, `target_pitch += input.y * ...`, clamp pitch.
+- Manual orbit: `gather()` already returns this-frame degrees. Applied to **current and target** yaw/pitch so a finger swipe is 1:1 with the lens (yaw-smoothing no longer eats the gesture). Analog stick uses the same path. Clamp pitch.
 - Computes desired target distance = profile distance * mode multiplier (blended) + combat boost.
 - Smooths yaw/pitch/distance with in/out speeds (fast-in 14, slow-out 2.8).
 
@@ -115,7 +115,7 @@ Arena configs still use `default`, but mode controller automatically widens on b
 
 ## Further Improvements
 
-- **Touch**: `InputEventScreenDrag` on right half → camera orbit, scaled 0.8
+- **Touch**: unhandled press right of `LOOK_ZONE_X` (0.38) captures a look finger; drags convert to degrees via `touch_orbit_yaw_per_screen` (540° per width). `_input` keeps that finger after it crosses the midline.
 - **Teleport guard**: if last_pos dist² >100, reset velocity & snap focus, force rig snap
 - **Vertical damping**: focus Y uses `focus_height_lerp` (4.0) vs horizontal `follow_smoothing` (6.0)
 - **Lock-on**: queries `TargetingComponent.pick_best_target(enemies)` if locked, validates max distance

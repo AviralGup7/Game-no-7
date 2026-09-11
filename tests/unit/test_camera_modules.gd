@@ -191,6 +191,28 @@ static func _input(results: Array) -> void:
 	_check(results, "look delta does not leak into the next frame",
 		twice == Vector2.ZERO, "got %s" % str(twice))
 
+	profile.touch_orbit_yaw_per_screen = 540.0
+	profile.touch_orbit_pitch_per_screen = 180.0
+	profile._clamp_profile_fields()
+	handler.handle_touch_look(Vector2(320.0, 0.0), Vector2(1280.0, 720.0))
+	var touch := handler.gather(0.016)
+	_check(results, "quarter-width swipe is 135 degrees of yaw",
+		absf(touch.x - 135.0) < 0.01, "got %s" % str(touch))
+	handler.handle_touch_look(Vector2(NAN, 8.0), Vector2(1280.0, 720.0))
+	var nan_touch := handler.gather(0.016)
+	_check(results, "NaN touch look is ignored", nan_touch == Vector2.ZERO, "got %s" % str(nan_touch))
+
+	var state := CameraOrbitState.new()
+	state.setup_from_profile(profile, 0.0)
+	var orbit := CameraOrbitController.new()
+	orbit.setup(profile, state, handler, CameraAutoFollowController.new())
+	handler.handle_touch_look(Vector2(320.0, 0.0), Vector2(1280.0, 720.0))
+	orbit.tick(0.016, CameraVelocityTracker.new(), Vector3(0, 4, 8), Vector3.ZERO, null, null, false)
+	var want_yaw := -deg_to_rad(135.0)
+	_check(results, "manual look writes current_yaw the same frame",
+		absf(state.current_yaw - want_yaw) < 0.02,
+		"got %.4f want %.4f" % [state.current_yaw, want_yaw])
+
 
 static func _fov(results: Array) -> void:
 	var fov := CameraFovController.new()
