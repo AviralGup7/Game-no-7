@@ -170,6 +170,9 @@ func _test_touch() -> void:
 	GameRoot.request_pause()
 	await _settle()
 	_check("modal cancels captured stick", not joystick.is_active() and joystick.get_value() == Vector2.ZERO)
+	GameRoot.request_resume()
+	await _settle()
+	_ui._touch.show()
 	var button: TouchActionButton = _ui._touch._buttons[0]
 	var emitted := [0]
 	button.pressed.connect(func() -> void: emitted[0] += 1)
