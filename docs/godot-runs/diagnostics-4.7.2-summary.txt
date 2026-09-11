@@ -27,12 +27,13 @@
 
 ########## diag-check.log
     416 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    213 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    214 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
     145 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
     104 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
+      2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/skills/skill_controller.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/player/targeting_component.gd" with error "Compilation failed".
@@ -46,7 +47,7 @@
       2 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
-      1 SCRIPT ERROR: Parse Error: Expected statement, found "Indent" instead.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
@@ -102,7 +103,6 @@
       1 ERROR: Failed to load script "res://scripts/utilities/input_trace.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/virtual_joystick.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/upgrade_panel.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/ui_modal.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/ui_factory.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/ui_commands.gd" with error "Compilation failed".
@@ -222,39 +222,7 @@
 
 ########## diag-lsp.txt
       1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:273:2: ERROR: Unexpected "await" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:273:17: ERROR: Expected end of file.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:272:2: ERROR: Unexpected identifier "boss" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:271:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:270:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:269:2: ERROR: Unexpected identifier "hp" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:268:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:267:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:266:2: ERROR: Unexpected identifier "EventBus" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:265:2: ERROR: Unexpected identifier "add_child" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:264:2: ERROR: Unexpected identifier "boss" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:263:2: ERROR: Unexpected identifier "boss_machine" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:261:2: ERROR: Unexpected identifier "boss" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:260:2: ERROR: Unexpected identifier "hp" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:254:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:253:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:252:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:251:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:250:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:249:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:248:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:243:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:242:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:241:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:240:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:239:2: ERROR: Unexpected "for" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:238:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:237:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:236:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:235:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:234:2: ERROR: Unexpected identifier "_check" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:233:2: ERROR: Unexpected identifier "_ui" in class body.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:232:1: ERROR: Expected statement, found "Indent" instead.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:61:17: ERROR: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:332:19: WARNING: (SHADOWED_VARIABLE): The local function parameter "_clip" is shadowing an already-declared function at line 417 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
@@ -264,7 +232,7 @@
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-      1 SCRIPT ERROR: Parse Error: Expected statement, found "Indent" instead.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "browsed" variable because the value doesn't have a set type.
       1 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
       1 ERROR: Failed to load script "res://tests/ui/ui_test_runner.gd" with error "Parse error".
 
