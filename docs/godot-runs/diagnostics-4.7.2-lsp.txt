@@ -1,8 +1,16 @@
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:231:7: ERROR: Constant "MAT_METAL" has the same name as a previously declared constant.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:232:7: ERROR: Constant "MAT_BRICK" has the same name as a previously declared constant.
+/home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:233:7: ERROR: Constant "MAT_WOOD" has the same name as a previously declared constant.
 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:332:19: WARNING: (SHADOWED_VARIABLE): The local function parameter "_clip" is shadowing an already-declared function at line 417 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/main/main.gd:261:19: ERROR: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/scripts/main/main.gd:261:19: ERROR: Could not resolve class "ArenaDecorator", because of a parser error.
 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:49:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:51:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_decorator_collision.gd:45:19: ERROR: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_decorator_collision.gd:45:19: ERROR: Could not resolve class "ArenaDecorator", because of a parser error.
+/home/runner/work/Game-no-7/Game-no-7/tests/unit/test_decorator_collision.gd:57:64: ERROR: Could not parse global class "ArenaDecorator" from "res://scripts/arena/arena_decorator.gd".
 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.

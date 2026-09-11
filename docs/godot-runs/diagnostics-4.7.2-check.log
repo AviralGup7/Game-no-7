@@ -39,37 +39,9 @@ ERROR: Failed to load script "res://scripts/arena/arena_config.gd" with error "C
 ===== res://scripts/arena/arena_decorator.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/arena/arena.gd:146)
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:0)
-ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Constant "MAT_METAL" has the same name as a previously declared constant.
+          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:231)
+ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/arena/arena_hazards.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -1125,9 +1097,11 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/enemies/spawn_manager.gd:0)
 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://scripts/main/main.gd:28)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
+          at: GDScript::reload (res://scripts/main/main.gd:261)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/main.gd:261)
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/meta/achievements.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -2404,39 +2378,13 @@ ERROR: Failed to load script "res://tests/unit/test_content_progression.gd" with
 ===== res://tests/unit/test_decorator_collision.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/arena/arena.gd:146)
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
-SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
-SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:0)
-ERROR: Failed to load script "res://tests/unit/test_decorator_collision.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Could not parse global class "ArenaDecorator" from "res://scripts/arena/arena_decorator.gd".
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:57)
+SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:45)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:45)
+ERROR: Failed to load script "res://tests/unit/test_decorator_collision.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_director_mutators.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org

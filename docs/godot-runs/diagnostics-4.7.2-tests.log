@@ -311,6 +311,18 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+SCRIPT ERROR: Parse Error: Constant "MAT_METAL" has the same name as a previously declared constant.
+          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:231)
+          GDScript backtrace (most recent call first):
+              [0] suite (res://tests/unit/test_presentation_scripts.gd:23)
+              [1] _run_suites (res://tests/run_tests.gd:145)
+              [2] _initialize (res://tests/run_tests.gd:101)
+ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] suite (res://tests/unit/test_presentation_scripts.gd:23)
+       [1] _run_suites (res://tests/run_tests.gd:145)
+       [2] _initialize (res://tests/run_tests.gd:101)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
@@ -443,6 +455,27 @@ ERROR: ArenaLandmark: kind 'wishing_well' has no builder
        [2] suite (res://tests/unit/test_arena_world.gd:117)
        [3] _run_suites (res://tests/run_tests.gd:145)
        [4] _initialize (res://tests/run_tests.gd:101)
+SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
+          at: GDScript::reload (res://scripts/main/main.gd:261)
+          GDScript backtrace (most recent call first):
+              [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
+              [1] suite (res://tests/unit/test_performance_monitor.gd:30)
+              [2] _run_suites (res://tests/run_tests.gd:145)
+              [3] _initialize (res://tests/run_tests.gd:101)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/main/main.gd:261)
+          GDScript backtrace (most recent call first):
+              [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
+              [1] suite (res://tests/unit/test_performance_monitor.gd:30)
+              [2] _run_suites (res://tests/run_tests.gd:145)
+              [3] _initialize (res://tests/run_tests.gd:101)
+ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
+       [1] suite (res://tests/unit/test_performance_monitor.gd:30)
+       [2] _run_suites (res://tests/run_tests.gd:145)
+       [3] _initialize (res://tests/run_tests.gd:101)
 ERROR: Parameter "data.tree" is null.
    at: get_tree (scene/main/node.h:559)
    GDScript backtrace (most recent call first):
@@ -1465,13 +1498,27 @@ WARNING: CharacterVisuals: incomplete hero res://assets/characters/warden/Warden
          [5] _run_suites (res://tests/run_tests.gd:145)
          [6] _process (res://tests/run_tests.gd:163)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-ERROR: Parameter "material" is null.
-   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
+SCRIPT ERROR: Parse Error: Could not parse global class "ArenaDecorator" from "res://scripts/arena/arena_decorator.gd".
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:57)
+          GDScript backtrace (most recent call first):
+              [0] _run_suites (res://tests/run_tests.gd:129)
+              [1] _process (res://tests/run_tests.gd:163)
+SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:45)
+          GDScript backtrace (most recent call first):
+              [0] _run_suites (res://tests/run_tests.gd:129)
+              [1] _process (res://tests/run_tests.gd:163)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/unit/test_decorator_collision.gd:45)
+          GDScript backtrace (most recent call first):
+              [0] _run_suites (res://tests/run_tests.gd:129)
+              [1] _process (res://tests/run_tests.gd:163)
+ERROR: Failed to load script "res://tests/unit/test_decorator_collision.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
    GDScript backtrace (most recent call first):
-       [0] suite (res://tests/unit/test_decorator_collision.gd:53)
-       [1] _run_suites (res://tests/run_tests.gd:145)
-       [2] _process (res://tests/run_tests.gd:163)
+       [0] _run_suites (res://tests/run_tests.gd:129)
+       [1] _process (res://tests/run_tests.gd:163)
+::error title=Suite compile failure::res://tests/unit/test_decorator_collision.gd has a parse error
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
@@ -1687,7 +1734,9 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:170)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1271 total, 0 failed
+GDScript tests: 1263 total, 1 failed
+  FAIL  Suite failed to compile: res://tests/unit/test_decorator_collision.gd
+::error title=GDScript test failures (1)::Suite failed to compile: res://tests/unit/test_decorator_collision.gd
 ========================================
 WARNING: 38 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
