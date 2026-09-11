@@ -56,6 +56,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_performance_monitor.gd",
 	"res://tests/unit/test_minimap_radar.gd",
 	"res://tests/unit/test_audio_policy.gd",
+	"res://tests/unit/test_spatial_audio.gd",
 	"res://tests/unit/test_error_report.gd",
 	# No tree access: instantiates the (autoload-free) EventBusService script
 	# directly and frees it, so this stays a pure suite.

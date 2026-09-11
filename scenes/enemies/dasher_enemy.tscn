@@ -42,5 +42,7 @@ animation_map = {
 "idle": "RatArmature|Rat_Idle",
 "run": "RatArmature|Rat_Run",
 "attack": "RatArmature|Rat_Attack",
-"death": "RatArmature|Rat_Death"
+"death": "RatArmature|Rat_Death",
+"dash": "RatArmature|Rat_Attack",
+"spawn": "RatArmature|Rat_Idle"
 }

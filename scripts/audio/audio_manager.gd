@@ -22,6 +22,8 @@ extends Node
 ## failure-safe and missing cues produce a diagnostic, not a crash.
 
 const MAX_SFX_VOICES := 16
+const MAX_UI_VOICES := 4
+const UI_TOKEN_BASE := 100
 ## Click-safe onset for every voice start.
 const FADE_IN_SECONDS := 0.012
 ## Click-safe release; 1-t^2 gain shape so the tail has no high-frequency
@@ -45,6 +47,18 @@ var _buses_ready := false
 var _background_muted := false
 var _duck_left := 0.0
 var _duck_db := 0.0
+## Isolated UI bank: menu clicks never steal a combat SFX voice (and the
+## reverse). Tokens are namespaced so SfxPolicy steal stays inside this bank.
+var _ui_bank := VoiceBank.new()
+var _ui_players: Array[AudioStreamPlayer] = []
+var _spatial: SpatialVoicePool = null
+var _listener: AudioListener3D = null
+var _listener_anchor: Node3D = null
+var _mix_id: StringName = MixSnapshot.ID_MENU
+var _mix_from: Dictionary = {}
+var _mix_to: Dictionary = {}
+var _mix_t := 1.0
+var _boss_active := false
 
 ## cue_id -> AudioStream (registered content; may be empty while audio is added).
 var _cues: Dictionary = {}
@@ -63,8 +77,20 @@ func _ready() -> void:
 		_sfx_pool.append(p)
 		_voice_cue.append(&"")
 		_voice_fade.append({})
+	_setup_ui_bank()
+	_setup_spatial()
+	_setup_listener()
 	EventBus.settings_changed.connect(apply_settings)
+	if not EventBus.pause_changed.is_connected(_on_pause_changed):
+		EventBus.pause_changed.connect(_on_pause_changed)
+	if not EventBus.game_state_changed.is_connected(_on_game_state_changed):
+		EventBus.game_state_changed.connect(_on_game_state_changed)
+	if not EventBus.boss_spawned.is_connected(_on_boss_spawned):
+		EventBus.boss_spawned.connect(_on_boss_spawned)
+	if not EventBus.boss_slain.is_connected(_on_boss_slain):
+		EventBus.boss_slain.connect(_on_boss_slain)
 	apply_settings(SaveManager.get_settings())
+	_apply_mix(MixSnapshot.ID_MENU, true)
 
 
 func _ensure_buses() -> void:
@@ -79,6 +105,31 @@ func _ensure_buses() -> void:
 			AudioServer.add_bus()
 			AudioServer.set_bus_name(AudioServer.bus_count - 1, target)
 	_buses_ready = true
+
+
+func _setup_ui_bank() -> void:
+	_ui_players.clear()
+	for i in MAX_UI_VOICES:
+		var p := AudioStreamPlayer.new()
+		p.bus = "UI"
+		add_child(p)
+		_ui_players.append(p)
+	_ui_bank.setup(_ui_players, _policy, UI_TOKEN_BASE, &"UI")
+	_ui_bank.clock = Callable(self, "_clock_s")
+
+
+func _setup_spatial() -> void:
+	_spatial = SpatialVoicePool.new()
+	_spatial.name = &"SpatialVoices"
+	add_child(_spatial)
+	_spatial.configure(_policy, Callable(self, "_clock_s"))
+
+
+func _setup_listener() -> void:
+	_listener = AudioListener3D.new()
+	_listener.name = &"WorldListener"
+	add_child(_listener)
+	_listener.current = true
 
 
 ## Register or replace a cue->stream mapping (called by ContentRegistry at
@@ -119,10 +170,22 @@ func apply_settings(settings: SettingsData) -> void:
 		return
 	var master_db := _db(settings.master_volume)
 	AudioServer.set_bus_volume_db(0, master_db)
-	AudioServer.set_bus_volume_db(_bus_index("Music"), _db(settings.music_volume) - _duck_db)
+	var mix := _current_mix_offsets()
 	# Combat duck never touches SFX or UI — hits must stay readable under a boss tell.
-	AudioServer.set_bus_volume_db(_bus_index("SFX"), _db(settings.sfx_volume))
-	AudioServer.set_bus_volume_db(_bus_index("UI"), _db(settings.sfx_volume))
+	# Mix snapshots offset SFX/UI independently so pause can silence Foley without
+	# muting menu clicks. Music offset is always 0 (MusicManager owns the bed).
+	AudioServer.set_bus_volume_db(
+		_bus_index("Music"),
+		MixSnapshot.compose_bus_db(_db(settings.music_volume), float(mix.get(MixSnapshot.KEY_MUSIC, 0.0)), _duck_db)
+	)
+	AudioServer.set_bus_volume_db(
+		_bus_index("SFX"),
+		MixSnapshot.compose_bus_db(_db(settings.sfx_volume), float(mix.get(MixSnapshot.KEY_SFX, 0.0)))
+	)
+	AudioServer.set_bus_volume_db(
+		_bus_index("UI"),
+		MixSnapshot.compose_bus_db(_db(settings.sfx_volume), float(mix.get(MixSnapshot.KEY_UI, 0.0)))
+	)
 	AudioServer.set_bus_mute(0, settings.muted or _background_muted)
 
 
@@ -153,6 +216,9 @@ func _process(delta: float) -> void:
 	if is_finite(delta) and delta > 0.0:
 		_tick_fades(delta)
 		_reap_finished()
+		_ui_bank.tick(delta)
+		_tick_mix(delta)
+		_snap_listener()
 
 
 func _clock_s() -> float:
@@ -184,6 +250,10 @@ func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1
 	var base_pitch := clampf(pitch_scale, 0.1, 4.0) if (is_finite(pitch_scale) and pitch_scale > 0.0) else 1.0
 	var vol := base_vol + cfg.roll_volume_db(_rng)
 	var pitch := base_pitch * cfg.roll_pitch(_rng)
+	# UI bus is a dedicated bank: skill/wave/boss SFX never share a voice with
+	# a menu click, and a full combat pool cannot steal the pause-overlay tick.
+	if AudioConfig.is_ui_bus(cfg.bus):
+		return _ui_bank.claim(cue_id, vol, pitch, stream, action, int(decision["steal_token"]))
 	# 1) Per-cue steal (policy picked the cue's oldest voice).
 	if action == SfxPolicy.STEAL:
 		var victim_idx := int(decision["steal_token"])
@@ -210,6 +280,141 @@ func play_sfx(cue_id: StringName, volume_db: float = 0.0, pitch_scale: float = 1
 		return _defer_on_fade(oldest, cue_id, vol, pitch, stream)
 	EventBus.report_warning("SFX voice limit reached; dropping: %s" % String(cue_id))
 	return false
+
+
+## World Foley at a point. UI cues refuse spatialization (they stay 2D on the
+## UI bank). Far emitters are culled before a voice is claimed.
+func play_sfx_at(cue_id: StringName, at: Vector3, volume_db: float = 0.0, pitch_scale: float = 1.0) -> bool:
+	return _play_world(cue_id, at, null, volume_db, pitch_scale)
+
+
+## World Foley that follows `emitter` until the voice ends.
+func play_sfx_on(cue_id: StringName, emitter: Node3D, volume_db: float = 0.0, pitch_scale: float = 1.0) -> bool:
+	if emitter == null or not is_instance_valid(emitter):
+		return false
+	return _play_world(cue_id, emitter.global_position, emitter, volume_db, pitch_scale)
+
+
+func _play_world(
+		cue_id: StringName,
+		at: Vector3,
+		emitter: Node3D,
+		volume_db: float,
+		pitch_scale: float
+) -> bool:
+	var cfg := _config_for(cue_id)
+	if AudioConfig.is_ui_bus(cfg.bus):
+		return play_sfx(cue_id, volume_db, pitch_scale)
+	if AudioConfig.is_music_bus(cfg.bus):
+		return false
+	var stream := _resolve_stream(cue_id)
+	if stream == null:
+		EventBus.report_warning("SFX cue unavailable: %s" % String(cue_id))
+		return false
+	if _spatial == null:
+		return play_sfx(cue_id, volume_db, pitch_scale)
+	var listen_at := _spatial.get_listener_position()
+	if not SpatialAttenuation.is_hearable(listen_at, at, SpatialVoicePool.MAX_DISTANCE):
+		return false
+	var now := _clock_s()
+	_policy.configure(cue_id, cfg.cooldown, cfg.max_voices)
+	var decision := _policy.try_play(cue_id, now)
+	var action: StringName = decision["action"]
+	if action == SfxPolicy.REJECT:
+		return false
+	var base_vol := clampf(volume_db, -80.0, 6.0) if is_finite(volume_db) else 0.0
+	var base_pitch := clampf(pitch_scale, 0.1, 4.0) if (is_finite(pitch_scale) and pitch_scale > 0.0) else 1.0
+	var vol := base_vol + cfg.roll_volume_db(_rng)
+	var pitch := base_pitch * cfg.roll_pitch(_rng)
+	var steal := int(decision["steal_token"])
+	if emitter != null:
+		return _spatial.play_on(cue_id, emitter, vol, pitch, stream, action, steal)
+	return _spatial.play_at(cue_id, at, vol, pitch, stream, action, steal)
+
+
+## Bind the 3D listener to a world node (the active player). Passing null parks
+## the listener at the last pose; it is never parented onto the player so the
+## player scene stays untouched.
+func bind_listener(anchor: Node3D) -> void:
+	_listener_anchor = anchor if (anchor != null and is_instance_valid(anchor)) else null
+	if _spatial != null:
+		_spatial.set_listener(_listener_anchor)
+	_snap_listener()
+
+
+func _snap_listener() -> void:
+	if _listener == null:
+		return
+	if _listener_anchor == null or not is_instance_valid(_listener_anchor):
+		return
+	_listener.global_transform = _listener_anchor.global_transform
+
+
+func _on_pause_changed(is_paused: bool) -> void:
+	var state := GameRoot.get_current_state() if GameRoot != null else &"playing"
+	_apply_mix(MixSnapshot.id_for_run(state, is_paused, _boss_active), false)
+
+
+func _on_game_state_changed(_previous: StringName, current: StringName) -> void:
+	var paused := GameRoot.is_paused() if GameRoot != null else false
+	_apply_mix(MixSnapshot.id_for_run(current, paused, _boss_active), false)
+
+
+func _on_boss_spawned(_boss: Node, _boss_id: StringName) -> void:
+	_boss_active = true
+	var state := GameRoot.get_current_state() if GameRoot != null else &"playing"
+	var paused := GameRoot.is_paused() if GameRoot != null else false
+	_apply_mix(MixSnapshot.id_for_run(state, paused, true), false)
+
+
+func _on_boss_slain(_boss_id: StringName) -> void:
+	_boss_active = false
+	var state := GameRoot.get_current_state() if GameRoot != null else &"playing"
+	var paused := GameRoot.is_paused() if GameRoot != null else false
+	_apply_mix(MixSnapshot.id_for_run(state, paused, false), false)
+
+
+func _apply_mix(id: StringName, instant: bool) -> void:
+	if id == _mix_id and _mix_t >= 1.0 and not instant:
+		return
+	_mix_from = _current_mix_offsets()
+	_mix_id = id
+	_mix_to = MixSnapshot.offsets_for(id)
+	_mix_t = 1.0 if instant else 0.0
+	if instant:
+		apply_settings(_settings)
+
+
+func _current_mix_offsets() -> Dictionary:
+	if _mix_t >= 1.0 or _mix_to.is_empty():
+		return MixSnapshot.offsets_for(_mix_id)
+	if _mix_from.is_empty():
+		return _mix_to
+	var k := MixSnapshot.shaped_t(_mix_t)
+	return {
+		MixSnapshot.KEY_SFX: MixSnapshot.lerp_db(
+			float(_mix_from.get(MixSnapshot.KEY_SFX, 0.0)),
+			float(_mix_to.get(MixSnapshot.KEY_SFX, 0.0)),
+			k
+		),
+		MixSnapshot.KEY_UI: MixSnapshot.lerp_db(
+			float(_mix_from.get(MixSnapshot.KEY_UI, 0.0)),
+			float(_mix_to.get(MixSnapshot.KEY_UI, 0.0)),
+			k
+		),
+		MixSnapshot.KEY_MUSIC: MixSnapshot.lerp_db(
+			float(_mix_from.get(MixSnapshot.KEY_MUSIC, 0.0)),
+			float(_mix_to.get(MixSnapshot.KEY_MUSIC, 0.0)),
+			k
+		),
+	}
+
+
+func _tick_mix(delta: float) -> void:
+	if _mix_t >= 1.0:
+		return
+	_mix_t = clampf(_mix_t + delta / MixSnapshot.snapshot_fade_seconds(), 0.0, 1.0)
+	apply_settings(_settings)
 
 
 ## The victim still has audio in the air: give it its fade-out and queue this
@@ -440,4 +645,7 @@ func get_debug_snapshot() -> Dictionary:
 		"muted": _settings.muted,
 		"background_muted": _background_muted,
 		"voice_policy": _policy.get_debug_snapshot(),
+		"ui_voices": _ui_bank.active_count(),
+		"spatial": _spatial.get_debug_snapshot() if _spatial != null else {},
+		"mix": MixSnapshot.debug_dict(_mix_id),
 	}

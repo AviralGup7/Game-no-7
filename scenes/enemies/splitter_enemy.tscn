@@ -34,5 +34,6 @@ animation_map = {
 "idle": "SpiderArmature|Spider_Idle",
 "run": "SpiderArmature|Spider_Walk",
 "attack": "SpiderArmature|Spider_Attack",
-"death": "SpiderArmature|Spider_Death"
+"death": "SpiderArmature|Spider_Death",
+"spawn": "SpiderArmature|Spider_Idle"
 }

@@ -16,5 +16,10 @@ animation_map = {
 "run": "Running_A",
 "attack": "1H_Melee_Attack_Slice_Horizontal",
 "hurt": "Hit_A",
-"death": "Death_A"
+"death": "Death_A",
+"stun": "Hit_A",
+"cast": "Spellcast_Shoot",
+"telegraph": "Spellcast_Raise",
+"dash": "Dodge_Forward",
+"spawn": "Idle"
 }

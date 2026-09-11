@@ -121,6 +121,8 @@ func get_active_player() -> Player:
 
 func set_active_player(player: Player) -> void:
 	_active_player = player
+	if AudioManager != null:
+		AudioManager.bind_listener(player)
 
 
 func is_paused() -> bool:

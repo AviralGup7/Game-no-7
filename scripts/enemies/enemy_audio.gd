@@ -1,9 +1,12 @@
 extends Node
 class_name EnemyAudio
 
-## Requests enemy sounds from AudioManager. All cues are optional; a missing cue is a
-## logged no-op, never a gameplay or audio failure. AudioManager is resolved through
-## the tree so the same code works under the bare headless test SceneTree.
+## Requests enemy sounds from AudioManager. World Foley is spatial (follows the
+## host) so a pack across the arena does not all play at listener volume. UI and
+## player-centric 2D cues never go through this node. All cues are optional; a
+## missing cue is a logged no-op, never a gameplay or audio failure. AudioManager
+## is resolved through the tree so the same code works under the bare headless
+## test SceneTree.
 
 var _audio_manager: Node = null
 var _audio_manager_resolved := false
@@ -17,6 +20,10 @@ func _am() -> Node:
 	return _audio_manager
 
 
+func _host() -> Node3D:
+	return get_parent() as Node3D
+
+
 ## Gains match the catalogue's suggested mix (-8 dB SFX bed, spawns softer since
 ## they arrive in bursts). Slight per-play pitch variance keeps packs of enemies
 ## from sounding like one machine-gunned sample. (Global RNG is auto-seeded.)
@@ -24,7 +31,11 @@ func _play(cue_id: StringName, volume_db: float = -8.0, pitch_lo: float = 0.95, 
 	var manager := _am()
 	if manager == null:
 		return false
-	return bool(manager.play_sfx(cue_id, volume_db, randf_range(pitch_lo, pitch_hi)))
+	var pitch := randf_range(pitch_lo, pitch_hi)
+	var host := _host()
+	if host != null:
+		return bool(manager.play_sfx_on(cue_id, host, volume_db, pitch))
+	return bool(manager.play_sfx(cue_id, volume_db, pitch))
 
 
 func play_hit() -> void:

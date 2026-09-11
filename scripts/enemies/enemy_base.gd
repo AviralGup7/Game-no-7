@@ -208,6 +208,10 @@ func set_ai_enabled(enabled: bool) -> void:
 		velocity.z = 0.0
 
 
+func is_ai_enabled() -> bool:
+	return _ai_enabled
+
+
 func _physics_process(delta: float) -> void:
 	if not is_finite(delta) or delta <= 0.0:
 		return

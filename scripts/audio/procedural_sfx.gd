@@ -28,6 +28,14 @@ const SFX_CUES: Array[StringName] = [
 const MUSIC_CUES: Array[StringName] = [
 	&"music_menu", &"music_calm", &"music_battle", &"music_boss", &"music_victory",
 ]
+## Intensity stems (MusicManager convention: `<bed>_l2` / `<bed>_l3`). Missing
+## stems degrade to the single-bed v1 path; registering these makes the layer
+## mixer actually have something to fade.
+const STEM_CUES: Array[StringName] = [
+	&"music_battle_l2", &"music_battle_l3",
+	&"music_boss_l2", &"music_boss_l3",
+	&"music_calm_l2",
+]
 const MUSIC_LOOP_SECONDS := 6.0
 
 
@@ -39,6 +47,9 @@ static func ensure_registered() -> void:
 		if not AudioManager.has_cue(cue_id):
 			ContentRegistry.register_audio_cue(cue_id, make_sfx(cue_id))
 	for cue_id in MUSIC_CUES:
+		if not AudioManager.has_cue(cue_id):
+			ContentRegistry.register_audio_cue(cue_id, make_music(cue_id))
+	for cue_id in STEM_CUES:
 		if not AudioManager.has_cue(cue_id):
 			ContentRegistry.register_audio_cue(cue_id, make_music(cue_id))
 
