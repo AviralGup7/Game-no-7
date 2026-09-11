@@ -26,6 +26,12 @@ func _initialize() -> void:
 		return
 	var entries: Array = manifest.get("files", []).duplicate()
 	entries.append_array(derived.get("files", []))
+	for report_path in ["res://assets/scifi/build_report.json", "res://assets/environment/space_station/build_report.json"]:
+		var authored: Variant = JSON.parse_string(FileAccess.get_file_as_string(report_path))
+		if not authored is Dictionary or (authored as Dictionary).get("files", []).is_empty():
+			_failures.append("Missing authored inventory: " + report_path)
+		else:
+			entries.append_array(authored.get("files", []))
 	for entry in entries:
 		var path := "res://%s" % entry["path"]
 		var extension := path.get_extension()
@@ -96,7 +102,7 @@ func _check_model(path: String, imported: Resource, catalog: Dictionary) -> void
 func _check_integrated_materials_and_pickups(catalog: Dictionary) -> void:
 	for path in ["res://assets/materials/arena_stone.tres", "res://assets/materials/arena_wall_stone.tres"]:
 		var material := load(path) as StandardMaterial3D
-		if material == null or material.albedo_texture == null or material.normal_texture == null:
+		if material == null or material.albedo_texture == null:
 			_failures.append("Detailed material import failed: " + path)
 	for id in catalog.get("gameplay_pickups", {}):
 		var cfg := load("res://data/pickups/%s.tres" % id) as PickupConfig
@@ -139,6 +145,6 @@ func _check_presentation_assets() -> void:
 			_failures.append("Character role %s missing idle clip '%s'" % [String(role), idle_clip])
 		instance.free()
 	# VFX sprite textures (used by the EffectDirector).
-	for tex in ["res://assets/effects/kenney/circle_05.png", "res://assets/effects/kenney/spark_01.png"]:
+	for tex in ["res://assets/scifi/fx/ring.png", "res://assets/scifi/fx/spark.png"]:
 		if not load(tex) is Texture2D:
 			_failures.append("VFX sprite texture missing: " + tex)

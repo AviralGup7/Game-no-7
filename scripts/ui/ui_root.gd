@@ -46,6 +46,7 @@ func _ready() -> void:
 	add_child(_backdrop)
 	_safe = UiSafeArea.new()
 	add_child(_safe)
+	add_child(ShooterReticle.new())
 	_build_hud()
 	_build_screens()
 	EventBus.game_state_changed.connect(_on_state_changed)

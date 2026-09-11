@@ -41,13 +41,14 @@ class HeroFidelityTests(unittest.TestCase):
         self.assertEqual(len(self.doc['skins'][0]['joints']), 23)
 
     def test_runtime_and_catalog_select_the_replacement(self):
+        from tool.scifi_assets import CLIPS, check_robot
         catalog = json.loads((ROOT / 'assets/catalog.json').read_text())
         player = catalog['characters']['player']
-        self.assertEqual(player['model'], 'assets/characters/warden/ArenaWarden.glb')
+        self.assertEqual(player['model'], 'assets/scifi/robots/player.glb')
         self.assertIn(player['model'], (ROOT / 'scripts/visuals/character_visuals.gd').read_text())
-        self.assertEqual(player['fallback_model'], derived_assets.DONOR)
-        self.assertEqual(player['source_triangles'], self.report['measured']['triangles'])
-        self.assertEqual(set(player['animations'].values()), validate_hero.required_clips())
+        doc, _ = validate_assets.gltf_document(ROOT / player['model'])
+        check_robot(doc)
+        self.assertEqual({a['name'] for a in doc['animations']}, CLIPS)
         self.assertIn(catalog['gameplay_weapons']['gladius']['model'],
                       (ROOT / 'scenes/player/player.tscn').read_text())
 

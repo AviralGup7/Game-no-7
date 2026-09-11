@@ -57,3 +57,9 @@ func gather(delta: float) -> Vector2:
 
 func reset() -> void:
 	_mouse_accum = Vector2.ZERO
+
+
+## Screen drag already passed GUI capture; do not require a mouse button on Android.
+func handle_touch_drag(relative: Vector2) -> void:
+	if relative.is_finite():
+		_mouse_accum += relative * 0.8

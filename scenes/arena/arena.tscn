@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://scripts/arena/arena.gd" id="1_arena"]
 [ext_resource type="Material" path="res://assets/materials/arena_floor_rock.tres" id="2_floor"]
@@ -7,10 +7,10 @@
 [ext_resource type="Material" path="res://assets/materials/arena_wood.tres" id="5_wood"]
 [ext_resource type="Material" path="res://assets/materials/arena_metal.tres" id="6_metal"]
 [ext_resource type="Script" path="res://scripts/arena/torch_flicker.gd" id="7_torch"]
-[ext_resource type="Texture2D" path="res://assets/textures/panorama/spruit_sunrise_1k.hdr" id="8_pano"]
 
-[sub_resource type="PanoramaSkyMaterial" id="Sky_mat"]
-panorama = ExtResource("8_pano")
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.015, 0.025, 0.06, 1)
+sky_horizon_color = Color(0.12, 0.18, 0.28, 1)
 
 [sub_resource type="Sky" id="Sky_res"]
 sky_material = SubResource("Sky_mat")
@@ -73,9 +73,9 @@ size = Vector3(0.2, 0.55, 0.4)
 material = ExtResource("6_metal")
 
 [sub_resource type="StandardMaterial3D" id="Mat_flame"]
-albedo_color = Color(1, 0.55, 0.15, 1)
+albedo_color = Color(0.12, 0.65, 1, 1)
 emission_enabled = true
-emission = Color(1, 0.55, 0.15, 1)
+emission = Color(0.12, 0.65, 1, 1)
 emission_energy_multiplier = 5.0
 roughness = 0.4
 shading_mode = 0
@@ -278,7 +278,7 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.58)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
@@ -299,7 +299,7 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.58)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
@@ -320,7 +320,7 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
@@ -341,7 +341,7 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false

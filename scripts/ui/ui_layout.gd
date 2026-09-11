@@ -65,6 +65,11 @@ static func compute(size: Vector2, text_scale: float) -> Dictionary:
 		Vector2(attack.position.x + attack_r - minor_r, cluster.position.y),
 		Vector2.ONE * minor_r * 2.0
 	)
+	# The fourth cell was empty: reload fits beside SWAP, above DODGE,
+	# without growing the cluster or stealing space from skills/movement.
+	var reload_button := Rect2(
+		Vector2(cluster.position.x, cluster.position.y), Vector2.ONE * minor_r * 2.0
+	)
 	var stick := Rect2(
 		Vector2(pad, 0.0),
 		Vector2(clampf(view.x * 0.32, 180.0, 360.0), clampf(view.y * 0.42, 180.0, 300.0))
@@ -164,6 +169,7 @@ static func compute(size: Vector2, text_scale: float) -> Dictionary:
 		"attack": attack,
 		"dodge": dodge,
 		"swap": swap,
+		"reload": reload_button,
 		"skills": skills,
 		"compact": compact,
 	}

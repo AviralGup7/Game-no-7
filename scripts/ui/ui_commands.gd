@@ -41,6 +41,10 @@ static func action(method: StringName, args: Array = []) -> bool:
 	match method:
 		&"request_attack":
 			return player.request_attack()
+		&"request_held_fire":
+			return player.request_held_fire()
+		&"request_reload":
+			return player.request_reload()
 		&"request_dodge":
 			return player.request_dodge()
 		&"request_weapon_switch":
@@ -68,3 +72,12 @@ static func move(value: Vector2) -> void:
 static func binding(action_name: StringName) -> String:
 	var bindings := InputRemapper.get_bindings(action_name)
 	return InputRemapper.binding_label(bindings[0]) if not bindings.is_empty() else "Unbound"
+
+
+## Releasing must reach the player even after leaving a gameplay state.
+static func fire_input(held: bool, aim: Vector2) -> void:
+	var player := GameRoot.get_active_player()
+	if player == null or not is_instance_valid(player):
+		return
+	var playing := GameRoot.get_current_state() in [GameRoot.State.PLAYING, GameRoot.State.WAVE_TRANSITION]
+	player.set_touch_fire_input(held and playing, aim)

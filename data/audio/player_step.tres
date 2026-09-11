@@ -1,6 +1,6 @@
 [gd_resource type="AudioStreamRandomizer" load_steps=2 format=3]
 
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/impact/footstep_concrete_000.ogg" id="1_stream"]
+[ext_resource type="AudioStream" path="res://assets/scifi/audio/step.wav" id="1_stream"]
 
 [resource]
 playback_mode = 2

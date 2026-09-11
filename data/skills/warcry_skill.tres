@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"warcry_skill"
-display_name = "Warcry"
+display_name = "Overclock"
 description = "Roar: gain damage, speed and resistance long enough to turn an opening into a push."
 behavior = &"warcry"
 input_action = &"skill_2"

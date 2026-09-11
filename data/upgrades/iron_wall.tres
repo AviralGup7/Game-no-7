@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 upgrade_id = &"iron_wall"
 display_name = "Iron Wall"
-description = "+15% resistance and +10 max HP, but -10% movement speed. Hold ground for melee builds."
+description = "+15% resistance and +10 max HP, but -10% movement speed. Hold ground for close-range builds."
 rarity = &"epic"
 category = &"defense"
 max_stacks = 2

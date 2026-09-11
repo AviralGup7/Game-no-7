@@ -206,7 +206,7 @@ static func create(settings: SettingsData) -> Theme:
 
 
 static func icon(name: String) -> Texture2D:
-	var path := "res://assets/ui/icons/%s.png" % name
+	var path := "res://assets/scifi/ui/icons/%s.png" % name
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
 
 

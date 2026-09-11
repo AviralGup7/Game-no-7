@@ -5,11 +5,11 @@
 [resource]
 script = ExtResource("1_script")
 theme_id = &"default_arena"
-display_name = "The Pit (daylight)"
-panorama_path = "res://assets/textures/panorama/spruit_sunrise_1k.hdr"
-sky_top = Color(0.22, 0.42, 0.68, 1.0)
-sky_horizon = Color(0.72, 0.82, 0.92, 1.0)
-ground_horizon = Color(0.38, 0.42, 0.48, 1.0)
+display_name = "Orbital Foundry"
+panorama_path = ""
+sky_top = Color(0.015, 0.025, 0.06, 1)
+sky_horizon = Color(0.12, 0.18, 0.28, 1)
+ground_horizon = Color(0.12, 0.16, 0.22, 1)
 sun_color = Color(1, 0.92, 0.78, 1.0)
 sun_energy = 1.2
 ambient_color = Color(0.7, 0.73, 0.8, 1.0)
@@ -25,5 +25,5 @@ glow_hdr_threshold = 1.1
 tint_floor_and_walls = true
 floor_node_path = NodePath("Geometry/Floor")
 wall_node_prefix = "Wall"
-floor_tint = Color(0.66, 0.64, 0.6, 1.0)
-wall_tint = Color(0.72, 0.7, 0.68, 1.0)
+floor_tint = Color(0.58, 0.68, 0.78, 1)
+wall_tint = Color(0.7, 0.78, 0.88, 1)

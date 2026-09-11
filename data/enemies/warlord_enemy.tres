@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"warlord"
-blurb = "Arena Warlord \u2014 thrice-crowned killer of the Pit."
-display_name = "Arena Warlord"
+blurb = "Overseer Prime detected. Watch its attack telegraph."
+display_name = "Overseer Prime"
 scene = ExtResource("2_scene")
 max_health = 600.0
 move_speed = 2.4

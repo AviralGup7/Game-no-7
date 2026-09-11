@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"heavy"
-display_name = "Brute"
+display_name = "Bulwark Mech"
 scene = ExtResource("2_scene")
 max_health = 60.0
 move_speed = 1.6
@@ -39,3 +39,5 @@ elite_eligible = false
 spawn_priority = 2
 poise = 30.0
 balance_notes = "Heavy: high hp/damage, slow, high knockback resistance, long windup+cooldown. Poise keeps its telegraphed swings from being perma-staggered by chip damage."
+
+blurb = "Bulwark Mech detected. Watch its attack telegraph."

@@ -5,21 +5,21 @@
 [resource]
 script = ExtResource("1_script")
 weapon_id = &"venom_chain"
-display_name = "Venom Chain"
-description = "A hooked chain that reaches around the wielder and layers poison on every quick link."
-kind = &"melee"
+display_name = "Corrosive Repeater"
+description = "Rapid chemical rounds corrode enemy armor."
+kind = &"ranged"
 rarity = &"epic"
-attack_pattern = &"flurry"
+attack_pattern = &"volley"
 damage_type = &"poison"
-base_damage = 8.0
-swing_cooldown = 0.46
-windup = 0.1
-attack_range = 3.3
+base_damage = 8
+swing_cooldown = 0.22
+windup = 0.025
+attack_range = 22
 arc_degrees = 150.0
 max_targets = 5
-knockback = 4.0
-combo_damage_steps = PackedFloat32Array(1, 1.1, 1.25, 1.55)
-combo_window = 0.42
+knockback = 2
+combo_damage_steps = PackedFloat32Array(1)
+combo_window = 0.0
 crit_chance = 0.09
 crit_multiplier = 1.75
 on_hit_effects = Array[StringName]([&"poison", &"bleed"])
@@ -28,4 +28,20 @@ unlock_wave = 6
 unlock_cost = 320
 weight = 0.45
 disabled = false
-tags = Array[StringName]([&"status", &"poison", &"flurry", &"cleave"])
+tags = Array[StringName]([&"ranged", &"firearm", &"energy"])
+
+projectile_speed = 36
+
+projectile_count = 1
+
+projectile_spread_degrees = 5
+
+projectile_lifetime = 0.8
+
+projectile_radius = 0.15
+
+projectile_pierce = 0
+
+ammo_per_magazine = 24
+
+reload_seconds = 1.3

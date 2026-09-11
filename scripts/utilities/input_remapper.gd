@@ -7,7 +7,7 @@ extends RefCounted
 ## bindings as portable dictionaries, and restore them on boot. Pure logic plus
 ## thin InputMap calls; safe to exercise headless (InputMap exists without a tree).
 
-const REMAPPABLE_ACTIONS := [&"attack", &"dodge", &"pause", &"switch_weapon", &"skill_1", &"skill_2", &"skill_3"]
+const REMAPPABLE_ACTIONS := [&"attack", &"reload", &"dodge", &"pause", &"switch_weapon", &"skill_1", &"skill_2", &"skill_3"]
 const MAX_BINDS_PER_ACTION := 3
 
 

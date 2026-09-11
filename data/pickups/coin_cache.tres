@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
 
-[ext_resource type="PackedScene" path="res://assets/pickups/rpg/Coin_Star.glb" id="2_visual"]
+[ext_resource type="PackedScene" path="res://assets/scifi/pickups/coin_cache.glb" id="2_visual"]
 
 [resource]
 script = ExtResource("1_script")
 pickup_id = &"coin_cache"
-display_name = "Coin Cache"
+display_name = "Credit Cache"
 effect = &"currency"
 amount = 8.0
 lifetime = 25.0

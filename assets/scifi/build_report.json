@@ -1,0 +1,441 @@
+{
+  "schema_version": 1,
+  "recipe": "station_shooter_v1",
+  "license_notice": "ASSET_LICENSES/station-shooter.txt",
+  "recipe_files": [
+    {
+      "path": "tool/build_scifi_assets.py",
+      "sha256": "e517a4b0c996f118a1dba8cd7a5279c2b8781c91bf660500e90f202b0d955db8"
+    },
+    {
+      "path": "tool/hero/geometry.py",
+      "sha256": "c398ae37c648f3fb2a3d3502b300f77b4c36860454dca120ec390d170463ab6d"
+    },
+    {
+      "path": "tool/hero/rig.py",
+      "sha256": "84a0debd90f0e1b183beab8aa36d0e6cdd3068d208a65f8bcb1ae8a6b7964709"
+    },
+    {
+      "path": "tool/scifi/requirements.txt",
+      "sha256": "f45380048626cb1a5cd2c29c7a4a6b90102d51bdaea27f828e8caed81c5420fe"
+    }
+  ],
+  "files": [
+    {
+      "path": "assets/scifi/robots/player.glb",
+      "bytes": 74460,
+      "sha256": "9856ce66c2f176375fdf9717c6db77c29d56cb53da6744587f81de64fa759293"
+    },
+    {
+      "path": "assets/scifi/robots/basic.glb",
+      "bytes": 76044,
+      "sha256": "921ba8b253be9e73bbddc0517417422abf33b44add590974e176344b9f8a25e1"
+    },
+    {
+      "path": "assets/scifi/robots/fast.glb",
+      "bytes": 76044,
+      "sha256": "63a015cff15c4b14c8f4cbf453f7bbf69748ea8e73cb0abfc35cf52e60705b99"
+    },
+    {
+      "path": "assets/scifi/robots/heavy.glb",
+      "bytes": 79212,
+      "sha256": "1359e3b4ab3880e46bc4e42a9795b2ed1a75ebc80cbe010329f09e3b505d0b15"
+    },
+    {
+      "path": "assets/scifi/robots/ranged.glb",
+      "bytes": 76044,
+      "sha256": "a88b62f88705009debfda6b3f0c7b4aba4695130f5aec394ae5dcf87b666c3bc"
+    },
+    {
+      "path": "assets/scifi/robots/dasher.glb",
+      "bytes": 76048,
+      "sha256": "b6d87e33b8b85cfb8af42eda2375e115de08c5d791f87ab142f0b4c8f461f670"
+    },
+    {
+      "path": "assets/scifi/robots/splitter.glb",
+      "bytes": 76048,
+      "sha256": "965e304088f82c784ae9528f2c34be10e5e6b298fadb06767e1824d51dc095c4"
+    },
+    {
+      "path": "assets/scifi/robots/exploder.glb",
+      "bytes": 76048,
+      "sha256": "af7c7e912bc7c2d4754c581bba3afedcec73e2055c5f275de2c278316391b975"
+    },
+    {
+      "path": "assets/scifi/robots/warlord.glb",
+      "bytes": 79216,
+      "sha256": "522767c886d345e4b78fc2a4ed214a0bacb963cf39cfe802c9d35e436632c960"
+    },
+    {
+      "path": "assets/scifi/guns/gladius.glb",
+      "bytes": 7288,
+      "sha256": "136215725db8f1c6ef5c364d0708bd12c4ab21035ad78cd31a804f53fea17fad"
+    },
+    {
+      "path": "assets/scifi/guns/sentinel_spear.glb",
+      "bytes": 8296,
+      "sha256": "0336c22d09c519afe8ee3bf0db312f5e634415bbdb912382399d4eefcca3a0b6"
+    },
+    {
+      "path": "assets/scifi/guns/stormhammer.glb",
+      "bytes": 8296,
+      "sha256": "10eb1c5750216d1df9d61c91dbe493bbd70ad9e74e0e16a2bbbd647c6a16d89d"
+    },
+    {
+      "path": "assets/scifi/guns/sunbow.glb",
+      "bytes": 8296,
+      "sha256": "b21959f240cc2fad418e1748755509c4a6b00a82e5ddd421ecc4ad873af06b5f"
+    },
+    {
+      "path": "assets/scifi/guns/twinfangs.glb",
+      "bytes": 7304,
+      "sha256": "ced2e888f6960a77275d592d69249a4a765c3599418c31e1d683bfe1f901b627"
+    },
+    {
+      "path": "assets/scifi/guns/warreaxe.glb",
+      "bytes": 8296,
+      "sha256": "10eb1c5750216d1df9d61c91dbe493bbd70ad9e74e0e16a2bbbd647c6a16d89d"
+    },
+    {
+      "path": "assets/scifi/guns/ember_scepter.glb",
+      "bytes": 8296,
+      "sha256": "effe48ce2027c8a99319208377c95399ecf24f8cd1baf880489ddebd838f41bf"
+    },
+    {
+      "path": "assets/scifi/guns/moonlance.glb",
+      "bytes": 8296,
+      "sha256": "0336c22d09c519afe8ee3bf0db312f5e634415bbdb912382399d4eefcca3a0b6"
+    },
+    {
+      "path": "assets/scifi/guns/venom_chain.glb",
+      "bytes": 7288,
+      "sha256": "136215725db8f1c6ef5c364d0708bd12c4ab21035ad78cd31a804f53fea17fad"
+    },
+    {
+      "path": "assets/scifi/pickups/health_orb.glb",
+      "bytes": 4172,
+      "sha256": "22ad9a5d70592e03929ded26a393b5a54a3c7146af73efe5e081ff35fe6fbf2b"
+    },
+    {
+      "path": "assets/scifi/pickups/stamina_shard.glb",
+      "bytes": 4172,
+      "sha256": "551b4c3ceddd04bffbe01db4cf984e0719a08c12b311a3a2491c5532a704bd36"
+    },
+    {
+      "path": "assets/scifi/pickups/antidote.glb",
+      "bytes": 4172,
+      "sha256": "d53c55021205afd6440f0c3ebee1aaf7720f2a5e7bf623812b5a68e7a44a962e"
+    },
+    {
+      "path": "assets/scifi/pickups/coin_cache.glb",
+      "bytes": 4172,
+      "sha256": "f7116f78c91a4aac2a13fb3d1119ed4262c93c5065ce3277b4a99fb7032ef6ab"
+    },
+    {
+      "path": "assets/scifi/pickups/magnet.glb",
+      "bytes": 4172,
+      "sha256": "1a381a7f4e492fdecfd55e7eb40601871ccd218629f5fa25d7fa42f6c63d4532"
+    },
+    {
+      "path": "assets/scifi/pickups/xp_gem.glb",
+      "bytes": 4172,
+      "sha256": "fe5b1be56d5ed04e269327547e4ece5a1063abf4e2536a9ce22c9c4952113ebc"
+    },
+    {
+      "path": "assets/scifi/hazard_tile.glb",
+      "bytes": 7160,
+      "sha256": "6af13e1ac99acd56e24676da797c62ee897f2a11799709414d4900007e4ca5fa"
+    },
+    {
+      "path": "assets/scifi/fx/spark.png",
+      "bytes": 405,
+      "sha256": "3bd12b59db04f7aaa0edf9bd9131608f1de4f746150bb5daaf1f5661b0ee4db8"
+    },
+    {
+      "path": "assets/scifi/fx/ring.png",
+      "bytes": 384,
+      "sha256": "78cd76b5c250139184dee669d5d61a12ccbdcaccacf312fcbdc850349175a559"
+    },
+    {
+      "path": "assets/scifi/fx/flare.png",
+      "bytes": 1452,
+      "sha256": "2dd1baa2d59379922447605c70a93086095b107244ab26b677d55e8d7ab44a4f"
+    },
+    {
+      "path": "assets/scifi/fx/smoke.png",
+      "bytes": 1452,
+      "sha256": "2dd1baa2d59379922447605c70a93086095b107244ab26b677d55e8d7ab44a4f"
+    },
+    {
+      "path": "assets/scifi/fx/trace.png",
+      "bytes": 170,
+      "sha256": "e25236d15746a72f9635ebd87fd0864a9cf951b67357106d378a813a856db2f8"
+    },
+    {
+      "path": "assets/scifi/ui/icons/audioOff.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/icons/audioOn.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/checkmark.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/icons/contrast.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/cross.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/icons/gamepad.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/icons/gear.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/home.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/icons/joystick.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/musicOff.png",
+      "bytes": 365,
+      "sha256": "752c9556e32874411ee2a2e5d2162432170bac940b81bd6e1be3f0075b727736"
+    },
+    {
+      "path": "assets/scifi/ui/icons/musicOn.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/icons/pause.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/icons/phone.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/icons/play.png",
+      "bytes": 365,
+      "sha256": "752c9556e32874411ee2a2e5d2162432170bac940b81bd6e1be3f0075b727736"
+    },
+    {
+      "path": "assets/scifi/ui/icons/return.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/icons/star.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/target.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/icons/trophy.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/arrow_horizontal.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/arrow_right.png",
+      "bytes": 365,
+      "sha256": "752c9556e32874411ee2a2e5d2162432170bac940b81bd6e1be3f0075b727736"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/award.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/bow.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/crown_a.png",
+      "bytes": 324,
+      "sha256": "edc36c7b0f9aaa9ea1b2a666a8c3580a3d4eb539d1284fcb0739314c520c0fff"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/exploding.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/fire.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/flask_full.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/hand.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/hourglass.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/pawn_skip.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/pawn_up.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/pouch.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/shield.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/skull.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/suit_hearts.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/suit_hearts_broken.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/sword.png",
+      "bytes": 288,
+      "sha256": "63d799f3f2bfbe24f8e630bc4de6072a254e2acaf98a448ffe6e5f21f154229a"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/timer_0.png",
+      "bytes": 475,
+      "sha256": "897e06372d23170aef0c0f0bc15c9eee9f43a00dfe7f26816569768e4d9ccaa2"
+    },
+    {
+      "path": "assets/scifi/ui/upgrades/tokens.png",
+      "bytes": 502,
+      "sha256": "1da39cb5ba6130ae9b3bb565ca0d183d620d017991eda5f3a46038bdd6d76195"
+    },
+    {
+      "path": "assets/scifi/audio/shot.wav",
+      "bytes": 7100,
+      "sha256": "43b14d6e2b4d0b61f6825e883d73ea5493b71475cb85f617b9959dfe33a524bf"
+    },
+    {
+      "path": "assets/scifi/audio/reload.wav",
+      "bytes": 24298,
+      "sha256": "5f8efe98bd2340a337db7a6b5541653962e7a96e6c10bd89bfa51b2c35e29728"
+    },
+    {
+      "path": "assets/scifi/audio/impact.wav",
+      "bytes": 5776,
+      "sha256": "5ee97d88f534bc160d41cae8a810e10063b33bd0e2f70e5f69ad67bba1e22b4e"
+    },
+    {
+      "path": "assets/scifi/audio/pickup.wav",
+      "bytes": 13274,
+      "sha256": "a05756732c77278b6c806ab40e923d0faf529f3e33b6d6b52829d327869f5e97"
+    },
+    {
+      "path": "assets/scifi/audio/step.wav",
+      "bytes": 3130,
+      "sha256": "d3ace935bca34e7f66b7e3b7275860955f7b25c30d3062a2e00f2a0faee9cb5d"
+    },
+    {
+      "path": "assets/scifi/audio/alert.wav",
+      "bytes": 17684,
+      "sha256": "91f2e6b5d3c72d547379b07a61b999b45525498b740760b1d6889e3c551b7983"
+    },
+    {
+      "path": "assets/scifi/audio/dash.wav",
+      "bytes": 9746,
+      "sha256": "32b1a99ac6c48c037cac16eb0576ede38f3d1021bf00b711cf06441667424b0c"
+    },
+    {
+      "path": "assets/scifi/audio/menu.ogg",
+      "bytes": 15172,
+      "sha256": "480c74d616ee3a89e647aaf21e84017ad3565716d425330f6a2e4d8583d80ce9"
+    },
+    {
+      "path": "assets/scifi/audio/calm.ogg",
+      "bytes": 15117,
+      "sha256": "74479382464fe5e8e015861f0b769d8f29840c5737fa4afd3eb71772f1f652df"
+    },
+    {
+      "path": "assets/scifi/audio/battle.ogg",
+      "bytes": 13561,
+      "sha256": "94a16d68c2befa510b4998ac148d0347819a1b2ecca031504e8c9dac08e874b9"
+    },
+    {
+      "path": "assets/scifi/audio/boss.ogg",
+      "bytes": 13555,
+      "sha256": "3ecda2610e1e3ae4dbc2308b2846aab2876a7a753ddac0bc62e469b52d2ede82"
+    },
+    {
+      "path": "assets/scifi/audio/victory.ogg",
+      "bytes": 14560,
+      "sha256": "7bccbb758870ffcb09fb95c7fbbee7a627b97cc42dcb4c5ea594dc22733e5517"
+    }
+  ],
+  "clips": [
+    "Idle",
+    "Walking_A",
+    "Running_A",
+    "Fire",
+    "Reload",
+    "Hit_A",
+    "Death_A",
+    "Cast",
+    "Cheer",
+    "Dodge_Forward",
+    "Dodge_Backward",
+    "Dodge_Left",
+    "Dodge_Right"
+  ],
+  "authoring": "Project-authored geometry, sparse mechanical animation, sprites and synthesized audio."
+}

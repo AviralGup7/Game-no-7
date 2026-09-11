@@ -97,7 +97,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	var body := "%s\n%s\n\n%s" % [cfg.display_name, rarity, cfg.description]
 	body += "\n\nRANK %d → %d / %d" % [stack, stack + 1, cfg.max_stacks]
 	btn.text = body
-	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/ui/upgrades/award.png")
+	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/scifi/ui/upgrades/award.png")
 	btn.expand_icon = true
 	btn.add_theme_constant_override("icon_max_width", 32)
 	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(21))

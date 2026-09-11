@@ -5,9 +5,9 @@
 [resource]
 script = ExtResource("1_script")
 mode_id = &"collect"
-display_name = "Relic Hunt"
-blurb = "Slain foes drop relics. Bank enough before the horde overruns you."
-intro_line = "Their bones carry relics. Reap them from the horde before it buries you."
+display_name = "Data Recovery"
+blurb = "Disabled robots drop data. Collect enough before reinforcements arrive."
+intro_line = "Recover telemetry from disabled machines before the next security sweep."
 victory_line = "Victory. The stand holds."
 objective = &"collect"
 score_mult = 1.3

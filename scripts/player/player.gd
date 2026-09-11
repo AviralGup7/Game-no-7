@@ -66,6 +66,8 @@ var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
 var _attack_buffer := AttackBuffer.new()
 var _gameplay_time := 0.0
+var _touch_fire_held := false
+var _touch_aim := Vector2.ZERO
 
 @export var attack_buffer_seconds: float = 0.18
 
@@ -189,9 +191,18 @@ func _physics_process(delta: float) -> void:
 		# Stunned: timers still advance so the stun itself can expire, but no input.
 		_weapons.tick(delta)
 		return
+	if _touch_fire_held:
+		_try_attack()
 	if _locomotion.uses_actions():
-		if Input.is_action_just_pressed("attack"):
-			request_attack()
+		if not _touch_fire_held and Input.is_action_pressed("attack"):
+			var over_ui := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and get_viewport().gui_get_hovered_control() != null
+			# Ignore Android touch-to-mouse copies, without disabling physical
+			# keyboard/gamepad fire when no touch/mouse button is held.
+			var android_mouse := OS.has_feature("android") and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+			if not over_ui and not android_mouse:
+				_try_attack()
+		if Input.is_action_just_pressed("reload"):
+			request_reload()
 		if Input.is_action_just_pressed("dodge"):
 			request_dodge()
 		if Input.is_action_just_pressed("switch_weapon"):
@@ -205,6 +216,7 @@ func _physics_process(delta: float) -> void:
 	move *= _move_speed_factor()
 	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
 	# only ran mid-dodge would lock the player out forever).
+	var fire_facing := -global_basis.z
 	var dodge_owned_motion := _dodge.is_dodging()
 	_dodge.tick(delta)
 	# Normal locomotion is owned by the CharacterController unless a dodge is mid-flight.
@@ -212,6 +224,10 @@ func _physics_process(delta: float) -> void:
 		pass  # DodgeController owns motion (burst + recovery) this step
 	else:
 		_controller.tick(move, delta)
+	# Holding FIRE keeps facing independent of the left movement stick.
+	if _touch_fire_held and not dodge_owned_motion:
+		# Reuse the aim already selected this step; no second target/LOS scan.
+		_controller.face_direction(fire_facing)
 	_locomotion.track(move)
 	_locomotion.clamp_to_bounds()
 
@@ -275,9 +291,9 @@ func _try_attack() -> bool:
 	# fallback was removed).
 	if not _can_combat() or _dodge.is_dodging():
 		return false
+	_aim_attack()
 	if _weapons.active_instance() == null or _weapons.request_attack() <= 0:
 		return false
-	_aim_attack()
 	_on_attack_started()
 	return true
 
@@ -286,10 +302,45 @@ func _aim_attack() -> void:
 	if not is_inside_tree():
 		return
 	_targeting.apply_settings()
+	var inst := _weapons.active_instance()
+	if inst != null:
+		_targeting.max_target_range = inst.effective_range()
+	# Touch aim uses the same camera-relative coordinates as the left stick.
+	# A deliberate drag narrows assistance; desktop testing can use the mouse.
+	var manual_touch := _touch_fire_held and _touch_aim.length_squared() > 0.0001
+	_targeting.acquisition_cone_degrees = 20.0 if manual_touch else 65.0
+	if manual_touch:
+		_controller.face_direction(_controller.screen_to_world_dir(_touch_aim))
+	elif not _touch_fire_held and not OS.has_feature("mobile") and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var camera := get_viewport().get_camera_3d()
+		if camera != null:
+			var point := get_viewport().get_mouse_position()
+			var plane := Plane(Vector3.UP, global_position.y + 1.0)
+			var hit: Variant = plane.intersects_ray(camera.project_ray_origin(point), camera.project_ray_normal(point))
+			if hit is Vector3:
+				_controller.face_direction((hit as Vector3) - global_position)
+	if _targeting.aim_assist_strength <= 0.0:
+		_targeting.clear_sticky()
+		return
 	var nodes := get_tree().get_nodes_in_group("enemies")
 	var target := _targeting.pick_best_target(nodes)
 	if target is Node3D:
 		_controller.face_direction((target as Node3D).global_position - global_position)
+
+
+func get_aim_target() -> Node3D:
+	return _targeting.get_sticky() as Node3D if _targeting != null else null
+
+
+## One non-buffered shot request retained for command/test callers.
+func request_held_fire() -> bool:
+	return _try_attack()
+
+
+func request_reload() -> bool:
+	if not _can_combat() or _dodge.is_dodging():
+		return false
+	return _weapons.request_reload()
 
 
 func request_lock_on() -> bool:
@@ -588,6 +639,8 @@ func is_alive() -> bool:
 ## ---------- Internal ----------
 
 func _clear_input() -> void:
+	_touch_fire_held = false
+	_touch_aim = Vector2.ZERO
 	_attack_buffer.clear()
 	_locomotion.clear()
 
@@ -673,3 +726,19 @@ func is_control_enabled() -> bool:
 
 func _health_now() -> float:
 	return _gameplay_time
+
+
+## Touch UI publishes state, never shot ticks. Timing stays on the physics clock.
+func set_touch_fire_input(held: bool, aim: Vector2) -> void:
+	if not is_control_enabled() or not held or not aim.is_finite():
+		_touch_fire_held = false
+		_touch_aim = Vector2.ZERO
+		return
+	_touch_fire_held = true
+	_touch_aim = aim.limit_length(1.0)
+
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT]:
+		_touch_fire_held = false
+		_touch_aim = Vector2.ZERO

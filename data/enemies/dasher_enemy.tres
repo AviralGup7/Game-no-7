@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"dasher"
-blurb = "Blink-blade \u2014 telegraphs, then commits."
-display_name = "Dasher"
+blurb = "Dash Hound detected. Watch its attack telegraph."
+display_name = "Dash Hound"
 scene = ExtResource("2_scene")
 max_health = 14.0
 move_speed = 4.6

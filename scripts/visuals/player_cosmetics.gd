@@ -17,7 +17,7 @@ extends Node3D
 ## Mounted under the player's VisualRoot by Main after the model is validated.
 ## Always safe to attach: with no unlocked trail/aura it renders nothing.
 
-const TRAIL_TEXTURE := "res://assets/effects/kenney/spark_01.png"
+const TRAIL_TEXTURE := "res://assets/scifi/fx/spark.png"
 
 var _trail: GPUParticles3D = null
 var _aura: Node3D = null

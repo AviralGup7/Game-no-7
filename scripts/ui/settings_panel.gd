@@ -43,7 +43,7 @@ func refresh() -> void:
 	scale_slider.value_changed.connect(func(value: float) -> void:
 		_draft.set_text_scale(value)
 		scale_label.text = "Text size  %d%% — applied on Save" % int(value * 100))
-	UiFactory.label("Touch controls adapt automatically to the safe area. Skills stay separate from the movement stick.", self, 18)
+	UiFactory.label("Left thumb: move. Right thumb: hold FIRE and slide to aim. RELOAD refills early; SWAP changes weapons. Touch controls adapt to the safe area.", self, 18)
 	_section("PERFORMANCE")
 	var quality := OptionButton.new()
 	quality.custom_minimum_size.y = UiTheme.TOUCH_MIN
@@ -81,20 +81,21 @@ func refresh() -> void:
 	last_session.tooltip_text = "Shown when the previous session did not exit cleanly (crash, force-stop, or OS background kill)."
 	last_session.visible = DebugErrorHandler.had_unclean_previous_session()
 	last_session.pressed.connect(_on_view_last_session_pressed)
-	_section("KEYBOARD / GAMEPAD BINDINGS")
-	UiFactory.label("Bindings apply for this session only; the current save schema has no binding field. Escape cancels capture. Conflicts are rejected.", self, 18)
-	for action in InputRemapper.REMAPPABLE_ACTIONS:
-		var row := HBoxContainer.new()
-		add_child(row)
-		var label := UiFactory.label(String(action).replace("_", " ").capitalize(), row, 20)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.size_flags_horizontal = SIZE_EXPAND_FILL
-		var button := UiFactory.button(UiCommands.binding(action), row, 20, Vector2(200, UiTheme.TOUCH_MIN))
-		button.size_flags_horizontal = SIZE_SHRINK_END
-		_rebind_buttons[action] = button
-		var id: StringName = action
-		button.pressed.connect(func() -> void: _begin_rebind(id))
+	if not OS.has_feature("mobile"):
+		_section("KEYBOARD / GAMEPAD BINDINGS")
+		UiFactory.label("Bindings apply for this session only; the current save schema has no binding field. Escape cancels capture. Conflicts are rejected.", self, 18)
+		for action in InputRemapper.REMAPPABLE_ACTIONS:
+			var row := HBoxContainer.new()
+			add_child(row)
+			var label := UiFactory.label(String(action).replace("_", " ").capitalize(), row, 20)
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			label.size_flags_horizontal = SIZE_EXPAND_FILL
+			var button := UiFactory.button(UiCommands.binding(action), row, 20, Vector2(200, UiTheme.TOUCH_MIN))
+			button.size_flags_horizontal = SIZE_SHRINK_END
+			_rebind_buttons[action] = button
+			var id: StringName = action
+			button.pressed.connect(func() -> void: _begin_rebind(id))
 	_feedback = UiFactory.label("", self, 20)
 	_feedback.modulate = UiTheme.GOLD
 	# Primary action first, destructive/secondary actions after it.

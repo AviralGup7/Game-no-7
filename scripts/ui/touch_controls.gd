@@ -16,7 +16,7 @@ func _ready() -> void:
 	add_child(joystick)
 	# Larger attack target (thumb-friendly) per mobile guidelines; others balanced:
 	# attack 64.0 base radius, dodge/swap 52.0. UiLayout scales these per screen.
-	for entry in [["attack", "request_attack", 64.0], ["dodge", "request_dodge", 52.0], ["switch_weapon", "request_weapon_switch", 52.0]]:
+	for entry in [["attack", "request_attack", 64.0], ["dodge", "request_dodge", 52.0], ["switch_weapon", "request_weapon_switch", 52.0], ["reload", "request_reload", 52.0]]:
 		var button := TouchActionButton.new()
 		button.action_name = entry[0]
 		button.radius = entry[2]
@@ -24,6 +24,7 @@ func _ready() -> void:
 		button.vibrate_on_press = entry[0] == "attack"
 		var method: StringName = entry[1]
 		button.pressed.connect(_on_button_pressed.bind(method))
+		button.fire_input_changed.connect(UiCommands.fire_input)
 		add_child(button)
 		_buttons.append(button)
 	# Layout + stuck-input backstops. These MUST live here, not in the press
@@ -43,9 +44,12 @@ func _ready() -> void:
 ## surfaces as a toast; an unexpected failure is reported through EventBus so a
 ## device-side problem is visible in the log instead of looking like a dead button.
 func _on_button_pressed(command: StringName) -> void:
+	if command == &"request_attack":
+		# FIRE publishes held/aim state; it never requests frame-rate-driven shots.
+		return
 	if UiCommands.action(command):
 		return
-	action_declined.emit("Unavailable — check stamina, cooldown or equipped slots.")
+	action_declined.emit("Unavailable — check magazine, stamina, cooldown or equipped slots.")
 
 func _layout() -> void:
 	# Fallback when no plan has been pushed yet (first frame / desktop preview).
@@ -61,7 +65,7 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	joystick.position = stick.position
 	joystick.size = stick.size
 	joystick.radius = clampf(minf(stick.size.x, stick.size.y) * 0.42, 64.0, 96.0)
-	var keys := ["attack", "dodge", "swap"]
+	var keys := ["attack", "dodge", "swap", "reload"]
 	for i in range(_buttons.size()):
 		var rect: Rect2 = UiLayout.sanitize(plan[keys[i]], view)
 		var button := _buttons[i]
@@ -95,6 +99,7 @@ func _process(_delta: float) -> void:
 		UiCommands.move(value)
 
 func cancel() -> void:
+	UiCommands.fire_input(false, Vector2.ZERO)
 	if joystick == null:
 		return
 	joystick.cancel()
@@ -108,9 +113,7 @@ func _on_visibility_changed() -> void:
 	if not is_visible_in_tree(): cancel()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
-		if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) and DisplayServer.virtual_keyboard_get_height() > 0:
-			return
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT]:
 		cancel()
 
 func get_debug_snapshot() -> Dictionary:
@@ -121,3 +124,7 @@ func set_high_contrast(enabled: bool) -> void:
 	if joystick != null:
 		joystick.set_rest_alpha(1.0 if enabled else 0.75)
 	for button in _buttons: button.modulate.a = 1.0 if enabled else 0.88
+
+
+func _exit_tree() -> void:
+	UiCommands.fire_input(false, Vector2.ZERO)

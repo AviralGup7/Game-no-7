@@ -1,8 +1,8 @@
 class_name ArenaDecorator
 extends Node3D
 
-## Deterministic cosmetic dressing built from the approved KayKit dungeon prop library
-## (assets/environment/dungeon/**), giving each arena a distinct silhouette while
+## Deterministic cosmetic dressing built from the checksum-locked Kenney station prop subset
+## (assets/environment/space_station/**), giving each arena a distinct silhouette while
 ## keeping run-to-run placement identical (fair + testable).
 ##
 ## EVERY floor-standing prop is solid: structural pillars (line-of-sight blockers for
@@ -37,32 +37,30 @@ const MIN_PROP_HALF := 0.18
 const MAX_PROP_HALF_XZ := 1.4
 const MAX_PROP_HALF_Y := 2.2
 
-const DUNGEON := "res://assets/environment/dungeon/"
-const SC_PILLAR := DUNGEON + "pillar.glb"
-const SC_PILLAR_DECOR := DUNGEON + "pillar_decorated.glb"
-const SC_COLUMN := DUNGEON + "column.glb"
-## Per-arena wall identity: champion shield banners, one colour per arena (same hang
-## convention as the plain banners they replace, so the wall ring code is untouched).
+const DUNGEON := "res://assets/environment/space_station/"
+const SC_PILLAR := DUNGEON + "support.tscn"
+const SC_PILLAR_DECOR := SC_PILLAR
+const SC_COLUMN := SC_PILLAR
 const SC_BANNER := {
-	&"red": DUNGEON + "banner_shield_red.glb",
-	&"blue": DUNGEON + "banner_shield_blue.glb",
-	&"green": DUNGEON + "banner_green.glb",
-	&"yellow": DUNGEON + "banner_shield_yellow.glb",
+    &"red": DUNGEON + "display-wall.glb",
+    &"blue": DUNGEON + "display-wall.glb",
+    &"green": DUNGEON + "display-wall.glb",
+    &"yellow": DUNGEON + "display-wall.glb",
 }
-const SC_TORCH := DUNGEON + "torch_lit.glb"
-const SC_BOX := DUNGEON + "box_large.glb"
-const SC_BOX_DECOR := DUNGEON + "box_small_decorated.glb"
-const SC_BOXSTACK := DUNGEON + "box_stacked.glb"
-const SC_CRATES := DUNGEON + "crates_stacked.glb"
-const SC_BARREL := DUNGEON + "barrel_large.glb"
-const SC_BARREL_DECOR := DUNGEON + "barrel_large_decorated.glb"
-const SC_BARREL_STACK := DUNGEON + "barrel_small_stack.glb"
-const SC_RUBBLE := DUNGEON + "rubble_large.glb"
-const SC_TRUNK := DUNGEON + "trunk_medium_A.glb"
-const SC_CANDLE3 := DUNGEON + "candle_triple.glb"
-const SC_CANDLELIT := DUNGEON + "candle_thin_lit.glb"
-const SC_SWORD := DUNGEON + "sword_shield.glb"
-const SC_SWORD_GOLD := DUNGEON + "sword_shield_gold.glb"
+const SC_TORCH := DUNGEON + "computer.glb"
+const SC_BOX := DUNGEON + "container.glb"
+const SC_BOX_DECOR := SC_BOX
+const SC_BOXSTACK := DUNGEON + "container-tall.glb"
+const SC_CRATES := DUNGEON + "container-wide.glb"
+const SC_BARREL := SC_BOX
+const SC_BARREL_DECOR := SC_BOXSTACK
+const SC_BARREL_STACK := SC_CRATES
+const SC_RUBBLE := DUNGEON + "rocks.glb"
+const SC_TRUNK := SC_CRATES
+const SC_CANDLE3 := DUNGEON + "table-display.glb"
+const SC_CANDLELIT := SC_TORCH
+const SC_SWORD := SC_CANDLE3
+const SC_SWORD_GOLD := SC_CANDLE3
 ## Sword trophies are centre-origin wall art (1.67 m tall): this seats their base on the floor.
 const TROPHY_LIFT := 0.82
 

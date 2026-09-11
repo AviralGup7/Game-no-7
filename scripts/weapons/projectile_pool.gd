@@ -18,14 +18,14 @@ const SWEEP_RADIUS := 0.25
 
 var _idle: Array[Projectile] = []
 var _active: Array[Projectile] = []
-var _fallback_mesh: SphereMesh = null
+var _fallback_mesh: CapsuleMesh = null
 
 
 func _ready() -> void:
 	add_to_group("projectile_pool")
-	_fallback_mesh = SphereMesh.new()
-	_fallback_mesh.radius = 0.18
-	_fallback_mesh.height = 0.36
+	_fallback_mesh = CapsuleMesh.new()
+	_fallback_mesh.radius = 0.045
+	_fallback_mesh.height = 0.4
 	for i in range(maxi(pool_size, 1)):
 		var p := _make_projectile()
 		_idle.append(p)
@@ -80,6 +80,7 @@ func _make_fallback_projectile() -> Projectile:
 	var mesh := MeshInstance3D.new()
 	mesh.name = "Mesh"
 	mesh.mesh = _fallback_mesh
+	mesh.rotation.x = PI * 0.5
 	visual.add_child(mesh)
 	return p
 

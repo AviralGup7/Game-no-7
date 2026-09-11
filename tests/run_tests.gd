@@ -69,6 +69,7 @@ const UNIT_SUITES := [
 const NODE_SUITES := [
 	"res://tests/unit/test_model_visual.gd",
 	"res://tests/unit/test_weapons.gd",
+	"res://tests/unit/test_station_shooter.gd",
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_hero_rig.gd",

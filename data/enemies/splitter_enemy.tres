@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"splitter"
-blurb = "Sporekin \u2014 cut once, fight twice."
-display_name = "Broodmother"
+blurb = "Replication Unit detected. Watch its attack telegraph."
+display_name = "Replication Unit"
 scene = ExtResource("2_scene")
 max_health = 45.0
 move_speed = 1.6

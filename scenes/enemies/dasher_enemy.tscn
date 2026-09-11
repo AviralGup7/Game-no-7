@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/creatures/Rat.glb" id="3_model"]
+[ext_resource type="PackedScene" path="res://assets/scifi/robots/dasher.glb" id="3_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_dasher"]
 radius = 0.4
@@ -39,8 +39,8 @@ model_scene = ExtResource("3_model")
 model_extent = 0.85
 yaw_offset_degrees = 180.0
 animation_map = {
-"idle": "RatArmature|Rat_Idle",
-"run": "RatArmature|Rat_Run",
-"attack": "RatArmature|Rat_Attack",
-"death": "RatArmature|Rat_Death"
+"idle": "Idle",
+"run": "Running_A",
+"attack": "Fire",
+"death": "Death_A"
 }

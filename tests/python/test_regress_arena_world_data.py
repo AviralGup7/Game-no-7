@@ -148,26 +148,26 @@ def expanded_obstacles(arena_id: str) -> list[tuple[float, float, float, float, 
 
 SHIPPED_LOOK = {
     "ember_crucible": {
-        "sky_top": (0.12, 0.03, 0.02), "sky_horizon": (0.85, 0.28, 0.08),
-        "ground_horizon": (0.35, 0.12, 0.05), "fog_color": (0.62, 0.26, 0.1),
+        "sky_top": (0.06, 0.015, 0.01), "sky_horizon": (0.28, 0.1, 0.04),
+        "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.62, 0.26, 0.1),
         "sun_color": (1.0, 0.5, 0.2), "ambient_color": (0.85, 0.45, 0.28),
-        "floor_tint": (0.88, 0.6, 0.46), "wall_tint": (0.78, 0.5, 0.38),
+        "floor_tint": (0.58, 0.68, 0.78), "wall_tint": (0.7, 0.78, 0.88),
         "fog_density": 0.02, "sun_energy": 1.7, "brightness": 1.0, "contrast": 1.1,
         "panorama": "venice_sunset_1k.hdr",
     },
     "frost_hollow": {
-        "sky_top": (0.18, 0.28, 0.48), "sky_horizon": (0.82, 0.9, 1.0),
-        "ground_horizon": (0.42, 0.58, 0.78), "fog_color": (0.62, 0.72, 0.9),
+        "sky_top": (0.01, 0.04, 0.07), "sky_horizon": (0.08, 0.22, 0.3),
+        "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.62, 0.72, 0.9),
         "sun_color": (0.7, 0.8, 1.0), "ambient_color": (0.68, 0.8, 1.0),
-        "floor_tint": (0.72, 0.8, 0.9), "wall_tint": (0.6, 0.7, 0.84),
+        "floor_tint": (0.58, 0.68, 0.78), "wall_tint": (0.7, 0.78, 0.88),
         "fog_density": 0.017, "sun_energy": 1.35, "brightness": 0.98, "contrast": 1.08,
         "panorama": "moonless_golf_1k.hdr",
     },
     "default_arena": {
-        "sky_top": (0.22, 0.42, 0.68), "sky_horizon": (0.72, 0.82, 0.92),
-        "ground_horizon": (0.38, 0.42, 0.48), "fog_color": (0.66, 0.68, 0.72),
+        "sky_top": (0.015, 0.025, 0.06), "sky_horizon": (0.12, 0.18, 0.28),
+        "ground_horizon": (0.12, 0.16, 0.22), "fog_color": (0.66, 0.68, 0.72),
         "sun_color": (1.0, 0.92, 0.78), "ambient_color": (0.7, 0.73, 0.8),
-        "floor_tint": (0.66, 0.64, 0.6), "wall_tint": (0.72, 0.7, 0.68),
+        "floor_tint": (0.58, 0.68, 0.78), "wall_tint": (0.7, 0.78, 0.88),
         "fog_density": 0.011, "sun_energy": 1.2, "brightness": 1.02, "contrast": 1.06,
         "panorama": "spruit_sunrise_1k.hdr",
     },
@@ -492,18 +492,15 @@ class ShippedDataFidelityTests(unittest.TestCase):
             for key, want in SHARED_LOOK.items():
                 self.assertTrue(close(numbers(fields.get(key))[0], want),
                                 f"{arena_id}.{key} moved: {fields.get(key)} != {want}")
-            self.assertIn(look["panorama"], fields.get("panorama_path", ""),
-                          f"{arena_id} lost its real sky")
+            self.assertEqual(fields.get("panorama_path"), '""')
 
-    def test_themes_are_distinct_and_their_skis_exist(self):
-        skies = {}
+    def test_station_skies_are_procedural_and_distinct(self):
+        skies = set()
         for arena_id in ARENAS:
-            path = theme_file(arena_id).get("panorama_path", "").strip('"')
-            self.assertTrue(path.startswith("res://assets/textures/panorama/"),
-                            f"{arena_id} panorama must come from the locked HDRI folder: {path}")
-            self.assertTrue((ROOT / path.replace("res://", "")).exists(), f"{path} is not in the repository")
-            skies[arena_id] = path
-        self.assertEqual(len(set(skies.values())), 3, "the three arenas share a sky")
+            fields = theme_file(arena_id)
+            self.assertEqual(fields.get("panorama_path"), '""')
+            skies.add(fields["sky_top"])
+        self.assertEqual(len(skies), 3)
 
     def test_landmark_numbers_match_the_deleted_shapes(self):
         for arena_id, (kind, shape, half, accent, emissive, energy, rng, offy) in SHIPPED_LANDMARKS.items():

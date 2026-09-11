@@ -319,11 +319,16 @@ jobs:
           test -f "$APK_PATH" && test -s "$APK_PATH"
           echo "APK size: $(stat -c%s "$APK_PATH") bytes"
 
+      - name: Report APK size by container and largest entries
+        run: python3 tool/apk_size_report.py "$APK_PATH" | tee build/apk-size-report.json
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: LastStandArena-android
-          path: ${{ env.APK_PATH }}
+          path: |
+            ${{ env.APK_PATH }}
+            build/apk-size-report.json
           retention-days: 30
 
       - name: Build summary

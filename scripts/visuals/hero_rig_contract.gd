@@ -4,19 +4,12 @@ extends RefCounted
 ## Presentation compatibility gate, NOT a combat authority. A hero is not usable
 ## merely because it imports: every clip the live animator selects and both weapon
 ## sockets must exist before CharacterVisuals hides the fallback.
-const MODEL_PATH := "res://assets/characters/warden/ArenaWarden.glb"
-const FALLBACK_PATH := "res://assets/characters/adventurers/Knight.glb"
+const MODEL_PATH := "res://assets/scifi/robots/player.glb"
+const FALLBACK_PATH := "res://assets/scifi/robots/player.glb"
 const AUTHORED_IDLE_META := &"authored_idle"
 const MODEL_PATH_META := &"model_path"
 const REQUIRED_BONES: Array[StringName] = [&"hips", &"chest", &"head", &"handslot.l", &"handslot.r"]
-const REQUIRED_CLIPS: Array[StringName] = [
-	&"Idle", &"Walking_A", &"Running_A",
-	&"1H_Melee_Attack_Slice_Horizontal", &"1H_Melee_Attack_Slice_Diagonal", &"1H_Melee_Attack_Chop",
-	&"2H_Melee_Attack_Chop", &"2H_Melee_Attack_Slice", &"2H_Melee_Attack_Spin", &"2H_Melee_Attack_Stab",
-	&"Dualwield_Melee_Attack_Slice", &"2H_Ranged_Shoot", &"2H_Ranged_Reload",
-	&"Dodge_Forward", &"Dodge_Backward", &"Dodge_Left", &"Dodge_Right",
-	&"Hit_A", &"Death_A", &"Spellcast_Shoot", &"Spellcast_Raise", &"Cheer",
-]
+const REQUIRED_CLIPS: Array[StringName] = [&"Idle", &"Walking_A", &"Running_A", &"Fire", &"Reload", &"Hit_A", &"Death_A", &"Cast", &"Cheer", &"Dodge_Forward", &"Dodge_Backward", &"Dodge_Left", &"Dodge_Right"]
 
 
 static func animation_player(model: Node) -> AnimationPlayer:

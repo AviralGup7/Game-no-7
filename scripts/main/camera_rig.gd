@@ -290,10 +290,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if vp != null:
 			viewport_size = vp.get_visible_rect().size
 		if viewport_size.x > 0.0 and drag.position.x > viewport_size.x * 0.5:
-			# Feed as mouse motion scaled for touch
-			var mm := InputEventMouseMotion.new()
-			mm.relative = drag.relative * 0.8
-			_input_handler.handle_mouse_motion(mm)
+			_input_handler.handle_touch_drag(drag.relative)
 	if event.is_action_pressed("camera_reset") or event.is_action_pressed("lock_on"):
 		if not toggle_lock_on():
 			reset_orbit()

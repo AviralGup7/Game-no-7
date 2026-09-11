@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"phantom_rush"
-display_name = "Phantom Rush"
+display_name = "Phase Dash"
 description = "Dash through enemies, striking each one passed and escaping a bad angle."
 behavior = &"dash_strike"
 input_action = &"skill_3"

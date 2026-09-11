@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 upgrade_id = &"deep_quiver"
 display_name = "Deep Quiver"
-description = "+1 projectile pierce. Sunbow and Moonlance turn formation enemies into a single target."
+description = "+1 projectile pierce. Scout Rifle and Cryo Accelerator turn formation enemies into a single target."
 rarity = &"rare"
 category = &"projectile"
 max_stacks = 2

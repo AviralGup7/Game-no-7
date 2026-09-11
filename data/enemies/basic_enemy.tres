@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"basic"
-display_name = "Grunt"
+display_name = "Security Drone"
 scene = ExtResource("2_scene")
 max_health = 20.0
 move_speed = 2.5
@@ -37,4 +37,26 @@ tags = Array[StringName]([])
 unlock_wave = 1
 elite_eligible = false
 spawn_priority = 0
-balance_notes = "Phase 2+3 baseline enemy: reliable melee grunt."
+balance_notes = "Baseline security gunner: slow readable bolts; cover blocks projectiles."
+
+blurb = "Security Drone detected. Watch its attack telegraph."
+
+ai_behavior = &"ranged"
+
+ranged_range = 13.0
+
+ranged_cooldown = 2.1
+
+ranged_windup = 0.65
+
+projectile_speed = 11.0
+
+projectile_count = 1
+
+projectile_spread = 0.0
+
+projectile_damage_scale = 0.85
+
+preferred_distance = 7.0
+
+strafe_speed = 0.5

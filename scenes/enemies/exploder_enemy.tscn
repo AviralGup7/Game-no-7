@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/monsters/Demon.gltf" id="3_model"]
+[ext_resource type="PackedScene" path="res://assets/scifi/robots/exploder.glb" id="3_model"]
 
 [sub_resource type="SphereShape3D" id="SphereShape_exploder"]
 radius = 0.55
@@ -42,8 +42,8 @@ model_extent = 1.9
 yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
-"run": "Run",
-"attack": "Punch",
-"hurt": "HitReact",
-"death": "Death"
+"run": "Running_A",
+"attack": "Fire",
+"hurt": "Hit_A",
+"death": "Death_A"
 }

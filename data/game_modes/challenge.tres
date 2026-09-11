@@ -6,8 +6,8 @@
 script = ExtResource("1_script")
 mode_id = &"challenge"
 display_name = "Challenge Run"
-blurb = "Fixed Gladius loadout, harsh mutators, clear the tier or die trying."
-intro_line = "Glass and fire. One blade. Twelve waves. No excuses."
+blurb = "Fixed Pulse Carbine loadout, harsh mutators, clear the tier or die trying."
+intro_line = "Glass and fire. One rifle. Twelve waves. No excuses."
 victory_line = "Challenge complete. The glass did not break you."
 objective = &"clear_waves"
 score_mult = 1.5

@@ -78,7 +78,7 @@ func _ready() -> void:
 	spacer.mouse_filter = MOUSE_FILTER_IGNORE
 	_top.add_child(spacer)
 
-	_currency_label = _value_chip(_top, UiTheme.CYAN, "COINS 0")
+	_currency_label = _value_chip(_top, UiTheme.CYAN, "CREDITS 0")
 	_score_label = UiFactory.label("SCORE", _top, 16)
 	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_score_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
@@ -215,7 +215,7 @@ func set_score(score: int) -> void:
 func set_currency(currency: int) -> void:
 	if currency == _currency_cached: return
 	_currency_cached = currency
-	_currency_label.text = "COINS %d" % currency
+	_currency_label.text = "CREDITS %d" % currency
 
 
 func set_wave(wave: int) -> void:
@@ -292,14 +292,14 @@ func _refresh_weapon() -> void:
 	if active == null or active.config == null:
 		caption = "No weapon equipped"
 	else:
-		var status := String(active.phase).to_upper()
+		var status := "RELOADING %.1fs" % active.reload_remaining() if active.is_reloading() else "READY"
 		if active.config.has_ammo(): status += "  %d / %d" % [active.ammo, active.config.ammo_per_magazine]
 		caption = "%s • %s" % [active.config.display_name, status]
 		var slots := PackedStringArray()
 		for index in range(2):
 			var item := manager.slot_instance(index)
 			slots.append(item.config.display_name if item != null and item.config != null else "Empty")
-		tip = "Loadout: %s\nSwitch: %s" % [" / ".join(slots), UiCommands.binding(&"switch_weapon")]
+		tip = "Loadout: %s\nHold FIRE and slide to aim • RELOAD to refill early\nAuto-reload on empty • SWAP changes weapon" % " / ".join(slots)
 	# Dirty-flag: the 0.15 s poll only rewrites the dock when the loadout or ammo
 	# actually changed, so an idle run stops rebuilding text every frame.
 	if caption == _weapon_caption_cache and tip == _weapon_tip_cache:

@@ -10,6 +10,8 @@ extends Control
 ## does not re-fire; sliding off and releasing elsewhere just clears the hold.
 
 signal pressed
+## Input state only: Player consumes held fire on its physics clock.
+signal fire_input_changed(held: bool, aim: Vector2)
 
 @export var action_name: String = ""
 @export var vibrate_on_press := false
@@ -19,6 +21,9 @@ signal pressed
 var _touch_index := -1
 var _held := false
 var _label: Label
+var _press_origin := Vector2.ZERO
+var _aim := Vector2.ZERO
+const AIM_DEADZONE := 0.18
 
 
 func _ready() -> void:
@@ -30,7 +35,7 @@ func _ready() -> void:
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.mouse_filter = MOUSE_FILTER_IGNORE
-	_label.text = {"attack": "ATTACK", "dodge": "DODGE", "switch_weapon": "SWAP"}.get(action_name, action_name.to_upper())
+	_label.text = {"attack": "FIRE", "dodge": "DODGE", "switch_weapon": "SWAP", "reload": "RELOAD"}.get(action_name, action_name.to_upper())
 	_label.add_theme_font_override("font", UiTheme.BOLD)
 	_label.add_theme_font_size_override("font_size", 18)
 	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
@@ -42,19 +47,32 @@ func _ready() -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
+	# Menus still need mouse-from-touch, but gameplay must not process the
+	# synthesized copy as a second finger/shot. Physical mice remain supported.
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
 	if event is InputEventScreenTouch:
 		var t := event as InputEventScreenTouch
+		if t.canceled:
+			if t.index == _touch_index:
+				cancel()
+			return
 		if t.pressed and not _held:
 			_held = true
 			_touch_index = t.index
+			_press_origin = t.position
+			_aim = Vector2.ZERO
 			queue_redraw()
 			_fire()
 		elif not t.pressed and _held and t.index == _touch_index:
 			# Release only clears the hold: the intent already went out on
 			# press-down, so a release must never fire (or double-fire).
-			_held = false
-			_touch_index = -1
-			queue_redraw()
+			cancel()
+	elif event is InputEventScreenDrag:
+		var drag := event as InputEventScreenDrag
+		if _held and drag.index == _touch_index:
+			_update_aim(drag.position)
+			accept_event()
 	elif event is InputEventMouseButton:
 		# Desktop parity: left-click drives the button exactly like a tap.
 		var mb := event as InputEventMouseButton
@@ -62,12 +80,12 @@ func _gui_input(event: InputEvent) -> void:
 			if mb.pressed and not _held:
 				_held = true
 				_touch_index = -2
+				_press_origin = mb.position
+				_aim = Vector2.ZERO
 				queue_redraw()
 				_fire()
 			elif not mb.pressed and _held and _touch_index == -2:
-				_held = false
-				_touch_index = -1
-				queue_redraw()
+				cancel()
 
 
 func _fire() -> void:
@@ -83,6 +101,7 @@ func _fire() -> void:
 	# here would re-arm mid-press, so a second finger down during the same tap
 	# would double-fire. Release branches and cancel() own the clearing.
 	pressed.emit()
+	_publish_fire()
 	if vibrate_on_press:
 		_vibrate()
 	queue_redraw()
@@ -104,6 +123,8 @@ func _vibrate() -> void:
 func cancel() -> void:
 	_held = false
 	_touch_index = -1
+	_aim = Vector2.ZERO
+	_publish_fire()
 	queue_redraw()
 
 
@@ -117,6 +138,9 @@ func _draw() -> void:
 	var col := Color("3f6b86") if _held else Color(UiTheme.INK.r, UiTheme.INK.g, UiTheme.INK.b, 0.82)
 	draw_circle(center, r, col)
 	draw_arc(center, r, 0.0, TAU, 48, UiTheme.GOLD if _held else UiTheme.CYAN, 4.0 if _held else 3.0)
+	if _held and action_name == "attack" and _aim != Vector2.ZERO:
+		draw_line(center, center + _aim * r * 0.72, UiTheme.CYAN, 3.0, true)
+		draw_circle(center + _aim * r * 0.72, 7.0, UiTheme.CYAN)
 	if _held:
 		draw_arc(center, r + 5.0, 0.0, TAU, 48, Color(UiTheme.GOLD.r, UiTheme.GOLD.g, UiTheme.GOLD.b, 0.5), 2.0)
 
@@ -124,7 +148,54 @@ func _draw() -> void:
 func _input(event: InputEvent) -> void:
 	if not _held:
 		return
-	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
-		if not get_global_rect().has_point(event.position): cancel()
-	elif event is InputEventMouseButton and not event.pressed and _touch_index == -2:
-		if not get_global_rect().has_point(event.position): cancel()
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	if event is InputEventScreenTouch:
+		var touch := event as InputEventScreenTouch
+		if touch.index == _touch_index and (not touch.pressed or touch.canceled):
+			cancel()
+	elif event is InputEventScreenDrag:
+		var drag := event as InputEventScreenDrag
+		if drag.index == _touch_index and action_name == "attack":
+			# Global capture continues beyond the button's bounds. It never
+			# steals another finger or leaks this drag into camera orbit.
+			_update_aim(get_global_transform_with_canvas().affine_inverse() * drag.position)
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton and _touch_index == -2:
+		var mouse := event as InputEventMouseButton
+		if mouse.button_index == MOUSE_BUTTON_LEFT and not mouse.pressed:
+			cancel()
+	elif event is InputEventMouseMotion and _touch_index == -2 and action_name == "attack":
+		var motion := event as InputEventMouseMotion
+		_update_aim(get_global_transform_with_canvas().affine_inverse() * motion.position)
+		get_viewport().set_input_as_handled()
+
+
+func _update_aim(local_position: Vector2) -> void:
+	if action_name != "attack" or not _held:
+		return
+	if not local_position.is_finite():
+		cancel()
+		return
+	var raw := (local_position - _press_origin) / maxf(radius, 1.0)
+	_aim = raw.limit_length(1.0) if raw.length() > AIM_DEADZONE else Vector2.ZERO
+	_publish_fire()
+	queue_redraw()
+
+
+func _publish_fire() -> void:
+	if action_name == "attack":
+		fire_input_changed.emit(_held, _aim)
+
+
+func get_aim_input() -> Vector2:
+	return _aim if _held else Vector2.ZERO
+
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT]:
+		cancel()
+
+
+func is_held() -> bool:
+	return _held and is_visible_in_tree()

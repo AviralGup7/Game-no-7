@@ -107,15 +107,15 @@ func _show_current() -> void:
 static func step_text(step_id: StringName) -> String:
 	match step_id:
 		STEP_MOVE:
-			return "Move with the left stick (WASD on keyboard)"
+			return "Drag the left stick with your left thumb to move"
 		STEP_ATTACK:
-			return "Tap ATTACK or %s. Face your target and chain hits." % UiCommands.binding(&"attack")
+			return "Hold FIRE; slide your right thumb to aim. Tap RELOAD between bursts."
 		STEP_DODGE:
-			return "DODGE / %s avoids danger but costs stamina." % UiCommands.binding(&"dodge")
+			return "Tap DODGE while moving to evade. It costs stamina."
 		STEP_WINDED:
 			return "Stamina empties after dodges — wait for the bar to refill."
 		STEP_SKILL:
-			return "Tap a READY skill or %s. Level labels mean locked." % UiCommands.binding(&"skill_1")
+			return "Tap a READY skill. Level labels mean locked."
 		STEP_UPGRADE:
 			return "Clear waves to earn upgrades — pick one!"
 		STEP_SURVIVE:

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "recipe": "station_environment_v1",
+  "recipe_sha256": "b4dc146c35ab59844f511474ec7fa097cb6c59a281cb0af39a4dca129ebc6f4b",
+  "files": [
+    {
+      "path": "assets/environment/space_station/panel.png",
+      "bytes": 227,
+      "sha256": "26b4cc7b5082c576103eb72e49016ea7f1d3f16470ce928ebbe06d9f5c01f117"
+    },
+    {
+      "path": "assets/environment/space_station/support.tscn",
+      "bytes": 812,
+      "sha256": "439ff2862132cf04cf763b1387ded9b85df8bef00de95f9e6cbd27893f1665a1"
+    }
+  ]
+}

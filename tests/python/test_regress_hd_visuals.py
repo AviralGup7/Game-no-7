@@ -16,8 +16,8 @@ def read(rel: str) -> str:
 class HdVisualsTests(unittest.TestCase):
     def test_arena_scene_is_hd_rebuild(self):
         txt = read("scenes/arena/arena.tscn")
-        self.assertIn("PanoramaSkyMaterial", txt)
-        self.assertIn("spruit_sunrise_1k.hdr", txt)
+        self.assertIn("ProceduralSkyMaterial", txt)
+        self.assertNotIn(".hdr", txt)
         self.assertIn("arena_floor_rock.tres", txt)
         self.assertIn("arena_wall_brick.tres", txt)
         self.assertIn("torch_flicker.gd", txt)
@@ -41,34 +41,16 @@ class HdVisualsTests(unittest.TestCase):
         self.assertIn("anisotropic_filtering_level=8", txt)
         self.assertIn("soft_shadow_filter_quality=3", txt)
 
-    def test_arena_theme_uses_panorama_per_arena(self):
-        """Each arena really gets its own HDRI, and the code that consumes it is still
-        the panorama path with the procedural fallback.
-
-        The .hdr names used to live in `Arena.PANORAMA_SKIES`; they are authored on each
-        theme resource now (a theme that could not find its file falls back to its own
-        procedural colours, which is why the path must stay a string and never become an
-        ExtResource -- a hard reference would make a missing .hdr a load error)."""
+    def test_station_themes_use_zero_bitmap_skies(self):
         txt = read("scripts/arena/arena.gd")
-        self.assertIn("PanoramaSkyMaterial", txt)
         self.assertIn("ProceduralSkyMaterial", txt)
         self.assertIn("theme.panorama_path", txt)
-        self.assertIn("ResourceLoader.exists(theme.panorama_path)", txt)
-        self.assertIn("glow_enabled", txt)
-        self.assertIn("adjustment_enabled", txt)
-        skies = {}
+        skies = set()
         for arena_id in ("default_arena", "ember_crucible", "frost_hollow"):
             theme = read(f"data/arena_themes/{arena_id}.tres")
-            m = re.search(r'panorama_path = "([^"]*)"', theme)
-            self.assertIsNotNone(m, f"{arena_id} theme must author a panorama_path")
-            skies[arena_id] = m.group(1)
-            self.assertTrue(skies[arena_id].startswith("res://assets/textures/panorama/"),
-                            f"{arena_id} points outside the locked panorama folder: {skies[arena_id]}")
-            self.assertTrue((ROOT / skies[arena_id].replace("res://", "")).exists(),
-                            f"{arena_id} references a panorama that is not in the repository: {skies[arena_id]}")
-        self.assertEqual(len(set(skies.values())), 3, "every arena must get a distinct real sky")
-        for name in ("spruit_sunrise_1k.hdr", "venice_sunset_1k.hdr", "moonless_golf_1k.hdr"):
-            self.assertIn(name, " ".join(skies.values()))
+            self.assertIn('panorama_path = ""', theme)
+            skies.add(re.search(r'^sky_top = (.+)$', theme, re.M).group(1))
+        self.assertEqual(len(skies), 3)
 
     def test_hd_materials_polish_wired_on_all_mount_paths(self):
         hd = read("scripts/visuals/hd_materials.gd")

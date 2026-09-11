@@ -90,13 +90,13 @@ static func _test_mount_and_poses(results: Array) -> void:
 static func _test_fallback(results: Array) -> void:
 	var body := _fixture()
 	# An importable mesh with no combat rig is just as unusable as a missing file.
-	var config := {"path": "res://assets/characters/warden/WardenGladius.glb",
+	var config := {"path": "res://assets/scifi/guns/gladius.glb",
 		"fallback_path": HeroRigContract.FALLBACK_PATH, "height": 1.84, "yaw": PI, "idle": "Idle"}
 	var fallback := CharacterVisuals._mount_config(body, &"player", config)
 	results.append({"name": "incomplete hero retries the complete KayKit rig", "passed": fallback != null and fallback.get_meta(HeroRigContract.MODEL_PATH_META, "") == HeroRigContract.FALLBACK_PATH})
 	body.free()
 	body = _fixture()
-	config["fallback_path"] = "res://assets/characters/warden/WardenGladius.glb"
+	config["fallback_path"] = "res://assets/scifi/guns/gladius.glb"
 	var failed := CharacterVisuals._mount_config(body, &"player", config)
 	var primitive := body.get_node("VisualRoot/CharacterModel/Body") as MeshInstance3D
 	results.append({"name": "both failed rigs leave primitive visible and no partial mount", "passed": failed == null and primitive.visible and body.get_node_or_null("VisualRoot/CharacterModel/CharacterVisual") == null})
@@ -118,7 +118,7 @@ static func _test_materials(results: Array) -> void:
 	var model := (load(HeroRigContract.MODEL_PATH) as PackedScene).instantiate() as Node3D
 	var mesh := model.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
 	var source := mesh.get_active_material(0) as BaseMaterial3D
-	results.append({"name": "native import keeps the base/normal/ORM textures", "passed": source != null and source.albedo_texture != null and source.normal_texture != null and source.roughness_texture != null and source.metallic_texture != null})
+	results.append({"name": "native robot uses vertex palette without bitmap textures", "passed": source != null and source.albedo_texture == null and source.normal_texture == null and source.vertex_color_use_as_albedo})
 	HdMaterials.polish(model, &"player", true)
 	var polished := mesh.get_active_material(0) as BaseMaterial3D
 	results.append({"name": "PBR maps and unit factors survive the material pass", "passed": polished != source and polished.albedo_texture == source.albedo_texture and polished.normal_texture == source.normal_texture and polished.roughness_texture == source.roughness_texture and polished.metallic_texture == source.metallic_texture and polished.roughness == source.roughness and polished.metallic == source.metallic})

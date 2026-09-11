@@ -94,7 +94,8 @@ class AndroidPerformanceTests(unittest.TestCase):
     def test_android_exports_omit_test_resources_not_runtime_content(self):
         for path in ("export_presets.cfg", "export_presets.cfg.example"):
             source = read(path)
-            self.assertIn('exclude_filter="tests/*,tool/*"', source)
+            self.assertIn('exclude_filter="tests/*,tool/*,', source)
+            self.assertIn('assets/textures/panorama/*', source)
             self.assertIn('export_filter="all_resources"', source)
             self.assertIn("assets/*.json", source)
             self.assertIn("ASSET_LICENSES/*.txt", source)

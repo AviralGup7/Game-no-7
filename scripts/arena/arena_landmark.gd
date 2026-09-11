@@ -23,9 +23,7 @@ extends Node3D
 ## holder's own transform carries position/rotation/scale, which is why every child number
 ## below is local: scaling the landmark scales its body and its blocker together.
 
-const ROCK_ALBEDO := "res://assets/textures/rock/rock_albedo.png"
-const ROCK_NORMAL := "res://assets/textures/rock/rock_normal.png"
-const ROCK_AO := "res://assets/textures/rock/rock_ao.png"
+const ROCK_ALBEDO := "res://assets/environment/space_station/panel.png"
 ## Wide floor ring every silhouette wears, parked outside the dais rim (3.05 m) so it
 ## reads on the arena floor instead of hiding under the dais plate.
 const FLOOR_RING_OUTER := 3.3
@@ -361,17 +359,13 @@ func _add_collision(cfg: ArenaLandmarkConfig) -> void:
 	add_child(body)
 
 
-## Photo-rock material for landmark geometry (tint multiplies the photo albedo). Textures
+## Shared station panel for landmark geometry. Textures
 ## load lazily; before import or on missing files the tint alone still shades the mesh, so a
 ## landmark never disappears because an asset is absent.
 func _rock_mat(tint: Color, rough: float) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = tint
 	mat.albedo_texture = load(ROCK_ALBEDO)
-	mat.normal_enabled = true
-	mat.normal_texture = load(ROCK_NORMAL)
-	mat.ao_enabled = true
-	mat.ao_texture = load(ROCK_AO)
 	mat.roughness = rough
 	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	return mat

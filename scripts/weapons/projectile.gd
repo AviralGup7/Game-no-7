@@ -286,7 +286,7 @@ func _apply_team_tint() -> void:
 	if mesh == null:
 		return
 	var player_team := team == TEAM_PLAYER
-	var tint := Color(1.0, 0.8, 0.25) if player_team else Color(1.0, 0.2, 0.25)
+	var tint := Color(0.15, 0.8, 1.0) if player_team else Color(1.0, 0.2, 0.25)
 	var mat := _shared_player_mat if player_team else _shared_enemy_mat
 	if mat == null:
 		mat = StandardMaterial3D.new()

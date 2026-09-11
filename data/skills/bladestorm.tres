@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"bladestorm"
-display_name = "Bladestorm"
+display_name = "EMP Burst"
 description = "Whirl for five rapid hits; each pass can deepen a bleed stack."
 behavior = &"whirl"
 input_action = &"skill_2"

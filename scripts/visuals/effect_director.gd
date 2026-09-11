@@ -20,8 +20,8 @@ const MAX_RINGS := 14
 const MAX_LIVE_TELEGRAPH := 6
 const BOSS_RING_RESERVE := 2
 const MAX_MUZZLE := 4
-const RING_TEXTURE := "res://assets/effects/kenney/circle_05.png"
-const BURST_TEXTURE := "res://assets/effects/kenney/spark_01.png"
+const RING_TEXTURE := "res://assets/scifi/fx/ring.png"
+const BURST_TEXTURE := "res://assets/scifi/fx/spark.png"
 
 # Pool priorities — higher wins when saturated.
 const PRIORITY_CRITICAL := 100
@@ -73,28 +73,28 @@ const SKILL_COLORS := {
 ## Per-skill ring/burst textures from the shared kenney library — gives each skill
 ## a shape identity beyond colour/radius (trace for whirl, smoke for dash, dirt for slam, etc).
 const SKILL_RING_TEXTURES := {
-	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
-	&"frost_nova": "res://assets/effects/kenney/circle_05.png",
-	&"frost_nova_skill": "res://assets/effects/kenney/circle_05.png",
-	&"phantom_rush": "res://assets/effects/kenney/smoke_03.png",
-	&"seismic_slam": "res://assets/effects/kenney/dirt_01.png",
-	&"warcry": "res://assets/effects/kenney/magic_01.png",
-	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
-	&"chain_lightning": "res://assets/effects/kenney/magic_03.png",
-	&"mending_light": "res://assets/effects/kenney/flare_01.png",
-	&"shatterwave": "res://assets/effects/kenney/circle_01.png",
+	&"bladestorm": "res://assets/scifi/fx/trace.png",
+	&"frost_nova": "res://assets/scifi/fx/ring.png",
+	&"frost_nova_skill": "res://assets/scifi/fx/ring.png",
+	&"phantom_rush": "res://assets/scifi/fx/smoke.png",
+	&"seismic_slam": "res://assets/scifi/fx/smoke.png",
+	&"warcry": "res://assets/scifi/fx/spark.png",
+	&"warcry_skill": "res://assets/scifi/fx/spark.png",
+	&"chain_lightning": "res://assets/scifi/fx/spark.png",
+	&"mending_light": "res://assets/scifi/fx/flare.png",
+	&"shatterwave": "res://assets/scifi/fx/ring.png",
 }
 const SKILL_BURST_TEXTURES := {
-	&"bladestorm": "res://assets/effects/kenney/trace_01.png",
-	&"frost_nova": "res://assets/effects/kenney/star_04.png",
-	&"frost_nova_skill": "res://assets/effects/kenney/star_04.png",
-	&"phantom_rush": "res://assets/effects/kenney/smoke_01.png",
-	&"seismic_slam": "res://assets/effects/kenney/spark_04.png",
-	&"warcry": "res://assets/effects/kenney/magic_01.png",
-	&"warcry_skill": "res://assets/effects/kenney/magic_01.png",
-	&"chain_lightning": "res://assets/effects/kenney/star_01.png",
-	&"mending_light": "res://assets/effects/kenney/light_01.png",
-	&"shatterwave": "res://assets/effects/kenney/circle_05.png",
+	&"bladestorm": "res://assets/scifi/fx/trace.png",
+	&"frost_nova": "res://assets/scifi/fx/spark.png",
+	&"frost_nova_skill": "res://assets/scifi/fx/spark.png",
+	&"phantom_rush": "res://assets/scifi/fx/smoke.png",
+	&"seismic_slam": "res://assets/scifi/fx/spark.png",
+	&"warcry": "res://assets/scifi/fx/spark.png",
+	&"warcry_skill": "res://assets/scifi/fx/spark.png",
+	&"chain_lightning": "res://assets/scifi/fx/spark.png",
+	&"mending_light": "res://assets/scifi/fx/flare.png",
+	&"shatterwave": "res://assets/scifi/fx/ring.png",
 }
 var _bursts: Array[GPUParticles3D] = []
 var _ring_pool: Array[Node3D] = []
