@@ -229,7 +229,7 @@ func _test_hud_and_effects() -> void:
 	EventBus.wave_progressed.emit(3, 7, 12)
 	_check("health has numeric low warning", _ui._hud._gauges.health_caption.text.contains("LOW HP") and is_equal_approx(_ui._hud._gauges.health_bar.value, 0.18))
 	_check("stamina numeric and bar match", _ui._hud._gauges.stamina_caption.text.contains("42") and is_equal_approx(_ui._hud._gauges.stamina_bar.value, 0.42))
-		_check("wave progress displayed", (_ui._hud._wave_label.text.contains("7 of 12") or _ui._hud._wave_label.text.contains("7/12")))
+	_check("wave progress displayed", (_ui._hud._wave_label.text.contains("7 of 12") or _ui._hud._wave_label.text.contains("7/12")))
 	_ui._hud._on_xp(15, 2, 15, 60)
 	_check("XP bar displays component progress", is_equal_approx(_ui._hud._gauges.xp_bar.value, 0.25))
 	_ui._banner.clear_all()

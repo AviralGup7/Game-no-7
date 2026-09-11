@@ -188,6 +188,29 @@ class DamageNumberPoolTests(unittest.TestCase):
         self.assertNotIn("DEFAULT_POOL", assertion)
 
 
+class UiTestRunnerIndentTests(unittest.TestCase):
+    """A stray extra indent in the HUD suite is a GDScript parse error.
+
+    CI failed the headless UI job with:
+      Parse Error: Expected statement, found "Indent" instead.
+      at: GDScript::reload (res://tests/ui/ui_test_runner.gd:232)
+    because the wave-progress _check sat one tab deeper than its siblings
+    with no block opener. Godot then never loaded the runner scene and the
+    90s timeout (exit 124) fired.
+    """
+
+    def test_hud_suite_checks_are_not_overindented(self):
+        body = func_body(read("tests/ui/ui_test_runner.gd"), "_test_hud_and_effects")
+        over = [
+            ln for ln in body.splitlines() if ln.startswith("\t\t_check(")
+        ]
+        self.assertEqual(
+            over,
+            [],
+            "over-indented _check is a parse error: %s" % (over[0].strip() if over else ""),
+        )
+
+
 class OptionButtonIndexBoundsTests(unittest.TestCase):
     """OptionButton.selected is -1 before a pick; indexing the id arrays with it
     would read out of bounds."""
