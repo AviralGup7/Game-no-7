@@ -1668,10 +1668,4 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
-          at: GDScript::reload (res://scripts/main/main.gd:261)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/main/main.gd:261)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 cannot connect to daemon at tcp:5037: Connection refused

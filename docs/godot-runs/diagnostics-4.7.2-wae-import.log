@@ -13,12 +13,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
-SCRIPT ERROR: Parse Error: Could not resolve class "ArenaDecorator", because of a parser error.
-          at: GDScript::reload (res://scripts/main/main.gd:261)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "decorator" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/main/main.gd:261)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
 [  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
 [  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m
