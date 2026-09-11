@@ -25,7 +25,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 41 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
@@ -228,7 +228,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 40 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 41 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
