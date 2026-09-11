@@ -1394,10 +1394,9 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:171)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1322 total, 2 failed
-  FAIL  test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]
+GDScript tests: 1322 total, 1 failed
   FAIL  test_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
-::error title=GDScript test failures (2)::test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]%0Atest_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
+::error title=GDScript test failures (1)::test_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
 ========================================
 WARNING: 30 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
