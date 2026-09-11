@@ -128,7 +128,11 @@ class TouchActionButtonSemanticsTests(unittest.TestCase):
         mouse_release = body.split("elif not mb.pressed and _held")[1]
         for branch in (touch_release, mouse_release):
             self.assertNotIn("_fire()", branch)
-            self.assertIn("_held = false", branch)
+            self.assertIn("cancel()", branch)
+        cancel = func_body("scripts/ui/touch_action_button.gd", "cancel")
+        self.assertIn("_held = false", cancel)
+        self.assertIn("_aim = Vector2.ZERO", cancel)
+        self.assertIn("_publish_fire()", cancel)
 
     def test_fire_does_not_clear_the_hold(self):
         # Clearing in _fire() would re-arm mid-press and let a second finger

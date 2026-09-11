@@ -87,7 +87,7 @@ func _wall_between(host: EnemyBase, target: Node3D) -> bool:
 		return false
 	var from := host.global_position + Vector3(0, 0.8, 0)
 	var to := target.global_position + Vector3(0, 0.8, 0)
-	var query := PhysicsRayQueryParameters3D.create(from, to, 0b0001)
+	var query := PhysicsRayQueryParameters3D.create(from, to, CollisionLayers.WORLD_STATIC)
 	var hit := space.intersect_ray(query)
 	return not hit.is_empty()
 

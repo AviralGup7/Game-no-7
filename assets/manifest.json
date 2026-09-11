@@ -328,6 +328,22 @@
       "attribution": "Bundle the MIT notice (required); voluntary creator credit retained.",
       "reviewed_on": "2026-09-08",
       "notes": "Photo PBR texture sets (rock/brick/marble/wood/aluminium) plus the MIT notice; no code or plugins."
+    },
+    "kenney-space-station": {
+      "name": "Kenney Space Station Kit",
+      "creator": "Kenney",
+      "source_url": "https://kenney.nl/assets/space-station-kit",
+      "download_repository": "https://github.com/jonathaneeckhout/godot-fps-multiplayer",
+      "revision": "7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "license_file": "ASSET_LICENSES/kenney-space-station.txt",
+      "commercial_use": true,
+      "compiled_redistribution": true,
+      "modification_permitted": true,
+      "attribution": "Kenney (CC0); voluntary credit.",
+      "reviewed_on": "2026-09-11",
+      "notes": "Selected files from pinned third-party mirror; original pack licence retained. Official host TLS inaccessible in authoring sandbox."
     }
   },
   "files": [
@@ -3146,6 +3162,105 @@
       "sha256": "0339177149b474f7ff676d32218ecb3a8f2538955610023c3769763720d09e4c",
       "downloaded_on": "2026-09-08",
       "purpose": "Mandatory MIT copyright and permission notice"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "ASSET_LICENSES/kenney-space-station.txt",
+      "source_path": "assets/models/map/kenny_space-station-kit/License.txt",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/License.txt?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 720,
+      "git_blob_sha1": "bd3c5f0b249eb3613e8eca1b1927e869271673c9",
+      "sha256": "e8de83b5cb2f01810e32f07691cb1dcf9494dc4a7f8cce0ec8175dfb8c5d98d9",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/Textures/colormap.png",
+      "source_path": "assets/models/map/kenny_space-station-kit/Textures/colormap.png",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/Textures/colormap.png?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 7440,
+      "git_blob_sha1": "6e6a5fc7d858aa6d372378742387bbba38b1c415",
+      "sha256": "6ca023be9f12e8c2358fcf94320c8a894b4c05a3dd0bad1f5c268312053caca1",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/container.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/container.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/container.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 9716,
+      "git_blob_sha1": "08137f46da52de81e5f6e88cc60017f25a85a79a",
+      "sha256": "719b77f62979e9e02047489fcc1e86432be300ac35ed02fe496a2dfc6a3fcdd6",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/container-tall.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/container-tall.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/container-tall.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 13052,
+      "git_blob_sha1": "7b2c6aabbb9bd7444c1c4d646e9032c2ef49aabc",
+      "sha256": "e790f12cdab2e50d266d54e1bbb8a05a1cd77629a065254be3734a67b6053358",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/container-wide.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/container-wide.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/container-wide.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 12212,
+      "git_blob_sha1": "c239664467c2241b78692f46a5d6f65ea87170b7",
+      "sha256": "3bed318d187ce26b816b7f84b706ecb57cffef94ab1bb8266ca91aa35073e6f0",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/computer.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/computer.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/computer.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 13804,
+      "git_blob_sha1": "e13ddf4f69b0907c542918fe80c7d072e3495d94",
+      "sha256": "dede29d81fd122c484af3e0dbf566f34893ed0f3c80182586feb19b23c33c0b7",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/display-wall.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/display-wall.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/display-wall.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 8776,
+      "git_blob_sha1": "9322f7b3276b33d2b703a646a50f4ad73a8f3331",
+      "sha256": "64eb414b4ae9c665b8ef95711d8bade6285b0a7f6dfb8f1f8bd51a67ab4dec89",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/rocks.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/rocks.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/rocks.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 9308,
+      "git_blob_sha1": "1ff098e5782d53d0044f0dadd93edbab7c226249",
+      "sha256": "cdad530e15972f1f3cdf4dec1d1ca2d3b9406b46c2bbd67bb67abf3bbf173aa3",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
+    },
+    {
+      "pack": "kenney-space-station",
+      "path": "assets/environment/space_station/table-display.glb",
+      "source_path": "assets/models/map/kenny_space-station-kit/table-display.glb",
+      "url": "https://api.github.com/repos/jonathaneeckhout/godot-fps-multiplayer/contents/assets/models/map/kenny_space-station-kit/table-display.glb?ref=7bf5c62a9bc301e4f82e2c2ec51f3125f00d6e47",
+      "bytes": 24344,
+      "git_blob_sha1": "cbd62d22ba20b1257eec76cccfac1ad2814fc2f7",
+      "sha256": "6a078d92a273a95f82c2017038c15cf1fb534c0d5dbf4800ea014e63fed3edd3",
+      "downloaded_on": "2026-09-11",
+      "purpose": "Sci-fi dungeon modular environment; selected subset"
     }
   ]
 }

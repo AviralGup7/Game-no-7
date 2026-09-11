@@ -52,6 +52,7 @@ var _active_player: Player = null
 var _world_builder: Callable = Callable()
 var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standard.
 var _pending_mode: StringName = GameMode.MODE_STANDARD
+var _pending_weapon: StringName = &""
 var _prestige_rank: int = 0
 
 
@@ -120,6 +121,8 @@ func get_active_player() -> Player:
 
 func set_active_player(player: Player) -> void:
 	_active_player = player
+	if AudioManager != null:
+		AudioManager.bind_listener(player)
 
 
 func is_paused() -> bool:
@@ -203,14 +206,30 @@ func set_prestige_rank(rank: int) -> void:
 	_prestige_rank = Prestige.clamp_rank(rank)
 
 
-## Starter weapon for the current run (mode fixed loadout > daily > gladius).
+## Starter weapon for the current run (mode fixed loadout > daily > setup pick > gladius).
 func get_daily_weapon() -> StringName:
-	var mode_weapon := GameMode.fixed_weapon(_pending_mode if _current_run == null else _current_run.mode_id)
+	var mode_id := _pending_mode if _current_run == null else _current_run.mode_id
+	var mode_weapon := GameMode.fixed_weapon(mode_id)
 	if mode_weapon != &"":
 		return mode_weapon
-	if _daily.is_empty():
-		return &"gladius"
-	return StringName(String(_daily.get("weapon", "gladius")))
+	if not _daily.is_empty():
+		return StringName(String(_daily.get("weapon", "gladius")))
+	if _pending_weapon != &"" and ContentRegistry.get_weapon(_pending_weapon) != null:
+		return _pending_weapon
+	return &"gladius"
+
+
+func set_pending_weapon(weapon_id: StringName) -> void:
+	_pending_weapon = weapon_id
+
+
+func get_pending_weapon() -> StringName:
+	return _pending_weapon
+
+
+## Select the arena the next run will build. Unknown ids fail closed.
+func request_arena_selection(id: StringName) -> bool:
+	return ContentRegistry.select_arena(id)
 
 
 ## Called by WaveManager when a mode's win condition is met (wave cap or survival clock).

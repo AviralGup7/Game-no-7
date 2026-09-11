@@ -68,12 +68,13 @@ func _physics_process(delta: float) -> void:
 func _tick_magnet(delta: float) -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
-	if config.magnet_radius <= 0.0:
+	var magnet := config.magnet_radius + _pickup_reach()
+	if magnet <= 0.0:
 		return
 	var to: Vector3 = _player.global_position - global_position
 	to.y = 0.0
 	var dist := to.length()
-	if dist > config.magnet_radius or dist < 0.001:
+	if dist > magnet or dist < 0.001:
 		return
 	# Accelerating pull: faster when close, so pickups visibly snap in.
 	var speed := config.magnet_speed * (1.0 + (1.0 - dist / config.magnet_radius))
@@ -92,8 +93,22 @@ func _tick_collect() -> void:
 	if _player == null or not is_instance_valid(_player):
 		return
 	var flat := Vector2(global_position.x - _player.global_position.x, global_position.z - _player.global_position.z)
-	if flat.length() <= config.collect_radius:
+	if flat.length() <= config.collect_radius + _pickup_reach():
 		_collect(_player)
+
+
+## Quartermaster (and any pickup_radius_add stack) widens magnet + collect
+## reach. Additive family: derived = authored radius + Σ.
+func _pickup_reach() -> float:
+	if not (_player is Player):
+		return 0.0
+	var prog := (_player as Player).get_progression_component()
+	if prog == null:
+		return 0.0
+	var extra := prog.get_stat(&"pickup_radius_add", 0.0)
+	if not is_finite(extra):
+		return 0.0
+	return maxf(extra, 0.0)
 
 
 func _collect(collector: Node) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/arena/arena.gd" id="1_arena"]
 [ext_resource type="Material" path="res://assets/materials/arena_floor_rock.tres" id="2_floor"]
@@ -7,10 +7,10 @@
 [ext_resource type="Material" path="res://assets/materials/arena_wood.tres" id="5_wood"]
 [ext_resource type="Material" path="res://assets/materials/arena_metal.tres" id="6_metal"]
 [ext_resource type="Script" path="res://scripts/arena/torch_flicker.gd" id="7_torch"]
-[ext_resource type="Texture2D" path="res://assets/textures/panorama/spruit_sunrise_1k.hdr" id="8_pano"]
 
-[sub_resource type="PanoramaSkyMaterial" id="Sky_mat"]
-panorama = ExtResource("8_pano")
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.015, 0.025, 0.06, 1)
+sky_horizon_color = Color(0.12, 0.18, 0.28, 1)
 
 [sub_resource type="Sky" id="Sky_res"]
 sky_material = SubResource("Sky_mat")
@@ -33,7 +33,11 @@ fog_density = 0.012
 fog_sky_affect = 0.22
 
 [sub_resource type="PlaneMesh" id="Mesh_floor"]
-size = Vector2(26, 26)
+size = Vector2(38, 38)
+material = ExtResource("2_floor")
+
+[sub_resource type="PlaneMesh" id="Mesh_yard"]
+size = Vector2(38, 16)
 material = ExtResource("2_floor")
 
 [sub_resource type="BoxMesh" id="Mesh_wall"]
@@ -73,9 +77,9 @@ size = Vector3(0.2, 0.55, 0.4)
 material = ExtResource("6_metal")
 
 [sub_resource type="StandardMaterial3D" id="Mat_flame"]
-albedo_color = Color(1, 0.55, 0.15, 1)
+albedo_color = Color(0.12, 0.65, 1, 1)
 emission_enabled = true
-emission = Color(1, 0.55, 0.15, 1)
+emission = Color(0.12, 0.65, 1, 1)
 emission_energy_multiplier = 5.0
 roughness = 0.4
 shading_mode = 0
@@ -109,22 +113,30 @@ rings = 6
 material = ExtResource("2_floor")
 
 [sub_resource type="BoxShape3D" id="Shape_floor"]
-size = Vector3(28, 0.4, 28)
+size = Vector3(40, 0.4, 40)
 
 [sub_resource type="BoxShape3D" id="Shape_wall"]
 size = Vector3(1, 3, 1)
 
 [sub_resource type="BoxShape3D" id="Shape_wall_long_x"]
-size = Vector3(28, 3, 1)
+size = Vector3(40, 3, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_wall_n_wing"]
+size = Vector3(17, 3, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_yard"]
+size = Vector3(38, 0.4, 16)
 
 [sub_resource type="BoxShape3D" id="Shape_wall_long_z"]
-size = Vector3(1, 3, 28)
+size = Vector3(1, 3, 40)
 
 [sub_resource type="BoxShape3D" id="Shape_tower"]
 size = Vector3(2.3, 4.6, 2.3)
 
 [node name="Arena" type="Node3D"]
 script = ExtResource("1_arena")
+interior_half = 18.0
+bounds_half = 32.0
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
 
@@ -133,103 +145,122 @@ script = ExtResource("1_arena")
 [node name="Floor" type="MeshInstance3D" parent="Geometry"]
 mesh = SubResource("Mesh_floor")
 
+[node name="YardFloor" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -27)
+mesh = SubResource("Mesh_yard")
+
 [node name="Wall_N" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 1.5, -19.5)
 mesh = SubResource("Mesh_wall")
-scale = Vector3(28, 1, 1)
+scale = Vector3(17, 1, 1)
+
+[node name="Wall_N_E" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 1.5, -19.5)
+mesh = SubResource("Mesh_wall")
+scale = Vector3(17, 1, 1)
 
 [node name="Trim_N" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, -13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 0.275, -19.5)
 mesh = SubResource("Mesh_trim")
-scale = Vector3(28, 1, 1)
+scale = Vector3(17, 1, 1)
+
+[node name="Trim_N_E" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 0.275, -19.5)
+mesh = SubResource("Mesh_trim")
+scale = Vector3(17, 1, 1)
 
 [node name="Cornice_N" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, -13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 3.2, -19.5)
 mesh = SubResource("Mesh_cornice")
-scale = Vector3(28, 1, 1)
+scale = Vector3(17, 1, 1)
+
+[node name="Cornice_N_E" type="MeshInstance3D" parent="Geometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5, 3.2, -19.5)
+mesh = SubResource("Mesh_cornice")
+scale = Vector3(17, 1, 1)
 
 [node name="Wall_S" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 19.5)
 mesh = SubResource("Mesh_wall")
-scale = Vector3(28, 1, 1)
+scale = Vector3(40, 1, 1)
 
 [node name="Trim_S" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 19.5)
 mesh = SubResource("Mesh_trim")
-scale = Vector3(28, 1, 1)
+scale = Vector3(40, 1, 1)
 
 [node name="Cornice_S" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 19.5)
 mesh = SubResource("Mesh_cornice")
-scale = Vector3(28, 1, 1)
+scale = Vector3(40, 1, 1)
 
 [node name="Wall_E" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 1.5, 0)
 mesh = SubResource("Mesh_wall")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Trim_E" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.275, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 0.275, 0)
 mesh = SubResource("Mesh_trim")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Cornice_E" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 3.2, 0)
 mesh = SubResource("Mesh_cornice")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Wall_W" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 1.5, 0)
 mesh = SubResource("Mesh_wall")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Trim_W" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 0.275, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0.275, 0)
 mesh = SubResource("Mesh_trim")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Cornice_W" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 3.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 3.2, 0)
 mesh = SubResource("Mesh_cornice")
-scale = Vector3(1, 1, 28)
+scale = Vector3(1, 1, 40)
 
 [node name="Tower_NE" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 2.3, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 2.3, -19.4)
 mesh = SubResource("Mesh_tower")
 scale = Vector3(1, 1, 1)
 
 [node name="Cap_NE" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 4.83, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 4.83, -19.4)
 mesh = SubResource("Mesh_cap")
 scale = Vector3(1, 1, 1)
 
 [node name="Tower_NW" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 2.3, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 2.3, -19.4)
 mesh = SubResource("Mesh_tower")
 scale = Vector3(1, 1, 1)
 
 [node name="Cap_NW" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 4.83, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 4.83, -19.4)
 mesh = SubResource("Mesh_cap")
 scale = Vector3(1, 1, 1)
 
 [node name="Tower_SE" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 2.3, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 2.3, 19.4)
 mesh = SubResource("Mesh_tower")
 scale = Vector3(1, 1, 1)
 
 [node name="Cap_SE" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 4.83, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 4.83, 19.4)
 mesh = SubResource("Mesh_cap")
 scale = Vector3(1, 1, 1)
 
 [node name="Tower_SW" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 2.3, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 2.3, 19.4)
 mesh = SubResource("Mesh_tower")
 scale = Vector3(1, 1, 1)
 
 [node name="Cap_SW" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 4.83, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 4.83, 19.4)
 mesh = SubResource("Mesh_cap")
 scale = Vector3(1, 1, 1)
 
@@ -242,28 +273,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 mesh = SubResource("Mesh_dais_rim")
 
 [node name="GateDoor" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -13.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.3, 1.35, -18.2)
 mesh = SubResource("Mesh_door")
 
 [node name="GateBandA" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, -13.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.3, 0.55, -18.2)
 mesh = SubResource("Mesh_band")
 
 [node name="GateBandB" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -13.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.3, 1.35, -18.2)
 mesh = SubResource("Mesh_band")
 
 [node name="GateBandC" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, -13.5)
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -3.3, 2.15, -18.2)
 mesh = SubResource("Mesh_band")
 
 [node name="GateLintel" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05, -13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.05, -19.5)
 mesh = SubResource("Mesh_lintel")
-scale = Vector3(1, 1, 1)
+scale = Vector3(1.85, 1, 1)
 
 [node name="Torch_1" type="Node3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 2.05, -13.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.0, 2.05, -19.35)
 script = ExtResource("7_torch")
 seed_value = 1
 light = NodePath("Light")
@@ -278,13 +309,13 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.58)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
 
 [node name="Torch_2" type="Node3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 2.05, -13.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.0, 2.05, -19.35)
 script = ExtResource("7_torch")
 seed_value = 2
 light = NodePath("Light")
@@ -299,13 +330,13 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.58)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
 
 [node name="Torch_3" type="Node3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 2.05, 13.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.0, 2.05, 19.35)
 script = ExtResource("7_torch")
 seed_value = 3
 light = NodePath("Light")
@@ -320,13 +351,13 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
 
 [node name="Torch_4" type="Node3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 2.05, 13.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.0, 2.05, 19.35)
 script = ExtResource("7_torch")
 seed_value = 4
 light = NodePath("Light")
@@ -341,24 +372,24 @@ mesh = SubResource("Mesh_flame")
 
 [node name="Light" type="OmniLight3D" parent="Geometry/Torch_4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0.02)
-light_color = Color(1, 0.62, 0.28, 1)
+light_color = Color(0.12, 0.65, 1, 1)
 light_energy = 1.5
 omni_range = 7.0
 shadow_enabled = false
 
 
 [node name="Rubble_1" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.2, 0.12, 10.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.4, 0.12, 15.8)
 mesh = SubResource("Mesh_rubble")
 scale = Vector3(0.75, 0.5, 0.75)
 
 [node name="Rubble_2" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.0, 0.12, 11.1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.2, 0.12, 16.1)
 mesh = SubResource("Mesh_rubble")
 scale = Vector3(0.75, 0.5, 0.75)
 
 [node name="Rubble_3" type="MeshInstance3D" parent="Geometry"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6, 0.12, -11.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8, 0.12, -16.3)
 mesh = SubResource("Mesh_rubble")
 scale = Vector3(0.75, 0.5, 0.75)
 
@@ -371,70 +402,70 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
 shape = SubResource("Shape_floor")
 
 [node name="WallNShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -19.5)
 shape = SubResource("Shape_wall_long_x")
 
 [node name="WallSShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 13.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 19.5)
 shape = SubResource("Shape_wall_long_x")
 
 [node name="WallEShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 1.5, 0)
 shape = SubResource("Shape_wall_long_z")
 
 [node name="WallWShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 1.5, 0)
 shape = SubResource("Shape_wall_long_z")
 
 [node name="TowerNEShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 2.3, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 2.3, -19.4)
 shape = SubResource("Shape_tower")
 
 [node name="TowerNWShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 2.3, -13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 2.3, -19.4)
 shape = SubResource("Shape_tower")
 
 [node name="TowerSEShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.4, 2.3, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.4, 2.3, 19.4)
 shape = SubResource("Shape_tower")
 
 [node name="TowerSWShape" type="CollisionShape3D" parent="Collision"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.4, 2.3, 13.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.4, 2.3, 19.4)
 shape = SubResource("Shape_tower")
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 
 [node name="SpawnPoint_N" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -16)
 
 [node name="SpawnPoint_S" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
 
 [node name="SpawnPoint_E" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
 
 [node name="SpawnPoint_W" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, 0)
 
 [node name="SpawnPoint_NE" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -3)
 
 [node name="SpawnPoint_SE" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
 
 [node name="SpawnPoint_NW" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -3)
 
 [node name="SpawnPoint_SW" type="Marker3D" parent="SpawnPoints"]
 groups=["enemy_spawn_point"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 12)
 
 [node name="PlayerStart" type="Marker3D" parent="."]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.2, 4.5)
@@ -442,16 +473,16 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.2, 4.5)
 [node name="PickupSpawnPoints" type="Node3D" parent="."]
 
 [node name="PickupPoint_1" type="Marker3D" parent="PickupSpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 6)
 
 [node name="PickupPoint_2" type="Marker3D" parent="PickupSpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
 
 [node name="PickupPoint_3" type="Marker3D" parent="PickupSpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -4)
 
 [node name="PickupPoint_4" type="Marker3D" parent="PickupSpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -4)
 
 [node name="ArenaDecorations" type="Node3D" parent="."]
 
@@ -464,7 +495,7 @@ light_energy = 1.15
 shadow_enabled = true
 directional_shadow_mode = 2
 light_angular_distance = 1.2
-directional_shadow_max_distance = 42.0
+directional_shadow_max_distance = 56.0
 
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = SubResource("Env_res")

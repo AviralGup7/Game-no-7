@@ -21,6 +21,8 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from scripts.download_assets import load_manifest, verification_problem  # noqa: E402
+from tool.scifi_assets import load_scifi_manifest, check_robot
+from tool.station_assets import load_station_manifest
 from tool.derived_assets import load_derived_manifest  # noqa: E402
 
 
@@ -237,7 +239,7 @@ def main() -> int:
     try:
         manifest = load_manifest()
         derived = load_derived_manifest(ROOT)
-        entries = manifest["files"] + derived["files"]
+        entries = manifest["files"] + derived["files"] + load_scifi_manifest(ROOT)["files"] + [f for f in load_station_manifest(ROOT)["files"] if Path(f["path"]).suffix == ".png"]
         approved = {(ROOT / e["path"]).resolve() for e in entries}
         for entry in entries:
             try:
@@ -266,8 +268,10 @@ def main() -> int:
         catalog = json.loads((ROOT / "assets/catalog.json").read_text())
         check_catalog(catalog, approved, models)
         from tool.validate_hero import check_hero
-        hero_doc, hero_binary = gltf_document(ROOT / catalog["characters"]["player"]["model"])
+        hero_doc, hero_binary = gltf_document(ROOT / "assets/characters/warden/ArenaWarden.glb")
         check_hero(hero_doc, hero_binary, derived, ROOT)
+        for role in catalog["characters"].values():
+            check_robot(models[role["model"]])
     except (OSError, ValueError, TypeError, KeyError) as exc:
         problems.append(str(exc))
     if problems:

@@ -1,0 +1,12 @@
+Station Shooter assets
+
+Project-authored robot geometry, mechanical animation, firearm models, supply
+cells, emitter tile, effect sprites and synthesized electronic audio.
+Created for Game-no-7, 2026-09-11. No third-party geometry, recorded audio or
+motion data is incorporated into these outputs. Distributed under the same
+terms as the project's original code/assets; no separate third-party licence.
+
+Generator: tool/build_scifi_assets.py
+Shared authoring utilities: tool/hero/geometry.py and tool/hero/rig.py
+Output inventory and checksums: assets/scifi/build_report.json
+Kenney station environment assets retain their separate CC0 notice.

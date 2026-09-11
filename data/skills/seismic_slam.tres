@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"seismic_slam"
-display_name = "Seismic Slam"
+display_name = "Graviton Pulse"
 description = "Slam the ground: heavy radial damage and knockback to reset a crowded fight."
 behavior = &"slam"
 input_action = &"skill_1"

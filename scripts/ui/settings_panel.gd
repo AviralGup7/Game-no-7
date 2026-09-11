@@ -43,7 +43,7 @@ func refresh() -> void:
 	scale_slider.value_changed.connect(func(value: float) -> void:
 		_draft.set_text_scale(value)
 		scale_label.text = "Text size  %d%% — applied on Save" % int(value * 100))
-	UiFactory.label("Touch controls adapt automatically to the safe area. Skills stay separate from the movement stick.", self, 18)
+	UiFactory.label("Left thumb: move. Right thumb: hold FIRE and slide to aim. RELOAD refills early; SWAP changes weapons. Touch controls adapt to the safe area.", self, 18)
 	_section("PERFORMANCE")
 	var quality := OptionButton.new()
 	quality.custom_minimum_size.y = UiTheme.TOUCH_MIN
@@ -71,30 +71,36 @@ func refresh() -> void:
 	_section("DEBUG")
 	var debug_toggle := DebugModeToggle.new()
 	add_child(debug_toggle)
+	# Crash-inducing self-test chrome stays out of a stock release Settings
+	# screen. The buttons remain in this file (and appear when debug mode is
+	# on, or in an editor/debug APK) so sideload QA can still freeze-and-copy.
+	var debug_tools := OS.is_debug_build() or DebugErrorHandler.is_debug_mode()
 	var test_error := UiFactory.button("TRIGGER TEST ERROR", self, 20)
 	test_error.tooltip_text = "Freezes the game with a sample error report. Debug mode must be ON."
+	test_error.visible = debug_tools
 	test_error.pressed.connect(_on_test_error_pressed)
 	var last_report := UiFactory.button("VIEW LAST ERROR REPORT", self, 20)
-	last_report.visible = DebugErrorHandler.has_reports()
+	last_report.visible = debug_tools and DebugErrorHandler.has_reports()
 	last_report.pressed.connect(_on_view_last_report_pressed)
 	var last_session := UiFactory.button("VIEW LAST SESSION LOG", self, 20)
 	last_session.tooltip_text = "Shown when the previous session did not exit cleanly (crash, force-stop, or OS background kill)."
-	last_session.visible = DebugErrorHandler.had_unclean_previous_session()
+	last_session.visible = debug_tools and DebugErrorHandler.had_unclean_previous_session()
 	last_session.pressed.connect(_on_view_last_session_pressed)
-	_section("KEYBOARD / GAMEPAD BINDINGS")
-	UiFactory.label("Bindings apply for this session only; the current save schema has no binding field. Escape cancels capture. Conflicts are rejected.", self, 18)
-	for action in InputRemapper.REMAPPABLE_ACTIONS:
-		var row := HBoxContainer.new()
-		add_child(row)
-		var label := UiFactory.label(String(action).replace("_", " ").capitalize(), row, 20)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		label.size_flags_horizontal = SIZE_EXPAND_FILL
-		var button := UiFactory.button(UiCommands.binding(action), row, 20, Vector2(200, UiTheme.TOUCH_MIN))
-		button.size_flags_horizontal = SIZE_SHRINK_END
-		_rebind_buttons[action] = button
-		var id: StringName = action
-		button.pressed.connect(func() -> void: _begin_rebind(id))
+	if not OS.has_feature("mobile"):
+		_section("KEYBOARD / GAMEPAD BINDINGS")
+		UiFactory.label("Bindings save with your profile. FPS cap is this session only. Escape cancels capture. Conflicts are rejected.", self, 18)
+		for action in InputRemapper.REMAPPABLE_ACTIONS:
+			var row := HBoxContainer.new()
+			add_child(row)
+			var label := UiFactory.label(String(action).replace("_", " ").capitalize(), row, 20)
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+			label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			label.size_flags_horizontal = SIZE_EXPAND_FILL
+			var button := UiFactory.button(UiCommands.binding(action), row, 20, Vector2(200, UiTheme.TOUCH_MIN))
+			button.size_flags_horizontal = SIZE_SHRINK_END
+			_rebind_buttons[action] = button
+			var id: StringName = action
+			button.pressed.connect(func() -> void: _begin_rebind(id))
 	_feedback = UiFactory.label("", self, 20)
 	_feedback.modulate = UiTheme.GOLD
 	# Primary action first, destructive/secondary actions after it.
@@ -216,8 +222,9 @@ func _apply() -> void:
 	Engine.max_fps = _fps
 	var saved := SettingsData.new()
 	saved.from_dict(_draft.to_dict())
+	saved.set_input_bindings(InputRemapper.serialize_actions())
 	SaveManager.save_settings(saved)
-	_feedback.text = "Settings applied. Session-only choices reset when the game closes."
+	_feedback.text = "Settings saved. FPS cap is this session only."
 	# SaveManager owns retries/disk status; do not claim success before its result.
 	if not SaveManager.save_now():
 		_feedback.text = "Settings applied in memory, but saving failed. Please retry."
@@ -242,5 +249,5 @@ func _reset_draft() -> void:
 	# Explicit reset command belongs to SaveManager, not a duplicate save schema.
 	SaveManager.reset_settings()
 	refresh()
-	_feedback.text = "Saved settings restored to defaults. Session-only bindings are unchanged."
+	_feedback.text = "Saved settings and key bindings restored to defaults."
 

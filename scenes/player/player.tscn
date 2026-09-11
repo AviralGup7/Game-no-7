@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/player/character_controller.gd" id="2_cc"]
@@ -17,13 +17,16 @@
 
 [ext_resource type="Script" path="res://scripts/player/player_animation.gd" id="16_anim"]
 [ext_resource type="Script" path="res://scripts/player/player_equipment.gd" id="17_equip"]
-[ext_resource type="PackedScene" path="res://assets/characters/warden/WardenGladius.glb" id="18_sword"]
-[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Spear.glb" id="19_spear"]
-[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Hammer_Double.glb" id="20_hammer"]
-[ext_resource type="PackedScene" path="res://assets/weapons/medieval/Bow_Golden.glb" id="21_bow"]
-[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/dagger.gltf" id="22_dagger"]
-[ext_resource type="PackedScene" path="res://assets/weapons/adventurers/axe_2handed.gltf" id="23_axe"]
-[ext_resource type="PackedScene" path="res://assets/weapons/skeletons/Skeleton_Staff.gltf" id="24_staff"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/gladius.glb" id="18_sword"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/sentinel_spear.glb" id="19_spear"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/stormhammer.glb" id="20_hammer"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/sunbow.glb" id="21_bow"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/twinfangs.glb" id="22_dagger"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/warreaxe.glb" id="23_axe"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/ember_scepter.glb" id="24_staff"]
+
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/moonlance.glb" id="25_cryo"]
+[ext_resource type="PackedScene" path="res://assets/scifi/guns/venom_chain.glb" id="26_corrosive"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_body"]
 radius = 0.45
@@ -102,8 +105,7 @@ script = ExtResource("16_anim")
 
 [node name="PlayerEquipment" type="Node" parent="."]
 script = ExtResource("17_equip")
-models = {&"gladius": ExtResource("18_sword"), &"sentinel_spear": ExtResource("19_spear"), &"stormhammer": ExtResource("20_hammer"), &"sunbow": ExtResource("21_bow"), &"twinfangs": ExtResource("22_dagger"), &"warreaxe": ExtResource("23_axe"), &"ember_scepter": ExtResource("24_staff"), &"moonlance": ExtResource("19_spear"), &"venom_chain": ExtResource("22_dagger")}
-lengths = {&"gladius": 0.95, &"sentinel_spear": 1.8, &"stormhammer": 1.2, &"sunbow": 1.1, &"twinfangs": 0.6, &"warreaxe": 1.3, &"ember_scepter": 1.35, &"moonlance": 1.85, &"venom_chain": 0.85}
+models = {&"gladius": ExtResource("18_sword"), &"sentinel_spear": ExtResource("19_spear"), &"stormhammer": ExtResource("20_hammer"), &"sunbow": ExtResource("21_bow"), &"twinfangs": ExtResource("22_dagger"), &"warreaxe": ExtResource("23_axe"), &"ember_scepter": ExtResource("24_staff"), &"moonlance": ExtResource("25_cryo"), &"venom_chain": ExtResource("26_corrosive")}
 
 [node name="PlayerFeedback" type="Node" parent="."]
 script = ExtResource("7_fb")

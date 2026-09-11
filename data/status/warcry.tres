@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 effect_id = &"warcry"
-display_name = "Warcry"
+display_name = "Overclock"
 is_harmful = false
 duration = 8.0
 max_stacks = 1

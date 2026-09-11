@@ -97,11 +97,24 @@ static func hitscan(origin: Vector3, direction: Vector3, candidates: Array, max_
 			continue
 		var to: Vector3 = (c as Node3D).global_position - origin
 		var along := to.dot(dir)
-		if along < 0.0 or along > max_distance:
+		if along < 0.0 or along > max_distance + maxf(damageable.get_hit_radius(), 0.0):
 			continue
 		var perpendicular := (to - dir * along).length()
-		if perpendicular <= radius_tolerance:
+		var radius := radius_tolerance + maxf(damageable.get_hit_radius(), 0.0)
+		if perpendicular <= radius:
 			hits.append({"target": c, "distance": along})
 	hits.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance"]) < float(b["distance"]))
 	return hits
 
+
+
+## Preserve elevation when aiming at short drones. Yaw spread never flattens
+## the center shot, so assisted gunfire can hit targets below shoulder height.
+static func aimed_directions(direction: Vector3, count: int, spread: float) -> Array[Vector3]:
+	var aim := direction.normalized() if direction.length_squared() > 0.0001 else Vector3.FORWARD
+	var out: Array[Vector3] = []
+	var n := clampi(count, 1, MAX_PROJECTILES_PER_SHOT)
+	for i in range(n):
+		var t := float(i) / float(n - 1) * 2.0 - 1.0 if n > 1 else 0.0
+		out.append(aim.rotated(Vector3.UP, t * deg_to_rad(maxf(spread, 0.0)) * 0.5))
+	return out

@@ -15,7 +15,7 @@ func _ready() -> void:
 	var wordmark := UiFactory.title("LAST STAND", box, 72)
 	wordmark.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.65))
 	wordmark.add_theme_constant_override("outline_size", 7)
-	var arena := UiFactory.title("A R E N A", box, 30)
+	var arena := UiFactory.title("S T A T I O N   Z E R O", box, 30)
 	arena.modulate = UiTheme.GOLD
 	arena.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
 	arena.add_theme_constant_override("outline_size", 5)
@@ -43,7 +43,7 @@ func _ready() -> void:
 		var destination: StringName = entry[1]
 		b.pressed.connect(func() -> void: navigate.emit(destination))
 
-	# Player profile: personal best, wave, banked coins and prestige title.
+	# Player profile: personal best, wave, banked credits and prestige title.
 	var records_plate := PanelContainer.new()
 	records_plate.add_theme_stylebox_override("panel", UiTheme.row_card())
 	records_plate.size_flags_horizontal = SIZE_EXPAND_FILL

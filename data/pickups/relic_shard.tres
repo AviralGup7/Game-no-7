@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
 
-[ext_resource type="PackedScene" path="res://assets/pickups/rpg/Crystal1.glb" id="2_visual"]
+[ext_resource type="PackedScene" path="res://assets/scifi/pickups/xp_gem.glb" id="2_visual"]
 
 [resource]
 script = ExtResource("1_script")
 pickup_id = &"relic_shard"
-display_name = "Relic Shard"
+display_name = "Data Fragment"
 effect = &"score"
 amount = 40.0
 lifetime = 30.0

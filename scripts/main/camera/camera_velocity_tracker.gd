@@ -32,6 +32,8 @@ func tick(current_pos: Vector3, delta: float) -> void:
 	speed = velocity.length()
 	if speed > 0.3:
 		move_dir = velocity.normalized()
+	else:
+		move_dir = Vector3.ZERO
 	last_position = current_pos
 
 func reset(pos: Vector3) -> void:

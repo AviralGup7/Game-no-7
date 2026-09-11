@@ -7,16 +7,20 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 class AndroidPermissionPolicyTests(unittest.TestCase):
     """Guard the no-permission Android policy (see docs/ANDROID_PERMISSIONS.md).
 
-    The game is fully offline and needs no Android runtime permissions. These checks
-    fail loudly if someone later enables a preset permission toggle, commits a custom
-    manifest, or forgets to bundle the policy doc in the export.
+    The game is fully offline. The only declared permission is VIBRATE (normal,
+    not dangerous) so handheld haptics work. These checks fail loudly if someone
+    later enables extra preset permissions, commits a custom manifest, or forgets
+    to bundle the policy doc in the export.
     """
 
-    def test_export_preset_requests_no_permissions(self):
+    def test_export_preset_requests_only_vibrate(self):
         cfg = (ROOT / "export_presets.cfg").read_text(encoding="utf-8")
         offending = [ln for ln in cfg.splitlines() if ln.startswith("permissions/")]
         self.assertEqual(
-            offending, [], "Android export preset requests a permission: %r" % (offending,)
+            offending,
+            ["permissions/vibrate=true"],
+            "Android export preset must declare only VIBRATE (normal, for haptics): %r"
+            % (offending,),
         )
 
     def test_no_custom_android_manifest_committed(self):

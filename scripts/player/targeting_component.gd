@@ -6,10 +6,12 @@ class_name TargetingComponent
 
 @export var aim_assist_strength: float = 0.6
 @export var max_target_range: float = 12.0
+@export var acquisition_cone_degrees: float = 65.0
 @export var angular_favor_degrees: float = 20.0
 @export var sticky_bonus: float = 2.4
 @export var require_line_of_sight: bool = true
 
+var _authored_strength := -1.0
 var _owner_node: Node3D = null
 var _sticky: Node = null
 
@@ -27,13 +29,14 @@ func apply_settings() -> void:
 	if SaveManager == null:
 		return
 	var on := SaveManager.get_settings().is_aim_assist_enabled()
-	# Keep the authored curve when assist is on; hard-off when the toggle is false.
-	if not on:
-		aim_assist_strength = 0.0
+	if _authored_strength < 0.0:
+		_authored_strength = aim_assist_strength
+	aim_assist_strength = _authored_strength if on else 0.0
 
 
 func set_aim_assist(value: float) -> void:
-	aim_assist_strength = clampf(value, 0.0, 1.0)
+	_authored_strength = clampf(value, 0.0, 1.0)
+	aim_assist_strength = _authored_strength
 
 
 func clear_sticky() -> void:
@@ -87,6 +90,8 @@ func pick_best_target(candidates: Array) -> Node:
 			continue
 		var dist := sqrt(distance_squared)
 		var dot := facing.dot(to_target / dist) if dist > 0.0001 else 1.0
+		if dot < cos(deg_to_rad(clampf(acquisition_cone_degrees, 0.0, 89.0))):
+			continue
 		var favor := clampf((dot - cone) / maxf(1.0 - cone, 0.001), 0.0, 1.0)
 		var score := -dist + favor * clampf(aim_assist_strength, 0.0, 1.0)
 		if score > best_score:
@@ -97,8 +102,8 @@ func pick_best_target(candidates: Array) -> Node:
 			# (tests and lock-on both require input-order determinism on equal scores).
 			best_score = score + sticky_bonus
 			best = c
-	if best != null:
-		_sticky = best
+	# A manual turn into empty space must not keep firing at an old target.
+	_sticky = best
 	return best
 
 

@@ -19,6 +19,8 @@ var _live: Array[Pickup] = []
 var _drop_table := DropTable.new()
 var _rng := RngService.new()
 var _luck_bonus := 0.0
+var _bus := EventBindings.new()
+var _isolated := false
 
 
 func _ready() -> void:
@@ -30,14 +32,25 @@ func _ready() -> void:
 	for i in range(maxi(pool_size, 1)):
 		_idle.append(_make_pickup())
 	_refresh_drop_table()
-	if EventBus != null and not EventBus.enemy_killed.is_connected(_on_enemy_killed):
-		EventBus.enemy_killed.connect(_on_enemy_killed)
+	_bind_run_events()
 
 
 func configure(run_seed: int, luck_bonus: float = 0.0) -> void:
 	_rng.reseed(run_seed)
 	_luck_bonus = maxf(luck_bonus, 0.0)
 	_drop_table.reset_pity()
+	_isolated = false
+	_bind_run_events()
+
+
+func _bind_run_events() -> void:
+	if EventBus == null:
+		return
+	_bus.bind(EventBus.enemy_killed, _on_enemy_killed)
+
+
+func _exit_tree() -> void:
+	_bus.unbind_all()
 
 
 func _refresh_drop_table() -> void:
@@ -86,6 +99,8 @@ func _obtain() -> Pickup:
 ## Spawn one pickup by id near `at` (small deterministic scatter). Returns the
 ## Pickup or null when the id is unknown.
 func spawn_pickup(pickup_id: StringName, at: Vector3, level: int = 1) -> Pickup:
+	if _isolated:
+		return null
 	var cfg := _config_of(pickup_id)
 	if cfg == null:
 		return null
@@ -150,6 +165,8 @@ func spawn_wave_clear_bonus(count: int, around: Vector3, wave_number: int) -> Ar
 
 ## Magnet burst: teleport every live pickup into collection range of the player.
 func magnet_burst() -> int:
+	if _isolated:
+		return 0
 	var player := _player()
 	if player == null:
 		return 0
@@ -225,10 +242,45 @@ func purge_all() -> void:
 		_on_release_requested(p)
 
 
+## Drain live gems and unbind the kill-drop listener. Called from RunIsolation
+## at GAME_OVER while WorldRoot (and this manager) stay in the tree.
+func isolate_run() -> void:
+	_bus.unbind_all()
+	purge_all()
+	_isolated = true
+
+
+func is_isolated() -> bool:
+	return _isolated
+
+
+## Push a live-on-floor cap. Extra gems recycle oldest-first.
+func apply_budget(cap: int) -> void:
+	max_live_pickups = clampi(cap, 1, 48)
+	while _live.size() > max_live_pickups and not _live.is_empty():
+		var oldest: Pickup = _live.pop_front()
+		if oldest == null:
+			continue
+		oldest.pool_reset()
+		if oldest not in _idle:
+			_idle.append(oldest)
+
+
 func live_count() -> int:
 	return _live.size()
 
 
+func bound_listener_count() -> int:
+	return _bus.size()
+
+
 func get_debug_snapshot() -> Dictionary:
-	return {"live": _live.size(), "idle": _idle.size(), "dry_streak": _drop_table.dry_streak()}
+	return {
+		"live": _live.size(),
+		"idle": _idle.size(),
+		"dry_streak": _drop_table.dry_streak(),
+		"max_live": max_live_pickups,
+		"isolated": _isolated,
+		"bound": _bus.size(),
+	}
 

@@ -31,8 +31,7 @@ func enter(host: EnemyBase) -> void:
 	_elapsed = 0.0
 	host.set_desired_move(Vector3.ZERO, 0.0)
 	_arm_poise(host, true)
-	if host.has_signal("attack_started"):
-		host.attack_started.emit()
+	host.attack_started.emit()
 	# Telegraph: flash + windup sound so the swing is readable before it lands.
 	host.play_telegraph_feedback()
 	host.play_windup_sound()

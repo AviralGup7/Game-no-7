@@ -14,18 +14,18 @@ func refresh() -> void:
 		child.queue_free()
 	UiFactory.title("MAKE YOUR FIRST STAND", _body, 34)
 	var steps := [
-		["01  MOVE", "WASD / arrows or drag the left stick. Keep space around you and watch enemy telegraphs."],
-		["02  ATTACK", "Tap ATTACK or %s. Face your target; time repeated attacks to chain hits." % UiCommands.binding(&"attack")],
-		["03  DODGE", "Tap DODGE or %s. Dodging uses stamina. Let it recover between bursts." % UiCommands.binding(&"dodge")],
-		["04  SKILLS", "Tap a skill or %s / %s / %s. A level label means locked; a timer means cooling down. Skills also need stamina." % [UiCommands.binding(&"skill_1"), UiCommands.binding(&"skill_2"), UiCommands.binding(&"skill_3")]],
-		["05  SWITCH & GROW", "SWAP / %s changes weapons when a second slot is equipped. Collect XP to level up. Clear waves, then choose ONE upgrade for this run." % UiCommands.binding(&"switch_weapon")],
-		["06  SURVIVE & RETURN", "Bosses have multiple phases. After defeat, review your run and spend banked coins in the Armory. Run upgrades reset; Armory purchases persist."]
+		["01  MOVE", "Drag the left stick with your left thumb. Keep space around you and watch enemy telegraphs."],
+		["02  AIM & FIRE", "Hold FIRE with your right thumb. Slide away from where you pressed to aim while moving. Release to stop. Aim assist helps with nearby targets in front; turn it off in Settings for free aim."],
+		["03  RELOAD & DODGE", "Tap RELOAD between bursts; empty magazines reload automatically. Tap DODGE to escape in your movement direction. Dodging uses stamina, so let it recover."],
+		["04  SKILLS", "Tap a READY skill. A level label means locked; a timer means cooling down. Skills also need stamina."],
+		["05  SWITCH & GROW", "Tap SWAP when a second weapon is equipped. Collect XP to level up. Clear waves, then choose ONE upgrade for this run."],
+		["06  SURVIVE & RETURN", "Bosses have multiple phases. After defeat, review your run and spend banked credits in the Armory. Run upgrades reset; Armory purchases persist."]
 	]
 	for step in steps:
 		var card := UiFactory.card(_body)
 		UiFactory.title(step[0], card, 22).modulate = UiTheme.CYAN
 		UiFactory.label(step[1], card, 20)
-	UiFactory.label("Minimap: triangle = you (cone = where you face); dots = enemies (ring = closest threat);\nrising ring = new spawn; large purple dot = boss (red rim = boss fight); blue pips = pickups (blinking = expiring).\nPause at any time with the HUD button. Settings includes larger text and reduced motion.", _body, 18)
+	UiFactory.label("Minimap: triangle = you (cone = where you face); dots = enemies (ring = closest threat);\nrising ring = new spawn; large purple dot = boss (red rim = boss fight); blue pips = pickups (blinking = expiring).\nTap PAUSE or use Android Back to pause. Swipe empty space on the right to rotate the camera. Settings includes larger text and reduced motion.", _body, 18)
 	var coach := get_tree().get_first_node_in_group("tutorial_manager") as TutorialManager
 	if coach != null:
 		var note := UiFactory.label("", _body, 20)

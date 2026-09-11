@@ -66,9 +66,17 @@ class CameraBoomTests(unittest.TestCase):
         self.assertIn("next = _keep_camera_inside_arena(next)", txt)
         self.assertNotIn("func _clamp_inside_arena(", txt)
 
-    def test_orbit_distance_cannot_exceed_the_yard(self):
+    def test_orbit_distance_is_profile_capped_not_hard_10_5(self):
+        # A 10.5 m ceiling fought boss/combat profiles (12.5 m authored) and was
+        # redundant with CameraRig._keep_camera_inside_arena / shorten_arm_to_box.
         txt = read("scripts/main/camera/camera_orbit_controller.gd")
-        self.assertIn("ceiling = minf(ceiling, 10.5)", txt)
+        self.assertNotIn("ceiling = minf(ceiling, 10.5)", txt)
+        self.assertIn(
+            "orbit.current_distance = clampf(orbit.current_distance, _profile.min_distance, _profile.max_distance)",
+            txt,
+        )
+        rig = read("scripts/main/camera_rig.gd")
+        self.assertIn("CameraMath.shorten_arm_to_box(focus, pos, half)", rig)
 
     def test_collision_solver_recovers_from_inside_a_wall(self):
         txt = read("scripts/main/camera/camera_collision_solver.gd")
@@ -90,6 +98,7 @@ class HarnessRegistrationTests(unittest.TestCase):
     def test_godot_suites_are_registered(self):
         txt = read("tests/run_tests.gd")
         self.assertIn('"res://tests/unit/test_camera_arena_containment.gd"', txt)
+        self.assertIn('"res://tests/unit/test_camera_modules.gd"', txt)
         self.assertIn('"res://tests/unit/test_safe_player_spawn.gd"', txt)
 
     def test_locomotion_nan_suite_still_covers_boom_fit(self):

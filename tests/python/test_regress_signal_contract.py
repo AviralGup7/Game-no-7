@@ -79,7 +79,7 @@ class RepoGateTests(unittest.TestCase):
         self.assertEqual(gate.errors, [])
         self.assertGreaterEqual(gate.bare_checked, 130)
         self.assertGreaterEqual(gate.autoload_checked, 200)
-        self.assertGreaterEqual(gate.string_forms, 4)
+        self.assertGreaterEqual(gate.string_forms, 3)
 
     def test_manifest_carries_engine_signal_arities(self) -> None:
         mod = load_gate_module()
@@ -316,8 +316,7 @@ class LegacyStringFormTests(unittest.TestCase):
                         fx.gate.errors)
 
     def test_dynamic_receiver_existing_signal_is_legal(self) -> None:
-        # the has_signal-guarded duck-typing pattern used by
-        # enemy_state_machine.gd stays legal
+        # a has_signal-guarded string emit on a dynamic Node stays legal
         src = ("extends Node\n"
                "func f(x: Node) -> void:\n"
                "\tif x.has_signal(\"enemy_killed\"):\n"

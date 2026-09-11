@@ -9,6 +9,15 @@ class VisualsTests(unittest.TestCase):
         self.assertIn("c.a = 0.45",txt)
         self.assertIn("Reset material alpha so reused pooled rings",txt)
         self.assertIn("func trigger(duration: float)",txt)
+    def test_boss_slain_uses_last_boss_origin(self):
+        txt=read("scripts/visuals/effect_director.gd")
+        self.assertIn("_last_boss_at", txt)
+        self.assertIn("_has_boss_at", txt)
+        self.assertIn("BossController.BOSS_GROUP", txt)
+        self.assertIn("func _place_ring_on_floor(", txt)
+        self.assertNotIn("ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32)", txt)
+        self.assertIn("absf(nrm.dot(Vector3.UP)) < 0.95", txt)
+
     def test_effect_director_pool_caps(self):
         txt=read("scripts/visuals/effect_director.gd")
         self.assertIn("RING_TEXTURE",txt)

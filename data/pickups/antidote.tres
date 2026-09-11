@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://scripts/pickups/pickup_config.gd" id="1_script"]
 
-[ext_resource type="PackedScene" path="res://assets/pickups/rpg/Potion3_Filled.glb" id="2_visual"]
+[ext_resource type="PackedScene" path="res://assets/scifi/pickups/antidote.glb" id="2_visual"]
 
 [resource]
 script = ExtResource("1_script")
 pickup_id = &"antidote"
-display_name = "Antidote"
+display_name = "Decontamination Kit"
 effect = &"cleanse"
 amount = 0.0
 lifetime = 18.0

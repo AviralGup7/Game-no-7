@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"exploder"
-blurb = "Powder-gut \u2014 dies loud. Keep your distance."
-display_name = "Emberimp"
+blurb = "Volatile Drone detected. Watch its attack telegraph."
+display_name = "Volatile Drone"
 scene = ExtResource("2_scene")
 max_health = 12.0
 move_speed = 3.4

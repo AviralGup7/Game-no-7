@@ -19,15 +19,15 @@ extends Node3D
 ## path; (2) the "base colour" the tick code kept reading through metadata and never used.
 ## Both live here as typed fields now.
 
-const DUNGEON := "res://assets/environment/dungeon/"
+const DUNGEON := "res://assets/scifi/"
 ## Floor model per hazard id. `fit` scales the model's 4 m tile to the live radius
 ## (placements can override it, so the model follows the hitbox); a fixed scale keeps
 ## the plate's 4 m tile glued to its 2 m trigger instead of its 3.5 m blast. `lift`
 ## seats the tile's base on the floor (KayKit tiles sit 0.1 m under their origin).
 const MODEL_BY_HAZARD := {
-	&"spike_bed": {"path": DUNGEON + "floor_tile_big_spikes.glb", "fit": true, "fixed": 1.0, "lift": 0.1},
-	&"fire_vent": {"path": DUNGEON + "floor_tile_grate_open.glb", "fit": true, "fixed": 1.0, "lift": 0.1},
-	&"pressure_plate": {"path": DUNGEON + "floor_tile_large.glb", "fit": false, "fixed": 1.0, "lift": 0.1},
+	&"spike_bed": {"path": DUNGEON + "hazard_tile.glb", "fit": true, "fixed": 1.0, "lift": 0.0},
+	&"fire_vent": {"path": DUNGEON + "hazard_tile.glb", "fit": true, "fixed": 1.0, "lift": 0.0},
+	&"pressure_plate": {"path": DUNGEON + "hazard_tile.glb", "fit": false, "fixed": 1.0, "lift": 0.0},
 }
 const TILE_METRES := 4.0
 const MIN_FIT_SCALE := 0.35

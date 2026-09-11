@@ -57,15 +57,12 @@ def load_manifest() -> dict:
 
 
 class ShieldBannerIdentityTests(unittest.TestCase):
-    def test_wall_banners_are_per_arena_shields(self):
+    def test_station_displays_replace_fantasy_banners(self):
         src = code(DECORATOR_GD)
-        for color in ("red", "yellow", "blue"):
-            self.assertIn(f"banner_shield_{color}.glb", src,
-                          f"the {color} wall banner is no longer a shield variant")
-        for path in ("assets/environment/dungeon/banner_shield_red.glb",
-                     "assets/environment/dungeon/banner_shield_yellow.glb",
-                     "assets/environment/dungeon/banner_shield_blue.glb"):
-            self.assertTrue((ROOT / path).is_file(), f"downloaded shield banner missing: {path}")
+        self.assertIn('res://assets/environment/space_station/', src)
+        self.assertNotIn('banner_shield_', src)
+        self.assertIn('display-wall.glb', src)
+        self.assertTrue((ROOT / 'assets/environment/space_station/display-wall.glb').is_file())
 
 
 class DownloadedArtIsLockedTests(unittest.TestCase):
@@ -110,7 +107,7 @@ class LandmarkFloorArtTests(unittest.TestCase):
 class TorchGlowTests(unittest.TestCase):
     def test_glow_halo_uses_the_approved_sprite(self):
         src = code(TORCH_GD)
-        self.assertIn("flare_01.png", src)
+        self.assertIn("res://assets/scifi/fx/flare.png", src)
         self.assertIn("Sprite3D", src)
         self.assertIn("BILLBOARD_ENABLED", src)
         manifest = load_manifest()
@@ -123,9 +120,9 @@ class HazardModelTests(unittest.TestCase):
     def test_markers_mount_floor_models(self):
         src = code(MARKER_GD)
         self.assertIn("MODEL_BY_HAZARD", src)
-        for hazard_id, model in (("spike_bed", "floor_tile_big_spikes.glb"),
-                                 ("fire_vent", "floor_tile_grate_open.glb"),
-                                 ("pressure_plate", "floor_tile_large.glb")):
+        for hazard_id, model in (("spike_bed", "hazard_tile.glb"),
+                                 ("fire_vent", "hazard_tile.glb"),
+                                 ("pressure_plate", "hazard_tile.glb")):
             self.assertIn(hazard_id, src, f"{hazard_id} lost its floor model")
             self.assertIn(model, src, f"{hazard_id} no longer mounts {model}")
         self.assertIn("HdMaterials.polish", src,

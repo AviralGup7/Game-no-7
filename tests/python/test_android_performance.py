@@ -72,7 +72,15 @@ class AndroidPerformanceTests(unittest.TestCase):
         proj = read("scripts/weapons/projectile.gd")
         self.assertIn("static var _shared_player_mat", proj)
         self.assertIn("static var _shared_enemy_mat", proj)
-        self.assertIn("_shared_player_mat = mat", proj)
+        self.assertIn("static func ensure_shared_tints()", proj)
+        self.assertIn("_shared_player_mat = _make_team_mat", proj)
+        apply = proj.split("func _apply_team_tint()")[1].split("func _on_body_entered")[0]
+        self.assertNotIn("StandardMaterial3D.new()", apply)
+        pool = read("scripts/weapons/projectile_pool.gd")
+        self.assertIn("Projectile.ensure_shared_tints()", pool)
+        obtain = pool.split("func _obtain()")[1].split("func _on_release_requested")[0]
+        self.assertIn("_active.pop_front()", obtain)
+        self.assertIn("p.pool_reset()", obtain)
 
     def test_damage_text_does_not_copy_active_array_each_frame(self):
         source = read("scripts/ui/damage_number_layer.gd")
@@ -94,7 +102,8 @@ class AndroidPerformanceTests(unittest.TestCase):
     def test_android_exports_omit_test_resources_not_runtime_content(self):
         for path in ("export_presets.cfg", "export_presets.cfg.example"):
             source = read(path)
-            self.assertIn('exclude_filter="tests/*,tool/*"', source)
+            self.assertIn('exclude_filter="tests/*,tool/*,', source)
+            self.assertIn('assets/textures/panorama/*', source)
             self.assertIn('export_filter="all_resources"', source)
             self.assertIn("assets/*.json", source)
             self.assertIn("ASSET_LICENSES/*.txt", source)

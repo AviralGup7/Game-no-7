@@ -54,7 +54,7 @@ var _spawn_index := 0
 ## the ContentRegistry autoload is used (normal game path).
 var _content_provider: Callable = Callable()
 
-var _event_bus: Node = null
+var _event_bus: EventBusService = null
 var _event_bus_resolved := false
 
 
@@ -64,11 +64,11 @@ func _ready() -> void:
 		_timer.timeout.connect(_on_spawn_tick)
 
 
-func _eb() -> Node:
+func _eb() -> EventBusService:
 	if not _event_bus_resolved:
 		_event_bus_resolved = true
 		if is_inside_tree():
-			_event_bus = get_node_or_null("/root/EventBus")
+			_event_bus = get_node_or_null("/root/EventBus") as EventBusService
 	return _event_bus
 
 
@@ -323,7 +323,7 @@ func _apply_elite(instance: EnemyBase, affixes: Array) -> void:
 
 
 func _maybe_begin_boss_fight(instance: EnemyBase) -> void:
-	var boss := instance.get_node_or_null("BossController") as BossController
+	var boss := instance.get_boss_controller()
 	if boss == null:
 		return
 	# Connect summons BEFORE begin_fight so an immediate emit during initialization

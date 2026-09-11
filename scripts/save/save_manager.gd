@@ -31,6 +31,8 @@ func _ready() -> void:
 	_debounce.wait_time = SAVE_DEBOUNCE_MSEC / 1000.0
 	_debounce.timeout.connect(_flush_save)
 	add_child(_debounce)
+	# Snapshot project.godot bindings before any saved remap mutates InputMap.
+	InputRemapper.snapshot_factory()
 	_load_from_disk()
 
 
@@ -102,6 +104,7 @@ func record_run_completed(summary: Dictionary) -> void:
 	var build_value: Variant = summary.get("build", {})
 	var normalized_build := SaveSchema.normalize_save({"last_run_build": build_value})
 	_save.last_run_build = normalized_build.get("last_run_build", SaveSchema.default_run_build())
+	_unlock_arenas_for_best_wave()
 	mark_dirty()
 
 
@@ -126,6 +129,7 @@ func save_settings(settings: SettingsData) -> void:
 
 
 func reset_settings() -> void:
+	InputRemapper.restore_factory()
 	_settings = SettingsData.new()
 	persist_settings()
 	EventBus.settings_changed.emit(_settings)
@@ -143,6 +147,24 @@ func unlock_arena(arena_id: String) -> void:
 	if arena_id not in list:
 		list.append(arena_id)
 		mark_dirty()
+
+
+func get_unlocked_arenas() -> Array:
+	return (_save.progression.get("unlocked_arenas", []) as Array).duplicate()
+
+
+func is_arena_unlocked(arena_id: StringName) -> bool:
+	return String(arena_id) in get_unlocked_arenas()
+
+
+func _unlock_arenas_for_best_wave() -> void:
+	if ContentRegistry == null:
+		return
+	var best := get_best_wave()
+	for arena_id in ContentRegistry.get_all_arenas():
+		var cfg: ArenaConfig = ContentRegistry.get_arena(arena_id)
+		if cfg != null and cfg.unlock_wave <= maxi(best, 1):
+			unlock_arena(String(arena_id))
 
 
 # ---------------------------- Tutorial / achievements / meta ----------------------------
@@ -261,9 +283,13 @@ func _flush_save() -> bool:
 	# replacement then costs at most the newest save, not the whole profile.
 	var previous: Variant = _read_raw(SAVE_PATH)
 	if previous != null:
-		_write_raw(BACKUP_3_PATH, JSON.stringify(_read_raw(BACKUP_2_PATH)))
-		_write_raw(BACKUP_2_PATH, JSON.stringify(_read_raw(BACKUP_PATH)))
-		_write_raw(BACKUP_PATH, JSON.stringify(previous))
+		# Byte-copy existing generations. Re-stringify of a parsed dict can
+		# scramble key order and break the SHA-256 envelope; writing JSON of
+		# a missing file used to persist the literal "null" and destroy an
+		# older backup on the second save of a new profile.
+		_copy_save_file(BACKUP_2_PATH, BACKUP_3_PATH)
+		_copy_save_file(BACKUP_PATH, BACKUP_2_PATH)
+		_copy_save_file(SAVE_PATH, BACKUP_PATH)
 	var ok := _write_raw(SAVE_PATH, _serialize_save())
 	if ok:
 		_dirty = false
@@ -319,6 +345,24 @@ func _sha256_text(value: String) -> String:
 	return hashing.finish().hex_encode()
 
 
+## Copy one save generation onto another. No-op when the source is missing,
+## unreadable, empty, or the parsed-null tombstone a previous bug wrote.
+func _copy_save_file(from_path: String, to_path: String) -> void:
+	if not FileAccess.file_exists(from_path):
+		return
+	var file := FileAccess.open(from_path, FileAccess.READ)
+	if file == null:
+		return
+	if file.get_length() > MAX_VALID_SAVE_BYTES:
+		file.close()
+		return
+	var text := file.get_as_text()
+	file.close()
+	if text.is_empty() or text == "null":
+		return
+	_write_raw(to_path, text)
+
+
 func _write_raw(path: String, contents: String) -> bool:
 	var tmp := path + ".tmp"
 	var file := FileAccess.open(tmp, FileAccess.WRITE)
@@ -350,3 +394,5 @@ func _apply_validated(data: Dictionary) -> void:
 		_save.last_run_build = SaveSchema.default_run_build()
 	_settings.from_dict(_save.settings)
 	_save.settings = _settings.to_dict()
+	if not _settings.input_bindings.is_empty():
+		InputRemapper.deserialize_actions(_settings.input_bindings)

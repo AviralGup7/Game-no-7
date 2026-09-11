@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"ranged"
-blurb = "Gallery bow \u2014 soft, but never alone."
-display_name = "Slinger"
+blurb = "Sentry Gunner detected. Watch its attack telegraph."
+display_name = "Sentry Gunner"
 scene = ExtResource("2_scene")
 max_health = 16.0
 move_speed = 2.2

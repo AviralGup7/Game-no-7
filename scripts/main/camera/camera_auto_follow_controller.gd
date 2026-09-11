@@ -2,7 +2,7 @@ class_name CameraAutoFollowController
 extends RefCounted
 
 ## Elden Ring / Dark Souls style auto-follow – gentle, with deadzone and toward-camera suppression.
-## Never fights player when strafing or walking toward camera.
+## Never fights the player when strafing or walking toward the camera.
 
 var sustain_timer := 0.0
 var is_active := false
@@ -10,11 +10,14 @@ var manual_cooldown := 0.0
 
 var _profile: CameraProfile = null
 
+
 func setup(profile: CameraProfile) -> void:
 	_profile = profile
 
+
 func set_profile(profile: CameraProfile) -> void:
 	_profile = profile
+
 
 func notify_manual_input() -> void:
 	if _profile == null:
@@ -22,6 +25,7 @@ func notify_manual_input() -> void:
 	manual_cooldown = _profile.manual_orbit_cooldown
 	is_active = false
 	sustain_timer = 0.0
+
 
 func tick(delta: float, velocity_tracker: CameraVelocityTracker, orbit: CameraOrbitState, cam_pos: Vector3, focus_pos: Vector3) -> void:
 	if _profile == null or orbit == null or velocity_tracker == null:
@@ -32,7 +36,6 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, orbit: CameraOr
 		is_active = false
 		return
 
-	# Cooldown after manual orbit
 	if manual_cooldown > 0.0:
 		manual_cooldown = maxf(manual_cooldown - delta, 0.0)
 		sustain_timer = 0.0
@@ -62,28 +65,38 @@ func tick(delta: float, velocity_tracker: CameraVelocityTracker, orbit: CameraOr
 		is_active = false
 		return
 
-	# Toward-camera suppression
+	# Toward-camera suppression. Authored as a *positive* dot threshold (0.25 =
+	# moving clearly toward the lens). Negative legacy values are treated as the
+	# documented 0.25 so a sign typo cannot disable follow entirely.
 	var to_cam := cam_pos - focus_pos
 	to_cam.y = 0.0
 	if to_cam.length_squared() > 0.0001:
 		to_cam = to_cam.normalized()
-		var dot := move_dir.dot(to_cam)
-		# Moving toward camera – suppress entirely
-		if dot > 0.25:
+		var toward := move_dir.dot(to_cam)
+		var toward_gate := _profile.auto_follow_toward_camera_threshold
+		if toward_gate < 0.0:
+			toward_gate = 0.25
+		if toward > toward_gate:
 			is_active = false
 			return
 		# Strafe – reduce speed
-		if absf(dot) < 0.35:
+		if absf(toward) < 0.35:
 			var suppression := _profile.auto_follow_strafe_suppression
-			orbit.target_yaw = CameraMath.lerp_angle_weighted(orbit.target_yaw, move_yaw, clampf(delta * _profile.auto_follow_speed * suppression, 0.0, 1.0))
+			orbit.target_yaw = CameraMath.lerp_angle_weighted(
+				orbit.target_yaw, move_yaw,
+				clampf(delta * _profile.auto_follow_speed * suppression, 0.0, 1.0)
+			)
 			is_active = true
 			return
 
-	# Normal follow – speed scales with angle diff
 	var follow_speed := _profile.auto_follow_speed
 	var speed_scale := clampf(absf(diff) / deg_to_rad(90.0), 0.3, 1.5)
-	orbit.target_yaw = CameraMath.lerp_angle_weighted(orbit.target_yaw, move_yaw, clampf(delta * follow_speed * speed_scale, 0.0, 1.0))
+	orbit.target_yaw = CameraMath.lerp_angle_weighted(
+		orbit.target_yaw, move_yaw,
+		clampf(delta * follow_speed * speed_scale, 0.0, 1.0)
+	)
 	is_active = true
+
 
 func reset() -> void:
 	sustain_timer = 0.0

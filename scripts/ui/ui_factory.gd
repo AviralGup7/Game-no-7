@@ -28,7 +28,7 @@ static func overlay(parent: Control, dim: float = 0.0) -> Dictionary:
 	var scrim: ColorRect = null
 	if dim > 0.0:
 		scrim = ColorRect.new()
-		scrim.color = Color(0, 0, 0, clampf(dim, 0.0, 1.0))
+		scrim.color = Color(0.05, 0.02, 0.01, clampf(dim, 0.0, 1.0))
 		scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
 		scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(scrim)
@@ -94,27 +94,10 @@ static func primary(text: String, parent: Node, font_size: int, min_size: Vector
 	b.custom_minimum_size = Vector2(maxf(min_size.x, 220), maxf(min_size.y, UiTheme.TOUCH_MIN))
 	b.add_theme_font_size_override("font_size", font_size)
 	b.mouse_filter = Control.MOUSE_FILTER_STOP
-	var gold := Color(UiTheme.GOLD)
-	var ink := Color(0.10, 0.07, 0.02)
-	var normal := UiTheme.control(Color(gold.r, gold.g, gold.b, 0.96), Color(1.0, 0.86, 0.55),
-		1, Color(gold.r, gold.g, gold.b, 0.35), UiTheme.RADIUS)
-	normal.content_margin_left = 26
-	normal.content_margin_right = 26
-	normal.content_margin_top = 12
-	normal.content_margin_bottom = 12
-	b.add_theme_stylebox_override("normal", normal)
-	var hover := UiTheme.control(Color(1.0, 0.84, 0.55), Color(1.0, 0.92, 0.68), 1,
-		Color(1.0, 0.8, 0.45, 0.5), UiTheme.RADIUS)
-	hover.content_margin_left = 26
-	hover.content_margin_right = 26
-	hover.content_margin_top = 12
-	hover.content_margin_bottom = 12
-	b.add_theme_stylebox_override("hover", hover)
-	var pressed := UiTheme.control(Color(0.85, 0.66, 0.30), Color(0.4, 0.28, 0.06), 1,
-		Color(0, 0, 0, 0.0), UiTheme.RADIUS)
-	pressed.content_margin_top = 13  # press "sinks" by shifting text down
-	pressed.content_margin_bottom = 11
-	b.add_theme_stylebox_override("pressed", pressed)
+	var ink := Color(0.12, 0.06, 0.02)
+	b.add_theme_stylebox_override("normal", UiTheme.skin("btn_gold.png", 56, 26))
+	b.add_theme_stylebox_override("hover", UiTheme.skin("btn_gold.png", 56, 26, Color(1.12, 1.05, 0.85)))
+	b.add_theme_stylebox_override("pressed", UiTheme.skin("btn_gold.png", 56, 26, Color(0.78, 0.62, 0.32)))
 	b.add_theme_color_override("font_color", ink)
 	b.add_theme_color_override("font_hover_color", ink)
 	b.add_theme_color_override("font_pressed_color", Color(0.25, 0.16, 0.03))
@@ -261,7 +244,7 @@ static func gauge(parent: Node, color: Color, height: float = 16.0) -> ProgressB
 	fill.content_margin_right = 0
 	meter.add_theme_stylebox_override("fill", fill)
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0.02, 0.04, 0.07, 0.9)
+	bg.bg_color = Color(0.05, 0.02, 0.01, 0.92)
 	bg.border_color = UiTheme.EDGE_SOFT
 	bg.set_border_width_all(1)
 	bg.set_corner_radius_all(UiTheme.RADIUS_SM)

@@ -26,6 +26,7 @@ var _current_wave := 1
 var _attacks_enabled := true
 var _projectile_pool: ProjectilePool = null
 var _owner_body: Node3D = null
+var _shot_direction := Vector3.FORWARD
 
 
 func _ready() -> void:
@@ -245,6 +246,17 @@ func request_attack() -> int:
 		return 0
 	var was_reloading := inst.is_reloading()
 	var step := inst.try_start_attack()
+	if step > 0 and _owner_body != null:
+		_shot_direction = -_owner_body.global_basis.z
+		var player := _owner_body as Player
+		var target := player.get_aim_target() if player != null else null
+		if target != null:
+			var center := target.global_position + Vector3.UP * 0.8
+			var shape := target.get_node_or_null("CollisionShape3D") as CollisionShape3D
+			if shape != null:
+				center = shape.global_position
+			var muzzle := RangedResolver.muzzle_position(_owner_body.global_position, _shot_direction)
+			_shot_direction = (center - muzzle).normalized()
 	if not was_reloading and inst.is_reloading() and inst.config != null:
 		reload_started.emit(inst.config.weapon_id)
 	return step
@@ -303,7 +315,9 @@ func _maybe_apply_status(inst: WeaponInstance, applied: Array) -> void:
 		var target: Variant = entry["target"]
 		if target == null or not is_instance_valid(target):
 			continue
-		var sm := (target as Node).get_node_or_null("StatusManager") as StatusManager if target is Node else null
+		var sm: StatusManager = null
+		if target is Damageable:
+			sm = (target as Damageable).get_status_manager()
 		if sm != null:
 			var status_result := sm.apply_effects(inst.config.on_hit_effects, _owner_body)
 			var result: Variant = entry.get("result")
@@ -318,8 +332,17 @@ func _fire_volley(inst: WeaponInstance, origin: Vector3, facing: Vector3, was_cr
 	if _projectile_pool == null:
 		return
 	var cfg := inst.config
-	var dirs := RangedResolver.spread_directions(facing, inst.effective_projectile_count(), cfg.projectile_spread_degrees)
+	var dirs := RangedResolver.aimed_directions(_shot_direction, inst.effective_projectile_count(), cfg.projectile_spread_degrees)
 	var muzzle := RangedResolver.muzzle_position(origin, facing)
+	var world := _owner_body.get_world_3d()
+	if world != null:
+		var query := PhysicsRayQueryParameters3D.create(origin + Vector3.UP * 1.1, muzzle)
+		query.collision_mask = CollisionLayers.OBSTRUCTORS
+		var blocked := world.direct_space_state.intersect_ray(query)
+		if not blocked.is_empty():
+			if EventBus != null:
+				EventBus.projectile_fired.emit(_owner_body, cfg.weapon_id)
+			return
 	var damage := inst.effective_damage()
 	if was_crit:
 		damage *= inst.effective_crit_multiplier()
@@ -331,7 +354,7 @@ func _fire_volley(inst: WeaponInstance, origin: Vector3, facing: Vector3, was_cr
 		"knockback": inst.effective_knockback(),
 		"pierce": inst.effective_projectile_pierce(),
 		"damage_type": cfg.damage_type,
-		"max_distance": cfg.projectile_speed * cfg.projectile_lifetime,
+		"max_distance": minf(inst.effective_range(), cfg.projectile_speed * cfg.projectile_lifetime),
 		"lifetime": cfg.projectile_lifetime,
 		"source": _owner_body,
 		"source_id": cfg.weapon_id,

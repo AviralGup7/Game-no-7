@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/skeletons/Skeleton_Mage.glb" id="3_model"]
+[ext_resource type="PackedScene" path="res://assets/scifi/robots/ranged.glb" id="3_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_ranged"]
 radius = 0.45
@@ -32,8 +32,13 @@ model_extent = 1.7
 yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
-"run": "Walking_A",
-"attack": "Spellcast_Shoot",
+"run": "Running_A",
+"attack": "Fire",
 "hurt": "Hit_A",
-"death": "Death_A"
+"death": "Death_A",
+"stun": "Hit_A",
+"cast": "Cast",
+"telegraph": "Cast",
+"dash": "Dodge_Forward",
+"spawn": "Idle"
 }

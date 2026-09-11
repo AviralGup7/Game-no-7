@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_script")
 archetype_id = &"fast"
-display_name = "Stinger"
+display_name = "Interceptor"
 scene = ExtResource("2_scene")
 max_health = 10.0
 move_speed = 5.2
@@ -39,3 +39,5 @@ elite_eligible = false
 spawn_priority = 1
 attack_retreat_time = 0.35
 balance_notes = "Fast skirmisher: low hp, high speed, short cooldown; back-pedals after each sting (hit-and-run)."
+
+blurb = "Interceptor detected. Watch its attack telegraph."

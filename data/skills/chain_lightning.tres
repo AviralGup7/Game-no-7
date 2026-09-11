@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"chain_lightning"
-display_name = "Chain Lightning"
+display_name = "Tesla Arc"
 description = "Shock the nearest foe, then jump through a tightly packed group with decaying damage."
 behavior = &"chain_lightning"
 input_action = &"skill_1"

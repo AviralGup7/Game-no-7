@@ -5,21 +5,21 @@
 [resource]
 script = ExtResource("1_script")
 weapon_id = &"twinfangs"
-display_name = "Twin Fangs"
-description = "Blinding dual daggers: a five-hit flurry that stacks bleed before the finisher."
-kind = &"melee"
+display_name = "Vector SMG"
+description = "Rapid-fire compact blaster."
+kind = &"ranged"
 rarity = &"epic"
-attack_pattern = &"flurry"
+attack_pattern = &"volley"
 damage_type = &"bleed"
-base_damage = 5.8
-swing_cooldown = 0.3
-windup = 0.06
-attack_range = 2.2
+base_damage = 6
+swing_cooldown = 0.1
+windup = 0.025
+attack_range = 22
 arc_degrees = 82.0
 max_targets = 3
-knockback = 2.5
-combo_damage_steps = PackedFloat32Array(1, 1, 1, 1.1, 1.65)
-combo_window = 0.4
+knockback = 2
+combo_damage_steps = PackedFloat32Array(1)
+combo_window = 0.0
 crit_chance = 0.15
 crit_multiplier = 1.5
 on_hit_effects = Array[StringName]([&"bleed"])
@@ -28,4 +28,20 @@ unlock_wave = 3
 unlock_cost = 120
 weight = 0.7
 disabled = false
-tags = Array[StringName]([&"fast", &"bleed", &"flurry", &"crit"])
+tags = Array[StringName]([&"ranged", &"firearm", &"energy"])
+
+projectile_speed = 40
+
+projectile_count = 1
+
+projectile_spread_degrees = 4
+
+projectile_lifetime = 0.8
+
+projectile_radius = 0.15
+
+projectile_pierce = 0
+
+ammo_per_magazine = 36
+
+reload_seconds = 1.25

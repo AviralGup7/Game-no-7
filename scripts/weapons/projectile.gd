@@ -63,13 +63,10 @@ var _age: float = 0.0
 var _active := false
 var _hit_bodies: Array = []
 var _visual: Node3D = null
-# Two shared materials for the whole game (player gold / enemy red). Per-instance
-# StandardMaterial3D on every launch was the largest avoidable volley allocation.
+# Two shared materials for the whole game (player gold / enemy red). Built once
+# (pool _ready / first tint) so a volley never allocates StandardMaterial3D.
 static var _shared_player_mat: StandardMaterial3D = null
 static var _shared_enemy_mat: StandardMaterial3D = null
-# Legacy per-instance slot kept so pooled objects that already hold a material
-# keep working; new launches use the shared pair.
-var _tint_material: StandardMaterial3D = null
 # Pooled sweep query state (built once per pooled instance, mutated per step —
 # allocating a shape + two parameter objects per shot per tick is exactly the
 # churn the pool exists to avoid).
@@ -118,7 +115,7 @@ func launch(config: Dictionary) -> void:
 	damage_type = config.get("damage_type", &"physical")
 	was_critical = bool(config.get("was_critical", false))
 	critical_multiplier = maxf(float(config.get("critical_multiplier", 1.0)), 1.0)
-	status_effects = []
+	status_effects.clear()
 	for tag in config.get("status_effects", []):
 		status_effects.append(StringName(String(tag)))
 	_ensure_sweep_state()
@@ -277,29 +274,32 @@ func _face_travel() -> void:
 	_visual.look_at(_visual.global_position + direction, up)
 
 
+## Pre-build the two team materials. Safe to call repeatedly; the pool calls
+## this at _ready so the first volley is assignment-only.
+static func ensure_shared_tints() -> void:
+	if _shared_player_mat == null:
+		_shared_player_mat = _make_team_mat(Color(0.15, 0.8, 1.0))
+	if _shared_enemy_mat == null:
+		_shared_enemy_mat = _make_team_mat(Color(1.0, 0.2, 0.25))
+
+
+static func _make_team_mat(tint: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = tint
+	mat.emission_enabled = true
+	mat.emission = tint
+	mat.emission_energy_multiplier = 1.5
+	return mat
+
+
 func _apply_team_tint() -> void:
-	# Pooled visuals recolor via a team-colored material override (gold = player,
-	# red = enemy) so pooled shots stay readable no matter which scene built them.
-	# (A former set_team_tint() probe branch was deleted: no script in the
-	# project defines that method, so the branch could never run.)
+	# Assignment only: gold = player, red = enemy. Construction lives in
+	# ensure_shared_tints() so launch never allocates a StandardMaterial3D.
 	var mesh := get_node_or_null("Visual/Mesh") as MeshInstance3D
 	if mesh == null:
 		return
-	var player_team := team == TEAM_PLAYER
-	var tint := Color(1.0, 0.8, 0.25) if player_team else Color(1.0, 0.2, 0.25)
-	var mat := _shared_player_mat if player_team else _shared_enemy_mat
-	if mat == null:
-		mat = StandardMaterial3D.new()
-		mat.albedo_color = tint
-		mat.emission_enabled = true
-		mat.emission = tint
-		mat.emission_energy_multiplier = 1.5
-		if player_team:
-			_shared_player_mat = mat
-		else:
-			_shared_enemy_mat = mat
-	_tint_material = mat
-	mesh.material_override = mat
+	ensure_shared_tints()
+	mesh.material_override = _shared_player_mat if team == TEAM_PLAYER else _shared_enemy_mat
 
 
 func _on_body_entered(body: Node) -> void:

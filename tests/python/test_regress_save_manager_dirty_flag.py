@@ -32,4 +32,15 @@ class SaveManagerTests(unittest.TestCase):
         self.assertIn("if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed)", txt)
         self.assertIn('"algorithm": "sha256"', txt)
 
+    def test_backup_rotation_skips_missing_generations(self):
+        txt=read("scripts/save/save_manager.gd")
+        self.assertIn("func _copy_save_file(", txt)
+        self.assertIn('if text.is_empty() or text == "null":', txt)
+        self.assertNotIn("JSON.stringify(_read_raw(BACKUP_2_PATH))", txt)
+
+    def test_run_build_seed_key_is_seed(self):
+        txt=read("scripts/save/save_schema.gd")
+        self.assertIn('out.seed = maxi(_int_or(seed_raw, 0), 0)', txt)
+        self.assertNotIn("out.run_seed =", txt)
+
 if __name__=="__main__": unittest.main()

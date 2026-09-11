@@ -32,6 +32,8 @@ const PHASE_COOLDOWN := &"cooldown"
 
 var _body: CharacterBody3D = null
 var _health: HealthComponent = null
+var _controller: CharacterController = null
+var _progression: ProgressionComponent = null
 var _phase: StringName = PHASE_READY
 var _dir := Vector3.ZERO
 var _speed := 0.0
@@ -145,9 +147,13 @@ func _burst_speed() -> float:
 
 
 func _move_burst(delta: float, fraction: float = 1.0) -> void:
-	# M3: dash intent requested here, actual movement via CharacterController when wired.
+	# Dash intent is requested here; CharacterController is the movement authority
+	# when bound (Player wires it once). Headless fixtures without a controller
+	# still integrate through move_and_slide on the body.
 	var speed := _speed * fraction if _phase == PHASE_ACTIVE else 0.0
-	var cc := _body.get_node_or_null("CharacterController") as CharacterController if _body != null else null
+	var cc := _controller
+	if cc == null and _body != null:
+		cc = _body.get_node_or_null("CharacterController") as CharacterController
 	if cc != null:
 		cc.apply_dash(_dir, speed, delta)
 		_clamp_to_bounds()
@@ -182,13 +188,20 @@ func _finish_cycle() -> void:
 
 
 func _effective_cooldown() -> float:
+	# Authored `cooldown` is seconds. Progression returns a COOLDOWN-family
+	# multiplier (neutral 1.0; fleetfoot −0.1 → 0.9). Multiply, never replace
+	# the duration with the multiplier itself.
 	var base := maxf(cooldown, 0.05)
-	var host := _body
-	if host == null or not is_instance_valid(host):
-		return base
-	var prog := host.get_node_or_null("ProgressionComponent") as ProgressionComponent
+	var prog := _progression
+	if prog == null:
+		var host := _body
+		if host != null and is_instance_valid(host):
+			prog = host.get_node_or_null("ProgressionComponent") as ProgressionComponent
 	if prog != null:
-		return maxf(prog.get_stat(&"dodge_cooldown_multiplier", base), 0.05)
+		var mult := prog.get_stat(&"dodge_cooldown_multiplier", 1.0)
+		if not is_finite(mult):
+			mult = 1.0
+		return maxf(base * mult, 0.05)
 	return base
 
 
@@ -209,6 +222,14 @@ func _clamp_to_bounds() -> void:
 ## Bind the owner's HealthComponent so i-frames are real.
 func bind_health(health: HealthComponent) -> void:
 	_health = health
+
+
+## Bind the movement authority and run progression once. Tick uses these
+## instead of string-looking siblings every dash frame.
+func bind_motion(controller: CharacterController, progression: ProgressionComponent = null) -> void:
+	_controller = controller
+	if progression != null:
+		_progression = progression
 
 
 func reset() -> void:

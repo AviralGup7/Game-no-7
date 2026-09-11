@@ -22,12 +22,10 @@ static func purchase(tree: SceneTree, id: StringName) -> bool:
 	return service.purchase(id) if service != null else false
 
 
-## Arena selection is a not-yet-wired feature: launching only succeeds for the
-## currently selected arena (ContentRegistry owns selection). The old
-## GameRoot.has_method("request_arena_selection") probe suggested a runtime
-## capability check; no such method exists, so the probe was always false.
+## Arena selection for the next run. GameRoot validates availability and
+## ContentRegistry owns the live selection used by world build.
 static func select_arena(id: StringName) -> bool:
-	return id == ContentRegistry.get_selected_arena_id()
+	return GameRoot.request_arena_selection(id)
 
 
 ## Typed player-command dispatch for the touch buttons and skill bar. Returns
@@ -41,6 +39,10 @@ static func action(method: StringName, args: Array = []) -> bool:
 	match method:
 		&"request_attack":
 			return player.request_attack()
+		&"request_held_fire":
+			return player.request_held_fire()
+		&"request_reload":
+			return player.request_reload()
 		&"request_dodge":
 			return player.request_dodge()
 		&"request_weapon_switch":
@@ -68,3 +70,12 @@ static func move(value: Vector2) -> void:
 static func binding(action_name: StringName) -> String:
 	var bindings := InputRemapper.get_bindings(action_name)
 	return InputRemapper.binding_label(bindings[0]) if not bindings.is_empty() else "Unbound"
+
+
+## Releasing must reach the player even after leaving a gameplay state.
+static func fire_input(held: bool, aim: Vector2) -> void:
+	var player := GameRoot.get_active_player()
+	if player == null or not is_instance_valid(player):
+		return
+	var playing := GameRoot.get_current_state() in [GameRoot.State.PLAYING, GameRoot.State.WAVE_TRANSITION]
+	player.set_touch_fire_input(held and playing, aim)

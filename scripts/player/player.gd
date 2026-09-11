@@ -38,9 +38,10 @@ signal respawned()
 signal upgrade_applied(upgrade_id: StringName)
 signal leveled_up(new_level: int)
 
-const DODGE_STAMINA_COST := 25.0
 const KILL_XP_BASE := 12.0
 const KILL_XP_ELITE_BONUS := 18.0
+## Matches the authored capsule in player.tscn (CapsuleShape3D.radius = 0.45).
+const HIT_RADIUS := 0.45
 
 var _control_enabled := false
 var _is_dead := false
@@ -64,8 +65,11 @@ var _player_audio: PlayerAudio = null
 
 var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
+var _combat := PlayerCombat.new()
 var _attack_buffer := AttackBuffer.new()
 var _gameplay_time := 0.0
+var _touch_fire_held := false
+var _touch_aim := Vector2.ZERO
 
 @export var attack_buffer_seconds: float = 0.18
 
@@ -80,6 +84,8 @@ func _ready() -> void:
 		return
 	_locomotion.bind(self, _dodge, _controller)
 	_build.bind(_health, _progression, _controller, _stamina, _weapons, _skills, walk_speed, max_health)
+	_combat.bind(self, _weapons, _dodge, _controller, _stamina, _locomotion, _attack_buffer)
+	_combat.buffer_seconds = attack_buffer_seconds
 	_locomotion.move_started.connect(move_started.emit)
 	_locomotion.move_stopped.connect(move_stopped.emit)
 	_build.upgrade_applied.connect(upgrade_applied.emit)
@@ -93,7 +99,13 @@ func _ready() -> void:
 	_weapons.attack_resolved.connect(_on_weapon_attack_resolved)
 	_experience.leveled_up.connect(_on_leveled_up)
 	_dodge.bind_health(_health)
+	_dodge.bind_motion(_controller, _progression)
 	_dodge.dodged_started.connect(_on_dodge_started)
+	_experience.bind_rewards(_health, _stamina, _skills)
+	_stamina.bind_progression(_progression)
+	_controller.bind_weapons(_weapons)
+	if _skills != null:
+		_skills.bind_systems(_experience, _status, _weapons, _health, _controller)
 	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
 	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
 		EventBus.enemy_killed.connect(_on_enemy_kill_heal)
@@ -102,6 +114,19 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unbind_run_events()
+
+
+## GAME_OVER freeze: the player node stays in WorldRoot for the summary
+## camera, so kill-heal / kill-XP listeners would still fire on lingering
+## deaths. Unbind those run-scoped feeds; HUD EventBus stays connected.
+func isolate_run() -> void:
+	_unbind_run_events()
+	if _player_audio != null:
+		_player_audio.isolate_run()
+
+
+func _unbind_run_events() -> void:
 	if EventBus == null:
 		return
 	if EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
@@ -180,18 +205,22 @@ func _physics_process(delta: float) -> void:
 		_cancel_combat()
 		velocity.x = 0.0
 		velocity.z = 0.0
-		var dodge_moving := _dodge.is_dodging()
-		_dodge.tick(delta)
-		if not dodge_moving:
-			_controller.tick(Vector2.ZERO, delta)
-		_locomotion.track(Vector2.ZERO)
-		_locomotion.clamp_to_bounds()
+		_tick_motion(delta, Vector2.ZERO)
 		# Stunned: timers still advance so the stun itself can expire, but no input.
 		_weapons.tick(delta)
 		return
+	if _touch_fire_held:
+		_try_attack()
 	if _locomotion.uses_actions():
-		if Input.is_action_just_pressed("attack"):
-			request_attack()
+		if not _touch_fire_held and Input.is_action_pressed("attack"):
+			var over_ui := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and get_viewport().gui_get_hovered_control() != null
+			# Ignore Android touch-to-mouse copies, without disabling physical
+			# keyboard/gamepad fire when no touch/mouse button is held.
+			var android_mouse := OS.has_feature("android") and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+			if not over_ui and not android_mouse:
+				_try_attack()
+		if Input.is_action_just_pressed("reload"):
+			request_reload()
 		if Input.is_action_just_pressed("dodge"):
 			request_dodge()
 		if Input.is_action_just_pressed("switch_weapon"):
@@ -203,15 +232,20 @@ func _physics_process(delta: float) -> void:
 	_attack_buffer.tick(delta, _try_attack)
 	var move := _locomotion.gather()
 	move *= _move_speed_factor()
-	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
-	# only ran mid-dodge would lock the player out forever).
-	var dodge_owned_motion := _dodge.is_dodging()
+	_tick_motion(delta, move)
+
+
+## Dodge cooldown and normal movement share one path, including while stunned.
+func _tick_motion(delta: float, move: Vector2) -> void:
+	var fire_facing := -global_basis.z
+	var dodge_owned := _dodge.is_dodging()
 	_dodge.tick(delta)
-	# Normal locomotion is owned by the CharacterController unless a dodge is mid-flight.
-	if dodge_owned_motion:
-		pass  # DodgeController owns motion (burst + recovery) this step
-	else:
+	if not dodge_owned:
 		_controller.tick(move, delta)
+	# Holding FIRE keeps facing independent of the left movement stick.
+	if _touch_fire_held and not dodge_owned:
+		# Reuse the aim already selected this step; no second target/LOS scan.
+		_controller.face_direction(fire_facing)
 	_locomotion.track(move)
 	_locomotion.clamp_to_bounds()
 
@@ -256,12 +290,8 @@ func clear_move_input() -> void:
 
 
 func request_attack() -> bool:
-	if not _can_combat():
-		return false
-	_attack_buffer.clear()
-	if not _try_attack():
-		_attack_buffer.push(attack_buffer_seconds)
-	return true
+	_combat.buffer_seconds = attack_buffer_seconds
+	return _combat.request_attack(_try_attack)
 
 
 func _can_combat() -> bool:
@@ -275,9 +305,9 @@ func _try_attack() -> bool:
 	# fallback was removed).
 	if not _can_combat() or _dodge.is_dodging():
 		return false
-	if _weapons.active_instance() == null or _weapons.request_attack() <= 0:
-		return false
 	_aim_attack()
+	if not _combat.try_start():
+		return false
 	_on_attack_started()
 	return true
 
@@ -286,10 +316,45 @@ func _aim_attack() -> void:
 	if not is_inside_tree():
 		return
 	_targeting.apply_settings()
+	var inst := _weapons.active_instance()
+	if inst != null:
+		_targeting.max_target_range = inst.effective_range()
+	# Touch aim uses the same camera-relative coordinates as the left stick.
+	# A deliberate drag narrows assistance; desktop testing can use the mouse.
+	var manual_touch := _touch_fire_held and _touch_aim.length_squared() > 0.0001
+	_targeting.acquisition_cone_degrees = 20.0 if manual_touch else 65.0
+	if manual_touch:
+		_controller.face_direction(_controller.screen_to_world_dir(_touch_aim))
+	elif not _touch_fire_held and not OS.has_feature("mobile") and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var camera := get_viewport().get_camera_3d()
+		if camera != null:
+			var point := get_viewport().get_mouse_position()
+			var plane := Plane(Vector3.UP, global_position.y + 1.0)
+			var hit: Variant = plane.intersects_ray(camera.project_ray_origin(point), camera.project_ray_normal(point))
+			if hit is Vector3:
+				_controller.face_direction((hit as Vector3) - global_position)
+	if _targeting.aim_assist_strength <= 0.0:
+		_targeting.clear_sticky()
+		return
 	var nodes := get_tree().get_nodes_in_group("enemies")
 	var target := _targeting.pick_best_target(nodes)
 	if target is Node3D:
 		_controller.face_direction((target as Node3D).global_position - global_position)
+
+
+func get_aim_target() -> Node3D:
+	return _targeting.get_sticky() as Node3D if _targeting != null else null
+
+
+## One non-buffered shot request retained for command/test callers.
+func request_held_fire() -> bool:
+	return _try_attack()
+
+
+func request_reload() -> bool:
+	if not _can_combat() or _dodge.is_dodging():
+		return false
+	return _weapons.request_reload()
 
 
 func request_lock_on() -> bool:
@@ -305,30 +370,9 @@ func request_lock_on() -> bool:
 
 
 func request_dodge() -> bool:
-	if not _can_combat():
-		return false
-	if not _dodge.is_ready():
-		return false
-	if not _dodge.can_interrupt_attack and _combat_busy():
-		return false
-	var cost := maxf(_dodge.stamina_cost, 0.0)
-	if not try_spend_stamina(cost):
-		return false
-	# Direction: prefer the current movement input (camera-relative); fall back to the
-	# body's facing (world -Z) so a standing dodge always goes somewhere.
-	var dir := -global_basis.z
-	var move := _locomotion.gather()
-	var world := _controller.screen_to_world_dir(move)
-	if world.length_squared() > 0.0001:
-		dir = world
-	var started := _dodge.request(dir)
+	var started := _combat.request_dodge()
 	if started:
-		_cancel_combat()
-		_controller.face_direction(dir)
 		dodged.emit()
-	else:
-		# Refund the stamina when the dodge itself refused (cooldown, mid-air...).
-		restore_stamina(cost)
 	return started
 
 
@@ -428,6 +472,10 @@ func get_progression_component() -> ProgressionComponent:
 
 func get_health_component() -> HealthComponent:
 	return _health
+
+
+func get_hit_radius() -> float:
+	return HIT_RADIUS
 
 
 func get_stamina_component() -> StaminaComponent:
@@ -551,12 +599,7 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 ## Cycle the weapon loadout (Tab / Y / touch button). Returns false when there is
 ## no second weapon to switch to.
 func request_weapon_switch() -> bool:
-	if not _can_combat() or _dodge.is_dodging():
-		return false
-	var switched := _weapons.cycle_weapon()
-	if switched:
-		_attack_buffer.clear()
-	return switched
+	return _combat.request_weapon_switch()
 
 
 ## Starter kit: daily loadout (or Gladius) in slot 0 + the first skill unlocked
@@ -588,6 +631,8 @@ func is_alive() -> bool:
 ## ---------- Internal ----------
 
 func _clear_input() -> void:
+	_touch_fire_held = false
+	_touch_aim = Vector2.ZERO
 	_attack_buffer.clear()
 	_locomotion.clear()
 
@@ -627,10 +672,6 @@ func _on_attack_started() -> void:
 		_player_audio.play_attack()
 
 
-func _on_attack_finished() -> void:
-	attack_finished.emit()
-
-
 func _on_dodge_started() -> void:
 	if _player_audio != null:
 		_player_audio.play_dodge()
@@ -657,14 +698,13 @@ func get_debug_snapshot() -> Dictionary:
 	}
 
 
-func _combat_busy() -> bool:
-	var inst := _weapons.active_instance()
-	return inst != null and (inst.phase == WeaponInstance.PHASE_WINDUP or inst.phase == WeaponInstance.PHASE_RECOVERY)
-
-
 func _cancel_combat() -> void:
+	_combat.cancel()
+	# Shared AttackBuffer: combat.cancel() already cleared it. Keep the local
+	# writes so a failed _ready (unbound combat) still drops a pending press.
 	_attack_buffer.clear()
-	_weapons.cancel_in_progress()
+	if _weapons != null:
+		_weapons.cancel_in_progress()
 
 
 func is_control_enabled() -> bool:
@@ -673,3 +713,19 @@ func is_control_enabled() -> bool:
 
 func _health_now() -> float:
 	return _gameplay_time
+
+
+## Touch UI publishes state, never shot ticks. Timing stays on the physics clock.
+func set_touch_fire_input(held: bool, aim: Vector2) -> void:
+	if not is_control_enabled() or not held or not aim.is_finite():
+		_touch_fire_held = false
+		_touch_aim = Vector2.ZERO
+		return
+	_touch_fire_held = true
+	_touch_aim = aim.limit_length(1.0)
+
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT]:
+		_touch_fire_held = false
+		_touch_aim = Vector2.ZERO

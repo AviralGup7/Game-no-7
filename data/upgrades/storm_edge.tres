@@ -6,7 +6,7 @@
 script = ExtResource("1_script")
 upgrade_id = &"storm_edge"
 display_name = "Storm Edge"
-description = "Melee hits chain lightning to nearby foes. Build-defining crowd clear."
+description = "Close-range hits chain lightning to nearby foes. Build-defining crowd clear."
 rarity = &"legendary"
 category = &"transform"
 max_stacks = 2

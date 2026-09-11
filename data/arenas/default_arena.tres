@@ -67,8 +67,8 @@ mirror = &"x"
 [resource]
 script = ExtResource("1_script")
 arena_id = &"default_arena"
-display_name = "The Pit"
-lore_intro = "The Pit remembers every stand. Yours begins now."
+display_name = "Orbital Foundry"
+lore_intro = "Orbital Foundry remembers every stand. Yours begins now."
 lore_mid = "Blood has soaked these stones for generations."
 lore_late = "The crowd wants a legend. Don't disappoint them."
 scene = ExtResource("2_scene")

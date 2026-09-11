@@ -97,7 +97,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	var body := "%s\n%s\n\n%s" % [cfg.display_name, rarity, cfg.description]
 	body += "\n\nRANK %d → %d / %d" % [stack, stack + 1, cfg.max_stacks]
 	btn.text = body
-	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/ui/upgrades/award.png")
+	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/scifi/ui/upgrades/award.png")
 	btn.expand_icon = true
 	btn.add_theme_constant_override("icon_max_width", 32)
 	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(21))
@@ -108,10 +108,10 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	var bg := UiTheme.box(UiTheme.SURFACE, border_col, 2 if cfg.rarity != &"common" else 1)
 	bg.set_corner_radius_all(10)
 	btn.add_theme_stylebox_override("normal", bg)
-	var hover_bg := UiTheme.box(Color("28465a"), UiTheme.CYAN, 2)
+	var hover_bg := UiTheme.box(Color("3a2414"), UiTheme.GOLD, 2)
 	hover_bg.set_corner_radius_all(10)
 	btn.add_theme_stylebox_override("hover", hover_bg)
-	var pressed_bg := UiTheme.box(Color("365064"), UiTheme.GOLD, 2)
+	var pressed_bg := UiTheme.box(Color("4a2e16"), UiTheme.GOLD, 2)
 	pressed_bg.set_corner_radius_all(10)
 	btn.add_theme_stylebox_override("pressed", pressed_bg)
 	var id := cfg.upgrade_id

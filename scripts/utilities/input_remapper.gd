@@ -7,8 +7,27 @@ extends RefCounted
 ## bindings as portable dictionaries, and restore them on boot. Pure logic plus
 ## thin InputMap calls; safe to exercise headless (InputMap exists without a tree).
 
-const REMAPPABLE_ACTIONS := [&"attack", &"dodge", &"pause", &"switch_weapon", &"skill_1", &"skill_2", &"skill_3"]
+const REMAPPABLE_ACTIONS := [&"attack", &"reload", &"dodge", &"pause", &"switch_weapon", &"skill_1", &"skill_2", &"skill_3"]
 const MAX_BINDS_PER_ACTION := 3
+
+## Project.godot defaults captured once before any saved remap is applied, so
+## Restore Defaults can put InputMap back without re-parsing the project file.
+static var _factory_bindings: Dictionary = {}
+
+
+## Capture the current InputMap as factory defaults. Idempotent: the first call
+## wins so a later save-restore cannot overwrite the snapshot with custom binds.
+static func snapshot_factory() -> void:
+	if not _factory_bindings.is_empty():
+		return
+	_factory_bindings = serialize_actions()
+
+
+## Re-apply the snapshot taken by snapshot_factory(). No-op until a snapshot exists.
+static func restore_factory() -> void:
+	if _factory_bindings.is_empty():
+		return
+	deserialize_actions(_factory_bindings)
 
 
 ## All current InputEvent bindings for an action (possibly empty).

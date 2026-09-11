@@ -34,6 +34,8 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_drops_elites.gd",
 	"res://tests/unit/test_locomotion_nan.gd",
 	"res://tests/unit/test_camera_arena_containment.gd",
+	"res://tests/unit/test_camera_modules.gd",
+	"res://tests/unit/test_ui_layout.gd",
 	"res://tests/unit/test_safe_player_spawn.gd",
 	"res://tests/unit/test_systems_completion.gd",
 	"res://tests/unit/test_director_mutators.gd",
@@ -52,8 +54,10 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_hazards.gd",
 	"res://tests/unit/test_arena_world.gd",
 	"res://tests/unit/test_performance_monitor.gd",
+	"res://tests/unit/test_pool_governor.gd",
 	"res://tests/unit/test_minimap_radar.gd",
 	"res://tests/unit/test_audio_policy.gd",
+	"res://tests/unit/test_spatial_audio.gd",
 	"res://tests/unit/test_error_report.gd",
 	# No tree access: instantiates the (autoload-free) EventBusService script
 	# directly and frees it, so this stays a pure suite.
@@ -69,6 +73,7 @@ const UNIT_SUITES := [
 const NODE_SUITES := [
 	"res://tests/unit/test_model_visual.gd",
 	"res://tests/unit/test_weapons.gd",
+	"res://tests/unit/test_station_shooter.gd",
 	"res://tests/unit/test_area_combat.gd",
 	"res://tests/unit/test_character_visuals.gd",
 	"res://tests/unit/test_hero_rig.gd",
@@ -77,6 +82,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
 	"res://tests/unit/test_hazards_live.gd",
 	"res://tests/unit/test_status_manager.gd",
+	"res://tests/unit/test_run_isolation.gd",
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"

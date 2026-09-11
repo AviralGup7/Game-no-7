@@ -26,6 +26,8 @@ var _pause_button: Button
 var _compact := false
 var _toast_fits := true
 var _weapon_refresh := 0.0
+var _wave_defeated := 0
+var _wave_total := 0
 # Dirty-flag caches so repeated events with unchanged values never force a label
 # write / tooltip rebuild (the HUD is updated at event rate and on a per-frame
 # weapon poll, so this keeps low-end GPUs free of redundant string work).
@@ -78,7 +80,7 @@ func _ready() -> void:
 	spacer.mouse_filter = MOUSE_FILTER_IGNORE
 	_top.add_child(spacer)
 
-	_currency_label = _value_chip(_top, UiTheme.CYAN, "COINS 0")
+	_currency_label = _value_chip(_top, UiTheme.CYAN, "CREDITS 0")
 	_score_label = UiFactory.label("SCORE", _top, 16)
 	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_score_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
@@ -153,8 +155,11 @@ func _value_chip(parent: Node, accent: Color, text: String) -> Label:
 
 ## Shared translucent plate chrome for the top strip and the gauges dock. One
 ## definition so both always read alike.
-func _scrim() -> StyleBoxFlat:
-	var style := UiTheme.glass(Color(0.05, 0.08, 0.14, 0.78))
+func _scrim() -> StyleBox:
+	var framed := UiTheme.skin("hud_frame.png", 48, 12)
+	if framed is StyleBoxTexture:
+		return framed
+	var style := UiTheme.glass(Color(0.07, 0.03, 0.02, 0.82))
 	style.set_corner_radius_all(UiTheme.RADIUS)
 	style.content_margin_left = 18
 	style.content_margin_right = 18
@@ -215,30 +220,52 @@ func set_score(score: int) -> void:
 func set_currency(currency: int) -> void:
 	if currency == _currency_cached: return
 	_currency_cached = currency
-	_currency_label.text = "COINS %d" % currency
+	_currency_label.text = "CREDITS %d" % currency
 
 
 func set_wave(wave: int) -> void:
-	if wave == _wave_cached: return
+	if wave == _wave_cached and _wave_total <= 0:
+		return
 	_wave_cached = wave
-	_wave_label.text = "WAVE %d" % wave
+	_refresh_wave_label()
 
 
 func set_combo(combo: int) -> void:
-	if combo == _combo_cached: return
+	if combo == _combo_cached:
+		return
 	_combo_cached = combo
-	_combo_label.text = "COMBO ×%d" % combo if combo > 1 else ""
+	_refresh_combo_label()
 
 
 func _wave_progress(wave: int, defeated: int, total: int) -> void:
 	_wave_cached = wave
-	_wave_label.text = "W%d • %d/%d" % [wave, defeated, total] if _compact else "WAVE %d  /  %d of %d" % [wave, defeated, total]
+	_wave_defeated = defeated
+	_wave_total = total
+	_refresh_wave_label()
 
 
-func show_toast(message: String) -> void:
+func _refresh_wave_label() -> void:
+	if _wave_label == null or _wave_cached < 0:
+		return
+	if _wave_total > 0:
+		_wave_label.text = "W%d • %d/%d" % [_wave_cached, _wave_defeated, _wave_total] if _compact else "WAVE %d  /  %d of %d" % [_wave_cached, _wave_defeated, _wave_total]
+	else:
+		_wave_label.text = "W%d" % _wave_cached if _compact else "WAVE %d" % _wave_cached
+
+
+func _refresh_combo_label() -> void:
+	if _combo_label == null:
+		return
+	if _combo_cached <= 1:
+		_combo_label.text = ""
+	else:
+		_combo_label.text = "×%d" % _combo_cached if _compact else "COMBO ×%d" % _combo_cached
+
+
+func show_toast(message: String, duration_ms: int = 3500) -> void:
 	_toast_label.text = message
 	_toast_label.visible = _toast_fits
-	_toast_show_until = Time.get_ticks_msec() + 3500
+	_toast_show_until = Time.get_ticks_msec() + maxi(duration_ms, 0)
 
 
 func _process(delta: float) -> void:
@@ -277,7 +304,13 @@ func apply_layout(plan: Dictionary, view: Vector2) -> void:
 	_combo_label.size_flags_horizontal = SIZE_SHRINK_BEGIN
 	_currency_label.size_flags_horizontal = SIZE_SHRINK_END
 	_score_value.size_flags_horizontal = SIZE_SHRINK_END
+	# Compact chrome: drop the SCORE caption (keep the number), hide coins on
+	# a strip that cannot fit them, and rewrite wave/combo for the new width.
+	_score_label.visible = not _compact
 	_currency_label.visible = not _compact or top_bar.size.x > 620.0
+	_refresh_wave_label()
+	_refresh_combo_label()
+	_gauges.set_compact(_compact)
 	_gauges.custom_minimum_size.x = maxf(vitals.size.x - 28.0, 120.0)
 
 
@@ -292,14 +325,14 @@ func _refresh_weapon() -> void:
 	if active == null or active.config == null:
 		caption = "No weapon equipped"
 	else:
-		var status := String(active.phase).to_upper()
+		var status := "RELOADING %.1fs" % active.reload_remaining() if active.is_reloading() else "READY"
 		if active.config.has_ammo(): status += "  %d / %d" % [active.ammo, active.config.ammo_per_magazine]
 		caption = "%s • %s" % [active.config.display_name, status]
 		var slots := PackedStringArray()
 		for index in range(2):
 			var item := manager.slot_instance(index)
 			slots.append(item.config.display_name if item != null and item.config != null else "Empty")
-		tip = "Loadout: %s\nSwitch: %s" % [" / ".join(slots), UiCommands.binding(&"switch_weapon")]
+		tip = "Loadout: %s\nHold FIRE and slide to aim • RELOAD to refill early\nAuto-reload on empty • SWAP changes weapon" % " / ".join(slots)
 	# Dirty-flag: the 0.15 s poll only rewrites the dock when the loadout or ammo
 	# actually changed, so an idle run stops rebuilding text every frame.
 	if caption == _weapon_caption_cache and tip == _weapon_tip_cache:

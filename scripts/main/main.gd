@@ -51,9 +51,11 @@ func _create_persistent_directors() -> void:
 	_tutorial.name = "TutorialManager"
 	add_child(_tutorial)
 	# The coach speaks through the HUD announcement banner (UI children are ready
-	# before Main, so the banner already exists).
+	# before Main, so the banner already exists). Toast is the fallback when the
+	# layout solver collapses the banner on a short screen.
 	if _ui_root != null:
 		_tutorial.bind_banner(_ui_root.get_announcement_banner())
+		_tutorial.bind_hud(_ui_root.get_game_hud())
 	_soak = RuntimeSoak.new()
 	_soak.name = "RuntimeSoak"
 	add_child(_soak)
@@ -68,6 +70,7 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 				_start_run_waves()
 		GameRoot.State.GAME_OVER:
 			_stop_run_waves()
+			_isolate_run_pools()
 
 
 ## GameRoot.get_run() is typed (RunState): the old Dictionary/"seed" in run theater
@@ -100,6 +103,15 @@ func _stop_run_waves() -> void:
 		_wave_manager.stop()
 	if _spawn_manager != null:
 		_spawn_manager.deactivate_all()
+
+
+## Drain projectiles / pickups / VFX / hitstop / spatial Foley and unbind
+## run-scoped non-UI listeners. WorldRoot stays so the summary camera still
+## has an arena to look at; MAIN_MENU `_clear_world()` frees it later.
+func _isolate_run_pools() -> void:
+	RunIsolation.isolate_from(self)
+	if AudioManager != null:
+		AudioManager.isolate_run()
 
 
 ## Called by GameRoot when a new run is being prepared.
@@ -152,8 +164,8 @@ func _spawn_player(arena: Arena) -> Player:
 	_validate_player_visual(player)
 	player.reset_for_new_run(spawn)
 	GameRoot.set_active_player(player)
-	# Keep the player inside the arena interior.
-	player.set_bounds(arena.get_interior_half())
+	# Pit combat uses interior_half; the player may walk the north warehouse yard.
+	player.set_bounds(arena.get_bounds_half())
 	player.set_control_enabled(true)
 	_setup_camera(player)
 	return player
@@ -279,6 +291,10 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	# The beacon / relic fallback anchor sits at the arena's geometric centre.
 	objectives.configure(mode_id, arena.global_position, pickups)
 
+	_apply_pool_budgets(perf)
+	if not perf.quality_tier_changed.is_connected(_on_perf_tier_changed):
+		perf.quality_tier_changed.connect(_on_perf_tier_changed)
+
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
 	var skills := player.get_skill_controller()
 	if skills != null:
@@ -287,10 +303,9 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	weapons.configure(run_seed)
 	_apply_owned_unlocks(player, skills, weapons)
 	_attach_build_effects(player, run_seed)
-	# Tutorial coach follows real player actions.
+	# Tutorial owns the attack/dodge binds; Main only hands it the live player.
 	if _tutorial != null:
-		player.attack_started.connect(_tutorial.notify_player_attacked)
-		player.dodged.connect(_tutorial.notify_player_dodged)
+		_tutorial.bind_player(player)
 	if _meta != null:
 		_meta.apply_all_to_run()
 	_apply_player_cosmetics(player)
@@ -392,8 +407,24 @@ func _apply_owned_unlocks(player: Player, skills: SkillController, weapons: Weap
 			weapon_slot += 1
 
 
+func _apply_pool_budgets(monitor: PerformanceMonitor = null) -> void:
+	var perf := monitor
+	if perf == null and is_inside_tree():
+		var monitors := get_tree().get_nodes_in_group("performance_monitor")
+		if not monitors.is_empty():
+			perf = monitors[0] as PerformanceMonitor
+	if perf == null:
+		return
+	PoolGovernor.apply(perf, self)
+
+
+func _on_perf_tier_changed(_old_tier: int, _new_tier: int) -> void:
+	_apply_pool_budgets()
+
+
 func _clear_world() -> void:
 	_stop_run_waves()
+	_isolate_run_pools()
 	if _world_root == null:
 		return
 	# Immediate (not deferred) teardown: build_world adds the replacement Arena /
@@ -421,5 +452,6 @@ func get_debug_snapshot() -> Dictionary:
 		"ui_root_present": _ui_root != null,
 		"run_started": _run_started,
 		"wave": _wave_manager.get_debug_snapshot() if _wave_manager != null else {},
+		"world_alive": _world_root != null and _world_root.get_child_count() > 0,
 	}
 

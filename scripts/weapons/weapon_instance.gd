@@ -35,6 +35,7 @@ var _windup_left: float = 0.0
 var _recovery_left: float = 0.0
 var _chain_left: float = 0.0
 var _reload_left: float = 0.0
+var _crit_pity: int = 0
 var _rng := RngService.new()
 
 
@@ -149,6 +150,7 @@ func reset() -> void:
 	_recovery_left = 0.0
 	_chain_left = 0.0
 	_reload_left = 0.0
+	_crit_pity = 0
 	if config != null and config.has_ammo():
 		ammo = config.ammo_per_magazine
 
@@ -203,9 +205,15 @@ func effective_projectile_pierce() -> int:
 	return maxi(config.projectile_pierce + projectile_pierce_bonus, 0)
 
 
-## Roll a critical hit for the CURRENT swing (uses the isolated crit stream).
+## Roll a critical hit for the CURRENT swing. Pity lives on the instance so a
+## dry streak actually escalates the next swing (CriticalSystem.roll); the
+## isolated crit stream keeps the roll deterministic per run seed.
 func roll_crit() -> bool:
-	return _rng.chance(crit_seed_salt, effective_crit_chance())
+	if config == null:
+		return false
+	var outcome := CriticalSystem.roll(config.crit_chance, crit_chance_bonus, _crit_pity, _rng, crit_seed_salt)
+	_crit_pity = int(outcome.get("new_pity", 0))
+	return bool(outcome.get("crit", false))
 
 
 ## Roll whether on-hit status effects apply for the current swing.
@@ -238,6 +246,7 @@ func get_debug_snapshot() -> Dictionary:
 		"damage": effective_damage(),
 		"cooldown": effective_cooldown(),
 		"range": effective_range(),
+		"crit_pity": _crit_pity,
 	}
 
 

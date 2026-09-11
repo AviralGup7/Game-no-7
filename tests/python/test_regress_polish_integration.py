@@ -11,7 +11,7 @@ class PolishIntegrationTests(unittest.TestCase):
         self.assertIn("victory_clip", txt)
         self.assertIn("_on_skill_cast", txt)
         self.assertIn("EventBus.skill_cast.is_connected", txt)
-        self.assertIn("Spellcast_Shoot", txt)
+        self.assertIn('&"Cast"', txt)
         self.assertIn("Cheer", txt)
 
     def test_enemy_stun_and_cast(self):

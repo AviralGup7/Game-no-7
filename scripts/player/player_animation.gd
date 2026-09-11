@@ -6,33 +6,25 @@ extends Node
 @export var idle_clip: StringName = &"Idle"
 @export var walk_clip: StringName = &"Walking_A"
 @export var run_clip: StringName = &"Running_A"
-@export var attack_clips: Array[StringName] = [&"1H_Melee_Attack_Slice_Horizontal", &"1H_Melee_Attack_Slice_Diagonal", &"1H_Melee_Attack_Chop"]
-@export var weapon_attack_clips: Dictionary[StringName, StringName] = {
-	&"sentinel_spear": &"2H_Melee_Attack_Stab",
-	&"stormhammer": &"2H_Melee_Attack_Chop",
-	&"warreaxe": &"2H_Melee_Attack_Slice",
-	&"twinfangs": &"Dualwield_Melee_Attack_Slice",
-	&"ember_scepter": &"Spellcast_Shoot",
-	&"moonlance": &"2H_Melee_Attack_Stab",
-	&"venom_chain": &"Dualwield_Melee_Attack_Slice",
-}
-@export var ranged_clip: StringName = &"2H_Ranged_Shoot"
+@export var attack_clips: Array[StringName] = [&"Fire", &"Fire", &"Fire"]
+@export var weapon_attack_clips: Dictionary[StringName, StringName] = {}
+@export var ranged_clip: StringName = &"Fire"
 @export var dodge_clip: StringName = &"Dodge_Forward"
 @export var hurt_clip: StringName = &"Hit_A"
 @export var death_clip: StringName = &"Death_A"
-@export var reload_clip: StringName = &"2H_Ranged_Reload"
+@export var reload_clip: StringName = &"Reload"
 @export var victory_clip: StringName = &"Cheer"
 @export var skill_cast_clips: Dictionary[StringName, StringName] = {
-	&"bladestorm": &"2H_Melee_Attack_Spin",
+	&"bladestorm": &"Fire",
 	&"phantom_rush": &"Dodge_Forward",
-	&"seismic_slam": &"2H_Melee_Attack_Chop",
-	&"frost_nova": &"Spellcast_Shoot",
-	&"frost_nova_skill": &"Spellcast_Shoot",
-	&"warcry": &"Spellcast_Raise",
-	&"warcry_skill": &"Spellcast_Raise",
-	&"mending_light": &"Spellcast_Raise",
-	&"chain_lightning": &"Spellcast_Shoot",
-	&"shatterwave": &"Spellcast_Shoot",
+	&"seismic_slam": &"Fire",
+	&"frost_nova": &"Cast",
+	&"frost_nova_skill": &"Cast",
+	&"warcry": &"Cast",
+	&"warcry_skill": &"Cast",
+	&"mending_light": &"Cast",
+	&"chain_lightning": &"Cast",
+	&"shatterwave": &"Cast",
 }
 @export_range(0.05, 0.9) var contact_fraction: float = 0.32
 @export var blend_seconds: float = 0.07
@@ -48,8 +40,6 @@ var _attack_clip: StringName = &""
 var _reloading := false
 var _contact_aligned := false
 var _paused_for_control := false
-var _ik_dampen := false
-var _ik_dampen_hold := 0.0
 # Animation timing is driven only by WeaponInstance (windup/cooldown/reload);
 # there is no legacy attack-controller timing path anymore.
 
@@ -155,6 +145,22 @@ func _connect_combat_signals() -> void:
 
 
 func _exit_tree() -> void:
+	if is_instance_valid(_player):
+		if _player.attack_started.is_connected(_on_attack):
+			_player.attack_started.disconnect(_on_attack)
+		if _player.dodged.is_connected(_on_dodge):
+			_player.dodged.disconnect(_on_dodge)
+		if _player.damaged.is_connected(_on_hurt):
+			_player.damaged.disconnect(_on_hurt)
+		if _player.died.is_connected(_on_death):
+			_player.died.disconnect(_on_death)
+		if _player.respawned.is_connected(reset):
+			_player.respawned.disconnect(reset)
+	if is_instance_valid(_weapons):
+		if _weapons.attack_resolved.is_connected(_on_contact):
+			_weapons.attack_resolved.disconnect(_on_contact)
+		if _weapons.weapon_switched_local.is_connected(_on_switch):
+			_weapons.weapon_switched_local.disconnect(_on_switch)
 	if EventBus == null:
 		return
 	if EventBus.skill_cast.is_connected(_on_skill_cast):
@@ -181,21 +187,10 @@ func _pin_visual_xz() -> void:
 func _physics_process(_delta: float) -> void:
 	if _player == null:
 		return
+	if not is_finite(_delta) or _delta < 0.0:
+		return
 	_pin_visual_xz()
-	var plant := FootPlant.apply(_player, 0.14, _delta)
-	var want_dampen := absf(plant) > 0.06
-	if want_dampen == _ik_dampen:
-		_ik_dampen_hold = 0.0
-	else:
-		_ik_dampen_hold += _delta
-		if _ik_dampen_hold >= 0.2:
-			_ik_dampen = want_dampen
-			_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
-	if equipment != null:
-		equipment.set_slope_ik_dampen(_ik_dampen)
-	else:
-		_ik_dampen_hold = 0.0
+	FootPlant.apply(_player, 0.14, _delta)
 	if _animation == null:
 		return
 	if _dead:
@@ -210,13 +205,13 @@ func _physics_process(_delta: float) -> void:
 		_animation.play()
 	var inst := _weapons.active_instance() if _weapons != null else null
 	var reloading := inst != null and inst.is_reloading()
-	if reloading and not _reloading:
+	if _locked and _reloading and Vector2(_player.velocity.x, _player.velocity.z).length() > 0.15:
+		_locked = false
+	if reloading and not _reloading and Vector2(_player.velocity.x, _player.velocity.z).length() < 0.15:
 		_locked = true
 		_play(reload_clip, true, _length(reload_clip) / maxf(inst.reload_remaining(), 0.01))
 	_reloading = reloading
 	if _locked:
-		return
-	if _hold_bow_draw(inst):
 		return
 	var speed := Vector2(_player.velocity.x, _player.velocity.z).length()
 	var clip := idle_clip if speed < 0.15 else (walk_clip if speed < 3.0 else run_clip)
@@ -227,38 +222,25 @@ func _physics_process(_delta: float) -> void:
 	_play(clip, false, playback)
 
 
-## Sunbow: freeze on the nocked frame of 2H_Ranged_Shoot (or Aiming if present)
-## while the string is held, then the attack clip plays the release.
-func _hold_bow_draw(inst: WeaponInstance) -> bool:
-	if inst == null or inst.config == null:
-		return false
-	if inst.config.weapon_id != &"sunbow":
-		return false
-	if not inst.config.is_ranged():
-		return false
-	var aim := &"2H_Ranged_Aiming"
-	if _animation != null and _animation.has_animation(aim):
-		_play(aim, false, 0.15)
-		return true
-	_play(ranged_clip, false, 0.01)
-	if _animation != null and _animation.current_animation == String(ranged_clip):
-		var hold := _length(ranged_clip) * 0.28
-		if _animation.current_animation_position > hold + 0.02:
-			_animation.seek(hold, true)
-	return true
 
 
 func _on_attack() -> void:
 	if _dead:
 		return
 	var inst := _weapons.active_instance() if _weapons != null else null
+	# Locomotion keeps ownership of the legs during strafe fire. The gun mount
+	# supplies recoil on projectile_fired; standing fire uses the authored clip.
+	if Vector2(_player.velocity.x, _player.velocity.z).length() > 0.15 and inst != null and inst.config.is_ranged():
+		_locked = false
+		_attack_clip = &""
+		return
 	_contact_aligned = false
 	var step := 1
 	var windup := 0.12
 	if inst != null and inst.config != null:
 		step = inst.combo_step
 		windup = inst.config.windup
-	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"1H_Melee_Attack_Chop"
+	_attack_clip = attack_clips[(maxi(step, 1) - 1) % attack_clips.size()] if not attack_clips.is_empty() else &"Fire"
 	if inst != null and inst.config != null and inst.config.is_ranged() and not inst.config.is_melee():
 		_attack_clip = ranged_clip
 	if inst != null and inst.config != null and weapon_attack_clips.has(inst.config.weapon_id):
@@ -308,9 +290,9 @@ func _on_hurt(result: DamageResult) -> void:
 func _on_skill_cast(skill_id: StringName, caster: Node) -> void:
 	if _animation == null or _dead or caster != _player:
 		return
-	var clip: StringName = skill_cast_clips.get(skill_id, &"Spellcast_Shoot")
+	var clip: StringName = skill_cast_clips.get(skill_id, &"Cast")
 	if String(clip).is_empty() or not _animation.has_animation(clip):
-		clip = &"Spellcast_Shoot"
+		clip = &"Cast"
 		if not _animation.has_animation(clip):
 			clip = idle_clip
 	_locked = true
@@ -335,11 +317,6 @@ func _on_boss_victory(_boss_id: StringName) -> void:
 func _on_death() -> void:
 	_dead = true
 	_locked = true
-	_ik_dampen = false
-	_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
-	if equipment != null:
-		equipment.reset_ik_dampen()
 	var model := _player.get_node_or_null("VisualRoot/CharacterModel") as Node3D if _player != null else null
 	if model != null:
 		model.position.y = 0.0
@@ -348,11 +325,6 @@ func _on_death() -> void:
 
 
 func _on_switch(_old: StringName, _new: StringName) -> void:
-	_ik_dampen = false
-	_ik_dampen_hold = 0.0
-	var equipment := _player.get_node_or_null("PlayerEquipment") as PlayerEquipment if _player != null else null
-	if equipment != null:
-		equipment.reset_ik_dampen()
 	if not _dead:
 		_locked = false
 		_reloading = false

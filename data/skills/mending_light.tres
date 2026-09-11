@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"mending_light"
-display_name = "Mending Light"
+display_name = "Repair Field"
 description = "Recover health, then wrap the caster in regeneration and a replenishing ward."
 behavior = &"heal_surge"
 input_action = &"skill_2"

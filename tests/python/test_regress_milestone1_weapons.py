@@ -31,49 +31,27 @@ class Milestone1WeaponsIntegrationTests(unittest.TestCase):
         # Check models dict contains each id
         for wid in expected:
             self.assertIn(f'&"{wid}"', txt, msg=f"weapon {wid} missing from player.tscn")
-        # Ensure lengths dict also has each
-        # Extract lengths line
-        m = re.search(r"lengths\s*=\s*\{([^}]+)\}", txt, re.DOTALL)
-        self.assertIsNotNone(m)
-        lengths_body = m.group(1)
         for wid in expected:
-            self.assertIn(f'&"{wid}"', lengths_body, msg=f"length for {wid} missing")
-        # Ensure we have distinct ext_resources for ember_scepter (Skeleton_Staff.gltf)
-        self.assertIn("Skeleton_Staff.gltf", txt)
-        # moonlance and venom_chain reuse existing Spear/Dagger — verify reuse present
-        self.assertIn('ExtResource(\"19_spear\")', txt)
-        self.assertIn('ExtResource(\"22_dagger\")', txt)
+            self.assertIn(f'res://assets/scifi/guns/{wid}.glb', txt)
+        self.assertNotIn('assets/weapons/', txt)
 
-    def test_player_tscn_weapon_lengths_reasonable(self):
-        txt = read("scenes/player/player.tscn")
-        # Extract lengths values
-        m = re.search(r"lengths\s*=\s*\{([^}]+)\}", txt, re.DOTALL)
-        self.assertIsNotNone(m)
-        body = m.group(1)
-        # Parse float values after colon
-        vals = re.findall(r":\s*([0-9.]+)", body)
-        for v in vals:
-            f = float(v)
-            self.assertGreaterEqual(f, 0.4, msg=f"length {f} too small")
-            self.assertLessEqual(f, 2.2, msg=f"length {f} too large")
-        # Check specific new weapons have distinct lengths
-        self.assertIn("&\"ember_scepter\": 1.35", txt)
-        self.assertIn("&\"moonlance\": 1.85", txt)
-        self.assertIn("&\"venom_chain\": 0.85", txt)
+    def test_firearms_have_authored_muzzles_and_metres(self):
+        from tool.validate_assets import gltf_document
+        for wid in parse_tres_weapon_ids():
+            doc, _ = gltf_document(ROOT / f'assets/scifi/guns/{wid}.glb')
+            marker = next(n for n in doc['nodes'] if n.get('name') == 'Muzzle')
+            self.assertGreater(marker['translation'][2], .35)
+            self.assertLess(marker['translation'][2], 1.1)
+            self.assertNotIn('skins', doc)
 
-    def test_player_animation_has_weapon_specific_clips_for_all_melee_hybrid(self):
+    def test_player_animation_uses_firearm_recoil_and_reload(self):
         txt = read("scripts/player/player_animation.gd")
-        # All non-pure-ranged weapons should have an explicit clip
-        for wid in ["sentinel_spear","stormhammer","warreaxe","twinfangs","moonlance","venom_chain"]:
-            self.assertIn(f'&"{wid}"', txt, msg=f"weapon_attack_clips missing {wid}")
-        # Ember scepter should have Spellcast_Shoot clip distinct from ranged_clip
-        self.assertIn('&"ember_scepter": &"Spellcast_Shoot"', txt)
-        # Verify ranged override priority: weapon_attack_clips check comes AFTER ranged fallback
-        # So custom ranged clip wins. Ensure order: ranged check before weapon clip.
-        idx_ranged = txt.find('is_ranged() and not inst.config.is_melee()')
-        idx_weapon = txt.find('weapon_attack_clips.has(inst.config.weapon_id)')
-        # After our fix, ranged comes first, weapon second => weapon wins
-        self.assertGreater(idx_weapon, idx_ranged, msg="weapon_attack_clips should override ranged_clip for ember_scepter")
+        self.assertIn('ranged_clip: StringName = &"Fire"', txt)
+        self.assertIn('reload_clip: StringName = &"Reload"', txt)
+        self.assertNotIn('Melee_Attack', txt)
+        for wid in parse_tres_weapon_ids():
+            cfg = read(f'data/weapons/{wid}.tres')
+            self.assertIn('kind = &"ranged"', cfg)
 
     def test_character_visuals_grounding_without_arbitrary_offsets(self):
         txt = read("scripts/visuals/character_visuals.gd")
@@ -95,7 +73,7 @@ class Milestone1WeaponsIntegrationTests(unittest.TestCase):
         self.assertIn("longest := maxf(box.size.x, maxf(box.size.y, box.size.z))", txt)
         self.assertIn("pivot := box.get_center()", txt)
         self.assertIn("pivot.y = box.position.y", txt)
-        self.assertIn("(fitted.get_child(0) as Node3D).position = Vector3.ZERO", read("scripts/player/player_equipment.gd"))
+        self.assertIn("_model = models[id].instantiate() as Node3D", read("scripts/player/player_equipment.gd"))
 
     def test_weapon_configs_disabled_false_for_all_nine(self):
         for p in (ROOT / "data" / "weapons").glob("*.tres"):
@@ -108,8 +86,8 @@ class Milestone1WeaponsIntegrationTests(unittest.TestCase):
         txt = read("scripts/player/player_equipment.gd")
         # Ensure old model is freed before new one added (prevents duplicate meshes)
         self.assertIn("_model.free()", txt)
-        self.assertIn("_second_model.free()", txt)
-        self.assertIn("if _second_model != null:", txt)
+        self.assertLess(txt.index("_model.free()"), txt.index("_model = models[id].instantiate()"))
+        self.assertNotIn("_second_model", txt)
 
 if __name__ == "__main__":
     unittest.main()

@@ -127,3 +127,40 @@ Honest caveat: the Godot runtime suite still only executes in CI (no binary
 in this sandbox); everything above is verified via gdparse/gdlint + the 541-
 test Python gate + desk simulation of the unit-suite math and the fade/
 pending state machine.
+
+## v3 — bus isolation, spatial Foley, mix snapshots (2026-09-11)
+
+v2 left three presentation holes:
+
+1. **Shared 2D pool.** UI and combat SFX still claimed the same 16
+   `AudioStreamPlayer`s. A full combat bed could steal a menu click (the UI
+   *bus* existed; the *voice* did not).
+2. **No world position.** Enemy hits/deaths/dashes played at listener volume
+   regardless of distance.
+3. **No pause duck for Foley.** Pause muted nothing on the SFX bus, so world
+   hits kept playing under the overlay. MusicManager already owned the bed.
+
+What landed (without reopening the v2 playback engine):
+
+- **UI VoiceBank** (4 voices, token base 100, bus always `UI`). `play_sfx`
+  routes `cfg.bus == UI` here; skill/wave/boss cues stay on the 16-voice SFX
+  pool. Soak/stress still iterate `_sfx_pool`.
+- **SpatialVoicePool** of 16 `AudioStreamPlayer3D` (token base 200, SFX bus).
+  `play_sfx_at` / `play_sfx_on` cull via `SpatialAttenuation` *before* a
+  voice is claimed, then follow the emitter. `EnemyAudio` uses `play_sfx_on`.
+  UI and music cues refuse spatialization.
+- **MixSnapshot** offsets on top of SettingsData. Pause ducks SFX −14 dB and
+  leaves UI at 0. Music offset is always 0 — MusicManager remains the only
+  music owner. Listener is an `AudioListener3D` child of AudioManager,
+  snapped to the active player (`GameRoot.set_active_player` →
+  `bind_listener`); the player scene is not modified.
+- **Procedural stems** `music_battle_l2/l3`, `music_boss_l2/l3`,
+  `music_calm_l2` so the v2 stem mixer has something to fade when no
+  recorded stem is registered.
+- **EnemyAnimator** private clip libraries (no shared `loop_mode` mutation),
+  one-shot lock until `animation_finished`, directional dash via
+  `HeroRigContract`, stun/cast/telegraph/dash/spawn keys.
+
+Pins: `tests/unit/test_spatial_audio.gd`,
+`tests/python/test_regress_audio_spatial.py`,
+`tests/python/test_regress_enemy_animator.py`. v2 pins unchanged.

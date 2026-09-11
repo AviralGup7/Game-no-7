@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/enemies/boss_controller.gd" id="2_boss"]
 [ext_resource type="Script" path="res://scripts/enemies/boss_phase_config.gd" id="3_phase"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="4_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/monsters/BlueDemon.gltf" id="5_model"]
+[ext_resource type="PackedScene" path="res://assets/scifi/robots/warlord.glb" id="5_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape_warlord"]
 radius = 0.9
@@ -78,8 +78,12 @@ model_extent = 2.6
 yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
-"run": "Run",
-"attack": "Punch",
-"hurt": "HitReact",
-"death": "Death"
+"run": "Running_A",
+"attack": "Fire",
+"hurt": "Hit_A",
+"death": "Death_A",
+"stun": "Hit_A",
+"telegraph": "Fire",
+"dash": "Dodge_Forward",
+"spawn": "Idle"
 }

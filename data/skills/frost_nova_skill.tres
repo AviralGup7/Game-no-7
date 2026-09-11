@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"frost_nova_skill"
-display_name = "Frost Nova"
+display_name = "Cryo Pulse"
 description = "A freezing blast that slows the entire pack, buying time for ranged builds."
 behavior = &"frost_nova"
 input_action = &"skill_3"

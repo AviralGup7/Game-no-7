@@ -5,21 +5,21 @@
 [resource]
 script = ExtResource("1_script")
 weapon_id = &"sentinel_spear"
-display_name = "Sentinel Spear"
-description = "Long reach thrusts that pierce a lane and reward disciplined spacing."
-kind = &"melee"
+display_name = "Rail Rifle"
+description = "Piercing precision rifle for long corridors."
+kind = &"ranged"
 rarity = &"rare"
-attack_pattern = &"thrust"
+attack_pattern = &"volley"
 damage_type = &"physical"
-base_damage = 13.5
-swing_cooldown = 0.68
-windup = 0.16
-attack_range = 4.2
+base_damage = 29
+swing_cooldown = 0.7
+windup = 0.025
+attack_range = 22
 arc_degrees = 48.0
 max_targets = 5
-knockback = 7.5
-combo_damage_steps = PackedFloat32Array(1, 1.05, 1.55)
-combo_window = 0.5
+knockback = 2
+combo_damage_steps = PackedFloat32Array(1)
+combo_window = 0.0
 crit_chance = 0.08
 crit_multiplier = 1.8
 on_hit_effects = Array[StringName]([])
@@ -28,4 +28,20 @@ unlock_wave = 2
 unlock_cost = 80
 weight = 0.8
 disabled = false
-tags = Array[StringName]([&"reach", &"pierce", &"lane", &"physical"])
+tags = Array[StringName]([&"ranged", &"firearm", &"energy"])
+
+projectile_speed = 65
+
+projectile_count = 1
+
+projectile_spread_degrees = 0
+
+projectile_lifetime = 0.8
+
+projectile_radius = 0.15
+
+projectile_pierce = 2
+
+ammo_per_magazine = 8
+
+reload_seconds = 1.5

@@ -10,7 +10,7 @@ extends Node3D
 ## so all three breathe together; it loads the approved Kenney flare sprite and
 ## degrades to flame-only when the texture is not imported.
 
-const GLOW_TEXTURE := "res://assets/effects/kenney/flare_01.png"
+const GLOW_TEXTURE := "res://assets/scifi/fx/flare.png"
 
 @export var light: OmniLight3D = null
 @export var flame: MeshInstance3D = null
@@ -61,12 +61,14 @@ func _build_glow() -> void:
 	_glow.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_glow.shaded = false
 	_glow.pixel_size = 0.012
-	_glow.modulate = Color(1.0, 0.72, 0.38, 0.5)
+	_glow.modulate = Color(0.12, 0.65, 1.0, 0.5)
 	_glow.position = flame.position + Vector3(0.0, 0.08, 0.0)
 	add_child(_glow)
 
 
 func _process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_time += delta
 	# Two incommensurate sine bands + a slow drift give a lively, non-periodic feel.
 	var a := sin(_time * 11.3 + _phase_a)

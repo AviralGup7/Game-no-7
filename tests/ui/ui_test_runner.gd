@@ -2,7 +2,7 @@ extends Node
 ## Real-node UI tests, isolated from Main/world assembly and from the user's save.
 ## Run via scripts/ui/run_ui_validation.sh, never against a personal save directory.
 const UI_SCENE := preload("res://scenes/ui/ui_root.tscn")
-var _ui
+var _ui: UiRoot
 var _viewport: SubViewport
 var _total := 0
 var _failures: Array[String] = []
@@ -33,7 +33,7 @@ func _run() -> void:
 	_viewport.size = Vector2i(1280, 720)
 	_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	add_child(_viewport)
-	_ui = UI_SCENE.instantiate()
+	_ui = UI_SCENE.instantiate() as UiRoot
 	_viewport.add_child(_ui)
 	await _settle()
 	_check("boot maps to menu", _screen() == "main_menu")
@@ -58,8 +58,10 @@ func _run() -> void:
 	_ui._setup._arenas.select(1)
 	_ui._setup._refresh_details()
 	_check("arena browsing does not mutate selection", ContentRegistry.get_selected_arena_id() == original_arena)
-	if not GameRoot.has_method("request_arena_selection") and _ui._setup._arena_ids[1] != original_arena:
-		_check("unsupported arena selection fails closed", _ui._setup._start.disabled)
+	var browsed: StringName = _ui._setup._arena_ids[_ui._setup._selected_arena_index()]
+	var browsed_cfg := ContentRegistry.get_arena(browsed)
+	if browsed_cfg != null and browsed_cfg.unlock_wave <= 1 and browsed != original_arena:
+		_check("unlocked arena preview can launch", not _ui._setup._start.disabled)
 	_ui._setup.present(false)
 	_ui._setup._launch()
 	await _settle()
@@ -181,6 +183,26 @@ func _test_touch() -> void:
 	second_press.pressed = true
 	button._gui_input(second_press)
 	_check("second finger cannot double-fire a held button", emitted[0] == 1)
+	var drag := InputEventScreenDrag.new()
+	drag.index = 3
+	drag.position = button.get_global_transform_with_canvas() * Vector2(500, 0)
+	button._input(drag)
+	_check("FIRE captures drag outside its bounds", button.get_aim_input().is_equal_approx(Vector2.RIGHT))
+	drag.index = 4
+	drag.position = button.get_global_transform_with_canvas() * Vector2(0, 500)
+	button._input(drag)
+	_check("other finger cannot redirect FIRE", button.get_aim_input().is_equal_approx(Vector2.RIGHT))
+	var reload_button: TouchActionButton = _ui._touch._buttons[3]
+	_check("manual reload is a separate touch action", reload_button.action_name == "reload")
+	reload_button._gui_input(second_press)
+	_check("reload finger does not release FIRE", button.is_held() and reload_button.is_held())
+	reload_button.cancel()
+	var emulated := InputEventMouseButton.new()
+	emulated.device = InputEvent.DEVICE_ID_EMULATION
+	emulated.button_index = MOUSE_BUTTON_LEFT
+	emulated.pressed = false
+	button._input(emulated)
+	_check("synthetic mouse release cannot clear FIRE", button.is_held())
 	var wrong_release := InputEventScreenTouch.new()
 	wrong_release.index = 4
 	wrong_release.pressed = false
@@ -191,9 +213,18 @@ func _test_touch() -> void:
 	release.pressed = false
 	button._gui_input(release)
 	_check("owning release clears without firing", emitted[0] == 1 and not button._held)
+	_check("release clears aim", button.get_aim_input() == Vector2.ZERO)
+	button._gui_input(press)
+	var aborted := InputEventScreenTouch.new()
+	aborted.index = 3
+	aborted.canceled = true
+	aborted.pressed = true
+	button._input(aborted)
+	_check("Android cancellation clears FIRE and aim", not button.is_held() and button.get_aim_input() == Vector2.ZERO)
+	var count_after_cancel: int = emitted[0]
 	button.cancel()
 	button._fire()
-	_check("cancelled button never fires", emitted[0] == 1)
+	_check("cancelled button never fires", emitted[0] == count_after_cancel)
 	GameRoot.request_resume()
 	await _settle()
 
@@ -315,7 +346,7 @@ func _test_layout_solver() -> void:
 		Vector2(960, 540), Vector2(1024, 768), Vector2(1600, 720), Vector2(720, 1280),
 		Vector2(1080, 2340), Vector2(800, 1280), Vector2(2560, 1600), Vector2(640, 360),
 	]
-	var controls := ["stick", "skills", "attack", "dodge", "swap"]
+	var controls := ["stick", "skills", "attack", "dodge", "swap", "reload"]
 	var all_keys := controls + ["top_bar", "vitals", "minimap", "boss", "banner", "toast"]
 	for view in resolutions:
 		for scale in [1.0, 1.4, 2.0]:
@@ -328,7 +359,7 @@ func _test_layout_solver() -> void:
 				_check("%s inside safe area %s" % [key, tag],
 					rect.position.x >= -0.5 and rect.position.y >= -0.5
 					and rect.end.x <= view.x + 0.5 and rect.end.y <= view.y + 0.5)
-			for key in ["attack", "dodge", "swap"]:
+			for key in ["attack", "dodge", "swap", "reload"]:
 				var target: Rect2 = plan[key]
 				_check("%s meets touch floor %s" % [key, tag],
 					minf(target.size.x, target.size.y) >= UiLayout.MIN_TOUCH - 0.01)

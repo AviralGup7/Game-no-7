@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 skill_id = &"shatterwave"
-display_name = "Shatterwave"
+display_name = "Sonic Disruptor"
 description = "Launch a piercing frost wave down a lane; exposed and slowed targets become safe picks."
 behavior = &"shockwave"
 input_action = &"skill_3"

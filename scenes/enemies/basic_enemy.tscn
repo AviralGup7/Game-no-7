@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/enemies/enemy_base.tscn" id="1_base"]
 [ext_resource type="Script" path="res://scripts/enemies/enemy_animator.gd" id="2_animator"]
-[ext_resource type="PackedScene" path="res://assets/characters/skeletons/Skeleton_Minion.glb" id="3_model"]
+[ext_resource type="PackedScene" path="res://assets/scifi/robots/basic.glb" id="3_model"]
 
 [node name="BasicEnemy" instance=ExtResource("1_base")]
 
@@ -14,7 +14,12 @@ yaw_offset_degrees = 180.0
 animation_map = {
 "idle": "Idle",
 "run": "Running_A",
-"attack": "1H_Melee_Attack_Slice_Horizontal",
+"attack": "Fire",
 "hurt": "Hit_A",
-"death": "Death_A"
+"death": "Death_A",
+"stun": "Hit_A",
+"cast": "Cast",
+"telegraph": "Cast",
+"dash": "Dodge_Forward",
+"spawn": "Idle"
 }

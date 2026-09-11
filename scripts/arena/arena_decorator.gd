@@ -1,8 +1,8 @@
 class_name ArenaDecorator
 extends Node3D
 
-## Deterministic cosmetic dressing built from the approved KayKit dungeon prop library
-## (assets/environment/dungeon/**), giving each arena a distinct silhouette while
+## Deterministic cosmetic dressing built from the checksum-locked Kenney station prop subset
+## (assets/environment/space_station/**), giving each arena a distinct silhouette while
 ## keeping run-to-run placement identical (fair + testable).
 ##
 ## EVERY floor-standing prop is solid: structural pillars (line-of-sight blockers for
@@ -37,34 +37,40 @@ const MIN_PROP_HALF := 0.18
 const MAX_PROP_HALF_XZ := 1.4
 const MAX_PROP_HALF_Y := 2.2
 
-const DUNGEON := "res://assets/environment/dungeon/"
-const SC_PILLAR := DUNGEON + "pillar.glb"
-const SC_PILLAR_DECOR := DUNGEON + "pillar_decorated.glb"
-const SC_COLUMN := DUNGEON + "column.glb"
-## Per-arena wall identity: champion shield banners, one colour per arena (same hang
-## convention as the plain banners they replace, so the wall ring code is untouched).
+const DUNGEON := "res://assets/environment/space_station/"
+const SC_PILLAR := DUNGEON + "support.tscn"
+const SC_PILLAR_DECOR := SC_PILLAR
+const SC_COLUMN := SC_PILLAR
 const SC_BANNER := {
-	&"red": DUNGEON + "banner_shield_red.glb",
-	&"blue": DUNGEON + "banner_shield_blue.glb",
-	&"green": DUNGEON + "banner_green.glb",
-	&"yellow": DUNGEON + "banner_shield_yellow.glb",
+    &"red": DUNGEON + "display-wall.glb",
+    &"blue": DUNGEON + "display-wall.glb",
+    &"green": DUNGEON + "display-wall.glb",
+    &"yellow": DUNGEON + "display-wall.glb",
 }
-const SC_TORCH := DUNGEON + "torch_lit.glb"
-const SC_BOX := DUNGEON + "box_large.glb"
-const SC_BOX_DECOR := DUNGEON + "box_small_decorated.glb"
-const SC_BOXSTACK := DUNGEON + "box_stacked.glb"
-const SC_CRATES := DUNGEON + "crates_stacked.glb"
-const SC_BARREL := DUNGEON + "barrel_large.glb"
-const SC_BARREL_DECOR := DUNGEON + "barrel_large_decorated.glb"
-const SC_BARREL_STACK := DUNGEON + "barrel_small_stack.glb"
-const SC_RUBBLE := DUNGEON + "rubble_large.glb"
-const SC_TRUNK := DUNGEON + "trunk_medium_A.glb"
-const SC_CANDLE3 := DUNGEON + "candle_triple.glb"
-const SC_CANDLELIT := DUNGEON + "candle_thin_lit.glb"
-const SC_SWORD := DUNGEON + "sword_shield.glb"
-const SC_SWORD_GOLD := DUNGEON + "sword_shield_gold.glb"
+const SC_TORCH := DUNGEON + "computer.glb"
+const SC_BOX := DUNGEON + "container.glb"
+const SC_BOX_DECOR := SC_BOX
+const SC_BOXSTACK := DUNGEON + "container-tall.glb"
+const SC_CRATES := DUNGEON + "container-wide.glb"
+const SC_BARREL := SC_BOX
+const SC_BARREL_DECOR := SC_BOXSTACK
+const SC_BARREL_STACK := SC_CRATES
+const SC_RUBBLE := DUNGEON + "rocks.glb"
+const SC_TRUNK := SC_CRATES
+const SC_CANDLE3 := DUNGEON + "table-display.glb"
+const SC_CANDLELIT := SC_TORCH
+const SC_SWORD := SC_CANDLE3
+const SC_SWORD_GOLD := SC_CANDLE3
 ## Sword trophies are centre-origin wall art (1.67 m tall): this seats their base on the floor.
 const TROPHY_LIFT := 0.82
+const MAT_METAL := "res://assets/materials/arena_metal.tres"
+const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
+const MAT_WOOD := "res://assets/materials/arena_wood.tres"
+const WAREHOUSE_SCENE := "res://data/models/warehouse/scene.gltf"
+## Outside the Pit square, north of the wall. South face (docks) meets the gate.
+const WAREHOUSE_TARGET := Vector3(30.4, 5.0, 11.4)
+const WAREHOUSE_CENTER := Vector3(0.0, 0.0, -25.5)
+const WAREHOUSE_GATE_WIDTH := 6.0
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
@@ -76,7 +82,11 @@ var _blockers: Array[AABB] = []
 func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
 	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
-	match String(arena_id):
+	# Composition follows the live config/theme when the decorator sits under an
+	# Arena (so a new .tres that reuses ember_crucible's theme gets the forge
+	# dressing without a new match arm). The public arena_id argument remains
+	# the seed mixer and the headless fallback.
+	match String(_composition_id(arena_id)):
 		"ember_crucible":
 			_compose_ember(arena_half)
 		"frost_hollow":
@@ -84,6 +94,18 @@ func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 		_:
 			_compose_default(arena_half)
 	_publish_blockers()
+
+
+func _composition_id(arena_id: StringName) -> StringName:
+	var arena := get_parent() as Arena
+	if arena != null:
+		var cfg := arena.get_config()
+		if cfg != null:
+			if cfg.theme != null and not String(cfg.theme.theme_id).is_empty():
+				return cfg.theme.theme_id
+			if cfg.arena_id != &"":
+				return cfg.arena_id
+	return arena_id
 
 
 func clear() -> void:
@@ -119,14 +141,31 @@ func spawned_count() -> int:
 # ---------------------- per-arena compositions — distinct silhouettes ----------------------
 
 func _compose_default(half: float) -> void:
-	# Ancient coliseum: balanced, readable — landmarks + scattered ruins.
-	# Champion trophies flank the north gate first, so the scatter below routes around them.
-	_mount_trophy_pair(3.0, -11.3, SC_SWORD_GOLD, SC_SWORD)
-	_mount_trophy_pair(-3.0, -11.3, SC_SWORD, SC_SWORD_GOLD)
-	_place_structural(5, half, SC_PILLAR)
-	_scatter(16, half, [SC_RUBBLE, SC_BOX_DECOR, SC_TRUNK, SC_BARREL, SC_CRATES, SC_CANDLE3])
+	# Warehouse sits NORTH of the Pit square. The north wall is gated so the
+	# hero walks out of the yard into the docks. Coordinates are authored —
+	# this composition does not scatter or pick open spots.
+	_build_warehouse_compound()
+	_mount_trophy_pair(6.0, -16.0, SC_SWORD_GOLD, SC_SWORD)
+	_mount_trophy_pair(-6.0, -16.0, SC_SWORD, SC_SWORD_GOLD)
+	# Aisles inside the warehouse (outside the square).
+	_place_column_at(Vector3(-8.0, 0.0, -28.5), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -28.5), SC_PILLAR)
+	_place_column_at(Vector3(-8.0, 0.0, -23.5), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -23.5), SC_PILLAR)
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -29.5), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(-11.5, 0.0, -26.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -23.5), 0.65)
+	_mount_prop(SC_BARREL_STACK, Vector3(-13.2, 0.0, -26.5), 0.95)
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -29.5), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(11.5, 0.0, -26.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -23.5), 0.65)
+	_mount_prop(SC_BARREL, Vector3(13.2, 0.0, -26.5), 1.05)
+	# Pit apron south of the gate, then two stacks on the south yard.
+	_mount_prop(SC_BOXSTACK, Vector3(-10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BOXSTACK, Vector3(10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BARREL_DECOR, Vector3(-6.5, 0.0, 14.8), 1.0)
+	_mount_prop(SC_BARREL, Vector3(6.5, 0.0, 14.8), 1.0)
 	_wall_props(half, &"red", false)
-	# Weathered stone circle around the obelisk (4 small shards).
 	for i in range(4):
 		var angle := i * TAU / 4.0 + 0.3
 		var at := Vector3(cos(angle) * 2.8, 0, sin(angle) * 2.8)
@@ -187,6 +226,146 @@ func _compose_frost(half: float) -> void:
 
 
 # ---------------------- builders ----------------------
+
+## Warehouse north of the Pit square. South face is gated (6 m) to match the
+## open section of Wall_N. Collision is always the authored compound.
+func _build_warehouse_compound() -> void:
+	var brick := _structure_mat(MAT_BRICK)
+	var metal := _structure_mat(MAT_METAL)
+	var wood := _structure_mat(MAT_WOOD)
+	var show_shell := not _mount_warehouse_model()
+	var half_x := WAREHOUSE_TARGET.x * 0.5
+	var half_z := WAREHOUSE_TARGET.z * 0.5
+	var back_z := WAREHOUSE_CENTER.z - half_z
+	var south_z := WAREHOUSE_CENTER.z + half_z
+	_place_structure(Vector3(0.0, 2.5, back_z), Vector3(WAREHOUSE_TARGET.x, 5.0, 0.5), brick, show_shell)
+	_place_structure(Vector3(-half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
+	_place_structure(Vector3(half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
+	var wing := (WAREHOUSE_TARGET.x - WAREHOUSE_GATE_WIDTH) * 0.5
+	var wing_x := WAREHOUSE_GATE_WIDTH * 0.5 + wing * 0.5
+	_place_structure(Vector3(-wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(0.0, 0.22, south_z + 0.6), Vector3(5.5, 0.44, 1.8), wood, true)
+	_place_structure(Vector3(-13.2, 0.35, WAREHOUSE_CENTER.z), Vector3(3.2, 0.7, 3.0), wood, true)
+
+
+func _structure_mat(path: String) -> Material:
+	var res := load(path)
+	if res is Material:
+		return res
+	return _mat(Color(0.42, 0.38, 0.34))
+
+
+## Authored architecture: a floor-standing box with its own collider and nav footprint.
+## Sized from the call, not from MAX_PROP_HALF_XZ — a warehouse wall is not clutter.
+## `with_mesh` is false when the Nicholas-3D glTF is already drawing the shell.
+func _place_structure(at: Vector3, size: Vector3, mat: Material, with_mesh: bool = true) -> void:
+	var body := StaticBody3D.new()
+	body.position = at
+	body.add_to_group("world_static")
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	if with_mesh:
+		var mesh := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = size
+		mesh.mesh = bm
+		if mat != null:
+			mesh.material_override = mat
+		body.add_child(mesh)
+	add_child(body)
+	_spawned.append(body)
+	var foot_half := size * 0.5
+	_blockers.append(AABB(at - foot_half, size))
+
+
+## Nicholas-3D warehouse (CC-BY 4.0). PackedScene after editor import, otherwise
+## `GLTFDocument.append_from_file` so the mesh still loads headless. Fitted to
+## `WAREHOUSE_TARGET` from the imported AABB — not a guessed scale.
+func _mount_warehouse_model() -> bool:
+	var visual := _instantiate_warehouse()
+	if visual == null:
+		return false
+	var holder := Node3D.new()
+	holder.name = "Warehouse"
+	holder.add_child(visual)
+	var bounds := _combined_local_aabb(holder)
+	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
+		holder.free()
+		return false
+	_fit_warehouse_to_compound(holder, visual)
+	add_child(holder)
+	_spawned.append(holder)
+	return true
+
+
+func _instantiate_warehouse() -> Node3D:
+	if ResourceLoader.exists(WAREHOUSE_SCENE):
+		var packed := load(WAREHOUSE_SCENE)
+		if packed is PackedScene:
+			var scene: PackedScene = packed
+			var inst := scene.instantiate()
+			if inst is Node3D:
+				return inst
+			if inst != null:
+				inst.free()
+	var doc := GLTFDocument.new()
+	var state := GLTFState.new()
+	if doc.append_from_file(WAREHOUSE_SCENE, state) != OK:
+		return null
+	var generated := doc.generate_scene(state)
+	if generated is Node3D:
+		return generated
+	if generated != null:
+		generated.free()
+	return null
+
+
+## Rotate the long axis onto X, uniform-scale into the north compound, sit on the floor.
+func _fit_warehouse_to_compound(holder: Node3D, visual: Node3D) -> void:
+	var bounds := _combined_local_aabb(holder)
+	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
+		return
+	if bounds.size.z > bounds.size.x + 0.5:
+		visual.rotation.y += PI * 0.5
+		bounds = _combined_local_aabb(holder)
+	var sx := WAREHOUSE_TARGET.x / maxf(bounds.size.x, 0.01)
+	var sz := WAREHOUSE_TARGET.z / maxf(bounds.size.z, 0.01)
+	var sy := WAREHOUSE_TARGET.y / maxf(bounds.size.y, 0.01)
+	visual.scale *= minf(sx, minf(sz, sy))
+	bounds = _combined_local_aabb(holder)
+	var center := bounds.position + bounds.size * 0.5
+	holder.position = Vector3(
+		WAREHOUSE_CENTER.x - center.x,
+		-bounds.position.y,
+		WAREHOUSE_CENTER.z - center.z)
+
+
+## One structural column at an authored point (same collider contract as `_place_structural`).
+func _place_column_at(at: Vector3, scene_path: String) -> void:
+	var body := StaticBody3D.new()
+	body.position = at
+	body.add_to_group("world_static")
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.4, 4.0, 1.4)
+	shape.shape = box
+	shape.position.y = 2.0
+	body.add_child(shape)
+	if not _mount_model(body, scene_path, 0.0, 1.0):
+		_primitive_pillar(body)
+	add_child(body)
+	_spawned.append(body)
+	var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
+	_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
+
 
 ## Structural pillars get collision (LOS blockers). Uses model when available, else the
 ## legacy primitive pillar of matching footprint. Their footprint also joins the nav

@@ -18,16 +18,15 @@ extends RefCounted
 ## (which the import smoke test already verifies for every model).
 
 const ROLE_MODELS := {
-	# role / archetype -> { path, height (m, before visual_scale), yaw (rad), idle }
-	&"player":    { "path": "res://assets/characters/warden/ArenaWarden.glb", "fallback_path": "res://assets/characters/adventurers/Knight.glb", "height": 1.84, "yaw": PI, "idle": "Idle" },
-	&"basic":     { "path": "res://assets/characters/skeletons/Skeleton_Minion.glb",  "height": 1.72, "yaw": PI, "idle": "Idle" },
-	&"fast":      { "path": "res://assets/characters/skeletons/Skeleton_Rogue.glb",   "height": 1.70, "yaw": PI, "idle": "Idle" },
-	&"heavy":     { "path": "res://assets/characters/skeletons/Skeleton_Warrior.glb", "height": 1.95, "yaw": PI, "idle": "Idle" },
-	&"ranged":    { "path": "res://assets/characters/skeletons/Skeleton_Mage.glb",    "height": 1.72, "yaw": PI, "idle": "Idle" },
-	&"dasher":    { "path": "res://assets/characters/creatures/Rat.glb",              "height": 0.85, "yaw": PI, "idle": "RatArmature|Rat_Idle" },
-	&"splitter":  { "path": "res://assets/characters/creatures/Spider.glb",           "height": 1.00, "yaw": PI, "idle": "SpiderArmature|Spider_Idle" },
-	&"exploder":  { "path": "res://assets/characters/monsters/Demon.gltf",            "height": 1.65, "yaw": PI, "idle": "Idle" },
-	&"warlord":   { "path": "res://assets/characters/monsters/BlueDemon.gltf",        "height": 2.45, "yaw": PI, "idle": "Idle" },
+	&"player": {"path": "res://assets/scifi/robots/player.glb", "height": 1.84, "yaw": PI, "idle": "Idle"},
+	&"basic": {"path": "res://assets/scifi/robots/basic.glb", "height": 1.72, "yaw": PI, "idle": "Idle"},
+	&"fast": {"path": "res://assets/scifi/robots/fast.glb", "height": 1.7, "yaw": PI, "idle": "Idle"},
+	&"heavy": {"path": "res://assets/scifi/robots/heavy.glb", "height": 1.95, "yaw": PI, "idle": "Idle"},
+	&"ranged": {"path": "res://assets/scifi/robots/ranged.glb", "height": 1.72, "yaw": PI, "idle": "Idle"},
+	&"dasher": {"path": "res://assets/scifi/robots/dasher.glb", "height": 0.85, "yaw": PI, "idle": "Idle"},
+	&"splitter": {"path": "res://assets/scifi/robots/splitter.glb", "height": 1.0, "yaw": PI, "idle": "Idle"},
+	&"exploder": {"path": "res://assets/scifi/robots/exploder.glb", "height": 1.65, "yaw": PI, "idle": "Idle"},
+	&"warlord": {"path": "res://assets/scifi/robots/warlord.glb", "height": 2.45, "yaw": PI, "idle": "Idle"},
 }
 
 
