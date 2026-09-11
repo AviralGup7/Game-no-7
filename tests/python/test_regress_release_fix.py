@@ -88,7 +88,8 @@ class DocsAndChromeTests(unittest.TestCase):
 
     def test_diagnostics_workflow_tracks_this_branch(self) -> None:
         txt = read(".github/workflows/gdscript-diagnostics.yml")
-        self.assertIn("arena/01a08d58-game-no-7", txt)
+        self.assertIn('branches: ["main", "arena/**"]', txt)
+        self.assertNotIn("arena/01a08a34-game-no-7", txt)
 
     def test_debug_self_test_is_gated(self) -> None:
         txt = read("scripts/ui/settings_panel.gd")

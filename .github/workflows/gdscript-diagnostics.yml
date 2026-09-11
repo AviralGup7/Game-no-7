@@ -15,11 +15,21 @@ name: GDScript diagnostics
 
 on:
   push:
-    branches: ["arena/01a08d58-game-no-7", "main"]
+    branches: ["main", "arena/**"]
+    paths-ignore:
+      - "docs/godot-runs/**"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
+defaults:
+  run:
+    shell: bash
 
 env:
   DIAG_GODOT_VERSION: "4.7.2-stable"
@@ -31,6 +41,8 @@ jobs:
     name: Godot 4.7.2-stable diagnostics
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -115,18 +127,28 @@ jobs:
           set +e
           godot --headless --editor --path . > diag-lsp-editor.log 2>&1 &
           EDITOR_PID=$!
+          cleanup_editor() {
+            kill "${EDITOR_PID}" 2>/dev/null || true
+            wait "${EDITOR_PID}" 2>/dev/null || true
+          }
+          trap cleanup_editor EXIT
+          LSP_READY=0
           for i in $(seq 1 90); do
             if (exec 3<>/dev/tcp/127.0.0.1/6005) 2>/dev/null; then
               echo "LSP listening after ${i}s"
+              LSP_READY=1
               break
             fi
             sleep 1
           done
-          python3 tool/lsp_diagnostics.py --root . --wait 90 > diag-lsp.txt 2> diag-lsp.err
-          echo "lsp exit: $?"
-          tail -3 diag-lsp.err
-          kill "${EDITOR_PID}" 2>/dev/null
-          wait "${EDITOR_PID}" 2>/dev/null
+          if [ "$LSP_READY" -eq 0 ]; then
+            echo "LSP did not start within 90s" > diag-lsp.err
+            : > diag-lsp.txt
+          else
+            python3 tool/lsp_diagnostics.py --root . --wait 90 > diag-lsp.txt 2> diag-lsp.err
+            echo "lsp exit: $?"
+          fi
+          tail -3 diag-lsp.err || true
           set -e
           true
 
@@ -135,6 +157,8 @@ jobs:
         run: |
           set +e
           cp project.godot /tmp/project.godot.orig
+          restore_project() { cp /tmp/project.godot.orig project.godot 2>/dev/null || true; }
+          trap restore_project EXIT
           printf '\n[debug]\n\ngdscript/warnings/treat_warnings_as_errors=true\n' >> project.godot
           # Self-check: prove the setting was actually read by the engine, so a
           # renamed setting cannot silently produce an empty report.
@@ -151,7 +175,8 @@ jobs:
           echo "wae import exit: $?"
           godot --headless --path . --script res://tests/run_tests.gd > diag-wae-tests.log 2>&1
           echo "wae tests exit: $?"
-          cp /tmp/project.godot.orig project.godot
+          restore_project
+          trap - EXIT
           set -e
           true
 
@@ -222,3 +247,4 @@ jobs:
             diag-lsp-editor.log
             diag-summary.txt
           if-no-files-found: ignore
+          retention-days: 14

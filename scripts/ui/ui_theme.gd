@@ -21,8 +21,8 @@ const STAMINA := Color("6cc0ff")      # cool stamina blue
 const XP := Color("c789f0")           # level-up violet
 const DANGER := Color("ff5a52")
 
-const REGULAR := preload("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf")
-const BOLD := preload("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf")
+const REGULAR: FontFile = preload("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf")
+const BOLD: FontFile = preload("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf")
 
 ## Spacing scale — every panel/margin/separation in the UI is a multiple of it,
 ## so gaps stay consistent between screens.

@@ -313,7 +313,7 @@ func _play_world(
 		return false
 	if _spatial == null:
 		return play_sfx(cue_id, volume_db, pitch_scale)
-	var listen_at := _spatial.get_listener_position()
+	var listen_at: Vector3 = _spatial.get_listener_position()
 	if not SpatialAttenuation.is_hearable(listen_at, at, SpatialVoicePool.MAX_DISTANCE):
 		return false
 	var now := _clock_s()

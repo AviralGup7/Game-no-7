@@ -110,12 +110,13 @@ func play_on(
 
 func _place_claimed(at: Vector3, emitter: Node3D) -> void:
 	var idx := _bank.last_claimed
-	var started_now := idx >= 0 and idx < _bank.size() and _bank.cues[idx] != &""
-	var p: AudioStreamPlayer3D = _bank.players[idx] as AudioStreamPlayer3D if started_now else null
+	var p: AudioStreamPlayer3D = null
+	if idx >= 0 and idx < _bank.size() and _bank.cues[idx] != &"":
+		p = _bank.players[idx] as AudioStreamPlayer3D
 	if p != null and bool(p.playing):
-	p.global_position = at
-	_emitters[idx] = emitter
-	return
+		p.global_position = at
+		_emitters[idx] = emitter
+		return
 	if _bank.pending.is_empty():
 		return
 	var victim := int((_bank.pending.back() as Dictionary).get("player_idx", -1))
@@ -136,7 +137,9 @@ func _flush_queued_places() -> void:
 	var keep: Dictionary = {}
 	for idx in _queued_place.keys():
 		var i := int(idx)
-		var p: AudioStreamPlayer3D = _bank.players[i] as AudioStreamPlayer3D if i >= 0 and i < _bank.size() else null
+		var p: AudioStreamPlayer3D = null
+		if i >= 0 and i < _bank.size():
+			p = _bank.players[i] as AudioStreamPlayer3D
 		if p == null or not bool(p.playing) or _bank.cues[i] == &"":
 			keep[i] = _queued_place[idx]
 			continue
