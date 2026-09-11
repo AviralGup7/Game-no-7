@@ -26,10 +26,8 @@ func set_profile(profile: CameraProfile) -> void:
 func handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	if event == null:
 		return
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE):
-		handle_look_delta(event.relative)
-	elif DisplayServer.mouse_get_mode() == DisplayServer.MOUSE_MODE_CAPTURED:
-		handle_look_delta(event.relative)
+	# PUBG: mouse always turns the lens (unhandled motion; UI still eats clicks).
+	handle_look_delta(event.relative)
 
 
 ## Mouse (and any other pixel-delta look source). Finite-only: a NaN relative
@@ -91,6 +89,11 @@ func gather(delta: float) -> Vector2:
 		pitch_deg += _mouse_accum.y * _profile.mouse_orbit_sensitivity
 		_mouse_accum = Vector2.ZERO
 
+	if _touch_accum.length_squared() > 0.0001:
+		yaw_deg += _touch_accum.x
+		pitch_deg += _touch_accum.y
+		_touch_accum = Vector2.ZERO
+
 	if not is_finite(yaw_deg) or not is_finite(pitch_deg):
 		return Vector2.ZERO
 	return Vector2(yaw_deg, pitch_deg)
@@ -98,3 +101,4 @@ func gather(delta: float) -> Vector2:
 
 func reset() -> void:
 	_mouse_accum = Vector2.ZERO
+	_touch_accum = Vector2.ZERO

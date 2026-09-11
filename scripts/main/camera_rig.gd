@@ -1,14 +1,14 @@
 extends Node3D
 class_name CameraRig
 
-## Perfect third-person following camera – MODULARIZED & IMPROVED.
+## PUBG-style over-the-shoulder third-person shooter camera.
 ##
 ## Architecture (modular):
 ## - CameraInputHandler: gathers manual orbit input
 ## - CameraVelocityTracker: smooth target velocity + move dir
 ## - CameraFocusTracker: predictive focus point with separate H/V smoothing
 ## - CameraOrbitState: pure data (current/target yaw/pitch/distance)
-## - CameraAutoFollowController: Elden Ring style gentle auto-follow with deadzone & toward-camera suppression
+## - CameraAutoFollowController: kept but off in shooter profiles
 ## - CameraOrbitController: manual orbit + smoothing, delegates to auto-follow
 ## - CameraCollisionSolver: sphere-cast + whiskers + ground clearance, fast-in/slow-out
 ## - CameraFramingController: shoulder offset + look-ahead + combat awareness (pull back when surrounded)
@@ -477,9 +477,9 @@ func _update_look_at() -> void:
 			midpoint.y = _focus.focus_point.y
 			look_target = midpoint
 		else:
-			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
+			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
 	else:
-		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity)
+		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
 
 	if not CameraMath.is_finite_v3(cam_origin) or not CameraMath.is_finite_v3(look_target):
 		# Never hand Transform3D.looking_at() a NaN: the resulting basis is non-

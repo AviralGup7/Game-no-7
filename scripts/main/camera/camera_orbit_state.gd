@@ -8,9 +8,9 @@ var current_yaw: float = 0.0
 var target_yaw: float = 0.0
 var current_pitch: float = 0.55
 var target_pitch: float = 0.55
-var current_distance: float = 9.0
-var target_distance: float = 9.0
-var collision_distance: float = 9.0
+var current_distance: float = 3.6
+var target_distance: float = 3.6
+var collision_distance: float = 3.6
 
 func setup_from_profile(profile: CameraProfile, facing_yaw: float = 0.0) -> void:
 	if profile == null:

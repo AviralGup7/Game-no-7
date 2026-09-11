@@ -58,6 +58,29 @@ class TouchAndStickTests(unittest.TestCase):
 
 
 class AutoFollowAndFramingTests(unittest.TestCase):
+    def test_shooter_profiles_disable_souls_auto_follow(self):
+        for rel in (
+            "data/cameras/default.tres",
+            "data/cameras/combat.tres",
+            "data/cameras/boss.tres",
+        ):
+            txt = read(rel)
+            self.assertIn("auto_follow_enabled = false", txt, msg=rel)
+            self.assertIn("auto_follow_toward_camera_threshold = 0.", txt, msg=rel)
+            self.assertIn("aim_distance = ", txt, msg=rel)
+        profile = read("scripts/main/camera_profile.gd")
+        self.assertIn("auto_follow_enabled: bool = false", profile)
+        self.assertIn("aim_distance: float = 22.0", profile)
+        self.assertIn("min_pitch_deg: float = -55.0", profile)
+        framing = read("scripts/main/camera/camera_framing_controller.gd")
+        self.assertIn("aim_dir", framing)
+        self.assertIn("_profile.aim_distance", framing)
+        handler = read("scripts/main/camera/camera_input_handler.gd")
+        self.assertIn("yaw_deg += _touch_accum.x", handler)
+        loco = read("scripts/player/character_controller.gd")
+        self.assertIn("func _face_look_yaw(", loco)
+        self.assertIn("_face_look_yaw(dir, delta)", loco)
+
     def test_toward_camera_threshold_is_consumed(self):
         auto = read("scripts/main/camera/camera_auto_follow_controller.gd")
         self.assertIn("auto_follow_toward_camera_threshold", auto)

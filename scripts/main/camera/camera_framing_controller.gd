@@ -49,9 +49,19 @@ func calculate_desired_position(focus: Vector3, orbit: CameraOrbitState) -> Vect
 	return focus + offset
 
 
-func calculate_look_target(focus: Vector3, velocity_tracker: CameraVelocityTracker) -> Vector3:
+func calculate_look_target(focus: Vector3, velocity_tracker: CameraVelocityTracker, orbit: CameraOrbitState = null) -> Vector3:
 	if _profile == null:
 		return focus
+	# PUBG: look at a point ahead along yaw/pitch so the crosshair is world-aim,
+	# not the player's chest (which would pin them in the center of the frame).
+	if orbit != null:
+		var yaw := orbit.current_yaw
+		var pitch := orbit.current_pitch
+		if is_finite(yaw) and is_finite(pitch):
+			var horiz := cos(pitch)
+			var aim_dir := Vector3(-sin(yaw) * horiz, -sin(pitch), -cos(yaw) * horiz)
+			if aim_dir.length_squared() > 0.0001:
+				return focus + aim_dir.normalized() * _profile.aim_distance
 	var look_target := focus
 	if velocity_tracker != null:
 		look_target += velocity_tracker.velocity * _profile.velocity_influence * 0.12

@@ -106,6 +106,14 @@ static func _framing(results: Array) -> void:
 		framing.get_combat_distance_boost() > 0.4,
 		"got %.4f" % framing.get_combat_distance_boost())
 
+	orbit.current_yaw = 0.0
+	orbit.current_pitch = 0.0
+	profile.aim_distance = 22.0
+	var look: Vector3 = framing.calculate_look_target(focus, null, orbit)
+	_check(results, "aim look-target sits ahead on -Z",
+		absf(look.z - (focus.z - 22.0)) < 0.05 and absf(look.x - focus.x) < 0.05,
+		"got %s" % str(look))
+
 
 static func _mode(results: Array) -> void:
 	var m := CameraModeController.new()
