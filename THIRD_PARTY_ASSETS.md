@@ -18,6 +18,7 @@ Asset review date: **2026-09-08**. Target: the existing Godot 4.4.1, Android,
 | Rajdhani Regular / Bold — Indian Type Foundry | https://github.com/google/fonts/tree/main/ofl/rajdhani | `assets/fonts/rajdhani/` | SIL OFL-1.1 |
 | HDRI panoramas + sample PBR assets (three.js examples) — three.js authors; HDRIs originally Poly Haven | https://github.com/mrdoob/three.js | `assets/textures/panorama/`, `ASSET_LICENSES/threejs-pbr.txt` | MIT (HDRIs: Poly Haven CC0 captures) |
 | Godot Material Testers HD photo PBR texture sets — Godot Engine contributors | https://github.com/godotengine/godot-demo-projects | `assets/textures/rock/`, `assets/textures/brick/`, `assets/textures/stone/`, `assets/textures/wood/`, `assets/textures/metal/`, `ASSET_LICENSES/godot-hd-materials.txt` | MIT |
+| Warehouse FBX Model Free — Nicholas-3D | https://skfb.ly/oVOIy | `data/models/warehouse/`, `ASSET_LICENSES/nicholas3d-warehouse.txt` | CC-BY-4.0 |
 
 ## Rights and redistribution
 
@@ -113,6 +114,22 @@ cue-level record in `AUDIO_MANIFEST.md`.
 The shared notice provision does not allow unknown licences, unpinned downloads,
 missing notice files or licence-type mismatches. No paid tiers or application code
 from asset mirrors were downloaded.
+
+## Warehouse yard — 11 September 2026
+
+The Pit floor is 38 × 38 m (`interior_half = 18`). The north half is a designed
+loading-dock warehouse (three dock bays, crate aisles, west office annex)
+opening onto a south combat apron — not a scatter of props.
+
+**Nicholas-3D, "Warehouse FBX Model Free"** (CC-BY 4.0,
+https://skfb.ly/oVOIy, Sketchfab uid `daa7fd3ff88945298d00045ca40a4c03`) is the
+building mesh at `data/models/warehouse/` (`scene.gltf` + `scene.bin` +
+textures). The Sketchfab download was added to this branch as
+`warehouse_fbx_model_free.zip`; the runtime copy is the extracted glTF, not a
+random placement of the zip. Credit: Nicholas-3D. Aisle cargo is **KayKit
+Dungeon Remastered** (CC0). Authored collision boxes keep nav/physics aligned
+if the glTF is not yet imported. The original notice is
+`ASSET_LICENSES/nicholas3d-warehouse.txt`.
 
 
 ## Arena Warden derivative — 9 September 2026

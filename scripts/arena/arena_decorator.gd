@@ -65,6 +65,10 @@ const SC_SWORD := DUNGEON + "sword_shield.glb"
 const SC_SWORD_GOLD := DUNGEON + "sword_shield_gold.glb"
 ## Sword trophies are centre-origin wall art (1.67 m tall): this seats their base on the floor.
 const TROPHY_LIFT := 0.82
+const MAT_METAL := "res://assets/materials/arena_metal.tres"
+const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
+const MAT_WOOD := "res://assets/materials/arena_wood.tres"
+const WAREHOUSE_SCENE := "res://data/models/warehouse/scene.gltf"
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
@@ -135,14 +139,34 @@ func spawned_count() -> int:
 # ---------------------- per-arena compositions — distinct silhouettes ----------------------
 
 func _compose_default(half: float) -> void:
-	# Ancient coliseum: balanced, readable — landmarks + scattered ruins.
-	# Champion trophies flank the north gate first, so the scatter below routes around them.
-	_mount_trophy_pair(3.0, -11.3, SC_SWORD_GOLD, SC_SWORD)
-	_mount_trophy_pair(-3.0, -11.3, SC_SWORD, SC_SWORD_GOLD)
-	_place_structural(5, half, SC_PILLAR)
-	_scatter(16, half, [SC_RUBBLE, SC_BOX_DECOR, SC_TRUNK, SC_BARREL, SC_CRATES, SC_CANDLE3])
+	# Warehouse yard on the expanded Pit: north compound (loading docks, aisles,
+	# office annex) and a south apron around the obelisk. Coordinates are authored
+	# — this composition does not scatter or pick open spots.
+	_build_warehouse_compound()
+	_mount_trophy_pair(4.2, -5.6, SC_SWORD_GOLD, SC_SWORD)
+	_mount_trophy_pair(-4.2, -5.6, SC_SWORD, SC_SWORD_GOLD)
+	_place_column_at(Vector3(-8.0, 0.0, -13.5), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -13.5), SC_PILLAR)
+	_place_column_at(Vector3(-8.0, 0.0, -9.0), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -9.0), SC_PILLAR)
+	# West storage aisle.
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -15.0), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(-11.5, 0.0, -12.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -10.0), 0.65)
+	_mount_prop(SC_BARREL_STACK, Vector3(-13.2, 0.0, -12.5), 0.95)
+	# East storage aisle.
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -15.0), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(11.5, 0.0, -12.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -10.0), 0.65)
+	_mount_prop(SC_BARREL, Vector3(13.2, 0.0, -12.5), 1.05)
+	# Cargo on the dock lip, then two yard stacks flanking the approach.
+	_mount_prop(SC_BOXSTACK, Vector3(-9.0, 0.0, -4.4), 0.55)
+	_mount_prop(SC_BOXSTACK, Vector3(9.0, 0.0, -4.4), 0.55)
+	_mount_prop(SC_BOXSTACK, Vector3(-10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BOXSTACK, Vector3(10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BARREL_DECOR, Vector3(-6.5, 0.0, 14.8), 1.0)
+	_mount_prop(SC_BARREL, Vector3(6.5, 0.0, 14.8), 1.0)
 	_wall_props(half, &"red", false)
-	# Weathered stone circle around the obelisk (4 small shards).
 	for i in range(4):
 		var angle := i * TAU / 4.0 + 0.3
 		var at := Vector3(cos(angle) * 2.8, 0, sin(angle) * 2.8)
@@ -203,6 +227,114 @@ func _compose_frost(half: float) -> void:
 
 
 # ---------------------- builders ----------------------
+
+const MAT_METAL := "res://assets/materials/arena_metal.tres"
+const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
+const MAT_WOOD := "res://assets/materials/arena_wood.tres"
+
+
+## North warehouse: brick shell, three metal dock bays, wood dock plates, NW office.
+## Sized for the 38 m Pit floor (interior_half 18). Not a scatter pool.
+func _build_warehouse_compound() -> void:
+	var brick := _structure_mat(MAT_BRICK)
+	var metal := _structure_mat(MAT_METAL)
+	var wood := _structure_mat(MAT_WOOD)
+	_place_structure(Vector3(0.0, 2.5, -17.2), Vector3(30.4, 5.0, 0.5), brick)
+	_place_structure(Vector3(-15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick)
+	_place_structure(Vector3(15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick)
+	# South dock wall: 4 m bays at x = -9, 0, 9.
+	_place_structure(Vector3(-13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal)
+	_place_structure(Vector3(-4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal)
+	_place_structure(Vector3(4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal)
+	_place_structure(Vector3(13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal)
+	_place_structure(Vector3(-9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
+	_place_structure(Vector3(0.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
+	_place_structure(Vector3(9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
+	# Office annex: raised floor along the west wall, south of the storage aisle.
+	_place_structure(Vector3(-13.2, 0.35, -8.0), Vector3(3.2, 0.7, 3.0), wood)
+
+
+func _structure_mat(path: String) -> Material:
+	var res := load(path)
+	if res is Material:
+		return res
+	return _mat(Color(0.42, 0.38, 0.34))
+
+
+## Authored architecture: a floor-standing box with its own collider and nav footprint.
+## Sized from the call, not from MAX_PROP_HALF_XZ — a warehouse wall is not clutter.
+## `with_mesh` is false when the Nicholas-3D glTF is already drawing the shell.
+func _place_structure(at: Vector3, size: Vector3, mat: Material, with_mesh: bool = true) -> void:
+	var body := StaticBody3D.new()
+	body.position = at
+	body.add_to_group("world_static")
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	if with_mesh:
+		var mesh := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = size
+		mesh.mesh = bm
+		if mat != null:
+			mesh.material_override = mat
+		body.add_child(mesh)
+	add_child(body)
+	_spawned.append(body)
+	var foot_half := size * 0.5
+	_blockers.append(AABB(at - foot_half, size))
+
+
+## Nicholas-3D warehouse (CC-BY 4.0). Mesh is ~16×5×46 m with the origin at a
+## corner; we rotate the long axis onto X, scale to the north compound, and sit
+## it on the dock line. Returns false when the glTF is not yet imported.
+func _mount_warehouse_model() -> bool:
+	var res := load(WAREHOUSE_SCENE)
+	if not res is PackedScene:
+		return false
+	var inst := res.instantiate()
+	if inst == null or not inst is Node3D:
+		if inst != null:
+			inst.free()
+		return false
+	var holder := Node3D.new()
+	holder.name = "Warehouse"
+	var visual: Node3D = inst
+	visual.scale = Vector3(0.7, 0.7, 0.7)
+	visual.rotation.y = PI * 0.5
+	visual.position = Vector3(-16.1, 0.0, -5.6)
+	holder.position = Vector3(0.0, 0.0, -11.5)
+	holder.add_child(visual)
+	add_child(holder)
+	_spawned.append(holder)
+	HdMaterials.polish(holder)
+	return true
+
+
+## One structural column at an authored point (same collider contract as `_place_structural`).
+func _place_column_at(at: Vector3, scene_path: String) -> void:
+	var body := StaticBody3D.new()
+	body.position = at
+	body.add_to_group("world_static")
+	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
+	body.collision_mask = CollisionLayers.NO_LAYER
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(1.4, 4.0, 1.4)
+	shape.shape = box
+	shape.position.y = 2.0
+	body.add_child(shape)
+	if not _mount_model(body, scene_path, 0.0, 1.0):
+		_primitive_pillar(body)
+	add_child(body)
+	_spawned.append(body)
+	var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
+	_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
+
 
 ## Structural pillars get collision (LOS blockers). Uses model when available, else the
 ## legacy primitive pillar of matching footprint. Their footprint also joins the nav

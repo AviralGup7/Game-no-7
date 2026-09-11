@@ -83,7 +83,7 @@ class NavGridHardeningTests(unittest.TestCase):
         """
         placements = obstacle_layout("ember_crucible")
         self.assertGreaterEqual(len(placements), 8, f"expected the 8 expanded obstacles, got {len(placements)}")
-        spawns = [(11.0, 0.0), (-11.0, 0.0), (0.0, 11.0), (0.0, -11.0)]
+        spawns = [(16.0, 0.0), (-16.0, 0.0), (0.0, 16.0), (0.0, -16.0)]
         for (px, pz, hx, hz) in placements:
             foot = max(hx, hz)
             for (sx, sz) in spawns:

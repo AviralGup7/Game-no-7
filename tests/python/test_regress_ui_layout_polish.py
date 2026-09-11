@@ -125,11 +125,18 @@ class ThemeConsistencyTests(unittest.TestCase):
             "icon_play.png",
             "icon_pause.png",
             "icon_gear.png",
+            "icon_trophy.png",
+            "icon_star.png",
+            "icon_gamepad.png",
+            "icon_home.png",
+            "icon_return.png",
+            "hud_frame.png",
         ):
             self.assertTrue((chrome / name).is_file(), name)
         theme = read("scripts/ui/ui_theme.gd")
         self.assertIn('res://data/ui/chrome/', theme)
         self.assertIn("static func skin(", theme)
+        self.assertIn("hud_frame.png", read("scripts/ui/game_hud.gd"))
         backdrop = read("scripts/ui/menu_backdrop.gd")
         self.assertIn("menu_backdrop.jpg", backdrop)
         self.assertIn("STRETCH_KEEP_ASPECT_COVERED", backdrop)

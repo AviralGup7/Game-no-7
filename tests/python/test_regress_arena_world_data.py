@@ -46,8 +46,8 @@ NAV_GD = "scripts/arena/arena_nav_grid.gd"
 DECOR_GD = "scripts/arena/arena_decorator.gd"
 
 ARENAS = ("default_arena", "ember_crucible", "frost_hollow")
-INTERIOR_HALF = 12.0
-AXIS_SPAWNS = ((11.0, 0.0), (-11.0, 0.0), (0.0, 11.0), (0.0, -11.0))
+INTERIOR_HALF = 18.0
+AXIS_SPAWNS = ((16.0, 0.0), (-16.0, 0.0), (0.0, 16.0), (0.0, -16.0))
 # Spawn jitter (1.2 m) + the safety margin SpawnManager adds (0.5 m). An obstacle closer than
 # foot + this to a spawn marker can be touched by a legal jittered spawn, which is the bug the
 # ember ring used to have at 8.5 m.

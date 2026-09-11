@@ -54,7 +54,9 @@ Use high-contrast variant (settings toggle) for accessibility.
 
 ## Scale & proportion
 
-- Arena floor ~26 × 26 m; walls ~3 m high.
+- Arena floor ~38 × 38 m; walls ~3 m high. The Pit's north half is a designed
+  loading-dock warehouse (aisles / three bays / office annex) opening onto a
+  south apron around the landmark — not random clutter.
 - Humanoids ~1.8–2 m tall. Keep actors in a similar XZ footprint (capsule ~0.45 m r).
 - Camera sits behind/above player (see `data/cameras/default.tres`).
 
