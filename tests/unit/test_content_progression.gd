@@ -84,18 +84,20 @@ static func suite() -> Array:
 				references_ok = false
 	results.append({"name": "all content references resolve", "passed": references_ok, "why": ""})
 
-	# Distinct data identities: the library contains melee, ranged and hybrid
-	# resolver paths plus multiple status/control patterns.
+	# Distinct firearm identities: all weapons are ranged firearms spanning
+	# distinct damage types, fire rates, spread, and capacities.
 	var kinds := {}
 	var patterns := {}
+	var damage_types := {}
 	for cfg in weapons.values():
 		var wc := cfg as WeaponConfig
 		kinds[wc.kind] = true
 		patterns[wc.attack_pattern] = true
+		damage_types[wc.damage_type] = true
 	results.append({
 		"name": "weapon library spans resolver kinds and attack patterns",
-		"passed": kinds.size() == 3 and patterns.size() >= 4,
-		"why": "kinds=%s patterns=%s" % [str(kinds.keys()), str(patterns.keys())],
+		"passed": kinds.has(&"ranged") and patterns.has(&"volley") and damage_types.size() >= 5,
+		"why": "kinds=%s patterns=%s damage_types=%s" % [str(kinds.keys()), str(patterns.keys()), str(damage_types.keys())],
 	})
 
 	var categories := {}

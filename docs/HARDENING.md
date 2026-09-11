@@ -220,7 +220,7 @@ file count and the guard-needle count from the tools themselves rather than trus
 - GDScripts under `scripts/`: 205 (was 139 at the sweep; the subsystem rebuilds since have added
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call; the debug-mode pass added the five `scripts/debug/` scripts)
-- Validated files: 163/163 (was 85, then 151, then 159: +4 authored midgame waves)
+- Validated files: 164/164 (was 85, then 151, then 159, then 163: +1 3D wall scene)
 - Guard needles: 201 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
   guard, a bounded export, or an absence; the mobile-input pass added six (interruption handlers,
   back-button routing, press-down fire, layout wiring); the merge of `main` and the four headless

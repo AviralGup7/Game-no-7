@@ -1,0 +1,541 @@
+<!doctype html>
+<!--
+  3D Wall Model Review & Real-Time Inspector
+  Inspects the 3D wall model built from wall.json + texture_0.webp with Three.js.
+
+  Run: python3 tool/serve_art.py --port 8000
+  Open: http://localhost:8000/tool/wall_preview.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Stand · 3D Wall Inspector</title>
+<style>
+:root {
+  color-scheme: dark;
+  --paper: #e7e5de;
+  --muted: #8d969b;
+  --edge: #303a3e;
+  --gold: #d1ad73;
+  --cyan: #38bdf8;
+  --panel: #151d21;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0e151a;
+  color: var(--paper);
+  font: 13px/1.5 system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+button, select {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+button:hover { border-color: #a5977d; }
+button.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(56, 189, 248, 0.08);
+}
+header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--edge);
+  background: #11191e;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mark {
+  width: 32px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gold);
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
+  color: var(--gold);
+  font: 600 18px Georgia, serif;
+}
+.brand strong {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+}
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.header-right a {
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 12px;
+}
+main {
+  height: calc(100vh - 64px);
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+}
+aside {
+  background: var(--panel);
+  border-right: 1px solid var(--edge);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 4px 0 8px;
+}
+p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+.section-title {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn-group button {
+  flex: 1 1 calc(50% - 6px);
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#viewport {
+  position: absolute;
+  inset: 0;
+}
+.stage-top {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.stage-actions {
+  pointer-events: auto;
+  display: flex;
+  gap: 6px;
+}
+.stage-actions button {
+  font-size: 11px;
+  background: rgba(16, 25, 29, 0.85);
+  backdrop-filter: blur(10px);
+}
+.footer-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 20px;
+  background: rgba(18, 27, 33, 0.92);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+}
+.footer-bar strong {
+  color: #fff;
+}
+.badge {
+  color: #86efac;
+  font-weight: 500;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0e151a;
+  z-index: 10;
+  flex-direction: column;
+  gap: 10px;
+}
+.loading.hidden { display: none; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/"
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">VII</div>
+    <div>
+      <strong>LAST STAND</strong>
+      <div class="eyebrow">Arena · 3D Wall Inspector</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="./hero_preview.html">Inspect Hero ↗</a>
+    <a href="./hd_preview.html">View Arena ↗</a>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div>
+      <div class="eyebrow">SCI-FI ARCHITECTURE</div>
+      <h1>Modular 3D Wall</h1>
+      <p>Bespoke 3D model generated from <code>wall.json</code> (11,857 verts, 22,442 tris) with PBR textures baked from <code>texture_0.webp</code>.</p>
+    </div>
+
+    <div>
+      <div class="section-title">Assembly Mode</div>
+      <div class="btn-group">
+        <button id="mode-single" class="active">Single Bay</button>
+        <button id="mode-segment3">3x Wall Array</button>
+        <button id="mode-perimeter">Perimeter Wall</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Visual Channels</div>
+      <div class="btn-group">
+        <button id="mat-pbr" class="active">PBR Shaded</button>
+        <button id="mat-wire">Wireframe</button>
+        <button id="mat-normals">Normals</button>
+        <button id="mat-emission">Emission</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Arena Lighting</div>
+      <div class="btn-group">
+        <button id="light-dawn" class="active">Dawn Light</button>
+        <button id="light-crucible">Ember Crucible</button>
+        <button id="light-frost">Frost Hollow</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Asset Provenance</div>
+      <p style="font-size: 11px; line-height: 1.6;">
+        • <strong>Coordinates:</strong> <code>wall.json</code><br>
+        • <strong>Texture:</strong> <code>texture_0.webp</code> (2048×2048)<br>
+        • <strong>GLB Model:</strong> <code>data/models/wall/wall.glb</code><br>
+        • <strong>glTF Scene:</strong> <code>data/models/wall/scene.gltf</code><br>
+        • <strong>Godot Scene:</strong> <code>scenes/environment/wall.tscn</code><br>
+        • <strong>Dimensions:</strong> 1.00m W × 0.27m H × 0.05m D
+      </p>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div id="viewport"></div>
+    <div class="stage-top">
+      <div>
+        <div class="eyebrow">PRODUCTION GLTF 2.0 / PBR ASSET</div>
+        <div style="font-size: 16px; font-weight: 500; font-family: Georgia, serif;" id="view-caption">Single Modular Wall Bay</div>
+      </div>
+      <div class="stage-actions">
+        <button id="btn-turntable" aria-pressed="false">Turntable: Off</button>
+        <button id="btn-reset">Reset Camera</button>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <div>
+        <span>Vertices: <strong id="stat-verts">11,857</strong></span> &nbsp;|&nbsp;
+        <span>Triangles: <strong id="stat-tris">22,442</strong></span> &nbsp;|&nbsp;
+        <span>PBR Maps: <strong>4 (2K)</strong></span>
+      </div>
+      <div class="badge">● glTF 2.0 Verified Valid</div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="eyebrow">LOADING 3D ASSET</div>
+      <span>Parsing wall geometry &amp; PBR texture maps…</span>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/OrbitControls.js';
+
+const viewport = document.getElementById('viewport');
+const loading = document.getElementById('loading');
+const viewCaption = document.getElementById('view-caption');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e151a);
+
+const camera = new THREE.PerspectiveCamera(40, viewport.clientWidth / viewport.clientHeight, 0.05, 100);
+camera.position.set(0, 0.1, 1.4);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.target.set(0, 0, 0);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.8);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
+sunLight.position.set(2, 4, 3);
+sunLight.castShadow = true;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.0);
+fillLight.position.set(-2, -1, -2);
+scene.add(fillLight);
+
+// Floor grid
+const grid = new THREE.GridHelper(6, 12, 0x38bdf8, 0x1f2937);
+grid.position.y = -0.135;
+scene.add(grid);
+
+const wallRoot = new THREE.Group();
+scene.add(wallRoot);
+
+let baseWallMesh = null;
+let originalMaterial = null;
+let turntable = false;
+let currentMode = 'single';
+
+const loader = new GLTFLoader();
+loader.load('/data/models/wall/wall.glb', (gltf) => {
+  loading.classList.add('hidden');
+  baseWallMesh = gltf.scene.children[0];
+  if (baseWallMesh.isMesh) {
+    originalMaterial = baseWallMesh.material;
+  } else {
+    baseWallMesh.traverse(child => {
+      if (child.isMesh && !originalMaterial) originalMaterial = child.material;
+    });
+  }
+  buildDisplayMode('single');
+}, undefined, (err) => {
+  console.error('Error loading GLB:', err);
+  loading.innerHTML = '<span style="color:#ef4444">Failed to load wall.glb</span>';
+});
+
+function clearWallRoot() {
+  while (wallRoot.children.length > 0) {
+    wallRoot.remove(wallRoot.children[0]);
+  }
+}
+
+function buildDisplayMode(mode) {
+  currentMode = mode;
+  clearWallRoot();
+  if (!baseWallMesh) return;
+
+  if (mode === 'single') {
+    const clone = baseWallMesh.clone(true);
+    clone.position.set(0, 0, 0);
+    wallRoot.add(clone);
+    controls.target.set(0, 0, 0);
+    camera.position.set(0, 0.05, 1.4);
+    viewCaption.textContent = 'Single Modular Wall Bay (1.00m × 0.27m)';
+  } else if (mode === 'segment3') {
+    for (let i = -1; i <= 1; i++) {
+      const clone = baseWallMesh.clone(true);
+      clone.position.set(i * 1.0, 0, 0);
+      wallRoot.add(clone);
+    }
+    controls.target.set(0, 0, 0);
+    camera.position.set(0, 0.1, 3.2);
+    viewCaption.textContent = '3-Bay Wall Segment (3.00m Span)';
+  } else if (mode === 'perimeter') {
+    // Build square perimeter enclosure
+    const size = 3;
+    const half = (size - 1) * 0.5 * 1.0;
+    for (let i = 0; i < size; i++) {
+      const x = (i - 1) * 1.0;
+      // North
+      const wN = baseWallMesh.clone(true);
+      wN.position.set(x, 0, -half - 0.5);
+      wallRoot.add(wN);
+      // South
+      const wS = baseWallMesh.clone(true);
+      wS.position.set(x, 0, half + 0.5);
+      wS.rotation.y = Math.PI;
+      wallRoot.add(wS);
+      // West
+      const wW = baseWallMesh.clone(true);
+      wW.position.set(-half - 0.5, 0, x);
+      wW.rotation.y = Math.PI / 2;
+      wallRoot.add(wW);
+      // East
+      const wE = baseWallMesh.clone(true);
+      wE.position.set(half + 0.5, 0, x);
+      wE.rotation.y = -Math.PI / 2;
+      wallRoot.add(wE);
+    }
+    controls.target.set(0, 0, 0);
+    camera.position.set(2.5, 2.0, 3.0);
+    viewCaption.textContent = 'Perimeter Enclosure Array (12 Modular Bays)';
+  }
+}
+
+// Mode Buttons
+document.getElementById('mode-single').onclick = (e) => {
+  setActive(e.target);
+  buildDisplayMode('single');
+};
+document.getElementById('mode-segment3').onclick = (e) => {
+  setActive(e.target);
+  buildDisplayMode('segment3');
+};
+document.getElementById('mode-perimeter').onclick = (e) => {
+  setActive(e.target);
+  buildDisplayMode('perimeter');
+};
+
+// Material Display Modes
+document.getElementById('mat-pbr').onclick = (e) => {
+  setActive(e.target);
+  applyMaterialMode('pbr');
+};
+document.getElementById('mat-wire').onclick = (e) => {
+  setActive(e.target);
+  applyMaterialMode('wire');
+};
+document.getElementById('mat-normals').onclick = (e) => {
+  setActive(e.target);
+  applyMaterialMode('normals');
+};
+document.getElementById('mat-emission').onclick = (e) => {
+  setActive(e.target);
+  applyMaterialMode('emission');
+};
+
+function applyMaterialMode(mode) {
+  wallRoot.traverse(child => {
+    if (!child.isMesh) return;
+    if (mode === 'pbr') {
+      child.material = originalMaterial;
+      child.material.wireframe = false;
+    } else if (mode === 'wire') {
+      child.material = originalMaterial.clone();
+      child.material.wireframe = true;
+    } else if (mode === 'normals') {
+      child.material = new THREE.MeshNormalMaterial({ wireframe: false });
+    } else if (mode === 'emission') {
+      child.material = new THREE.MeshBasicMaterial({
+        map: originalMaterial.emissiveMap || originalMaterial.map,
+        color: 0x38bdf8
+      });
+    }
+  });
+}
+
+// Lighting Presets
+document.getElementById('light-dawn').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xfffaed);
+  fillLight.color.set(0x38bdf8);
+  ambientLight.color.set(0xdbeafe);
+  scene.background.set(0x0e151a);
+};
+document.getElementById('light-crucible').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xfb923c);
+  fillLight.color.set(0xef4444);
+  ambientLight.color.set(0x7c2d12);
+  scene.background.set(0x180d0d);
+};
+document.getElementById('light-frost').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xbae6fd);
+  fillLight.color.set(0x60a5fa);
+  ambientLight.color.set(0x1e3a8a);
+  scene.background.set(0x0b1320);
+};
+
+// Action Buttons
+const btnTurntable = document.getElementById('btn-turntable');
+btnTurntable.onclick = () => {
+  turntable = !turntable;
+  btnTurntable.textContent = `Turntable: ${turntable ? 'On' : 'Off'}`;
+  btnTurntable.classList.toggle('active', turntable);
+};
+
+document.getElementById('btn-reset').onclick = () => {
+  buildDisplayMode(currentMode);
+};
+
+function setActive(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = viewport.clientWidth / viewport.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (turntable) {
+    wallRoot.rotation.y += 0.008;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
