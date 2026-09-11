@@ -1,16 +1,5 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/unit/test_save.gd:98)
-          GDScript backtrace (most recent call first):
-              [0] _run_suites (res://tests/run_tests.gd:127)
-              [1] _initialize (res://tests/run_tests.gd:99)
-ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] _run_suites (res://tests/run_tests.gd:127)
-       [1] _initialize (res://tests/run_tests.gd:99)
-::error title=Suite compile failure::res://tests/unit/test_save.gd has a parse error
 ERROR: Parameter "data.tree" is null.
    at: get_tree (scene/main/node.h:559)
    GDScript backtrace (most recent call first):
@@ -85,17 +74,6 @@ ERROR: Parameter "data.tree" is null.
        [3] suite (res://tests/unit/test_locomotion_nan.gd:18)
        [4] _run_suites (res://tests/run_tests.gd:143)
        [5] _initialize (res://tests/run_tests.gd:99)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/unit/test_ui_layout.gd:66)
-          GDScript backtrace (most recent call first):
-              [0] _run_suites (res://tests/run_tests.gd:127)
-              [1] _initialize (res://tests/run_tests.gd:99)
-ERROR: Failed to load script "res://tests/unit/test_ui_layout.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] _run_suites (res://tests/run_tests.gd:127)
-       [1] _initialize (res://tests/run_tests.gd:99)
-::error title=Suite compile failure::res://tests/unit/test_ui_layout.gd has a parse error
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
@@ -465,27 +443,6 @@ ERROR: ArenaLandmark: kind 'wishing_well' has no builder
        [2] suite (res://tests/unit/test_arena_world.gd:117)
        [3] _run_suites (res://tests/run_tests.gd:143)
        [4] _initialize (res://tests/run_tests.gd:99)
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:118)
-          GDScript backtrace (most recent call first):
-              [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
-              [1] suite (res://tests/unit/test_performance_monitor.gd:30)
-              [2] _run_suites (res://tests/run_tests.gd:143)
-              [3] _initialize (res://tests/run_tests.gd:99)
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
-          GDScript backtrace (most recent call first):
-              [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
-              [1] suite (res://tests/unit/test_performance_monitor.gd:30)
-              [2] _run_suites (res://tests/run_tests.gd:143)
-              [3] _initialize (res://tests/run_tests.gd:99)
-ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] _parse_smoke (res://tests/unit/test_performance_monitor.gd:262)
-       [1] suite (res://tests/unit/test_performance_monitor.gd:30)
-       [2] _run_suites (res://tests/run_tests.gd:143)
-       [3] _initialize (res://tests/run_tests.gd:99)
 ERROR: Parameter "data.tree" is null.
    at: get_tree (scene/main/node.h:559)
    GDScript backtrace (most recent call first):
@@ -1385,10 +1342,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:168)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1212 total, 2 failed
-  FAIL  Suite failed to compile: res://tests/unit/test_save.gd
-  FAIL  Suite failed to compile: res://tests/unit/test_ui_layout.gd
-::error title=GDScript test failures (2)::Suite failed to compile: res://tests/unit/test_save.gd%0ASuite failed to compile: res://tests/unit/test_ui_layout.gd
+GDScript tests: 1238 total, 0 failed
 ========================================
 WARNING: 38 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)

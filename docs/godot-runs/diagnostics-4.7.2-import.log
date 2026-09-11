@@ -5,18 +5,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
-SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:70)
-SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:24)
-SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
-          at: GDScript::reload (res://scripts/ui/ui_theme.gd:25)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
-ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
@@ -1616,10 +1604,4 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:118)
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
-ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 cannot connect to daemon at tcp:5037: Connection refused

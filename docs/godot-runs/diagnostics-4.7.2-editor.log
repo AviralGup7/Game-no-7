@@ -14,9 +14,3 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:118)
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
-ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

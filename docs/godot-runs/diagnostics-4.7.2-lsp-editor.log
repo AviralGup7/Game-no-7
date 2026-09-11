@@ -13,12 +13,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:118)
-SCRIPT ERROR: Parse Error: Identifier "_xp_seeded" not declared in the current scope.
-          at: GDScript::reload (res://scripts/ui/ui_gauges.gd:150)
-ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
 [  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
 [  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m
@@ -26,15 +20,6 @@ ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Parse e
 [0m
 ERROR: LSP: Failed to parse script: res://tests/ui/ui_test_runner.gd
 Expected statement, found "Indent" instead.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://tests/unit/test_save.gd
-Cannot infer the type of "migrated_binds" variable because the value doesn't have a set type.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://tests/unit/test_ui_layout.gd
-Cannot infer the type of "skip_top" variable because the value doesn't have a set type.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/ui/ui_gauges.gd
-Identifier "_xp_seeded" not declared in the current scope.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
