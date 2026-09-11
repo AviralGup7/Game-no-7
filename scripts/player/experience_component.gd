@@ -19,10 +19,21 @@ var _xp := 0
 var _level := 1
 var _xp_multiplier := 1.0
 var _owner_body: Node = null
+var _health: HealthComponent = null
+var _stamina: StaminaComponent = null
+var _skills: SkillController = null
 
 
 func _ready() -> void:
 	_owner_body = get_parent()
+
+
+## Player wires the level-up boon targets once. Fixtures that skip bind() still
+## fall back to sibling lookups below.
+func bind_rewards(health: HealthComponent, stamina: StaminaComponent, skills: SkillController = null) -> void:
+	_health = health
+	_stamina = stamina
+	_skills = skills
 
 
 ## XP required to go from `level` to `level+1` (level >= 1).
@@ -101,14 +112,17 @@ func is_max_level() -> bool:
 
 func _on_level_up() -> void:
 	# Small automatic boon: heal a slice + refill stamina.
-	if _owner_body != null:
-		var hp := _owner_body.get_node_or_null("HealthComponent") as HealthComponent
-		if hp != null:
-			hp.heal(hp.get_max() * LEVEL_HEAL_FRACTION)
-		var st := _owner_body.get_node_or_null("StaminaComponent") as StaminaComponent
-		if st != null:
-			st.restore_full()
-		_unlock_skills_for_level()
+	var hp := _health
+	if hp == null and _owner_body != null:
+		hp = _owner_body.get_node_or_null("HealthComponent") as HealthComponent
+	if hp != null:
+		hp.heal(hp.get_max() * LEVEL_HEAL_FRACTION)
+	var st := _stamina
+	if st == null and _owner_body != null:
+		st = _owner_body.get_node_or_null("StaminaComponent") as StaminaComponent
+	if st != null:
+		st.restore_full()
+	_unlock_skills_for_level()
 	leveled_up.emit(_level)
 	if EventBus != null:
 		EventBus.player_leveled_up.emit(_level, _xp)
@@ -117,7 +131,9 @@ func _on_level_up() -> void:
 
 
 func _unlock_skills_for_level() -> void:
-	var skills := _owner_body.get_node_or_null("SkillController") as SkillController if _owner_body != null and is_instance_valid(_owner_body) else null
+	var skills := _skills
+	if skills == null and _owner_body != null and is_instance_valid(_owner_body):
+		skills = _owner_body.get_node_or_null("SkillController") as SkillController
 	if skills == null:
 		return
 	if ContentRegistry == null:

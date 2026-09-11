@@ -25,9 +25,15 @@ var _progression: ProgressionComponent = null
 
 
 func _ready() -> void:
-	_progression = get_parent().get_node_or_null("ProgressionComponent") as ProgressionComponent if get_parent() != null else null
+	if _progression == null:
+		_progression = get_parent().get_node_or_null("ProgressionComponent") as ProgressionComponent if get_parent() != null else null
 	_rebuild_from_stats()
 	_current = _max
+
+
+## Player wires progression once. Safe to call before or after _ready.
+func bind_progression(prog: ProgressionComponent) -> void:
+	_progression = prog
 
 
 func _rebuild_from_stats() -> void:
@@ -51,6 +57,8 @@ func refresh_from_stats() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
 	_since_spend += delta
 	if _since_spend < _regen_delay or _regen_rate <= 0.0:
 		return

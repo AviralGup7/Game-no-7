@@ -21,9 +21,15 @@ var _non_finite_reported := false
 
 func _ready() -> void:
 	_owner_body = get_parent() as CharacterBody3D
-	_weapons = get_parent().get_node_or_null("WeaponManager") as WeaponManager
+	if _owner_body != null:
+		_weapons = _owner_body.get_node_or_null("WeaponManager") as WeaponManager
 	if _owner_body == null:
 		push_warning("CharacterController parent is not a CharacterBody3D")
+
+
+## Player wires the attack authority once so tick/dash do not string-look it.
+func bind_weapons(weapons: WeaponManager) -> void:
+	_weapons = weapons
 
 
 ## Advance the body for one physics step. move_input is a normalized joystick/axis

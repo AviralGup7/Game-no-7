@@ -38,7 +38,6 @@ signal respawned()
 signal upgrade_applied(upgrade_id: StringName)
 signal leveled_up(new_level: int)
 
-const DODGE_STAMINA_COST := 25.0
 const KILL_XP_BASE := 12.0
 const KILL_XP_ELITE_BONUS := 18.0
 ## Matches the authored capsule in player.tscn (CapsuleShape3D.radius = 0.45).
@@ -66,6 +65,7 @@ var _player_audio: PlayerAudio = null
 
 var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
+var _combat := PlayerCombat.new()
 var _attack_buffer := AttackBuffer.new()
 var _gameplay_time := 0.0
 
@@ -82,6 +82,8 @@ func _ready() -> void:
 		return
 	_locomotion.bind(self, _dodge, _controller)
 	_build.bind(_health, _progression, _controller, _stamina, _weapons, _skills, walk_speed, max_health)
+	_combat.bind(self, _weapons, _dodge, _controller, _stamina, _locomotion, _attack_buffer)
+	_combat.buffer_seconds = attack_buffer_seconds
 	_locomotion.move_started.connect(move_started.emit)
 	_locomotion.move_stopped.connect(move_stopped.emit)
 	_build.upgrade_applied.connect(upgrade_applied.emit)
@@ -95,7 +97,11 @@ func _ready() -> void:
 	_weapons.attack_resolved.connect(_on_weapon_attack_resolved)
 	_experience.leveled_up.connect(_on_leveled_up)
 	_dodge.bind_health(_health)
+	_dodge.bind_motion(_controller, _progression)
 	_dodge.dodged_started.connect(_on_dodge_started)
+	_experience.bind_rewards(_health, _stamina, _skills)
+	_stamina.bind_progression(_progression)
+	_controller.bind_weapons(_weapons)
 	# Bloodlust-style healing: a valid enemy kill heals the real HealthComponent.
 	if not EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):
 		EventBus.enemy_killed.connect(_on_enemy_kill_heal)
@@ -182,12 +188,7 @@ func _physics_process(delta: float) -> void:
 		_cancel_combat()
 		velocity.x = 0.0
 		velocity.z = 0.0
-		var dodge_moving := _dodge.is_dodging()
-		_dodge.tick(delta)
-		if not dodge_moving:
-			_controller.tick(Vector2.ZERO, delta)
-		_locomotion.track(Vector2.ZERO)
-		_locomotion.clamp_to_bounds()
+		_tick_motion(delta, Vector2.ZERO)
 		# Stunned: timers still advance so the stun itself can expire, but no input.
 		_weapons.tick(delta)
 		return
@@ -205,14 +206,16 @@ func _physics_process(delta: float) -> void:
 	_attack_buffer.tick(delta, _try_attack)
 	var move := _locomotion.gather()
 	move *= _move_speed_factor()
-	# The dodge is ticked EVERY step so its cooldown can wind down (a cooldown that
-	# only ran mid-dodge would lock the player out forever).
-	var dodge_owned_motion := _dodge.is_dodging()
+	_tick_motion(delta, move)
+
+
+## Dodge cooldown ticks every step (a cooldown that only ran mid-dodge would
+## lock the player out forever). CharacterController owns locomotion unless a
+## dodge is mid-flight.
+func _tick_motion(delta: float, move: Vector2) -> void:
+	var dodge_owned := _dodge.is_dodging()
 	_dodge.tick(delta)
-	# Normal locomotion is owned by the CharacterController unless a dodge is mid-flight.
-	if dodge_owned_motion:
-		pass  # DodgeController owns motion (burst + recovery) this step
-	else:
+	if not dodge_owned:
 		_controller.tick(move, delta)
 	_locomotion.track(move)
 	_locomotion.clamp_to_bounds()
@@ -258,12 +261,8 @@ func clear_move_input() -> void:
 
 
 func request_attack() -> bool:
-	if not _can_combat():
-		return false
-	_attack_buffer.clear()
-	if not _try_attack():
-		_attack_buffer.push(attack_buffer_seconds)
-	return true
+	_combat.buffer_seconds = attack_buffer_seconds
+	return _combat.request_attack(_try_attack)
 
 
 func _can_combat() -> bool:
@@ -275,9 +274,7 @@ func _try_attack() -> bool:
 	# WeaponManager is the single attack authority; without an equipped weapon
 	# instance there is nothing to attack with (the legacy AttackController
 	# fallback was removed).
-	if not _can_combat() or _dodge.is_dodging():
-		return false
-	if _weapons.active_instance() == null or _weapons.request_attack() <= 0:
+	if not _combat.try_start():
 		return false
 	_aim_attack()
 	_on_attack_started()
@@ -307,30 +304,9 @@ func request_lock_on() -> bool:
 
 
 func request_dodge() -> bool:
-	if not _can_combat():
-		return false
-	if not _dodge.is_ready():
-		return false
-	if not _dodge.can_interrupt_attack and _combat_busy():
-		return false
-	var cost := maxf(_dodge.stamina_cost, 0.0)
-	if not try_spend_stamina(cost):
-		return false
-	# Direction: prefer the current movement input (camera-relative); fall back to the
-	# body's facing (world -Z) so a standing dodge always goes somewhere.
-	var dir := -global_basis.z
-	var move := _locomotion.gather()
-	var world := _controller.screen_to_world_dir(move)
-	if world.length_squared() > 0.0001:
-		dir = world
-	var started := _dodge.request(dir)
+	var started := _combat.request_dodge()
 	if started:
-		_cancel_combat()
-		_controller.face_direction(dir)
 		dodged.emit()
-	else:
-		# Refund the stamina when the dodge itself refused (cooldown, mid-air...).
-		restore_stamina(cost)
 	return started
 
 
@@ -557,12 +533,7 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 ## Cycle the weapon loadout (Tab / Y / touch button). Returns false when there is
 ## no second weapon to switch to.
 func request_weapon_switch() -> bool:
-	if not _can_combat() or _dodge.is_dodging():
-		return false
-	var switched := _weapons.cycle_weapon()
-	if switched:
-		_attack_buffer.clear()
-	return switched
+	return _combat.request_weapon_switch()
 
 
 ## Starter kit: daily loadout (or Gladius) in slot 0 + the first skill unlocked
@@ -633,10 +604,6 @@ func _on_attack_started() -> void:
 		_player_audio.play_attack()
 
 
-func _on_attack_finished() -> void:
-	attack_finished.emit()
-
-
 func _on_dodge_started() -> void:
 	if _player_audio != null:
 		_player_audio.play_dodge()
@@ -663,14 +630,13 @@ func get_debug_snapshot() -> Dictionary:
 	}
 
 
-func _combat_busy() -> bool:
-	var inst := _weapons.active_instance()
-	return inst != null and (inst.phase == WeaponInstance.PHASE_WINDUP or inst.phase == WeaponInstance.PHASE_RECOVERY)
-
-
 func _cancel_combat() -> void:
+	_combat.cancel()
+	# Shared AttackBuffer: combat.cancel() already cleared it. Keep the local
+	# writes so a failed _ready (unbound combat) still drops a pending press.
 	_attack_buffer.clear()
-	_weapons.cancel_in_progress()
+	if _weapons != null:
+		_weapons.cancel_in_progress()
 
 
 func is_control_enabled() -> bool:

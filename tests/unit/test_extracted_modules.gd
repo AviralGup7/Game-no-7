@@ -1,8 +1,8 @@
 extends RefCounted
 
 ## Headless unit tests for modules extracted during the large-file split:
-## SpawnLedger, SaveSchema, UiText, and DamagePayload.with_amount.
-## All are pure / autoload-independent, so they run in the headless harness.
+## SpawnLedger, SaveSchema, UiText, DamagePayload.with_amount, PlayerCombat,
+## and the player-component bind/cooldown seams. All are autoload-independent.
 
 
 static func suite() -> Array:
@@ -11,6 +11,7 @@ static func suite() -> Array:
 	_save_schema(results)
 	_ui_text(results)
 	_payload_copy(results)
+	_player_modules(results)
 	return results
 
 
@@ -96,3 +97,49 @@ static func _payload_copy(results: Array) -> void:
 	_check(results, "with_amount duplicates containers",
 		src.status_effects == [&"burn"] and int(src.metadata.get("k", 0)) == 1)
 	_check(results, "with_amount floors at zero", is_equal_approx(src.with_amount(-5.0).amount, 0.0))
+
+
+# --- PlayerCombat / Dodge cooldown / Stamina delta ---
+
+static func _player_modules(results: Array) -> void:
+	var combat := PlayerCombat.new()
+	var fired := [0]
+	var accepted := combat.request_attack(func() -> bool:
+		fired[0] += 1
+		return true
+	)
+	_check(results, "unbound combat refuses attack", not accepted and fired[0] == 0)
+	_check(results, "unbound combat refuses dodge", not combat.request_dodge())
+	_check(results, "unbound combat is not busy", not combat.is_busy())
+	combat.cancel()
+	_check(results, "unbound cancel is safe", combat.buffer.remaining == 0.0)
+
+	var dodge := DodgeController.new()
+	dodge.cooldown = 0.8
+	_check(results, "unbound dodge cooldown is authored seconds", is_equal_approx(dodge._effective_cooldown(), 0.8))
+	var prog := ProgressionComponent.new()
+	prog.add_permanent_bonus(&"dodge_cooldown_multiplier", -0.1)
+	dodge.bind_motion(null, prog)
+	var one_stack := dodge._effective_cooldown()
+	_check(results, "dodge cooldown multiplies authored duration", is_equal_approx(one_stack, 0.72),
+		"got %.4f" % one_stack)
+	# The multiplier (0.9) must never replace the authored 0.8s window.
+	_check(results, "multiplier is not used as the cooldown itself", not is_equal_approx(one_stack, 0.9),
+		"got %.4f" % one_stack)
+	prog.add_permanent_bonus(&"dodge_cooldown_multiplier", -0.1)
+	_check(results, "stacked dodge reduction stays a product", is_equal_approx(dodge._effective_cooldown(), 0.64),
+		"got %.4f" % dodge._effective_cooldown())
+
+	var stamina := StaminaComponent.new()
+	stamina._current = 50.0
+	stamina._max = 100.0
+	stamina._since_spend = 10.0
+	stamina._physics_process(NAN)
+	_check(results, "NaN stamina delta does not poison regen clock",
+		is_finite(stamina._since_spend) and is_equal_approx(stamina._since_spend, 10.0),
+		"got %.4f" % stamina._since_spend)
+	stamina._physics_process(-1.0)
+	_check(results, "negative stamina delta is ignored", is_equal_approx(stamina._since_spend, 10.0))
+	stamina.free()
+	dodge.free()
+	prog.free()
