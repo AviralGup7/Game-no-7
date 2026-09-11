@@ -69,6 +69,9 @@ const MAT_METAL := "res://assets/materials/arena_metal.tres"
 const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
 const MAT_WOOD := "res://assets/materials/arena_wood.tres"
 const WAREHOUSE_SCENE := "res://data/models/warehouse/scene.gltf"
+## North compound the Nicholas-3D mesh is fitted into (east-west docks, south face).
+const WAREHOUSE_TARGET := Vector3(30.4, 5.0, 11.4)
+const WAREHOUSE_CENTER := Vector3(0.0, 0.0, -11.7)
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
@@ -228,30 +231,26 @@ func _compose_frost(half: float) -> void:
 
 # ---------------------- builders ----------------------
 
-const MAT_METAL := "res://assets/materials/arena_metal.tres"
-const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
-const MAT_WOOD := "res://assets/materials/arena_wood.tres"
-
-
-## North warehouse: brick shell, three metal dock bays, wood dock plates, NW office.
-## Sized for the 38 m Pit floor (interior_half 18). Not a scatter pool.
+## North warehouse: Nicholas-3D mesh when imported, brick fallback otherwise.
+## Collision is always the authored compound so nav matches the 38 m Pit.
 func _build_warehouse_compound() -> void:
 	var brick := _structure_mat(MAT_BRICK)
 	var metal := _structure_mat(MAT_METAL)
 	var wood := _structure_mat(MAT_WOOD)
-	_place_structure(Vector3(0.0, 2.5, -17.2), Vector3(30.4, 5.0, 0.5), brick)
-	_place_structure(Vector3(-15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick)
-	_place_structure(Vector3(15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick)
+	var show_shell := not _mount_warehouse_model()
+	_place_structure(Vector3(0.0, 2.5, -17.2), Vector3(30.4, 5.0, 0.5), brick, show_shell)
+	_place_structure(Vector3(-15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick, show_shell)
+	_place_structure(Vector3(15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick, show_shell)
 	# South dock wall: 4 m bays at x = -9, 0, 9.
-	_place_structure(Vector3(-13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal)
-	_place_structure(Vector3(-4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal)
-	_place_structure(Vector3(4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal)
-	_place_structure(Vector3(13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal)
-	_place_structure(Vector3(-9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
-	_place_structure(Vector3(0.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
-	_place_structure(Vector3(9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood)
+	_place_structure(Vector3(-13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(-4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(-9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
+	_place_structure(Vector3(0.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
+	_place_structure(Vector3(9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
 	# Office annex: raised floor along the west wall, south of the storage aisle.
-	_place_structure(Vector3(-13.2, 0.35, -8.0), Vector3(3.2, 0.7, 3.0), wood)
+	_place_structure(Vector3(-13.2, 0.35, -8.0), Vector3(3.2, 0.7, 3.0), wood, true)
 
 
 func _structure_mat(path: String) -> Material:
@@ -289,30 +288,66 @@ func _place_structure(at: Vector3, size: Vector3, mat: Material, with_mesh: bool
 	_blockers.append(AABB(at - foot_half, size))
 
 
-## Nicholas-3D warehouse (CC-BY 4.0). Mesh is ~16×5×46 m with the origin at a
-## corner; we rotate the long axis onto X, scale to the north compound, and sit
-## it on the dock line. Returns false when the glTF is not yet imported.
+## Nicholas-3D warehouse (CC-BY 4.0). PackedScene after editor import, otherwise
+## `GLTFDocument.append_from_file` so the mesh still loads headless. Fitted to
+## `WAREHOUSE_TARGET` from the imported AABB — not a guessed scale.
 func _mount_warehouse_model() -> bool:
-	var res := load(WAREHOUSE_SCENE)
-	if not res is PackedScene:
-		return false
-	var inst := res.instantiate()
-	if inst == null or not inst is Node3D:
-		if inst != null:
-			inst.free()
+	var visual := _instantiate_warehouse()
+	if visual == null:
 		return false
 	var holder := Node3D.new()
 	holder.name = "Warehouse"
-	var visual: Node3D = inst
-	visual.scale = Vector3(0.7, 0.7, 0.7)
-	visual.rotation.y = PI * 0.5
-	visual.position = Vector3(-16.1, 0.0, -5.6)
-	holder.position = Vector3(0.0, 0.0, -11.5)
 	holder.add_child(visual)
+	var bounds := _combined_local_aabb(holder)
+	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
+		holder.free()
+		return false
+	_fit_warehouse_to_compound(holder, visual)
 	add_child(holder)
 	_spawned.append(holder)
-	HdMaterials.polish(holder)
 	return true
+
+
+func _instantiate_warehouse() -> Node3D:
+	if ResourceLoader.exists(WAREHOUSE_SCENE):
+		var packed := load(WAREHOUSE_SCENE)
+		if packed is PackedScene:
+			var scene: PackedScene = packed
+			var inst := scene.instantiate()
+			if inst is Node3D:
+				return inst
+			if inst != null:
+				inst.free()
+	var doc := GLTFDocument.new()
+	var state := GLTFState.new()
+	if doc.append_from_file(WAREHOUSE_SCENE, state) != OK:
+		return null
+	var generated := doc.generate_scene(state)
+	if generated is Node3D:
+		return generated
+	if generated != null:
+		generated.free()
+	return null
+
+
+## Rotate the long axis onto X, uniform-scale into the north compound, sit on the floor.
+func _fit_warehouse_to_compound(holder: Node3D, visual: Node3D) -> void:
+	var bounds := _combined_local_aabb(holder)
+	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
+		return
+	if bounds.size.z > bounds.size.x + 0.5:
+		visual.rotation.y += PI * 0.5
+		bounds = _combined_local_aabb(holder)
+	var sx := WAREHOUSE_TARGET.x / maxf(bounds.size.x, 0.01)
+	var sz := WAREHOUSE_TARGET.z / maxf(bounds.size.z, 0.01)
+	var sy := WAREHOUSE_TARGET.y / maxf(bounds.size.y, 0.01)
+	visual.scale *= minf(sx, minf(sz, sy))
+	bounds = _combined_local_aabb(holder)
+	var center := bounds.position + bounds.size * 0.5
+	holder.position = Vector3(
+		WAREHOUSE_CENTER.x - center.x,
+		-bounds.position.y,
+		WAREHOUSE_CENTER.z - center.z)
 
 
 ## One structural column at an authored point (same collider contract as `_place_structural`).

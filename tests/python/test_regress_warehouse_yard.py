@@ -48,6 +48,37 @@ class WarehouseYardTests(unittest.TestCase):
         self.assertTrue((ROOT / "data" / "models" / "warehouse" / "scene.gltf").is_file())
         self.assertTrue((ROOT / "ASSET_LICENSES" / "nicholas3d-warehouse.txt").is_file())
 
+    def test_warehouse_model_is_mounted_and_fitted(self):
+        compound = func_body("scripts/arena/arena_decorator.gd", "_build_warehouse_compound")
+        self.assertIn("_mount_warehouse_model()", compound)
+        self.assertIn("show_shell", compound)
+        self.assertEqual(compound.count("const MAT_"), 0)
+        mount = func_body("scripts/arena/arena_decorator.gd", "_mount_warehouse_model")
+        self.assertIn("_instantiate_warehouse()", mount)
+        self.assertIn("_fit_warehouse_to_compound(", mount)
+        self.assertNotIn("HdMaterials.polish", mount)
+        self.assertNotIn("0.7", mount)
+        load = func_body("scripts/arena/arena_decorator.gd", "_instantiate_warehouse")
+        self.assertIn("PackedScene", load)
+        self.assertIn("GLTFDocument.new()", load)
+        self.assertIn("append_from_file", load)
+        self.assertIn("generate_scene", load)
+        fit = func_body("scripts/arena/arena_decorator.gd", "_fit_warehouse_to_compound")
+        self.assertIn("_combined_local_aabb", fit)
+        self.assertIn("WAREHOUSE_TARGET", fit)
+        self.assertIn("WAREHOUSE_CENTER", fit)
+        src = read("scripts/arena/arena_decorator.gd")
+        self.assertEqual(src.count('const MAT_METAL :='), 1)
+        self.assertEqual(src.count('const MAT_BRICK :='), 1)
+        self.assertEqual(src.count('const MAT_WOOD :='), 1)
+        gltf = read("data/models/warehouse/scene.gltf")
+        self.assertIn('"version": "2.0"', gltf)
+        self.assertIn("scene.bin", gltf)
+        self.assertTrue((ROOT / "data" / "models" / "warehouse" / "scene.bin").is_file())
+        self.assertTrue(
+            (ROOT / "data" / "models" / "warehouse" / "textures" / "WetConcrete_baseColor.png").is_file()
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
