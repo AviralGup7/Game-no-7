@@ -567,8 +567,89 @@ func max_simultaneous_enemies() -> int:
 			return 10
 
 
+## Live projectile budget. Independent of ProjectilePool.pool_size (the
+## physical idle list); fire() never lets more than this stay in the air.
+func max_projectiles() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 48
+		TIER_HIGH:
+			return 32
+		TIER_MEDIUM:
+			return 20
+		_:
+			return 12
+
+
+## Live pickup budget. PickupManager.max_live_pickups is mins against this.
+func max_pickups() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 24
+		TIER_HIGH:
+			return 18
+		TIER_MEDIUM:
+			return 12
+		_:
+			return 8
+
+
+## Concurrent GPU particle bursts. Never exceeds EffectDirector.MAX_BURSTS.
+func max_vfx_bursts() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 10
+		TIER_HIGH:
+			return 8
+		TIER_MEDIUM:
+			return 6
+		_:
+			return 4
+
+
+## Concurrent telegraph/impact rings. Never exceeds EffectDirector.MAX_RINGS.
+func max_vfx_rings() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 14
+		TIER_HIGH:
+			return 10
+		TIER_MEDIUM:
+			return 8
+		_:
+			return 5
+
+
+## Concurrent world Foley voices. Never exceeds SpatialVoicePool.MAX_VOICES.
+func max_spatial_voices() -> int:
+	match _tier:
+		TIER_ULTRA:
+			return 16
+		TIER_HIGH:
+			return 12
+		TIER_MEDIUM:
+			return 8
+		_:
+			return 4
+
+
+## One dictionary the PoolGovernor and debug overlay both read so a new cap
+## cannot be added to one path and forgotten on the other.
+func pool_budgets() -> Dictionary:
+	return {
+		"projectiles": max_projectiles(),
+		"pickups": max_pickups(),
+		"vfx_bursts": max_vfx_bursts(),
+		"vfx_rings": max_vfx_rings(),
+		"spatial_voices": max_spatial_voices(),
+		"damage_numbers": max_damage_numbers(),
+		"enemies": max_simultaneous_enemies(),
+	}
+
+
 func get_debug_snapshot() -> Dictionary:
 	var stats := get_frame_time_stats()
+	var budgets := pool_budgets()
 	return {
 		"tier": get_tier_name(),
 		"avg_fps": get_average_fps(),
@@ -580,6 +661,13 @@ func get_debug_snapshot() -> Dictionary:
 		"warmup": _now_ms() < _warmup_until_msec,
 		"auto_scale": _auto_scale,
 		"static_memory_mb": _static_memory_mb(),
+		"max_projectiles": int(budgets["projectiles"]),
+		"max_pickups": int(budgets["pickups"]),
+		"max_vfx_bursts": int(budgets["vfx_bursts"]),
+		"max_vfx_rings": int(budgets["vfx_rings"]),
+		"max_spatial_voices": int(budgets["spatial_voices"]),
+		"max_damage_numbers": int(budgets["damage_numbers"]),
+		"max_simultaneous_enemies": int(budgets["enemies"]),
 	}
 
 

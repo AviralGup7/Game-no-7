@@ -112,6 +112,19 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unbind_run_events()
+
+
+## GAME_OVER freeze: the player node stays in WorldRoot for the summary
+## camera, so kill-heal / kill-XP listeners would still fire on lingering
+## deaths. Unbind those run-scoped feeds; HUD EventBus stays connected.
+func isolate_run() -> void:
+	_unbind_run_events()
+	if _player_audio != null:
+		_player_audio.isolate_run()
+
+
+func _unbind_run_events() -> void:
 	if EventBus == null:
 		return
 	if EventBus.enemy_killed.is_connected(_on_enemy_kill_heal):

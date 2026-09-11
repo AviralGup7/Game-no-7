@@ -70,6 +70,7 @@ func _on_state_changed(_previous: StringName, current: StringName) -> void:
 				_start_run_waves()
 		GameRoot.State.GAME_OVER:
 			_stop_run_waves()
+			_isolate_run_pools()
 
 
 ## GameRoot.get_run() is typed (RunState): the old Dictionary/"seed" in run theater
@@ -102,6 +103,15 @@ func _stop_run_waves() -> void:
 		_wave_manager.stop()
 	if _spawn_manager != null:
 		_spawn_manager.deactivate_all()
+
+
+## Drain projectiles / pickups / VFX / hitstop / spatial Foley and unbind
+## run-scoped non-UI listeners. WorldRoot stays so the summary camera still
+## has an arena to look at; MAIN_MENU `_clear_world()` frees it later.
+func _isolate_run_pools() -> void:
+	RunIsolation.isolate_from(self)
+	if AudioManager != null:
+		AudioManager.isolate_run()
 
 
 ## Called by GameRoot when a new run is being prepared.
@@ -281,6 +291,10 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	# The beacon / relic fallback anchor sits at the arena's geometric centre.
 	objectives.configure(mode_id, arena.global_position, pickups)
 
+	_apply_pool_budgets(perf)
+	if not perf.quality_tier_changed.is_connected(_on_perf_tier_changed):
+		perf.quality_tier_changed.connect(_on_perf_tier_changed)
+
 	# Seed the player's deterministic streams + owned meta bonuses for this run.
 	var skills := player.get_skill_controller()
 	if skills != null:
@@ -393,8 +407,24 @@ func _apply_owned_unlocks(player: Player, skills: SkillController, weapons: Weap
 			weapon_slot += 1
 
 
+func _apply_pool_budgets(monitor: PerformanceMonitor = null) -> void:
+	var perf := monitor
+	if perf == null and is_inside_tree():
+		var monitors := get_tree().get_nodes_in_group("performance_monitor")
+		if not monitors.is_empty():
+			perf = monitors[0] as PerformanceMonitor
+	if perf == null:
+		return
+	PoolGovernor.apply(perf, self)
+
+
+func _on_perf_tier_changed(_old_tier: int, _new_tier: int) -> void:
+	_apply_pool_budgets()
+
+
 func _clear_world() -> void:
 	_stop_run_waves()
+	_isolate_run_pools()
 	if _world_root == null:
 		return
 	# Immediate (not deferred) teardown: build_world adds the replacement Arena /
@@ -422,5 +452,6 @@ func get_debug_snapshot() -> Dictionary:
 		"ui_root_present": _ui_root != null,
 		"run_started": _run_started,
 		"wave": _wave_manager.get_debug_snapshot() if _wave_manager != null else {},
+		"world_alive": _world_root != null and _world_root.get_child_count() > 0,
 	}
 

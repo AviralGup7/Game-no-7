@@ -117,6 +117,12 @@ func reset_effects() -> void:
 	Engine.time_scale = 1.0
 
 
+## Alias used by RunIsolation so GAME_OVER restores timescale while the
+## manager stays in the tree (WorldRoot is not freed until MAIN_MENU).
+func isolate_run() -> void:
+	reset_effects()
+
+
 func _exit_tree() -> void:
 	# Always restore global time_scale when the manager leaves the tree so a
 	# stale hitstop/slowmo never freezes the game after a run teardown.

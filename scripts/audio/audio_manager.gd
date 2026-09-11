@@ -342,6 +342,20 @@ func bind_listener(anchor: Node3D) -> void:
 	_snap_listener()
 
 
+## GAME_OVER freeze: park the 3D listener and stop world Foley. The UI bank
+## stays alive so summary buttons still click. Combat 2D SFX are not stolen
+## from the menu; spatial is the leak under the overlay.
+func isolate_run() -> void:
+	bind_listener(null)
+	if _spatial != null:
+		_spatial.isolate_run()
+
+
+func set_spatial_budget(cap: int) -> void:
+	if _spatial != null:
+		_spatial.apply_budget(cap)
+
+
 func _snap_listener() -> void:
 	if _listener == null:
 		return

@@ -19,6 +19,8 @@ var _emitters: Array = []  # Node3D or null, parallel to voices
 var _queued_place: Dictionary = {}  # idx -> {at: Vector3, emitter: Node3D}
 var _listener: Node3D = null
 var _policy: SfxPolicy = null
+var _voice_cap: int = MAX_VOICES
+var _isolated := false
 
 
 func configure(policy: SfxPolicy, clock: Callable) -> void:
@@ -71,9 +73,11 @@ func play_at(
 		action: StringName,
 		steal_token: int
 ) -> bool:
-	if stream == null:
+	if _isolated or stream == null:
 		return false
 	if not _is_finite_vec(at):
+		return false
+	if active_count() >= _voice_cap:
 		return false
 	if not SpatialAttenuation.is_hearable(get_listener_position(), at, MAX_DISTANCE):
 		return false
@@ -94,10 +98,12 @@ func play_on(
 		action: StringName,
 		steal_token: int
 ) -> bool:
-	if emitter == null or not is_instance_valid(emitter):
+	if _isolated or emitter == null or not is_instance_valid(emitter):
 		return false
 	var at := emitter.global_position
 	if stream == null or not _is_finite_vec(at):
+		return false
+	if active_count() >= _voice_cap:
 		return false
 	if not SpatialAttenuation.is_hearable(get_listener_position(), at, MAX_DISTANCE):
 		return false
@@ -171,8 +177,31 @@ func _follow_emitters() -> void:
 
 func stop_all() -> void:
 	_bank.stop_all()
+	_queued_place.clear()
 	for i in _emitters.size():
 		_emitters[i] = null
+
+
+## Park the listener and fade every world voice. UI bank is owned by
+## AudioManager and is not touched here.
+func isolate_run() -> void:
+	set_listener(null)
+	stop_all()
+	_isolated = true
+
+
+func is_isolated() -> bool:
+	return _isolated
+
+
+## Live-claim cap. New plays drop (they do not steal) once `active_count`
+## is at the budget, even if the physical 16-voice bank still has idle slots.
+func apply_budget(cap: int) -> void:
+	_voice_cap = clampi(cap, 1, MAX_VOICES)
+
+
+func voice_cap() -> int:
+	return _voice_cap
 
 
 func _is_finite_vec(v: Vector3) -> bool:

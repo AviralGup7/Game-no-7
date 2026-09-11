@@ -54,6 +54,7 @@ const UNIT_SUITES := [
 	"res://tests/unit/test_hazards.gd",
 	"res://tests/unit/test_arena_world.gd",
 	"res://tests/unit/test_performance_monitor.gd",
+	"res://tests/unit/test_pool_governor.gd",
 	"res://tests/unit/test_minimap_radar.gd",
 	"res://tests/unit/test_audio_policy.gd",
 	"res://tests/unit/test_spatial_audio.gd",
@@ -80,6 +81,7 @@ const NODE_SUITES := [
 	"res://tests/unit/test_enemy_scene_inheritance.gd",
 	"res://tests/unit/test_hazards_live.gd",
 	"res://tests/unit/test_status_manager.gd",
+	"res://tests/unit/test_run_isolation.gd",
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"

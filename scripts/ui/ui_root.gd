@@ -424,6 +424,7 @@ func _apply_settings(settings: SettingsData) -> void:
 				continue
 			monitor.set_tier(tier_idx)
 			_numbers.set_max_live(monitor.max_damage_numbers())
+			PoolGovernor.apply(monitor, self)
 	_layout.call_deferred()
 
 
@@ -442,6 +443,7 @@ func _on_monitor_tier_changed(_old_tier: int, _new_tier: int) -> void:
 	var monitor := monitors[0] as PerformanceMonitor
 	if monitor != null:
 		_numbers.set_max_live(monitor.max_damage_numbers())
+		PoolGovernor.apply(monitor, self)
 
 func get_announcement_banner() -> AnnouncementBanner: return _banner
 func get_game_hud() -> GameHud: return _hud

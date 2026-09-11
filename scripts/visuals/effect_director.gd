@@ -104,6 +104,9 @@ var _wired := false
 var _live_telegraphs := 0
 var _last_boss_at := Vector3.ZERO
 var _has_boss_at := false
+var _burst_cap: int = MAX_BURSTS
+var _ring_cap: int = MAX_RINGS
+var _isolated := false
 
 
 func _ready() -> void:
@@ -112,6 +115,36 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	_unbind_events()
+
+
+## Hide every burst/ring and drop EventBus listeners while the director stays
+## in the tree (GAME_OVER keeps WorldRoot). UI observers are not touched.
+func isolate_run() -> void:
+	_unbind_events()
+	_hide_all()
+	_isolated = true
+
+
+func is_isolated() -> bool:
+	return _isolated
+
+
+func apply_budget(bursts: int, rings: int) -> void:
+	_burst_cap = clampi(bursts, 1, MAX_BURSTS)
+	_ring_cap = clampi(rings, 1, MAX_RINGS)
+	_trim_to_budget()
+
+
+func burst_cap() -> int:
+	return _burst_cap
+
+
+func ring_cap() -> int:
+	return _ring_cap
+
+
+func _unbind_events() -> void:
 	if EventBus != null:
 		EventBus.unbind(EventBus.enemy_spawned, _on_enemy_spawned)
 		EventBus.unbind(EventBus.enemy_killed, _on_enemy_killed)
@@ -130,8 +163,38 @@ func _exit_tree() -> void:
 	_wired = false
 
 
+func _hide_all() -> void:
+	for p in _bursts:
+		if p != null:
+			p.emitting = false
+	for r in _ring_pool:
+		if r != null:
+			r.visible = false
+	_live_telegraphs = 0
+
+
+func _trim_to_budget() -> void:
+	var live_bursts := 0
+	for p in _bursts:
+		if p == null or not p.emitting:
+			continue
+		live_bursts += 1
+		if live_bursts > _burst_cap:
+			p.emitting = false
+	var live_rings := 0
+	for r in _ring_pool:
+		if r == null or not r.visible:
+			continue
+		live_rings += 1
+		if live_rings > _ring_cap:
+			r.visible = false
+	_prune_telegraph_count()
+
+
 ## Death / impact explosion at a world position (pooled, no autoload dependency).
 func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	if _isolated:
+		return
 	if _reduced_motion() and priority < PRIORITY_SKILL:
 		return
 	var p := _claim_burst(priority)
@@ -154,6 +217,8 @@ func burst_at(at: Vector3, color: Color, scale: float = 1.0, priority: int = PRI
 ## Grunt/heavy windup rings share a small budget so 20 simultaneous swings
 ## cannot drown the pool (boss/skill rings still steal).
 func try_telegraph(for_boss: bool = false) -> bool:
+	if _isolated:
+		return false
 	_prune_telegraph_count()
 	if for_boss:
 		return _can_claim_ring(PRIORITY_BOSS)
@@ -169,7 +234,7 @@ func try_telegraph(for_boss: bool = false) -> bool:
 	for r in _ring_pool:
 		if not r.visible:
 			free_count += 1
-	free_count += maxi(0, MAX_RINGS - _ring_pool.size())
+	free_count += maxi(0, _ring_cap - _ring_pool.size())
 	if free_count <= reserve:
 		return false
 	return _can_claim_ring(PRIORITY_SPAWN)
@@ -192,7 +257,7 @@ func _can_claim_ring(priority: int) -> bool:
 	for r in _ring_pool:
 		if not r.visible:
 			return true
-	if _ring_pool.size() < MAX_RINGS:
+	if _ring_pool.size() < MAX_RINGS and _ring_pool.size() < _ring_cap:
 		return true
 	for r in _ring_pool:
 		var pr: int = int(_ring_prios.get(r, PRIORITY_HIT))
@@ -206,6 +271,8 @@ func _can_claim_ring(priority: int) -> bool:
 
 
 func ring_at(at: Vector3, color: Color, radius: float = 1.0, priority: int = PRIORITY_HIT) -> void:
+	if _isolated:
+		return
 	var ring := _claim_ring(priority)
 	if ring == null:
 		return
@@ -517,14 +584,22 @@ func _on_weapon_equipped(_weapon_id: StringName, _slot: int) -> void:
 # ---------------------- pool management ----------------------
 
 func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
+	if _isolated:
+		return null
 	# No detached "template" Node: every constructed emitter must enter the
 	# owned pool below so world teardown frees its rendering resources.
+	var idle: GPUParticles3D = null
+	var emitting := 0
 	for pooled in _bursts:
-		if not pooled.emitting:
-			pooled.amount = 22
-			return pooled
-	# Grow the pool up to the mobile cap.
-	if _bursts.size() < MAX_BURSTS:
+		if pooled.emitting:
+			emitting += 1
+		elif idle == null:
+			idle = pooled
+	if idle != null and emitting < _burst_cap:
+		idle.amount = 22
+		return idle
+	# Grow the pool up to the mobile cap, but never past the governor budget.
+	if _bursts.size() < MAX_BURSTS and emitting < _burst_cap:
 		var burst := _make_burst_template() as GPUParticles3D
 		if burst == null:
 			return null
@@ -548,10 +623,18 @@ func _claim_burst(priority: int = PRIORITY_HIT) -> GPUParticles3D:
 
 
 func _claim_ring(priority: int = PRIORITY_HIT) -> Node3D:
+	if _isolated:
+		return null
+	var idle: Node3D = null
+	var visible_count := 0
 	for pooled in _ring_pool:
-		if not pooled.visible:
-			return pooled
-	if _ring_pool.size() < MAX_RINGS:
+		if pooled.visible:
+			visible_count += 1
+		elif idle == null:
+			idle = pooled
+	if idle != null and visible_count < _ring_cap:
+		return idle
+	if _ring_pool.size() < MAX_RINGS and visible_count < _ring_cap:
 		var ring := _make_ring()
 		if ring != null:
 			add_child(ring)
