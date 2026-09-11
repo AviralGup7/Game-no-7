@@ -69,9 +69,10 @@ const MAT_METAL := "res://assets/materials/arena_metal.tres"
 const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
 const MAT_WOOD := "res://assets/materials/arena_wood.tres"
 const WAREHOUSE_SCENE := "res://data/models/warehouse/scene.gltf"
-## North compound the Nicholas-3D mesh is fitted into (east-west docks, south face).
+## Outside the Pit square, north of the wall. South face (docks) meets the gate.
 const WAREHOUSE_TARGET := Vector3(30.4, 5.0, 11.4)
-const WAREHOUSE_CENTER := Vector3(0.0, 0.0, -11.7)
+const WAREHOUSE_CENTER := Vector3(0.0, 0.0, -25.5)
+const WAREHOUSE_GATE_WIDTH := 6.0
 
 var _spawned: Array[Node3D] = []
 var _rng := RngService.new()
@@ -142,29 +143,26 @@ func spawned_count() -> int:
 # ---------------------- per-arena compositions — distinct silhouettes ----------------------
 
 func _compose_default(half: float) -> void:
-	# Warehouse yard on the expanded Pit: north compound (loading docks, aisles,
-	# office annex) and a south apron around the obelisk. Coordinates are authored
-	# — this composition does not scatter or pick open spots.
+	# Warehouse sits NORTH of the Pit square. The north wall is gated so the
+	# hero walks out of the yard into the docks. Coordinates are authored —
+	# this composition does not scatter or pick open spots.
 	_build_warehouse_compound()
-	_mount_trophy_pair(4.2, -5.6, SC_SWORD_GOLD, SC_SWORD)
-	_mount_trophy_pair(-4.2, -5.6, SC_SWORD, SC_SWORD_GOLD)
-	_place_column_at(Vector3(-8.0, 0.0, -13.5), SC_PILLAR)
-	_place_column_at(Vector3(8.0, 0.0, -13.5), SC_PILLAR)
-	_place_column_at(Vector3(-8.0, 0.0, -9.0), SC_PILLAR)
-	_place_column_at(Vector3(8.0, 0.0, -9.0), SC_PILLAR)
-	# West storage aisle.
-	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -15.0), 0.65)
-	_mount_prop(SC_BOXSTACK, Vector3(-11.5, 0.0, -12.5), 0.55)
-	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -10.0), 0.65)
-	_mount_prop(SC_BARREL_STACK, Vector3(-13.2, 0.0, -12.5), 0.95)
-	# East storage aisle.
-	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -15.0), 0.65)
-	_mount_prop(SC_BOXSTACK, Vector3(11.5, 0.0, -12.5), 0.55)
-	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -10.0), 0.65)
-	_mount_prop(SC_BARREL, Vector3(13.2, 0.0, -12.5), 1.05)
-	# Cargo on the dock lip, then two yard stacks flanking the approach.
-	_mount_prop(SC_BOXSTACK, Vector3(-9.0, 0.0, -4.4), 0.55)
-	_mount_prop(SC_BOXSTACK, Vector3(9.0, 0.0, -4.4), 0.55)
+	_mount_trophy_pair(6.0, -16.0, SC_SWORD_GOLD, SC_SWORD)
+	_mount_trophy_pair(-6.0, -16.0, SC_SWORD, SC_SWORD_GOLD)
+	# Aisles inside the warehouse (outside the square).
+	_place_column_at(Vector3(-8.0, 0.0, -28.5), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -28.5), SC_PILLAR)
+	_place_column_at(Vector3(-8.0, 0.0, -23.5), SC_PILLAR)
+	_place_column_at(Vector3(8.0, 0.0, -23.5), SC_PILLAR)
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -29.5), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(-11.5, 0.0, -26.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -23.5), 0.65)
+	_mount_prop(SC_BARREL_STACK, Vector3(-13.2, 0.0, -26.5), 0.95)
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -29.5), 0.65)
+	_mount_prop(SC_BOXSTACK, Vector3(11.5, 0.0, -26.5), 0.55)
+	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -23.5), 0.65)
+	_mount_prop(SC_BARREL, Vector3(13.2, 0.0, -26.5), 1.05)
+	# Pit apron south of the gate, then two stacks on the south yard.
 	_mount_prop(SC_BOXSTACK, Vector3(-10.0, 0.0, 8.0), 0.55)
 	_mount_prop(SC_BOXSTACK, Vector3(10.0, 0.0, 8.0), 0.55)
 	_mount_prop(SC_BARREL_DECOR, Vector3(-6.5, 0.0, 14.8), 1.0)
@@ -231,26 +229,26 @@ func _compose_frost(half: float) -> void:
 
 # ---------------------- builders ----------------------
 
-## North warehouse: Nicholas-3D mesh when imported, brick fallback otherwise.
-## Collision is always the authored compound so nav matches the 38 m Pit.
+## Warehouse north of the Pit square. South face is gated (6 m) to match the
+## open section of Wall_N. Collision is always the authored compound.
 func _build_warehouse_compound() -> void:
 	var brick := _structure_mat(MAT_BRICK)
 	var metal := _structure_mat(MAT_METAL)
 	var wood := _structure_mat(MAT_WOOD)
 	var show_shell := not _mount_warehouse_model()
-	_place_structure(Vector3(0.0, 2.5, -17.2), Vector3(30.4, 5.0, 0.5), brick, show_shell)
-	_place_structure(Vector3(-15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick, show_shell)
-	_place_structure(Vector3(15.2, 2.5, -11.7), Vector3(0.5, 5.0, 11.4), brick, show_shell)
-	# South dock wall: 4 m bays at x = -9, 0, 9.
-	_place_structure(Vector3(-13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(-4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(4.5, 2.2, -6.2), Vector3(5.0, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(13.2, 2.2, -6.2), Vector3(4.0, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(-9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
-	_place_structure(Vector3(0.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
-	_place_structure(Vector3(9.0, 0.22, -5.2), Vector3(3.6, 0.44, 1.8), wood, true)
-	# Office annex: raised floor along the west wall, south of the storage aisle.
-	_place_structure(Vector3(-13.2, 0.35, -8.0), Vector3(3.2, 0.7, 3.0), wood, true)
+	var half_x := WAREHOUSE_TARGET.x * 0.5
+	var half_z := WAREHOUSE_TARGET.z * 0.5
+	var back_z := WAREHOUSE_CENTER.z - half_z
+	var south_z := WAREHOUSE_CENTER.z + half_z
+	_place_structure(Vector3(0.0, 2.5, back_z), Vector3(WAREHOUSE_TARGET.x, 5.0, 0.5), brick, show_shell)
+	_place_structure(Vector3(-half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
+	_place_structure(Vector3(half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
+	var wing := (WAREHOUSE_TARGET.x - WAREHOUSE_GATE_WIDTH) * 0.5
+	var wing_x := WAREHOUSE_GATE_WIDTH * 0.5 + wing * 0.5
+	_place_structure(Vector3(-wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
+	_place_structure(Vector3(0.0, 0.22, south_z + 0.6), Vector3(5.5, 0.44, 1.8), wood, true)
+	_place_structure(Vector3(-13.2, 0.35, WAREHOUSE_CENTER.z), Vector3(3.2, 0.7, 3.0), wood, true)
 
 
 func _structure_mat(path: String) -> Material:

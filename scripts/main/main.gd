@@ -164,8 +164,8 @@ func _spawn_player(arena: Arena) -> Player:
 	_validate_player_visual(player)
 	player.reset_for_new_run(spawn)
 	GameRoot.set_active_player(player)
-	# Keep the player inside the arena interior.
-	player.set_bounds(arena.get_interior_half())
+	# Pit combat uses interior_half; the player may walk the north warehouse yard.
+	player.set_bounds(arena.get_bounds_half())
 	player.set_control_enabled(true)
 	_setup_camera(player)
 	return player

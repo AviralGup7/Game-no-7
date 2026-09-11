@@ -238,7 +238,9 @@
       "author": "Nicholas-3D (https://sketchfab.com/Nicholas01)",
       "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
       "source": "https://sketchfab.com/3d-models/warehouse-fbx-model-free-daa7fd3ff88945298d00045ca40a4c03",
-      "title": "Warehouse FBX Model Free"
+      "title": "Warehouse FBX Model Free",
+      "gate": "open",
+      "gate_note": "South dock (mesh X=-16) opened for Pit entry"
     },
     "generator": "Sketchfab-16.15.0",
     "version": "2.0"
@@ -486,7 +488,10 @@
         0.0,
         1.0
       ],
-      "name": "NurbsPath.005"
+      "name": "NurbsPath.005",
+      "extras": {
+        "gate": "open"
+      }
     },
     {
       "mesh": 0,

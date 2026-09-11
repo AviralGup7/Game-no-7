@@ -26,6 +26,9 @@ const ARENA_GROUP := &"arena"
 @export var arena_id: StringName = &"default_arena"
 ## Interior half-extent used to keep actors in-bounds and build the nav floor.
 @export var interior_half: float = 12.0
+## Player walk box including the north warehouse yard (outside the Pit square).
+## Combat nav and enemy spawns stay on `interior_half`.
+@export var bounds_half: float = 32.0
 @export var min_spawn_distance: float = 6.0
 ## Nav grid cell size (meters). 0.5 keeps paths smooth on a 24 m arena at a
 ## trivial cost (one shared grid, rebuilt only when the player crosses a cell).
@@ -358,6 +361,12 @@ func get_landmark() -> ArenaLandmark:
 
 func get_interior_half() -> float:
 	return interior_half
+
+
+func get_bounds_half() -> float:
+	if not is_finite(bounds_half) or bounds_half < interior_half:
+		return interior_half
+	return bounds_half
 
 
 func get_min_spawn_distance() -> float:
