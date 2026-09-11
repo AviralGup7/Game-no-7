@@ -155,6 +155,22 @@ func _connect_combat_signals() -> void:
 
 
 func _exit_tree() -> void:
+	if is_instance_valid(_player):
+		if _player.attack_started.is_connected(_on_attack):
+			_player.attack_started.disconnect(_on_attack)
+		if _player.dodged.is_connected(_on_dodge):
+			_player.dodged.disconnect(_on_dodge)
+		if _player.damaged.is_connected(_on_hurt):
+			_player.damaged.disconnect(_on_hurt)
+		if _player.died.is_connected(_on_death):
+			_player.died.disconnect(_on_death)
+		if _player.respawned.is_connected(reset):
+			_player.respawned.disconnect(reset)
+	if is_instance_valid(_weapons):
+		if _weapons.attack_resolved.is_connected(_on_contact):
+			_weapons.attack_resolved.disconnect(_on_contact)
+		if _weapons.weapon_switched_local.is_connected(_on_switch):
+			_weapons.weapon_switched_local.disconnect(_on_switch)
 	if EventBus == null:
 		return
 	if EventBus.skill_cast.is_connected(_on_skill_cast):
@@ -180,6 +196,8 @@ func _pin_visual_xz() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if _player == null:
+		return
+	if not is_finite(_delta) or _delta < 0.0:
 		return
 	_pin_visual_xz()
 	var plant := FootPlant.apply(_player, 0.14, _delta)

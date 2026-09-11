@@ -51,9 +51,11 @@ func _create_persistent_directors() -> void:
 	_tutorial.name = "TutorialManager"
 	add_child(_tutorial)
 	# The coach speaks through the HUD announcement banner (UI children are ready
-	# before Main, so the banner already exists).
+	# before Main, so the banner already exists). Toast is the fallback when the
+	# layout solver collapses the banner on a short screen.
 	if _ui_root != null:
 		_tutorial.bind_banner(_ui_root.get_announcement_banner())
+		_tutorial.bind_hud(_ui_root.get_game_hud())
 	_soak = RuntimeSoak.new()
 	_soak.name = "RuntimeSoak"
 	add_child(_soak)
@@ -287,10 +289,9 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	weapons.configure(run_seed)
 	_apply_owned_unlocks(player, skills, weapons)
 	_attach_build_effects(player, run_seed)
-	# Tutorial coach follows real player actions.
+	# Tutorial owns the attack/dodge binds; Main only hands it the live player.
 	if _tutorial != null:
-		player.attack_started.connect(_tutorial.notify_player_attacked)
-		player.dodged.connect(_tutorial.notify_player_dodged)
+		_tutorial.bind_player(player)
 	if _meta != null:
 		_meta.apply_all_to_run()
 	_apply_player_cosmetics(player)

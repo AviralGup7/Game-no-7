@@ -259,10 +259,10 @@ func _refresh_combo_label() -> void:
 		_combo_label.text = "×%d" % _combo_cached if _compact else "COMBO ×%d" % _combo_cached
 
 
-func show_toast(message: String) -> void:
+func show_toast(message: String, duration_ms: int = 3500) -> void:
 	_toast_label.text = message
 	_toast_label.visible = _toast_fits
-	_toast_show_until = Time.get_ticks_msec() + 3500
+	_toast_show_until = Time.get_ticks_msec() + maxi(duration_ms, 0)
 
 
 func _process(delta: float) -> void:

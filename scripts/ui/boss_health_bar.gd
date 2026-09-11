@@ -80,19 +80,20 @@ func _make_bar(fill: Color) -> ProgressBar:
 func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 	_unbind()
 	_spawn_token += 1
-	_boss = boss
+	var enemy := boss as EnemyBase
+	_boss = enemy
 	_name_label.text = _boss_name(boss)
 	_phase_label.text = "BOSS ENCOUNTER"
 	_ghost_value = 1.0
 	_bar.value = 1.0
 	_ghost.value = 1.0
-	if boss is Node:
-		_health = (boss as Node).get_node_or_null("HealthComponent")
-		if _health != null and _health.has_signal("health_changed"):
+	if enemy != null:
+		_health = enemy.get_health_component()
+		if _health != null:
 			_health.health_changed.connect(_on_health_changed)
 			_on_health_changed(_health.current_health, _health.max_health)
-		if boss.has_signal("died"):
-			boss.died.connect(_on_boss_died)
+		if not enemy.died.is_connected(_on_boss_died):
+			enemy.died.connect(_on_boss_died)
 	visible = true
 	_fade_to(1.0, 0.25)
 
@@ -116,7 +117,7 @@ func _on_health_changed(current: float, maximum: float) -> void:
 func _on_phase_changed(boss: Node, phase: int, max_phases: int) -> void:
 	if boss != _boss:
 		return
-	var controller := (boss as Node).get_node_or_null("BossController") as BossController if boss is Node else null
+	var controller := boss.get_node_or_null("BossController") as BossController if boss != null else null
 	var pname := ""
 	if controller != null:
 		pname = String(controller.phase_name())
@@ -162,16 +163,18 @@ func _hide_bar() -> void:
 
 
 func _unbind() -> void:
-	if _health != null and is_instance_valid(_health) and _health.has_signal("health_changed") and _health.health_changed.is_connected(_on_health_changed):
+	if _health != null and is_instance_valid(_health) and _health.health_changed.is_connected(_on_health_changed):
 		_health.health_changed.disconnect(_on_health_changed)
-	if _boss != null and is_instance_valid(_boss) and (_boss as Node).has_signal("died") and (_boss as Node).died.is_connected(_on_boss_died):
-		(_boss as Node).died.disconnect(_on_boss_died)
+	if _boss != null and is_instance_valid(_boss) and _boss.died.is_connected(_on_boss_died):
+		_boss.died.disconnect(_on_boss_died)
 	_boss = null
 	_health = null
 
 
 func _process(delta: float) -> void:
 	if not is_visible_in_tree() or _bar == null:
+		return
+	if not is_finite(delta) or delta <= 0.0:
 		return
 	# Ghost bar eases toward the real value (recent-damage readability).
 	if _reduced_motion: _ghost_value = float(_bar.value)
