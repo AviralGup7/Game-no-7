@@ -289,15 +289,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/audio/audio_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Could not parse global class "SpatialVoicePool" from "res://scripts/audio/spatial_voice_pool.gd".
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:54)
-SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:122)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "listen_at" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:316)
-SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:317)
-ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Parse error".
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:83)
+ERROR: Failed to load script "res://scripts/audio/audio_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/audio/mix_snapshot.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -325,10 +319,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/audio/spatial_voice_pool.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Expected indented block after "if" block.
-          at: GDScript::reload (res://scripts/audio/spatial_voice_pool.gd:115)
-ERROR: Failed to load script "res://scripts/audio/spatial_voice_pool.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/audio/voice_bank.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2721,14 +2711,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/unit/test_spatial_audio.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
-          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:364)
-SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
-          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:365)
-SCRIPT ERROR: Parse Error: Could not resolve class "SpatialVoicePool", because of a parser error.
-          at: GDScript::reload (res://tests/unit/test_spatial_audio.gd:366)
-ERROR: Failed to load script "res://tests/unit/test_spatial_audio.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/unit/test_status_manager.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
