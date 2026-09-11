@@ -1,4 +1,4 @@
-"""Regression and verification tests for the 3D modular wall and ground models and PBR assets."""
+"""Regression and verification tests for the 3D modular wall, ground, and ceiling models and PBR assets."""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,7 @@ from tool.validate_assets import check_model, gltf_document
 from tool.validate_resources import check_file
 
 
-class WallAndGroundModelTests(unittest.TestCase):
+class EnvironmentModelTests(unittest.TestCase):
     def test_wall_models_exist_and_validate(self):
         wall_models = [
             "data/models/wall/wall.glb",
@@ -33,13 +33,16 @@ class WallAndGroundModelTests(unittest.TestCase):
                 self.assertIn(required_attr, attrs, f"Missing {required_attr} in {rel_path}")
             self.assertIn("indices", primitive)
 
-    def test_ground_models_exist_and_validate(self):
-        ground_models = [
+    def test_ground_and_ceiling_models_exist_and_validate(self):
+        models = [
             "data/models/ground/ground.glb",
             "data/models/ground_hazard/ground_hazard.glb",
             "data/models/ground_tech/ground_tech.glb",
+            "data/models/ceiling/ceiling.glb",
+            "data/models/ceiling_hazard/ceiling_hazard.glb",
+            "data/models/ceiling_tech/ceiling_tech.glb",
         ]
-        for rel_path in ground_models:
+        for rel_path in models:
             glb_path = ROOT / rel_path
             self.assertTrue(glb_path.is_file(), f"{rel_path} missing")
             doc = check_model(glb_path, {glb_path.resolve()})
@@ -78,6 +81,9 @@ class WallAndGroundModelTests(unittest.TestCase):
             ROOT / "data/models/ground/textures",
             ROOT / "data/models/ground_hazard/textures",
             ROOT / "data/models/ground_tech/textures",
+            ROOT / "data/models/ceiling/textures",
+            ROOT / "data/models/ceiling_hazard/textures",
+            ROOT / "data/models/ceiling_tech/textures",
         ]
         for d in dirs:
             self.assertTrue(d.is_dir(), f"Missing texture directory {d}")
@@ -96,6 +102,9 @@ class WallAndGroundModelTests(unittest.TestCase):
             "scenes/environment/ground.tscn",
             "scenes/environment/ground_hazard.tscn",
             "scenes/environment/ground_tech.tscn",
+            "scenes/environment/ceiling.tscn",
+            "scenes/environment/ceiling_hazard.tscn",
+            "scenes/environment/ceiling_tech.tscn",
         ]
         for rel_scene in scenes:
             scene_path = ROOT / rel_scene
@@ -109,6 +118,7 @@ class WallAndGroundModelTests(unittest.TestCase):
             ROOT / "data/models/wall/wall_render.png",
             ROOT / "data/models/wall/wall_variants_render.png",
             ROOT / "data/models/ground/ground_render.png",
+            ROOT / "data/models/ceiling/ceiling_render.png",
             ROOT / "data/models/environment_showcase.png",
         ]
         for r in renders:

@@ -748,7 +748,71 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.03, 0)
 shape = SubResource("Shape_{model_id}_col")
 """)
 
-    print("All wall and ground variants built successfully!")
+    
+    # 4. Load Ceiling Geometry
+    with open(ROOT / "ceiling.json", "r", encoding="utf-8") as f:
+        ceiling_data = json.load(f)
+    ceiling_verts = ceiling_data["verts"]
+    ceiling_faces = ceiling_data["faces"]
+    ceiling_tris = []
+    for f in ceiling_faces:
+        if len(f) == 3:
+            ceiling_tris.append((f[0], f[1], f[2]))
+        elif len(f) == 4:
+            ceiling_tris.append((f[0], f[1], f[2]))
+            ceiling_tris.append((f[0], f[2], f[3]))
+    ceiling_normals = compute_normals(ceiling_verts, ceiling_tris)
+    ceiling_tangents = [[1.0, 0.0, 0.0, 1.0] for _ in range(len(ceiling_verts))]
+
+    ceiling_uvs = [[0.0, 0.0] for _ in range(len(ceiling_verts))]
+    for i, (x, y, z) in enumerate(ceiling_verts):
+        u = (x - (-0.5)) / 1.0
+        v = (z - (-0.5)) / 1.0
+        ceiling_uvs[i] = [max(0.001, min(0.999, u)), max(0.001, min(0.999, v))]
+
+    ceiling_configs = [
+        ("ceiling", ROOT / "data/models/ceiling", ROOT / "data/models/ceiling/raw_ceiling_military.png", "Ceiling", "Ceiling_Military_PBR", ceiling_uvs, "cyan", 0, "Ceiling"),
+        ("ceiling_hazard", ROOT / "data/models/ceiling_hazard", ROOT / "data/models/ceiling/raw_ceiling_hazard.png", "Ceiling_Hazard", "Ceiling_Hazard_PBR", ceiling_uvs, "amber", 0, "Ceiling_Hazard"),
+        ("ceiling_tech", ROOT / "data/models/ceiling_tech", ROOT / "data/models/ceiling/raw_ceiling_tech.png", "Ceiling_Tech", "Ceiling_Tech_PBR", ceiling_uvs, "blue", 0, "Ceiling_Tech"),
+    ]
+
+    for model_id, model_dir, raw_tex, mesh_n, mat_n, uvs, em_type, rot, pfx in ceiling_configs:
+        print(f"Baking Ceiling Variant: {model_id}...")
+        tex_dir = model_dir / "textures"
+        tex_maps = make_pbr_maps(raw_tex, tex_dir, pfx, em_type, rot)
+
+        glb_data = build_glb_file(ceiling_verts, ceiling_tris, ceiling_normals, uvs, ceiling_tangents, tex_maps, mesh_n, mat_n)
+        (model_dir / f"{model_id}.glb").write_bytes(glb_data)
+
+        gltf_doc, bin_bytes = build_gltf_files(ceiling_verts, ceiling_tris, ceiling_normals, uvs, ceiling_tangents, mesh_n, mat_n, pfx)
+        (model_dir / "scene.gltf").write_text(json.dumps(gltf_doc, indent=2))
+        (model_dir / "scene.bin").write_bytes(bin_bytes)
+
+        # Godot scene
+        scene_path = ROOT / f"scenes/environment/{model_id}.tscn"
+        scene_path.parent.mkdir(parents=True, exist_ok=True)
+        scene_path.write_text(f"""[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://data/models/{model_id}/{model_id}.glb" id="1_{model_id}_glb"]
+
+[sub_resource type="BoxShape3D" id="Shape_{model_id}_col"]
+size = Vector3(1.0, 0.08, 1.0)
+
+[node name="{mesh_n}" type="Node3D"]
+
+[node name="{mesh_n}Mesh" parent="." instance=ExtResource("1_{model_id}_glb")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.04, 0)
+shape = SubResource("Shape_{model_id}_col")
+""")
+
+    print("All wall, ground, and ceiling variants built successfully!")
+
 
 if __name__ == "__main__":
     build_all()

@@ -60,24 +60,6 @@ static Mat4 mat4_translate(float tx, float ty, float tz) {
     return res;
 }
 
-static Mat4 mat4_scale(float sx, float sy, float sz) {
-    Mat4 res = mat4_ident();
-    res.m[0][0] = sx; res.m[1][1] = sy; res.m[2][2] = sz;
-    return res;
-}
-
-static Mat4 mat4_mul(Mat4 a, Mat4 b) {
-    Mat4 res = {0};
-    for (int r = 0; r < 4; r++) {
-        for (int c = 0; c < 4; c++) {
-            for (int k = 0; k < 4; k++) {
-                res.m[r][c] += a.m[r][k] * b.m[k][c];
-            }
-        }
-    }
-    return res;
-}
-
 static Mat4 mat4_lookat(Vec3 eye, Vec3 target, Vec3 up) {
     Vec3 f = vec3_norm(vec3_sub(target, eye));
     Vec3 r = vec3_norm(vec3_cross(f, up));
@@ -243,16 +225,11 @@ static void rasterize_triangle(ShadedVertex v0, ShadedVertex v1, ShadedVertex v2
                                  fmaxf(0.0f, vec3_dot(N, fill_light)) * 0.35f +
                                  fmaxf(0.0f, vec3_dot(N, rim_light)) * 0.20f + 0.30f;
 
-                    // Specular highlight
-                    Vec3 view_dir = vec3(0, 0, 1);
-                    Vec3 half_v = vec3_norm(vec3_add(key_light, view_dir));
-                    float spec = powf(fmaxf(0.0f, vec3_dot(N, half_v)), 32.0f) * 0.40f;
-
                     float em_lum = fmaxf(0.0f, (tex_col.x + tex_col.y + tex_col.z) / 3.0f - 0.65f) * 2.5f;
 
-                    float r = fminf(1.0f, tex_col.x * diff + spec + em_lum * emissive_tint.x);
-                    float g = fminf(1.0f, tex_col.y * diff + spec + em_lum * emissive_tint.y);
-                    float b = fminf(1.0f, tex_col.z * diff + spec + em_lum * emissive_tint.z);
+                    float r = fminf(1.0f, tex_col.x * diff + em_lum * emissive_tint.x);
+                    float g = fminf(1.0f, tex_col.y * diff + em_lum * emissive_tint.y);
+                    float b = fminf(1.0f, tex_col.z * diff + em_lum * emissive_tint.z);
 
                     fb[fb_idx] = (Pixel){ (uint8_t)(r * 255.0f), (uint8_t)(g * 255.0f), (uint8_t)(b * 255.0f) };
                 }
@@ -499,7 +476,7 @@ void apply_wall_uv(Mesh *mesh, int wall_type) {
     }
 }
 
-void apply_ground_uv(Mesh *mesh) {
+void apply_planar_uv(Mesh *mesh) {
     for (int i = 0; i < mesh->num_vertices; i++) {
         float x = mesh->vertices[i].pos.x;
         float z = mesh->vertices[i].pos.z;
@@ -510,7 +487,7 @@ void apply_ground_uv(Mesh *mesh) {
 }
 
 int main(int argc, char **argv) {
-    int mode = (argc > 1) ? atoi(argv[1]) : 0; // 0 = wall variants, 1 = ground variants, 2 = environment showcase
+    int mode = (argc > 1) ? atoi(argv[1]) : 0;
 
     int W = 1920, H = 1080;
     Pixel *fb = (Pixel *)malloc(W * H * sizeof(Pixel));
@@ -535,7 +512,7 @@ int main(int argc, char **argv) {
     Pixel card_bg = {15, 23, 36};
 
     if (mode == 0) {
-        // MODE 0: ALL 4 WALL VARIANTS (2x2 Grid + Multi-bay Previews)
+        // MODE 0: ALL 4 WALL VARIANTS
         Mesh wall_mesh = load_json_mesh("wall.json");
 
         system("convert data/models/wall/textures/Wall_albedo.png tool/tex_wall_mil.ppm");
@@ -592,7 +569,7 @@ int main(int argc, char **argv) {
     } else if (mode == 1) {
         // MODE 1: GROUND 3D MODEL & TEXTURE VARIANTS
         Mesh ground_mesh = load_json_mesh("ground.json");
-        apply_ground_uv(&ground_mesh);
+        apply_planar_uv(&ground_mesh);
 
         system("convert data/models/ground/textures/Ground_albedo.png tool/tex_gnd_mil.ppm");
         system("convert data/models/ground_hazard/textures/Ground_Hazard_albedo.png tool/tex_gnd_haz.ppm");
@@ -673,10 +650,10 @@ int main(int argc, char **argv) {
         system("rm -f data/models/ground/ground_render.ppm tool/tex_gnd_*.ppm");
 
     } else if (mode == 2) {
-        // MODE 2: ENVIRONMENT SHOWCASE (Modular Wall & Ground Environment Assembly)
+        // MODE 2: ENVIRONMENT SHOWCASE
         Mesh wall_mesh = load_json_mesh("wall.json");
         Mesh ground_mesh = load_json_mesh("ground.json");
-        apply_ground_uv(&ground_mesh);
+        apply_planar_uv(&ground_mesh);
 
         system("convert data/models/wall/textures/Wall_albedo.png tool/tex_w_mil.ppm");
         system("convert data/models/wall_hazard/textures/Wall_Hazard_albedo.png tool/tex_w_haz.ppm");
@@ -720,7 +697,6 @@ int main(int argc, char **argv) {
             Mat4 view = mat4_lookat(eye, target, up);
             Mat4 proj = mat4_perspective(35.0f * 3.14159f / 180.0f, (float)vw / vh, 0.1f, 20.0f);
 
-            // Render Ground 2x2 Grid
             for (int gz = -1; gz <= 0; gz++) {
                 for (int gx = -1; gx <= 0; gx++) {
                     Mat4 model = mat4_translate((float)gx * 1.0f + 0.5f, 0.0f, (float)gz * 1.0f + 0.5f);
@@ -734,7 +710,6 @@ int main(int argc, char **argv) {
                 }
             }
 
-            // Render Back Wall Span (2 bays along -Z edge)
             for (int bx = -1; bx <= 0; bx++) {
                 Mat4 model = mat4_translate((float)bx * 1.00087f + 0.5f, 0.134f, -0.0f);
                 for (int i = 0; i < wall_mesh.num_triangles; i++) {
@@ -753,6 +728,89 @@ int main(int argc, char **argv) {
         fclose(out);
         system("convert data/models/environment_showcase.ppm data/models/environment_showcase.png");
         system("rm -f data/models/environment_showcase.ppm tool/tex_*.ppm");
+
+    } else if (mode == 3) {
+        // MODE 3: CEILING 3D MODEL & TEXTURE VARIANTS
+        Mesh ceiling_mesh = load_json_mesh("ceiling.json");
+        apply_planar_uv(&ceiling_mesh);
+
+        system("convert data/models/ceiling/textures/Ceiling_albedo.png tool/tex_c_mil.ppm");
+        system("convert data/models/ceiling_hazard/textures/Ceiling_Hazard_albedo.png tool/tex_c_haz.ppm");
+        system("convert data/models/ceiling_tech/textures/Ceiling_Tech_albedo.png tool/tex_c_tech.ppm");
+
+        Texture tex_mil = load_ppm("tool/tex_c_mil.ppm");
+        Texture tex_haz = load_ppm("tool/tex_c_haz.ppm");
+        Texture tex_tech = load_ppm("tool/tex_c_tech.ppm");
+
+        // CARD 1: Main Perspective 3D Tile (Looking up from below)
+        {
+            int vx = 40, vy = 60, vw = 1120, vh = 960;
+            draw_border_box(fb, vx - 4, vy - 4, vw + 8, vh + 8, (Pixel){30, 58, 88}, card_bg);
+
+            Vec3 eye = {0.85f, -0.95f, 1.15f};
+            Vec3 target = {0.0f, -0.02f, 0.0f};
+            Vec3 up = {0.0f, 1.0f, 0.0f};
+            Mat4 view = mat4_lookat(eye, target, up);
+            Mat4 proj = mat4_perspective(35.0f * 3.14159f / 180.0f, (float)vw / vh, 0.1f, 20.0f);
+            Mat4 model = mat4_ident();
+
+            for (int i = 0; i < ceiling_mesh.num_triangles; i++) {
+                Triangle t = ceiling_mesh.triangles[i];
+                ShadedVertex v0 = transform_vertex(ceiling_mesh.vertices[t.v0], model, view, proj);
+                ShadedVertex v1 = transform_vertex(ceiling_mesh.vertices[t.v1], model, view, proj);
+                ShadedVertex v2 = transform_vertex(ceiling_mesh.vertices[t.v2], model, view, proj);
+                rasterize_triangle(v0, v1, v2, &tex_mil, fb, zb, W, H, vx, vy, vw, vh, vec3(0.2f, 0.8f, 1.0f));
+            }
+        }
+
+        // CARD 2: Industrial Hazard Ceiling (Top Right)
+        {
+            int vx = 1200, vy = 60, vw = 680, vh = 460;
+            draw_border_box(fb, vx - 4, vy - 4, vw + 8, vh + 8, (Pixel){30, 58, 88}, card_bg);
+
+            Vec3 eye = {0.75f, -0.85f, 1.05f};
+            Vec3 target = {0.0f, -0.02f, 0.0f};
+            Vec3 up = {0.0f, 1.0f, 0.0f};
+            Mat4 view = mat4_lookat(eye, target, up);
+            Mat4 proj = mat4_perspective(35.0f * 3.14159f / 180.0f, (float)vw / vh, 0.1f, 20.0f);
+            Mat4 model = mat4_ident();
+
+            for (int i = 0; i < ceiling_mesh.num_triangles; i++) {
+                Triangle t = ceiling_mesh.triangles[i];
+                ShadedVertex v0 = transform_vertex(ceiling_mesh.vertices[t.v0], model, view, proj);
+                ShadedVertex v1 = transform_vertex(ceiling_mesh.vertices[t.v1], model, view, proj);
+                ShadedVertex v2 = transform_vertex(ceiling_mesh.vertices[t.v2], model, view, proj);
+                rasterize_triangle(v0, v1, v2, &tex_haz, fb, zb, W, H, vx, vy, vw, vh, vec3(1.0f, 0.7f, 0.1f));
+            }
+        }
+
+        // CARD 3: Quantum Tech Ceiling (Bottom Right)
+        {
+            int vx = 1200, vy = 560, vw = 680, vh = 460;
+            draw_border_box(fb, vx - 4, vy - 4, vw + 8, vh + 8, (Pixel){30, 58, 88}, card_bg);
+
+            Vec3 eye = {0.75f, -0.85f, 1.05f};
+            Vec3 target = {0.0f, -0.02f, 0.0f};
+            Vec3 up = {0.0f, 1.0f, 0.0f};
+            Mat4 view = mat4_lookat(eye, target, up);
+            Mat4 proj = mat4_perspective(35.0f * 3.14159f / 180.0f, (float)vw / vh, 0.1f, 20.0f);
+            Mat4 model = mat4_ident();
+
+            for (int i = 0; i < ceiling_mesh.num_triangles; i++) {
+                Triangle t = ceiling_mesh.triangles[i];
+                ShadedVertex v0 = transform_vertex(ceiling_mesh.vertices[t.v0], model, view, proj);
+                ShadedVertex v1 = transform_vertex(ceiling_mesh.vertices[t.v1], model, view, proj);
+                ShadedVertex v2 = transform_vertex(ceiling_mesh.vertices[t.v2], model, view, proj);
+                rasterize_triangle(v0, v1, v2, &tex_tech, fb, zb, W, H, vx, vy, vw, vh, vec3(0.1f, 0.6f, 1.0f));
+            }
+        }
+
+        FILE *out = fopen("data/models/ceiling/ceiling_render.ppm", "wb");
+        fprintf(out, "P6\n%d %d\n255\n", W, H);
+        fwrite(fb, 1, W * H * 3, out);
+        fclose(out);
+        system("convert data/models/ceiling/ceiling_render.ppm data/models/ceiling/ceiling_render.png");
+        system("rm -f data/models/ceiling/ceiling_render.ppm tool/tex_c_*.ppm");
     }
 
     return 0;

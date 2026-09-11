@@ -1,0 +1,226 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Game-no-7 3D Modular Environment Builder",
+    "copyright": "Game-no-7 asset repository"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Ceiling_Tech",
+      "mesh": 0
+    }
+  ],
+  "materials": [
+    {
+      "name": "Ceiling_Tech_PBR",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 2
+        },
+        "metallicFactor": 0.85,
+        "roughnessFactor": 0.55
+      },
+      "normalTexture": {
+        "index": 1,
+        "scale": 1.0
+      },
+      "emissiveTexture": {
+        "index": 3
+      },
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    }
+  ],
+  "images": [
+    {
+      "name": "Ceiling_Tech_PBR_BaseColor",
+      "uri": "textures/Ceiling_Tech_albedo.png"
+    },
+    {
+      "name": "Ceiling_Tech_PBR_Normal",
+      "uri": "textures/Ceiling_Tech_normal.png"
+    },
+    {
+      "name": "Ceiling_Tech_PBR_ORM",
+      "uri": "textures/Ceiling_Tech_ORM.png"
+    },
+    {
+      "name": "Ceiling_Tech_PBR_Emission",
+      "uri": "textures/Ceiling_Tech_emission.png"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Ceiling_Tech_Mesh",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 1,
+            "NORMAL": 2,
+            "TANGENT": 3,
+            "TEXCOORD_0": 4
+          },
+          "indices": 0,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 1098,
+      "type": "SCALAR",
+      "min": [
+        0
+      ],
+      "max": [
+        264
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC3",
+      "min": [
+        -0.5,
+        -0.08,
+        -0.5
+      ],
+      "max": [
+        0.5,
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC3",
+      "min": [
+        -0.967539480529078,
+        -0.9997500937109545,
+        -0.967539480529078
+      ],
+      "max": [
+        0.967539480529078,
+        1.0,
+        0.967539480529078
+      ]
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC4",
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 265,
+      "type": "VEC2",
+      "min": [
+        0.001,
+        0.001
+      ],
+      "max": [
+        0.999,
+        0.999
+      ]
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 4392,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 4392,
+      "byteLength": 3180,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 7572,
+      "byteLength": 3180,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 10752,
+      "byteLength": 4240,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 14992,
+      "byteLength": 2120,
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "scene.bin",
+      "byteLength": 17112
+    }
+  ]
+}
