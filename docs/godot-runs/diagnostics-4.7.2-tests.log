@@ -122,17 +122,6 @@ Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASC
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
@@ -140,26 +129,40 @@ ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
        [1] suite (res://tests/unit/test_game_modes.gd:35)
        [2] _run_suites (res://tests/run_tests.gd:146)
        [3] _initialize (res://tests/run_tests.gd:102)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
-       [0] _snapshots (res://tests/unit/test_hazards.gd:499)
+       [0] _snapshots (res://tests/unit/test_hazards.gd:460)
        [1] suite (res://tests/unit/test_hazards.gd:27)
        [2] _run_suites (res://tests/run_tests.gd:146)
        [3] _initialize (res://tests/run_tests.gd:102)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
+   GDScript backtrace (most recent call first):
+       [0] _snapshots (res://tests/unit/test_hazards.gd:464)
+       [1] suite (res://tests/unit/test_hazards.gd:27)
+       [2] _run_suites (res://tests/run_tests.gd:146)
+       [3] _initialize (res://tests/run_tests.gd:102)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
+   GDScript backtrace (most recent call first):
+       [0] _snapshots (res://tests/unit/test_hazards.gd:487)
+       [1] suite (res://tests/unit/test_hazards.gd:27)
+       [2] _run_suites (res://tests/run_tests.gd:146)
+       [3] _initialize (res://tests/run_tests.gd:102)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
+   GDScript backtrace (most recent call first):
+       [0] _snapshots (res://tests/unit/test_hazards.gd:501)
+       [1] suite (res://tests/unit/test_hazards.gd:27)
+       [2] _run_suites (res://tests/run_tests.gd:146)
+       [3] _initialize (res://tests/run_tests.gd:102)
 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] build (res://scripts/arena/arena_landmark.gd:82)
-       [1] _refused_kind_builds_nothing (res://tests/unit/test_arena_world.gd:514)
-       [2] suite (res://tests/unit/test_arena_world.gd:117)
+       [1] _refused_kind_builds_nothing (res://tests/unit/test_arena_world.gd:539)
+       [2] suite (res://tests/unit/test_arena_world.gd:106)
        [3] _run_suites (res://tests/run_tests.gd:146)
        [4] _initialize (res://tests/run_tests.gd:102)
 ERROR: Parameter "data.tree" is null.
@@ -1129,9 +1132,8 @@ ERROR: Parameter "data.tree" is null.
        [5] suite (res://tests/unit/test_pool_governor.gd:23)
        [6] _run_suites (res://tests/run_tests.gd:146)
        [7] _initialize (res://tests/run_tests.gd:102)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 [diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
-[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 1 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
 [diagnostic] GameRoot ready
 [diagnostic] RunAnalytics ready (offline only)
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
@@ -1394,10 +1396,12 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:171)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1322 total, 2 failed
+GDScript tests: 1299 total, 4 failed
   FAIL  test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]
   FAIL  test_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
-::error title=GDScript test failures (2)::test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]%0Atest_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
+  FAIL  test_arena_obstacles_node.gd :: arena: nav grid registered obstacles + landmark footprint — count=24
+  FAIL  test_decorator_collision.gd :: decorator: no solid prop on an enemy spawn marker — offending=4 of 8 markers
+::error title=GDScript test failures (4)::test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]%0Atest_hero_rig.gd :: native robot uses vertex palette without bitmap textures — %0Atest_arena_obstacles_node.gd :: arena: nav grid registered obstacles + landmark footprint — count=24%0Atest_decorator_collision.gd :: decorator: no solid prop on an enemy spawn marker — offending=4 of 8 markers
 ========================================
 WARNING: 30 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
