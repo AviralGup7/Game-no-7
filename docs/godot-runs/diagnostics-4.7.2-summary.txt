@@ -1,4 +1,9 @@
 ########## diag-import.log
+     16 ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
+      8 ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
+      8 ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
+      8 ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
+      8 ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
 
