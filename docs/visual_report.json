@@ -1,0 +1,24 @@
+{
+  "map": "/home/user/Game-no-7/data/campaign/station_zero.json",
+  "module": 8,
+  "cell": 4,
+  "errors": 0,
+  "warnings": 0,
+  "issues": [],
+  "categories": [
+    "mesh_complexity",
+    "excessive_object_count",
+    "texture_material_problems",
+    "lod_issues",
+    "collision_complexity",
+    "duplicate_materials",
+    "huge_textures",
+    "invisible_unused_objects",
+    "draw_call_modular_pieces",
+    "lighting_problems",
+    "reflection_probe_issues",
+    "navigation_mesh_issues",
+    "streaming_scene_organization",
+    "memory_performance_risks"
+  ]
+}
