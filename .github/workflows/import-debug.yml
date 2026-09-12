@@ -91,7 +91,7 @@ jobs:
             --allow-engine-noise > check-export.log 2>&1 || true
           true
 
-      - name: Verify APK + size report
+      - name: Verify APK + size report + raw aapt forensics
         if: always()
         run: |
           set +e
@@ -101,6 +101,16 @@ jobs:
           cat check-apk.log || true
           python3 tool/apk_size_report.py "$APK_PATH" > apk-size.txt 2>&1
           echo "size report: $?" | tee -a step-results.txt
+          # Raw tool output so parse-level checker bugs are diagnosable from
+          # the committed logs without re-running the pipeline.
+          AAPT="$ANDROID_HOME/build-tools/34.0.0/aapt2"
+          "$AAPT" dump badging "$APK_PATH" > aapt-badging.txt 2>&1
+          echo "aapt badging: $?" | tee -a step-results.txt
+          "$AAPT" dump xmltree --file AndroidManifest.xml "$APK_PATH" > aapt-xmltree.txt 2>&1
+          echo "aapt xmltree: $?" | tee -a step-results.txt
+          unzip -l "$APK_PATH" > apk-entries.txt 2>&1
+          echo "APK permissions line:" | tee apk-perms.txt
+          grep "^uses-permission" aapt-badging.txt >> apk-perms.txt 2>&1 || true
           set -e
           true
 
@@ -110,7 +120,8 @@ jobs:
           mkdir -p docs/godot-runs/android-debug
           rm -f docs/godot-runs/android-debug/*
           for f in dbg-import.log check-import.log check-export.log check-apk.log \
-                   step-results.txt apk-size.txt build/export.log \
+                   step-results.txt apk-size.txt aapt-badging.txt aapt-xmltree.txt \
+                   apk-entries.txt apk-perms.txt build/export.log \
                    build/apk-validation.json; do
             cp -f "$f" docs/godot-runs/android-debug/ 2>/dev/null || true
           done
