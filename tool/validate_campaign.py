@@ -24,6 +24,18 @@ MODULE = 8
 CLEARANCE = 2.5  # half a nav cell + the capsule margin
 SUPPORTED_ENEMIES = {"basic", "fast", "heavy", "ranged", "dasher", "warlord"}
 
+# Android world budgets. The layout is bounded by the coarse 4 m navigation grid,
+# not by the deck meshes: 1,024 m permits an 864 x 672 m station (36,288 cells)
+# with headroom, and 40,960 cells keeps the blocked/flow arrays under ~200 KB
+# while the bounded flow field (see ArenaNavGrid.rebuild_flow_field) keeps each
+# combat rebuild proportional to the local crowd, not to the whole station.
+MAX_WORLD_EXTENT = 1024
+MAX_NAV_CELLS = 40960
+# CampaignDefinition refuses to load more than this offline too, so a future
+# expansion cannot author a world the APK loader would silently reject.
+MAX_FLOOR_REGIONS = 64
+MAX_TABLE_ROWS = 512
+
 
 class CampaignError(ValueError):
     pass
@@ -158,12 +170,16 @@ def validate(data, root=ROOT):
     require(data.get("world_id") == "station_zero", "Unexpected fixed world id")
     require("seed" not in data and "arena_id" not in data, "Campaign cannot require world rolls")
     bounds = data.get("bounds")
-    require(numbers(bounds, 4) and 0 < bounds[2] <= 512 and 0 < bounds[3] <= 512, "Invalid world bounds")
+    require(numbers(bounds, 4) and 0 < bounds[2] <= MAX_WORLD_EXTENT
+            and 0 < bounds[3] <= MAX_WORLD_EXTENT, "Invalid world bounds")
     require(data.get("module_size") == MODULE and data.get("navigation_cell") == CELL, "Module/nav sizes must match runtime")
     require(1 <= data.get("max_active_enemies", 0) <= 18, "Android enemy budget exceeds 18")
     require(1 <= data.get("max_visible_sectors", 0) <= 3, "Android district budget exceeds 3")
     for key in ("floors", "sectors", "props", "interactions", "encounters", "missions"):
         require(isinstance(data.get(key), list) and data[key], f"Missing/invalid {key}")
+    require(len(data["floors"]) <= MAX_FLOOR_REGIONS, "Floor regions exceed the runtime loader budget")
+    for key in ("sectors", "props", "interactions", "encounters", "missions"):
+        require(len(data[key]) <= MAX_TABLE_ROWS, f"{key} exceed the runtime loader budget")
     for floor in data["floors"]:
         require(numbers(floor, 4) and floor[2] > 0 and floor[3] > 0, "Invalid floor rectangle")
         require(all(v % MODULE == 0 for v in floor), "Floor edges must align to 8 m modules")
@@ -227,7 +243,7 @@ def validate(data, root=ROOT):
                 require((root / f"data/{kind}s/{ident}.tres").is_file(), f"Missing reward: {ident}")
     require(data["missions"][-1]["kind"] == "extract", "Campaign must end with extraction")
     topology = Topology(data)
-    require(topology.width * topology.depth <= 8192, "Navigation budget exceeded")
+    require(topology.width * topology.depth <= MAX_NAV_CELLS, "Navigation budget exceeded")
     start = tables["sectors"]["docks"]["checkpoint"]
     reachable = topology.reachable(start)
     require(bool(reachable), "Starting checkpoint is blocked")
@@ -250,80 +266,118 @@ def validate(data, root=ROOT):
 
 
 def write_svg(data, path):
+    """Author-facing overview: layout is derived from the authored world, so a
+    larger station or a longer mission chain cannot overflow the canvas."""
     graph = Topology(data)
-    x0, z0, _, _ = data["bounds"]
-    scale, left, top = 2.65, 52, 190
+    x0, z0, world_w, world_d = data["bounds"]
+    box_x, box_y, box_w, box_h = 40.0, 178.0, 960.0, 756.0
+    pad = 14.0
+    scale = min((box_w - pad * 2) / world_w, (box_h - pad * 2) / world_d)
+    chart = (world_w * scale, world_d * scale)
+    left = box_x + (box_w - chart[0]) * 0.5
+    top = box_y + (box_h - chart[1]) * 0.5
+
     def xy(point):
         return left + (point[0] - x0) * scale, top + (point[-1] - z0) * scale
-    parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="1080" viewBox="0 0 1420 1080">',
-             '<rect width="1420" height="1080" fill="#080f19"/>',
+
+    def rect(area, color, stroke="none", opacity=1):
+        x, y = xy(area[:2])
+        parts.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{area[2]*scale:.1f}" '
+                     f'height="{area[3]*scale:.1f}" fill="{color}" stroke="{stroke}" opacity="{opacity}"/>')
+
+    def circle(point, radius, color, stroke="none", width=1):
+        x, y = xy(point)
+        parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radius}" fill="{color}" '
+                     f'stroke="{stroke}" stroke-width="{width}"/>')
+
+    missions = data["missions"]
+    # Reserve the right-hand column height first: the canvas grows with the
+    # mission log instead of clipping it.
+    log_x = box_x + box_w + 20.0
+    y = 251.0
+    for mission in missions:
+        y += 21 + 17 * len(textwrap.wrap(mission["brief"], 44)) + 12
+    log_bottom = y
+    height = max(1080, int(log_bottom + 150))
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="{height}" '
+             f'viewBox="0 0 1420 {height}">',
+             f'<rect width="1420" height="{height}" fill="#080f19"/>',
              '<style>text{font-family:Arial,sans-serif}.muted{fill:#92a7bd}.white{fill:#eaf2fa}</style>',
              '<rect x="52" y="50" width="44" height="4" fill="#65d9ed"/>',
              '<text x="112" y="58" fill="#65d9ed" font-size="14" letter-spacing="3">LAST STAND / CAMPAIGN FIELD GUIDE</text>',
              '<text x="52" y="119" class="white" font-size="48" font-weight="700">STATION ZERO</text>',
              '<text x="54" y="154" class="muted" font-size="19" letter-spacing="3">THE LONG WAY HOME</text>',
-             '<rect x="40" y="178" width="960" height="756" rx="14" fill="#0c1826" stroke="#233d54"/>']
-    def rect(area, color, stroke="none", opacity=1):
-        x, y = xy(area[:2])
-        parts.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{area[2]*scale:.1f}" height="{area[3]*scale:.1f}" fill="{color}" stroke="{stroke}" opacity="{opacity}"/>')
-    def circle(point, radius, color, stroke="none", width=1):
-        x, y = xy(point)
-        parts.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radius}" fill="{color}" stroke="{stroke}" stroke-width="{width}"/>')
+             f'<rect x="{box_x}" y="{box_y}" width="{box_w}" height="{box_h}" rx="14" fill="#0c1826" stroke="#233d54"/>']
     for floor in data["floors"]:
         rect(floor, "#21364a")
     for sector in data["sectors"]:
         rect(sector["rect"], sector["accent"], opacity=.12)
         rect(sector["rect"], "none", sector["accent"])
         x, y = xy(sector["rect"][:2])
-        parts.append(f'<text x="{x+40:.1f}" y="{y+21:.1f}" fill="{sector["accent"]}" font-size="13" font-weight="700">{html.escape(sector["name"])}</text>')
+        parts.append(f'<text x="{x+8:.1f}" y="{y+17:.1f}" fill="{sector["accent"]}" font-size="11" '
+                     f'font-weight="700">{html.escape(sector["name"])}</text>')
     for prop in data["props"]:
         rect(footprint(prop), "#304453", "#547083")
     current = data["sectors"][0]["checkpoint"]
     interactions = {item["id"]: item for item in data["interactions"]}
     route = []
-    for mission in data["missions"]:
+    for mission in missions:
         for ident in mission["targets"]:
             point = interactions[ident]["at"]
             route.extend(graph.path(current, point))
             current = point
     encoded = " ".join(f"{xy(p)[0]:.1f},{xy(p)[1]:.1f}" for p in route)
-    parts.append(f'<polyline points="{encoded}" fill="none" stroke="#eacb79" stroke-width="2" opacity=".65" stroke-dasharray="6 5"/>')
+    parts.append(f'<polyline points="{encoded}" fill="none" stroke="#eacb79" stroke-width="2" '
+                 f'opacity=".65" stroke-dasharray="6 5"/>')
     for sector in data["sectors"]:
-        circle(sector["checkpoint"], 7, "#0b1827", "#70e6b8", 2)
+        circle(sector["checkpoint"], 5, "#0b1827", "#70e6b8", 2)
     for group in data["encounters"]:
         for member in group["members"]:
-            circle(member["at"], 3.2, "#d87871")
+            circle(member["at"], 2.6, "#d87871")
     for item in data["interactions"]:
         if item["kind"] == "cache":
             x, y = xy(item["at"])
-            parts.append(f'<rect x="{x-4:.1f}" y="{y-4:.1f}" width="8" height="8" fill="#aec3d5"/>')
-    for index, mission in enumerate(data["missions"], 1):
+            parts.append(f'<rect x="{x-3:.1f}" y="{y-3:.1f}" width="6" height="6" fill="#aec3d5"/>')
+    for index, mission in enumerate(missions, 1):
         for n, ident in enumerate(mission["targets"]):
             point = interactions[ident]["at"]
-            circle(point, 11 if n == 0 else 5, "#f4cf7a", "#101c29", 2)
+            circle(point, 9 if n == 0 else 4, "#f4cf7a", "#101c29", 2)
             if n == 0:
                 x, y = xy(point)
-                parts.append(f'<text x="{x:.1f}" y="{y+4:.1f}" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">{index}</text>')
-    parts.extend(['<text x="950" y="216" fill="#92a7bd" font-size="14">N</text>',
-                  '<path d="M970 220 V199 M965 205 L970 199 L975 205" fill="none" stroke="#92a7bd" stroke-width="1.5"/>',
-                  '<text x="1040" y="207" fill="#65d9ed" font-size="13" letter-spacing="2">MISSION LOG</text>'])
-    y = 251
-    for index, mission in enumerate(data["missions"], 1):
-        parts.append(f'<text x="1040" y="{y}" fill="#f4cf7a" font-size="16">0{index}</text>')
-        parts.append(f'<text x="1080" y="{y}" class="white" font-size="16" font-weight="700">{html.escape(mission["title"])}</text>')
-        for line in textwrap.wrap(mission["brief"], 37):
-            y += 21
-            parts.append(f'<text x="1080" y="{y}" class="muted" font-size="13">{html.escape(line)}</text>')
-        y += 37
-    parts.extend(['<circle cx="57" cy="971" r="4" fill="#f4cf7a"/><text x="70" y="976" fill="#f4cf7a" font-size="14">STORY OBJECTIVE / ROUTE</text>',
-                  '<circle cx="335" cy="971" r="4" fill="none" stroke="#70e6b8" stroke-width="1.5"/><text x="348" y="976" fill="#70e6b8" font-size="14">CHECKPOINT</text>',
-                  '<rect x="535" y="967" width="8" height="8" fill="#aec3d5"/><text x="552" y="976" fill="#aec3d5" font-size="14">SUPPLY LOCKER</text>',
-                  '<circle cx="765" cy="971" r="3.5" fill="#d87871"/><text x="779" y="976" fill="#d87871" font-size="14">AUTHORED GUARD</text>',
-                  '<path d="M52 1000 H1370" stroke="#233d54"/>',
-                  '<text x="52" y="1036" class="white" font-size="15">352 × 272 m footprint  /  6 connected districts  /  7 objectives  /  8 finite encounters</text>',
-                  '<text x="1370" y="1036" text-anchor="end" class="muted" font-size="13">FIXED WORLD · ANDROID-FIRST</text>', '</svg>'])
+                parts.append(f'<text x="{x:.1f}" y="{y+3.5:.1f}" text-anchor="middle" font-size="10" '
+                             f'font-weight="700" fill="#152434">{index}</text>')
+    parts.extend([f'<text x="{box_x + box_w - 34:.0f}" y="{box_y + 38}" fill="#92a7bd" font-size="14">N</text>',
+                  f'<path d="M{box_x + box_w - 14} {box_y + 42} V{box_y + 21} '
+                  f'M{box_x + box_w - 19} {box_y + 27} L{box_x + box_w - 14} {box_y + 21} '
+                  f'L{box_x + box_w - 9} {box_y + 27}" fill="none" stroke="#92a7bd" stroke-width="1.5"/>',
+                  f'<text x="{log_x}" y="207" fill="#65d9ed" font-size="13" letter-spacing="2">MISSION LOG</text>'])
+    y = 251.0
+    for index, mission in enumerate(missions, 1):
+        parts.append(f'<text x="{log_x}" y="{y}" fill="#f4cf7a" font-size="15">{index:02d}</text>')
+        parts.append(f'<text x="{log_x + 40}" y="{y}" class="white" font-size="15" '
+                     f'font-weight="700">{html.escape(mission["title"])}</text>')
+        for line in textwrap.wrap(mission["brief"], 44):
+            y += 17
+            parts.append(f'<text x="{log_x + 40}" y="{y}" class="muted" font-size="12.5">{html.escape(line)}</text>')
+        y += 33
+    base = height - 104
+    parts.extend([f'<circle cx="57" cy="{base}" r="4" fill="#f4cf7a"/>'
+                  f'<text x="70" y="{base+5}" fill="#f4cf7a" font-size="14">STORY OBJECTIVE / ROUTE</text>',
+                  f'<circle cx="335" cy="{base}" r="4" fill="none" stroke="#70e6b8" stroke-width="1.5"/>'
+                  f'<text x="348" y="{base+5}" fill="#70e6b8" font-size="14">CHECKPOINT</text>',
+                  f'<rect x="535" y="{base-4}" width="8" height="8" fill="#aec3d5"/>'
+                  f'<text x="552" y="{base+5}" fill="#aec3d5" font-size="14">SUPPLY LOCKER</text>',
+                  f'<circle cx="765" cy="{base}" r="3.5" fill="#d87871"/>'
+                  f'<text x="779" y="{base+5}" fill="#d87871" font-size="14">AUTHORED GUARD</text>',
+                  f'<path d="M52 {base+29} H1370" stroke="#233d54"/>',
+                  f'<text x="52" y="{base+65}" class="white" font-size="15">{world_w} × {world_d} m footprint  /  '
+                  f'{len(data["sectors"])} connected districts  /  {len(missions)} objectives  /  '
+                  f'{len(data["encounters"])} finite encounters</text>',
+                  f'<text x="1370" y="{base+65}" text-anchor="end" class="muted" font-size="13">'
+                  f'FIXED WORLD · ANDROID-FIRST</text>', '</svg>'])
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text("\n".join(parts) + "\n", encoding="utf-8")
+
 
 
 def main(argv=None):

@@ -73,10 +73,10 @@ func _render_perimeter_wall(parent: Node3D, bounds: AABB, fallback: Material) ->
 
 func _floor_style(sector_id: StringName) -> StringName:
 	# Hazard plating belongs around heat/cargo machinery; clean powered panels
-	# mark transit and habitation. Docks/command retain military tread.
-	if sector_id == &"reactor" or sector_id == &"cargo":
+	# mark transit, habitation and life support. Docks/command retain military tread.
+	if sector_id == &"reactor" or sector_id == &"cargo" or sector_id == &"foundry" or sector_id == &"salvage":
 		return &"hazard"
-	if sector_id == &"transit" or sector_id == &"habitat":
+	if sector_id == &"transit" or sector_id == &"habitat" or sector_id == &"medbay" or sector_id == &"hydroponics":
 		return &"tech"
 	return &"military"
 
@@ -91,11 +91,11 @@ func _wall_style_at(at: Vector3) -> StringName:
 		if distance < nearest_distance:
 			nearest_distance = distance
 			nearest_id = StringName(String(sector.id))
-	if nearest_id == &"reactor":
+	if nearest_id == &"reactor" or nearest_id == &"foundry":
 		return &"hazard"
-	if nearest_id == &"transit" or nearest_id == &"habitat":
+	if nearest_id == &"transit" or nearest_id == &"habitat" or nearest_id == &"hydroponics" or nearest_id == &"medbay":
 		return &"tech"
-	if nearest_id == &"cargo" or nearest_id == &"command":
+	if nearest_id == &"cargo" or nearest_id == &"command" or nearest_id == &"salvage":
 		return &"rusted"
 	return &"military"
 

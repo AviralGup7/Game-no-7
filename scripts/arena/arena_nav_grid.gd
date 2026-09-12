@@ -28,6 +28,19 @@ const AGENT_MARGIN := 0.5
 const WALL_MARGIN := 0.75
 const INF := 1.0e9
 
+## Authored-campaign world budgets. The station is 864 x 672 m = 36,288 cells,
+## so the arrays stay under ~200 KB, but a full-grid Dijkstra would no longer
+## be free: rebuild_flow_field() bounds its expansion to the crowd around the
+## target and find_path() reuses its scratch buffers behind an expansion cap.
+const WORLD_EXTENT_LIMIT := 1024.0
+const WORLD_CELL_LIMIT := 40960
+## One-off A* budget. A route across the whole station expands a few thousand
+## cells; the cap turns an unbounded search into a partial route instead of a
+## dropped frame (see find_path).
+const ASTAR_EXPANSION_LIMIT := 6000
+## Waypoints the greedy string-puller may look ahead; bounds its LOS scans.
+const STRING_PULL_LOOKAHEAD := 24
+
 var half := 12.0
 var cell_size := 0.5
 var width := 0
@@ -37,9 +50,15 @@ var obstacle_count := 0
 var _blocked: PackedByteArray = PackedByteArray()
 var _flow_dist: PackedFloat32Array = PackedFloat32Array()
 var _flow_target := Vector2i(-1, -1)
+var _flow_radius := 0.0
 var _built := false
 var _world_min := Vector2(-12.0, -12.0)
 var _conservative_los := false
+# A* scratch, allocated once per grid size instead of once per query.
+var _astar_g: PackedFloat32Array = PackedFloat32Array()
+var _astar_came: PackedInt32Array = PackedInt32Array()
+var _astar_closed: PackedByteArray = PackedByteArray()
+var _astar_size := 0
 
 # Fixed 8-neighbor order. South (+z / +cell.y) is first so equal-cost detours
 # around a wall symmetric about z=0 pick the cheap south lane deterministically
@@ -93,10 +112,11 @@ func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) ->
 
 ## Coarse shared campaign navigation. Unauthored void is blocked, rather than
 ## treating the huge bounding rectangle as a walkable square. At 4 m/cell the
-## full station is under 6,000 cells; one field serves every active encounter.
+## station fits the authored cell budget; one bounded field serves every active
+## encounter (see rebuild_flow_field).
 func build_world(bounds: Rect2, regions: Array[Rect2], blockers: Array[AABB]) -> void:
 	_built = false
-	if not bounds.position.is_finite() or not bounds.size.is_finite() or bounds.size.x <= 0 or bounds.size.y <= 0 or bounds.size.x > 512 or bounds.size.y > 512:
+	if not bounds.position.is_finite() or not bounds.size.is_finite() or bounds.size.x <= 0 or bounds.size.y <= 0 or bounds.size.x > WORLD_EXTENT_LIMIT or bounds.size.y > WORLD_EXTENT_LIMIT:
 		return
 	_world_min = bounds.position
 	_conservative_los = true
@@ -105,13 +125,15 @@ func build_world(bounds: Rect2, regions: Array[Rect2], blockers: Array[AABB]) ->
 	width = ceili(bounds.size.x / cell_size)
 	depth = ceili(bounds.size.y / cell_size)
 	_built = false
-	if width <= 0 or depth <= 0 or width * depth > 8192:
+	if width <= 0 or depth <= 0 or width * depth > WORLD_CELL_LIMIT:
 		return
 	_blocked.resize(width * depth)
 	_blocked.fill(1)
 	_flow_dist.resize(width * depth)
 	_flow_dist.fill(INF)
 	_flow_target = Vector2i(-1, -1)
+	_flow_radius = 0.0
+	_astar_size = 0
 	for z in range(depth):
 		for x in range(width):
 			var at := cell_center(Vector2i(x, z))
@@ -204,16 +226,27 @@ func _nearest_walkable_cell(c: Vector2i, radius: int) -> Vector2i:
 
 ## Rebuild the flow field from `target_pos`. No-op when the target is still in
 ## the same cell — callers may invoke this at a fixed low rate each frame.
-func rebuild_flow_field(target_pos: Vector3) -> void:
+##
+## `radius` (metres, 0 = whole grid) bounds the search to a window around the
+## target so a 6x larger station does not cost 6x per rebuild: combat only ever
+## reads the field for actors near the player (spawn/despawn radii are 70/90 m),
+## while the world builder still asks for the unbounded field when it proves
+## every authored point is reachable. Cells outside the window keep INF, and
+## flow_field_direction() returns zero there so callers keep their fallback.
+func rebuild_flow_field(target_pos: Vector3, radius: float = 0.0) -> void:
 	if not _built:
 		return
 	var tc := _nearest_walkable_cell(to_cell(target_pos), 4)
 	if tc == Vector2i(-1, -1):
 		_flow_target = Vector2i(-1, -1)
 		return
-	if tc == _flow_target:
+	if tc == _flow_target and is_equal_approx(radius, _flow_radius):
 		return
 	_flow_target = tc
+	_flow_radius = radius
+	var span := -1
+	if radius > 0.0:
+		span = maxi(1, ceili(radius / cell_size))
 	_flow_dist.fill(INF)
 	_flow_dist[tc.y * width + tc.x] = 0.0
 	var heap: Array = []
@@ -228,6 +261,8 @@ func rebuild_flow_field(target_pos: Vector3) -> void:
 		for n in NEIGHBORS:
 			var nc := c + n
 			if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
+				continue
+			if span > 0 and (absi(nc.x - tc.x) > span or absi(nc.y - tc.y) > span):
 				continue
 			if _blocked[nc.y * width + nc.x] != 0:
 				continue
@@ -361,29 +396,48 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 		return empty
 	if sc == tc:
 		return empty
+	# Scratch arrays are allocated once per grid size: on the expanded station a
+	# per-query allocation would churn ~330 KB every time the player walks far
+	# enough for the director to refresh the route.
 	var size := width * depth
-	var g: PackedFloat32Array = PackedFloat32Array()
-	g.resize(size)
+	if _astar_size != size:
+		_astar_g.resize(size)
+		_astar_came.resize(size)
+		_astar_closed.resize(size)
+		_astar_size = size
+	var g := _astar_g
+	var came := _astar_came
+	var closed := _astar_closed
 	g.fill(INF)
-	var came: PackedInt32Array = PackedInt32Array()
-	came.resize(size)
 	came.fill(-1)
-	var closed: PackedByteArray = PackedByteArray()
-	closed.resize(size)
+	closed.fill(0)
 	var start_i := sc.y * width + sc.x
 	var goal_i := tc.y * width + tc.x
 	g[start_i] = 0.0
 	var heap: Array = []
 	_heap_push(heap, Vector2(_heuristic(sc, tc), float(start_i)))
+	# Best node seen so far, so hitting the expansion budget still yields the
+	# longest useful partial route instead of nothing at all.
+	var best_i := start_i
+	var best_h := _heuristic(sc, tc)
+	var expansions := 0
 	while not heap.is_empty():
 		var top := _heap_pop(heap)
 		var idx := int(top.y)
 		if closed[idx] != 0:
 			continue
 		closed[idx] = 1
-		if idx == goal_i:
-			break
 		var c := Vector2i(idx % width, int(idx / float(width)))
+		var reached := _heuristic(c, tc)
+		if reached < best_h:
+			best_h = reached
+			best_i = idx
+		if idx == goal_i:
+			best_i = goal_i
+			break
+		expansions += 1
+		if expansions > ASTAR_EXPANSION_LIMIT:
+			break
 		for n in NEIGHBORS:
 			var nc := c + n
 			if nc.x < 0 or nc.y < 0 or nc.x >= width or nc.y >= depth:
@@ -408,22 +462,23 @@ func find_path(from_pos: Vector3, to_pos: Vector3) -> PackedVector3Array:
 				g[ni] = ng
 				came[ni] = idx
 				_heap_push(heap, Vector2(ng + _heuristic(nc, tc), float(ni)))
-	if came[goal_i] == -1:
+	if best_i == start_i:
 		return empty
-	# Reconstruct (goal -> start), convert to world waypoints (start excluded).
+	# Reconstruct (goal or best partial -> start), world waypoints, start excluded.
 	var cells: PackedVector3Array = PackedVector3Array()
-	var cur := goal_i
+	var cur := best_i
 	while cur != start_i and cur != -1:
 		cells.append(cell_center(Vector2i(cur % width, int(cur / float(width)))))
 		cur = came[cur]
 	cells.reverse()
 	# Greedy string-pulling: jump to the farthest visible waypoint, skipping
-	# the square-cornered A* staircase.
+	# the square-cornered A* staircase. The look-ahead is bounded so a station
+	# crossing cannot turn this into a quadratic scan.
 	var out := PackedVector3Array()
 	var anchor := from_pos
 	var i := 0
 	while i < cells.size():
-		var j := cells.size() - 1
+		var j := mini(cells.size() - 1, i + STRING_PULL_LOOKAHEAD)
 		while j > i and not has_line_of_sight(anchor, cells[j]):
 			j -= 1
 		out.append(cells[j])

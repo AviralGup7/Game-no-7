@@ -159,7 +159,8 @@ func _story() -> void:
 			_check("story interaction / " + String(id), _session.try_interact())
 		_check("mission advances once / " + String(mission.id), int(_session.progress.mission) == index + 1)
 		_check("story grants an authored checkpoint", String(_session.progress.checkpoint) == String(mission.sector))
-		if index == 2:
+		# Cargo manifests (mission 05) hand over the rail rifle.
+		if index == 4:
 			_check("rail rifle is earned as campaign inventory", &"sentinel_spear" in _session.available_weapons())
 			GameRoot._notification(NOTIFICATION_APPLICATION_PAUSED)
 			_check("Android backgrounding pauses campaign", GameRoot.get_current_state() == GameRoot.State.PAUSED and get_tree().paused)

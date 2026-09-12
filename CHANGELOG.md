@@ -1,5 +1,34 @@
 # Changelog
 
+## [Unreleased] — Expanded Station Zero (6× world) (2026-09-12)
+
+- Grow the fixed campaign station from 352 × 272 m to **864 × 672 m** (6.1× the
+  footprint, 5.4× the walkable area): **twelve districts** (Hydroponics Bay, Foundry
+  Deck, Medical Ward, Salvage Yard, Data Archive and Comms Array join the original
+  six) laid out on a 4 × 3 deck grid, joined by seventeen inter-district connectors
+  and a 1,472 m outer service ring with fourteen spurs.
+- Author **47 deck regions / 3,768 modules, 72 landmarks, 30 interactions, 32 finite
+  encounters (96 uniquely identified guards) and 13 missions**, including three
+  archive cores, a medical triage run, a hull-salvage run and a comms-array uplink.
+  Every district keeps a rest pad, a supply locker and at least two guard posts.
+- Raise the world budgets that the bigger station needs, and make them explicit and
+  shared: `ArenaNavGrid.WORLD_EXTENT_LIMIT` / `WORLD_CELL_LIMIT` (1,024 m, 40,960
+  cells) and `CampaignDefinition.WORLD_EXTENT_LIMIT`, mirrored by
+  `tool/validate_campaign.py`, which now also enforces the loader's 64-region and
+  512-row limits. A contract test fails when the three copies drift.
+- Keep the larger world inside the Android frame budget instead of scaling cost with
+  area: the combat flow field rebuilds inside a 128 m window (it covers the 70/90 m
+  spawn/despawn radii), so a rebuild still visits roughly the 2,500 cells it used to;
+  route A* reuses its scratch arrays behind a 6,000-expansion cap with a
+  best-partial fallback (the longest authored crossing measures 4,270 expansions),
+  string-pulling look-ahead is bounded, and route refreshes are throttled to every
+  12 m travelled instead of every 6 m.
+- Derive the player and streamed-actor locomotion clamp from the authored bounds
+  (`CampaignDefinition.containment_half()`) instead of a hard-coded 176 m radius,
+  which would have trapped movement in the outer districts.
+- Regenerate the station overview from a layout that now derives its scale, canvas
+  height and mission-log spacing from the authored world instead of fixed numbers.
+
 ## [Unreleased] — CI native-gate repair (2026-09-12)
 
 - Fix the Android workflow's failing Godot host jobs. The native renderer move

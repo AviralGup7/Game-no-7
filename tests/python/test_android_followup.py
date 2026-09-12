@@ -169,7 +169,10 @@ class AndroidApkTests(unittest.TestCase):
 
     def test_required_campaign_is_checked_inside_the_apk(self):
         report = apkcheck.inspect_campaign(self.apk)
-        self.assertEqual(report["authored_enemies"], 29)
+        # The packaged world is the expanded 12-district station, not a stub.
+        self.assertEqual(report["districts"], 12)
+        self.assertEqual(report["missions"], 13)
+        self.assertEqual(report["authored_enemies"], 96)
         self.assertEqual(report["world_id"], "station_zero")
         self.make_apk(omit="assets/data/campaign/station_zero.json")
         with self.assertRaisesRegex(ValueError, "missing the required"):
