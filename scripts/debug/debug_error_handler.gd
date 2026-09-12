@@ -641,7 +641,14 @@ func _read_previous_unclean() -> bool:
 	var file := FileAccess.open(SESSION_STATE, FileAccess.READ)
 	if file == null:
 		return false
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	var parsed: Variant = null
+	var _parser := JSON.new()
+	var _text := file.get_as_text()
+	if not _text.is_empty() and _parser.parse(_text) == OK:
+		parsed = _parser.data
+	else:
+		if not _text.is_empty():
+			push_warning("DebugErrorHandler: session state JSON parse failed: " + _parser.get_error_message())
 	file.close()
 	if not parsed is Dictionary:
 		return true
