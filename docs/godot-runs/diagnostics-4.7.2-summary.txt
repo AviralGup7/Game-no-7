@@ -14,6 +14,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
@@ -23,6 +24,7 @@
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
+      1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
     453 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -242,7 +244,7 @@
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:118:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:167:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:98:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "scale" is shadowing an already-declared property in the base class "Control".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.

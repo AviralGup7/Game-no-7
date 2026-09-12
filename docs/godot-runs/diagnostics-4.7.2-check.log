@@ -371,7 +371,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/campaign/campaign_encounters.gd:30)
+          at: GDScript::reload (res://scripts/campaign/campaign_encounters.gd:31)
 ERROR: Failed to load script "res://scripts/campaign/campaign_encounters.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_game.gd
