@@ -1,0 +1,124 @@
+{
+  "apk": "build/LastStandArena-debug.apk",
+  "apk_bytes": 223448255,
+  "groups": {
+    "android_other": {
+      "compressed_bytes": 2822077,
+      "uncompressed_bytes": 6568991,
+      "files": 107
+    },
+    "native_libraries": {
+      "compressed_bytes": 81679496,
+      "uncompressed_bytes": 81679496,
+      "files": 2
+    },
+    "assets": {
+      "compressed_bytes": 138697806,
+      "uncompressed_bytes": 141069765,
+      "files": 1203
+    }
+  },
+  "largest_entries": [
+    {
+      "path": "lib/arm64-v8a/libgodot_android.so",
+      "compressed_bytes": 74745544,
+      "uncompressed_bytes": 74745544
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-7e95ad69bf6a3079577c90125d36a4c4.scn",
+      "compressed_bytes": 8402843,
+      "uncompressed_bytes": 8498075
+    },
+    {
+      "path": "assets/.godot/imported/wall.glb-19c1822df5e870a7406b7d9f9a437a2e.scn",
+      "compressed_bytes": 8402841,
+      "uncompressed_bytes": 8498055
+    },
+    {
+      "path": "lib/arm64-v8a/libc++_shared.so",
+      "compressed_bytes": 6933952,
+      "uncompressed_bytes": 6933952
+    },
+    {
+      "path": "assets/.godot/imported/wall_rusted.glb-d491b14428989a12afeabe87a02af41d.scn",
+      "compressed_bytes": 3944263,
+      "uncompressed_bytes": 3963902
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-b256baf8943163823ee0822713cee5b4.scn",
+      "compressed_bytes": 3944168,
+      "uncompressed_bytes": 3963841
+    },
+    {
+      "path": "assets/.godot/imported/wall_hazard.glb-9b29fde883b20f71a5441a5daa337530.scn",
+      "compressed_bytes": 3813261,
+      "uncompressed_bytes": 3828500
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-6cb0461bae501ea259a178b81857965e.scn",
+      "compressed_bytes": 3813167,
+      "uncompressed_bytes": 3828445
+    },
+    {
+      "path": "assets/.godot/imported/Wall_normal.png-592824f9869ad3a43b5121bdfdf8884c.ctex",
+      "compressed_bytes": 3698329,
+      "uncompressed_bytes": 3697540
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-32eac6c83af21d28c49b6edaeadbbe9a.scn",
+      "compressed_bytes": 3693843,
+      "uncompressed_bytes": 3709125
+    },
+    {
+      "path": "assets/.godot/imported/wall_tech.glb-3a7d9a7059870c58da702602f6ff7ef0.scn",
+      "compressed_bytes": 3693826,
+      "uncompressed_bytes": 3709138
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-a6be78f25d2cc0c2bf3f96e195cb9242.scn",
+      "compressed_bytes": 3177906,
+      "uncompressed_bytes": 3200189
+    },
+    {
+      "path": "assets/.godot/imported/ground_hazard.glb-7129f0ada6bbf8f5ef0c8c2b14a3c8ae.scn",
+      "compressed_bytes": 3177893,
+      "uncompressed_bytes": 3200196
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-5d8f6745be7433439267d81c5202deeb.scn",
+      "compressed_bytes": 3026749,
+      "uncompressed_bytes": 3041619
+    },
+    {
+      "path": "assets/.godot/imported/ceiling_hazard.glb-a5a2c806380371b4ea54a4283b319030.scn",
+      "compressed_bytes": 3026725,
+      "uncompressed_bytes": 3041607
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-791e319845af5d0efb628b2a82e36fe7.scn",
+      "compressed_bytes": 2980904,
+      "uncompressed_bytes": 3002175
+    },
+    {
+      "path": "assets/.godot/imported/ground_tech.glb-d9769dfc7ab0b8a001fc970e2ea90a1e.scn",
+      "compressed_bytes": 2980894,
+      "uncompressed_bytes": 3002171
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-825b4ac77787094e33898bfad0447bcf.scn",
+      "compressed_bytes": 2950826,
+      "uncompressed_bytes": 3464613
+    },
+    {
+      "path": "assets/.godot/imported/scene.gltf-9876118cd237aaa65304f5da5ed71567.scn",
+      "compressed_bytes": 2829022,
+      "uncompressed_bytes": 2844232
+    },
+    {
+      "path": "assets/.godot/imported/ceiling_tech.glb-1d38101abbc2c7054e42c7b826e149c1.scn",
+      "compressed_bytes": 2829019,
+      "uncompressed_bytes": 2844233
+    }
+  ],
+  "note": "ZIP sizes are not installed size or RAM. Compare same export type/engine/ABI."
+}

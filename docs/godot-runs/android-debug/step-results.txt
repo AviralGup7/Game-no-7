@@ -1,6 +1,6 @@
-import gate: see check-import.log (engine: 0)
-unit gate: see check-unit.log (engine: 0)
-assets gate: see check-assets.log (engine: 0)
-hero wrapper: 0
-ui wrapper: 0
-campaign wrapper: 0
+import done (engine: 0)
+export exit: 0
+apk verify: 1
+size report: 0
+aapt badging: 0
+aapt xmltree: 0

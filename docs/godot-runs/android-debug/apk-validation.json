@@ -1,0 +1,6 @@
+{
+  "valid": false,
+  "status": "FAILED",
+  "error": "APK manifest lacks Godot rendering-method metadata",
+  "device_tested": false
+}
