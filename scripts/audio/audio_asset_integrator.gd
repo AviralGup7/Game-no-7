@@ -50,7 +50,14 @@ func register() -> void:
 		return
 	_registered_sfx = 0
 	_registered_music = 0
-	var catalog: Variant = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH))
+	var raw := FileAccess.get_file_as_string(CATALOG_PATH)
+	var catalog: Variant = null
+	if not raw.is_empty():
+		var parser := JSON.new()
+		if parser.parse(raw) == OK:
+			catalog = parser.data
+		else:
+			EventBus.report_warning("AudioAssetIntegrator: JSON parse error in " + CATALOG_PATH + ": " + parser.get_error_message())
 	if not catalog is Dictionary:
 		EventBus.report_warning("AudioAssetIntegrator: cannot read " + CATALOG_PATH)
 		return

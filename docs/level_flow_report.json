@@ -1,0 +1,20 @@
+{
+  "map": "data/campaign/station_zero.json",
+  "module": 8,
+  "cell": 4,
+  "errors": 0,
+  "warnings": 0,
+  "issues": [],
+  "categories": [
+    "structure",
+    "navigation",
+    "dead_ends",
+    "blocked_corridors",
+    "narrow_passages",
+    "door_alignment",
+    "vertical",
+    "connectivity",
+    "isolated_areas",
+    "campaign_path"
+  ]
+}

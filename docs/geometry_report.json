@@ -1,0 +1,22 @@
+{
+  "map": "data/campaign/station_zero.json",
+  "module": 8,
+  "cell": 4,
+  "errors": 0,
+  "warnings": 0,
+  "issues": [],
+  "categories": [
+    "floating",
+    "buried",
+    "intersection",
+    "gaps",
+    "snapped",
+    "transform",
+    "duplicate",
+    "missing_resource",
+    "collision",
+    "bounds",
+    "anomalous",
+    "inaccessible"
+  ]
+}

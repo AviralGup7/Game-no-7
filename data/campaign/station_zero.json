@@ -3,10 +3,10 @@
   "world_id": "station_zero",
   "title": "STATION ZERO / THE LONG WAY HOME",
   "bounds": [
-    -432,
-    -336,
-    864,
-    672
+    -176,
+    -136,
+    352,
+    272
   ],
   "module_size": 8,
   "navigation_cell": 4,
@@ -17,15 +17,15 @@
       "id": "docks",
       "name": "01 / DOCKING QUARTER",
       "rect": [
-        -328,
-        -56,
-        128,
-        112
+        -160,
+        56,
+        96,
+        64
       ],
       "checkpoint": [
-        -216,
+        -144,
         0.2,
-        44
+        104
       ],
       "accent": "#65d9ed",
       "description": "Arrivals and service piers. The station has gone silent."
@@ -34,185 +34,83 @@
       "id": "transit",
       "name": "02 / TRANSIT WORKS",
       "rect": [
-        -152,
-        -216,
-        128,
-        112
+        -48,
+        56,
+        96,
+        64
       ],
       "checkpoint": [
-        -40,
+        -32,
         0.2,
-        -116
+        104
       ],
       "accent": "#f4bd68",
       "description": "Restore the transit grid and reconnect the districts."
     },
     {
-      "id": "hydroponics",
-      "name": "03 / HYDROPONICS BAY",
-      "rect": [
-        -328,
-        -216,
-        128,
-        112
-      ],
-      "checkpoint": [
-        -312,
-        0.2,
-        -116
-      ],
-      "accent": "#7fd48a",
-      "description": "Food and oxygen decks. Something is still growing in the dark."
-    },
-    {
-      "id": "foundry",
-      "name": "04 / FOUNDRY DECK",
-      "rect": [
-        200,
-        -216,
-        128,
-        112
-      ],
-      "checkpoint": [
-        312,
-        0.2,
-        -116
-      ],
-      "accent": "#e08a4f",
-      "description": "Fabrication furnaces. A cutting rig can open any sealed door."
-    },
-    {
       "id": "cargo",
-      "name": "05 / CARGO EXCHANGE",
+      "name": "03 / CARGO EXCHANGE",
       "rect": [
-        24,
-        -216,
-        128,
-        112
+        64,
+        56,
+        96,
+        64
       ],
       "checkpoint": [
-        40,
+        72,
         0.2,
-        -116
+        112
       ],
       "accent": "#e89c69",
       "description": "Recover the evacuation manifests among abandoned freight."
     },
     {
       "id": "reactor",
-      "name": "06 / REACTOR SPINE",
+      "name": "04 / REACTOR SPINE",
       "rect": [
-        -152,
-        -56,
-        128,
-        112
+        64,
+        -120,
+        96,
+        80
       ],
       "checkpoint": [
-        -136,
+        80,
         0.2,
-        44
+        -104
       ],
       "accent": "#f06f66",
       "description": "Coolant lines are failing. Shut down the reactor override."
     },
     {
-      "id": "medbay",
-      "name": "07 / MEDICAL WARD",
-      "rect": [
-        200,
-        -56,
-        128,
-        112
-      ],
-      "checkpoint": [
-        216,
-        0.2,
-        44
-      ],
-      "accent": "#d98fd0",
-      "description": "Triage bays hold the supplies the survivors will need."
-    },
-    {
       "id": "habitat",
-      "name": "08 / HABITAT RING",
+      "name": "05 / HABITAT RING",
       "rect": [
-        24,
-        -56,
-        128,
-        112
+        -48,
+        -120,
+        96,
+        80
       ],
       "checkpoint": [
-        136,
+        -40,
         0.2,
-        44
+        -112
       ],
       "accent": "#85d4a3",
       "description": "Habitation pods still hold survivors. Restore their uplink."
     },
     {
-      "id": "salvage",
-      "name": "09 / SALVAGE YARD",
-      "rect": [
-        -328,
-        104,
-        128,
-        112
-      ],
-      "checkpoint": [
-        -312,
-        0.2,
-        204
-      ],
-      "accent": "#c2b280",
-      "description": "Crushed hull sections. Enough plating to patch the shuttle."
-    },
-    {
-      "id": "archive",
-      "name": "10 / DATA ARCHIVE",
-      "rect": [
-        24,
-        104,
-        128,
-        112
-      ],
-      "checkpoint": [
-        40,
-        0.2,
-        204
-      ],
-      "accent": "#8fb6f0",
-      "description": "Server stacks holding the crew register and its backups."
-    },
-    {
-      "id": "comms",
-      "name": "11 / COMMS ARRAY",
-      "rect": [
-        200,
-        104,
-        128,
-        112
-      ],
-      "checkpoint": [
-        312,
-        0.2,
-        204
-      ],
-      "accent": "#9ad8f5",
-      "description": "Deep-space dishes. Get one pointed at the rescue lane."
-    },
-    {
       "id": "command",
-      "name": "12 / COMMAND REACH",
+      "name": "06 / COMMAND REACH",
       "rect": [
-        -152,
-        104,
-        128,
-        112
+        -160,
+        -120,
+        96,
+        80
       ],
       "checkpoint": [
-        -40,
+        -152,
         0.2,
-        204
+        -112
       ],
       "accent": "#b8a0ec",
       "description": "The security commander controls the evacuation lock."
@@ -220,375 +118,141 @@
   ],
   "floors": [
     [
-      -328,
-      -216,
-      128,
-      112
-    ],
-    [
-      -152,
-      -216,
-      128,
-      112
-    ],
-    [
-      24,
-      -216,
-      128,
-      112
-    ],
-    [
-      200,
-      -216,
-      128,
-      112
-    ],
-    [
-      -328,
-      -56,
-      128,
-      112
-    ],
-    [
-      -152,
-      -56,
-      128,
-      112
-    ],
-    [
-      24,
-      -56,
-      128,
-      112
-    ],
-    [
-      200,
-      -56,
-      128,
-      112
-    ],
-    [
-      -328,
-      104,
-      128,
-      112
-    ],
-    [
-      -152,
-      104,
-      128,
-      112
-    ],
-    [
-      24,
-      104,
-      128,
-      112
-    ],
-    [
-      200,
-      104,
-      128,
-      112
-    ],
-    [
-      -200,
-      -168,
-      48,
-      16
-    ],
-    [
-      -24,
-      -168,
-      48,
-      16
-    ],
-    [
-      152,
-      -168,
-      48,
-      16
-    ],
-    [
-      -200,
-      -8,
-      48,
-      16
-    ],
-    [
-      -24,
-      -8,
-      48,
-      16
-    ],
-    [
-      152,
-      -8,
-      48,
-      16
-    ],
-    [
-      -200,
-      152,
-      48,
-      16
-    ],
-    [
-      -24,
-      152,
-      48,
-      16
-    ],
-    [
-      152,
-      152,
-      48,
-      16
-    ],
-    [
-      -272,
-      -104,
-      16,
-      48
-    ],
-    [
-      -272,
+      -160,
       56,
-      16,
-      48
+      96,
+      64
     ],
     [
-      -96,
-      -104,
-      16,
-      48
-    ],
-    [
-      -96,
+      -48,
       56,
-      16,
-      48
+      96,
+      64
     ],
     [
-      80,
-      -104,
-      16,
-      48
-    ],
-    [
-      80,
+      64,
       56,
-      16,
-      48
+      96,
+      64
     ],
     [
-      256,
-      -104,
-      16,
-      48
+      64,
+      -120,
+      96,
+      80
     ],
     [
-      256,
-      56,
-      16,
-      48
+      -48,
+      -120,
+      96,
+      80
     ],
     [
-      -368,
-      -304,
-      736,
-      16
+      -160,
+      -120,
+      96,
+      80
     ],
     [
-      -368,
-      288,
-      736,
-      16
-    ],
-    [
-      -384,
-      -304,
-      16,
-      608
-    ],
-    [
-      368,
-      -304,
-      16,
-      608
-    ],
-    [
-      -272,
-      -288,
-      16,
-      72
-    ],
-    [
-      -272,
-      216,
-      16,
-      72
-    ],
-    [
-      -96,
-      -288,
-      16,
-      72
-    ],
-    [
-      -96,
-      216,
-      16,
-      72
-    ],
-    [
+      -64,
       80,
-      -288,
       16,
-      72
+      24
     ],
     [
+      48,
       80,
-      216,
       16,
-      72
+      24
     ],
     [
-      256,
-      -288,
+      -64,
+      -88,
       16,
-      72
+      24
     ],
     [
-      256,
-      216,
+      48,
+      -88,
       16,
-      72
+      24
     ],
     [
-      -368,
-      -168,
-      40,
-      16
+      -120,
+      -40,
+      16,
+      96
     ],
     [
-      328,
-      -168,
-      40,
-      16
-    ],
-    [
-      -368,
       -8,
-      40,
-      16
+      -40,
+      16,
+      96
     ],
     [
-      328,
-      -8,
-      40,
-      16
-    ],
-    [
-      -368,
-      152,
-      40,
-      16
-    ],
-    [
-      328,
-      152,
-      40,
-      16
+      104,
+      -40,
+      16,
+      96
     ]
   ],
   "props": [
     {
-      "id": "hydro_greenhouse",
-      "sector": "hydroponics",
-      "kind": "planter",
+      "id": "dock_shuttle",
+      "sector": "docks",
+      "kind": "shuttle",
       "at": [
-        -264,
-        5.0,
-        -184
+        -112,
+        1.6,
+        100
       ],
       "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "hydro_bed_a",
-      "sector": "hydroponics",
-      "kind": "planter",
-      "at": [
-        -312,
-        2.5,
-        -184
-      ],
-      "size": [
-        12,
-        5,
+        20,
+        3.2,
         12
       ]
     },
     {
-      "id": "hydro_nutrient_tank",
-      "sector": "hydroponics",
-      "kind": "generator",
-      "at": [
-        -216,
-        2.5,
-        -184
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "hydro_toolshed",
-      "sector": "hydroponics",
-      "kind": "building",
-      "at": [
-        -296,
-        2.0,
-        -132
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "hydro_bed_b",
-      "sector": "hydroponics",
-      "kind": "planter",
-      "at": [
-        -232,
-        3.0,
-        -132
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "hydro_pallet",
-      "sector": "hydroponics",
+      "id": "dock_freight_a",
+      "sector": "docks",
       "kind": "container",
       "at": [
-        -264,
+        -136,
         1.5,
-        -112
+        72
       ],
       "size": [
-        16,
+        12,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "dock_freight_b",
+      "sector": "docks",
+      "kind": "container",
+      "at": [
+        -84,
+        1.5,
+        104
+      ],
+      "size": [
+        12,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "dock_freight_c",
+      "sector": "docks",
+      "kind": "container",
+      "at": [
+        -88,
+        1.5,
+        68
+      ],
+      "size": [
+        8,
         3,
         8
       ]
@@ -598,14 +262,14 @@
       "sector": "transit",
       "kind": "generator",
       "at": [
-        -88,
-        5.0,
-        -184
+        0,
+        2.5,
+        88
       ],
       "size": [
-        24,
-        10,
-        20
+        16,
+        5,
+        12
       ]
     },
     {
@@ -613,13 +277,13 @@
       "sector": "transit",
       "kind": "building",
       "at": [
-        -40,
-        2.5,
-        -184
+        -28,
+        3,
+        72
       ],
       "size": [
         12,
-        5,
+        6,
         12
       ]
     },
@@ -628,57 +292,27 @@
       "sector": "transit",
       "kind": "building",
       "at": [
-        -136,
-        2.5,
-        -184
+        28,
+        3,
+        108
       ],
       "size": [
         12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "transit_pallet_a",
-      "sector": "transit",
-      "kind": "container",
-      "at": [
-        -56,
-        2.0,
-        -132
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "transit_pallet_b",
-      "sector": "transit",
-      "kind": "container",
-      "at": [
-        -120,
-        3.0,
-        -132
-      ],
-      "size": [
-        14,
         6,
         12
       ]
     },
     {
-      "id": "transit_crane",
+      "id": "transit_cover",
       "sector": "transit",
-      "kind": "crane",
+      "kind": "container",
       "at": [
-        -88,
+        28,
         1.5,
-        -112
+        72
       ],
       "size": [
-        16,
+        8,
         3,
         8
       ]
@@ -688,14 +322,14 @@
       "sector": "cargo",
       "kind": "container",
       "at": [
-        88,
-        5.0,
-        -184
+        96,
+        2,
+        76
       ],
       "size": [
-        24,
-        10,
-        20
+        16,
+        4,
+        8
       ]
     },
     {
@@ -703,14 +337,14 @@
       "sector": "cargo",
       "kind": "container",
       "at": [
-        40,
-        2.5,
-        -184
+        128,
+        2,
+        104
       ],
       "size": [
-        12,
-        5,
-        12
+        16,
+        4,
+        8
       ]
     },
     {
@@ -718,14 +352,14 @@
       "sector": "cargo",
       "kind": "container",
       "at": [
-        136,
-        2.5,
-        -184
+        144,
+        2,
+        76
       ],
       "size": [
-        12,
-        5,
-        12
+        8,
+        4,
+        16
       ]
     },
     {
@@ -733,223 +367,13 @@
       "sector": "cargo",
       "kind": "crane",
       "at": [
-        56,
-        2.0,
-        -132
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "cargo_office",
-      "sector": "cargo",
-      "kind": "building",
-      "at": [
-        120,
-        3.0,
-        -132
-      ],
-      "size": [
-        14,
+        112,
         6,
-        12
-      ]
-    },
-    {
-      "id": "cargo_pallet",
-      "sector": "cargo",
-      "kind": "container",
-      "at": [
-        88,
-        1.5,
-        -112
+        88
       ],
       "size": [
-        16,
-        3,
-        8
-      ]
-    },
-    {
-      "id": "foundry_furnace",
-      "sector": "foundry",
-      "kind": "generator",
-      "at": [
-        264,
-        5.0,
-        -184
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "foundry_workshop_a",
-      "sector": "foundry",
-      "kind": "building",
-      "at": [
-        312,
-        2.5,
-        -184
-      ],
-      "size": [
+        8,
         12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "foundry_workshop_b",
-      "sector": "foundry",
-      "kind": "building",
-      "at": [
-        216,
-        2.5,
-        -184
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "foundry_pallet",
-      "sector": "foundry",
-      "kind": "container",
-      "at": [
-        296,
-        2.0,
-        -132
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "foundry_crane",
-      "sector": "foundry",
-      "kind": "crane",
-      "at": [
-        232,
-        3.0,
-        -132
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "foundry_heat_exchanger",
-      "sector": "foundry",
-      "kind": "generator",
-      "at": [
-        264,
-        1.5,
-        -112
-      ],
-      "size": [
-        16,
-        3,
-        8
-      ]
-    },
-    {
-      "id": "dock_shuttle",
-      "sector": "docks",
-      "kind": "shuttle",
-      "at": [
-        -264,
-        5.0,
-        -24
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "dock_freight_a",
-      "sector": "docks",
-      "kind": "container",
-      "at": [
-        -216,
-        2.5,
-        -24
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "dock_freight_b",
-      "sector": "docks",
-      "kind": "container",
-      "at": [
-        -312,
-        2.5,
-        -24
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "dock_freight_c",
-      "sector": "docks",
-      "kind": "container",
-      "at": [
-        -232,
-        2.0,
-        28
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "dock_pallet_stack",
-      "sector": "docks",
-      "kind": "container",
-      "at": [
-        -296,
-        3.0,
-        28
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "dock_crane",
-      "sector": "docks",
-      "kind": "crane",
-      "at": [
-        -264,
-        1.5,
-        48
-      ],
-      "size": [
-        16,
-        3,
         8
       ]
     },
@@ -958,12 +382,12 @@
       "sector": "reactor",
       "kind": "reactor",
       "at": [
-        -88,
-        5.0,
-        -24
+        112,
+        5,
+        -80
       ],
       "size": [
-        24,
+        20,
         10,
         20
       ]
@@ -973,14 +397,14 @@
       "sector": "reactor",
       "kind": "generator",
       "at": [
-        -136,
-        2.5,
-        -24
+        88,
+        3,
+        -56
       ],
       "size": [
         12,
-        5,
-        12
+        6,
+        8
       ]
     },
     {
@@ -988,57 +412,27 @@
       "sector": "reactor",
       "kind": "generator",
       "at": [
-        -40,
-        2.5,
-        -24
+        144,
+        3,
+        -104
       ],
       "size": [
         12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "reactor_pallet_a",
-      "sector": "reactor",
-      "kind": "container",
-      "at": [
-        -120,
-        2.0,
-        28
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "reactor_pallet_b",
-      "sector": "reactor",
-      "kind": "container",
-      "at": [
-        -56,
-        3.0,
-        28
-      ],
-      "size": [
-        14,
         6,
-        12
+        8
       ]
     },
     {
-      "id": "reactor_pump",
+      "id": "reactor_cover",
       "sector": "reactor",
-      "kind": "generator",
+      "kind": "container",
       "at": [
-        -88,
+        144,
         1.5,
-        48
+        -56
       ],
       "size": [
-        16,
+        8,
         3,
         8
       ]
@@ -1048,14 +442,14 @@
       "sector": "habitat",
       "kind": "planter",
       "at": [
-        88,
-        5.0,
-        -24
+        0,
+        1.6,
+        -80
       ],
       "size": [
-        24,
-        10,
-        20
+        16,
+        3.2,
+        12
       ]
     },
     {
@@ -1063,13 +457,13 @@
       "sector": "habitat",
       "kind": "building",
       "at": [
-        136,
-        2.5,
-        -24
+        -28,
+        3,
+        -64
       ],
       "size": [
         12,
-        5,
+        6,
         12
       ]
     },
@@ -1078,13 +472,13 @@
       "sector": "habitat",
       "kind": "building",
       "at": [
-        40,
-        2.5,
-        -24
+        28,
+        3,
+        -100
       ],
       "size": [
         12,
-        5,
+        6,
         12
       ]
     },
@@ -1093,223 +487,13 @@
       "sector": "habitat",
       "kind": "building",
       "at": [
-        120,
-        2.0,
-        28
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "habitat_planter",
-      "sector": "habitat",
-      "kind": "planter",
-      "at": [
-        56,
-        3.0,
-        28
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "habitat_pallet",
-      "sector": "habitat",
-      "kind": "container",
-      "at": [
-        88,
-        1.5,
-        48
-      ],
-      "size": [
-        16,
+        28,
         3,
-        8
-      ]
-    },
-    {
-      "id": "medbay_ward_a",
-      "sector": "medbay",
-      "kind": "building",
-      "at": [
-        264,
-        5.0,
-        -24
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "medbay_ward_b",
-      "sector": "medbay",
-      "kind": "building",
-      "at": [
-        216,
-        2.5,
-        -24
+        -60
       ],
       "size": [
         12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "medbay_supply_a",
-      "sector": "medbay",
-      "kind": "container",
-      "at": [
-        312,
-        2.5,
-        -24
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "medbay_garden",
-      "sector": "medbay",
-      "kind": "planter",
-      "at": [
-        232,
-        2.0,
-        28
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "medbay_triage",
-      "sector": "medbay",
-      "kind": "building",
-      "at": [
-        296,
-        3.0,
-        28
-      ],
-      "size": [
-        14,
         6,
-        12
-      ]
-    },
-    {
-      "id": "medbay_pallet",
-      "sector": "medbay",
-      "kind": "container",
-      "at": [
-        264,
-        1.5,
-        48
-      ],
-      "size": [
-        16,
-        3,
-        8
-      ]
-    },
-    {
-      "id": "salvage_hulk_a",
-      "sector": "salvage",
-      "kind": "container",
-      "at": [
-        -264,
-        5.0,
-        136
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "salvage_hulk_b",
-      "sector": "salvage",
-      "kind": "container",
-      "at": [
-        -312,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "salvage_crane",
-      "sector": "salvage",
-      "kind": "crane",
-      "at": [
-        -216,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "salvage_pallet_a",
-      "sector": "salvage",
-      "kind": "container",
-      "at": [
-        -296,
-        2.0,
-        188
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "salvage_shed",
-      "sector": "salvage",
-      "kind": "building",
-      "at": [
-        -232,
-        3.0,
-        188
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "salvage_pallet_b",
-      "sector": "salvage",
-      "kind": "container",
-      "at": [
-        -264,
-        1.5,
-        208
-      ],
-      "size": [
-        16,
-        3,
         8
       ]
     },
@@ -1318,14 +502,14 @@
       "sector": "command",
       "kind": "antenna",
       "at": [
-        -88,
-        5.0,
-        136
+        -112,
+        4,
+        -80
       ],
       "size": [
-        24,
-        10,
-        20
+        16,
+        8,
+        16
       ]
     },
     {
@@ -1333,13 +517,13 @@
       "sector": "command",
       "kind": "building",
       "at": [
-        -40,
-        2.5,
-        136
+        -144,
+        3,
+        -64
       ],
       "size": [
         12,
-        5,
+        6,
         12
       ]
     },
@@ -1348,237 +532,27 @@
       "sector": "command",
       "kind": "building",
       "at": [
-        -136,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "command_pallet_a",
-      "sector": "command",
-      "kind": "container",
-      "at": [
-        -56,
-        2.0,
-        188
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "command_bunker",
-      "sector": "command",
-      "kind": "building",
-      "at": [
-        -120,
-        3.0,
-        188
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "command_pallet_b",
-      "sector": "command",
-      "kind": "container",
-      "at": [
-        -88,
-        1.5,
-        208
-      ],
-      "size": [
-        16,
+        -84,
         3,
-        8
-      ]
-    },
-    {
-      "id": "archive_server_a",
-      "sector": "archive",
-      "kind": "building",
-      "at": [
-        88,
-        5.0,
-        136
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "archive_server_b",
-      "sector": "archive",
-      "kind": "building",
-      "at": [
-        40,
-        2.5,
-        136
+        -104
       ],
       "size": [
         12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "archive_server_c",
-      "sector": "archive",
-      "kind": "building",
-      "at": [
-        136,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "archive_pallet",
-      "sector": "archive",
-      "kind": "container",
-      "at": [
-        56,
-        2.0,
-        188
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "archive_dish",
-      "sector": "archive",
-      "kind": "antenna",
-      "at": [
-        120,
-        3.0,
-        188
-      ],
-      "size": [
-        14,
         6,
         12
       ]
     },
     {
-      "id": "archive_vault",
-      "sector": "archive",
-      "kind": "building",
-      "at": [
-        88,
-        1.5,
-        208
-      ],
-      "size": [
-        16,
-        3,
-        8
-      ]
-    },
-    {
-      "id": "comms_dish_a",
-      "sector": "comms",
-      "kind": "antenna",
-      "at": [
-        264,
-        5.0,
-        136
-      ],
-      "size": [
-        24,
-        10,
-        20
-      ]
-    },
-    {
-      "id": "comms_dish_b",
-      "sector": "comms",
-      "kind": "antenna",
-      "at": [
-        312,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "comms_relay_hut",
-      "sector": "comms",
-      "kind": "building",
-      "at": [
-        216,
-        2.5,
-        136
-      ],
-      "size": [
-        12,
-        5,
-        12
-      ]
-    },
-    {
-      "id": "comms_generator",
-      "sector": "comms",
-      "kind": "generator",
-      "at": [
-        296,
-        2.0,
-        188
-      ],
-      "size": [
-        12,
-        4,
-        10
-      ]
-    },
-    {
-      "id": "comms_pallet_a",
-      "sector": "comms",
+      "id": "command_cover",
+      "sector": "command",
       "kind": "container",
       "at": [
-        232,
-        3.0,
-        188
-      ],
-      "size": [
-        14,
-        6,
-        12
-      ]
-    },
-    {
-      "id": "comms_pallet_b",
-      "sector": "comms",
-      "kind": "container",
-      "at": [
-        264,
+        -80,
         1.5,
-        208
+        -56
       ],
       "size": [
-        16,
+        8,
         3,
         8
       ]
@@ -1586,61 +560,37 @@
   ],
   "interactions": [
     {
-      "id": "hydro_valve",
-      "sector": "hydroponics",
-      "name": "Purge the hydroponics bloom",
+      "id": "dock_link",
+      "sector": "docks",
+      "name": "Reconnect dock relay",
       "at": [
-        -264,
+        -144,
         0.2,
-        -148
+        88
       ],
       "kind": "terminal",
       "credits": 0
-    },
-    {
-      "id": "supply_hydroponics",
-      "sector": "hydroponics",
-      "name": "Hydroponics supply locker",
-      "at": [
-        -216,
-        0.2,
-        -208
-      ],
-      "kind": "cache",
-      "credits": 110
     },
     {
       "id": "transit_power",
       "sector": "transit",
       "name": "Restore transit power",
       "at": [
-        -88,
+        -16,
         0.2,
-        -148
+        88
       ],
       "kind": "terminal",
       "credits": 0
-    },
-    {
-      "id": "supply_transit",
-      "sector": "transit",
-      "name": "Transit supply locker",
-      "at": [
-        -136,
-        0.2,
-        -208
-      ],
-      "kind": "cache",
-      "credits": 100
     },
     {
       "id": "manifest_a",
       "sector": "cargo",
       "name": "Recover manifest A",
       "at": [
-        64,
+        80,
         0.2,
-        -148
+        72
       ],
       "kind": "collect",
       "credits": 0
@@ -1650,9 +600,9 @@
       "sector": "cargo",
       "name": "Recover manifest B",
       "at": [
-        88,
+        136,
         0.2,
-        -148
+        88
       ],
       "kind": "collect",
       "credits": 0
@@ -1664,106 +614,106 @@
       "at": [
         112,
         0.2,
-        -148
+        112
       ],
       "kind": "collect",
       "credits": 0
-    },
-    {
-      "id": "supply_cargo",
-      "sector": "cargo",
-      "name": "Cargo supply locker",
-      "at": [
-        136,
-        0.2,
-        -208
-      ],
-      "kind": "cache",
-      "credits": 130
-    },
-    {
-      "id": "foundry_cutter",
-      "sector": "foundry",
-      "name": "Claim the foundry cutting rig",
-      "at": [
-        264,
-        0.2,
-        -148
-      ],
-      "kind": "terminal",
-      "credits": 0
-    },
-    {
-      "id": "supply_foundry",
-      "sector": "foundry",
-      "name": "Foundry supply locker",
-      "at": [
-        216,
-        0.2,
-        -208
-      ],
-      "kind": "cache",
-      "credits": 120
-    },
-    {
-      "id": "dock_link",
-      "sector": "docks",
-      "name": "Reconnect dock relay",
-      "at": [
-        -264,
-        0.2,
-        12
-      ],
-      "kind": "terminal",
-      "credits": 0
-    },
-    {
-      "id": "supply_docks",
-      "sector": "docks",
-      "name": "Docks supply locker",
-      "at": [
-        -312,
-        0.2,
-        -48
-      ],
-      "kind": "cache",
-      "credits": 80
     },
     {
       "id": "reactor_override",
       "sector": "reactor",
       "name": "Disable reactor override",
       "at": [
-        -88,
+        136,
         0.2,
-        12
+        -80
       ],
       "kind": "terminal",
       "credits": 0
-    },
-    {
-      "id": "supply_reactor",
-      "sector": "reactor",
-      "name": "Reactor supply locker",
-      "at": [
-        -40,
-        0.2,
-        -48
-      ],
-      "kind": "cache",
-      "credits": 150
     },
     {
       "id": "habitat_uplink",
       "sector": "habitat",
       "name": "Open evacuation uplink",
       "at": [
-        88,
+        -16,
         0.2,
-        12
+        -88
       ],
       "kind": "terminal",
       "credits": 0
+    },
+    {
+      "id": "command_lock",
+      "sector": "command",
+      "name": "Security commander",
+      "at": [
+        -112,
+        0.2,
+        -56
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "evac_shuttle",
+      "sector": "docks",
+      "name": "Board evacuation shuttle",
+      "at": [
+        -128,
+        0.2,
+        104
+      ],
+      "kind": "extraction",
+      "credits": 0
+    },
+    {
+      "id": "supply_docks",
+      "sector": "docks",
+      "name": "Dock supply locker",
+      "at": [
+        -72,
+        0.2,
+        64
+      ],
+      "kind": "cache",
+      "credits": 80
+    },
+    {
+      "id": "supply_transit",
+      "sector": "transit",
+      "name": "Engineer supply locker",
+      "at": [
+        40,
+        0.2,
+        112
+      ],
+      "kind": "cache",
+      "credits": 100
+    },
+    {
+      "id": "supply_cargo",
+      "sector": "cargo",
+      "name": "Freight supply locker",
+      "at": [
+        152,
+        0.2,
+        112
+      ],
+      "kind": "cache",
+      "credits": 120
+    },
+    {
+      "id": "supply_reactor",
+      "sector": "reactor",
+      "name": "Reactor supply locker",
+      "at": [
+        152,
+        0.2,
+        -112
+      ],
+      "kind": "cache",
+      "credits": 150
     },
     {
       "id": "supply_habitat",
@@ -1772,253 +722,59 @@
       "at": [
         40,
         0.2,
-        -48
-      ],
-      "kind": "cache",
-      "credits": 160
-    },
-    {
-      "id": "medkit_a",
-      "sector": "medbay",
-      "name": "Collect triage supplies",
-      "at": [
-        248,
-        0.2,
-        12
-      ],
-      "kind": "collect",
-      "credits": 0
-    },
-    {
-      "id": "medkit_b",
-      "sector": "medbay",
-      "name": "Collect medbay stores",
-      "at": [
-        280,
-        0.2,
-        12
-      ],
-      "kind": "collect",
-      "credits": 0
-    },
-    {
-      "id": "supply_medbay",
-      "sector": "medbay",
-      "name": "Medbay supply locker",
-      "at": [
-        312,
-        0.2,
-        -48
+        -112
       ],
       "kind": "cache",
       "credits": 150
-    },
-    {
-      "id": "salvage_plating",
-      "sector": "salvage",
-      "name": "Recover hull plating",
-      "at": [
-        -264,
-        0.2,
-        172
-      ],
-      "kind": "terminal",
-      "credits": 0
-    },
-    {
-      "id": "supply_salvage",
-      "sector": "salvage",
-      "name": "Salvage supply locker",
-      "at": [
-        -216,
-        0.2,
-        112
-      ],
-      "kind": "cache",
-      "credits": 170
-    },
-    {
-      "id": "command_lock",
-      "sector": "command",
-      "name": "Security commander",
-      "at": [
-        -88,
-        0.2,
-        172
-      ],
-      "kind": "terminal",
-      "credits": 0
     },
     {
       "id": "supply_command",
       "sector": "command",
       "name": "Command supply locker",
       "at": [
-        -136,
-        0.2,
-        112
-      ],
-      "kind": "cache",
-      "credits": 200
-    },
-    {
-      "id": "core_a",
-      "sector": "archive",
-      "name": "Recover archive core A",
-      "at": [
-        64,
-        0.2,
-        172
-      ],
-      "kind": "collect",
-      "credits": 0
-    },
-    {
-      "id": "core_b",
-      "sector": "archive",
-      "name": "Recover archive core B",
-      "at": [
-        88,
-        0.2,
-        172
-      ],
-      "kind": "collect",
-      "credits": 0
-    },
-    {
-      "id": "core_c",
-      "sector": "archive",
-      "name": "Recover archive core C",
-      "at": [
-        112,
-        0.2,
-        172
-      ],
-      "kind": "collect",
-      "credits": 0
-    },
-    {
-      "id": "supply_archive",
-      "sector": "archive",
-      "name": "Archive supply locker",
-      "at": [
-        136,
-        0.2,
-        112
-      ],
-      "kind": "cache",
-      "credits": 180
-    },
-    {
-      "id": "comms_antenna",
-      "sector": "comms",
-      "name": "Power the comms array",
-      "at": [
-        264,
-        0.2,
-        172
-      ],
-      "kind": "terminal",
-      "credits": 0
-    },
-    {
-      "id": "supply_comms",
-      "sector": "comms",
-      "name": "Comms supply locker",
-      "at": [
-        216,
-        0.2,
-        112
-      ],
-      "kind": "cache",
-      "credits": 190
-    },
-    {
-      "id": "evac_shuttle",
-      "sector": "docks",
-      "name": "Board evacuation shuttle",
-      "at": [
-        -264,
+        -152,
         0.2,
         -48
       ],
-      "kind": "extraction",
-      "credits": 0
+      "kind": "cache",
+      "credits": 180
     }
   ],
   "encounters": [
     {
-      "id": "hydro_drones",
-      "sector": "hydroponics",
+      "id": "dock_patrol",
+      "sector": "docks",
       "center": [
-        -296,
-        -168
+        -112,
+        72
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
-          "id": "hydro_drones_0",
-          "type": "fast",
-          "at": [
-            -296,
-            0.2,
-            -168
-          ]
-        },
-        {
-          "id": "hydro_drones_1",
-          "type": "fast",
-          "at": [
-            -304,
-            0.2,
-            -156
-          ]
-        },
-        {
-          "id": "hydro_drones_2",
+          "id": "dock_patrol_0",
           "type": "basic",
           "at": [
-            -288,
+            -120,
             0.2,
-            -156
+            72
           ]
-        }
-      ]
-    },
-    {
-      "id": "hydro_tenders",
-      "sector": "hydroponics",
-      "center": [
-        -224,
-        -168
-      ],
-      "activate_radius": 34,
-      "members": [
+        },
         {
-          "id": "hydro_tenders_0",
+          "id": "dock_patrol_1",
           "type": "basic",
           "at": [
-            -232,
+            -108,
             0.2,
-            -168
+            68
           ]
         },
         {
-          "id": "hydro_tenders_1",
-          "type": "dasher",
+          "id": "dock_patrol_2",
+          "type": "fast",
           "at": [
-            -216,
+            -100,
             0.2,
-            -160
-          ]
-        },
-        {
-          "id": "hydro_tenders_2",
-          "type": "ranged",
-          "at": [
-            -224,
-            0.2,
-            -156
+            76
           ]
         }
       ]
@@ -2027,83 +783,45 @@
       "id": "transit_guards",
       "sector": "transit",
       "center": [
-        -56,
-        -168
+        0,
+        68
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
           "id": "transit_guards_0",
           "type": "basic",
           "at": [
-            -56,
+            -12,
             0.2,
-            -168
+            64
           ]
         },
         {
           "id": "transit_guards_1",
           "type": "ranged",
           "at": [
-            -48,
+            12,
             0.2,
-            -156
+            64
           ]
         },
         {
           "id": "transit_guards_2",
           "type": "heavy",
           "at": [
-            -64,
+            4,
             0.2,
-            -156
+            72
           ]
         },
         {
           "id": "transit_guards_3",
           "type": "basic",
           "at": [
-            -56,
+            20,
             0.2,
-            -180
-          ]
-        }
-      ]
-    },
-    {
-      "id": "transit_crew",
-      "sector": "transit",
-      "center": [
-        -128,
-        -168
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "transit_crew_0",
-          "type": "fast",
-          "at": [
-            -120,
-            0.2,
-            -168
-          ]
-        },
-        {
-          "id": "transit_crew_1",
-          "type": "basic",
-          "at": [
-            -136,
-            0.2,
-            -160
-          ]
-        },
-        {
-          "id": "transit_crew_2",
-          "type": "ranged",
-          "at": [
-            -128,
-            0.2,
-            -156
+            60
           ]
         }
       ]
@@ -2112,244 +830,54 @@
       "id": "cargo_guards",
       "sector": "cargo",
       "center": [
-        56,
-        -168
+        112,
+        88
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
           "id": "cargo_guards_0",
           "type": "ranged",
           "at": [
-            56,
+            80,
             0.2,
-            -168
+            88
           ]
         },
         {
           "id": "cargo_guards_1",
           "type": "basic",
           "at": [
-            48,
+            88,
             0.2,
-            -156
+            92
           ]
         },
         {
           "id": "cargo_guards_2",
           "type": "heavy",
           "at": [
-            64,
+            120,
             0.2,
-            -156
+            84
           ]
         },
         {
           "id": "cargo_guards_3",
-          "type": "basic",
-          "at": [
-            56,
-            0.2,
-            -180
-          ]
-        }
-      ]
-    },
-    {
-      "id": "cargo_pickers",
-      "sector": "cargo",
-      "center": [
-        128,
-        -168
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "cargo_pickers_0",
           "type": "fast",
-          "at": [
-            120,
-            0.2,
-            -168
-          ]
-        },
-        {
-          "id": "cargo_pickers_1",
-          "type": "basic",
-          "at": [
-            136,
-            0.2,
-            -160
-          ]
-        },
-        {
-          "id": "cargo_pickers_2",
-          "type": "ranged",
           "at": [
             128,
             0.2,
-            -156
-          ]
-        }
-      ]
-    },
-    {
-      "id": "foundry_crew",
-      "sector": "foundry",
-      "center": [
-        296,
-        -168
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "foundry_crew_0",
-          "type": "heavy",
-          "at": [
-            296,
-            0.2,
-            -168
+            68
           ]
         },
         {
-          "id": "foundry_crew_1",
+          "id": "cargo_guards_4",
           "type": "basic",
           "at": [
-            304,
+            148,
             0.2,
-            -156
-          ]
-        },
-        {
-          "id": "foundry_crew_2",
-          "type": "basic",
-          "at": [
-            288,
-            0.2,
-            -156
-          ]
-        },
-        {
-          "id": "foundry_crew_3",
-          "type": "ranged",
-          "at": [
-            296,
-            0.2,
-            -180
-          ]
-        }
-      ]
-    },
-    {
-      "id": "foundry_furnace_guard",
-      "sector": "foundry",
-      "center": [
-        224,
-        -168
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "foundry_furnace_guard_0",
-          "type": "dasher",
-          "at": [
-            232,
-            0.2,
-            -168
-          ]
-        },
-        {
-          "id": "foundry_furnace_guard_1",
-          "type": "heavy",
-          "at": [
-            216,
-            0.2,
-            -160
-          ]
-        },
-        {
-          "id": "foundry_furnace_guard_2",
-          "type": "basic",
-          "at": [
-            224,
-            0.2,
-            -156
-          ]
-        }
-      ]
-    },
-    {
-      "id": "dock_patrol",
-      "sector": "docks",
-      "center": [
-        -232,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "dock_patrol_0",
-          "type": "basic",
-          "at": [
-            -232,
-            0.2,
-            -8
-          ]
-        },
-        {
-          "id": "dock_patrol_1",
-          "type": "fast",
-          "at": [
-            -224,
-            0.2,
-            4
-          ]
-        },
-        {
-          "id": "dock_patrol_2",
-          "type": "basic",
-          "at": [
-            -240,
-            0.2,
-            4
-          ]
-        }
-      ]
-    },
-    {
-      "id": "dock_crew",
-      "sector": "docks",
-      "center": [
-        -304,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "dock_crew_0",
-          "type": "ranged",
-          "at": [
-            -296,
-            0.2,
-            -8
-          ]
-        },
-        {
-          "id": "dock_crew_1",
-          "type": "basic",
-          "at": [
-            -312,
-            0.2,
-            0
-          ]
-        },
-        {
-          "id": "dock_crew_2",
-          "type": "basic",
-          "at": [
-            -304,
-            0.2,
-            4
+            96
           ]
         }
       ]
@@ -2358,83 +886,54 @@
       "id": "coolant_wardens",
       "sector": "reactor",
       "center": [
-        -120,
-        -8
+        112,
+        -56
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
           "id": "coolant_wardens_0",
           "type": "heavy",
           "at": [
-            -120,
+            104,
             0.2,
-            -8
+            -56
           ]
         },
         {
           "id": "coolant_wardens_1",
           "type": "ranged",
           "at": [
-            -128,
+            120,
             0.2,
-            4
+            -48
           ]
         },
         {
           "id": "coolant_wardens_2",
           "type": "dasher",
           "at": [
-            -112,
+            128,
             0.2,
-            4
+            -56
           ]
         },
         {
           "id": "coolant_wardens_3",
           "type": "basic",
           "at": [
-            -120,
+            96,
             0.2,
-            -20
-          ]
-        }
-      ]
-    },
-    {
-      "id": "reactor_techs",
-      "sector": "reactor",
-      "center": [
-        -48,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "reactor_techs_0",
-          "type": "ranged",
-          "at": [
-            -56,
-            0.2,
-            -8
+            -72
           ]
         },
         {
-          "id": "reactor_techs_1",
+          "id": "coolant_wardens_4",
           "type": "ranged",
           "at": [
-            -40,
+            128,
             0.2,
-            0
-          ]
-        },
-        {
-          "id": "reactor_techs_2",
-          "type": "heavy",
-          "at": [
-            -48,
-            0.2,
-            4
+            -104
           ]
         }
       ]
@@ -2443,244 +942,45 @@
       "id": "habitat_patrol",
       "sector": "habitat",
       "center": [
-        120,
-        -8
+        0,
+        -64
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
           "id": "habitat_patrol_0",
           "type": "fast",
           "at": [
-            120,
+            -12,
             0.2,
-            -8
+            -64
           ]
         },
         {
           "id": "habitat_patrol_1",
           "type": "ranged",
           "at": [
-            128,
+            12,
             0.2,
-            4
+            -64
           ]
         },
         {
           "id": "habitat_patrol_2",
           "type": "basic",
           "at": [
-            112,
+            -12,
             0.2,
-            4
+            -96
           ]
         },
         {
           "id": "habitat_patrol_3",
           "type": "heavy",
           "at": [
-            120,
+            12,
             0.2,
-            -20
-          ]
-        }
-      ]
-    },
-    {
-      "id": "habitat_watch",
-      "sector": "habitat",
-      "center": [
-        48,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "habitat_watch_0",
-          "type": "basic",
-          "at": [
-            56,
-            0.2,
-            -8
-          ]
-        },
-        {
-          "id": "habitat_watch_1",
-          "type": "ranged",
-          "at": [
-            40,
-            0.2,
-            0
-          ]
-        },
-        {
-          "id": "habitat_watch_2",
-          "type": "dasher",
-          "at": [
-            48,
-            0.2,
-            4
-          ]
-        }
-      ]
-    },
-    {
-      "id": "medbay_orderlies",
-      "sector": "medbay",
-      "center": [
-        232,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "medbay_orderlies_0",
-          "type": "basic",
-          "at": [
-            232,
-            0.2,
-            -8
-          ]
-        },
-        {
-          "id": "medbay_orderlies_1",
-          "type": "fast",
-          "at": [
-            224,
-            0.2,
-            4
-          ]
-        },
-        {
-          "id": "medbay_orderlies_2",
-          "type": "ranged",
-          "at": [
-            240,
-            0.2,
-            4
-          ]
-        }
-      ]
-    },
-    {
-      "id": "medbay_wardens",
-      "sector": "medbay",
-      "center": [
-        304,
-        -8
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "medbay_wardens_0",
-          "type": "dasher",
-          "at": [
-            296,
-            0.2,
-            -8
-          ]
-        },
-        {
-          "id": "medbay_wardens_1",
-          "type": "basic",
-          "at": [
-            312,
-            0.2,
-            0
-          ]
-        },
-        {
-          "id": "medbay_wardens_2",
-          "type": "heavy",
-          "at": [
-            304,
-            0.2,
-            4
-          ]
-        }
-      ]
-    },
-    {
-      "id": "salvage_crew",
-      "sector": "salvage",
-      "center": [
-        -296,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "salvage_crew_0",
-          "type": "heavy",
-          "at": [
-            -296,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "salvage_crew_1",
-          "type": "basic",
-          "at": [
-            -304,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "salvage_crew_2",
-          "type": "dasher",
-          "at": [
-            -288,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "salvage_crew_3",
-          "type": "ranged",
-          "at": [
-            -296,
-            0.2,
-            140
-          ]
-        }
-      ]
-    },
-    {
-      "id": "salvage_pickers",
-      "sector": "salvage",
-      "center": [
-        -224,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "salvage_pickers_0",
-          "type": "basic",
-          "at": [
-            -232,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "salvage_pickers_1",
-          "type": "fast",
-          "at": [
-            -216,
-            0.2,
-            160
-          ]
-        },
-        {
-          "id": "salvage_pickers_2",
-          "type": "heavy",
-          "at": [
-            -224,
-            0.2,
-            164
+            -88
           ]
         }
       ]
@@ -2689,476 +989,103 @@
       "id": "command_guard",
       "sector": "command",
       "center": [
-        -56,
-        152
+        -112,
+        -56
       ],
-      "activate_radius": 34,
+      "activate_radius": 30,
       "members": [
         {
           "id": "command_guard_0",
           "type": "warlord",
           "at": [
-            -56,
+            -112,
             0.2,
-            152
+            -56
           ]
         },
         {
           "id": "command_guard_1",
           "type": "ranged",
           "at": [
-            -48,
+            -128,
             0.2,
-            164
+            -48
           ]
         },
         {
           "id": "command_guard_2",
           "type": "heavy",
           "at": [
-            -64,
+            -96,
             0.2,
-            164
-          ]
-        }
-      ]
-    },
-    {
-      "id": "command_reserve",
-      "sector": "command",
-      "center": [
-        -128,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "command_reserve_0",
-          "type": "heavy",
-          "at": [
-            -120,
-            0.2,
-            152
+            -48
           ]
         },
         {
-          "id": "command_reserve_1",
-          "type": "dasher",
+          "id": "command_guard_3",
+          "type": "ranged",
           "at": [
             -136,
             0.2,
-            160
-          ]
-        },
-        {
-          "id": "command_reserve_2",
-          "type": "basic",
-          "at": [
-            -128,
-            0.2,
-            164
+            -88
           ]
         }
       ]
     },
     {
-      "id": "archive_sentries",
-      "sector": "archive",
-      "center": [
-        56,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "archive_sentries_0",
-          "type": "ranged",
-          "at": [
-            56,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "archive_sentries_1",
-          "type": "ranged",
-          "at": [
-            48,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "archive_sentries_2",
-          "type": "basic",
-          "at": [
-            64,
-            0.2,
-            164
-          ]
-        }
-      ]
-    },
-    {
-      "id": "archive_stacks",
-      "sector": "archive",
-      "center": [
-        128,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "archive_stacks_0",
-          "type": "dasher",
-          "at": [
-            120,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "archive_stacks_1",
-          "type": "heavy",
-          "at": [
-            136,
-            0.2,
-            160
-          ]
-        },
-        {
-          "id": "archive_stacks_2",
-          "type": "ranged",
-          "at": [
-            128,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "archive_stacks_3",
-          "type": "basic",
-          "at": [
-            120,
-            0.2,
-            140
-          ]
-        }
-      ]
-    },
-    {
-      "id": "comms_guard",
-      "sector": "comms",
-      "center": [
-        296,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "comms_guard_0",
-          "type": "ranged",
-          "at": [
-            296,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "comms_guard_1",
-          "type": "dasher",
-          "at": [
-            304,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "comms_guard_2",
-          "type": "heavy",
-          "at": [
-            288,
-            0.2,
-            164
-          ]
-        },
-        {
-          "id": "comms_guard_3",
-          "type": "basic",
-          "at": [
-            296,
-            0.2,
-            140
-          ]
-        }
-      ]
-    },
-    {
-      "id": "comms_dish_crew",
-      "sector": "comms",
-      "center": [
-        224,
-        152
-      ],
-      "activate_radius": 34,
-      "members": [
-        {
-          "id": "comms_dish_crew_0",
-          "type": "basic",
-          "at": [
-            232,
-            0.2,
-            152
-          ]
-        },
-        {
-          "id": "comms_dish_crew_1",
-          "type": "ranged",
-          "at": [
-            216,
-            0.2,
-            160
-          ]
-        },
-        {
-          "id": "comms_dish_crew_2",
-          "type": "dasher",
-          "at": [
-            224,
-            0.2,
-            164
-          ]
-        }
-      ]
-    },
-    {
-      "id": "north_ring_patrol",
-      "sector": "transit",
-      "center": [
-        -88.0,
-        -252
-      ],
-      "activate_radius": 28,
-      "members": [
-        {
-          "id": "north_ring_patrol_0",
-          "type": "fast",
-          "at": [
-            -92.0,
-            0.2,
-            -256.0
-          ]
-        },
-        {
-          "id": "north_ring_patrol_1",
-          "type": "basic",
-          "at": [
-            -84.0,
-            0.2,
-            -244.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "west_ring_patrol",
-      "sector": "docks",
-      "center": [
-        -348,
-        0.0
-      ],
-      "activate_radius": 28,
-      "members": [
-        {
-          "id": "west_ring_patrol_0",
-          "type": "ranged",
-          "at": [
-            -352.0,
-            0.2,
-            -4.0
-          ]
-        },
-        {
-          "id": "west_ring_patrol_1",
-          "type": "basic",
-          "at": [
-            -340.0,
-            0.2,
-            4.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "mid_causeway_patrol",
-      "sector": "reactor",
-      "center": [
-        0,
-        0.0
-      ],
-      "activate_radius": 26,
-      "members": [
-        {
-          "id": "mid_causeway_patrol_0",
-          "type": "dasher",
-          "at": [
-            -4.0,
-            0.2,
-            -4.0
-          ]
-        },
-        {
-          "id": "mid_causeway_patrol_1",
-          "type": "basic",
-          "at": [
-            4.0,
-            0.2,
-            4.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "spine_causeway_patrol",
+      "id": "west_service_patrol",
       "sector": "command",
       "center": [
-        -88.0,
-        80
+        -112,
+        8
       ],
-      "activate_radius": 26,
+      "activate_radius": 30,
       "members": [
         {
-          "id": "spine_causeway_patrol_0",
-          "type": "heavy",
-          "at": [
-            -92.0,
-            0.2,
-            72.0
-          ]
-        },
-        {
-          "id": "spine_causeway_patrol_1",
-          "type": "ranged",
-          "at": [
-            -84.0,
-            0.2,
-            88.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "east_causeway_patrol",
-      "sector": "habitat",
-      "center": [
-        176,
-        0.0
-      ],
-      "activate_radius": 26,
-      "members": [
-        {
-          "id": "east_causeway_patrol_0",
+          "id": "west_service_patrol_0",
           "type": "basic",
           "at": [
-            172.0,
+            -116,
             0.2,
-            -4.0
+            8
           ]
         },
         {
-          "id": "east_causeway_patrol_1",
-          "type": "dasher",
-          "at": [
-            180.0,
-            0.2,
-            4.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "east_ring_patrol",
-      "sector": "medbay",
-      "center": [
-        348,
-        0.0
-      ],
-      "activate_radius": 28,
-      "members": [
-        {
-          "id": "east_ring_patrol_0",
-          "type": "basic",
-          "at": [
-            344.0,
-            0.2,
-            -4.0
-          ]
-        },
-        {
-          "id": "east_ring_patrol_1",
-          "type": "dasher",
-          "at": [
-            356.0,
-            0.2,
-            4.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "south_ring_patrol",
-      "sector": "archive",
-      "center": [
-        88.0,
-        252
-      ],
-      "activate_radius": 28,
-      "members": [
-        {
-          "id": "south_ring_patrol_0",
-          "type": "ranged",
-          "at": [
-            84.0,
-            0.2,
-            248.0
-          ]
-        },
-        {
-          "id": "south_ring_patrol_1",
-          "type": "heavy",
-          "at": [
-            92.0,
-            0.2,
-            256.0
-          ]
-        }
-      ]
-    },
-    {
-      "id": "foundry_causeway_patrol",
-      "sector": "foundry",
-      "center": [
-        264.0,
-        -80
-      ],
-      "activate_radius": 26,
-      "members": [
-        {
-          "id": "foundry_causeway_patrol_0",
+          "id": "west_service_patrol_1",
           "type": "fast",
           "at": [
-            260.0,
+            -108,
             0.2,
-            -88.0
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "id": "east_service_patrol",
+      "sector": "reactor",
+      "center": [
+        112,
+        8
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "east_service_patrol_0",
+          "type": "ranged",
+          "at": [
+            108,
+            0.2,
+            8
           ]
         },
         {
-          "id": "foundry_causeway_patrol_1",
-          "type": "basic",
+          "id": "east_service_patrol_1",
+          "type": "dasher",
           "at": [
-            268.0,
+            116,
             0.2,
-            -72.0
+            -8
           ]
         }
       ]
@@ -3184,7 +1111,7 @@
     {
       "id": "restore_transit",
       "title": "Bring the grid online",
-      "brief": "Reach Transit Works, secure its generator crew and restore station power.",
+      "brief": "Travel to Transit Works, secure its generator crew and restore station power.",
       "sector": "transit",
       "kind": "interact",
       "targets": [
@@ -3200,42 +1127,6 @@
       }
     },
     {
-      "id": "green_deck",
-      "title": "Water and air",
-      "brief": "The hydroponics bay has overgrown. Clear the tenders and purge the bloom.",
-      "sector": "hydroponics",
-      "kind": "interact",
-      "targets": [
-        "hydro_valve"
-      ],
-      "requires": [
-        "hydro_drones"
-      ],
-      "reward": {
-        "credits": 220,
-        "xp": 140,
-        "upgrade": "stamina_reservoir"
-      }
-    },
-    {
-      "id": "forge_passage",
-      "title": "Forge a way through",
-      "brief": "Take the foundry cutting rig from its crew. Every sealed door opens after this.",
-      "sector": "foundry",
-      "kind": "clear",
-      "targets": [
-        "foundry_cutter"
-      ],
-      "requires": [
-        "foundry_crew"
-      ],
-      "reward": {
-        "credits": 260,
-        "xp": 180,
-        "weapon": "warreaxe"
-      }
-    },
-    {
       "id": "cargo_records",
       "title": "Names, not numbers",
       "brief": "Search Cargo Exchange for all three evacuation manifests. The survivors need a route home.",
@@ -3246,17 +1137,19 @@
         "manifest_b",
         "manifest_c"
       ],
-      "requires": [],
+      "requires": [
+        "cargo_guards"
+      ],
       "reward": {
-        "credits": 300,
-        "xp": 210,
+        "credits": 240,
+        "xp": 160,
         "weapon": "sentinel_spear"
       }
     },
     {
       "id": "coolant",
       "title": "Stop the cascade",
-      "brief": "Defeat the coolant wardens at the Reactor Spine and disable the override.",
+      "brief": "Cross the eastern service causeway. Defeat the coolant wardens and disable the reactor override.",
       "sector": "reactor",
       "kind": "interact",
       "targets": [
@@ -3266,32 +1159,15 @@
         "coolant_wardens"
       ],
       "reward": {
-        "credits": 340,
-        "xp": 250,
+        "credits": 300,
+        "xp": 220,
         "upgrade": "vitality"
-      }
-    },
-    {
-      "id": "triage",
-      "title": "Triage",
-      "brief": "Strip the Medical Ward of its stores before the survivors reach the habitat.",
-      "sector": "medbay",
-      "kind": "collect",
-      "targets": [
-        "medkit_a",
-        "medkit_b"
-      ],
-      "requires": [],
-      "reward": {
-        "credits": 380,
-        "xp": 280,
-        "upgrade": "field_medic"
       }
     },
     {
       "id": "survivors",
       "title": "Open the lifeline",
-      "brief": "Clear the Habitat Ring watch and open its evacuation uplink.",
+      "brief": "Reach the Habitat Ring and open its evacuation uplink after securing the residential wing.",
       "sector": "habitat",
       "kind": "interact",
       "targets": [
@@ -3301,63 +1177,9 @@
         "habitat_patrol"
       ],
       "reward": {
-        "credits": 420,
-        "xp": 310,
+        "credits": 320,
+        "xp": 260,
         "upgrade": "critical_edge"
-      }
-    },
-    {
-      "id": "salvage_run",
-      "title": "Patch the hull",
-      "brief": "Fight through the Salvage Yard crew and recover enough plating for the shuttle.",
-      "sector": "salvage",
-      "kind": "clear",
-      "targets": [
-        "salvage_plating"
-      ],
-      "requires": [
-        "salvage_crew"
-      ],
-      "reward": {
-        "credits": 460,
-        "xp": 340,
-        "upgrade": "quartermaster"
-      }
-    },
-    {
-      "id": "archive_names",
-      "title": "Everyone on the register",
-      "brief": "Pull all three archive cores so no one is left off the evacuation register.",
-      "sector": "archive",
-      "kind": "collect",
-      "targets": [
-        "core_a",
-        "core_b",
-        "core_c"
-      ],
-      "requires": [],
-      "reward": {
-        "credits": 500,
-        "xp": 370,
-        "upgrade": "scholar"
-      }
-    },
-    {
-      "id": "send_signal",
-      "title": "Send the signal",
-      "brief": "Clear the Comms Array guard and power a dish toward the rescue lane.",
-      "sector": "comms",
-      "kind": "interact",
-      "targets": [
-        "comms_antenna"
-      ],
-      "requires": [
-        "comms_guard"
-      ],
-      "reward": {
-        "credits": 540,
-        "xp": 400,
-        "weapon": "sunbow"
       }
     },
     {
@@ -3373,8 +1195,8 @@
         "command_guard"
       ],
       "reward": {
-        "credits": 620,
-        "xp": 460,
+        "credits": 450,
+        "xp": 320,
         "upgrade": "storm_edge"
       }
     },
@@ -3389,8 +1211,8 @@
       ],
       "requires": [],
       "reward": {
-        "credits": 800,
-        "xp": 600
+        "credits": 600,
+        "xp": 400
       }
     }
   ]
