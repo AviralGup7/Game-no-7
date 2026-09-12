@@ -35,7 +35,7 @@ func build(authored: CampaignDefinition) -> bool:
 	var rail_mat := CampaignGeometry.material(Color(0.22, 0.3, 0.36))
 	for wall in CampaignGeometry.perimeter(definition.floors):
 		CampaignGeometry.collider(collision, wall)
-		CampaignGeometry.box(rails, wall.get_center(), wall.size, rail_mat)
+		_render_perimeter_wall(rails, wall, rail_mat)
 	for sector in definition.sectors:
 		_build_district(sector)
 	# Connector decks stay visible: never reveal a void between culling zones.
@@ -47,9 +47,57 @@ func build(authored: CampaignDefinition) -> bool:
 		for sector in definition.sectors:
 			is_district = is_district or CampaignDefinition.rect(sector.rect) == region
 		if not is_district:
-			CampaignGeometry.floor_batch(routes, region, CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
+			CampaignGeometry.floor_batch(routes, region, &"military", CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
 	update_visibility(definition.checkpoint("docks").origin)
 	return true
+
+
+func _render_perimeter_wall(parent: Node3D, bounds: AABB, fallback: Material) -> void:
+	# Collision remains merged, while render runs split at the gameplay module
+	# boundary so a long perimeter can change theme at district boundaries.
+	var vertical := bounds.size.z > bounds.size.x
+	var length := bounds.size.z if vertical else bounds.size.x
+	var count := maxi(1, roundi(length / CampaignGeometry.MODULE))
+	for index in range(count):
+		var start := float(index) * length / float(count)
+		var segment_length := length / float(count)
+		var segment := AABB(bounds.position, bounds.size)
+		if vertical:
+			segment.position.z += start
+			segment.size.z = segment_length
+		else:
+			segment.position.x += start
+			segment.size.x = segment_length
+		CampaignGeometry.wall_batch(parent, segment, _wall_style_at(segment.get_center()), fallback)
+
+
+func _floor_style(sector_id: StringName) -> StringName:
+	# Hazard plating belongs around heat/cargo machinery; clean powered panels
+	# mark transit and habitation. Docks/command retain military tread.
+	if sector_id == &"reactor" or sector_id == &"cargo":
+		return &"hazard"
+	if sector_id == &"transit" or sector_id == &"habitat":
+		return &"tech"
+	return &"military"
+
+
+func _wall_style_at(at: Vector3) -> StringName:
+	var nearest_id := &"docks"
+	var nearest_distance := INF
+	for sector in definition.sectors:
+		var area := CampaignDefinition.rect(sector.rect)
+		var nearest := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
+		var distance := nearest.distance_squared_to(Vector2(at.x, at.z))
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_id = StringName(String(sector.id))
+	if nearest_id == &"reactor":
+		return &"hazard"
+	if nearest_id == &"transit" or nearest_id == &"habitat":
+		return &"tech"
+	if nearest_id == &"cargo" or nearest_id == &"command":
+		return &"rusted"
+	return &"military"
 
 
 func _navigation_is_connected() -> bool:
@@ -106,7 +154,8 @@ func _build_district(sector: Dictionary) -> void:
 	add_child(root)
 	_visuals[String(sector.id)] = root
 	var accent := Color(String(sector.accent))
-	CampaignGeometry.floor_batch(root, CampaignDefinition.rect(sector.rect), CampaignGeometry.material(accent.darkened(0.78)))
+	var sector_id := StringName(String(sector.id))
+	CampaignGeometry.floor_batch(root, CampaignDefinition.rect(sector.rect), _floor_style(sector_id), CampaignGeometry.material(accent.darkened(0.78)))
 	for prop in definition.props:
 		if prop.sector == sector.id:
 			CampaignGeometry.landmark(root, prop, accent)

@@ -17,6 +17,7 @@ var _actors: Node3D
 var _active: Dictionary = {}  # authored member id -> EnemyBase
 var _enabled := true
 var _clock := 0.0
+var _flow_cell := Vector2i(-2147483648, -2147483648)
 
 
 func configure(world: CampaignWorld, player: Player, progress: Dictionary) -> void:
@@ -54,16 +55,15 @@ func stream_nearby() -> void:
 			actor.process_mode = Node.PROCESS_MODE_DISABLED
 			actor.queue_free()
 			_active.erase(id)
-	if not _active.is_empty():
+	var player_cell := _world.nav.to_cell(at)
+	if not _active.is_empty() and player_cell != _flow_cell:
 		_world.nav.rebuild_flow_field(at)
+		_flow_cell = player_cell
 	var spawned := 0
 	for group in _definition.encounters:
-		var close := false
-		for member in group.members:
-			if CampaignDefinition.point(member.at).distance_to(at) <= float(group.activate_radius):
-				close = true
-				break
-		if not close:
+		var center_data: Array = group.get("center", [])
+		var center := Vector3(float(center_data[0]), 0.2, float(center_data[1]))
+		if center.distance_to(at) > float(group.activate_radius):
 			continue
 		for member in group.members:
 			if _active.size() >= _definition.max_active_enemies or spawned >= SPAWNS_PER_TICK:
@@ -72,8 +72,8 @@ func stream_nearby() -> void:
 			if id in _progress.defeated or _active.has(id):
 				continue
 			var distance := CampaignDefinition.point(member.at).distance_to(at)
-			if distance > SPAWN_DISTANCE or distance < 8.0:
-				continue  # Never materialize an enemy on the player's checkpoint/feet.
+			if distance > SPAWN_DISTANCE:
+				continue
 			if _spawn(member):
 				spawned += 1
 
@@ -94,7 +94,7 @@ func _spawn(member: Dictionary) -> bool:
 	var actor := root as EnemyBase
 	actor.name = String(member.id)
 	_actors.add_child(actor)
-	actor.global_position = CampaignDefinition.point(member.at)
+	actor.global_position = _safe_spawn_position(CampaignDefinition.point(member.at))
 	actor.reset_physics_interpolation()
 	actor.set_bounds(176.0)
 	actor.initialize(config, _player, 0)
@@ -108,6 +108,18 @@ func _spawn(member: Dictionary) -> bool:
 		# The inherited commander scene authors three finite phases, no summons.
 		boss.begin_fight(0, "command deck")
 	return true
+
+
+func _safe_spawn_position(authored: Vector3) -> Vector3:
+	if authored.distance_to(_player.global_position) >= 8.0 and _world.nav.is_walkable(authored):
+		return authored
+	for radius in [8.0, 12.0, 16.0]:
+		for step in range(8):
+			var angle := TAU * float(step) / 8.0
+			var candidate := authored + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+			if candidate.distance_to(_player.global_position) >= 8.0 and _world.nav.is_walkable(candidate):
+				return candidate
+	return authored
 
 
 func _on_enemy_killed(enemy: Node, _type: StringName, _score: int, credits: int) -> void:

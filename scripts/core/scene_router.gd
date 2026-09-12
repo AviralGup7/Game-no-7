@@ -33,16 +33,29 @@ func change_scene_to_file(path: String) -> bool:
 		_transitioning = false
 		return false
 	EventBus.report_info("Routing to scene: %s" % path)
-	# change_scene_to_file is already deferred internally; wrap completion so the
-	# in-flight flag is cleared after the swap.
-	tree.change_scene_to_file(path)
-	_reset_later()
+	var previous := tree.current_scene
+	var error := tree.change_scene_to_file(path)
+	if error != OK:
+		_transitioning = false
+		_last_error = "Could not load scene %s (error %d)" % [path, error]
+		EventBus.report_error(_last_error)
+		return false
+	_last_error = ""
+	_reset_when_changed(previous)
 	return true
 
 
-func _reset_later() -> void:
+func _reset_when_changed(previous: Node) -> void:
+	# The engine defers replacement. Keep the lock until current_scene actually
+	# changes rather than guessing that one frame is enough.
 	if is_inside_tree() and get_tree() != null:
-		await get_tree().process_frame
+		var frames := 0
+		while get_tree() != null and get_tree().current_scene == previous and frames < 120:
+			await get_tree().process_frame
+			frames += 1
+		if get_tree() != null and get_tree().current_scene == previous:
+			_last_error = "Scene transition did not complete within 120 frames"
+			EventBus.report_error(_last_error)
 	_transitioning = false
 
 

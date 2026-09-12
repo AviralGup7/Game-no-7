@@ -5,6 +5,18 @@ extends RefCounted
 
 const MODULE := 8.0
 
+# The campaign used to render its station as flat-colour BoxMesh placeholders,
+# even though the authored PBR module library shipped in the same build. Keep
+# the 8 m gameplay grid, but batch the 1 m assets at module scale so the map and
+# its collision/navigation contract remain unchanged.
+const GROUND_MILITARY: PackedScene = preload("res://scenes/environment/ground.tscn")
+const GROUND_HAZARD: PackedScene = preload("res://scenes/environment/ground_hazard.tscn")
+const GROUND_TECH: PackedScene = preload("res://scenes/environment/ground_tech.tscn")
+const WALL_MILITARY: PackedScene = preload("res://scenes/environment/wall.tscn")
+const WALL_HAZARD: PackedScene = preload("res://scenes/environment/wall_hazard.tscn")
+const WALL_TECH: PackedScene = preload("res://scenes/environment/wall_tech.tscn")
+const WALL_RUSTED: PackedScene = preload("res://scenes/environment/wall_rusted.tscn")
+
 
 static func floor_cells(regions: Array[Rect2]) -> Dictionary:
 	var cells: Dictionary = {}
@@ -114,10 +126,13 @@ static func collider(parent: Node3D, bounds: AABB) -> void:
 	parent.add_child(body)
 
 
-static func floor_batch(parent: Node3D, area: Rect2, mat: Material) -> void:
+static func floor_batch(parent: Node3D, area: Rect2, style: StringName, fallback: Material) -> void:
 	var cells := floor_cells([area])
-	var mesh := BoxMesh.new()
-	mesh.size = Vector3(MODULE - 0.12, 0.22, MODULE - 0.12)
+	var mesh := _module_mesh(_ground_scene(style))
+	if mesh == null:
+		var box_mesh := BoxMesh.new()
+		box_mesh.size = Vector3(MODULE - 0.12, 0.22, MODULE - 0.12)
+		mesh = box_mesh
 	var multi := MultiMesh.new()
 	multi.transform_format = MultiMesh.TRANSFORM_3D
 	multi.mesh = mesh
@@ -125,14 +140,84 @@ static func floor_batch(parent: Node3D, area: Rect2, mat: Material) -> void:
 	var index := 0
 	for raw in cells:
 		var cell: Vector2i = raw
-		var at := Vector3((cell.x + 0.5) * MODULE, -0.11, (cell.y + 0.5) * MODULE)
-		multi.set_instance_transform(index, Transform3D(Basis.IDENTITY, at))
+		var at := Vector3((cell.x + 0.5) * MODULE, 0.0, (cell.y + 0.5) * MODULE)
+		var basis := Basis.IDENTITY.scaled(Vector3(MODULE, 1.0, MODULE))
+		multi.set_instance_transform(index, Transform3D(basis, at))
 		index += 1
 	var instance := MultiMeshInstance3D.new()
 	instance.multimesh = multi
-	instance.material_override = mat
+	if mesh is BoxMesh:
+		instance.material_override = fallback
+	elif mesh.get_surface_count() > 0:
+		var surface_material := mesh.surface_get_material(0)
+		if surface_material is BaseMaterial3D:
+			var repeated := (surface_material as BaseMaterial3D).duplicate() as BaseMaterial3D
+			repeated.uv1_scale = Vector3(MODULE, MODULE, MODULE)
+			instance.material_override = repeated
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(instance)
+
+
+static func wall_batch(parent: Node3D, bounds: AABB, style: StringName, fallback: Material) -> void:
+	var mesh := _module_mesh(_wall_scene(style))
+	if mesh == null:
+		box(parent, bounds.get_center(), bounds.size, fallback)
+		return
+	var vertical := bounds.size.z > bounds.size.x
+	var length := bounds.size.z if vertical else bounds.size.x
+	var count := maxi(1, roundi(length / MODULE))
+	var multi := MultiMesh.new()
+	multi.transform_format = MultiMesh.TRANSFORM_3D
+	multi.mesh = mesh
+	multi.instance_count = count
+	for index in range(count):
+		var offset := (float(index) + 0.5) * length / float(count)
+		var at := Vector3(bounds.position.x + offset, bounds.position.y + bounds.size.y * 0.5, bounds.get_center().z)
+		var basis := Basis.IDENTITY.scaled(Vector3(length / float(count), bounds.size.y / 0.27, 1.0))
+		if vertical:
+			at = Vector3(bounds.get_center().x, bounds.position.y + bounds.size.y * 0.5, bounds.position.z + offset)
+			basis = Basis(Vector3.UP, PI * 0.5).scaled(Vector3(length / float(count), bounds.size.y / 0.27, 1.0))
+		multi.set_instance_transform(index, Transform3D(basis, at))
+	var instance := MultiMeshInstance3D.new()
+	instance.multimesh = multi
+	parent.add_child(instance)
+
+
+static func _ground_scene(style: StringName) -> PackedScene:
+	if style == &"hazard":
+		return GROUND_HAZARD
+	if style == &"tech":
+		return GROUND_TECH
+	return GROUND_MILITARY
+
+
+static func _wall_scene(style: StringName) -> PackedScene:
+	if style == &"hazard":
+		return WALL_HAZARD
+	if style == &"tech":
+		return WALL_TECH
+	if style == &"rusted":
+		return WALL_RUSTED
+	return WALL_MILITARY
+
+
+static func _module_mesh(source: PackedScene) -> Mesh:
+	var root := source.instantiate()
+	var result := _find_mesh(root)
+	root.free()
+	if result == null:
+		push_warning("CampaignGeometry: environment module has no MeshInstance3D; using fallback geometry")
+	return result
+
+
+static func _find_mesh(node: Node) -> Mesh:
+	if node is MeshInstance3D:
+		return (node as MeshInstance3D).mesh
+	for child in node.get_children():
+		var found := _find_mesh(child)
+		if found != null:
+			return found
+	return null
 
 
 static func landmark(parent: Node3D, prop: Dictionary, accent: Color) -> void:

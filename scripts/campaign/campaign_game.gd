@@ -45,11 +45,15 @@ func build_world(world_id: StringName) -> void:
 	_world.name = "StationWorld"
 	_world_root.add_child(_world)
 	if not _world.build(definition):
+		EventBus.report_error("Station Zero geometry or navigation failed to build")
+		_clear_world()
 		return
 	# Pools precede actors so their first shot/effect resolves a live pool.
 	_support_systems()
 	var player := PLAYER_SCENE.instantiate() as Player
 	if player == null:
+		EventBus.report_error("Station Zero player scene did not instantiate as Player")
+		_clear_world()
 		return
 	player.name = "Player"
 	_world_root.add_child(player)
