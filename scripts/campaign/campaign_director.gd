@@ -7,6 +7,10 @@ signal changed
 signal message(text: String)
 const INTERACT_RANGE := 4.5
 const UPDATE_INTERVAL := 0.25
+## Route refreshes are distance-throttled, not just time-throttled: on the
+## expanded station an A* across the deck is the most expensive one-off query,
+## so it only re-runs after the player has actually moved this far.
+const ROUTE_REFRESH_DISTANCE := 12.0
 var definition: CampaignDefinition
 var progress: Dictionary
 var encounters: CampaignEncounters

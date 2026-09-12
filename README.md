@@ -4,12 +4,14 @@ An Android **third-person campaign shooter**, built with **Godot 4.4.1-stable**
 and **GDScript**. Landscape, touch-first, fully offline.
 
 Explore **one fixed, connected station** rather than starting an arena or choosing
-a seed. Travel from the docks through transit, cargo, the reactor, habitat and
-command; restore station systems, recover evacuation manifests and open the way home.
+a seed. Travel from the docks through transit, hydroponics, the foundry, cargo, the
+reactor, the medical ward, habitat, salvage, the archive, comms and command; restore
+station systems, recover evacuation manifests and open the way home.
 There are no chapter-loading gates between districts.
 
-- **352 × 272 m world footprint**, six districts and seven story objectives.
-- **Eight finite encounters / 29 authored enemies**, including a three-phase
+- **864 × 672 m world footprint** (6.1× the original station), twelve districts and
+  thirteen story objectives.
+- **Thirty-two finite encounters / 96 authored enemies**, including a three-phase
   commander. Defeated enemies stay defeated across checkpoint retries.
 - **Checkpoints and persistent campaign progress**: objectives, credits, upgrades,
   XP and equipped weapons/skills survive Continue. Green rest pads refill health

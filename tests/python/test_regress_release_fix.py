@@ -87,7 +87,9 @@ class DocsAndChromeTests(unittest.TestCase):
         txt = read("README.md")
         self.assertIn("one fixed, connected station", txt)
         self.assertIn("scenes/campaign/station_zero.tscn", txt)
-        self.assertIn("seven story objectives", txt)
+        # The shipping station is the expanded twelve-district world.
+        self.assertIn("864 × 672 m world footprint", txt)
+        self.assertIn("thirteen story objectives", txt)
         self.assertNotIn("pick upgrades between\nwaves", txt)
 
     def test_diagnostics_workflow_tracks_this_branch(self) -> None:

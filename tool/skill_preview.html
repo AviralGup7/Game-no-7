@@ -1,0 +1,298 @@
+<!doctype html>
+<!--
+  Skill cast-focus inspector
+  Spins the eight authored cast foci straight from the shipped GLB bytes and the build report,
+  so what is under data/models/skills is what gets looked at.
+
+  Run: python3 tool/serve_art.py --port 8000
+  Open: http://localhost:8000/tool/skill_preview.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Stand · Skill Cast-Focus Inspector</title>
+<style>
+:root {
+  color-scheme: dark;
+  --paper: #e7e5de;
+  --muted: #8d969b;
+  --edge: #303a3e;
+  --gold: #d1ad73;
+  --panel: #151d21;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0e151a;
+  color: var(--paper);
+  font: 13px/1.5 system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  padding: 7px 10px;
+  text-align: left;
+}
+button.active { border-color: var(--gold); color: var(--gold); background: #1b242a; }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--edge); background: var(--panel);
+}
+.brand { display: flex; gap: 10px; align-items: center; }
+.mark {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  border: 1px solid var(--gold); color: var(--gold); border-radius: 4px; font-weight: 700;
+}
+.eyebrow { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+header a { color: var(--muted); text-decoration: none; margin-left: 14px; }
+header a:hover { color: var(--gold); }
+main { display: grid; grid-template-columns: 250px 1fr; height: calc(100vh - 55px); }
+aside { border-right: 1px solid var(--edge); background: var(--panel); padding: 14px; overflow-y: auto; }
+aside h1 { font-size: 17px; margin: 6px 0 4px; }
+aside p { color: var(--muted); margin: 0 0 14px; }
+.section-title { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin: 16px 0 6px; }
+.btn-group { display: grid; gap: 4px; }
+#stats { color: var(--muted); font-variant-numeric: tabular-nums; }
+#stats b { color: var(--paper); font-weight: 600; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--edge); }
+#shots { display: grid; gap: 6px; }
+#shots figure { margin: 0; }
+#shots img { width: 100%; border: 1px solid var(--edge); border-radius: 4px; background: #0e151a; }
+#shots figcaption { color: var(--muted); font-size: 11px; }
+#viewport { position: relative; }
+#viewport canvas { display: block; }
+#notice {
+  position: absolute; inset: auto 0 0 0; padding: 10px 16px; color: var(--muted);
+  background: #101a1fd8; border-top: 1px solid var(--edge); display: none;
+}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/"
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">VII</div>
+    <div>
+      <strong>LAST STAND</strong>
+      <div class="eyebrow">Skills · Cast-Focus Props</div>
+    </div>
+  </div>
+  <div>
+    <a href="./hero_preview.html">Inspect Hero ↗</a>
+    <a href="./wall_preview.html">Modular Walls ↗</a>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div>
+      <div class="eyebrow">Technology Abilities</div>
+      <h1>Cast Foci</h1>
+      <p>One authored prop per skill, loaded from the shipped <code>focus.glb</code> and measured in
+      the build report beside it.</p>
+    </div>
+
+    <div class="section-title">Skill</div>
+    <div class="btn-group" id="skills"></div>
+
+    <div class="section-title">Channels</div>
+    <div class="btn-group">
+      <button id="mat-pbr" class="active">PBR Shaded</button>
+      <button id="mat-wire">Wireframe</button>
+      <button id="mat-glow">Emission Only</button>
+    </div>
+
+    <div class="section-title">View</div>
+    <div class="btn-group">
+      <button id="turn" class="active">Turntable</button>
+      <button id="frame">Frame From Deck</button>
+    </div>
+
+    <div class="section-title">This Prop</div>
+    <div id="stats">loading build report…</div>
+
+    <div class="section-title">Renders From The Build</div>
+    <div id="shots"></div>
+  </aside>
+
+  <div id="viewport"><div id="notice"></div></div>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from './vendor/GLTFLoader.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
+
+const $ = id => document.getElementById(id);
+const host = $('viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x17232b);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+host.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x17232b, 0.06);
+const camera = new THREE.PerspectiveCamera(35, 1, 0.05, 60);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 0.6;
+controls.maxDistance = 6;
+controls.maxPolarAngle = Math.PI * 0.495;
+
+const key = new THREE.DirectionalLight(0xffe7c5, 2.2);
+key.position.set(-2.4, 4.2, 3.0);
+key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024);
+for (const edge of ['left', 'right', 'top', 'bottom']) key.shadow.camera[edge] = edge === 'left' || edge === 'bottom' ? -1.6 : 1.6;
+key.shadow.camera.near = 0.5;
+key.shadow.camera.far = 12;
+key.shadow.normalBias = 0.02;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x9bbde0, 1.1);
+fill.position.set(2.6, 2.2, -2.0);
+scene.add(fill, new THREE.HemisphereLight(0xbacbd3, 0x1e2429, 0.6));
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40),
+  new THREE.MeshStandardMaterial({ color: 0x4a5154, roughness: 0.82 }));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.004;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const BLACK = new THREE.Color(0x000000);
+let report = null, model = null, channel = 'pbr', turntable = true;
+const pivot = new THREE.Group();
+scene.add(pivot);
+
+const rgb = triplet => '#' + triplet.map(value => Math.round(value * 255).toString(16).padStart(2, '0')).join('');
+
+function notice(message) { $('notice').style.display = message ? 'block' : 'none'; $('notice').textContent = message || ''; }
+
+function applyChannel() {
+  if (!model) return;
+  model.traverse(node => {
+    if (!node.isMesh) return;
+    const material = node.material;
+    if (!node.userData.base) node.userData.base = {
+      color: material.color.clone(), roughness: material.roughness, metalness: material.metalness,
+    };
+    const base = node.userData.base;
+    material.wireframe = channel === 'wire';
+    material.color.copy(channel === 'glow' ? BLACK : base.color);
+    material.roughness = channel === 'glow' ? 1 : base.roughness;
+    material.metalness = channel === 'glow' ? 0 : base.metalness;
+    material.needsUpdate = true;
+  });
+}
+
+function load(entry) {
+  document.querySelectorAll('[data-skill]').forEach(button => button.classList.toggle('active', button.dataset.skill === entry.skill_id));
+  notice('loading ' + entry.skill_id + '…');
+  new GLTFLoader().load('../data/models/skills/' + entry.skill_id + '/focus.glb', gltf => {
+    if (model) pivot.remove(model);
+    model = gltf.scene;
+    model.traverse(node => {
+      if (!node.isMesh) return;
+      node.castShadow = true;
+      node.receiveShadow = true;
+      for (const texture of [node.material.map, node.material.normalMap, node.material.emissiveMap, node.material.metalnessMap]) {
+        if (texture) texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      }
+    });
+    applyChannel();
+    pivot.add(model);
+    frame();
+    report_ui(entry);
+    notice('');
+  }, undefined, error => notice('could not load ' + entry.skill_id + ': ' + error));
+}
+
+function frame() {
+  const box = new THREE.Box3().setFromObject(model);
+  const height = Math.max(0.001, box.max.y - box.min.y);
+  const centre = box.getCenter(new THREE.Vector3());
+  controls.target.set(centre.x, box.min.y + height * 0.55, centre.z);
+  camera.position.set(centre.x + height * 1.5, box.min.y + height * 1.05, centre.z + height * 2.1);
+  controls.update();
+}
+
+function report_ui(entry) {
+  $('stats').innerHTML = '<b>' + entry.display_name + '</b><br>'
+    + entry.triangles.toLocaleString() + ' triangles · ' + entry.parts + ' parts<br>'
+    + entry.islands + ' atlas islands · ' + (entry.bytes / 1024).toFixed(0) + ' KB<br>'
+    + 'footprint ' + entry.size_metres[0].toFixed(2) + ' × ' + entry.size_metres[2].toFixed(2)
+    + ' m · height ' + entry.size_metres[1].toFixed(2) + ' m<br>'
+    + '<span class="swatch" style="background:' + rgb(entry.accent) + '"></span> '
+    + rgb(entry.accent) + ' glow at ×' + entry.emissive_strength.toFixed(2);
+  $('shots').innerHTML = '';
+  for (const [label, file] of [['icon', 'icons/' + entry.skill_id + '.png'], ['three-quarter view', entry.skill_id + '/focus_render.png'], ['silhouette', entry.skill_id + '/focus_front.png']]) {
+    const figure = document.createElement('figure');
+    figure.innerHTML = '<img alt="" src="../data/models/skills/' + file + '"><figcaption>' + label + '</figcaption>';
+    $('shots').appendChild(figure);
+  }
+}
+
+function paint() {
+  for (const button of document.querySelectorAll('.btn-group [id^="mat-"], #turn')) {
+    if (button.id.startsWith('mat-')) button.classList.toggle('active', button.id === 'mat-' + channel);
+    if (button.id === 'turn') button.classList.toggle('active', turntable);
+  }
+}
+
+async function boot() {
+  const response = await fetch('../data/models/skills/build_report.json');
+  report = await response.json();
+  const list = $('skills');
+  for (const entry of report.models) {
+    const button = document.createElement('button');
+    button.textContent = entry.display_name;
+    button.dataset.skill = entry.skill_id;
+    button.addEventListener('click', () => load(entry));
+    list.appendChild(button);
+  }
+  $('mat-pbr').addEventListener('click', () => { channel = 'pbr'; applyChannel(); paint(); });
+  $('mat-wire').addEventListener('click', () => { channel = 'wire'; applyChannel(); paint(); });
+  $('mat-glow').addEventListener('click', () => { channel = 'glow'; applyChannel(); paint(); });
+  $('turn').addEventListener('click', () => { turntable = !turntable; paint(); });
+  $('frame').addEventListener('click', frame);
+  if (report.models.length) load(report.models[0]);
+}
+
+function resize() {
+  const width = host.clientWidth, height = host.clientHeight;
+  renderer.setSize(width, height, false);
+  camera.aspect = width / Math.max(1, height);
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+let last = performance.now();
+renderer.setAnimationLoop(now => {
+  const delta = (now - last) / 1000;
+  last = now;
+  if (turntable && model) pivot.rotation.y += delta * 0.4;
+  controls.update();
+  renderer.render(scene, camera);
+});
+boot().catch(error => notice('build report unavailable: ' + error));
+</script>
+</body>
+</html>

@@ -9,6 +9,10 @@ const TICK := 0.3
 const DESPAWN_DISTANCE := 90.0
 const SPAWN_DISTANCE := 70.0
 const SPAWNS_PER_TICK := 2
+## Flow-field window for combat on the expanded station: it comfortably covers
+## every actor that can be live (spawn 70 m / despawn 90 m) while keeping each
+## rebuild proportional to the crowd instead of to the whole 864 x 672 m deck.
+const FLOW_RADIUS := 128.0
 var _definition: CampaignDefinition
 var _world: CampaignWorld
 var _player: Player
@@ -57,7 +61,7 @@ func stream_nearby() -> void:
 			_active.erase(id)
 	var player_cell := _world.nav.to_cell(at)
 	if not _active.is_empty() and player_cell != _flow_cell:
-		_world.nav.rebuild_flow_field(at)
+		_world.nav.rebuild_flow_field(at, FLOW_RADIUS)
 		_flow_cell = player_cell
 	var spawned := 0
 	for group in _definition.encounters:
@@ -96,12 +100,12 @@ func _spawn(member: Dictionary) -> bool:
 	_actors.add_child(actor)
 	actor.global_position = _safe_spawn_position(CampaignDefinition.point(member.at))
 	actor.reset_physics_interpolation()
-	actor.set_bounds(176.0)
+	actor.set_bounds(_definition.containment_half())
 	actor.initialize(config, _player, 0)
 	actor.set_spawn_serial(_definition.spawn_ids().find(String(member.id)))
 	actor.set_nav_grid(_world.nav)
 	_active[String(member.id)] = actor
-	_world.nav.rebuild_flow_field(_player.global_position)
+	_world.nav.rebuild_flow_field(_player.global_position, FLOW_RADIUS)
 	EventBus.enemy_spawned.emit(actor, config.archetype_id)
 	var boss := actor.get_boss_controller()
 	if boss != null:

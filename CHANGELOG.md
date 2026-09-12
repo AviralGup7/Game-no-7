@@ -1,5 +1,63 @@
 # Changelog
 
+## [Unreleased] — Skill cast-focus prop set (2026-09-12)
+
+- Author the eight missing skill visuals: one cast-focus prop per skill, matching the eight
+  configs in `data/skills`, built by `tool/build_skill_foci.py` and the new stdlib-only
+  `tool/skill_forge` geometry package (parametric primitives, PBR channel baking, GLB packing,
+  and a rasterizer that renders the shipped file rather than the in-memory model).
+- Give every focus one material on a 512² four-map atlas (albedo, normal, ORM, emission) with
+  at most ten 128² islands, 2.0k–3.9k triangles, a ≤0.6 m footprint, its deck seated at Y=0 and
+  `Socket/Cast`, `Socket/Flare` and `Socket/Base` nodes, so an effect can attach without knowing
+  the mesh. Each prop's glow reuses the accent already in `EffectDirector.SKILL_COLORS`.
+- Render the skill-bar icons from those same GLB bytes (128² RGBA) and wire `icon` into all eight
+  `data/skills/*.tres`, so the bar can no longer drift from the model; `assets/catalog.json`
+  `gameplay_skills` gains `model`, `icon` and `prop_scene` beside the existing cast-ring texture.
+- Ship drop-in `scenes/props/skill_focus_<skill>.tscn` instances scaled through the existing
+  `ModelVisual.create(scene, extent)` seam; no GDScript, pool cap or arena-prop table changed.
+- Record provenance in `data/models/skills/build_report.json` (recipe, nine source hashes,
+  every output hash, measured counts) and add `ASSET_LICENSES/skill-foci.md` plus
+  `docs/agent_skills/05_skill_focus_asset_recipe.md` for the contract, the seams and the
+  winding/inset/shading-group pitfalls a plausible render hides.
+- Resolve every material slot through the glTF `textures` table instead of pointing slots at
+  `images`: the shipped files looked fine to a previewer that made the same shortcut and were
+  rejected by `godot --import`. `check_model` now walks slot -> texture -> image for all 128 models,
+  and the focus previews resolve the hop the way the engine does.
+- Add `tests/python/test_skill_foci.py`: sixteen checks that re-parse every GLB (attributes,
+  bounds, single material, UV range, unit normals with orthogonal tangents), re-hash every
+  reported file against the build report, validate the prop scenes and resources, and assert
+  the catalogue points only at files that exist; `tool/skill_preview.html` spins the shipped GLBs.
+  All asset gates and the Python suite pass.
+
+## [Unreleased] — Expanded Station Zero (6× world) (2026-09-12)
+
+- Grow the fixed campaign station from 352 × 272 m to **864 × 672 m** (6.1× the
+  footprint, 5.4× the walkable area): **twelve districts** (Hydroponics Bay, Foundry
+  Deck, Medical Ward, Salvage Yard, Data Archive and Comms Array join the original
+  six) laid out on a 4 × 3 deck grid, joined by seventeen inter-district connectors
+  and a 1,472 m outer service ring with fourteen spurs.
+- Author **47 deck regions / 3,768 modules, 72 landmarks, 30 interactions, 32 finite
+  encounters (96 uniquely identified guards) and 13 missions**, including three
+  archive cores, a medical triage run, a hull-salvage run and a comms-array uplink.
+  Every district keeps a rest pad, a supply locker and at least two guard posts.
+- Raise the world budgets that the bigger station needs, and make them explicit and
+  shared: `ArenaNavGrid.WORLD_EXTENT_LIMIT` / `WORLD_CELL_LIMIT` (1,024 m, 40,960
+  cells) and `CampaignDefinition.WORLD_EXTENT_LIMIT`, mirrored by
+  `tool/validate_campaign.py`, which now also enforces the loader's 64-region and
+  512-row limits. A contract test fails when the three copies drift.
+- Keep the larger world inside the Android frame budget instead of scaling cost with
+  area: the combat flow field rebuilds inside a 128 m window (it covers the 70/90 m
+  spawn/despawn radii), so a rebuild still visits roughly the 2,500 cells it used to;
+  route A* reuses its scratch arrays behind a 6,000-expansion cap with a
+  best-partial fallback (the longest authored crossing measures 4,270 expansions),
+  string-pulling look-ahead is bounded, and route refreshes are throttled to every
+  12 m travelled instead of every 6 m.
+- Derive the player and streamed-actor locomotion clamp from the authored bounds
+  (`CampaignDefinition.containment_half()`) instead of a hard-coded 176 m radius,
+  which would have trapped movement in the outer districts.
+- Regenerate the station overview from a layout that now derives its scale, canvas
+  height and mission-log spacing from the authored world instead of fixed numbers.
+
 ## [Unreleased] — CI native-gate repair (2026-09-12)
 
 - Fix the Android workflow's failing Godot host jobs. The native renderer move

@@ -1,0 +1,548 @@
+{
+  "schema_version": 1,
+  "recipe": "skill_focus_v1",
+  "generator": "tool/build_skill_foci.py",
+  "license_notice": "ASSET_LICENSES/skill-foci.md",
+  "authoring": "Project-authored hard-surface geometry with procedurally painted PBR atlases and software-rasterized verification renders. Pure Python: no downloads, no third-party art, no third-party motion.",
+  "budget": {
+    "triangles_per_prop": 4200,
+    "atlas": 512,
+    "island": 128,
+    "icon": 128
+  },
+  "recipe_files": [
+    {
+      "path": "tool/build_skill_foci.py",
+      "sha256": "7b7c0cb223a21fddd33fc96492219588c901325eb34328bee5489b43e5ad9c0e"
+    },
+    {
+      "path": "tool/skill_forge/mesh.py",
+      "sha256": "efd78779f3af780ee9645e7c4f8a066ec988e52f4fcf5c50907f8a96fadd6516"
+    },
+    {
+      "path": "tool/skill_forge/primitives.py",
+      "sha256": "5c8ad0230b00ffa8284f905fe50f6982725b9aa125e5411f4bf4995a253dcbf8"
+    },
+    {
+      "path": "tool/skill_forge/texture.py",
+      "sha256": "e9978b75d9aa980004997f799c6ca064b7fa817b0e1466f3817564648fb6d064"
+    },
+    {
+      "path": "tool/skill_forge/material.py",
+      "sha256": "352ddcc95b291d692e4dbcb56c85beeac2f5a03025f48af96ddfdc7e83f8fce2"
+    },
+    {
+      "path": "tool/skill_forge/glb.py",
+      "sha256": "afd235acac6aa5d326816bddd0c0ec8fabbdadb6b5eb2eee9e8e488371f49199"
+    },
+    {
+      "path": "tool/skill_forge/pack.py",
+      "sha256": "9814377d3ab74ed400180ac4895209bf50b8a4346e35673f399a7925a95f2ee3"
+    },
+    {
+      "path": "tool/skill_forge/raster.py",
+      "sha256": "53b710f598607b68ec160bdfd8ae8d87c0b0c0547150063d9a65b2e63da6f6a9"
+    },
+    {
+      "path": "tool/skill_forge/png.py",
+      "sha256": "36254d14e0328199e49a9ba7c5379f712c31533ec76a1d93c11d2fde245f0398"
+    }
+  ],
+  "models": [
+    {
+      "skill_id": "seismic_slam",
+      "display_name": "Graviton Pulse",
+      "parts": 22,
+      "triangles": 3888,
+      "vertices": 2318,
+      "islands": 10,
+      "bytes": 314088,
+      "atlas": 512,
+      "size_metres": [
+        0.391,
+        0.4888,
+        0.391
+      ],
+      "accent": [
+        0.82,
+        0.48,
+        0.18
+      ],
+      "emissive_strength": 1.5
+    },
+    {
+      "skill_id": "bladestorm",
+      "display_name": "EMP Burst",
+      "parts": 23,
+      "triangles": 2546,
+      "vertices": 1585,
+      "islands": 10,
+      "bytes": 270032,
+      "atlas": 512,
+      "size_metres": [
+        0.483,
+        0.4165,
+        0.5022
+      ],
+      "accent": [
+        0.88,
+        0.62,
+        0.18
+      ],
+      "emissive_strength": 1.4
+    },
+    {
+      "skill_id": "phantom_rush",
+      "display_name": "Phase Dash",
+      "parts": 13,
+      "triangles": 2024,
+      "vertices": 1186,
+      "islands": 10,
+      "bytes": 231300,
+      "atlas": 512,
+      "size_metres": [
+        0.3622,
+        0.4637,
+        0.387
+      ],
+      "accent": [
+        0.64,
+        0.42,
+        1.0
+      ],
+      "emissive_strength": 1.45
+    },
+    {
+      "skill_id": "shatterwave",
+      "display_name": "Sonic Disruptor",
+      "parts": 14,
+      "triangles": 3312,
+      "vertices": 1952,
+      "islands": 10,
+      "bytes": 324148,
+      "atlas": 512,
+      "size_metres": [
+        0.3622,
+        0.446,
+        0.3622
+      ],
+      "accent": [
+        0.78,
+        0.68,
+        1.0
+      ],
+      "emissive_strength": 1.35
+    },
+    {
+      "skill_id": "chain_lightning",
+      "display_name": "Tesla Arc",
+      "parts": 24,
+      "triangles": 3654,
+      "vertices": 2181,
+      "islands": 10,
+      "bytes": 290564,
+      "atlas": 512,
+      "size_metres": [
+        0.3715,
+        0.4467,
+        0.3632
+      ],
+      "accent": [
+        0.52,
+        0.74,
+        1.0
+      ],
+      "emissive_strength": 1.6
+    },
+    {
+      "skill_id": "frost_nova_skill",
+      "display_name": "Cryo Pulse",
+      "parts": 21,
+      "triangles": 2962,
+      "vertices": 1977,
+      "islands": 9,
+      "bytes": 199288,
+      "atlas": 512,
+      "size_metres": [
+        0.3704,
+        0.38,
+        0.426
+      ],
+      "accent": [
+        0.42,
+        0.76,
+        1.0
+      ],
+      "emissive_strength": 1.4
+    },
+    {
+      "skill_id": "mending_light",
+      "display_name": "Repair Field",
+      "parts": 24,
+      "triangles": 3690,
+      "vertices": 2359,
+      "islands": 11,
+      "bytes": 292136,
+      "atlas": 512,
+      "size_metres": [
+        0.3791,
+        0.47,
+        0.3622
+      ],
+      "accent": [
+        0.48,
+        1.0,
+        0.58
+      ],
+      "emissive_strength": 1.3
+    },
+    {
+      "skill_id": "warcry_skill",
+      "display_name": "Overclock",
+      "parts": 12,
+      "triangles": 3368,
+      "vertices": 2012,
+      "islands": 10,
+      "bytes": 310160,
+      "atlas": 512,
+      "size_metres": [
+        0.3683,
+        0.524,
+        0.3622
+      ],
+      "accent": [
+        1.0,
+        0.42,
+        0.22
+      ],
+      "emissive_strength": 1.55
+    }
+  ],
+  "files": [
+    {
+      "path": "data/models/skills/bladestorm/focus.glb",
+      "bytes": 270032,
+      "sha256": "1c487a4aa481528519c4c09a276de8dd03b8631ecf3bfa34ccc68a089d0d4021"
+    },
+    {
+      "path": "data/models/skills/bladestorm/focus_front.png",
+      "bytes": 71542,
+      "sha256": "9d5010376548c952874a5a82e177b07f1189a31f4cac3bd92d27e00f01659de4"
+    },
+    {
+      "path": "data/models/skills/bladestorm/focus_render.png",
+      "bytes": 149035,
+      "sha256": "105c9e7b228709324ce3318c84a5756e6b06ab48a6d3ed8987ffd32290a6c754"
+    },
+    {
+      "path": "data/models/skills/bladestorm/textures/Focus_Bladestorm_ORM.png",
+      "bytes": 76884,
+      "sha256": "d24c83d335a00443f79c6897f225714ac418c21c2c7abfc88b4f3fb6759fba80"
+    },
+    {
+      "path": "data/models/skills/bladestorm/textures/Focus_Bladestorm_albedo.png",
+      "bytes": 79692,
+      "sha256": "4f7f5880bbc65ce4d80713365a66b4eb11d615fea8d01a579a13835068c403be"
+    },
+    {
+      "path": "data/models/skills/bladestorm/textures/Focus_Bladestorm_emission.png",
+      "bytes": 1425,
+      "sha256": "7692c2bfc0bd6c5a9c659878b35897836e5b2410869843af3795222074df21c8"
+    },
+    {
+      "path": "data/models/skills/bladestorm/textures/Focus_Bladestorm_normal.png",
+      "bytes": 16282,
+      "sha256": "e11d141def659c529e2534104341cbb7c5325e740ddb961a47a8ad10d74e1190"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/focus.glb",
+      "bytes": 290564,
+      "sha256": "80a9d9989ce4413214d5d83845a7096c1db2feeddb7a774710cf656719eec591"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/focus_front.png",
+      "bytes": 79130,
+      "sha256": "7034176c8f00e473cc2bf6fff984ad4bd46a515a5c75296cab0f27e1edc0aa29"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/focus_render.png",
+      "bytes": 137991,
+      "sha256": "c0f8b69a2f5c72e4c8733fa4477b0b050eaa5624cfedc15c0b505fe2a0d9ee1a"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/textures/Focus_ChainLightning_ORM.png",
+      "bytes": 64943,
+      "sha256": "05433f015a8fe240537d02ae1be630a2a0ad8528eca0383023f21f53fd88d900"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/textures/Focus_ChainLightning_albedo.png",
+      "bytes": 77713,
+      "sha256": "90358e5631b2cdcb172730aec96628f50d07f837b45c593b38c42c01728e6c53"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/textures/Focus_ChainLightning_emission.png",
+      "bytes": 1543,
+      "sha256": "15d7431ea12cbb1522a0f0a1fb27a1b54a778fa4a7eec20292292c5351c943d4"
+    },
+    {
+      "path": "data/models/skills/chain_lightning/textures/Focus_ChainLightning_normal.png",
+      "bytes": 15194,
+      "sha256": "d98d15c32273a41f0433c4f1ab8c1c3a258e5980c35ec0f2e10a505a78e508fd"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/focus.glb",
+      "bytes": 199288,
+      "sha256": "67b1f1eae68f437e61dc2d16867b1163aafaf09068e157b7858b3822b76451d1"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/focus_front.png",
+      "bytes": 57113,
+      "sha256": "ea54aa3a6ea8f2bbca2c7aa47c0a84b3653b4438cdc675036ba2988071df81c6"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/focus_render.png",
+      "bytes": 106590,
+      "sha256": "fd6b3dfa596c7e5d42616000b6ab9b361d83b301c7735230880c46fc9b4a2eb3"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/textures/Focus_FrostNovaSkill_ORM.png",
+      "bytes": 36929,
+      "sha256": "b1414eed5c33af25ec1bcd5bb5d1db97774602227299179476052fbdb4100247"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/textures/Focus_FrostNovaSkill_albedo.png",
+      "bytes": 34815,
+      "sha256": "30ae93a0ad104ea73b10baa91c01cf380c98743778081b708663558b47a2d878"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/textures/Focus_FrostNovaSkill_emission.png",
+      "bytes": 1310,
+      "sha256": "a0da0aad97822329e633dc8ef7a159d36f14d20d61bddb59e152b3ff0162a66f"
+    },
+    {
+      "path": "data/models/skills/frost_nova_skill/textures/Focus_FrostNovaSkill_normal.png",
+      "bytes": 9189,
+      "sha256": "65450de16993cb637c2b3cfc6c29b4cb9ec300436775b7aa43cdec998bb321c2"
+    },
+    {
+      "path": "data/models/skills/icons/bladestorm.png",
+      "bytes": 21664,
+      "sha256": "6dd5e0ef2b36857288d51aa3117760e03b237558d54a0c5ddd11de6f8a60408b"
+    },
+    {
+      "path": "data/models/skills/icons/chain_lightning.png",
+      "bytes": 16395,
+      "sha256": "b534107db6c27d94781afbaab66b54c28a0ec31f951e4ff419df4e32440c765d"
+    },
+    {
+      "path": "data/models/skills/icons/frost_nova_skill.png",
+      "bytes": 13161,
+      "sha256": "b4855ddd847a982ac86de9437b7285b3108c0626c7d511b75bc3b360e8439415"
+    },
+    {
+      "path": "data/models/skills/icons/mending_light.png",
+      "bytes": 17553,
+      "sha256": "25b3177e9843f5ca0d476a26e241a958c056d1e3dd241cfa721c561bbced6f93"
+    },
+    {
+      "path": "data/models/skills/icons/phantom_rush.png",
+      "bytes": 15512,
+      "sha256": "f1999ac12c922d49c24972fddc2f903c688ab2d323c78dc1c9d0c2e9c022799f"
+    },
+    {
+      "path": "data/models/skills/icons/seismic_slam.png",
+      "bytes": 17418,
+      "sha256": "9a29f5575a40515a4dd70f3371ebcda1c30bcd1260e80dbf0c3df8a9e031f7b5"
+    },
+    {
+      "path": "data/models/skills/icons/shatterwave.png",
+      "bytes": 17412,
+      "sha256": "fc2f10e086eebd45ccc377bd9e5073acc27fb84ae8ee0d332ba6ecee06113d02"
+    },
+    {
+      "path": "data/models/skills/icons/warcry_skill.png",
+      "bytes": 15595,
+      "sha256": "2b9659b988eccbc4ff2f4d0f05fc537d30cf96aaf4bb046019f016159fe10673"
+    },
+    {
+      "path": "data/models/skills/mending_light/focus.glb",
+      "bytes": 292136,
+      "sha256": "cd19e5e8cf5c37ffa7022548c2bf1648b127d1a4759cea76f41402d02765c855"
+    },
+    {
+      "path": "data/models/skills/mending_light/focus_front.png",
+      "bytes": 59593,
+      "sha256": "0d695bd454f325305db374710c8a4ce3dbb1965b87aa6135478f089417aab445"
+    },
+    {
+      "path": "data/models/skills/mending_light/focus_render.png",
+      "bytes": 124518,
+      "sha256": "1865a10dd6ee47d84db43245fcd8965617757590a82b6d531a43a357ba866658"
+    },
+    {
+      "path": "data/models/skills/mending_light/textures/Focus_MendingLight_ORM.png",
+      "bytes": 71333,
+      "sha256": "75fc4129c98cd6794247f27c9e5b943222ba4bd06d738b3694c439ebc5affeb0"
+    },
+    {
+      "path": "data/models/skills/mending_light/textures/Focus_MendingLight_albedo.png",
+      "bytes": 65518,
+      "sha256": "963ce34205d8dc167290c382d36aab779e72b3ef22d687167a53884511ead45f"
+    },
+    {
+      "path": "data/models/skills/mending_light/textures/Focus_MendingLight_emission.png",
+      "bytes": 1512,
+      "sha256": "cc6b011edef5fa3dd192aeb56e46e289dea5d567741321f7979f10eba9dc12ae"
+    },
+    {
+      "path": "data/models/skills/mending_light/textures/Focus_MendingLight_normal.png",
+      "bytes": 13874,
+      "sha256": "a17a1e60a1c1cc134850a14ccc84551c28cd65a5fe7f397530b72e2342858e53"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/focus.glb",
+      "bytes": 231300,
+      "sha256": "32f99b10aa29156a3e8f3f7c23fdfca41842b705c2366624ff26053d5e81905b"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/focus_front.png",
+      "bytes": 57480,
+      "sha256": "0c2fbc65d5930cb6eaf139a6b9b7acd68865b772642ba9e4cd9d162baeea4eed"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/focus_render.png",
+      "bytes": 116465,
+      "sha256": "fc3050f84e6fec85bb241c758634ce343f553d441be7c960b5ba6ec4721c38be"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/textures/Focus_PhantomRush_ORM.png",
+      "bytes": 72876,
+      "sha256": "06aa1043f4376dbcd8810de22d8f7ba6ce7dbe830d237e66ac67c462b5ad7b33"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/textures/Focus_PhantomRush_albedo.png",
+      "bytes": 68336,
+      "sha256": "1a5f79b631648e03105a6dfdde036e2007bcd87efc7be5507ab859255712666f"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/textures/Focus_PhantomRush_emission.png",
+      "bytes": 1274,
+      "sha256": "545035cf042f224090e8a075e441b409a2921561bd2448a6f2e3a8d9bb9a1204"
+    },
+    {
+      "path": "data/models/skills/phantom_rush/textures/Focus_PhantomRush_normal.png",
+      "bytes": 15823,
+      "sha256": "faa8d7b41b79389a41f21ea3557da3e763aaa88df679006065bec688127b07a0"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/focus.glb",
+      "bytes": 314088,
+      "sha256": "c166be1bf91a2220a204be81d3b71e9fce3ffc81438d1ac243556ed57375abc9"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/focus_front.png",
+      "bytes": 70044,
+      "sha256": "0b58d7c38fcc25f87c2a7b9129b16ba086a9ccbc2be6eb26041bb78f307472bb"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/focus_render.png",
+      "bytes": 114022,
+      "sha256": "026f8c33278a73f335c6d682c9abe8b2b684171b3289cce68114d95af0fee069"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/textures/Focus_SeismicSlam_ORM.png",
+      "bytes": 85975,
+      "sha256": "8f2cdb0ff4d9c8142191d86e14f749c34b51ff8060b0e69062f925a94c390aee"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/textures/Focus_SeismicSlam_albedo.png",
+      "bytes": 71516,
+      "sha256": "9c7b0f354482901b42939a191f3dc6d429ac3c2eba249b26a2bf01c8ae49c125"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/textures/Focus_SeismicSlam_emission.png",
+      "bytes": 1346,
+      "sha256": "5d63105927294c2da028be49788be55f8847ea266f130bd175721bfc66dae3ca"
+    },
+    {
+      "path": "data/models/skills/seismic_slam/textures/Focus_SeismicSlam_normal.png",
+      "bytes": 16319,
+      "sha256": "444ad21a22d76d9aabc7ac23a51d530e31ae3d260405744706213831832a9d93"
+    },
+    {
+      "path": "data/models/skills/shatterwave/focus.glb",
+      "bytes": 324148,
+      "sha256": "3c3f65eb4d54b00b6421ef7fc2e2db5512a4217976166c53ca470c75efaf34e2"
+    },
+    {
+      "path": "data/models/skills/shatterwave/focus_front.png",
+      "bytes": 72320,
+      "sha256": "e58dadc47192834957133c6ecece41e3f8e028e86672d19da985af15fca2fa6b"
+    },
+    {
+      "path": "data/models/skills/shatterwave/focus_render.png",
+      "bytes": 137518,
+      "sha256": "70e57c9cae2dbdee497d250069ec7e3715cf6caf107a28516959fbf547265e28"
+    },
+    {
+      "path": "data/models/skills/shatterwave/textures/Focus_Shatterwave_ORM.png",
+      "bytes": 94826,
+      "sha256": "2aecee082e450d9e89883fc83990691e95dd7535e0b2c44ebceee95e648feba0"
+    },
+    {
+      "path": "data/models/skills/shatterwave/textures/Focus_Shatterwave_albedo.png",
+      "bytes": 80497,
+      "sha256": "0e38dd9ab06f59bf1c1bf3a9e527af3f0150eda3177583b4a6c43442faa3b8ea"
+    },
+    {
+      "path": "data/models/skills/shatterwave/textures/Focus_Shatterwave_emission.png",
+      "bytes": 1216,
+      "sha256": "0c301645a60fdeaaae142fa569d0fae1204b4201e9e260cdc3c96e224de48584"
+    },
+    {
+      "path": "data/models/skills/shatterwave/textures/Focus_Shatterwave_normal.png",
+      "bytes": 30090,
+      "sha256": "52b6a0753a01502b60b7a80327668610d27e8c5534f70254e6d7b5c0b56a813d"
+    },
+    {
+      "path": "data/models/skills/skill_showcase.png",
+      "bytes": 1008256,
+      "sha256": "a99e213e9fc1e8d182f53ad252a8fc940bf4ad8e0de51d11d308e9dd26e15a7b"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/focus.glb",
+      "bytes": 310160,
+      "sha256": "af8606191e755476608db13fc231931717583f834bbe57869f4df858691199cc"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/focus_front.png",
+      "bytes": 61586,
+      "sha256": "fbe0e70a4dc637b0567146ae19811c0c92ccba1e7430dcbc26519f8726c5c884"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/focus_render.png",
+      "bytes": 100792,
+      "sha256": "7691d96b0d5cbc181aded3b7751180548744e5a72b7b80cf0fdabaae251e1ccc"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/textures/Focus_WarcrySkill_ORM.png",
+      "bytes": 85843,
+      "sha256": "3b50c152d652592be6a2dcc4578577cbb06c53e28d978f04c97d55dc2d5c6ada"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/textures/Focus_WarcrySkill_albedo.png",
+      "bytes": 83140,
+      "sha256": "a30fb83cd17b2434b297fb82e4ae59daf651135911fb53b19fa439bd3cab1819"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/textures/Focus_WarcrySkill_emission.png",
+      "bytes": 2021,
+      "sha256": "545b97f385a8c41a61d5366bc2234c116471f0e729ebb14d7c92e06022a0cc4c"
+    },
+    {
+      "path": "data/models/skills/warcry_skill/textures/Focus_WarcrySkill_normal.png",
+      "bytes": 18518,
+      "sha256": "3122d5fcbf8209c92ea173d58851b75cc72eaae45710cb7cd4a28771b0abcbb3"
+    }
+  ]
+}

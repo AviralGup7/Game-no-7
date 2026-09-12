@@ -90,6 +90,24 @@ def check_model(path: Path, approved: set[Path]) -> dict:
             start = view.get("byteOffset", 0)
             content = buffers[view["buffer"]][start:start + view["byteLength"]]
         require(content.startswith(b"\x89PNG\r\n\x1a\n"), "expected a PNG model texture")
+    # A material slot names an entry in `textures`, and that entry names the image and sampler.
+    # Resolving the hop is the only way to catch a writer that put an image index straight into a
+    # slot: the numbers still look plausible and a lenient reader that skips the indirection finds
+    # the maps, while the engine's importer fails the file at asset-import time.
+    textures = doc.get("textures", [])
+    for material in doc.get("materials", []):
+        holders = [material] + [value for value in material.values() if isinstance(value, dict)]
+        for holder in holders:
+            for key, value in holder.items():
+                if not (key.endswith("Texture") and isinstance(value, dict) and "index" in value):
+                    continue
+                require(0 <= value["index"] < len(textures), f"material {key} has no texture entry")
+                entry = textures[value["index"]]
+                require(0 <= entry.get("source", -1) < len(doc.get("images", [])),
+                        f"material {key} texture has no embedded image")
+                if "sampler" in entry and doc.get("samplers"):
+                    require(0 <= entry["sampler"] < len(doc["samplers"]),
+                            f"material {key} sampler out of range")
     for mesh in doc["meshes"]:
         require(bool(mesh.get("primitives")), "empty mesh")
         for primitive in mesh["primitives"]:
