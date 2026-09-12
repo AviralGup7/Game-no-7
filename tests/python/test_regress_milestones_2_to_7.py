@@ -43,7 +43,7 @@ class Milestone2_SkillsAndVFX(unittest.TestCase):
         txt2 = read("scripts/arena/arena.gd")
         self.assertIn("ArenaThemeConfig", txt2)
         self.assertNotIn("THEMES := {", txt2)
-        for arena_id in ("default_arena",):
+        for arena_id in ("default_arena", "ember_crucible", "frost_hollow"):
             theme = read(f"data/arena_themes/{arena_id}.tres")
             self.assertIn(f'theme_id = &"{arena_id}"', theme, f"{arena_id} must own its theme")
             cfg = read(f"data/arenas/{arena_id}.tres")

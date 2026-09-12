@@ -82,10 +82,30 @@ var _blockers: Array[AABB] = []
 func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
 	clear()
 	_rng.reseed(run_seed + hash(String(arena_id)) * 3)
-	# One map, one dressing: the merged dungeon's wings are all authored here, so there
-	# is no arena id branch left to key off. `arena_id` remains the seed mixer only.
-	_compose_dungeon(arena_half)
+	# Composition follows the live config/theme when the decorator sits under an
+	# Arena (so a new .tres that reuses ember_crucible's theme gets the forge
+	# dressing without a new match arm). The public arena_id argument remains
+	# the seed mixer and the headless fallback.
+	match String(_composition_id(arena_id)):
+		"ember_crucible":
+			_compose_ember(arena_half)
+		"frost_hollow":
+			_compose_frost(arena_half)
+		_:
+			_compose_default(arena_half)
 	_publish_blockers()
+
+
+func _composition_id(arena_id: StringName) -> StringName:
+	var arena := get_parent() as Arena
+	if arena != null:
+		var cfg := arena.get_config()
+		if cfg != null:
+			if cfg.theme != null and not String(cfg.theme.theme_id).is_empty():
+				return cfg.theme.theme_id
+			if cfg.arena_id != &"":
+				return cfg.arena_id
+	return arena_id
 
 
 func clear() -> void:
@@ -118,17 +138,16 @@ func spawned_count() -> int:
 	return _spawned.size()
 
 
-# ---------------------- merged dungeon composition — one map, authored wings ----------------------
+# ---------------------- per-arena compositions — distinct silhouettes ----------------------
 
-## The whole merged dungeon's dressing. Every position is authored (no scatter), so props
-## never land inside the generated walls or across a doorway: each wing keeps its own
-## silhouette the way the three separate arenas used to.
-func _compose_dungeon(half: float) -> void:
-	# North dock wing: the warehouse compound sits outside the dungeon shell (north of the
-	# gate) and keeps the old default arena's aisle columns and crate depots.
+func _compose_default(half: float) -> void:
+	# Warehouse sits NORTH of the Pit square. The north wall is gated so the
+	# hero walks out of the yard into the docks. Coordinates are authored —
+	# this composition does not scatter or pick open spots.
 	_build_warehouse_compound()
 	_mount_trophy_pair(6.0, -16.0, SC_SWORD_GOLD, SC_SWORD)
 	_mount_trophy_pair(-6.0, -16.0, SC_SWORD, SC_SWORD_GOLD)
+	# Aisles inside the warehouse (outside the square).
 	_place_column_at(Vector3(-8.0, 0.0, -28.5), SC_PILLAR)
 	_place_column_at(Vector3(8.0, 0.0, -28.5), SC_PILLAR)
 	_place_column_at(Vector3(-8.0, 0.0, -23.5), SC_PILLAR)
@@ -141,38 +160,47 @@ func _compose_dungeon(half: float) -> void:
 	_mount_prop(SC_BOXSTACK, Vector3(11.5, 0.0, -26.5), 0.55)
 	_mount_prop(SC_CRATES, Vector3(11.5, 0.0, -23.5), 0.65)
 	_mount_prop(SC_BARREL, Vector3(13.2, 0.0, -26.5), 1.05)
-	# Reactor wing (east): a ring of braziers around the merged forge plus fuel stacks.
-	for i in range(5):
-		var angle := i * TAU / 5.0
-		_mount_prop(SC_TORCH, Vector3(14.0 + cos(angle) * 2.6, 0, sin(angle) * 2.6), 1.35)
-	_mount_prop(SC_BARREL_STACK, Vector3(15.5, 0.0, -5.0), 0.95)
-	_mount_prop(SC_CRATES, Vector3(12.5, 0.0, 5.0), 0.65)
-	# Cryo wing (south): ice shards + a cold candle ring around the merged crystal.
-	_ice_shard_ring(Vector3(0.0, 0.0, 14.0), 3, 2.2)
-	for i in range(3):
-		var candle_angle := float(i) * TAU / 3.0 + PI / 2.0
-		var candle_at := Vector3(cos(candle_angle) * 2.55, 0, 14.0 + sin(candle_angle) * 2.55)
-		_mount_prop(SC_CANDLELIT, candle_at, 1.0)
-	# Armory wing (west): columns and a crate depot.
-	_place_column_at(Vector3(-14.0, 0.0, -4.0), SC_PILLAR_DECOR)
-	_place_column_at(Vector3(-14.0, 0.0, 4.0), SC_PILLAR_DECOR)
-	_mount_prop(SC_BOXSTACK, Vector3(-15.0, 0.0, 0.0), 0.55)
-	# Grand hall: a rubble ring and two fuel stacks clear of the obelisk and the doorways.
+	# Pit apron south of the gate, then two stacks on the south yard.
+	_mount_prop(SC_BOXSTACK, Vector3(-10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BOXSTACK, Vector3(10.0, 0.0, 8.0), 0.55)
+	_mount_prop(SC_BARREL_DECOR, Vector3(-6.5, 0.0, 14.8), 1.0)
+	_mount_prop(SC_BARREL, Vector3(6.5, 0.0, 14.8), 1.0)
+	_wall_props(half, &"red", false)
 	for i in range(4):
 		var angle := i * TAU / 4.0 + 0.3
-		_mount_prop(SC_RUBBLE, Vector3(cos(angle) * 3.0, 0, sin(angle) * 3.0), 0.9 + float(i) * 0.12)
-	_mount_prop(SC_BOXSTACK, Vector3(-6.0, 0.0, 6.0), 0.55)
-	_mount_prop(SC_BARREL, Vector3(6.0, 0.0, 6.0), 1.0)
-	_wall_props(half, &"red", false)
+		var at := Vector3(cos(angle) * 2.8, 0, sin(angle) * 2.8)
+		_mount_prop(SC_RUBBLE, at, 0.9 + float(i) * 0.12)
 
 
-## Blue crystal shards on a ring around `center` (the cryo wing's merged crystal). Same
-## emissive prisms the old frost arena mounted, translated to the wing's coordinate.
-func _ice_shard_ring(center: Vector3, count: int, radius: float) -> void:
-	for i in range(count):
-		var angle := float(i) * TAU / float(count) + PI / 6.0
+func _compose_ember(half: float) -> void:
+	# Forge crucible: dense, hot, vertical — decorated pillars + many barrels/crates as fuel.
+	_place_structural(6, half, SC_PILLAR_DECOR)
+	_scatter(18, half, [SC_BARREL_DECOR, SC_BARREL, SC_BARREL_STACK, SC_CRATES, SC_BOX, SC_RUBBLE])
+	_wall_props(half, &"yellow", true)
+	# Ring of braziers around the central forge — strong emissive read from distance.
+	for i in range(5):
+		var angle := i * TAU / 5.0
+		var at := Vector3(cos(angle) * 3.0, 0, sin(angle) * 3.0)
+		_mount_prop(SC_TORCH, at, 1.35)
+	# Extra fuel stacks near walls.
+	_scatter(4, half, [SC_BARREL_STACK, SC_CRATES])
+	# Crate depots: the stacked-crate model is room-scale at 1.0, so it gets deliberate
+	# open-spot placements at depot scale instead of a scatter-pool slot.
+	for _i in range(2):
+		_mount_prop(SC_BOXSTACK, _open_spot(half, 2.5), 0.55)
+
+
+func _compose_frost(half: float) -> void:
+	# Frost hollow: sparse, cold, tall columns — open sightlines for ranged.
+	_place_structural(7, half, SC_COLUMN)
+	_scatter(12, half, [SC_RUBBLE, SC_TRUNK, SC_BOX, SC_RUBBLE])
+	_wall_props(half, &"blue", false)
+	# Ice shard ring around the crystal cluster (blue banners already on walls).
+	for i in range(3):
+		var angle := i * TAU / 3.0 + PI / 6.0
+		var at := Vector3(cos(angle) * 2.2, 0, sin(angle) * 2.2)
 		var holder := Node3D.new()
-		holder.position = center + Vector3(cos(angle) * radius, 0, sin(angle) * radius)
+		holder.position = at
 		var prism := MeshInstance3D.new()
 		var pm := PrismMesh.new()
 		pm.size = Vector3(0.45, 1.1, 0.45)
@@ -190,6 +218,11 @@ func _ice_shard_ring(center: Vector3, count: int, radius: float) -> void:
 		add_child(holder)
 		_spawned.append(holder)
 		_add_prop_collision(holder)
+	# Lit candle ring interleaved with the shards — cold light points, emissive only.
+	for i in range(3):
+		var candle_angle := float(i) * TAU / 3.0 + PI / 2.0
+		var candle_at := Vector3(cos(candle_angle) * 2.55, 0, sin(candle_angle) * 2.55)
+		_mount_prop(SC_CANDLELIT, candle_at, 1.0)
 
 
 # ---------------------- builders ----------------------

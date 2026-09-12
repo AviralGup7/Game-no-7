@@ -602,6 +602,14 @@
   "default_arena": {
    "floor_albedo": "assets/environment/space_station/panel.png",
    "status": "modular space station; procedural sky"
+  },
+  "ember_crucible": {
+   "floor_albedo": "assets/environment/space_station/panel.png",
+   "status": "modular space station; procedural sky"
+  },
+  "frost_hollow": {
+   "floor_albedo": "assets/environment/space_station/panel.png",
+   "status": "modular space station; procedural sky"
   }
  }
 }

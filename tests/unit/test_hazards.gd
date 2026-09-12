@@ -157,19 +157,17 @@ static func _authored_data_is_valid(results: Array) -> void:
 		"cooldown=%s duration=%s" % [str(pool.victim_cooldown), str(slow.duration)] if pool != null and slow != null else "missing")
 
 
-## The exact hazard positions the merged dungeon's layout produces (the three former arenas'
-## hand-tuned sets combined into one map, the hall hazards kept at their classic spots and the
-## wings carrying their source arena's signature hazards). Every centre is clear of an obstacle
-## box — that invariant is re-checked on the data side in test_nav_grid.gd.
+## The exact hazard positions the deleted `_layout_defaults()` produced, per arena.
 static func _arena_layouts_match_legacy_positions(results: Array) -> void:
 	var legacy := {
 		"default_arena": [
-			"0_0",
-			"6_0", "-6_0", "0_6", "0_-6",
-			"4_4", "-4_-4", "3_-3", "-3_3",
-			"14_5", "14_-5", "11_0",
-			"5_14", "-5_14", "0_-14",
-			"-14_0", "-14_-6", "-14_6",
+			"6_0", "-6_0", "0_6", "0_-6", "4_4", "-4_-4", "3_-3", "-3_3", "0_0", "0_-6", "0_6",
+		],
+		"ember_crucible": [
+			"5_5", "-5_-5", "-5_5", "5_-5", "0_7", "0_-7", "0_0", "6_0", "7_7",
+		],
+		"frost_hollow": [
+			"4_0", "-4_0", "0_5", "0_-5", "6_6", "-6_-6", "0_4", "0_-4", "0_0", "0_7",
 		],
 	}
 	for id in legacy.keys():
@@ -463,7 +461,7 @@ static func _snapshots(results: Array) -> void:
 	var second := again.hazard_count()
 	again.free()
 	_check(results, "the same (arena, seed) builds the same layout twice",
-		first == 18 and second == 18, "%d vs %d" % [first, second])
+		first == 11 and second == 11, "%d vs %d" % [first, second])
 	var seeded := ArenaHazards.new()
 	seeded.configure(&"default_arena", 12.0, 99)
 	var snapshot := seeded.get_debug_snapshot()
@@ -474,16 +472,16 @@ static func _snapshots(results: Array) -> void:
 			same_kind_count += 1
 	_check(results, "debug snapshot keeps count + kinds and adds the clock",
 		snapshot.has("count") and snapshot.has("kinds") and snapshot.has("game_time") and snapshot.has("index")
-			and int(snapshot["count"]) == 18 and same_kind_count == 6, str(snapshot["count"]))
+			and int(snapshot["count"]) == 11 and same_kind_count == 2, str(snapshot["count"]))
 	seeded.configure(&"default_arena", 12.0, 1234)
 	_check(results, "re-configuring replaces the layout instead of appending to it",
-		seeded.hazard_count() == 18, str(seeded.hazard_count()))
+		seeded.hazard_count() == 11, str(seeded.hazard_count()))
 	seeded.ignite_pulses()
 	var armed := 0
 	for instance in seeded.instances():
 		if instance.armed:
 			armed += 1
-	_check(results, "ignite_pulses arms every periodic hazard", armed == 6, "armed=%d" % armed)
+	_check(results, "ignite_pulses arms every periodic hazard", armed == 2, "armed=%d" % armed)
 	seeded.free()
 	var unauthored := ArenaHazards.new()
 	unauthored.configure(&"no_such_arena", 12.0, 5)

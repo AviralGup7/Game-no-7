@@ -45,13 +45,6 @@ extends ValidatedConfig
 ## What stands in the middle of the floor. Null means nothing stands there — no body, no
 ## blocker, no silently-built obelisk.
 @export var landmark: ArenaLandmarkConfig = null
-## Centrepieces for the dungeon's wings, merged in from the former separate arenas (the
-## forge from the old reactor core, the crystal from the old cryo sector). Each entry is a
-## placement — a shared landmark config plus a per-wing position — so one map hosts several
-## landmarks without a per-arena code branch and without duplicating the landmark's tuning.
-## Empty means the dungeon's wings stand bare — a legal authored choice, like
-## `landmark == null`.
-@export var extra_landmarks: Array[ArenaLandmarkPlacement] = []
 ## Pillars and rubble, authored in this arena's metres (not scaled from another arena's
 ## pattern). Each placement expands its own mirror, like the hazards above; the expanded set
 ## is what becomes collision, mesh and nav blockers together. Absence is a choice, and the
@@ -103,19 +96,6 @@ func validate() -> Array[String]:
 	if landmark != null:
 		problems.append_array(landmark.validate())
 		problems.append_array(_obstacle_landmark_overlap(landmark))
-	for extra in extra_landmarks:
-		if extra == null:
-			problems.append("null ArenaLandmarkPlacement in extra_landmarks")
-			continue
-		problems.append_array(extra.validate())
-		if extra.config != null:
-			problems.append_array(extra.config.validate())
-			# The overlap check reads positions off the config; a placement repositions its
-			# config, so build a positioned copy for the cross-check rather than checking the
-			# shared resource at its authored (0,0) spot.
-			var positioned := extra.config.duplicate(true) as ArenaLandmarkConfig
-			positioned.position = extra.position
-			problems.append_array(_obstacle_landmark_overlap(positioned))
 	return problems
 
 

@@ -44,7 +44,7 @@ def func_body(rel: str, name: str) -> str:
 
 class SolidDecorationTests(unittest.TestCase):
     def test_scattered_clutter_gets_a_collider(self):
-        for fn in ("_scatter", "_mount_prop", "_ice_shard_ring"):
+        for fn in ("_scatter", "_mount_prop", "_compose_frost"):
             self.assertIn(
                 "_add_prop_collision(",
                 func_body(DECORATOR, fn),

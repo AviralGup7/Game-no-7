@@ -40,7 +40,7 @@ class WarehouseYardTests(unittest.TestCase):
         self.assertNotIn("player.set_bounds(arena.get_interior_half())", main)
 
     def test_default_composition_is_authored_not_scattered(self):
-        body = func_body("scripts/arena/arena_decorator.gd", "_compose_dungeon")
+        body = func_body("scripts/arena/arena_decorator.gd", "_compose_default")
         self.assertIn("_build_warehouse_compound()", body)
         self.assertNotIn("_scatter(", body)
         self.assertNotIn("_place_structural(", body)

@@ -156,10 +156,8 @@ static func _hazard_centers(arena_id: String) -> Array[Vector3]:
 
 
 static func _obstacle_layouts(results: Array) -> void:
-	var ids := ["default_arena"]
-	# The merged dungeon's four axis spawn markers (scenes/arena/arena.tscn), not the old
-	# per-arena ±11 the separate arenas used.
-	var spawn_points := [Vector3(16, 0, 0), Vector3(-16, 0, 0), Vector3(0, 16, 0), Vector3(0, -16, 0)]
+	var ids := ["default_arena", "ember_crucible", "frost_hollow"]
+	var spawn_points := [Vector3(11, 0, 0), Vector3(-11, 0, 0), Vector3(0, 11, 0), Vector3(0, -11, 0)]
 	# Hazard CENTERS come from the arena's authored layout — the same .tres ArenaHazards
 	# builds from, mirrors expanded. This list used to be hand-copied out of
 	# ArenaHazards._layout_defaults, which meant it silently stopped testing anything the
@@ -168,7 +166,7 @@ static func _obstacle_layouts(results: Array) -> void:
 	# Hazards are allowed to sit beside obstacles by design (a vent on the lane next to a
 	# pillar); the constraint is that no hazard CENTER is buried inside a solid obstacle
 	# box, which would mask the hazard's effect area.
-	var half := 18.0
+	var half := 12.0
 	for id in ids:
 		_check(results, "%s: hazard layout is authored data the game can read" % id,
 			_hazard_centers(id).size() >= 9, "centers=%d" % _hazard_centers(id).size())
@@ -224,11 +222,18 @@ static func _obstacle_layouts(results: Array) -> void:
 			if big[i].position.distance_to(small[i].position * 2.0) > 0.01:
 				scales_ok = false
 	_check(results, "the fallback layout scales with arena half-extent", scales_ok)
-	# The merged dungeon authors its own layout — the fallback only serves an arena that
-	# authors nothing, and a dungeon that deliberately ships 13 obstacles must not be
-	# mistaken for the 6-obstacle fallback (the old Pit WAS the fallback; the dungeon is not).
+	# The Pit's authored layout and the fallback agree: the fallback IS that geometry, and if
+	# the two ever drift the "absence is a documented choice" claim stops being true.
+	# The authored rows, not `layout_for`: `layout_for` expands mirrors and the fallback is the
+	# un-expanded pair, so comparing the two measured the expansion rather than the geometry.
+	# Split, not chained: handing `load(path).field` straight to a statically typed `Array[T]` local is
+	# refused in 4.3+ (godot#95568) — the value has to pass through a variable the compiler can see.
 	var pit_cfg: ArenaConfig = _arena_config("default_arena")
 	var pit_authored: Array[ArenaObstaclePlacement] = pit_cfg.obstacle_layout
-	var distinct := not pit_authored.is_empty() and pit_authored.size() != small.size()
-	_check(results, "the merged dungeon authors its own layout, not the fallback's", distinct,
-		"authored=%d fallback=%d" % [pit_authored.size(), small.size()])
+	var same := pit_authored.size() == small.size()
+	if same:
+		for i in range(small.size()):
+			if pit_authored[i].position.distance_to(small[i].position) > 0.001 \
+					or not pit_authored[i].half_extents().is_equal_approx(small[i].half_extents()):
+				same = false
+	_check(results, "the Pit authors the same layout the fallback generates", same)

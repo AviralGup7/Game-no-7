@@ -246,9 +246,15 @@ COSMETIC_RANKS = {"banner_survivor": 1, "trail_ember": 2, "title_champion": 3, "
                  "trail_frost": 7, "banner_last_stand": 10}
 
 ARENA_LORE = {
-    "default_arena": ("The Foundry Depths remember every stand. Yours begins now.",
-                      "Blood has soaked these halls for generations.",
-                      "Three wings, one dungeon. The crowd wants a legend."),
+    "default_arena": ("Orbital Foundry remembers every stand. Yours begins now.",
+                      "Blood has soaked these stones for generations.",
+                      "The crowd wants a legend. Don't disappoint them."),
+    "ember_crucible": ("The Crucible breathes fire. Vents erupt \u2014 use them, or burn.",
+                       "Ash falls like snow. The floor itself is a weapon.",
+                       "The forges below roar. Something ancient stirs in the heat."),
+    "frost_hollow": ("Cold that bites bone. Ichor pools slow the unwary.",
+                     "Frost claims the careless. Keep moving.",
+                     "The Hollow freezes hope. Only will remains."),
 }
 
 

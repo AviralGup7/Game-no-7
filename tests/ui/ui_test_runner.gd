@@ -53,8 +53,15 @@ func _run() -> void:
 	await _settle()
 	_check("menu opens setup without starting gameplay", _screen() == "run_setup" and GameRoot.get_current_state() == GameRoot.State.MAIN_MENU)
 	_check("starter content can launch", not _ui._setup._start.disabled)
-	_check("the single dungeon is pinned, no arena picker", _ui._setup._arena_info.text.contains("Foundry"))
-	_check("the dungeon intel card resolves the one arena", ContentRegistry.get_arena(&"default_arena") != null)
+	_check("supplied arena catalogue loaded", _ui._setup._arena_ids.size() == 3)
+	var original_arena := ContentRegistry.get_selected_arena_id()
+	_ui._setup._arenas.select(1)
+	_ui._setup._refresh_details()
+	_check("arena browsing does not mutate selection", ContentRegistry.get_selected_arena_id() == original_arena)
+	var browsed: StringName = _ui._setup._arena_ids[_ui._setup._selected_arena_index()]
+	var browsed_cfg := ContentRegistry.get_arena(browsed)
+	if browsed_cfg != null and browsed_cfg.unlock_wave <= 1 and browsed != original_arena:
+		_check("unlocked arena preview can launch", not _ui._setup._start.disabled)
 	_ui._setup.present(false)
 	_ui._setup._launch()
 	await _settle()
@@ -163,6 +170,9 @@ func _test_touch() -> void:
 	GameRoot.request_pause()
 	await _settle()
 	_check("modal cancels captured stick", not joystick.is_active() and joystick.get_value() == Vector2.ZERO)
+	GameRoot.request_resume()
+	await _settle()
+	_ui._touch.show()
 	var button: TouchActionButton = _ui._touch._buttons[0]
 	var emitted := [0]
 	button.pressed.connect(func() -> void: emitted[0] += 1)

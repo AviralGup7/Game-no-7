@@ -17,12 +17,10 @@ extends RefCounted
 
 const ARENA_DIR := "res://data/arenas/"
 const THEME_DIR := "res://data/arena_themes/"
-const ARENA_IDS := ["default_arena"]
+const ARENA_IDS := ["default_arena", "ember_crucible", "frost_hollow"]
 ## The shipped obstacle sets as placed (mirrors expanded), from the numbers the code tables
 ## held before this moved to data. If a .tres is re-authored and one of these drifts, every
-## consumer (collision, mesh, nav) drifts with it — which is what this pins. The merged dungeon
-## is one map now, so this is the single 13-obstacle layout (the three former arenas' pillars
-## and gate blocks spread across the hall and its wings).
+## consumer (collision, mesh, nav) drifts with it — which is what this pins.
 const EXPECTED_LAYOUTS := {
 	"default_arena": [
 		[Vector3(6.5, 0.0, 6.5), Vector3(0.8, 1.5, 0.8)],
@@ -31,13 +29,26 @@ const EXPECTED_LAYOUTS := {
 		[Vector3(-6.5, 0.0, -6.5), Vector3(0.8, 1.5, 0.8)],
 		[Vector3(3.6, 0.0, 0.0), Vector3(0.7, 1.15, 0.7)],
 		[Vector3(-3.6, 0.0, 0.0), Vector3(0.7, 1.15, 0.7)],
-		[Vector3(16.0, 0.0, 4.0), Vector3(0.7, 1.15, 0.7)],
-		[Vector3(16.0, 0.0, -4.0), Vector3(0.7, 1.15, 0.7)],
-		[Vector3(4.0, 0.0, 16.0), Vector3(0.7, 1.15, 0.7)],
-		[Vector3(-4.0, 0.0, 16.0), Vector3(0.7, 1.15, 0.7)],
-		[Vector3(-14.0, 0.0, 4.0), Vector3(0.8, 1.5, 0.8)],
-		[Vector3(-14.0, 0.0, -4.0), Vector3(0.8, 1.5, 0.8)],
-		[Vector3(6.0, 0.0, -14.0), Vector3(0.8, 1.5, 0.8)],
+	],
+	"ember_crucible": [
+		[Vector3(8.0, 0.0, 0.0), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(-8.0, 0.0, 0.0), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(0.0, 0.0, 8.0), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(0.0, 0.0, -8.0), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(8.0, 0.0, 8.0), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(-8.0, 0.0, 8.0), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(8.0, 0.0, -8.0), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(-8.0, 0.0, -8.0), Vector3(0.7, 1.15, 0.7)],
+	],
+	"frost_hollow": [
+		[Vector3(7.5, 0.0, 7.5), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(-7.5, 0.0, 7.5), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(7.5, 0.0, -7.5), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(-7.5, 0.0, -7.5), Vector3(0.8, 1.5, 0.8)],
+		[Vector3(4.5, 0.0, 7.5), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(-4.5, 0.0, 7.5), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(4.5, 0.0, -7.5), Vector3(0.7, 1.15, 0.7)],
+		[Vector3(-4.5, 0.0, -7.5), Vector3(0.7, 1.15, 0.7)],
 	],
 }
 ## The look each shipped arena must keep. These are the values `THEMES` held, so a re-authored
@@ -47,23 +58,23 @@ const EXPECTED_THEMES := {
 	"default_arena": {"fog_density": 0.011, "sun_energy": 1.2, "brightness": 1.02, "contrast": 1.06,
 		"ambient_energy": 0.85, "glow_intensity": 0.55, "glow_bloom": 0.05, "glow_hdr_threshold": 1.1,
 		"fog_sky_affect": 0.25, "fog_color": Color(0.66, 0.68, 0.72), "sun_color": Color(1.0, 0.92, 0.78)},
+	"ember_crucible": {"fog_density": 0.02, "sun_energy": 1.7, "brightness": 1.0, "contrast": 1.1,
+		"ambient_energy": 0.85, "glow_intensity": 0.55, "glow_bloom": 0.05, "glow_hdr_threshold": 1.1,
+		"fog_sky_affect": 0.25, "fog_color": Color(0.62, 0.26, 0.1), "sun_color": Color(1.0, 0.5, 0.2)},
+	"frost_hollow": {"fog_density": 0.017, "sun_energy": 1.35, "brightness": 0.98, "contrast": 1.08,
+		"ambient_energy": 0.85, "glow_intensity": 0.55, "glow_bloom": 0.05, "glow_hdr_threshold": 1.1,
+		"fog_sky_affect": 0.25, "fog_color": Color(0.62, 0.72, 0.9), "sun_color": Color(0.7, 0.8, 1.0)},
 }
 ## Landmark collision per arena: the half extents the old hand-written collision shape AND the
 ## separately hand-written nav footprint used (one number now), the shape that body uses, and
-## the emissive/light numbers that defined each arena's one moving light. The merged dungeon's
-## centrepiece is the obelisk; the former arenas' forge and crystal now ride `extra_landmarks`.
+## the emissive/light numbers that defined each arena's one moving light.
 const EXPECTED_LANDMARKS := {
 	"default_arena": {"kind": &"obelisk", "shape": &"box", "half": Vector3(0.55, 2.3, 0.55),
 		"emissive": 1.2, "light_energy": 1.1, "light_range": 6.0},
-}
-## The wing centrepieces the former separate arenas contributed, keyed by their landmark id and
-## checked by `_shipped_landmark_numbers` through `extra_landmarks` (their configs still ship as
-## `data/arena_landmarks/<id>.tres`, mounted at their wing positions).
-const EXPECTED_WING_LANDMARKS := {
-	"forge": {"kind": &"forge", "shape": &"cylinder", "half": Vector3(1.9, 0.7, 1.9),
-		"emissive": 4.5, "light_energy": 2.2, "light_range": 8.0, "at": Vector3(14.0, 0.0, 0.0)},
-	"crystal": {"kind": &"crystal", "shape": &"cylinder", "half": Vector3(1.4, 1.6, 1.4),
-		"emissive": 1.8, "light_energy": 1.8, "light_range": 7.0, "at": Vector3(0.0, 0.0, 14.0)},
+	"ember_crucible": {"kind": &"forge", "shape": &"cylinder", "half": Vector3(1.9, 0.7, 1.9),
+		"emissive": 4.5, "light_energy": 2.2, "light_range": 8.0},
+	"frost_hollow": {"kind": &"crystal", "shape": &"cylinder", "half": Vector3(1.4, 1.6, 1.4),
+		"emissive": 1.8, "light_energy": 1.8, "light_range": 7.0},
 }
 
 
@@ -237,9 +248,9 @@ static func _shipped_layouts(results: Array) -> void:
 
 
 static func _obstacle_nodes_are_the_layout(results: Array) -> void:
-	var cfg := _arena("default_arena")
+	var cfg := _arena("ember_crucible")
 	if cfg == null:
-		_check(results, "obstacle node build: dungeon config available", false, "")
+		_check(results, "obstacle node build: ember config available", false, "")
 		return
 	var placed := ArenaObstacles.layout_for(cfg, 12.0)
 	var parent := Node3D.new()
@@ -450,31 +461,6 @@ static func _shipped_landmark_numbers(results: Array) -> void:
 		_check(results, "%s: footprint is the authored half extents scaled, on the floor" % id,
 				foot.position.distance_to(lm.position - want_half) < 0.0001
 				and foot.size.distance_to(want_half * 2.0) < 0.0001, str(foot))
-		# The wing centrepieces (forge, crystal) ride `extra_landmarks`, still shipping as
-		# their own `data/arena_landmarks/*.tres` configs mounted at a per-wing position.
-		_check(results, "%s: both wing centrepieces are authored" % id,
-				cfg.extra_landmarks.size() == EXPECTED_WING_LANDMARKS.size(),
-				"extra_landmarks=%d" % cfg.extra_landmarks.size())
-		for place in cfg.extra_landmarks:
-			if place == null or place.config == null:
-				_check(results, "%s: a wing landmark placement has no config" % id, false, "")
-				continue
-			var lm_id := String(place.config.landmark_id)
-			var want: Dictionary = EXPECTED_WING_LANDMARKS.get(lm_id, {})
-			_check(results, "%s: wing landmark %s is a known silhouette" % [id, lm_id],
-					not want.is_empty(), lm_id)
-			if want.is_empty():
-				continue
-			var wlm := place.config
-			_check(results, "%s: %s wing landmark keeps its silhouette" % [id, lm_id],
-					wlm.kind == want["kind"] and wlm.shape == want["shape"]
-					and wlm.footprint_half.is_equal_approx(want["half"])
-					and absf(wlm.emissive_energy - float(want["emissive"])) < 0.0001
-					and absf(wlm.light_energy - float(want["light_energy"])) < 0.0001
-					and absf(wlm.light_range - float(want["light_range"])) < 0.0001,
-					"%s / %s %s" % [String(wlm.kind), String(wlm.shape), str(wlm.footprint_half)])
-			_check(results, "%s: %s wing landmark is mounted at its wing position" % [id, lm_id],
-					place.position.is_equal_approx(want["at"] as Vector3), str(place.position))
 
 
 # ---------------------------------------------------------------- builder
@@ -483,23 +469,12 @@ static func _shipped_landmark_numbers(results: Array) -> void:
 static func _landmark_builder(results: Array) -> void:
 	var meshed := 0
 	var lit := 0
-	var cfg := _arena("default_arena")
-	if cfg == null:
-		_check(results, "landmark builder: dungeon config available", false, "")
-		return
-	# The three silhouettes the merged dungeon ships: the central obelisk plus the two wing
-	# centrepieces (forge, crystal) the former separate arenas contributed via extra_landmarks.
-	var builds: Array = []
-	if cfg.landmark != null:
-		builds.append([String(cfg.landmark.landmark_id), cfg.landmark])
-	for place in cfg.extra_landmarks:
-		if place != null and place.config != null:
-			builds.append([String(place.config.landmark_id), place.config])
-	for pair in builds:
-		var id: String = pair[0]
-		var lm_cfg: ArenaLandmarkConfig = pair[1]
+	for id in ARENA_IDS:
+		var cfg := _arena(id)
+		if cfg == null or cfg.landmark == null:
+			continue
 		var holder := ArenaLandmark.new()
-		holder.build(lm_cfg)
+		holder.build(cfg.landmark)
 		var body := holder.get_node_or_null("Body") as StaticBody3D
 		_check(results, "%s: landmark has a collision body on the world layer" % id,
 				body != null and body.collision_layer == CollisionLayers.WORLD_BODY_LAYER
@@ -519,7 +494,7 @@ static func _landmark_builder(results: Array) -> void:
 		# The builder reports the SAME box the config authored: this is the assertion that
 		# physics and the AI's intent describe one object rather than two hand-kept numbers.
 		_check(results, "%s: builder footprint equals the config footprint" % id,
-				holder.footprint() == lm_cfg.footprint(), str(holder.footprint()))
+				holder.footprint() == cfg.landmark.footprint(), str(holder.footprint()))
 		holder.free()
 	_check(results, "all three shipped silhouettes build meshes", meshed == 3, str(meshed))
 	_check(results, "all three shipped landmarks carry their authored light", lit == 3, str(lit))

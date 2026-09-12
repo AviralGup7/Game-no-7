@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ArenaConfig" load_steps=35 format=3]
+[gd_resource type="Resource" script_class="ArenaConfig" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/arena/arena_config.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/arena/arena.tscn" id="2_scene"]
@@ -8,82 +8,48 @@
 [ext_resource type="Resource" path="res://data/hazards/pressure_plate.tres" id="6_cfg"]
 [ext_resource type="Resource" path="res://data/hazards/ember_mover.tres" id="7_cfg"]
 [ext_resource type="Resource" path="res://data/hazards/heal_ward.tres" id="8_cfg"]
-[ext_resource type="Resource" path="res://data/hazards/ichor_pool.tres" id="9_cfg"]
-[ext_resource type="Script" path="res://scripts/arena/arena_obstacle_placement.gd" id="10_obs"]
-[ext_resource type="Script" path="res://scripts/arena/arena_landmark_placement.gd" id="11_landmark_placement"]
-[ext_resource type="Resource" path="res://data/arena_themes/default_arena.tres" id="12_theme"]
-[ext_resource type="Resource" path="res://data/arena_landmarks/obelisk.tres" id="13_landmark"]
-[ext_resource type="Resource" path="res://data/arena_landmarks/forge.tres" id="14_forge"]
-[ext_resource type="Resource" path="res://data/arena_landmarks/crystal.tres" id="15_crystal"]
+[ext_resource type="Script" path="res://scripts/arena/arena_obstacle_placement.gd" id="9_obs"]
+[ext_resource type="Resource" path="res://data/arena_themes/default_arena.tres" id="10_theme"]
+[ext_resource type="Resource" path="res://data/arena_landmarks/obelisk.tres" id="11_landmark"]
 
 [sub_resource type="Resource" id="hz1"]
 script = ExtResource("3_placement")
-config = ExtResource("7_cfg")
-position = Vector3(0, 0, 0)
-mirror = &"none"
-
-[sub_resource type="Resource" id="hz2"]
-script = ExtResource("3_placement")
-config = ExtResource("5_cfg")
+config = ExtResource("4_cfg")
 position = Vector3(6, 0, 0)
 mirror = &"x"
 
-[sub_resource type="Resource" id="hz3"]
+[sub_resource type="Resource" id="hz2"]
 script = ExtResource("3_placement")
 config = ExtResource("5_cfg")
 position = Vector3(0, 0, 6)
 mirror = &"z"
 
-[sub_resource type="Resource" id="hz4"]
+[sub_resource type="Resource" id="hz3"]
 script = ExtResource("3_placement")
-config = ExtResource("4_cfg")
+config = ExtResource("5_cfg")
 position = Vector3(4, 0, 4)
 mirror = &"rot180"
 
-[sub_resource type="Resource" id="hz5"]
+[sub_resource type="Resource" id="hz4"]
 script = ExtResource("3_placement")
 config = ExtResource("6_cfg")
 position = Vector3(3, 0, -3)
 mirror = &"rot180"
 
+[sub_resource type="Resource" id="hz5"]
+script = ExtResource("3_placement")
+config = ExtResource("7_cfg")
+position = Vector3(0, 0, 0)
+mirror = &"none"
+
 [sub_resource type="Resource" id="hz6"]
 script = ExtResource("3_placement")
-config = ExtResource("4_cfg")
-position = Vector3(14, 0, 5)
-mirror = &"z"
-
-[sub_resource type="Resource" id="hz7"]
-script = ExtResource("3_placement")
 config = ExtResource("8_cfg")
-position = Vector3(11, 0, 0)
-mirror = &"none"
-
-[sub_resource type="Resource" id="hz8"]
-script = ExtResource("3_placement")
-config = ExtResource("9_cfg")
-position = Vector3(5, 0, 14)
-mirror = &"x"
-
-[sub_resource type="Resource" id="hz9"]
-script = ExtResource("3_placement")
-config = ExtResource("8_cfg")
-position = Vector3(0, 0, -14)
-mirror = &"none"
-
-[sub_resource type="Resource" id="hz10"]
-script = ExtResource("3_placement")
-config = ExtResource("6_cfg")
-position = Vector3(-14, 0, 0)
-mirror = &"none"
-
-[sub_resource type="Resource" id="hz11"]
-script = ExtResource("3_placement")
-config = ExtResource("4_cfg")
-position = Vector3(-14, 0, -6)
+position = Vector3(0, 0, -6)
 mirror = &"z"
 
 [sub_resource type="Resource" id="ob1"]
-script = ExtResource("10_obs")
+script = ExtResource("9_obs")
 position = Vector3(6.5, 0, 6.5)
 half_size_x = 0.8
 half_size_y = 1.5
@@ -91,71 +57,28 @@ half_size_z = 0.8
 mirror = &"both"
 
 [sub_resource type="Resource" id="ob2"]
-script = ExtResource("10_obs")
+script = ExtResource("9_obs")
 position = Vector3(3.6, 0, 0)
 half_size_x = 0.7
 half_size_y = 1.15
 half_size_z = 0.7
 mirror = &"x"
 
-[sub_resource type="Resource" id="ob3"]
-script = ExtResource("10_obs")
-position = Vector3(16, 0, 4)
-half_size_x = 0.7
-half_size_y = 1.15
-half_size_z = 0.7
-mirror = &"z"
-
-[sub_resource type="Resource" id="ob4"]
-script = ExtResource("10_obs")
-position = Vector3(4, 0, 16)
-half_size_x = 0.7
-half_size_y = 1.15
-half_size_z = 0.7
-mirror = &"x"
-
-[sub_resource type="Resource" id="ob5"]
-script = ExtResource("10_obs")
-position = Vector3(-14, 0, 4)
-half_size_x = 0.8
-half_size_y = 1.5
-half_size_z = 0.8
-mirror = &"z"
-
-[sub_resource type="Resource" id="ob6"]
-script = ExtResource("10_obs")
-position = Vector3(6, 0, -14)
-half_size_x = 0.8
-half_size_y = 1.5
-half_size_z = 0.8
-mirror = &"none"
-
-[sub_resource type="Resource" id="lp_forge"]
-script = ExtResource("11_landmark_placement")
-config = ExtResource("14_forge")
-position = Vector3(14, 0, 0)
-
-[sub_resource type="Resource" id="lp_crystal"]
-script = ExtResource("11_landmark_placement")
-config = ExtResource("15_crystal")
-position = Vector3(0, 0, 14)
-
 [resource]
 script = ExtResource("1_script")
 arena_id = &"default_arena"
-display_name = "The Foundry Depths"
-lore_intro = "The Foundry Depths remember every stand. Yours begins now."
-lore_mid = "Blood has soaked these halls for generations."
-lore_late = "Three wings, one dungeon. The crowd wants a legend."
+display_name = "Orbital Foundry"
+lore_intro = "Orbital Foundry remembers every stand. Yours begins now."
+lore_mid = "Blood has soaked these stones for generations."
+lore_late = "The crowd wants a legend. Don't disappoint them."
 scene = ExtResource("2_scene")
 enemy_spawn_min_player_distance = 6.0
 default_camera_profile = &"default"
 background_music_cue = &"music_calm"
 allowed_archetypes = Array[StringName]([])
-tags = Array[StringName]([&"dungeon", &"classic", &"spikes", &"plates", &"movers", &"fire", &"frost", &"ichor"])
-hazard_layout = Array[HazardPlacement]([SubResource("hz1"), SubResource("hz2"), SubResource("hz3"), SubResource("hz4"), SubResource("hz5"), SubResource("hz6"), SubResource("hz7"), SubResource("hz8"), SubResource("hz9"), SubResource("hz10"), SubResource("hz11")])
-theme = ExtResource("12_theme")
-landmark = ExtResource("13_landmark")
-extra_landmarks = Array[ArenaLandmarkPlacement]([SubResource("lp_forge"), SubResource("lp_crystal")])
-obstacle_layout = Array[ArenaObstaclePlacement]([SubResource("ob1"), SubResource("ob2"), SubResource("ob3"), SubResource("ob4"), SubResource("ob5"), SubResource("ob6")])
+tags = Array[StringName]([&"classic", &"spikes", &"plates", &"movers"])
+hazard_layout = Array[HazardPlacement]([SubResource("hz1"), SubResource("hz2"), SubResource("hz3"), SubResource("hz4"), SubResource("hz5"), SubResource("hz6")])
+theme = ExtResource("10_theme")
+landmark = ExtResource("11_landmark")
+obstacle_layout = Array[ArenaObstaclePlacement]([SubResource("ob1"), SubResource("ob2")])
 unlock_wave = 1

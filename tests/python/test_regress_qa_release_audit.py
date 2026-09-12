@@ -234,12 +234,13 @@ class UiTestRunnerInferenceTests(unittest.TestCase):
             ":= through _ui needs an explicit type: %s" % bad,
         )
 
-    def test_no_arena_picker_survives_in_the_runner(self):
+    def test_browsed_arena_id_is_explicitly_typed(self):
         txt = read("tests/ui/ui_test_runner.gd")
-        self.assertNotIn("_arena_ids", txt, "the UI runner still drives an arena catalogue")
-        self.assertNotIn("_arenas.select", txt, "the UI runner still browses an arena picker")
-        self.assertIn('get_arena(&"default_arena")', txt,
-                      "the runner should resolve the one merged dungeon directly")
+        self.assertRegex(
+            txt,
+            r"var browsed:\s*StringName\s*=",
+            "browsed must be StringName; := cannot infer it from _arena_ids",
+        )
 
 
 class OptionButtonIndexBoundsTests(unittest.TestCase):
@@ -248,17 +249,15 @@ class OptionButtonIndexBoundsTests(unittest.TestCase):
 
     def test_run_setup_clamps_selection_indices(self):
         txt = read("scripts/ui/run_setup_panel.gd")
-        self.assertNotIn("func _selected_arena_index", txt,
-                         "the arena picker is gone; a stale index helper must not survive")
+        self.assertIn("func _selected_arena_index", txt)
         self.assertIn("func _selected_weapon_index", txt)
-        self.assertIn("func _selected_mode_index", txt)
+        self.assertNotIn("_arena_ids[_arenas.selected]", txt)
         self.assertNotIn("_weapon_ids[_weapons.selected]", txt)
-        self.assertNotIn("_mode_ids[_modes.selected]", txt)
 
     def test_clamp_is_lower_bounded_at_zero(self):
         txt = read("scripts/ui/run_setup_panel.gd")
+        self.assertIn("clampi(_arenas.selected, 0,", txt)
         self.assertIn("clampi(_weapons.selected, 0,", txt)
-        self.assertIn("clampi(_modes.selected, 0,", txt)
 
 
 class UiRootNullCastTests(unittest.TestCase):

@@ -24,7 +24,7 @@ class ArtHandler(SimpleHTTPRequestHandler):
             return None
         parts = PurePosixPath(path).parts[1:]
         # Review assets only: never expose .git, tool caches, credentials or saves.
-        if not parts or parts[0] not in ('tool', 'assets') or any(p.startswith('.') for p in parts):
+        if not parts or parts[0] not in ('tool', 'assets', 'data') or any(p.startswith('.') for p in parts):
             self.send_error(404)
             return None
         return super().send_head()

@@ -221,7 +221,7 @@ func _run() -> void:
 	var baseline_orphans := int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	var menu_connections := EventBus.enemy_killed.get_connections().size()
 	var menu_nodes := get_tree().get_node_count()
-	var arenas := [&"default_arena"]
+	var arenas := [&"default_arena", &"ember_crucible", &"frost_hollow"]
 	for cycle in range(12):
 		ContentRegistry.select_arena(arenas[cycle % arenas.size()])
 		seed(7100 + cycle)
