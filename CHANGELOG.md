@@ -1,5 +1,34 @@
 # Changelog
 
+## [Unreleased] — Skill cast-focus prop set (2026-09-12)
+
+- Author the eight missing skill visuals: one cast-focus prop per skill, matching the eight
+  configs in `data/skills`, built by `tool/build_skill_foci.py` and the new stdlib-only
+  `tool/skill_forge` geometry package (parametric primitives, PBR channel baking, GLB packing,
+  and a rasterizer that renders the shipped file rather than the in-memory model).
+- Give every focus one material on a 512² four-map atlas (albedo, normal, ORM, emission) with
+  at most ten 128² islands, 2.0k–3.9k triangles, a ≤0.6 m footprint, its deck seated at Y=0 and
+  `Socket/Cast`, `Socket/Flare` and `Socket/Base` nodes, so an effect can attach without knowing
+  the mesh. Each prop's glow reuses the accent already in `EffectDirector.SKILL_COLORS`.
+- Render the skill-bar icons from those same GLB bytes (128² RGBA) and wire `icon` into all eight
+  `data/skills/*.tres`, so the bar can no longer drift from the model; `assets/catalog.json`
+  `gameplay_skills` gains `model`, `icon` and `prop_scene` beside the existing cast-ring texture.
+- Ship drop-in `scenes/props/skill_focus_<skill>.tscn` instances scaled through the existing
+  `ModelVisual.create(scene, extent)` seam; no GDScript, pool cap or arena-prop table changed.
+- Record provenance in `data/models/skills/build_report.json` (recipe, nine source hashes,
+  every output hash, measured counts) and add `ASSET_LICENSES/skill-foci.md` plus
+  `docs/agent_skills/05_skill_focus_asset_recipe.md` for the contract, the seams and the
+  winding/inset/shading-group pitfalls a plausible render hides.
+- Resolve every material slot through the glTF `textures` table instead of pointing slots at
+  `images`: the shipped files looked fine to a previewer that made the same shortcut and were
+  rejected by `godot --import`. `check_model` now walks slot -> texture -> image for all 128 models,
+  and the focus previews resolve the hop the way the engine does.
+- Add `tests/python/test_skill_foci.py`: sixteen checks that re-parse every GLB (attributes,
+  bounds, single material, UV range, unit normals with orthogonal tangents), re-hash every
+  reported file against the build report, validate the prop scenes and resources, and assert
+  the catalogue points only at files that exist; `tool/skill_preview.html` spins the shipped GLBs.
+  All asset gates and the Python suite pass.
+
 ## [Unreleased] — Expanded Station Zero (6× world) (2026-09-12)
 
 - Grow the fixed campaign station from 352 × 272 m to **864 × 672 m** (6.1× the

@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://data/models/skills/chain_lightning/focus.glb" id="1_focus_glb"]
+
+[node name="SkillFocus" type="Node3D"]
+
+[node name="Focus" parent="." instance=ExtResource("1_focus_glb")]

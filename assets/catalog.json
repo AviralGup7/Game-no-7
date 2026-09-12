@@ -567,35 +567,59 @@
  "gameplay_skills": {
   "bladestorm": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/bladestorm/focus.glb",
+   "icon": "data/models/skills/icons/bladestorm.png",
+   "prop_scene": "scenes/props/skill_focus_bladestorm.tscn"
   },
   "phantom_rush": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/phantom_rush/focus.glb",
+   "icon": "data/models/skills/icons/phantom_rush.png",
+   "prop_scene": "scenes/props/skill_focus_phantom_rush.tscn"
   },
   "seismic_slam": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/seismic_slam/focus.glb",
+   "icon": "data/models/skills/icons/seismic_slam.png",
+   "prop_scene": "scenes/props/skill_focus_seismic_slam.tscn"
   },
   "frost_nova_skill": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/frost_nova_skill/focus.glb",
+   "icon": "data/models/skills/icons/frost_nova_skill.png",
+   "prop_scene": "scenes/props/skill_focus_frost_nova_skill.tscn"
   },
   "warcry_skill": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/warcry_skill/focus.glb",
+   "icon": "data/models/skills/icons/warcry_skill.png",
+   "prop_scene": "scenes/props/skill_focus_warcry_skill.tscn"
   },
   "chain_lightning": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/chain_lightning/focus.glb",
+   "icon": "data/models/skills/icons/chain_lightning.png",
+   "prop_scene": "scenes/props/skill_focus_chain_lightning.tscn"
   },
   "mending_light": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/mending_light/focus.glb",
+   "icon": "data/models/skills/icons/mending_light.png",
+   "prop_scene": "scenes/props/skill_focus_mending_light.tscn"
   },
   "shatterwave": {
    "texture": "assets/scifi/fx/ring.png",
-   "status": "technology ability; cosmetic cast and procedural field"
+   "status": "technology ability; cosmetic cast and procedural field, with an authored cast-focus prop and a rendered skill-bar icon",
+   "model": "data/models/skills/shatterwave/focus.glb",
+   "icon": "data/models/skills/icons/shatterwave.png",
+   "prop_scene": "scenes/props/skill_focus_shatterwave.tscn"
   }
  },
  "gameplay_arenas": {

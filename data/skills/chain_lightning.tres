@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="SkillConfig" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SkillConfig" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/skills/skill_config.gd" id="1_script"]
+
+[ext_resource type="Texture2D" path="res://data/models/skills/icons/chain_lightning.png" id="2_icon"]
 
 [resource]
 script = ExtResource("1_script")
@@ -25,3 +27,4 @@ unlock_wave = 6
 weight = 0.55
 disabled = false
 tags = Array[StringName]([&"chain", &"shock", &"status", &"aoe"])
+icon = ExtResource("2_icon")
