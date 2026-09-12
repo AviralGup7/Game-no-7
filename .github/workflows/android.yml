@@ -337,10 +337,21 @@ jobs:
           python3 tool/check_godot_log.py build/export.log --exit-code "$code" \
             --allow-engine-noise
 
+      # The checker writes the failure reason into the report even on error;
+      # surface it as an annotation because raw step logs are not reachable
+      # from every environment that reads CI results.
       - name: Verify Android APK identity, ABI, permissions and signature
         run: |
+          set +e
           python3 tool/check_android_apk.py "$APK_PATH" --build-type debug \
             --report build/apk-validation.json
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            err=$(python3 -c 'import json; print(json.load(open("build/apk-validation.json")).get("error", "unknown"))' 2>/dev/null || echo "unknown")
+            echo "::error title=APK verification::${err}"
+            exit "$code"
+          fi
 
       - name: Report APK size by container and largest entries
         run: python3 tool/apk_size_report.py "$APK_PATH" | tee build/apk-size-report.json
