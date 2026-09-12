@@ -46,10 +46,14 @@ def badging(debug=True, package="com.laststandarena.game", permission="android.p
             + f"uses-permission: name='{permission}'\n")
 
 
-def xmltree(renderer="mobile"):
-    return ('E: manifest\n  E: application\n    E: meta-data\n'
-            '      A: android:name(0x01010003)="org.godotengine.rendering.method"\n'
-            f'      A: android:value(0x01010024)="{renderer}"\n')
+def xmltree(renderer="mobile", namespaced=True):
+    # Captured on ubuntu-latest build-tools 34.0.0 (docs/godot-runs/android-debug):
+    # aapt2 prefixes attribute names with the namespace URI. Older aapt prints
+    # the short "android:name" form; parse must accept both.
+    prefix = "http://schemas.android.com/apk/res/android:" if namespaced else "android:"
+    return ('E: manifest\n  E: application\n    E: meta-data (line=68)\n'
+            f'      A: {prefix}name(0x01010003)="org.godotengine.rendering.method" (Raw: "org.godotengine.rendering.method")\n'
+            f'      A: {prefix}value(0x01010024)="{renderer}" (Raw: "{renderer}")\n')
 
 
 class AndroidRuntimeSourceTests(unittest.TestCase):
@@ -249,6 +253,11 @@ class AndroidApkTests(unittest.TestCase):
                  mock.patch.object(apkcheck, "run_tool", side_effect=[badging(debug=False), xmltree(), signature]):
                 with self.assertRaises(ValueError):
                     apkcheck.verify(self.apk, ROOT / "export_presets.cfg", "Android", "release")
+
+    def test_renderer_metadata_accepts_both_aapt_attribute_formats(self):
+        for namespaced in (True, False):
+            with self.subTest(namespaced=namespaced):
+                self.assertEqual(apkcheck.renderer_metadata(xmltree(namespaced=namespaced)), "mobile")
 
     def test_host_renderer_cannot_leak_into_android_manifest(self):
         with mock.patch.object(apkcheck, "sdk_tool", side_effect=lambda names: names[0]), \

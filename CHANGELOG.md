@@ -11,6 +11,14 @@
   (import touches no display/GL; old green behavior), scene-running steps stay
   native but pin `--audio-driver Dummy` and `--rendering-driver opengl3` so
   host audio/Vulkan availability cannot change the log.
+- Fix `tool/check_android_apk.py` against real build-tools 34 output: its
+  renderer-metadata regex only matched aapt2's short attribute names
+  (`A: android:name=...`), while current aapt2 prints namespace-prefixed names
+  (`A: http://schemas.android.com/apk/res/android:name(...)=...`), so every
+  real APK failed with "manifest lacks Godot rendering-method metadata". The
+  parser now accepts both forms, with fixtures captured from the actual CI
+  runner output. APK verification failures are also surfaced as GitHub
+  annotations (step logs are unreachable from some environments).
 - Add `tool/check_godot_log.py --allow-engine-noise`: an opt-in, context-bound
   demotion for enumerated engine lifecycle reports — the dummy-renderer
   null-texture preview fetches on cold headless `--import` (149 identical

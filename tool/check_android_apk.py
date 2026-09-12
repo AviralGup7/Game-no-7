@@ -179,12 +179,17 @@ def parse_badging(text: str) -> dict:
 def renderer_metadata(xmltree: str) -> str:
     # aapt/aapt2 xmltree resolves the string-pool values. Bound each metadata
     # element separately so a nearby unrelated android:value cannot match.
+    # Attribute names are printed short by old aapt2 ("android:name") but
+    # namespace-prefixed by build-tools 34 aapt2
+    # ("http://schemas.android.com/apk/res/android:name"), so anchor on the
+    # suffix, never crossing an '=' inside a single line.
+    attr = r'A:\s*[^\n=]*{}\s*(?:\([0-9a-fx]+\))?\s*=\s*"([^"\n]*)"'
     blocks = re.split(r"^\s*E:", xmltree, flags=re.M)
     for block in blocks:
         if not block.lstrip().startswith("meta-data"):
             continue
-        name = re.search(r'A:\s*android:name[^=]*="([^"\n]*)"', block)
-        value = re.search(r'A:\s*android:value[^=]*="([^"\n]*)"', block)
+        name = re.search(attr.format("android:name"), block)
+        value = re.search(attr.format("android:value"), block)
         if name and name[1] == "org.godotengine.rendering.method" and value:
             return value[1]
     raise ValueError("APK manifest lacks Godot rendering-method metadata")
