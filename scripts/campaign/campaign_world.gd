@@ -10,6 +10,8 @@ var _markers: Dictionary = {}
 var _checkpoints: Dictionary = {}
 var _visible_ids: Array[String] = []
 var _solids: Array[AABB] = []
+# Service causeways / ring decks: rendered, distance-culled, never simulated.
+var _connectors: Array[Dictionary] = []
 
 
 func build(authored: CampaignDefinition) -> bool:
@@ -38,7 +40,9 @@ func build(authored: CampaignDefinition) -> bool:
 		_render_perimeter_wall(rails, wall, rail_mat)
 	for sector in definition.sectors:
 		_build_district(sector)
-	# Connector decks stay visible: never reveal a void between culling zones.
+	# Connector decks are distance-culled like districts: at 6x the station size
+	# they are most of the always-drawn geometry, and the depth fog hides them
+	# long before their culling distance. Collision stays merged and loaded.
 	var routes := Node3D.new()
 	routes.name = "ServiceCauseways"
 	add_child(routes)
@@ -47,7 +51,11 @@ func build(authored: CampaignDefinition) -> bool:
 		for sector in definition.sectors:
 			is_district = is_district or CampaignDefinition.rect(sector.rect) == region
 		if not is_district:
-			CampaignGeometry.floor_batch(routes, region, &"military", CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
+			var deck := Node3D.new()
+			deck.name = "Causeway%s" % [region]
+			routes.add_child(deck)
+			CampaignGeometry.floor_batch(deck, region, &"military", CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
+			_connectors.append({"root": deck, "area": region})
 	update_visibility(definition.checkpoint("docks").origin)
 	return true
 
@@ -223,6 +231,11 @@ func update_visibility(at: Vector3) -> void:
 		visual.visible = shown
 		if shown:
 			_visible_ids.append(String(entry.id))
+	for deck in _connectors:
+		var area: Rect2 = deck["area"]
+		var near := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
+		var root: Node3D = deck["root"]
+		root.visible = near.distance_to(Vector2(at.x, at.z)) < 105.0
 
 
 func point_is_on_floor(at: Vector3) -> bool:

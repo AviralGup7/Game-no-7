@@ -23,7 +23,10 @@ set -e
 python3 tool/check_godot_log.py build/campaign-import.log --exit-code "$code" \
   --allow-engine-noise
 set +e
-GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" \
+# 420 s, not 180 s: the 864 x 672 m station drives far more geometry per frame
+# on the runner's software GL renderer, and the walkthrough now covers 13
+# missions. This is a host-harness budget, not an Android frame-time claim.
+GODOT_BIN="$GODOT" godot_test_timeout 420 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" \
   --script res://tests/verify_campaign.gd 2>&1 | tee build/campaign-tests.log
 code=${PIPESTATUS[0]}
 set -e

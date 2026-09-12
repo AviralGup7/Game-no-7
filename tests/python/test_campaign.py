@@ -74,6 +74,14 @@ class CampaignRuntimeBudgetTests(unittest.TestCase):
                 self.assertNotRegex(text, r"set_bounds\(\s*[0-9]",
                                     f"{name} hard-codes a clamp radius")
 
+    def test_service_causeways_are_distance_culled_too(self):
+        world = source("scripts/campaign/campaign_world.gd")
+        self.assertIn("_connectors.append(", world)
+        self.assertIn("root.visible = near.distance_to(Vector2(at.x, at.z)) < 105.0", world)
+        # The three-batch Android budget stays measured over districts only.
+        self.assertIn("_visible_ids.append(String(entry.id))", world)
+        self.assertIn('"visible_districts": _visible_ids.duplicate()', world)
+
     def test_campaign_combat_uses_a_bounded_flow_field(self):
         grid = source("scripts/arena/arena_nav_grid.gd")
         encounters = source("scripts/campaign/campaign_encounters.gd")
