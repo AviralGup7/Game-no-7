@@ -84,6 +84,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/arena/arena_landmark_config.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://scripts/arena/arena_landmark_placement.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/arena/arena_nav_grid.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -124,6 +127,9 @@ SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
 ERROR: Failed to load script "res://scripts/arena/arena_obstacles.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/arena/arena_theme_config.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/arena/dungeon_generator.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/arena/hazard_config.gd
