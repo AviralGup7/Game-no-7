@@ -26,6 +26,34 @@ IDE navigation, no parser diagnostics — a renamed method fails silently at
 runtime instead of loudly at load. Static typing prevents the large majority
 of type-related runtime errors in GDScript.
 
+## Shipping campaign composition
+
+`CampaignGame` (`scenes/campaign/station_zero.tscn`) is the default composition.
+The older `Main`/arena loop remains available only for legacy regressions.
+
+- `CampaignDefinition` loads and validates the fixed JSON. `CampaignGeometry`
+  builds instanced decks, authored landmarks and merged outer walls from the floor
+  union. Shared floor edges never become loading gates or walls.
+- `CampaignWorld` owns the physical world, lighting, 4 m `ArenaNavGrid` world mask
+  and distance-culling of at most three district visual roots. Collision stays
+  continuous. The class does **not** join the legacy `arena` group.
+- `CampaignEncounters` streams only living authored IDs near the player, at most
+  18 active / two activations per tick. Unloading is not `enemy_killed`. The
+  commander inherits the existing model/controller with three non-summoning phases.
+- `CampaignDirector` owns mission order, guard/distance checks, rest/checkpoints,
+  build restoration, objective routes and atomic reward staging. It uses existing
+  `Player`, weapon/skill, XP, pickup, combat and effect APIs. Legacy wave integers
+  are an internal unlock-gate mirror only; no `WaveManager` is instantiated.
+- `CampaignUI`/`CampaignHud` provide Continue/New, mission/location/distance,
+  native-touch Interact/Map/Pause, checkpoint retry and Armory loadout. Settings,
+  safe areas and touch ownership retain their Android lifecycle behavior.
+- `CampaignProgress` normalizes schema-8 persistence and reconciles the saved
+  cursor/IDs against authored content. Permanent ranks are applied after build
+  restore. The campaign owns its rewards; legacy run-end banking is bypassed.
+
+See [campaign authoring/validation](campaign/README.md). Static checks are not
+native/device execution evidence.
+
 ## Component model
 
 ### Protocols (Godot has no interfaces)
@@ -293,7 +321,7 @@ missing**, and both looked like success.**
 
 Now `ArenaConfig` owns three more authored fields, and `arena.gd` shrank from 533 lines to 354 with no arena id left in it at all:
 
-> `arena.gd` is 462 lines now. That is features, not tables coming back: solid decoration props
+> `arena.gd` is 489 lines now. That is features, not tables coming back: solid decoration props
 > publish their nav footprints (`ArenaDecorator.get_nav_blockers()` → `Array[AABB]` →
 > `Arena.register_decoration_blockers`, so AI paths around a barrel), and hazard markers were
 > rebuilt on the authored hazard data. The 533 → 354 number above stays as the sweep reported it.

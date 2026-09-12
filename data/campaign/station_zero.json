@@ -1,0 +1,1217 @@
+{
+  "schema_version": 1,
+  "world_id": "station_zero",
+  "title": "STATION ZERO / THE LONG WAY HOME",
+  "bounds": [
+    -176,
+    -136,
+    352,
+    272
+  ],
+  "module_size": 8,
+  "navigation_cell": 4,
+  "max_active_enemies": 18,
+  "max_visible_sectors": 3,
+  "sectors": [
+    {
+      "id": "docks",
+      "name": "01 / DOCKING QUARTER",
+      "rect": [
+        -160,
+        56,
+        96,
+        64
+      ],
+      "checkpoint": [
+        -144,
+        0.2,
+        104
+      ],
+      "accent": "#65d9ed",
+      "description": "Arrivals and service piers. The station has gone silent."
+    },
+    {
+      "id": "transit",
+      "name": "02 / TRANSIT WORKS",
+      "rect": [
+        -48,
+        56,
+        96,
+        64
+      ],
+      "checkpoint": [
+        -32,
+        0.2,
+        104
+      ],
+      "accent": "#f4bd68",
+      "description": "Restore the transit grid and reconnect the districts."
+    },
+    {
+      "id": "cargo",
+      "name": "03 / CARGO EXCHANGE",
+      "rect": [
+        64,
+        56,
+        96,
+        64
+      ],
+      "checkpoint": [
+        72,
+        0.2,
+        112
+      ],
+      "accent": "#e89c69",
+      "description": "Recover the evacuation manifests among abandoned freight."
+    },
+    {
+      "id": "reactor",
+      "name": "04 / REACTOR SPINE",
+      "rect": [
+        64,
+        -120,
+        96,
+        80
+      ],
+      "checkpoint": [
+        80,
+        0.2,
+        -104
+      ],
+      "accent": "#f06f66",
+      "description": "Coolant lines are failing. Shut down the reactor override."
+    },
+    {
+      "id": "habitat",
+      "name": "05 / HABITAT RING",
+      "rect": [
+        -48,
+        -120,
+        96,
+        80
+      ],
+      "checkpoint": [
+        -40,
+        0.2,
+        -112
+      ],
+      "accent": "#85d4a3",
+      "description": "Habitation pods still hold survivors. Restore their uplink."
+    },
+    {
+      "id": "command",
+      "name": "06 / COMMAND REACH",
+      "rect": [
+        -160,
+        -120,
+        96,
+        80
+      ],
+      "checkpoint": [
+        -152,
+        0.2,
+        -112
+      ],
+      "accent": "#b8a0ec",
+      "description": "The security commander controls the evacuation lock."
+    }
+  ],
+  "floors": [
+    [
+      -160,
+      56,
+      96,
+      64
+    ],
+    [
+      -48,
+      56,
+      96,
+      64
+    ],
+    [
+      64,
+      56,
+      96,
+      64
+    ],
+    [
+      64,
+      -120,
+      96,
+      80
+    ],
+    [
+      -48,
+      -120,
+      96,
+      80
+    ],
+    [
+      -160,
+      -120,
+      96,
+      80
+    ],
+    [
+      -64,
+      80,
+      16,
+      24
+    ],
+    [
+      48,
+      80,
+      16,
+      24
+    ],
+    [
+      -64,
+      -88,
+      16,
+      24
+    ],
+    [
+      48,
+      -88,
+      16,
+      24
+    ],
+    [
+      -120,
+      -40,
+      16,
+      96
+    ],
+    [
+      -8,
+      -40,
+      16,
+      96
+    ],
+    [
+      104,
+      -40,
+      16,
+      96
+    ]
+  ],
+  "props": [
+    {
+      "id": "dock_shuttle",
+      "sector": "docks",
+      "kind": "shuttle",
+      "at": [
+        -112,
+        1.6,
+        100
+      ],
+      "size": [
+        20,
+        3.2,
+        12
+      ]
+    },
+    {
+      "id": "dock_freight_a",
+      "sector": "docks",
+      "kind": "container",
+      "at": [
+        -136,
+        1.5,
+        72
+      ],
+      "size": [
+        12,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "dock_freight_b",
+      "sector": "docks",
+      "kind": "container",
+      "at": [
+        -84,
+        1.5,
+        104
+      ],
+      "size": [
+        12,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "dock_freight_c",
+      "sector": "docks",
+      "kind": "container",
+      "at": [
+        -88,
+        1.5,
+        68
+      ],
+      "size": [
+        8,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "transit_generator",
+      "sector": "transit",
+      "kind": "generator",
+      "at": [
+        0,
+        2.5,
+        88
+      ],
+      "size": [
+        16,
+        5,
+        12
+      ]
+    },
+    {
+      "id": "transit_workshop_a",
+      "sector": "transit",
+      "kind": "building",
+      "at": [
+        -28,
+        3,
+        72
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "transit_workshop_b",
+      "sector": "transit",
+      "kind": "building",
+      "at": [
+        28,
+        3,
+        108
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "transit_cover",
+      "sector": "transit",
+      "kind": "container",
+      "at": [
+        28,
+        1.5,
+        72
+      ],
+      "size": [
+        8,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "cargo_stack_a",
+      "sector": "cargo",
+      "kind": "container",
+      "at": [
+        96,
+        2,
+        76
+      ],
+      "size": [
+        16,
+        4,
+        8
+      ]
+    },
+    {
+      "id": "cargo_stack_b",
+      "sector": "cargo",
+      "kind": "container",
+      "at": [
+        128,
+        2,
+        104
+      ],
+      "size": [
+        16,
+        4,
+        8
+      ]
+    },
+    {
+      "id": "cargo_stack_c",
+      "sector": "cargo",
+      "kind": "container",
+      "at": [
+        144,
+        2,
+        76
+      ],
+      "size": [
+        8,
+        4,
+        16
+      ]
+    },
+    {
+      "id": "cargo_crane",
+      "sector": "cargo",
+      "kind": "crane",
+      "at": [
+        112,
+        6,
+        88
+      ],
+      "size": [
+        8,
+        12,
+        8
+      ]
+    },
+    {
+      "id": "reactor_core",
+      "sector": "reactor",
+      "kind": "reactor",
+      "at": [
+        112,
+        5,
+        -80
+      ],
+      "size": [
+        20,
+        10,
+        20
+      ]
+    },
+    {
+      "id": "reactor_cooling_a",
+      "sector": "reactor",
+      "kind": "generator",
+      "at": [
+        88,
+        3,
+        -56
+      ],
+      "size": [
+        12,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "reactor_cooling_b",
+      "sector": "reactor",
+      "kind": "generator",
+      "at": [
+        144,
+        3,
+        -104
+      ],
+      "size": [
+        12,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "reactor_cover",
+      "sector": "reactor",
+      "kind": "container",
+      "at": [
+        144,
+        1.5,
+        -56
+      ],
+      "size": [
+        8,
+        3,
+        8
+      ]
+    },
+    {
+      "id": "habitat_greenhouse",
+      "sector": "habitat",
+      "kind": "planter",
+      "at": [
+        0,
+        1.6,
+        -80
+      ],
+      "size": [
+        16,
+        3.2,
+        12
+      ]
+    },
+    {
+      "id": "habitat_pod_a",
+      "sector": "habitat",
+      "kind": "building",
+      "at": [
+        -28,
+        3,
+        -64
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "habitat_pod_b",
+      "sector": "habitat",
+      "kind": "building",
+      "at": [
+        28,
+        3,
+        -100
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "habitat_pod_c",
+      "sector": "habitat",
+      "kind": "building",
+      "at": [
+        28,
+        3,
+        -60
+      ],
+      "size": [
+        12,
+        6,
+        8
+      ]
+    },
+    {
+      "id": "command_dish",
+      "sector": "command",
+      "kind": "antenna",
+      "at": [
+        -112,
+        4,
+        -80
+      ],
+      "size": [
+        16,
+        8,
+        16
+      ]
+    },
+    {
+      "id": "command_server_a",
+      "sector": "command",
+      "kind": "building",
+      "at": [
+        -144,
+        3,
+        -64
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "command_server_b",
+      "sector": "command",
+      "kind": "building",
+      "at": [
+        -84,
+        3,
+        -104
+      ],
+      "size": [
+        12,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "command_cover",
+      "sector": "command",
+      "kind": "container",
+      "at": [
+        -80,
+        1.5,
+        -56
+      ],
+      "size": [
+        8,
+        3,
+        8
+      ]
+    }
+  ],
+  "interactions": [
+    {
+      "id": "dock_link",
+      "sector": "docks",
+      "name": "Reconnect dock relay",
+      "at": [
+        -144,
+        0.2,
+        88
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "transit_power",
+      "sector": "transit",
+      "name": "Restore transit power",
+      "at": [
+        -16,
+        0.2,
+        88
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "manifest_a",
+      "sector": "cargo",
+      "name": "Recover manifest A",
+      "at": [
+        80,
+        0.2,
+        72
+      ],
+      "kind": "collect",
+      "credits": 0
+    },
+    {
+      "id": "manifest_b",
+      "sector": "cargo",
+      "name": "Recover manifest B",
+      "at": [
+        136,
+        0.2,
+        88
+      ],
+      "kind": "collect",
+      "credits": 0
+    },
+    {
+      "id": "manifest_c",
+      "sector": "cargo",
+      "name": "Recover manifest C",
+      "at": [
+        112,
+        0.2,
+        112
+      ],
+      "kind": "collect",
+      "credits": 0
+    },
+    {
+      "id": "reactor_override",
+      "sector": "reactor",
+      "name": "Disable reactor override",
+      "at": [
+        136,
+        0.2,
+        -80
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "habitat_uplink",
+      "sector": "habitat",
+      "name": "Open evacuation uplink",
+      "at": [
+        -16,
+        0.2,
+        -88
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "command_lock",
+      "sector": "command",
+      "name": "Security commander",
+      "at": [
+        -112,
+        0.2,
+        -56
+      ],
+      "kind": "terminal",
+      "credits": 0
+    },
+    {
+      "id": "evac_shuttle",
+      "sector": "docks",
+      "name": "Board evacuation shuttle",
+      "at": [
+        -128,
+        0.2,
+        104
+      ],
+      "kind": "extraction",
+      "credits": 0
+    },
+    {
+      "id": "supply_docks",
+      "sector": "docks",
+      "name": "Dock supply locker",
+      "at": [
+        -72,
+        0.2,
+        64
+      ],
+      "kind": "cache",
+      "credits": 80
+    },
+    {
+      "id": "supply_transit",
+      "sector": "transit",
+      "name": "Engineer supply locker",
+      "at": [
+        40,
+        0.2,
+        112
+      ],
+      "kind": "cache",
+      "credits": 100
+    },
+    {
+      "id": "supply_cargo",
+      "sector": "cargo",
+      "name": "Freight supply locker",
+      "at": [
+        152,
+        0.2,
+        112
+      ],
+      "kind": "cache",
+      "credits": 120
+    },
+    {
+      "id": "supply_reactor",
+      "sector": "reactor",
+      "name": "Reactor supply locker",
+      "at": [
+        152,
+        0.2,
+        -112
+      ],
+      "kind": "cache",
+      "credits": 150
+    },
+    {
+      "id": "supply_habitat",
+      "sector": "habitat",
+      "name": "Habitat supply locker",
+      "at": [
+        40,
+        0.2,
+        -112
+      ],
+      "kind": "cache",
+      "credits": 150
+    },
+    {
+      "id": "supply_command",
+      "sector": "command",
+      "name": "Command supply locker",
+      "at": [
+        -152,
+        0.2,
+        -48
+      ],
+      "kind": "cache",
+      "credits": 180
+    }
+  ],
+  "encounters": [
+    {
+      "id": "dock_patrol",
+      "sector": "docks",
+      "center": [
+        -112,
+        72
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "dock_patrol_0",
+          "type": "basic",
+          "at": [
+            -120,
+            0.2,
+            72
+          ]
+        },
+        {
+          "id": "dock_patrol_1",
+          "type": "basic",
+          "at": [
+            -108,
+            0.2,
+            68
+          ]
+        },
+        {
+          "id": "dock_patrol_2",
+          "type": "fast",
+          "at": [
+            -100,
+            0.2,
+            76
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transit_guards",
+      "sector": "transit",
+      "center": [
+        0,
+        68
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "transit_guards_0",
+          "type": "basic",
+          "at": [
+            -12,
+            0.2,
+            64
+          ]
+        },
+        {
+          "id": "transit_guards_1",
+          "type": "ranged",
+          "at": [
+            12,
+            0.2,
+            64
+          ]
+        },
+        {
+          "id": "transit_guards_2",
+          "type": "heavy",
+          "at": [
+            4,
+            0.2,
+            72
+          ]
+        },
+        {
+          "id": "transit_guards_3",
+          "type": "basic",
+          "at": [
+            20,
+            0.2,
+            60
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cargo_guards",
+      "sector": "cargo",
+      "center": [
+        112,
+        88
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "cargo_guards_0",
+          "type": "ranged",
+          "at": [
+            80,
+            0.2,
+            88
+          ]
+        },
+        {
+          "id": "cargo_guards_1",
+          "type": "basic",
+          "at": [
+            88,
+            0.2,
+            92
+          ]
+        },
+        {
+          "id": "cargo_guards_2",
+          "type": "heavy",
+          "at": [
+            120,
+            0.2,
+            84
+          ]
+        },
+        {
+          "id": "cargo_guards_3",
+          "type": "fast",
+          "at": [
+            128,
+            0.2,
+            68
+          ]
+        },
+        {
+          "id": "cargo_guards_4",
+          "type": "basic",
+          "at": [
+            148,
+            0.2,
+            96
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coolant_wardens",
+      "sector": "reactor",
+      "center": [
+        112,
+        -56
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "coolant_wardens_0",
+          "type": "heavy",
+          "at": [
+            104,
+            0.2,
+            -56
+          ]
+        },
+        {
+          "id": "coolant_wardens_1",
+          "type": "ranged",
+          "at": [
+            120,
+            0.2,
+            -48
+          ]
+        },
+        {
+          "id": "coolant_wardens_2",
+          "type": "dasher",
+          "at": [
+            128,
+            0.2,
+            -56
+          ]
+        },
+        {
+          "id": "coolant_wardens_3",
+          "type": "basic",
+          "at": [
+            96,
+            0.2,
+            -72
+          ]
+        },
+        {
+          "id": "coolant_wardens_4",
+          "type": "ranged",
+          "at": [
+            128,
+            0.2,
+            -104
+          ]
+        }
+      ]
+    },
+    {
+      "id": "habitat_patrol",
+      "sector": "habitat",
+      "center": [
+        0,
+        -64
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "habitat_patrol_0",
+          "type": "fast",
+          "at": [
+            -12,
+            0.2,
+            -64
+          ]
+        },
+        {
+          "id": "habitat_patrol_1",
+          "type": "ranged",
+          "at": [
+            12,
+            0.2,
+            -64
+          ]
+        },
+        {
+          "id": "habitat_patrol_2",
+          "type": "basic",
+          "at": [
+            -12,
+            0.2,
+            -96
+          ]
+        },
+        {
+          "id": "habitat_patrol_3",
+          "type": "heavy",
+          "at": [
+            12,
+            0.2,
+            -88
+          ]
+        }
+      ]
+    },
+    {
+      "id": "command_guard",
+      "sector": "command",
+      "center": [
+        -112,
+        -56
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "command_guard_0",
+          "type": "warlord",
+          "at": [
+            -112,
+            0.2,
+            -56
+          ]
+        },
+        {
+          "id": "command_guard_1",
+          "type": "ranged",
+          "at": [
+            -128,
+            0.2,
+            -48
+          ]
+        },
+        {
+          "id": "command_guard_2",
+          "type": "heavy",
+          "at": [
+            -96,
+            0.2,
+            -48
+          ]
+        },
+        {
+          "id": "command_guard_3",
+          "type": "ranged",
+          "at": [
+            -136,
+            0.2,
+            -88
+          ]
+        }
+      ]
+    },
+    {
+      "id": "west_service_patrol",
+      "sector": "command",
+      "center": [
+        -112,
+        8
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "west_service_patrol_0",
+          "type": "basic",
+          "at": [
+            -116,
+            0.2,
+            8
+          ]
+        },
+        {
+          "id": "west_service_patrol_1",
+          "type": "fast",
+          "at": [
+            -108,
+            0.2,
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "id": "east_service_patrol",
+      "sector": "reactor",
+      "center": [
+        112,
+        8
+      ],
+      "activate_radius": 30,
+      "members": [
+        {
+          "id": "east_service_patrol_0",
+          "type": "ranged",
+          "at": [
+            108,
+            0.2,
+            8
+          ]
+        },
+        {
+          "id": "east_service_patrol_1",
+          "type": "dasher",
+          "at": [
+            116,
+            0.2,
+            -8
+          ]
+        }
+      ]
+    }
+  ],
+  "missions": [
+    {
+      "id": "arrival",
+      "title": "A signal in the dark",
+      "brief": "Find the dock relay. Reconnect it to learn what happened to Station Zero.",
+      "sector": "docks",
+      "kind": "interact",
+      "targets": [
+        "dock_link"
+      ],
+      "requires": [],
+      "reward": {
+        "credits": 100,
+        "xp": 60,
+        "upgrade": "power"
+      }
+    },
+    {
+      "id": "restore_transit",
+      "title": "Bring the grid online",
+      "brief": "Travel to Transit Works, secure its generator crew and restore station power.",
+      "sector": "transit",
+      "kind": "interact",
+      "targets": [
+        "transit_power"
+      ],
+      "requires": [
+        "transit_guards"
+      ],
+      "reward": {
+        "credits": 180,
+        "xp": 100,
+        "upgrade": "haste"
+      }
+    },
+    {
+      "id": "cargo_records",
+      "title": "Names, not numbers",
+      "brief": "Search Cargo Exchange for all three evacuation manifests. The survivors need a route home.",
+      "sector": "cargo",
+      "kind": "collect",
+      "targets": [
+        "manifest_a",
+        "manifest_b",
+        "manifest_c"
+      ],
+      "requires": [],
+      "reward": {
+        "credits": 240,
+        "xp": 160,
+        "weapon": "sentinel_spear"
+      }
+    },
+    {
+      "id": "coolant",
+      "title": "Stop the cascade",
+      "brief": "Cross the eastern service causeway. Defeat the coolant wardens and disable the reactor override.",
+      "sector": "reactor",
+      "kind": "interact",
+      "targets": [
+        "reactor_override"
+      ],
+      "requires": [
+        "coolant_wardens"
+      ],
+      "reward": {
+        "credits": 300,
+        "xp": 220,
+        "upgrade": "vitality"
+      }
+    },
+    {
+      "id": "survivors",
+      "title": "Open the lifeline",
+      "brief": "Reach the Habitat Ring and open its evacuation uplink after securing the residential wing.",
+      "sector": "habitat",
+      "kind": "interact",
+      "targets": [
+        "habitat_uplink"
+      ],
+      "requires": [
+        "habitat_patrol"
+      ],
+      "reward": {
+        "credits": 320,
+        "xp": 260,
+        "upgrade": "critical_edge"
+      }
+    },
+    {
+      "id": "commander",
+      "title": "Break the lockdown",
+      "brief": "Find the security commander in Command Reach. Take back control of the evacuation lock.",
+      "sector": "command",
+      "kind": "clear",
+      "targets": [
+        "command_lock"
+      ],
+      "requires": [
+        "command_guard"
+      ],
+      "reward": {
+        "credits": 450,
+        "xp": 320,
+        "upgrade": "storm_edge"
+      }
+    },
+    {
+      "id": "home",
+      "title": "The long way home",
+      "brief": "Return through the connected station to the Docking Quarter and board the evacuation shuttle.",
+      "sector": "docks",
+      "kind": "extract",
+      "targets": [
+        "evac_shuttle"
+      ],
+      "requires": [],
+      "reward": {
+        "credits": 600,
+        "xp": 400
+      }
+    }
+  ]
+}

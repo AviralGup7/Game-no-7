@@ -22,7 +22,7 @@ with a hermetic, stdlib-only gate over the checked-in sources.
 
 WHAT IS INDEXED (the provenance universe)
 -----------------------------------------
-1. Every `.tscn` in the repo: each `[node ...]` entry contributes its name,
+1. Every `.tscn` in the project (excluding hidden/cache/build or `.gdignore` trees): each `[node ...]` entry contributes its name,
    its full relative path (built from `parent="..."`), its declared
    `type="..."`, its attached `script = ExtResource(...)`, and instantiated
    sub-scenes (`instance=ExtResource(...)`), resolved recursively.
@@ -79,6 +79,7 @@ from __future__ import annotations
 import json
 import pathlib
 import re
+import os
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -91,6 +92,22 @@ MAX_INSTANCE_DEPTH = 16
 # --------------------------------------------------------------------------
 # Script facts: class_name, extends — for cast compatibility
 # --------------------------------------------------------------------------
+
+
+def project_scene_paths(root: pathlib.Path) -> list[pathlib.Path]:
+    """Prune generated trees before walking; cached third-party scenes are not
+    runtime provenance and must not make a phantom project path appear valid.
+    """
+    scenes: list[pathlib.Path] = []
+    for directory, names, files in os.walk(root):
+        if ".gdignore" in files:
+            names[:] = []
+            continue
+        names[:] = [name for name in names if not name.startswith(".")
+                    and name not in {"build", "dist", "node_modules"}]
+        scenes.extend(pathlib.Path(directory) / name for name in files if name.endswith(".tscn"))
+    return sorted(scenes)
+
 
 class ScriptFacts:
     """class_name / extends for every project script."""
@@ -559,12 +576,11 @@ class ScenePathGate:
 
     # -- repo walk ------------------------------------------------------
     def load_repo(self) -> None:
-        for p in sorted(ROOT.rglob("*.tscn")):
-            if ".godot" in p.parts:
-                continue
+        for p in project_scene_paths(ROOT):
             rel = p.relative_to(ROOT).as_posix()
-            self.add_scene(rel, p.read_text(encoding="utf-8"))
-            self.check_unique_flags(rel, p.read_text(encoding="utf-8"))
+            text = p.read_text(encoding="utf-8")
+            self.add_scene(rel, text)
+            self.check_unique_flags(rel, text)
         pg = ROOT / "project.godot"
         if pg.exists():
             self.add_autoloads(pg.read_text(encoding="utf-8"))

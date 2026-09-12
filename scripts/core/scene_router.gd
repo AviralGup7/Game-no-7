@@ -10,7 +10,7 @@ extends Node
 var _transitioning := false
 var _last_error := ""
 
-const MAIN_SCENE := "res://scenes/main/main.tscn"
+const MAIN_SCENE := "res://scenes/campaign/station_zero.tscn"
 
 
 func goto_main_scene() -> void:

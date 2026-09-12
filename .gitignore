@@ -35,3 +35,10 @@ Thumbs.db
 
 # Keep empty asset subfolders meaningful but exclude nothing real
 ASSET_LICENSES/downloads/
+
+# Generated Android template metadata / interrupted staging
+/android/.build_version
+/android/.template.*/
+
+# Local validation reports
+godot-*.log

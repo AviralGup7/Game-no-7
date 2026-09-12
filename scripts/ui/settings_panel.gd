@@ -180,7 +180,7 @@ func is_rebinding() -> bool: return _awaiting_action != &""
 
 func cancel_edit() -> void:
 	if _awaiting_action != &"" and _rebind_buttons.has(_awaiting_action):
-		_rebind_buttons[_awaiting_action].text = UiCommands.binding(_awaiting_action)
+		_rebind_buttons[_awaiting_action].text = InputRemapper.binding_label(_pending_bindings[_awaiting_action]) + " *" if _pending_bindings.has(_awaiting_action) else UiCommands.binding(_awaiting_action)
 	_awaiting_action = &""
 
 func _input(event: InputEvent) -> void:
@@ -200,10 +200,7 @@ func _input(event: InputEvent) -> void:
 		_finish_rebind(event)
 
 func _finish_rebind(event: InputEvent) -> void:
-	var conflict := InputRemapper.find_conflict(event, _awaiting_action)
-	for action in _pending_bindings:
-		if action != _awaiting_action and InputRemapper._events_match(_pending_bindings[action], event):
-			conflict = action
+	var conflict := InputRemapper.find_conflict(event, _awaiting_action, _pending_bindings)
 	if conflict != &"":
 		_feedback.text = "Already used by %s. Choose another binding or press Escape." % String(conflict)
 		return
@@ -214,10 +211,9 @@ func _finish_rebind(event: InputEvent) -> void:
 
 func _apply() -> void:
 	cancel_edit()
-	for action in _pending_bindings:
-		if not InputRemapper.rebind_first(action, _pending_bindings[action]):
-			_feedback.text = "Binding could not be applied. Too many bindings for this action."
-			return
+	if not InputRemapper.rebind_actions(_pending_bindings):
+		_feedback.text = "Bindings could not be applied. Check conflicts and binding limits; no bindings were changed."
+		return
 	_pending_bindings.clear()
 	Engine.max_fps = _fps
 	var saved := SettingsData.new()

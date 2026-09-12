@@ -32,12 +32,14 @@ static func suite() -> Array:
 			and _every_handle_resolves(),
 		"why": "a const that names no .tres is how unlock_prestige survived unread",
 	})
+	ExpectedErrors.begin(["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"])
 	results.append({
 		"name": "GameMode.validated falls back to standard",
 		"passed": GameMode.validated(&"nope") == GameMode.MODE_STANDARD
 			and GameMode.validated(GameMode.MODE_BOSS_RUSH) == GameMode.MODE_BOSS_RUSH,
 		"why": "",
 	})
+	ExpectedErrors.end()
 	results.append({
 		"name": "An unknown mode resolves no config instead of borrowing Standard's",
 		"passed": GameMode.resolve(&"nope") == null
@@ -484,6 +486,7 @@ static func suite() -> Array:
 		"why": str(UpgradeConfig.KNOWN_EFFECT_TAGS),
 	})
 
+	prog.free()
 	return results
 
 

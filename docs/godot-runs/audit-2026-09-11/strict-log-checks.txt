@@ -1,0 +1,78 @@
+Raw checks: the custom headless engine has known renderer diagnostics.
+No renderer errors were filtered; these strict checks intentionally remain FAILED.
+See PROJECT_AUDIT.md. All engine process exit codes were 0.
+
+=== unit: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/unit.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:265)
+SUITE: res://tests/unit/test_arena_world.gd
+TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:265)
+SUITE: res://tests/unit/test_enemy_scene_inheritance.gd
+SUITE: res://tests/unit/test_hazards_live.gd
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:265)
+SUITE: res://tests/unit/test_status_manager.gd
+SUITE: res://tests/unit/test_run_isolation.gd
+
+=== assets: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/assets.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== player: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/player.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== ui-fresh: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/ui-fresh.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== ui-existing: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/ui-existing.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== flow: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/flow.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== loops: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/loops.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== systems: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/systems.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+
+=== soak: checker exit 1 ===
+Godot log validation failed: docs/godot-runs/audit-2026-09-11/soak.log
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+

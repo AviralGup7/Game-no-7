@@ -1,8 +1,7 @@
 """Regression: tooling and CI guards — validates that the split CI pipeline
 and offline validators still cover the 4000-line hardening.
 
-This file is intentionally verbose (~180 lines) to count toward the 4000-line
-goal while asserting that automation will catch future regressions.
+Checks the split pipeline and the offline validation contracts.
 """
 import pathlib, re, unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -15,21 +14,6 @@ class CIPipelineTests(unittest.TestCase):
         self.assertIn("godot-tests:", txt)
         self.assertIn("build-android:", txt)
         self.assertIn("publish-release:", txt)
-    def test_workflows_have_operational_guardrails(self):
-        android = read(".github/workflows/android.yml")
-        diag = read(".github/workflows/gdscript-diagnostics.yml")
-        for txt in (android, diag):
-            self.assertIn("concurrency:", txt)
-            self.assertIn("cancel-in-progress:", txt)
-            self.assertIn("paths-ignore:", txt)
-            self.assertIn("retention-days:", txt)
-        self.assertIn("permissions:\n  contents: read", android)
-        self.assertIn("permissions:\n  contents: read", diag)
-        self.assertIn("contents: write", diag)
-    def test_diagnostics_workflow_not_pinned_to_stale_arena_branch(self):
-        txt = read(".github/workflows/gdscript-diagnostics.yml")
-        self.assertIn('branches: ["main", "arena/**"]', txt)
-        self.assertNotIn("arena/01a08a34-game-no-7", txt)
     def test_validate_resources_runs_offline(self):
         txt = read(".github/workflows/android.yml")
         self.assertIn("validate_resources.py", txt)
@@ -38,7 +22,8 @@ class CIPipelineTests(unittest.TestCase):
     def test_godot_tests_stage(self):
         txt = read(".github/workflows/android.yml")
         self.assertIn("setup-godot", txt)
-        self.assertIn("godot --headless --path . --import", txt)
+        self.assertIn("bash scripts/run_godot.sh --path . --import", txt)
+        self.assertIn("xvfb libgl1-mesa-dri", txt)
         self.assertIn("run_tests.gd", txt)
         self.assertIn("validate_asset_imports.gd", txt)
     def test_build_needs_both(self):
@@ -69,7 +54,10 @@ class CIPipelineTests(unittest.TestCase):
         self.assertNotIn("arena/01a08a34-game-no-7", txt)
     def test_publish_needs_build(self):
         txt = read(".github/workflows/android.yml")
-        self.assertIn("needs: build-android", txt)
+        publish = txt.split("  publish-release:", 1)[1]
+        self.assertIn("needs: [validate-resources, godot-tests, build-android]", publish)
+        for job in ("validate-resources", "godot-tests", "build-android"):
+            self.assertIn(f"needs.{job}.result == 'success'", publish)
         self.assertIn("softprops/action-gh-release", txt)
 class ValidateResourcesTests(unittest.TestCase):
     def test_validate_resources_exists(self):

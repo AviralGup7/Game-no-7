@@ -1,0 +1,248 @@
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+SOAK: booting real game
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+  SOAK boot: { "t": 0.0, "frame": 16, "state": "main_menu", "paused": false, "nodes": 393, "enemies": -1, "proj": -1, "pickups": -1, "dmg": 0, "fx": -1, "audio": 0, "music": "menu", "heat": -1.0, "player_ok": false, "cam_ok": false, "errors": 0 }
+  PASS: soak START RUN
+  PASS: soak ENTER ARENA
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2053949154 mode=standard arena=default_arena seed=3697902332
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: soak run starts
+  SOAK start: { "t": 1.1, "frame": 25, "state": "playing", "paused": false, "nodes": 1146, "enemies": 3, "proj": 0, "pickups": 32, "dmg": 0, "fx": 5, "audio": 2, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+[LastStand][soak] t=5s fps=43 min=1 enemies=3 peak=3 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=43 min=1 enemies=3 peak=3 wave=1 hp=100/100
+[diagnostic] Quality auto-scaled medium -> low (sustained frame-time deficit)
+[LastStand][soak] t=10s fps=8 min=1 enemies=3 peak=3 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=8 min=1 enemies=3 peak=3 wave=1 hp=100/100
+  SOAK t15: { "t": 15.0, "frame": 645, "state": "playing", "paused": false, "nodes": 1147, "enemies": 3, "proj": 0, "pickups": 32, "dmg": 0, "fx": 6, "audio": 1, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Wave 1 completed (bonus 20)
+[diagnostic] Director grants a breather: no mutators for wave 2
+[diagnostic] Wave 2 started (7 planned)
+[LastStand][soak] t=15s fps=26 min=1 enemies=3 peak=3 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=15s fps=26 min=1 enemies=3 peak=3 wave=2 hp=100/100
+  SOAK t30: { "t": 30.0, "frame": 1227, "state": "playing", "paused": false, "nodes": 1240, "enemies": 7, "proj": 3, "pickups": 32, "dmg": 0, "fx": 8, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=20s fps=8 min=1 enemies=7 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=20s fps=8 min=1 enemies=7 peak=7 wave=2 hp=100/100
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy basic died
+[LastStand][soak] t=25s fps=9 min=1 enemies=5 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=25s fps=9 min=1 enemies=5 peak=7 wave=2 hp=100/100
+  SOAK t45: { "t": 45.1, "frame": 1779, "state": "playing", "paused": false, "nodes": 1199, "enemies": 5, "proj": 1, "pickups": 32, "dmg": 1, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=30s fps=9 min=1 enemies=5 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=30s fps=9 min=1 enemies=5 peak=7 wave=2 hp=100/100
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy basic died
+[LastStand][soak] t=35s fps=9 min=1 enemies=3 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=35s fps=9 min=1 enemies=3 peak=7 wave=2 hp=100/100
+[diagnostic] Enemy basic died
+  SOAK t60: { "t": 60.2, "frame": 2324, "state": "playing", "paused": false, "nodes": 1139, "enemies": 2, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=40s fps=10 min=1 enemies=2 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=40s fps=10 min=1 enemies=2 peak=7 wave=2 hp=100/100
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@438/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+[LastStand][soak] t=45s fps=7 min=1 enemies=2 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=45s fps=7 min=1 enemies=2 peak=7 wave=2 hp=100/100
+[diagnostic] Enemy basic died
+  SOAK t75: { "t": 75.2, "frame": 2966, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=50s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=50s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=55s fps=12 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=55s fps=12 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t90: { "t": 90.0, "frame": 3522, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=61s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=61s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=66s fps=10 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=66s fps=10 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t105: { "t": 105.1, "frame": 4085, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=71s fps=11 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=71s fps=11 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=76s fps=13 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=76s fps=13 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t120: { "t": 120.0, "frame": 4682, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=81s fps=18 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=81s fps=18 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=86s fps=16 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=86s fps=16 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t135: { "t": 135.1, "frame": 5274, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=91s fps=12 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=91s fps=12 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=96s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=96s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t150: { "t": 150.0, "frame": 5842, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=101s fps=7 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=101s fps=7 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[LastStand][soak] t=106s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=106s fps=9 min=1 enemies=1 peak=7 wave=2 hp=100/100
+  SOAK t165: { "t": 165.0, "frame": 6453, "state": "playing", "paused": false, "nodes": 1118, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=111s fps=19 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] [LastStand][soak] t=111s fps=19 min=1 enemies=1 peak=7 wave=2 hp=100/100
+[diagnostic] Enemy basic died
+[diagnostic] Wave 2 completed (bonus 40)
+[diagnostic] Upgrade choices presented (wave 2): [&"power", &"blood_rite", &"storm_edge"]
+[diagnostic] Awaiting upgrade selection before wave 3
+[diagnostic] Upgrade selected: power
+[diagnostic] Upgrade selection resolved; launching next wave
+[diagnostic] Director grants a breather: no mutators for wave 3
+[diagnostic] Wave 3 started (11 planned)
+[LastStand][soak] t=116s fps=11 min=1 enemies=4 peak=7 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=116s fps=11 min=1 enemies=4 peak=7 wave=3 hp=100/100
+  SOAK t180: { "t": 180.0, "frame": 7078, "state": "playing", "paused": false, "nodes": 1184, "enemies": 4, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=121s fps=8 min=1 enemies=10 peak=10 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=121s fps=8 min=1 enemies=10 peak=10 wave=3 hp=100/100
+[diagnostic] Enemy fast died
+[LastStand][soak] t=126s fps=8 min=1 enemies=10 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=126s fps=8 min=1 enemies=10 peak=11 wave=3 hp=100/100
+  SOAK t195: { "t": 195.0, "frame": 7692, "state": "playing", "paused": false, "nodes": 1310, "enemies": 10, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 3, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@438/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+[LastStand][soak] t=131s fps=7 min=1 enemies=10 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=131s fps=7 min=1 enemies=10 peak=11 wave=3 hp=100/100
+[diagnostic] Enemy fast died
+[LastStand][soak] t=136s fps=23 min=1 enemies=9 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=136s fps=23 min=1 enemies=9 peak=11 wave=3 hp=100/100
+  SOAK t210: { "t": 210.0, "frame": 8297, "state": "playing", "paused": false, "nodes": 1292, "enemies": 9, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=141s fps=7 min=1 enemies=9 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=141s fps=7 min=1 enemies=9 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=146s fps=21 min=1 enemies=9 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=146s fps=21 min=1 enemies=9 peak=11 wave=3 hp=100/100
+  SOAK t225: { "t": 225.1, "frame": 8866, "state": "playing", "paused": false, "nodes": 1292, "enemies": 9, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[diagnostic] Enemy dasher died
+[LastStand][soak] t=151s fps=27 min=1 enemies=8 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=151s fps=27 min=1 enemies=8 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=156s fps=8 min=1 enemies=8 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=156s fps=8 min=1 enemies=8 peak=11 wave=3 hp=100/100
+  SOAK t240: { "t": 240.1, "frame": 9444, "state": "playing", "paused": false, "nodes": 1271, "enemies": 8, "proj": 0, "pickups": 32, "dmg": 1, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[diagnostic] Enemy fast died
+[diagnostic] Enemy basic died
+[LastStand][soak] t=161s fps=30 min=1 enemies=7 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=161s fps=30 min=1 enemies=7 peak=11 wave=3 hp=100/100
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  SOAK t255: { "t": 255.2, "frame": 10045, "state": "playing", "paused": false, "nodes": 1187, "enemies": 4, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=166s fps=7 min=1 enemies=4 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=166s fps=7 min=1 enemies=4 peak=11 wave=3 hp=100/100
+[diagnostic] Enemy basic died
+[LastStand][soak] t=171s fps=15 min=1 enemies=3 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=171s fps=15 min=1 enemies=3 peak=11 wave=3 hp=100/100
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  SOAK t270: { "t": 270.0, "frame": 10593, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 2, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=176s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=176s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=181s fps=21 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=181s fps=21 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t285: { "t": 285.1, "frame": 11244, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=186s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=186s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=192s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=192s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t300: { "t": 300.1, "frame": 11803, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=197s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=197s fps=11 min=1 enemies=1 peak=11 wave=3 hp=100/100
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@438/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+[LastStand][soak] t=202s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=202s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t315: { "t": 315.0, "frame": 12396, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=207s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=207s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=212s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=212s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t330: { "t": 330.1, "frame": 12990, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 1, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=217s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=217s fps=8 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=222s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=222s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t345: { "t": 345.1, "frame": 13560, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+[LastStand][soak] t=227s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=227s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[LastStand][soak] t=232s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+[diagnostic] [LastStand][soak] t=232s fps=9 min=1 enemies=1 peak=11 wave=3 hp=100/100
+  SOAK t360: { "t": 360.1, "frame": 14137, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: player valid
+  PASS: camera valid
+  SOAK drive done: upgrades_auto=1 transitions=7 max_nodes=1310 max_enemies=10 max_audio=3
+  SOAK preshutdown: { "t": 360.1, "frame": 14137, "state": "playing", "paused": false, "nodes": 1127, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+[LastStand][soak] END wave=3 samples=46 min_fps=1 peak_enemies=11 elapsed=234s
+[diagnostic] [LastStand][soak] END wave=3 samples=46 min_fps=1 peak_enemies=11 elapsed=234s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: soak game over
+  SOAK gameover: { "t": 360.3, "frame": 14154, "state": "game_over", "paused": false, "nodes": 1133, "enemies": 1, "proj": 0, "pickups": 32, "dmg": 0, "fx": 9, "audio": 1, "music": "victory", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+[diagnostic] Entered main menu
+  PASS: soak back at menu
+  PASS: soak menu unpaused
+  SOAK menu: { "t": 360.5, "frame": 14167, "state": "main_menu", "paused": false, "nodes": 402, "enemies": -1, "proj": -1, "pickups": -1, "dmg": 0, "fx": -1, "audio": 0, "music": "menu", "heat": -1.0, "player_ok": false, "cam_ok": false, "errors": 0 }
+  SOAK menu nodes boot=393 cycle1=402 (one-time panels may lazy-build)
+  PASS: soak leaves no bus subscription drift
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2742983265 mode=standard arena=default_arena seed=3795283557
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: post-soak run starts
+  SOAK run2: { "t": 363.7, "frame": 14295, "state": "playing", "paused": false, "nodes": 1155, "enemies": 3, "proj": 0, "pickups": 32, "dmg": 0, "fx": 5, "audio": 0, "music": "calm", "heat": -1.0, "player_ok": true, "cam_ok": true, "errors": 0 }
+  PASS: post-soak player valid
+[LastStand][soak] END wave=1 samples=0 min_fps=12 peak_enemies=3 elapsed=2s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=12 peak_enemies=3 elapsed=2s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+[diagnostic] Entered main menu
+  PASS: menu nodes stable across cycles
+  PASS: zero error diagnostics
+SOAK: 59 checks, 0 failed, frames=14323

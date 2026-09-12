@@ -24,8 +24,8 @@ const ART := "res://data/ui/chrome/"
 
 # Loaded at class init (after import), not const-preloaded: Godot 4.4.1 has no
 # compile-time loader for `.ttf`, so a typed `preload` fails the whole UI graph.
-static var REGULAR: Font = load("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf") as Font
-static var BOLD: Font = load("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf") as Font
+static var regular_font: Font = load("res://assets/fonts/rajdhani/Rajdhani-Regular.ttf") as Font
+static var bold_font: Font = load("res://assets/fonts/rajdhani/Rajdhani-Bold.ttf") as Font
 
 const SPACE_S := 8
 const SPACE_M := 16
@@ -151,7 +151,7 @@ static func control(bg: Color, border: Color, border_w: int = 1,
 
 static func create(settings: SettingsData) -> Theme:
 	var theme := Theme.new()
-	theme.default_font = REGULAR
+	theme.default_font = regular_font
 	theme.default_font_size = int(20 * settings.text_scale)
 	var edge := Color.WHITE if settings.high_contrast else EDGE
 	var disabled_bg := Color(INK.r, INK.g, INK.b, 0.85)
@@ -167,14 +167,14 @@ static func create(settings: SettingsData) -> Theme:
 		theme.set_color("font_hover_color", type, Color.WHITE)
 		theme.set_color("font_pressed_color", type, GOLD)
 		theme.set_color("font_focus_color", type, Color.WHITE)
-		theme.set_font("font", type, BOLD)
+		theme.set_font("font", type, bold_font)
 		theme.set_constant("outline_size", type, 0)
 
 	theme.set_color("font_color", "Label", TEXT)
 	theme.set_color("font_color", "RichTextLabel", TEXT)
-	theme.set_font("font", "Label", REGULAR)
-	theme.set_font("font", "RichTextLabel", REGULAR)
-	theme.set_font("font", "PopupMenu", REGULAR)
+	theme.set_font("font", "Label", regular_font)
+	theme.set_font("font", "RichTextLabel", regular_font)
+	theme.set_font("font", "PopupMenu", regular_font)
 	theme.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.55))
 	theme.set_color("font_shadow_color", "RichTextLabel", Color(0, 0, 0, 0.55))
 	theme.set_color("font_color", "LineEdit", TEXT)

@@ -1,0 +1,265 @@
+
+=== validate_resources (exit 0) ===
+Validated 163 files: OK
+
+=== check_typed_arch (exit 0) ===
+typed-architecture gate: clean (200 project classes, 9 autoloads checked)
+
+=== validate_guards (exit 0) ===
+=== validate_guards: real-guard contract (post typed refactor) ===
+-- inlined runtime guards (hot paths) --
+OK   scripts/combat/critical_system.gd: is_finite(base_chance)
+OK   scripts/utilities/weighted_table.gd: is_finite(weight)
+OK   scripts/utilities/weighted_table.gd: clampf(weight
+OK   scripts/player/health_component.gd: not payload.is_valid()
+OK   scripts/player/health_component.gd: clampf(current_health / max_health, 0.0, 1.0)
+OK   scripts/player/health_component.gd: amount = _mitigate(amount, payload)
+	if not is_f
+OK   scripts/player/experience_component.gd: clampf(mult, 0.0, 10.0)
+OK   scripts/player/stamina_component.gd: clampf(_current / _max, 0.0, 1.0)
+OK   scripts/player/progression_component.gd: is_finite(base)
+OK   scripts/enemies/enemy_base.gd: is_finite(resisted.x)
+OK   scripts/waves/wave_planner.gd: maxi(wave_number, 1)
+OK   scripts/waves/difficulty_director.gd: is_finite(_now)
+OK   scripts/waves/scoring.gd: maxi(int(round(raw)), 0)
+OK   scripts/pickups/pickup_manager.gd: clampi(pool_size
+OK   scripts/audio/audio_manager.gd: clampf(volume_db, -80.0, 6.0)
+OK   scripts/audio/audio_manager.gd: clampf(pitch_scale, 0.1, 4.0)
+OK   scripts/save/settings_data.gd: _clamp01
+OK   scripts/visuals/ring_fade.gd: clampf(_elapsed / _duration, 0.0, 1.0)
+OK   scripts/ui/virtual_joystick.gd: func _safe_radius() -> float:
+OK   scripts/ui/virtual_joystick.gd: return _value if _is_finite_v2(_value) else Vect
+OK   scripts/ui/touch_controls.gd: if not is_finite(value.x) or not is_finite(value
+OK   scripts/player/player_locomotion.gd: if not is_finite(input_vector.x) or not is_finit
+OK   scripts/player/character_controller.gd: func _apply_velocity(vel: Vector3) -> void:
+OK   scripts/player/character_controller.gd: func _clean_velocity(vel: Vector3) -> Vector3:
+OK   scripts/player/character_controller.gd: if not is_finite(delta) or delta <= 0.0:
+OK   scripts/player/character_controller.gd: clampf(value, 0.0, 40.0)
+OK   scripts/main/camera/camera_math.gd: static func is_finite_transform(xform: Transform
+OK   scripts/main/camera_rig.gd: func _apply_follow_position(next_pos: Vector3, w
+OK   scripts/main/camera_rig.gd: if cam_origin.distance_squared_to(look_target) <
+OK   scripts/main/camera/camera_shake_controller.gd: if CameraMath.is_finite_transform(rolled):
+OK   scripts/main/camera/camera_fov_controller.gd: func _bounded(fov: float) -> float:
+OK   scripts/core/game_root.gd: NOTIFICATION_APPLICATION_FOCUS_OUT
+OK   scripts/core/game_root.gd: if _can_pause_from(_current_state):
+OK   scripts/ui/ui_root.gd: func _handle_back_button() -> void:
+OK   scripts/ui/ui_root.gd: NOTIFICATION_WM_GO_BACK_REQUEST
+OK   scripts/ui/touch_action_button.gd: queue_redraw()
+			_fire()
+OK   scripts/ui/touch_controls.gd: if not resized.is_connected(_layout):
+OK   scripts/arena/arena_nav_grid.gd: if not (is_finite(p.x) and is_finite(p.z) and is
+OK   scripts/arena/arena_landmark.gd: push_error("ArenaLandmark: kind
+OK   scripts/arena/arena.gd: if ArenaObstacles.blocks_nav(landmark_box):
+OK   scripts/arena/arena.gd: if not theme.panorama_path.is_empty() and Resour
+OK   scripts/arena/hazard_instance.gd: if marker == null or not is_instance_valid(marke
+OK   scripts/arena/arena_hazards.gd: if not instance.position_is_sane():
+OK   scripts/arena/arena_hazards.gd: if not is_finite(delta) or delta <= 0.0:
+OK   scripts/utilities/radius_spatial_index.gd: clampi(cell, 0, cells_x - 1)
+OK   scripts/player/player_animation.gd: if anim == null or not is_finite(anim.length) or
+-- wave rules: authored mutators, one folded record, no Dictionary channels --
+OK   scripts/enemies/spawn_manager.gd: var _wave: WaveModifiers = WaveModifiers.neutral
+OK   scripts/enemies/spawn_manager.gd: func set_wave_modifiers(mods: WaveModifiers) -> 
+OK   scripts/enemies/spawn_manager.gd: manager.apply_effect(_wave.status_effect, _wave.
+OK   scripts/enemies/spawn_manager.gd: _wave.elite_bonus
+OK   scripts/enemies/spawn_manager.gd: _wave.explode_chance
+OK   scripts/waves/wave_manager.gd: WaveMutators.fold_into(mods, _active_mutators)
+OK   scripts/waves/wave_manager.gd: apply_count_nudge(queue, _wave_mods.count_bonus)
+OK   scripts/waves/wave_manager.gd: run.set_wave_modifiers(mods)
+OK   scripts/waves/difficulty_director.gd: func next_wave_multipliers() -> WaveModifiers
+OK   scripts/waves/wave_modifiers.gd: func clamp_bounds() -> void
+OK   scripts/waves/wave_modifiers.gd: func fold_mutator(cfg: WaveMutatorConfig) -> voi
+OK   scripts/core/run_scorekeeper.gd: _run.modifiers.score_mult
+OK   scripts/core/run_scorekeeper.gd: _run.modifiers.currency_mult
+OK   scripts/weapons/weapon_manager.gd: run.modifiers.player_damage_mult
+OK   scripts/core/run_state.gd: active_modifiers = modifiers.mutator_ids.duplica
+OK   scripts/core/content_loader.gd: _load_typed(&"res://data/mutators", &"mutators",
+OK   scripts/core/content_loader.gd: no WaveMutatorConfig resources
+OK   scripts/core/content_registry.gd: func get_wave_mutator(mutator_id: StringName) ->
+OK   scripts/enemies/spawn_manager.gd: no '_wave_mods'
+OK   scripts/enemies/spawn_manager.gd: no 'var _difficulty'
+OK   scripts/enemies/spawn_manager.gd: no '_difficulty.get('
+OK   scripts/waves/wave_manager.gd: no 'set_difficulty_scalars('
+OK   scripts/waves/wave_mutators.gd: no 'match mutator_id'
+OK   scripts/waves/wave_mutators.gd: no 'static func definition('
+OK   scripts/waves/wave_mutators.gd: no '"hp_mult"'
+OK   scripts/waves/wave_mutator_config.gd: no 'func _definition'
+OK   scripts/core/run_scorekeeper.gd: no '_wave_mods.get("'
+OK   scripts/weapons/weapon_manager.gd: no '_wave_mods.get("'
+OK   scripts/meta/daily_challenge.gd: no 'WaveMutators.ALL'
+OK   scripts/save/save_schema.gd: no 'hp_mult'
+-- run definitions: modes, the prestige ladder, and the arena's own voice --
+OK   scripts/arena/arena.gd: func set_landmark_block_half(half: Vector3) -> v
+OK   scripts/core/content_loader.gd: authors no lore_intro; the run start has nothing
+OK   scripts/arena/arena_obstacles.gd: static func blocks_nav(box: AABB) -> bool:
+OK   scripts/meta/narrator.gd: static func note_enemy_spawned(archetype_id: Str
+OK   scripts/meta/narrator.gd: static var _seen_archetypes: Dictionary[StringNa
+OK   scripts/meta/narrator.gd: return cfg.blurb if cfg != null else ""
+OK   scripts/enemies/enemy_config.gd: @export var blurb: String = ""
+OK   scripts/core/run_analytics.gd: Narrator.note_enemy_spawned(archetype_id)
+OK   scripts/waves/wave_manager.gd: max_simultaneous_enemies()
+OK   scripts/arena/arena.gd: for foot in _decoration_blockers
+OK   scripts/arena/arena.gd: func register_decoration_blockers
+OK   scripts/enemies/spawn_manager.gd: _stamp_wave_status_on_spawn(instance)
+OK   scripts/arena/arena_obstacles.gd: mesh.mesh = bm
+OK   scripts/arena/hazard_instance.gd: timer = minf(timer + delta, period)
+OK   tests/python/test_regress_final_sweep.py: class AttachedResourceTests
+OK   tests/python/test_regress_final_sweep.py: class EveryPathReturnsTests
+OK   scripts/meta/game_mode.gd: static func resolve(mode_id: StringName) -> Game
+OK   scripts/meta/game_mode.gd: static func definition(mode_id: StringName) -> G
+OK   scripts/meta/game_mode.gd: push_error("GameMode: unknown mode id
+OK   scripts/meta/game_mode.gd: cfg.plan_for_wave(w)
+OK   scripts/meta/game_mode.gd: out = WavePlanner.extended_queue_for_wave(asked,
+OK   scripts/meta/game_mode.gd: DirAccess.open("res://data/game_modes")
+OK   scripts/meta/game_mode_config.gd: func overrides_planner() -> bool
+OK   scripts/meta/game_mode_config.gd: func plan_for_wave(wave_number: int) -> GameMode
+OK   scripts/meta/game_mode_wave_plan.gd: func has_beat() -> bool
+OK   scripts/meta/prestige.gd: static func ladder() -> PrestigeLadderConfig
+OK   scripts/meta/prestige.gd: static func clamp_rank(rank: int) -> int
+OK   scripts/meta/prestige.gd: return &"unavailable"
+OK   scripts/meta/prestige.gd: return cfg.tier_for_rank(rank) if cfg != null el
+OK   scripts/meta/prestige_ladder_config.gd: func tier_index_for_rank(rank: int) -> int
+OK   scripts/meta/prestige_ladder_config.gd: func title_for(rank: int) -> String
+OK   scripts/meta/challenge_tier.gd: func validate() -> Array[String]
+OK   scripts/meta/narrator.gd: static func beat_text(mode_id: StringName, wave_
+OK   scripts/meta/narrator.gd: var beat := beat_text(mode_id, wave_number)
+OK   scripts/meta/narrator.gd: static func _arena(arena_id: StringName) -> Aren
+OK   scripts/arena/arena_config.gd: @export_multiline var lore_intro: String = ""
+OK   scripts/arena/arena_config.gd: func _lore_field(field: String) -> String
+OK   scripts/core/content_loader.gd: _load_typed(&"res://data/game_modes", &"game_mod
+OK   scripts/core/content_loader.gd: Missing prestige ladder
+OK   scripts/core/content_loader.gd: no GameModeConfig resources
+OK   scripts/core/content_loader.gd: which is not an authored weapon
+OK   scripts/core/content_loader.gd: spawns unknown archetype
+OK   scripts/core/content_registry.gd: func get_game_mode(mode_id: StringName) -> GameM
+OK   scripts/core/content_registry.gd: func get_prestige_ladder() -> PrestigeLadderConf
+OK   scripts/meta/meta_progression.gd: Prestige.clamp_rank(_prestige_rank + 1)
+OK   scripts/ui/run_setup_panel.gd: arena.lore_intro
+OK   scripts/ui/armory_panel.gd: Prestige.armory_completion_required()
+OK   scripts/ui/armory_panel.gd: Prestige.score_bonus_per_rank() * 100.0
+OK   scripts/save/save_schema.gd: Prestige.clamp_rank(
+OK   scripts/arena/arena.gd: no '_landmark_half'
+OK   scripts/arena/arena_hazards.gd: no 'else []'
+OK   scripts/arena/arena.gd: no '.has_area('
+OK   scripts/meta/narrator.gd: no 'const ENEMY_BLURBS'
+OK   scripts/meta/game_mode.gd: no 'const CATALOG'
+OK   scripts/meta/game_mode.gd: no 'static func def('
+OK   scripts/meta/game_mode.gd: no 'CHALLENGE_MUTATOR_POOL'
+OK   scripts/meta/game_mode.gd: no 'static func boss_interval'
+OK   scripts/meta/game_mode.gd: no 'static func narrator_id'
+OK   scripts/meta/game_mode.gd: no 'static func _survival_queue'
+OK   scripts/meta/game_mode.gd: no 'static func _defend_queue'
+OK   scripts/meta/game_mode.gd: no 'match mode_id'
+OK   scripts/meta/game_mode.gd: no '"score_mult":'
+OK   scripts/meta/prestige.gd: no 'const TITLES'
+OK   scripts/meta/prestige.gd: no 'const CHALLENGE_TIERS'
+OK   scripts/meta/prestige.gd: no 'const MAX_PRESTIGE'
+OK   scripts/meta/prestige.gd: no 'const PRESTIGE_COST_BASE'
+OK   scripts/meta/prestige.gd: no '.get('
+OK   scripts/meta/narrator.gd: no 'const ARENA_LORE'
+OK   scripts/meta/narrator.gd: no 'const MODE_INTRO'
+OK   scripts/meta/narrator.gd: no 'const CAMPAIGN_BEATS'
+OK   scripts/meta/narrator.gd: no 'const ENEMY_BLURBS'
+OK   scripts/meta/narrator.gd: no 'default_arena'
+OK   scripts/meta/narrator.gd: no 'GameMode.MODE_'
+OK   scripts/meta/narrator.gd: no 'match mode_id'
+OK   scripts/meta/game_mode_config.gd: no 'func _definition'
+OK   scripts/meta/game_mode_config.gd: no '"unlock_prestige"'
+-- @export_range editor enforcement on content configs --
+OK   scripts/enemies/enemy_config.gd: @export_range(0.0, 10000.0, 0.5) var max_health
+OK   scripts/enemies/enemy_config.gd: @export_range(0.05, 60.0, 0.05) var attack_coold
+OK   scripts/weapons/weapon_config.gd: @export_range(0.0, 10000.0, 0.5) var base_damage
+OK   scripts/weapons/weapon_config.gd: @export_range(0.0, 1.0, 0.01) var crit_chance
+OK   scripts/waves/wave_config.gd: @export_range(1, 60) var maximum_simultaneous_en
+OK   scripts/waves/wave_spawn_entry.gd: @export_range(0.0, 1.0, 0.01) var elite_chance
+OK   scripts/skills/skill_config.gd: @export_range(0.05, 300.0, 0.1) var cooldown
+OK   scripts/status/status_effect_config.gd: @export_range(0.0, 300.0, 0.05) var duration
+OK   scripts/pickups/pickup_config.gd: @export_range(0.0, 100.0, 0.1) var drop_weight
+OK   scripts/audio/audio_config.gd: @export_range(-80.0, 6.0, 0.1) var volume_db
+OK   scripts/arena/arena_config.gd: @export_range(0.0, 100.0, 0.1) var enemy_spawn_m
+OK   scripts/arena/hazard_config.gd: @export_range(0.25, 12.0, 0.05) var radius
+OK   scripts/arena/hazard_config.gd: @export_range(0.0, 60.0, 0.05) var period
+OK   scripts/arena/hazard_placement.gd: @export_range(0.0, 1.0, 0.01) var phase_jitter
+OK   scripts/arena/arena_theme_config.gd: @export_range(0.0, 0.2, 0.001) var fog_density
+OK   scripts/arena/arena_theme_config.gd: @export_range(0.2, 3.0, 0.01) var brightness
+OK   scripts/arena/arena_landmark_config.gd: @export_range(0.25, 4.0, 0.05) var scale
+OK   scripts/arena/arena_obstacle_placement.gd: @export_range(0.05, 8.0, 0.05) var half_size_x
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.05, 8.0, 0.05) var hp_mult
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.1, 8.0, 0.05) var score_mult
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.1, 8.0, 0.05) var currency_mult
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.1, 8.0, 0.05) var player_damage_
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.0, 0.5, 0.01) var elite_bonus
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0.0, 1.0, 0.01) var explode_chance
+OK   scripts/waves/wave_mutator_config.gd: @export_range(0, 64) var roll_order
+OK   scripts/waves/wave_mutator_config.gd: @export_range(1, 1000) var min_wave
+OK   scripts/meta/game_mode_config.gd: @export_range(0.05, 10.0, 0.01) var score_mult
+OK   scripts/meta/game_mode_config.gd: @export_range(0.05, 10.0, 0.01) var currency_mul
+OK   scripts/meta/game_mode_config.gd: @export_range(0, 200, 1) var max_waves
+OK   scripts/meta/game_mode_config.gd: @export_range(0.0, 3600.0, 1.0) var target_secon
+OK   scripts/meta/game_mode_config.gd: @export_range(0, 500, 1) var collect_target
+OK   scripts/meta/game_mode_config.gd: @export_range(0, 20, 1) var upgrade_every
+OK   scripts/meta/game_mode_config.gd: @export_range(-20, 20, 1) var planner_wave_offse
+OK   scripts/meta/game_mode_config.gd: @export_range(1, 200, 1) var planner_wave_floor
+OK   scripts/meta/game_mode_config.gd: @export_range(0, 20, 1) var every_n_waves
+OK   scripts/meta/game_mode_wave_plan.gd: @export_range(1, 200, 1) var wave_number
+OK   scripts/meta/prestige_ladder_config.gd: @export_range(1, 1000000, 1) var cost_base
+OK   scripts/meta/prestige_ladder_config.gd: @export_range(1, 40, 1) var max_rank
+OK   scripts/meta/prestige_ladder_config.gd: @export_range(0.0, 1.0, 0.001) var score_bonus_p
+OK   scripts/meta/prestige_ladder_config.gd: @export_range(0.0, 1.0, 0.001) var currency_bonu
+OK   scripts/meta/prestige_ladder_config.gd: @export_range(0.0, 1.0, 0.01) var armory_complet
+OK   scripts/meta/challenge_tier.gd: @export_range(0.05, 20.0, 0.01) var score_mult
+OK   scripts/meta/challenge_tier.gd: @export_range(0.05, 20.0, 0.01) var currency_mul
+OK   scripts/meta/challenge_tier.gd: @export_range(0, 12, 1) var mutator_count
+OK   scripts/meta/challenge_tier.gd: @export_range(1, 200, 1) var max_waves
+OK   scripts/meta/prestige_unlock.gd: @export_range(1, 40, 1) var unlock_rank
+OK   scripts/enemies/boss_phase_config.gd: @export_range(0.01, 1.0, 0.01) var threshold
+OK   scripts/player/health_component.gd: @export_range(1.0, 100000.0, 1.0) var max_health
+-- the theater stays dead --
+OK   scripts/: no _validated_/_guarded_/_safe_emit functions
+
+Passed 201, Failed 0
+
+=== check_engine_api (exit 0) ===
+  [unsafe] scripts/combat/combat_query.gd:63: `Node` has no member `global_position` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/enemies/enemy_animator.gd:110: `Node` has no member `visible` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/meta/achievements.gd:181: `Node` has no member `damaged` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/meta/achievements.gd:182: `Node` has no member `damaged` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:188: `InputEvent` has no member `echo` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:188: `InputEvent` has no member `pressed` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:190: `InputEvent` has no member `keycode` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:190: `InputEvent` has no member `physical_keycode` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:196: `InputEvent` has no member `keycode` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:196: `InputEvent` has no member `physical_keycode` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/settings_panel.gd:198: `InputEvent` has no member `pressed` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/ui_root.gd:352: `Node` has no member `global_position` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/virtual_joystick.gd:247: `InputEvent` has no member `index` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/ui/virtual_joystick.gd:247: `InputEvent` has no member `pressed` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/visuals/character_visuals.gd:275: `Node` has no member `visible` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] scripts/visuals/character_visuals.gd:60: `Node` has no member `report_diagnostic` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/run_player_tests.gd:25: `RefCounted` has no member `run` — dynamic/unsafe access; the name exists elsewhere (nearest on RefCounted: `tr_n`)
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:140: `Node` has no member `collision_layer` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:140: `Node` has no member `collision_mask` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:245: `Node` has no member `model_scene` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:246: `Node` has no member `model_scene` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:247: `Node` has no member `animation_map` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:247: `Node` has no member `model_extent` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:247: `Node` has no member `yaw_offset_degrees` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:252: `Node` has no member `animation_map` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:252: `Node` has no member `model_extent` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:252: `Node` has no member `yaw_offset_degrees` — dynamic/unsafe access; the name exists elsewhere
+  [unsafe] tests/unit/test_enemy_scene_inheritance.gd:266: `Node` has no member `phase_plan` — dynamic/unsafe access; the name exists elsewhere
+engine-api contract: clean (286 GDScripts + scenes/resources checked against Godot 4.4.1-stable ClassDB, 994 classes; 28 unsafe-access warnings reported)
+
+=== check_scene_paths (exit 0) ===
+scene-path contract: clean (19 scenes, 175 node paths; 74 hard get_node + 177 get_node_or_null literals resolved, 8 scene-authored NodePath props verified, 9 dynamic arguments skipped, cast compatibility checked against godot_api_manifest.json)
+
+=== check_string_formats (exit 0) ===
+string-format contract: clean (949 format uses checked: 401 array-form, 548 scalar-form; placeholder syntax, arity and literal types verified against the 4.4.1-stable String::sprintf rules)
+
+=== check_signals (exit 0) ===
+signal contract: clean (153 self-signal ops, 225 autoload-receiver ops, 5 legacy string forms, 331 dynamic receivers skipped, 310 unsafe-access warnings; emit arity and connect-callable arity checked against project declarations and the godot_api_manifest.json engine signals)
+
+=== validate_assets (exit 0) ===
+Assets OK: 128 3D models, 135 PNGs, 46 audio files, 2 fonts; all dependencies, character animations, upgrade icons and cue mappings present.
+
+=== locked asset verification (exit 0) ===
+Assets: 265/265 verified, 0 failed (49.89 MiB approved).

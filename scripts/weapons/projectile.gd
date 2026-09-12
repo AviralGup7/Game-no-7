@@ -325,7 +325,7 @@ func _resolve_hit(body: Node) -> void:
 	_hit_bodies.append(body)
 	var payload := DamagePayload.new()
 	payload.amount = damage
-	payload.source = source
+	payload.source = source if is_instance_valid(source) else null
 	payload.source_id = source_id
 	payload.damage_type = damage_type
 	payload.can_crit = false

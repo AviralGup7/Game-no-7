@@ -24,7 +24,7 @@ func set_profile(profile: CameraProfile) -> void:
 
 
 func handle_mouse_motion(event: InputEventMouseMotion) -> void:
-	if event == null:
+	if event == null or event.device == InputEvent.DEVICE_ID_EMULATION:
 		return
 	# Left-button motion is the movement stick (emulate_mouse_from_touch).
 	# Look is the other finger (ScreenDrag) or RMB / captured mouse.

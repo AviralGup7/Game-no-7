@@ -11,6 +11,7 @@ extends Node
 ##
 ##   godot --headless --path . --script res://tests/soak_runtime.gd
 
+const AudioProbe = preload("res://tests/doubles/audio_probe.gd")
 const MAIN_SCENE := "res://scenes/main/main.tscn"
 const SOAK_SECONDS := 360.0
 const SAMPLE_SECONDS := 15.0
@@ -67,11 +68,7 @@ func _descendants(node: Node) -> int:
 
 
 func _audio_playing() -> int:
-	var n := 0
-	for p in AudioManager._sfx_pool:
-		if (p as AudioStreamPlayer).playing:
-			n += 1
-	return n
+	return int(AudioProbe.snapshot()["total"])
 
 
 func _sample(tag: String) -> Dictionary:
@@ -190,7 +187,7 @@ func _run() -> void:
 	for sig in _bus_menu.keys():
 		if int(bus_now.get(sig, -1)) != int(_bus_menu[sig]):
 			drift.append(sig)
-	print("  SOAK bus drift vs boot: %s (tutorial trio expected once)" % str(drift))
+	_check("soak leaves no bus subscription drift", drift.is_empty(), str(drift))
 	# Fresh short run proves the game still starts clean after the soak.
 	start_btn = _find_button(_ui()._menu, "START RUN")
 	start_btn.pressed.emit()
@@ -303,4 +300,6 @@ func _finish() -> void:
 		get_tree().current_scene.queue_free()
 		await get_tree().process_frame
 		await get_tree().process_frame
+	AudioProbe.stop()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(code)

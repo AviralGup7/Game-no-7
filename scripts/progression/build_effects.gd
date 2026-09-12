@@ -43,13 +43,14 @@ var _seed := 1
 var _kill_counter := 0
 var _enabled := true
 var _handling_hit := false  # re-entry guard for chain/execute cascades
+var _static_acc := 0.0
 
 
 func bind(player: Player, progression: ProgressionComponent, run_seed: int = 1) -> void:
+	isolate_run()
 	_player = player
 	_progression = progression
-	_seed = run_seed if run_seed != 0 else 1
-	_wire_signals()
+	configure(run_seed)
 
 
 func configure(run_seed: int) -> void:
@@ -57,6 +58,10 @@ func configure(run_seed: int) -> void:
 	_trails.clear()
 	_clear_summons()
 	_kill_counter = 0
+	_static_acc = 0.0
+	_handling_hit = false
+	_enabled = true
+	_wire_signals()
 
 
 func set_enabled(enabled: bool) -> void:
@@ -64,7 +69,7 @@ func set_enabled(enabled: bool) -> void:
 
 
 func _wire_signals() -> void:
-	if _player == null:
+	if _player == null or not is_instance_valid(_player):
 		return
 	if _player.has_signal("dodged") and not _player.dodged.is_connected(_on_player_dodged):
 		_player.dodged.connect(_on_player_dodged)
@@ -80,6 +85,15 @@ func _wire_signals() -> void:
 
 
 func _exit_tree() -> void:
+	isolate_run()
+
+
+## GAME_OVER keeps WorldRoot alive behind the summary. Stop all pulses and
+## release subscriptions/summons now, not only when the player is later freed.
+func isolate_run() -> void:
+	_enabled = false
+	_trails.clear()
+	_static_acc = 0.0
 	if _player != null and is_instance_valid(_player):
 		if _player.has_signal("dodged") and _player.dodged.is_connected(_on_player_dodged):
 			_player.dodged.disconnect(_on_player_dodged)
@@ -95,6 +109,8 @@ func _exit_tree() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not _enabled or not is_finite(delta) or delta <= 0.0:
+		return
+	if _player == null or not is_instance_valid(_player) or not _player.is_alive():
 		return
 	_tick_trails(delta)
 	_tick_summons(delta)
@@ -137,6 +153,12 @@ func _on_enemy_damaged(enemy: Node, result: DamageResult) -> void:
 
 func _handle_offensive_hit(target: Node, result: DamageResult) -> void:
 	if not _enabled or result == null or not result.accepted:
+		return
+	if _player == null or not is_instance_valid(_player) or not _player.is_alive():
+		return
+	if result.source != _player or not is_finite(result.final_amount) or result.final_amount <= 0.0:
+		return
+	if target == null or not is_instance_valid(target):
 		return
 	# Guard against re-entry from chain/execute damage we ourselves deal.
 	if _handling_hit:
@@ -188,7 +210,8 @@ func _chain_from(origin_target: Node3D, base_damage: float) -> void:
 	if not is_inside_tree():
 		return
 	var candidates := get_tree().get_nodes_in_group("enemies")
-	var exclude: Array = [origin_target]
+	# This is a bounce FROM an already-hit target, not a second hit on it.
+	candidates.erase(origin_target)
 	var dmg := base_damage * CHAIN_DAMAGE_RATIO * float(_stacks(EFFECT_CHAIN_MELEE))
 	AreaDamage.apply_chain(
 		candidates,
@@ -202,8 +225,6 @@ func _chain_from(origin_target: Node3D, base_damage: float) -> void:
 		&"chain_melee",
 		&"shock"
 	)
-	# apply_chain already damages; exclude unused but kept for clarity.
-	exclude.clear()
 
 
 func _spawn_trail(pos: Vector3, kind: StringName, ttl: float) -> void:
@@ -294,7 +315,6 @@ func _spawn_summon(at: Vector3) -> void:
 		return
 	var root := Node3D.new()
 	root.name = "TempAlly"
-	root.position = Vector3(at.x, 0.1, at.z)
 	var disc := MeshInstance3D.new()
 	var cyl := CylinderMesh.new()
 	cyl.top_radius = 1.2
@@ -312,6 +332,7 @@ func _spawn_summon(at: Vector3) -> void:
 	# Parent under the world root (player's parent) so it survives player motion.
 	var host: Node = _player.get_parent() if _player.get_parent() != null else self
 	host.add_child(root)
+	root.global_position = Vector3(at.x, 0.1, at.z)
 	_summons.append({
 		"node": root,
 		"ttl": SUMMON_DURATION * float(_stacks(EFFECT_KILL_SUMMON)),
@@ -356,13 +377,10 @@ func _tick_static_field(delta: float) -> void:
 	# Accumulate and pulse once per second around the player.
 	if _player == null or not (_player is Node3D) or not is_inside_tree():
 		return
-	if not has_meta("_static_acc"):
-		set_meta("_static_acc", 0.0)
-	var acc := float(get_meta("_static_acc")) + delta
-	if acc < 1.0:
-		set_meta("_static_acc", acc)
+	_static_acc += delta
+	if _static_acc < 1.0:
 		return
-	set_meta("_static_acc", 0.0)
+	_static_acc = 0.0
 	var victims := get_tree().get_nodes_in_group("enemies")
 	AreaDamage.apply_radial(
 		victims, (_player as Node3D).global_position, STATIC_FIELD_RADIUS,

@@ -10,6 +10,7 @@ extends Node
 ##   godot --headless --path . --script res://tests/stress_systems.gd
 ## Exit code 0 only when every check passes. Run with isolated XDG_DATA_HOME.
 
+const AudioProbe = preload("res://tests/doubles/audio_probe.gd")
 const MAIN_SCENE := "res://scenes/main/main.tscn"
 const BASIC_ENEMY := "res://scenes/enemies/basic_enemy.tscn"
 
@@ -94,18 +95,7 @@ func _buttons_with(root: Node, token: String) -> Array:
 
 
 func _sfx_snapshot() -> Dictionary:
-	var by_cue := {}
-	var total := 0
-	var unknowns := 0
-	for p in AudioManager._sfx_pool:
-		if (p as AudioStreamPlayer).playing:
-			total += 1
-			var cue := _cue_for_stream((p as AudioStreamPlayer).stream)
-			if cue == &"":
-				unknowns += 1
-			else:
-				by_cue[String(cue)] = int(by_cue.get(String(cue), 0)) + 1
-	return {"total": total, "unknowns": unknowns, "by_cue": by_cue}
+	return AudioProbe.snapshot()
 
 
 func _cue_for_stream(stream: AudioStream) -> StringName:
@@ -118,8 +108,7 @@ func _cue_for_stream(stream: AudioStream) -> StringName:
 
 
 func _stop_all_sfx() -> void:
-	for p in AudioManager._sfx_pool:
-		(p as AudioStreamPlayer).stop()
+	AudioProbe.stop()
 
 
 func _count(snapshot: Dictionary, cue: String) -> int:
@@ -213,7 +202,10 @@ func _verify_lifecycle(tag: String, expect_state: StringName, expect_paused: boo
 	else:
 		if _bus_baseline_run.is_empty():
 			_bus_baseline_run = _bus_census()
-		base = _bus_baseline_run
+		base = _bus_baseline_run.duplicate()
+		if expect_state == GameRoot.State.GAME_OVER:
+			# ObjectiveDirector disconnects its live-wave callback on isolation.
+			base["wave_completed"] = int(base["wave_completed"]) - 1
 	var now := _bus_census()
 	var drift := []
 	for sig in base.keys():
@@ -334,7 +326,10 @@ func _button_table(root: Node) -> Dictionary:
 	var out := {}
 	for b in _all_buttons(root):
 		var btn := b as Button
-		out[String(btn.text)] = (btn.pressed.get_connections() as Array).size()
+		var connections := btn.pressed.get_connections().size()
+		if btn.toggle_mode:
+			connections += btn.toggled.get_connections().size()
+		out[String(btn.text)] = connections
 	return out
 
 
@@ -659,11 +654,19 @@ func _audio_sweep() -> void:
 		var snap := _sfx_snapshot()
 		_check("cue %s plays once" % cue, snap["total"] == 1 and _count(snap, String(cue)) == 1, str(snap))
 		await _wait_for(func() -> bool: return int(_sfx_snapshot()["total"]) == 0, 6.0)
-	# Bulk: every remaining SFX cue fires without error and settles.
+	# Bounded batches test simultaneous cues without deliberately overfilling
+	# the 16-voice bank and then treating its expected backpressure as a fault.
+	var batch := 0
+	_stop_all_sfx()
 	for cue in sfx_cues:
 		if cue in key_cues:
 			continue
-		AudioManager.play_sfx(cue, -8.0)
+		_check("bulk cue accepted %s" % cue, AudioManager.play_sfx(cue, -8.0))
+		batch += 1
+		if batch == 8:
+			await _wait_for(func() -> bool: return int(_sfx_snapshot()["total"]) == 0, 10.0)
+			_stop_all_sfx()
+			batch = 0
 	await _wait_for(func() -> bool: return int(_sfx_snapshot()["total"]) == 0, 10.0)
 	_check("bulk cues settle silent", int(_sfx_snapshot()["total"]) == 0, str(_sfx_snapshot()["by_cue"]))
 	_check("pool still 16", (AudioManager._sfx_pool as Array).size() == 16)
@@ -794,4 +797,6 @@ func _finish() -> void:
 		get_tree().current_scene.queue_free()
 		await get_tree().process_frame
 		await get_tree().process_frame
+	AudioProbe.stop()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(code)

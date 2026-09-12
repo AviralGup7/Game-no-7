@@ -69,7 +69,7 @@ func is_valid() -> bool:
 func with_amount(new_amount: float) -> DamagePayload:
 	var copy := DamagePayload.new()
 	copy.amount = maxf(new_amount, 0.0)
-	copy.source = source
+	copy.source = source if is_instance_valid(source) else null
 	copy.source_id = source_id
 	copy.damage_type = damage_type
 	copy.knockback = knockback

@@ -24,7 +24,7 @@ func _ready() -> void:
 	_name_label = Label.new()
 	_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_name_label.add_theme_font_size_override("font_size", 22)
-	_name_label.add_theme_font_override("font", UiTheme.BOLD)
+	_name_label.add_theme_font_override("font", UiTheme.bold_font)
 	_name_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_name_label.add_theme_constant_override("outline_size", 5)
 	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -94,6 +94,8 @@ func _on_boss_spawned(boss: Node, _boss_id: StringName) -> void:
 			_on_health_changed(_health.current_health, _health.max_health)
 		if not enemy.died.is_connected(_on_boss_died):
 			enemy.died.connect(_on_boss_died)
+		if not enemy.tree_exiting.is_connected(_on_boss_died):
+			enemy.tree_exiting.connect(_on_boss_died)  # Streaming is a UI unbind, not a kill.
 	visible = true
 	_fade_to(1.0, 0.25)
 
@@ -167,6 +169,8 @@ func _unbind() -> void:
 		_health.health_changed.disconnect(_on_health_changed)
 	if _boss != null and is_instance_valid(_boss) and _boss.died.is_connected(_on_boss_died):
 		_boss.died.disconnect(_on_boss_died)
+	if is_instance_valid(_boss) and _boss.tree_exiting.is_connected(_on_boss_died):
+		_boss.tree_exiting.disconnect(_on_boss_died)
 	_boss = null
 	_health = null
 

@@ -97,7 +97,7 @@ static func resolve_swing(origin: Vector3, facing: Vector3, candidates: Array, w
 	for v in victims:
 		var payload := DamagePayload.new()
 		payload.amount = base_damage
-		payload.source = source
+		payload.source = source if is_instance_valid(source) else null
 		payload.source_id = weapon.config.weapon_id if weapon.config != null else &"melee"
 		payload.damage_type = weapon.config.damage_type if weapon.config != null else &"physical"
 		payload.can_crit = false  # already resolved at swing level

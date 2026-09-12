@@ -9,8 +9,8 @@ referencing `SubResource("id")` pools from the parent file. It also checks the t
 the text-format reader is stricter than GDScript, both of which shipped broken resources
 this tool could previously not see: an authored value constructor that is not a flat,
 complete list of numbers (`Color(r, g, b)` is legal code and a parse error in a .tres),
-and non-ASCII bytes in a resource file (the reader is Latin-1 oriented; Godot's writer
-emits `\uXXXX` escapes and the reader reverses them). Sub-resource ids are
+and Unicode escape sequences that Godot 4.4.1's text reader mishandles. Resource
+text is UTF-8; raw Unicode is valid, including non-ASCII display copy. Sub-resource ids are
 file-local: a child scene must declare what it references (or edit the base), the
 editor's `[editable]` sections being the one sanctioned cross-file pointer.
 
@@ -52,11 +52,10 @@ NUM_RE = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 VALUE_RE = re.compile(
     r"\b(" + "|".join(ENGINE_ARITY) + r")\(([^()]*)\)")
 
-# The text reader is Latin-1 oriented: a raw em dash in an authored string is reported as
-# "Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1".
-# Godot's own writer escapes non-ASCII as \uXXXX, and the reader unescapes it — so escaping is not a
-# workaround, it is the file format. (GDScript source is a different story: scripts are read as UTF-8,
-# which is why a literal em dash in narrator.gd stays.)
+# Native 4.4.1 testing contradicts the former ASCII-only rule: literal UTF-8
+# loads cleanly, while escaped high codepoints emit Unicode parsing errors.
+# Match complete escapes so an escaped backslash remains literal text.
+TEXT_ESCAPE_RE = re.compile(r"\\(u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|.)")
 
 
 def load_steps_from(header_line: str) -> int | None:
@@ -69,6 +68,9 @@ def check_file(path: str, problems: list[str]) -> None:
     with open(path, "r", encoding="utf-8") as fh:
         lines = fh.readlines()
 
+    if not lines:
+        problems.append(f"{rel}: empty resource file")
+        return
     first = lines[0].strip()
     hm = HEADER_RE.match(first)
     if not hm:
@@ -161,16 +163,17 @@ def check_file(path: str, problems: list[str]) -> None:
                     f"neither does anything that references it)"
                 )
 
-    # --- ASCII-only authored text --------------------------------------------------------------
+    # --- Godot text encoding (not Python/JSON string encoding) -----------------
     for lineno, raw in enumerate(lines, 1):
-        odd = sorted({ord(c) for c in raw if ord(c) > 127})
-        if odd:
-            names = ", ".join("U+%04X" % c for c in odd)
-            form = "".join("\\u%04x" % c for c in odd)
-            problems.append(
-                f"{rel}:{lineno}: non-ASCII {names} in a resource file - write it as {form}, which is "
-                f"what Godot's own writer emits and what the Latin-1 text reader expects"
-            )
+        if raw.lstrip().startswith(("#", ";")):
+            continue
+        for escape in TEXT_ESCAPE_RE.finditer(raw):
+            code = escape.group(1)
+            if code[0] in ("u", "U") and int(code[1:], 16) > 127:
+                problems.append(
+                    f"{rel}:{lineno}: escaped Unicode {escape.group(0)!r} is not portable to "
+                    f"Godot 4.4.1's text reader; write the character directly as UTF-8"
+                )
 
     declared = len(ext_resources)
     expected_steps = declared + sub_count + 1

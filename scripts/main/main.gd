@@ -277,6 +277,15 @@ func _create_run_systems(arena: Arena, player: Player) -> void:
 	if GameRoot != null:
 		mode_id = GameRoot.get_run_mode()
 	hazards.apply_mode_pressure(mode_id)
+	# The authored start can overlap a spike strip, and dressing adds solid
+	# props after _spawn_player. Settle the final pose before the first physics
+	# tick, once BOTH the hazard layout and decorated nav grid are authoritative.
+	player.global_transform = arena.get_safe_player_spawn()
+	player.velocity = Vector3.ZERO
+	player.reset_physics_interpolation()
+	var camera := _world_root.get_node_or_null("CameraRig") as CameraRig
+	if camera != null:
+		camera.reset_transform()
 
 	# Agent 4 presentation: pooled VFX director (impact/death/wave/status feedback).
 	var effects := EffectDirector.new()
@@ -376,7 +385,7 @@ func _attach_build_effects(player: Player, run_seed: int) -> void:
 		return
 	var existing := player.get_node_or_null("BuildEffects") as BuildEffects
 	if existing != null:
-		existing.configure(run_seed)
+		existing.bind(player, player.get_progression_component(), run_seed)
 		return
 	var fx := BuildEffects.new()
 	fx.name = "BuildEffects"

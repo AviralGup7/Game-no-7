@@ -301,15 +301,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_input_handler.handle_mouse_motion(event as InputEventMouseMotion)
 	elif event is InputEventScreenTouch:
 		_handle_look_touch(event as InputEventScreenTouch)
-	elif event is InputEventScreenDrag:
-		# Second finger on the right starts look. The movement stick's finger
-		# never does, even if it drags across the look half.
-		var drag := event as InputEventScreenDrag
-		if drag.index == _look_touch_index:
-			pass
-		elif _look_touch_index < 0 and _is_look_zone(drag.position) and not _is_move_stick_finger(drag.index):
-			_look_touch_index = drag.index
-			_apply_touch_look(drag)
+	# ScreenDrag never starts a gesture. Only an unhandled fresh touch-down
+	# in empty look space may capture a finger, not a drag leaving FIRE/skills.
 	# lock_on is owned by Player.request_lock_on — handling it here as well
 	# double-toggled every press (lock then immediately unlock).
 	if event.is_action_pressed("camera_reset"):
@@ -323,22 +316,40 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch:
 		var touch := event as InputEventScreenTouch
-		if touch.index == _look_touch_index and not touch.pressed:
-			_look_touch_index = -1
+		if touch.index == _look_touch_index:
+			if touch.canceled:
+				cancel_touch_input()
+			elif not touch.pressed:
+				_look_touch_index = -1
 	elif event is InputEventScreenDrag:
 		var drag := event as InputEventScreenDrag
-		if drag.index == _look_touch_index:
+		if drag.index == _look_touch_index and not _is_move_stick_finger(drag.index):
 			_apply_touch_look(drag)
 
 
 func _handle_look_touch(touch: InputEventScreenTouch) -> void:
 	if touch == null:
 		return
+	if touch.canceled:
+		if touch.index == _look_touch_index:
+			cancel_touch_input()
+		return
 	if touch.pressed:
 		if _look_touch_index < 0 and _is_look_zone(touch.position) and not _is_move_stick_finger(touch.index):
 			_look_touch_index = touch.index
 	elif touch.index == _look_touch_index:
 		_look_touch_index = -1
+
+
+func cancel_touch_input() -> void:
+	_look_touch_index = -1
+	_input_handler.reset()
+
+
+func _notification(what: int) -> void:
+	if what in [NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT,
+		NOTIFICATION_WM_WINDOW_FOCUS_OUT, NOTIFICATION_PAUSED]:
+		cancel_touch_input()
 
 
 func _is_move_stick_finger(index: int) -> bool:

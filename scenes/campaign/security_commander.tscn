@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/enemies/warlord_enemy.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scripts/enemies/boss_phase_config.gd" id="2_phase"]
+
+[sub_resource type="Resource" id="Phase_lockdown"]
+script = ExtResource("2_phase")
+phase_name = "Lockdown"
+threshold = 1.0
+damage_mult = 1.0
+speed_mult = 1.0
+abilities = Array[StringName]([&"slam"])
+ability_interval = 4.5
+
+[sub_resource type="Resource" id="Phase_containment"]
+script = ExtResource("2_phase")
+phase_name = "Containment"
+threshold = 0.66
+damage_mult = 1.15
+speed_mult = 1.1
+abilities = Array[StringName]([&"slam", &"charge"])
+ability_interval = 4.0
+
+[sub_resource type="Resource" id="Phase_last_protocol"]
+script = ExtResource("2_phase")
+phase_name = "Last protocol"
+threshold = 0.33
+damage_mult = 1.3
+speed_mult = 1.2
+abilities = Array[StringName]([&"charge", &"shockwave"])
+ability_interval = 3.6
+
+[node name="SecurityCommander" instance=ExtResource("1_base")]
+
+[node name="BossController" parent="."]
+phase_plan = Array[BossPhaseConfig]([SubResource("Phase_lockdown"), SubResource("Phase_containment"), SubResource("Phase_last_protocol")])

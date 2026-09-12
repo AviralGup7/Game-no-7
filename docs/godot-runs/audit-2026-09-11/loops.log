@@ -1,0 +1,754 @@
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+STRESS LOOPS: booting real game
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+  CENSUS boot.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 393, "frame": 16 }
+STRESS LOOPS: loop 1
+  PASS: L1 state is main_menu
+  PASS: L1 START RUN exists
+  PASS: L1 ENTER ARENA enabled
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2687480384 mode=standard arena=default_arena seed=3479655994
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L1 run reaches PLAYING
+  CENSUS L1.start: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 3, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 2, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1146, "frame": 20 }
+  CENSUS L1.start playing: { "wave_started": 1, "enemy_spawn": 1 }
+  PASS: L1 player exists
+  PASS: L1 player position valid
+  PASS: L1 arena valid
+  PASS: L1 PlayerStart present
+  PASS: L1 player spawned at PlayerStart
+  PASS: L1 player lands on floor
+  PASS: L1 camera rig exists
+  PASS: L1 camera targets player
+  PASS: L1 camera near player
+  PASS: L1 player animated
+  PASS: L1 clear movement lane exists
+  PASS: L1 player moved under input
+  PASS: L1 player stayed valid
+  PASS: L1 player stayed grounded
+  PASS: L1 camera followed player
+  PASS: L1 wave spawned enemies
+  PASS: L1 wave_started emitted
+  PASS: L1 live enemies present
+  PASS: L1 enemy animations playing
+  PASS: L1 enemy models mounted
+  CENSUS L1.mid: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 0, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1083, "frame": 173 }
+  PASS: L1 Knight wrapper mounted
+  PASS: L1 Knight model present
+  PASS: L1 Knight has meshes
+  PASS: L1 Knight meshes visible
+  PASS: L1 no stale fallback Body alongside model
+  PASS: L1 ground shadow present
+  PASS: L1 shadow planted on mount
+  PASS: L1 shadow follows player
+  PASS: L1 Knight skeleton present
+  PASS: L1 equipment socket bound
+  PASS: L1 mount idempotent (no double-model)
+  PASS: L1 bogus role mount returns null
+  PASS: L1 container clear before barrage
+  PASS: L1 barrage spawned 12
+  PASS: L1 barrage enemies move
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  PASS: L1 barrage all freed
+  PASS: L1 barrage hit accepted
+  PASS: L1 barrage hit flash on
+[LastStand][soak] t=5s fps=42 min=1 enemies=1 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=42 min=1 enemies=1 peak=12 wave=1 hp=100/100
+  PASS: L1 barrage telegraph on
+  PASS: L1 recolor keeps materials
+[diagnostic] Enemy basic died
+  PASS: L1 barrage lethal kills
+  PASS: L1 barrage corpse freed
+  PASS: L1 level-up triggers
+  PASS: L1 level-up sting once
+  PASS: L1 leveled_up signal once
+  PASS: L1 invalid weapon slot declined
+  PASS: L1 invalid switch emits nothing
+  PASS: L1 single loadout switch graceful
+  PASS: L1 firearm shot audible
+  PASS: L1 skill controller present
+  PASS: L1 warcry config exists
+  PASS: L1 skill assigned+unlocked
+  PASS: L1 skill casts
+  PASS: L1 skill_cast emitted
+  PASS: L1 cooldown starts
+  PASS: L1 cooldown blocks recast
+  PASS: L1 skill_became_ready once
+  PASS: L1 slot ready again
+  PASS: L1 skill input action casts
+  PASS: L1 projectile pool present
+  PASS: L1 5 projectiles active
+  PASS: L1 projectiles recycle
+  PASS: L1 pool stays bounded
+  PASS: L1 idle restored
+  PASS: L1 pickup manager present
+  PASS: L1 pickup auto-collects at feet
+  PASS: L1 pickup drop+collect once each
+  PASS: L1 distant pickup exists
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/EffectDirector/@Node3D@637/Disc" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+[LastStand][soak] t=10s fps=60 min=1 enemies=0 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=60 min=1 enemies=0 peak=12 wave=1 hp=100/100
+  PASS: L1 pickup magnet collects
+  PASS: L1 effect director present
+  PASS: L1 damage layer present
+  PASS: L1 vfx children bounded
+  PASS: L1 damage numbers capped
+  PASS: L1 damage numbers settle
+  PASS: L1 vfx settle
+  PASS: L1 boss starts in Awakening
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L1 boss sting once
+  PASS: L1 boss bar shown
+  PASS: L1 boss hp halved
+  PASS: L1 boss phase Fury
+  PASS: L1 Fury sting once
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L1 boss killed
+  PASS: L1 boss slain sting once
+  PASS: L1 boss bar hides
+  PASS: L1 boss freed
+  CENSUS L1.boss: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 0, "audio_pool": 16, "music_state": "battle", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1111, "frame": 907 }
+  PASS: L1 HUD responsive
+  PASS: L1 paused
+  PASS: L1 resume exists
+  PASS: L1 resumed
+  PASS: L1 pause_changed x2
+  PASS: L1 player present at end
+[LastStand][soak] END wave=1 samples=2 min_fps=1 peak_enemies=12 elapsed=15s
+[diagnostic] [LastStand][soak] END wave=1 samples=2 min_fps=1 peak_enemies=12 elapsed=15s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L1 sting once
+  PASS: L1 death once
+  PASS: L1 player_died once
+  PASS: L1 state game_over
+  CENSUS L1.over: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 2, "audio_pool": 16, "music_state": "victory", "music_players": 2, "arena": true, "player": true, "ui_screen": "game_over", "total_nodes": 1117, "frame": 919 }
+  CENSUS L1.over playing: { "game_over": 1 }
+  PASS: L1 run_ended once
+  PASS: L1 victory bed
+[diagnostic] Entered main menu
+  PASS: L1 back at menu
+  CENSUS L1.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 941 }
+  PASS: L1 run_started once
+  PASS: L1 no settings churn
+  PASS: L1 EventBus connections stable
+STRESS LOOPS: loop 2
+  PASS: L2 state is main_menu
+  PASS: L2 START RUN exists
+  PASS: L2 ENTER ARENA enabled
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 499495159 mode=standard arena=default_arena seed=2587676940
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L2 run reaches PLAYING
+  CENSUS L2.start: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 3, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 2, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1152, "frame": 943 }
+  CENSUS L2.start playing: { "wave_started": 1, "enemy_spawn": 1 }
+  PASS: L2 player exists
+  PASS: L2 player position valid
+  PASS: L2 arena valid
+  PASS: L2 PlayerStart present
+  PASS: L2 player spawned at PlayerStart
+  PASS: L2 player lands on floor
+  PASS: L2 camera rig exists
+  PASS: L2 camera targets player
+  PASS: L2 camera near player
+  PASS: L2 player animated
+  PASS: L2 clear movement lane exists
+  PASS: L2 player moved under input
+  PASS: L2 player stayed valid
+  PASS: L2 player stayed grounded
+  PASS: L2 camera followed player
+  PASS: L2 wave spawned enemies
+  PASS: L2 wave_started emitted
+  PASS: L2 live enemies present
+  PASS: L2 enemy animations playing
+  PASS: L2 enemy models mounted
+  CENSUS L2.mid: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 0, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1089, "frame": 1096 }
+  PASS: L2 Knight wrapper mounted
+  PASS: L2 Knight model present
+  PASS: L2 Knight has meshes
+  PASS: L2 Knight meshes visible
+  PASS: L2 no stale fallback Body alongside model
+  PASS: L2 ground shadow present
+  PASS: L2 shadow planted on mount
+  PASS: L2 shadow follows player
+  PASS: L2 Knight skeleton present
+  PASS: L2 equipment socket bound
+  PASS: L2 mount idempotent (no double-model)
+  PASS: L2 bogus role mount returns null
+  PASS: L2 container clear before barrage
+  PASS: L2 barrage spawned 12
+  PASS: L2 barrage enemies move
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  PASS: L2 barrage all freed
+  PASS: L2 barrage hit accepted
+  PASS: L2 barrage hit flash on
+[LastStand][soak] t=5s fps=59 min=3 enemies=1 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=59 min=3 enemies=1 peak=12 wave=1 hp=100/100
+  PASS: L2 barrage telegraph on
+  PASS: L2 recolor keeps materials
+[diagnostic] Enemy basic died
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/PickupManager/@Area3D@806/Visual/Mesh" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: L2 barrage lethal kills
+  PASS: L2 barrage corpse freed
+  PASS: L2 level-up triggers
+  PASS: L2 level-up sting once
+  PASS: L2 leveled_up signal once
+  PASS: L2 invalid weapon slot declined
+  PASS: L2 invalid switch emits nothing
+  PASS: L2 single loadout switch graceful
+  PASS: L2 firearm shot audible
+  PASS: L2 skill controller present
+  PASS: L2 warcry config exists
+  PASS: L2 skill assigned+unlocked
+  PASS: L2 skill casts
+  PASS: L2 skill_cast emitted
+  PASS: L2 cooldown starts
+  PASS: L2 cooldown blocks recast
+  PASS: L2 skill_became_ready once
+  PASS: L2 slot ready again
+  PASS: L2 skill input action casts
+  PASS: L2 projectile pool present
+  PASS: L2 5 projectiles active
+  PASS: L2 projectiles recycle
+  PASS: L2 pool stays bounded
+  PASS: L2 idle restored
+  PASS: L2 pickup manager present
+  PASS: L2 pickup auto-collects at feet
+  PASS: L2 pickup drop+collect once each
+  PASS: L2 distant pickup exists
+[LastStand][soak] t=10s fps=60 min=3 enemies=0 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=60 min=3 enemies=0 peak=12 wave=1 hp=100/100
+  PASS: L2 pickup magnet collects
+  PASS: L2 effect director present
+  PASS: L2 damage layer present
+  PASS: L2 vfx children bounded
+  PASS: L2 damage numbers capped
+  PASS: L2 damage numbers settle
+  PASS: L2 vfx settle
+  PASS: L2 boss starts in Awakening
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L2 boss sting once
+  PASS: L2 boss bar shown
+  PASS: L2 boss hp halved
+  PASS: L2 boss phase Fury
+  PASS: L2 Fury sting once
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L2 boss killed
+  PASS: L2 boss slain sting once
+  PASS: L2 boss bar hides
+  PASS: L2 boss freed
+  CENSUS L2.boss: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 0, "audio_pool": 16, "music_state": "battle", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1126, "frame": 1817 }
+  PASS: L2 HUD responsive
+  PASS: L2 paused
+  PASS: L2 resume exists
+  PASS: L2 resumed
+  PASS: L2 pause_changed x2
+  PASS: L2 player present at end
+[LastStand][soak] END wave=1 samples=2 min_fps=3 peak_enemies=12 elapsed=14s
+[diagnostic] [LastStand][soak] END wave=1 samples=2 min_fps=3 peak_enemies=12 elapsed=14s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L2 sting once
+  PASS: L2 death once
+  PASS: L2 player_died once
+  PASS: L2 state game_over
+  CENSUS L2.over: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 2, "audio_pool": 16, "music_state": "victory", "music_players": 2, "arena": true, "player": true, "ui_screen": "game_over", "total_nodes": 1126, "frame": 1827 }
+  CENSUS L2.over playing: { "player_death": 1, "game_over": 1 }
+  PASS: L2 run_ended once
+  PASS: L2 victory bed
+[diagnostic] Entered main menu
+  PASS: L2 back at menu
+  CENSUS L2.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 1870 }
+  PASS: L2 run_started once
+  PASS: L2 no settings churn
+  PASS: L2 EventBus connections stable
+STRESS LOOPS: loop 3
+  PASS: L3 state is main_menu
+  PASS: L3 START RUN exists
+  PASS: L3 ENTER ARENA enabled
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 1132814470 mode=standard arena=default_arena seed=1991831176
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L3 run reaches PLAYING
+  CENSUS L3.start: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 3, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 2, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1152, "frame": 1872 }
+  CENSUS L3.start playing: { "wave_started": 1, "enemy_spawn": 1 }
+  PASS: L3 player exists
+  PASS: L3 player position valid
+  PASS: L3 arena valid
+  PASS: L3 PlayerStart present
+  PASS: L3 player spawned at PlayerStart
+  PASS: L3 player lands on floor
+  PASS: L3 camera rig exists
+  PASS: L3 camera targets player
+  PASS: L3 camera near player
+  PASS: L3 player animated
+  PASS: L3 clear movement lane exists
+  PASS: L3 player moved under input
+  PASS: L3 player stayed valid
+  PASS: L3 player stayed grounded
+  PASS: L3 camera followed player
+  PASS: L3 wave spawned enemies
+  PASS: L3 wave_started emitted
+  PASS: L3 live enemies present
+  PASS: L3 enemy animations playing
+  PASS: L3 enemy models mounted
+  CENSUS L3.mid: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 1, "proj_idle": 47, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 0, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1089, "frame": 2024 }
+  PASS: L3 Knight wrapper mounted
+  PASS: L3 Knight model present
+  PASS: L3 Knight has meshes
+  PASS: L3 Knight meshes visible
+  PASS: L3 no stale fallback Body alongside model
+  PASS: L3 ground shadow present
+  PASS: L3 shadow planted on mount
+  PASS: L3 shadow follows player
+  PASS: L3 Knight skeleton present
+  PASS: L3 equipment socket bound
+  PASS: L3 mount idempotent (no double-model)
+  PASS: L3 bogus role mount returns null
+  PASS: L3 container clear before barrage
+  PASS: L3 barrage spawned 12
+  PASS: L3 barrage enemies move
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@1019/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: L3 barrage all freed
+  PASS: L3 barrage hit accepted
+  PASS: L3 barrage hit flash on
+[LastStand][soak] t=5s fps=60 min=11 enemies=1 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=11 enemies=1 peak=12 wave=1 hp=100/100
+  PASS: L3 barrage telegraph on
+  PASS: L3 recolor keeps materials
+[diagnostic] Enemy basic died
+  PASS: L3 barrage lethal kills
+  PASS: L3 barrage corpse freed
+  PASS: L3 level-up triggers
+  PASS: L3 level-up sting once
+  PASS: L3 leveled_up signal once
+  PASS: L3 invalid weapon slot declined
+  PASS: L3 invalid switch emits nothing
+  PASS: L3 single loadout switch graceful
+  PASS: L3 firearm shot audible
+  PASS: L3 skill controller present
+  PASS: L3 warcry config exists
+  PASS: L3 skill assigned+unlocked
+  PASS: L3 skill casts
+  PASS: L3 skill_cast emitted
+  PASS: L3 cooldown starts
+  PASS: L3 cooldown blocks recast
+  PASS: L3 skill_became_ready once
+  PASS: L3 slot ready again
+  PASS: L3 skill input action casts
+  PASS: L3 projectile pool present
+  PASS: L3 5 projectiles active
+  PASS: L3 projectiles recycle
+  PASS: L3 pool stays bounded
+  PASS: L3 idle restored
+  PASS: L3 pickup manager present
+  PASS: L3 pickup auto-collects at feet
+  PASS: L3 pickup drop+collect once each
+  PASS: L3 distant pickup exists
+[LastStand][soak] t=10s fps=60 min=11 enemies=0 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=60 min=11 enemies=0 peak=12 wave=1 hp=100/100
+  PASS: L3 pickup magnet collects
+  PASS: L3 effect director present
+  PASS: L3 damage layer present
+  PASS: L3 vfx children bounded
+  PASS: L3 damage numbers capped
+  PASS: L3 damage numbers settle
+  PASS: L3 vfx settle
+  PASS: L3 boss starts in Awakening
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L3 boss sting once
+  PASS: L3 boss bar shown
+  PASS: L3 boss hp halved
+  PASS: L3 boss phase Fury
+  PASS: L3 Fury sting once
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L3 boss killed
+  PASS: L3 boss slain sting once
+  PASS: L3 boss bar hides
+  PASS: L3 boss freed
+  CENSUS L3.boss: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 0, "audio_pool": 16, "music_state": "battle", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1132, "frame": 2749 }
+  PASS: L3 HUD responsive
+  PASS: L3 paused
+  PASS: L3 resume exists
+  PASS: L3 resumed
+  PASS: L3 pause_changed x2
+  PASS: L3 player present at end
+[LastStand][soak] END wave=1 samples=2 min_fps=11 peak_enemies=12 elapsed=15s
+[diagnostic] [LastStand][soak] END wave=1 samples=2 min_fps=11 peak_enemies=12 elapsed=15s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L3 sting once
+  PASS: L3 death once
+  PASS: L3 player_died once
+  PASS: L3 state game_over
+  CENSUS L3.over: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 2, "audio_pool": 16, "music_state": "victory", "music_players": 2, "arena": true, "player": true, "ui_screen": "game_over", "total_nodes": 1132, "frame": 2759 }
+  CENSUS L3.over playing: { "player_death": 1, "game_over": 1 }
+  PASS: L3 run_ended once
+  PASS: L3 victory bed
+[diagnostic] Entered main menu
+  PASS: L3 back at menu
+  CENSUS L3.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 2809 }
+  PASS: L3 run_started once
+  PASS: L3 no settings churn
+  PASS: L3 EventBus connections stable
+STRESS LOOPS: loop 4
+  PASS: L4 state is main_menu
+  PASS: L4 START RUN exists
+  PASS: L4 ENTER ARENA enabled
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 3065045824 mode=standard arena=default_arena seed=251051815
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L4 run reaches PLAYING
+  CENSUS L4.start: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 3, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 2, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1152, "frame": 2811 }
+  CENSUS L4.start playing: { "wave_started": 1, "enemy_spawn": 1 }
+  PASS: L4 player exists
+  PASS: L4 player position valid
+  PASS: L4 arena valid
+  PASS: L4 PlayerStart present
+  PASS: L4 player spawned at PlayerStart
+  PASS: L4 player lands on floor
+  PASS: L4 camera rig exists
+  PASS: L4 camera targets player
+  PASS: L4 camera near player
+  PASS: L4 player animated
+  PASS: L4 clear movement lane exists
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@1313/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: L4 player moved under input
+  PASS: L4 player stayed valid
+  PASS: L4 player stayed grounded
+  PASS: L4 camera followed player
+  PASS: L4 wave spawned enemies
+  PASS: L4 wave_started emitted
+  PASS: L4 live enemies present
+  PASS: L4 enemy animations playing
+  PASS: L4 enemy models mounted
+  CENSUS L4.mid: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 0, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1089, "frame": 2964 }
+  PASS: L4 Knight wrapper mounted
+  PASS: L4 Knight model present
+  PASS: L4 Knight has meshes
+  PASS: L4 Knight meshes visible
+  PASS: L4 no stale fallback Body alongside model
+  PASS: L4 ground shadow present
+  PASS: L4 shadow planted on mount
+  PASS: L4 shadow follows player
+  PASS: L4 Knight skeleton present
+  PASS: L4 equipment socket bound
+  PASS: L4 mount idempotent (no double-model)
+  PASS: L4 bogus role mount returns null
+  PASS: L4 container clear before barrage
+  PASS: L4 barrage spawned 12
+  PASS: L4 barrage enemies move
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  PASS: L4 barrage all freed
+  PASS: L4 barrage hit accepted
+  PASS: L4 barrage hit flash on
+[LastStand][soak] t=5s fps=60 min=15 enemies=1 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=15 enemies=1 peak=12 wave=1 hp=100/100
+  PASS: L4 barrage telegraph on
+  PASS: L4 recolor keeps materials
+[diagnostic] Enemy basic died
+  PASS: L4 barrage lethal kills
+  PASS: L4 barrage corpse freed
+  PASS: L4 level-up triggers
+  PASS: L4 level-up sting once
+  PASS: L4 leveled_up signal once
+  PASS: L4 invalid weapon slot declined
+  PASS: L4 invalid switch emits nothing
+  PASS: L4 single loadout switch graceful
+  PASS: L4 firearm shot audible
+  PASS: L4 skill controller present
+  PASS: L4 warcry config exists
+  PASS: L4 skill assigned+unlocked
+  PASS: L4 skill casts
+  PASS: L4 skill_cast emitted
+  PASS: L4 cooldown starts
+  PASS: L4 cooldown blocks recast
+  PASS: L4 skill_became_ready once
+  PASS: L4 slot ready again
+  PASS: L4 skill input action casts
+  PASS: L4 projectile pool present
+  PASS: L4 5 projectiles active
+  PASS: L4 projectiles recycle
+  PASS: L4 pool stays bounded
+  PASS: L4 idle restored
+  PASS: L4 pickup manager present
+  PASS: L4 pickup auto-collects at feet
+  PASS: L4 pickup drop+collect once each
+  PASS: L4 distant pickup exists
+[LastStand][soak] t=10s fps=60 min=15 enemies=0 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=60 min=15 enemies=0 peak=12 wave=1 hp=100/100
+  PASS: L4 pickup magnet collects
+  PASS: L4 effect director present
+  PASS: L4 damage layer present
+  PASS: L4 vfx children bounded
+  PASS: L4 damage numbers capped
+  PASS: L4 damage numbers settle
+  PASS: L4 vfx settle
+  PASS: L4 boss starts in Awakening
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L4 boss sting once
+  PASS: L4 boss bar shown
+  PASS: L4 boss hp halved
+  PASS: L4 boss phase Fury
+  PASS: L4 Fury sting once
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L4 boss killed
+  PASS: L4 boss slain sting once
+  PASS: L4 boss bar hides
+  PASS: L4 boss freed
+  CENSUS L4.boss: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 0, "audio_pool": 16, "music_state": "battle", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1117, "frame": 3692 }
+  PASS: L4 HUD responsive
+  PASS: L4 paused
+  PASS: L4 resume exists
+  PASS: L4 resumed
+  PASS: L4 pause_changed x2
+  PASS: L4 player present at end
+[LastStand][soak] END wave=1 samples=2 min_fps=15 peak_enemies=12 elapsed=15s
+[diagnostic] [LastStand][soak] END wave=1 samples=2 min_fps=15 peak_enemies=12 elapsed=15s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L4 sting once
+  PASS: L4 death once
+  PASS: L4 player_died once
+  PASS: L4 state game_over
+  CENSUS L4.over: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 2, "audio_pool": 16, "music_state": "victory", "music_players": 2, "arena": true, "player": true, "ui_screen": "game_over", "total_nodes": 1117, "frame": 3702 }
+  CENSUS L4.over playing: { "player_death": 1, "game_over": 1 }
+  PASS: L4 run_ended once
+  PASS: L4 victory bed
+[diagnostic] Entered main menu
+  PASS: L4 back at menu
+  CENSUS L4.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 3754 }
+  PASS: L4 run_started once
+  PASS: L4 no settings churn
+  PASS: L4 EventBus connections stable
+STRESS LOOPS: loop 5
+  PASS: L5 state is main_menu
+  PASS: L5 START RUN exists
+  PASS: L5 ENTER ARENA enabled
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 4068702137 mode=standard arena=default_arena seed=1265312100
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L5 run reaches PLAYING
+  CENSUS L5.start: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 3, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 2, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1152, "frame": 3756 }
+  CENSUS L5.start playing: { "wave_started": 1, "enemy_spawn": 1 }
+  PASS: L5 player exists
+  PASS: L5 player position valid
+  PASS: L5 arena valid
+  PASS: L5 PlayerStart present
+  PASS: L5 player spawned at PlayerStart
+  PASS: L5 player lands on floor
+  PASS: L5 camera rig exists
+  PASS: L5 camera targets player
+  PASS: L5 camera near player
+  PASS: L5 player animated
+  PASS: L5 clear movement lane exists
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@1602/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: L5 player moved under input
+  PASS: L5 player stayed valid
+  PASS: L5 player stayed grounded
+  PASS: L5 camera followed player
+  PASS: L5 wave spawned enemies
+  PASS: L5 wave_started emitted
+  PASS: L5 live enemies present
+  PASS: L5 enemy animations playing
+  PASS: L5 enemy models mounted
+  CENSUS L5.mid: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 5, "audio_playing": 0, "audio_pool": 16, "music_state": "calm", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1089, "frame": 3908 }
+  PASS: L5 Knight wrapper mounted
+  PASS: L5 Knight model present
+  PASS: L5 Knight has meshes
+  PASS: L5 Knight meshes visible
+  PASS: L5 no stale fallback Body alongside model
+  PASS: L5 ground shadow present
+  PASS: L5 shadow planted on mount
+  PASS: L5 shadow follows player
+  PASS: L5 Knight skeleton present
+  PASS: L5 equipment socket bound
+  PASS: L5 mount idempotent (no double-model)
+  PASS: L5 bogus role mount returns null
+  PASS: L5 container clear before barrage
+  PASS: L5 barrage spawned 12
+  PASS: L5 barrage enemies move
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+  PASS: L5 barrage all freed
+  PASS: L5 barrage hit accepted
+  PASS: L5 barrage hit flash on
+[LastStand][soak] t=5s fps=60 min=8 enemies=1 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=8 enemies=1 peak=12 wave=1 hp=100/100
+  PASS: L5 barrage telegraph on
+  PASS: L5 recolor keeps materials
+[diagnostic] Enemy basic died
+  PASS: L5 barrage lethal kills
+  PASS: L5 barrage corpse freed
+  PASS: L5 level-up triggers
+  PASS: L5 level-up sting once
+  PASS: L5 leveled_up signal once
+  PASS: L5 invalid weapon slot declined
+  PASS: L5 invalid switch emits nothing
+  PASS: L5 single loadout switch graceful
+  PASS: L5 firearm shot audible
+  PASS: L5 skill controller present
+  PASS: L5 warcry config exists
+  PASS: L5 skill assigned+unlocked
+  PASS: L5 skill casts
+  PASS: L5 skill_cast emitted
+  PASS: L5 cooldown starts
+  PASS: L5 cooldown blocks recast
+  PASS: L5 skill_became_ready once
+  PASS: L5 slot ready again
+  PASS: L5 skill input action casts
+  PASS: L5 projectile pool present
+  PASS: L5 5 projectiles active
+  PASS: L5 projectiles recycle
+  PASS: L5 pool stays bounded
+  PASS: L5 idle restored
+  PASS: L5 pickup manager present
+  PASS: L5 pickup auto-collects at feet
+  PASS: L5 pickup drop+collect once each
+  PASS: L5 distant pickup exists
+[LastStand][soak] t=10s fps=60 min=8 enemies=0 peak=12 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=10s fps=60 min=8 enemies=0 peak=12 wave=1 hp=100/100
+  PASS: L5 pickup magnet collects
+  PASS: L5 effect director present
+  PASS: L5 damage layer present
+  PASS: L5 vfx children bounded
+  PASS: L5 damage numbers capped
+  PASS: L5 damage numbers settle
+  PASS: L5 vfx settle
+  PASS: L5 boss starts in Awakening
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L5 boss sting once
+  PASS: L5 boss bar shown
+  PASS: L5 boss hp halved
+  PASS: L5 boss phase Fury
+  PASS: L5 Fury sting once
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L5 boss killed
+  PASS: L5 boss slain sting once
+  PASS: L5 boss bar hides
+  PASS: L5 boss freed
+  CENSUS L5.boss: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 0, "audio_pool": 16, "music_state": "battle", "music_players": 2, "arena": true, "player": true, "ui_screen": "playing", "total_nodes": 1123, "frame": 4632 }
+  PASS: L5 HUD responsive
+  PASS: L5 paused
+  PASS: L5 resume exists
+  PASS: L5 resumed
+  PASS: L5 pause_changed x2
+  PASS: L5 player present at end
+[LastStand][soak] END wave=1 samples=2 min_fps=8 peak_enemies=12 elapsed=14s
+[diagnostic] [LastStand][soak] END wave=1 samples=2 min_fps=8 peak_enemies=12 elapsed=14s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L5 sting once
+  PASS: L5 death once
+  PASS: L5 player_died once
+  PASS: L5 state game_over
+  CENSUS L5.over: { "world_children": ["Arena", "Player", "CameraRig", "EnemyContainer", "SpawnManager", "WaveManager", "ProjectilePool", "PickupManager", "HitstopManager", "PerformanceMonitor", "EffectDirector", "ObjectiveDirector"], "enemies": 0, "proj_active": 0, "proj_idle": 48, "pickups": 32, "dmg_live": 0, "effects_children": 14, "audio_playing": 2, "audio_pool": 16, "music_state": "victory", "music_players": 2, "arena": true, "player": true, "ui_screen": "game_over", "total_nodes": 1123, "frame": 4642 }
+  CENSUS L5.over playing: { "player_death": 1, "game_over": 1 }
+  PASS: L5 run_ended once
+  PASS: L5 victory bed
+[diagnostic] Entered main menu
+  PASS: L5 back at menu
+  CENSUS L5.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 4692 }
+  PASS: L5 run_started once
+  PASS: L5 no settings churn
+  PASS: L5 EventBus connections stable
+  CENSUS final.menu: { "world_children": [], "enemies": -1, "proj_active": -1, "proj_idle": -1, "pickups": -1, "dmg_live": 0, "effects_children": -1, "audio_playing": 0, "audio_pool": 16, "music_state": "menu", "music_players": 2, "arena": false, "player": false, "ui_screen": "main_menu", "total_nodes": 399, "frame": 4692 }
+  CENSUS L1.menu total=399 L5.menu total=399
+  PASS: menu node count stable L1 vs L5
+  PASS: menu enemies gone both
+  PASS: menu audio pool 16 both
+  PASS: menu music players 2 both
+  PASS: menu audio settled
+  PASS: zero error/audio diagnostics
+STRESS LOOPS: 531 checks, 0 failed, frames=4692

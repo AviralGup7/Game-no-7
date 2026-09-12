@@ -45,6 +45,8 @@ var _buses_ready := false
 ## True while the OS has backgrounded the app (Android home/recents). Combines
 ## with the player's mute setting so audio never plays behind other apps.
 var _background_muted := false
+var _application_paused := false
+var _application_focused := true
 var _duck_left := 0.0
 var _duck_db := 0.0
 ## Isolated UI bank: menu clicks never steal a combat SFX voice (and the
@@ -628,15 +630,20 @@ func _bus_index(bus_name: String) -> int:
 
 
 func _notification(what: int) -> void:
-	# Android backgrounds the app without pausing the tree: mute the master bus
-	# so music/SFX never play behind other apps, then restore on return. The
-	# mute combines with (never overwrites) the player's own mute setting.
+	# Android resume and focus are separate signals. A focus-in while paused,
+	# or resume beneath an unfocused system overlay, must not unmute the app.
 	match what:
-		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
-		NOTIFICATION_WM_WINDOW_FOCUS_OUT:
-			_set_background_muted(true)
-		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_WM_WINDOW_FOCUS_IN:
-			_set_background_muted(false)
+		NOTIFICATION_APPLICATION_PAUSED:
+			_application_paused = true
+		NOTIFICATION_APPLICATION_RESUMED:
+			_application_paused = false
+		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_WINDOW_FOCUS_OUT:
+			_application_focused = false
+		NOTIFICATION_APPLICATION_FOCUS_IN, NOTIFICATION_WM_WINDOW_FOCUS_IN:
+			_application_focused = true
+		_:
+			return
+	_set_background_muted(_application_paused or not _application_focused)
 
 
 func _set_background_muted(muted: bool) -> void:

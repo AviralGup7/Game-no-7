@@ -1,5 +1,63 @@
 # Changelog
 
+## [Unreleased] — Continuous campaign world (2026-09-12)
+
+- Make the shipping entry a fixed 352 × 272 m station with six connected districts,
+  seven story objectives, safe checkpoints and a final return to the docks.
+- Author 13 connected floor regions, 24 collidable landmarks, 15 interactions and
+  eight finite encounters (29 enemies); no arena or world-seed setup in the app.
+- Share world coordinates across physics, conservative navigation, route guidance
+  and the station chart. Merge floor-union perimeter walls without sealing doors.
+- Stream nearby living spawn IDs (18 active cap / two activations per tick), cull
+  distant district batches (three cap) and use instanced modular floors. Cleared
+  actors never respawn on checkpoint retry; the commander cannot summon untracked adds.
+- Add native-touch Interact/Map/Pause, Continue/New confirmation, safe-area HUD,
+  checkpoint retry, extraction/exploration and a campaign Armory/loadout screen.
+- Add additive save schema 8: persistent objective/defeat IDs, checkpoint, build and
+  XP; stage reward claims with wallet changes and avoid legacy run-end double banking.
+- Add actual topology/clearance validation, reproducible SVG overview, native
+  campaign/migration/integration suites, CI/build registration and APK map-content
+  checks. Offline checks pass; native campaign/APK/device execution is still pending.
+
+## [Unreleased] — Android-first follow-up (2026-09-12)
+
+- Handle skill and pause buttons through native multi-touch, without requiring
+  the mouse-emulation pointer; show touch-ready skill hints on Android.
+- Clear Android canceled gestures for movement and camera, require a fresh
+  touch-down to start camera look, and cancel held input when cutouts/layout move.
+- Refresh notch/system-bar insets even for a 180-degree landscape flip; bound
+  invalid platform rectangles and avoid unchanged-layout polling churn.
+- Track activity pause and window/application focus independently for audio;
+  preserve user mute and keep gameplay paused on return. Gate haptics to mobile.
+- Keep Mobile rendering / ARM64 / 60 FPS on Android, with 2x startup MSAA.
+  Host Compatibility rendering no longer applies to APK export.
+- Verify the real APK's identity, SDK levels, ELF ABI, renderer metadata,
+  permissions and signature. Exclude host reports/test data from APK assets.
+- Make device QA explicit and serial-scoped: no missing-device false passes,
+  ignored launch failures, uninstall or progression clearing. Add regressions
+  and an Android-only validation checklist; see docs/ANDROID_HARDENING.md.
+
+## [Unreleased] — Project correctness audit (2026-09-11)
+
+- Repair save checksum round trips (integer/float and fractional-clock spelling),
+  retain verified legacy recovery, preserve int64 daily seeds as decimal strings,
+  and validate malformed settings/input/JSON without damaging working state.
+- Resolve reload/skill/camera/controller conflicts with narrow schema-7 factory
+  migration and atomic staged remapping.
+- Fix hazard-overlapping player starts, split/forced spawn caps and navigation,
+  objective lifecycle, reentrant death, dead-boss enrage, offensive proc ownership,
+  chain targets, run-end effect isolation and freed delayed-damage sources.
+- Re-arm spatial Foley for replacement players and validate expired emitters
+  before casts. Fix HUD parenting, portrait menu orientation and theme members.
+- Correct the historical ASCII-only resource rule: literal UTF-8 loads correctly;
+  escaped high codepoints produced errors on the pinned engine.
+- Add native regressions; repair stale flow/stress fixtures and test cleanup;
+  enforce strict logs/results, safe profiles/timeouts, pinned staged installers,
+  truthful failure reports and fully gated release publication. Use Xvfb/Mesa
+  for official-engine CI validation rather than suppressing dummy-renderer errors.
+- Evidence, remaining graphics/Android limits and reproduction steps:
+  [PROJECT_AUDIT.md](docs/PROJECT_AUDIT.md).
+
 ## [Unreleased] — Documentation consolidation (2026-09-11)
 
 `docs/` reduced from 34 to 20 markdown files. Canonical/reference docs (pinned by

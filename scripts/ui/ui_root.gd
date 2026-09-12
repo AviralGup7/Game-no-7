@@ -61,6 +61,7 @@ func _ready() -> void:
 		_bind_player_damage()
 		_apply_settings(SaveManager.get_settings()))
 	_safe.resized.connect(_layout)
+	_safe.safe_area_changed.connect(_on_safe_area_changed)
 	_apply_settings(SaveManager.get_settings())
 	_layout.call_deferred()
 	_sync_from_state()
@@ -211,6 +212,24 @@ func _layout() -> void:
 		else:
 			_numbers.set_minimap_block(Rect2())
 
+func _on_safe_area_changed() -> void:
+	# An Android rotation/cutout change moves the controls beneath held fingers.
+	# Require fresh gestures rather than applying an old local-space origin.
+	if _touch != null:
+		_touch.cancel()
+	if _skill_bar != null:
+		_skill_bar.cancel_touch_input()
+	_cancel_camera_touch()
+	_layout()
+
+
+func _cancel_camera_touch() -> void:
+	if is_inside_tree():
+		var camera := get_tree().get_first_node_in_group("camera_rig") as CameraRig
+		if camera != null:
+			camera.cancel_touch_input()
+
+
 static func screen_for_state(state: StringName) -> StringName:
 	if state in [GameRoot.State.STARTING_RUN, GameRoot.State.LOADING, GameRoot.State.ERROR]:
 		return &"status"
@@ -236,6 +255,8 @@ func _show_screen(screen: StringName) -> void:
 	_numbers.set_process(playing)
 	if not playing:
 		_touch.cancel()
+		_skill_bar.cancel_touch_input()
+		_cancel_camera_touch()
 		_numbers.clear_all()
 	if screen == &"main_menu":
 		_menu.refresh()

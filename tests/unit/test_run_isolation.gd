@@ -123,6 +123,7 @@ static func _spatial(results: Array, host: Node) -> void:
 	var spatial := SpatialVoicePool.new()
 	spatial.name = "SpatialVoices"
 	host.add_child(spatial)
+	spatial.configure(SfxPolicy.new(), func() -> float: return 0.0)
 	spatial.apply_budget(4)
 	results.append(_case(
 		"spatial apply_budget stores a cap below MAX_VOICES",
@@ -141,6 +142,23 @@ static func _spatial(results: Array, host: Node) -> void:
 		"spatial isolate parks the listener and flags the pool",
 		spatial.is_isolated() and not spatial.has_listener() and spatial.active_count() == 0,
 		"isolated=%s listener=%s active=%d" % [str(spatial.is_isolated()), str(spatial.has_listener()), spatial.active_count()]))
+	spatial.set_listener(dummy)
+	results.append(_case(
+		"a replacement listener re-arms spatial Foley for the next run",
+		spatial.has_listener() and not spatial.is_isolated()))
+	spatial.set_listener(null)
+	results.append(_case(
+		"clearing a listener leaves spatial Foley isolated",
+		not spatial.has_listener() and spatial.is_isolated()))
+
+	var corpse := Node3D.new()
+	spatial._emitters[0] = corpse
+	corpse.free()
+	spatial._follow_emitters()
+	results.append(_case(
+		"spatial follow validates freed emitters before casting",
+		spatial._emitters[0] == null))
+
 
 
 static func _governor_apply(results: Array, host: Node) -> void:

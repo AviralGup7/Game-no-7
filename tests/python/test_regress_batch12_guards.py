@@ -75,7 +75,8 @@ class HealthComponentGuardTests(unittest.TestCase):
     def test_health_finite_payload(self):
         txt = read("scripts/player/health_component.gd")
         self.assertIn("is_instance_valid(payload)", txt)
-        self.assertIn("is_finite(float(payload.amount))", txt)
+        self.assertIn("not payload.is_valid()", txt)
+        self.assertNotIn("payload.amount =", txt)
         self.assertIn("not is_finite(amount)", txt)
 
 

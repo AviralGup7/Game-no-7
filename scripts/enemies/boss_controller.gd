@@ -138,7 +138,7 @@ func is_enraged() -> bool:
 
 ## Called by the spawner once the boss is initialized + in the tree. Seeds the
 ## ability RNG from the run seed so the fight is replay-deterministic.
-func begin_fight(run_seed: int = 0) -> void:
+func begin_fight(run_seed: int = 0, location: String = "arena") -> void:
 	if _announced_intro or _host == null:
 		return
 	_announced_intro = true
@@ -147,7 +147,7 @@ func begin_fight(run_seed: int = 0) -> void:
 	var bus := _eb()
 	if bus != null:
 		bus.boss_spawned.emit(_host, _host.get_archetype_id())
-		bus.announcement.emit(&"boss_spawned", "%s has entered the arena!" % _display_name(), &"danger")
+		bus.announcement.emit(&"boss_spawned", "%s has entered the %s!" % [_display_name(), location], &"danger")
 	if AudioManager != null:
 		AudioManager.play_sfx(&"boss_spawned", -6.0)
 
@@ -184,7 +184,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _on_health_changed(current: float, maximum: float) -> void:
-	if _host == null or not is_finite(current) or not is_finite(maximum) or maximum <= 0.0:
+	# Lethal hits must not cleanse statuses, buff a corpse or play Enrage on the
+	# way through zero. Health commits death before notifying these observers.
+	if _host == null or not is_finite(current) or current <= 0.0 or not is_finite(maximum) or maximum <= 0.0:
 		return
 	# Phases belong to the fight. Health traffic before begin_fight() is setup
 	# noise (spawn, difficulty scaling, max-health resets) and must never burn a

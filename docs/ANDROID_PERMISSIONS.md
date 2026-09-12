@@ -1,8 +1,8 @@
-# Android permissions policy — Last Stand: Arena
+# Android permissions policy — Last Stand: Station Zero
 
-**Status:** the app requests **one** Android permission: `android.permission.VIBRATE`.
+**Release policy:** the app requests **one** Android permission: `android.permission.VIBRATE`.
 It is a normal (not dangerous) permission, so there is no runtime prompt. No other
-permissions are declared.
+permissions are enabled in the export preset; debug-export behavior is below.
 
 ## Why this permission set
 
@@ -51,6 +51,11 @@ preset to "make debug easier" — the engine already injects it for debug APKs.
 # Or, with Android Studio / SDK:
 apkanalyzer manifest permissions build/LastStandArena.apk
 ```
+
+The build and CI now run `tool/check_android_apk.py` against the **built APK**.
+This checks the manifest's permissions (not just preset text), signing, ABI,
+SDK levels, package/version and configured renderer. Packaging checks do not
+substitute for physical haptic or lifecycle QA.
 
 ## Project rules (keep it this way)
 

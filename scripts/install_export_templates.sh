@@ -1,63 +1,52 @@
 #!/usr/bin/env bash
-# Installs the official Godot export templates into the directory Godot reads at
-# export time, and FAILS LOUDLY if the download/extract/copy did not actually place
-# the files (previously the step exited 0 even when no templates landed, which made
-# `godot --export-*` fail later with "Android build template not installed").
-#
-# The folder must use Godot's *version string* (a dot before "stable"), e.g.
-# 4.4.1.stable, NOT the release-tag name 4.4.1-stable.
+# Install matching export templates. Temporary files are private to this run;
+# no stale /tmp extraction can satisfy a missing file in a newer download.
 set -euo pipefail
-
-GODOT_VERSION="${GODOT_VERSION:?GODOT_VERSION must be set, e.g. 4.4.1-stable}"
-VER_DIR="${GODOT_VERSION/-stable/.stable}"
-URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
-DEST="${HOME}/.local/share/godot/export_templates/${VER_DIR}"
-
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$ROOT/scripts/godot_env.sh"
+DEST="$GODOT_TEMPLATE_DIR"
+URL="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
 REQUIRED=(android_debug.apk android_release.apk android_source.zip version.txt)
 
 already_installed() {
-  for f in "${REQUIRED[@]}"; do
-    [ -f "${DEST}/${f}" ] || return 1
+  for file in "${REQUIRED[@]}"; do
+    [ -s "$DEST/$file" ] || return 1
   done
-  return 0
+  [ "$(tr -d '\r\n' < "$DEST/version.txt")" = "$VER_DIR" ]
 }
-
 if already_installed; then
-  echo "Export templates already present for ${VER_DIR}; skipping re-download."
-  ls -1 "${DEST}"
+  echo "Export templates already present for $VER_DIR; skipping download."
   exit 0
 fi
 
-echo "Installing export templates ${VER_DIR} -> ${DEST}"
-mkdir -p /tmp/tpl-extract "${DEST}"
-
-# -f -> fail on HTTP errors instead of silently saving a 404 page.
-curl -fsSL --retry 3 "${URL}" -o /tmp/templates.tpz
-test -s /tmp/templates.tpz
-
-# Extract with python's zipfile (always present on the runner), so a missing
-# `unzip` cannot silently skip extraction.
-python3 - <<'PY'
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/godot-templates.XXXXXX")"
+trap 'rm -rf "$WORK"' EXIT
+curl -fsSL --retry 3 "$URL" -o "$WORK/templates.tpz"
+python3 - "$WORK/templates.tpz" "$WORK/extracted" "$DEST" "$VER_DIR" <<'PY'
+from pathlib import Path, PurePosixPath
+import shutil
+import stat
+import sys
 import zipfile
-with zipfile.ZipFile('/tmp/templates.tpz') as z:
-    z.extractall('/tmp/tpl-extract')
+
+source, extracted, destination, version = sys.argv[1:]
+root = Path(extracted)
+with zipfile.ZipFile(source) as archive:
+    for entry in archive.infolist():
+        path = PurePosixPath(entry.filename)
+        if path.is_absolute() or '..' in path.parts or '\\' in entry.filename \
+                or stat.S_ISLNK(entry.external_attr >> 16):
+            raise ValueError(f'Unsafe export template member: {entry.filename}')
+    archive.extractall(root)
+if (root / 'templates').is_dir():
+    root = root / 'templates'
+for required in ('android_debug.apk', 'android_release.apk', 'android_source.zip', 'version.txt'):
+    path = root / required
+    if not path.is_file() or path.stat().st_size == 0:
+        raise ValueError(f'Export template missing or empty: {required}')
+if (root / 'version.txt').read_text().strip() != version:
+    raise ValueError('Export template version does not match the requested engine')
+shutil.copytree(root, destination, dirs_exist_ok=True)
 PY
-
-# The tpz wraps everything in a top-level `templates/` folder; support both layouts.
-SRC="/tmp/tpl-extract/templates"
-if [ ! -d "${SRC}" ]; then
-  SRC="/tmp/tpl-extract"
-fi
-cp -R "${SRC}/." "${DEST}/"
-
-echo "Template dir contents:"
-ls -1 "${DEST}"
-
-# Godot's Android exporter requires these build templates to exist under <version>/.
-for f in "${REQUIRED[@]}"; do
-  if [ ! -f "${DEST}/${f}" ]; then
-    echo "ERROR: expected export template missing: ${DEST}/${f}" >&2
-    exit 1
-  fi
-done
-echo "Export templates OK for ${VER_DIR}."
+already_installed || { echo "ERROR: export template verification failed." >&2; exit 1; }
+echo "Export templates OK for $VER_DIR."

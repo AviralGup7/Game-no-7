@@ -12,10 +12,12 @@ const MAX_FILE_BYTES := 1_000_000
 static func parse_safe(text: String, fallback: Variant = {}) -> Variant:
 	if text.is_empty():
 		return fallback
-	var parsed: Variant = JSON.parse_string(text)
-	if parsed == null:
+	# JSON.parse_string prints an engine ERROR for expected corrupt input. The
+	# instance API returns an error code instead, keeping recovery non-fatal.
+	var parser := JSON.new()
+	if parser.parse(text) != OK or parser.data == null:
 		return fallback
-	return parsed
+	return parser.data
 
 
 ## Stringify a value; returns "{}" when the value is not JSON-serializable.
@@ -43,16 +45,18 @@ static func read_text_file(path: String) -> String:
 	return text
 
 
-## Atomically-ish write text (write temp + rename is overkill on mobile targets;
-## a single direct write with flush is used instead). Returns success.
+## Direct text write for non-critical exports/logs (NOT an atomic save). Critical
+## profile persistence uses SaveManager's temp + rename path. Check buffered I/O
+## errors before closing so full/read-only storage never reports false success.
 static func write_text_file(path: String, text: String) -> bool:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return false
 	file.store_string(text)
 	file.flush()
+	var error := file.get_error()
 	file.close()
-	return true
+	return error == OK
 
 
 ## Load a JSON dictionary from disk; returns {} on any failure.
@@ -73,8 +77,9 @@ static func save_value(path: String, value: Variant, pretty: bool = false) -> bo
 ## anything else overwrites). Returns a NEW dictionary; inputs are untouched.
 static func deep_merge(base: Dictionary, overrides: Dictionary) -> Dictionary:
 	var out := base.duplicate(true)
-	for key in overrides:
-		var ov: Variant = overrides[key]
+	var copied := overrides.duplicate(true)
+	for key in copied:
+		var ov: Variant = copied[key]
 		if out.has(key) and out[key] is Dictionary and ov is Dictionary:
 			out[key] = deep_merge(out[key], ov)
 		else:
@@ -88,6 +93,6 @@ static func clamped_number(data: Dictionary, key: String, low: float, high: floa
 	if not data.has(key):
 		return fallback
 	var v: Variant = data[key]
-	if v is float or v is int:
+	if (v is float or v is int) and is_finite(float(v)):
 		return clampf(float(v), low, high)
 	return fallback

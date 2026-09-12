@@ -84,16 +84,30 @@ static func suite() -> Array:
 				references_ok = false
 	results.append({"name": "all content references resolve", "passed": references_ok, "why": ""})
 
-	# Distinct firearm identities: all weapons are ranged firearms spanning
-	# distinct damage types, fire rates, spread, and capacities.
+	# Station Zero deliberately ships firearms only. Keep the generic melee /
+	# hybrid resolver tests elsewhere; weapon variety now comes from magazines,
+	# cadence, pellet counts and status riders, not obsolete melee data rows.
+	var firearms := true
+	var cadences := {}
+	var magazines := {}
+	var pellets := {}
 	var kinds := {}
 	var patterns := {}
 	var damage_types := {}
 	for cfg in weapons.values():
 		var wc := cfg as WeaponConfig
+		firearms = firearms and wc.kind == &"ranged" and wc.ammo_per_magazine > 0
+		cadences[wc.swing_cooldown] = true
+		magazines[wc.ammo_per_magazine] = true
+		pellets[wc.projectile_count] = true
 		kinds[wc.kind] = true
 		patterns[wc.attack_pattern] = true
 		damage_types[wc.damage_type] = true
+	results.append({
+		"name": "firearm library spans cadences, magazines and pellet counts",
+		"passed": firearms and weapons.size() == 9 and cadences.size() >= 3 and magazines.size() >= 3 and pellets.size() >= 2,
+		"why": "cadences=%s magazines=%s pellets=%s" % [str(cadences.keys()), str(magazines.keys()), str(pellets.keys())],
+	})
 	results.append({
 		"name": "weapon library spans resolver kinds and attack patterns",
 		"passed": kinds.has(&"ranged") and patterns.has(&"volley") and damage_types.size() >= 5,
@@ -193,4 +207,5 @@ static func suite() -> Array:
 		"why": "version=%d/%d build=%s" % [got_version, expected_version, str(build)],
 	})
 
+	prog.free()
 	return results

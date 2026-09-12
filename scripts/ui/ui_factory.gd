@@ -67,7 +67,7 @@ static func center_box(panel: Control) -> VBoxContainer:
 
 static func title(text: String, parent: Node, font_size: int) -> Label:
 	var result := label(text, parent, font_size)
-	result.add_theme_font_override("font", UiTheme.BOLD)
+	result.add_theme_font_override("font", UiTheme.bold_font)
 	return result
 
 static func button(text: String, parent: Node, font_size: int, min_size: Vector2 = Vector2(220, UiTheme.TOUCH_MIN)) -> Button:
@@ -189,7 +189,7 @@ static func kicker(text: String, parent: Node, color: Color = UiTheme.CYAN,
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_OFF
 	l.add_theme_font_size_override("font_size", font_size)
-	l.add_theme_font_override("font", UiTheme.BOLD)
+	l.add_theme_font_override("font", UiTheme.bold_font)
 	l.modulate = color
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(l)

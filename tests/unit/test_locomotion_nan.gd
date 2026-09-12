@@ -200,6 +200,7 @@ static func _controller(results: Array) -> void:
 	_check(results, "controller snapshot stays finite",
 		snap.has("move_speed") and is_finite(float(snap["move_speed"])),
 		"got %s" % str(snap))
+	cc.free()
 
 
 # --- CameraMath: the shared finiteness gate ---------------------------------

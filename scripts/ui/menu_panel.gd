@@ -4,7 +4,7 @@ extends Control
 signal navigate(screen: StringName)
 signal quit_requested()
 var _records: Label
-var _row: HBoxContainer
+var _row: BoxContainer
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -31,7 +31,7 @@ func _ready() -> void:
 	UiTheme.decorate(daily, "star")
 	daily.pressed.connect(func() -> void: navigate.emit(&"daily"))
 
-	var row := HBoxContainer.new()
+	var row := BoxContainer.new()
 	row.add_theme_constant_override("separation", UiTheme.SPACE_M)
 	box.add_child(row)
 	_row = row

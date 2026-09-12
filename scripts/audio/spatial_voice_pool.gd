@@ -42,7 +42,10 @@ func configure(policy: SfxPolicy, clock: Callable) -> void:
 
 
 func set_listener(node: Node3D) -> void:
-	_listener = node if (node != null and is_instance_valid(node)) else null
+	_listener = node if (node != null and is_instance_valid(node) and not node.is_queued_for_deletion()) else null
+	# A menu/game-over parks this pool. Binding the next player must re-arm it;
+	# otherwise every later world's Foley is silently refused by play_at/on.
+	_isolated = _listener == null
 
 
 func get_listener_position() -> Vector3:
@@ -153,15 +156,22 @@ func _flush_queued_places() -> void:
 		var at: Vector3 = rec.get("at", Vector3.ZERO)
 		if _is_finite_vec(at):
 			p.global_position = at
-		var emitter: Node3D = rec.get("emitter") as Node3D
-		_emitters[i] = emitter
+		var emitter: Variant = rec.get("emitter")
+		_emitters[i] = emitter if is_instance_valid(emitter) else null
 	_queued_place = keep
 
 
 func _follow_emitters() -> void:
 	for i in _emitters.size():
-		var node := _emitters[i] as Node3D
-		if node == null:
+		# A cast dereferences the object: validate the raw Variant first, since
+		# corpses can be freed while their short Foley voice is still draining.
+		var raw: Variant = _emitters[i]
+		if not is_instance_valid(raw):
+			_emitters[i] = null
+			continue
+		var node := raw as Node3D
+		if node == null or not node.is_inside_tree() or node.is_queued_for_deletion():
+			_emitters[i] = null
 			continue
 		var p: AudioStreamPlayer3D = _bank.players[i] as AudioStreamPlayer3D
 		if p == null or not bool(p.playing):

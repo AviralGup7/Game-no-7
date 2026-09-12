@@ -797,10 +797,12 @@ static func _run_spawn_manager_integration(tree: SceneTree) -> Array:
 	var ghost_queue: Array[StringName] = [&"ghost", &"basic"]
 	sm.queue_wave(ghost_queue, 2, 0.2, 8)
 	var guard := 0
+	ExpectedErrors.begin(["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"])
 	while sm.get_pending_count() > 0 and guard < 32:
 		guard += 1
 		if not sm.force_spawn_one():
 			continue
+	ExpectedErrors.end()
 	var failed_ok := sm.get_failed_count() == 1 and sm.get_defeated_count() == 0
 	# Kill the surviving basic so the wave can clear.
 	for enemy in spawned_nodes:

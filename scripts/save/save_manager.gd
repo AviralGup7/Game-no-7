@@ -252,6 +252,31 @@ func save_now() -> bool:
 	return _flush_save()
 
 
+func get_campaign() -> Dictionary:
+	return CampaignProgress.normalize(_save.get("campaign", {}))
+
+
+func has_campaign() -> bool:
+	return bool(get_campaign().started)
+
+
+func store_campaign(progress: Dictionary, flush: bool = false) -> bool:
+	_save.campaign = CampaignProgress.normalize(progress)
+	mark_dirty()
+	return save_now() if flush else true
+
+
+func new_campaign() -> bool:
+	var previous := get_campaign()
+	var fresh := CampaignProgress.defaults()
+	fresh.started = true
+	if store_campaign(fresh, true):
+		return true
+	_save.campaign = previous
+	mark_dirty()
+	return false
+
+
 # ---------------------------- Persistence ----------------------------
 
 func _load_from_disk() -> void:
@@ -304,37 +329,123 @@ func _read_raw(path: String) -> Variant:
 	if file == null:
 		return null
 	if file.get_length() > MAX_VALID_SAVE_BYTES:
+		file.close()
 		EventBus.report_warning("Save file too large; treating as corrupt: %s" % path)
 		return null
 	var text := file.get_as_text()
 	file.close()
-	var parsed: Variant = JSON.parse_string(text)
+	var parsed: Variant = JsonHelpers.parse_safe(text, null)
 	if not parsed is Dictionary:
 		return null
-	if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed):
+	if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed, text):
 		EventBus.report_warning("Save integrity check failed; treating as corrupt: %s" % path)
 		return null
 	return parsed
 
 
-func _integrity_valid(document: Dictionary) -> bool:
+func _integrity_valid(document: Dictionary, source_text: String = "") -> bool:
 	var stored: Variant = document.get(INTEGRITY_KEY, {})
 	if not stored is Dictionary or stored.get("algorithm", "") != "sha256":
 		return false
+	var digest: Variant = stored.get("digest", "")
+	if not digest is String:
+		return false
 	var payload := document.duplicate(true)
 	payload.erase(INTEGRITY_KEY)
-	return String(stored.get("digest", "")) == _sha256_text(JSON.stringify(payload))
+	if digest == _sha256_text(JSON.stringify(payload, "", true, true)):
+		return true
+	if digest == _sha256_text(JSON.stringify(payload)):
+		return true
+	# JSON's parser/formatter can round decimal values differently even after
+	# one normalization pass. Verify the exact on-disk payload too, preserving
+	# old integer spelling and fractional precision without bypassing the hash.
+	if not source_text.is_empty() and JsonHelpers.parse_safe(source_text, null) == document:
+		if digest == _sha256_text(_integrity_payload_text(source_text)):
+			return true
+	# Before canonical JSON hashing, integer fields were hashed as `7` but
+	# Godot parsed them back as floats and reserialized `7.0`. Restore the
+	# original schema's number types to verify (not bypass) that legacy digest.
+	return digest == _sha256_text(JSON.stringify(_legacy_integrity_payload(payload)))
 
 
 func _serialize_save() -> String:
-	var payload := _save.duplicate(true)
+	# Hash the JSON-domain representation, not GDScript's int/float distinction.
+	# JSON.parse() reads every number as float; hashing the in-memory save made
+	# every otherwise-valid save reject its own integrity envelope on reload.
+	var raw := _save.duplicate(true)
+	raw.last_run_build.seed = str(raw.last_run_build.seed)
+	var payload: Dictionary = JsonHelpers.parse_safe(JSON.stringify(raw, "", true, true))
 	payload.erase(INTEGRITY_KEY)
 	var document := payload.duplicate(true)
 	document[INTEGRITY_KEY] = {
 		"algorithm": "sha256",
-		"digest": _sha256_text(JSON.stringify(payload)),
+		"digest": _sha256_text(JSON.stringify(payload, "", true, true)),
 	}
-	return JSON.stringify(document)
+	return JSON.stringify(document, "", true, true)
+
+
+## Remove only the root integrity member from already-validated JSON. This is
+## deliberately not a regex: nested dictionaries, quoted braces/commas and
+## escaped quotes must retain their exact spelling for legacy checksums.
+static func _integrity_payload_text(source_text: String) -> String:
+	var text := source_text.strip_edges()
+	var parts: Array[String] = []
+	var start := 1
+	var depth := 0
+	var quoted := false
+	var escaped := false
+	var root_key := ""
+	for index in range(1, text.length() - 1):
+		var ch := text[index]
+		if quoted:
+			if escaped:
+				escaped = false
+			elif ch == "\\":
+				escaped = true
+			elif ch == "\"":
+				quoted = false
+			continue
+		if ch == "\"":
+			quoted = true
+		elif ch == "{" or ch == "[":
+			depth += 1
+		elif ch == "}" or ch == "]":
+			depth -= 1
+		elif ch == ":" and depth == 0 and root_key.is_empty():
+			root_key = String(JsonHelpers.parse_safe(text.substr(start, index - start), ""))
+		elif ch == "," and depth == 0:
+			if root_key != INTEGRITY_KEY:
+				parts.append(text.substr(start, index - start))
+			start = index + 1
+			root_key = ""
+	if root_key != INTEGRITY_KEY:
+		parts.append(text.substr(start, text.length() - start - 1))
+	return "{" + ",".join(parts) + "}"
+
+
+## Only the known legacy floating-point fields stay floats; the rest of the
+## schema's numeric fields (scores, ranks, seeds, binding codes) were integers.
+## This compatibility candidate still has to match the stored SHA-256 exactly.
+static func _legacy_integrity_payload(value: Variant, path: String = "") -> Variant:
+	if value is Dictionary:
+		var dictionary: Dictionary = {}
+		for key in value:
+			var child_path := String(key) if path.is_empty() else path + "." + String(key)
+			dictionary[key] = _legacy_integrity_payload(value[key], child_path)
+		return dictionary
+	if value is Array:
+		var array: Array = []
+		for item in value:
+			array.append(_legacy_integrity_payload(item, path))
+		return array
+	if value is float and is_finite(value) and value == floorf(value):
+		var float_fields := [
+			"lifetime_statistics.total_time_seconds", "settings.master_volume",
+			"settings.music_volume", "settings.sfx_volume", "settings.text_scale",
+		]
+		if path not in float_fields and absf(value) <= float(SaveSchema.MAX_SAFE_INTEGER):
+			return int(value)
+	return value
 
 
 func _sha256_text(value: String) -> String:

@@ -27,6 +27,68 @@ The previous implementation had a good temporary-file shape, but it had three da
 - The maximum file size guard remains in place before parsing, and schema normalization/migration remains the final boundary before runtime state.
 - The existing mobile pause, focus-loss, back-request, close, and exit notifications all force a flush.
 
+## Current schema and malformed-data boundaries
+
+The save schema is **8** (`SaveSchema.SCHEMA_VERSION`); the summary-only run-build
+subdocument remains version 1. Migration from older schemas repairs only exact
+legacy factory keyboard/controller pairs for pause and skills 1–3. In particular,
+Skill 3 moves off reload's R key to F, and controller indices use Godot 4's
+Start/shoulder/stick-button constants. Custom maps and unrelated settings are not
+replaced. Normalization does not mutate the caller's original dictionary.
+
+Wrong-type booleans/strings, malformed binding records, non-finite numbers and
+invalid rank IDs are rejected or defaulted at the boundary. Saved integers are
+bounded to JSON's exact double-integer range (±9,007,199,254,740,991), except run
+seeds: schema 7 and later store their full nonnegative int64 value as a decimal string and
+restores an integer in memory. Already-rounded legacy numeric seeds cannot have
+their lost bits recovered. A non-string
+integrity digest is corruption, not a castable value. Invalid JSON is parsed via
+an instance `JSON.parse()` so recovery does not itself emit an engine error.
+Write/flush errors are checked before commit. Nested JSON merges deep-copy the
+override rather than sharing mutable containers with the caller.
+
+Regression suites: `tests/unit/test_audit_boundaries.gd` and
+`tests/unit/test_audit_runtime.gd`. Device-level power-loss/durability testing still
+requires the checklist below; no headless test can prove a filesystem's power-loss
+behavior.
+
+## Campaign checkpoint subdocument (schema 8)
+
+The additive `campaign` block contains a fixed world ID, named checkpoint,
+completed mission cursor, defeated/interacted/visited IDs, XP, upgrades and the
+weapon/skill loadout. Old profiles start with an unstarted campaign; settings,
+banked credits, permanent ranks and legacy results are not cleared. Continue
+reconciles identifiers/cursor against the authored objective ledger and restores
+XP without replaying level-up boons or stacking permanent bonuses twice.
+
+Campaign interactions record their claimed IDs and advanced objective cursor
+before staging the resulting build and wallet. The existing atomic save writes
+that whole profile, not a separate reward file. Kill rewards use the debounce;
+objectives, caches, checkpoints, pause/death and leaving flush immediately. A
+failed New Campaign write restores the previous campaign in memory. Returning
+to a checkpoint resets health/stamina/cooldowns, not completed objectives or kills.
+
+New coverage is in `tests/unit/test_campaign.gd` and the isolated
+`tests/verify_campaign.gd` harness. These campaign-native additions have not been
+executed in the current workspace; power-loss guarantees still require device QA.
+
+## Checksum round-trip compatibility
+
+Native execution found that hashing an in-memory dictionary and re-hashing its
+parsed JSON does not always yield the same bytes: integers become floats and
+default decimal formatting can change fractional elapsed times. New writes use
+full-precision JSON-domain hashing. Verification tries that representation and
+compatible legacy representations, including the **exact original payload
+text**, removing only the root integrity member with a quote/nesting-aware scan.
+The raw-text candidate must parse to the same document being verified; it is not
+a way to authenticate a different or modified document. Every accepted envelope
+still has to match its stored SHA-256.
+
+Regressions cover fresh/existing-profile disk verification, fractional run
+clocks, daily seeds above 2^53, nested/escaped member-like text, legacy digests,
+and tampering. This repairs false corruption reports without treating genuine
+checksum mismatches as valid saves.
+
 ## Limits and deliberate trade-offs
 
 Godot's portable GDScript API does not expose a cross-platform directory `fsync` barrier. `FileAccess.flush()` is therefore the strongest engine-level durability boundary available without a native Android plugin. The system favors preserving an older save over deleting it when the filesystem refuses a replacement. SHA-256 is an integrity check, not anti-cheat protection; an attacker who can edit the document can also edit its digest. This is appropriate for this offline single-player game.

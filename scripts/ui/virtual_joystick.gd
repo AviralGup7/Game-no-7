@@ -46,6 +46,12 @@ func _gui_input(event: InputEvent) -> void:
 	if event == null:
 		InputTrace.record("null_event", "ignored")
 		return
+	if event is InputEventMouse and event.device == InputEvent.DEVICE_ID_EMULATION:
+		return
+	if event is InputEventScreenTouch and event.canceled:
+		_abort_touch(event.index)
+		accept_event()
+		return
 	if _resume_ignore > 0:
 		var is_press := (event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed) \
 			or (event is InputEventMouseButton and (event as InputEventMouseButton).pressed \
@@ -105,7 +111,7 @@ func _finite_vec(v: Vector2) -> Vector2:
 
 
 func _begin(index: int, pos: Vector2) -> void:
-	if get_tree() != null and get_tree().paused:
+	if is_inside_tree() and get_tree().paused:
 		InputTrace.record("begin_paused", "ignored i=%d" % index)
 		return
 	if not _is_finite_v2(pos):
@@ -125,6 +131,7 @@ func _begin(index: int, pos: Vector2) -> void:
 func _end() -> void:
 	InputTrace.record("end", "i=%d value=%s" % [_touch_index, str(_value)])
 	_active = false
+	_touch_seen = false
 	_touch_index = -1
 	_value = Vector2.ZERO
 	_knob = _base
@@ -139,7 +146,7 @@ func _update(pos: Vector2) -> void:
 		return
 	if _resume_ignore > 0:
 		return
-	if get_tree() != null and get_tree().paused:
+	if is_inside_tree() and get_tree().paused:
 		cancel()
 		return
 	if not _is_finite_v2(pos):
@@ -244,9 +251,17 @@ func _input(event: InputEvent) -> void:
 	# armed the 80 ms resume-ignore window, which ate fast re-taps. The abort
 	# path — with its trace dump — stays reserved for genuinely abnormal ends:
 	# pause, focus loss, and hide-while-held.
-	if event is InputEventScreenTouch and not event.pressed and event.index == _touch_index:
-		_end()
+	if event is InputEventScreenTouch and event.index == _touch_index:
+		if event.canceled:
+			_abort_touch(event.index)
+		elif not event.pressed:
+			_end()
 	elif event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed and _touch_index == _MOUSE_INDEX:
 			_end()
+
+
+func _abort_touch(index: int) -> void:
+	if _active and index == _touch_index:
+		cancel()

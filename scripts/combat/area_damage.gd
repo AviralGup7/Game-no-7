@@ -157,7 +157,7 @@ static func _falloff_damage(damage: float, dist: float, radius: float, falloff: 
 static func _payload(damage: float, source: Node, source_id: StringName, dtype: StringName, hit_pos: Vector3) -> DamagePayload:
 	var p := DamagePayload.new()
 	p.amount = maxf(damage, 0.0)
-	p.source = source
+	p.source = source if is_instance_valid(source) else null
 	p.source_id = source_id
 	p.damage_type = dtype
 	p.hit_position = hit_pos

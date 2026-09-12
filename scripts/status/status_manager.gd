@@ -287,7 +287,7 @@ func _apply_ticks(fx: StatusEffect, ticks: int) -> void:
 		if dot > 0.0:
 			var payload := DamagePayload.new()
 			payload.amount = dot
-			payload.source = fx.source
+			payload.source = fx.source if is_instance_valid(fx.source) else null
 			payload.source_id = fx.source_id
 			payload.damage_type = fx.config.dot_type if fx.config != null else &"physical"
 			payload.hit_position = (_owner_body as Node3D).global_position if _owner_body is Node3D else Vector3.ZERO

@@ -21,6 +21,8 @@ extends SceneTree
 ## Pure suites: no Node3D, no tree access. Safe to run synchronously.
 const UNIT_SUITES := [
 	"res://tests/unit/test_save.gd",
+	"res://tests/unit/test_campaign.gd",
+	"res://tests/unit/test_audit_boundaries.gd",
 	"res://tests/unit/test_combat.gd",
 	"res://tests/unit/test_configs.gd",
 	"res://tests/unit/test_scoring.gd",
@@ -72,6 +74,9 @@ const UNIT_SUITES := [
 ## assertions fail for reasons that have nothing to do with the code under test.
 const NODE_SUITES := [
 	"res://tests/unit/test_model_visual.gd",
+	"res://tests/unit/test_audit_runtime.gd",
+	"res://tests/unit/test_audit_combat.gd",
+	"res://tests/unit/test_android_runtime.gd",
 	"res://tests/unit/test_weapons.gd",
 	"res://tests/unit/test_station_shooter.gd",
 	"res://tests/unit/test_area_combat.gd",
@@ -93,19 +98,16 @@ var _integration_run := false
 
 
 func _initialize() -> void:
-	# SceneTree `--script` does not inject autoload *identifiers*, but the
-	# project's real autoload scripts can still live under /root/<Name> so
-	# gameplay code that looks them up by path (arena, StatusManager) compiles
-	# and runs. These are the real EventBus/GameRoot scripts, not test fakes.
+	# The engine registers autoloads after compiling this main-loop script.
+	# Keep suite loading dynamic; only tree-independent suites run here.
 	_boot_project_autoloads()
 	# Unit suites are pure (no nodes) -> safe to run immediately.
 	_run_suites(UNIT_SUITES)
 
 
 func _boot_project_autoloads() -> void:
-	# Only EventBus: GameRoot/ContentRegistry _ready() pulls SaveManager and
-	# would halt the hermetic suite on content validation. Gameplay scripts that
-	# tests compile now look autoloads up by /root path and tolerate null.
+	# Fallback only: do not duplicate the engine's real project autoloads.
+	# EventBus is safe for isolated tools; full project startup owns the rest.
 	var entries: Array = [
 		["EventBus", "res://scripts/core/event_bus.gd"],
 	]
@@ -127,6 +129,7 @@ func _boot_project_autoloads() -> void:
 ## Load each suite and fold its cases into the totals/failures.
 func _run_suites(paths: Array) -> void:
 	for path in paths:
+		print("SUITE: " + String(path))
 		var script: GDScript = load(path)
 		if script == null:
 			_failures.append("Could not load suite: %s" % path)
@@ -143,14 +146,23 @@ func _run_suites(paths: Array) -> void:
 			print("::error title=Suite compile failure::%s has a parse error" % path)
 			_total += 1
 			continue
-		var cases: Array = script.call("suite")
+		var raw_cases: Variant = script.call("suite")
+		if not raw_cases is Array:
+			_failures.append("Suite did not return cases: %s" % path)
+			_total += 1
+			continue
+		var cases: Array = raw_cases
 		if cases.is_empty():
 			_failures.append("Suite ran no cases: %s" % path)
 			_total += 1
 			continue
 		for c in cases:
 			_total += 1
-			if not bool(c.get("passed", false)):
+			if not c is Dictionary:
+				_failures.append("Malformed test case in %s" % path)
+				continue
+			var passed: Variant = c.get("passed", false)
+			if not passed is bool or not passed:
 				_failures.append("%s :: %s — %s" % [path.get_file(), str(c.get("name", "")), str(c.get("why", ""))])
 
 
