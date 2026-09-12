@@ -157,7 +157,10 @@ class FocusScene:
 
     @staticmethod
     def _texture(document, binary, index):
-        width, height, channels, pixels = glb_codec.texture_map(document, binary, index)
+        # Resolve the slot the way the spec says: slot -> textures[i] -> images[source].
+        # Skipping that hop is how a dangling index survives a self-consistent reader.
+        entry = document['textures'][index]
+        width, height, channels, pixels = glb_codec.texture_map(document, binary, entry['source'])
         return {'width': width, 'height': height, 'channels': channels, 'pixels': pixels,
                 'linear': None}
 

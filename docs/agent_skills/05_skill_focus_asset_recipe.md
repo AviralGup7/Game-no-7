@@ -22,6 +22,7 @@ simplify the design instead.
 | One material, one draw call | 1 `pbrMetallicRoughness` material per GLB | `assemble()` + `check_model` |
 | Atlas | 512², 4×4 islands of 128², 4-texel dilation | `material.Atlas.island_for` (raises past 16) |
 | Maps | albedo / normal / ORM / emission PNG | `pack.to_glb`, `check_png` |
+| Map references | a slot names a `textures[]` entry, which names `images[]` + `samplers[]` | `check_model`, `test_skill_foci.py` |
 | Attributes | `POSITION` (+min/max), `NORMAL`, `TANGENT`, `TEXCOORD_0`, indices | `glb.write` |
 | Triangles | ≤ 4200 per prop | `assemble()` |
 | Footprint | ≤ 0.60 m across, base seated at `Y = 0` | `assemble()`, `test_skill_foci.py` |
@@ -94,6 +95,7 @@ director wants one, `ModelVisual.create(load(path), extent)` is the whole call.
 python3 tool/build_skill_foci.py                  # all eight, ~5 min; or pass skill ids
 python3 tool/build_skill_foci.py seismic_slam     # one, while iterating on a design
 python3 tool/validate_assets.py                   # 128 models incl. every focus.glb, re-parsed
+                                                    # (resolves every material slot through textures[])
 python3 tool/validate_resources.py                # scenes/resources incl. the 8 prop scenes
 python3 -m unittest discover -s tests/python -p "test_*.py"
 ```
@@ -109,9 +111,11 @@ as a clean exit code.
 of every output, and the measured triangle/vertex/island counts per prop. `test_skill_foci.py`
 re-hashes the files on disk against it, so a hand-edit to one PNG cannot pass as "generated".
 
-For a visual pass, `tool/serve_art.py` also serves `data/` and `tool/` under the preview host.
+For a visual pass, `tool/serve_art.py` also serves `data/` and `tool/` under the preview host, and
+`tool/skill_preview.html` spins the shipped `focus.glb` bytes with three.js and lists the set from
+`build_report.json`, so the viewer cannot drift from what the generator wrote.
 
-## 6. Five bugs that a plausible render hid (read this before writing a new generator)
+## 6. Six bugs that a plausible render hid (read this before writing a new generator)
 
 1. **Winding convention.** `slab` extrudes a CCW outline into quads whose *shared* ring edge a cap
    fan must traverse the opposite way. A cap that guesses the rule instead of reading the wall makes
@@ -131,7 +135,16 @@ For a visual pass, `tool/serve_art.py` also serves `data/` and `tool/` under the
    cap average its normal with a 45° chamfer, and the plate renders as a pinwheel of shading wedges.
    Generator caps are tagged into their own shading group (`Part.hard`), exactly as a DCC's
    hard-edge split would; curved surfaces still smooth across their quads.
-5. **Float noise is not a UV violation.** A bbox-normalised planar cap lands at `-1e-16` instead of
+5. **Dangling texture indirection.** `pbrMetallicRoughness.baseColorTexture.index` is an index into
+   `textures`, and only that entry points at `images` and `samplers`. Writing image indices straight
+   into the slots produces a file whose numbers all look in range, whose maps are embedded and
+   correct, and that *renders* perfectly in a previewer that reads `images` — because the previewer
+   repeats the writer's mistake. `godot --import` is the first thing to refuse it, in CI. Fix: emit
+   `textures[]` per map, resolve the hop in the previewer too, and teach `check_model` to walk
+   slot → texture → image for every model in the project. The general lesson: **a validator that
+   mirrors the generator's assumptions verifies the assumptions, not the format** — read the spec's
+   indirection, or better, the engine's own importer.
+6. **Float noise is not a UV violation.** A bbox-normalised planar cap lands at `-1e-16` instead of
    `0.0`, which is a *generator rounding* problem, not an authoring error: `Part.vertex` clamps into
    the frame rather than leaving the pack check to fail on the last bit of a mantissa.
 

@@ -100,22 +100,28 @@ def to_glb(mesh, atlas, maps, meta):
     component = USHORT if len(positions) < 65536 else UINT
     index_accessor = writer.packed(indices, 'SCALAR', component, ELEMENT_ARRAY_BUFFER)
 
-    texture_indexes = {}
+    images = {}
     for name in ('albedo', 'normal', 'orm', 'emissive'):
-        image, sampler = writer.texture(maps[name], '%s_%s.png' % (meta['slug'], name))
-        texture_indexes[name] = (image, sampler)
+        images[name] = writer.texture(maps[name], '%s_%s.png' % (meta['slug'], name))
+    # A material slot names a `textures` entry, and that entry names the image and sampler.
+    # Pointing a slot straight at `images` leaves every index dangling out of range, which the
+    # engine importer rejects even though a reader aimed at `images` still finds the maps.
+    slots = {}
+    for name, (image, sampler) in images.items():
+        document.setdefault('textures', []).append({'sampler': sampler, 'source': image})
+        slots[name] = len(document['textures']) - 1
 
     materials = [{
         'name': '%s focus alloy' % meta['display_name'],
         'pbrMetallicRoughness': {
-            'baseColorTexture': {'index': texture_indexes['albedo'][0], 'texCoord': 0},
-            'metallicRoughnessTexture': {'index': texture_indexes['orm'][0], 'texCoord': 0},
+            'baseColorTexture': {'index': slots['albedo'], 'texCoord': 0},
+            'metallicRoughnessTexture': {'index': slots['orm'], 'texCoord': 0},
             'metallicFactor': 1.0,
             'roughnessFactor': 1.0,
         },
-        'normalTexture': {'index': texture_indexes['normal'][0], 'texCoord': 0, 'scale': 1.0},
-        'occlusionTexture': {'index': texture_indexes['orm'][0], 'texCoord': 0, 'strength': 1.0},
-        'emissiveTexture': {'index': texture_indexes['emissive'][0], 'texCoord': 0},
+        'normalTexture': {'index': slots['normal'], 'texCoord': 0, 'scale': 1.0},
+        'occlusionTexture': {'index': slots['orm'], 'texCoord': 0, 'strength': 1.0},
+        'emissiveTexture': {'index': slots['emissive'], 'texCoord': 0},
         'emissiveFactor': tuple(round(value, 5) for value in meta['accent']),
         'doubleSided': False,
         'alphaMode': 'OPAQUE',

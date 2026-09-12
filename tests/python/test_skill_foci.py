@@ -135,6 +135,49 @@ class SkillFocusModelTests(unittest.TestCase):
             self.assertTrue(all(0.0 < component <= 1.0 for component in accent),
                             f'{skill_id}: emissiveFactor must be a sane accent colour')
 
+    def test_material_texture_slots_resolve_through_the_texture_table(self):
+        """Every slot must reach an image through `textures`, the way glTF 2.0 requires.
+
+        Writing image indices straight into the slots is the failure this guards: the numbers look
+        sane, a reader that takes the same shortcut still paints the model, and the engine's
+        importer is the first thing to refuse the file — at asset-import time, in CI. The ORM map
+        legitimately serves two slots, so four maps mean four distinct sources.
+        """
+        for skill_id in FOCI:
+            doc, binary = gltf_document(model_dir(skill_id) / 'focus.glb')
+            material = doc['materials'][0]
+            slots = {name: material['pbrMetallicRoughness'][name]
+                     for name in ('baseColorTexture', 'metallicRoughnessTexture')}
+            slots.update({name: material[name] for name in ('normalTexture', 'occlusionTexture', 'emissiveTexture')})
+            textures = doc.get('textures', [])
+            self.assertEqual(len(textures), 4, f'{skill_id}: four maps need four texture entries')
+            sources = set()
+            for name, info in slots.items():
+                self.assertLess(info['index'], len(textures), f'{skill_id}: {name} is not a texture index')
+                entry = textures[info['index']]
+                self.assertLess(entry.get('source', -1), len(doc['images']), f'{skill_id}: {name} has no image behind it')
+                sources.add(entry['source'])
+                if 'sampler' in entry:
+                    self.assertLess(entry['sampler'], len(doc.get('samplers', [])), f'{skill_id}: {name} sampler missing')
+            self.assertEqual(len(sources), 4, f'{skill_id}: a map is not reaching the material')
+            self.assertEqual(sorted(textures, key=lambda entry: entry['source']), textures,
+                             f'{skill_id}: texture entries should follow their images')
+            self.assertEqual({entry['source'] for entry in textures}, set(range(len(doc['images']))),
+                             f'{skill_id}: an embedded map is never sampled')
+            # The hop must also reach the *right* map: a slot wired to another image of the same
+            # document resolves legally and paints the prop with, say, its own ORM map.
+            prefix = 'Focus_' + ''.join(word.title() for word in skill_id.split('_'))
+            wanted = {'baseColorTexture': 'albedo', 'metallicRoughnessTexture': 'ORM',
+                      'normalTexture': 'normal', 'occlusionTexture': 'ORM', 'emissiveTexture': 'emission'}
+            for name, map_name in wanted.items():
+                holder = material['pbrMetallicRoughness'] if name in ('baseColorTexture', 'metallicRoughnessTexture') else material
+                image = doc['images'][textures[holder[name]['index']]['source']]
+                view = doc['bufferViews'][image['bufferView']]
+                start = view.get('byteOffset', 0)
+                embedded = binary[start:start + view['byteLength']]
+                self.assertEqual(embedded, (model_dir(skill_id) / 'textures' / f'{prefix}_{map_name}.png').read_bytes(),
+                                 f'{skill_id}: {name} is not wired to the {map_name} map')
+
     def test_each_focus_ships_the_socket_nodes_an_effect_needs(self):
         for skill_id in FOCI:
             doc, _binary = gltf_document(model_dir(skill_id) / 'focus.glb')

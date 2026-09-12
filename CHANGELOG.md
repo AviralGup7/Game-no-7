@@ -19,10 +19,15 @@
   every output hash, measured counts) and add `ASSET_LICENSES/skill-foci.md` plus
   `docs/agent_skills/05_skill_focus_asset_recipe.md` for the contract, the seams and the
   winding/inset/shading-group pitfalls a plausible render hides.
-- Add `tests/python/test_skill_foci.py`: fifteen checks that re-parse every GLB (attributes,
+- Resolve every material slot through the glTF `textures` table instead of pointing slots at
+  `images`: the shipped files looked fine to a previewer that made the same shortcut and were
+  rejected by `godot --import`. `check_model` now walks slot -> texture -> image for all 128 models,
+  and the focus previews resolve the hop the way the engine does.
+- Add `tests/python/test_skill_foci.py`: sixteen checks that re-parse every GLB (attributes,
   bounds, single material, UV range, unit normals with orthogonal tangents), re-hash every
   reported file against the build report, validate the prop scenes and resources, and assert
-  the catalogue points only at files that exist. All asset gates and the Python suite pass.
+  the catalogue points only at files that exist; `tool/skill_preview.html` spins the shipped GLBs.
+  All asset gates and the Python suite pass.
 
 ## [Unreleased] — Continuous campaign world (2026-09-12)
 
