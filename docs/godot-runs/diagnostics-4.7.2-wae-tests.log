@@ -109,13 +109,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=1947 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=1947 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=1947 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=1947 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=1947 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12164 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12164 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=1985 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=1985 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=1985 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=1985 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=1985 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12945 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12945 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -366,7 +366,9 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1567 total, 0 failed
+GDScript tests: 1567 total, 1 failed
+  FAIL  test_campaign.gd :: partial current-mission collection is preserved — 
+::error title=GDScript test failures (1)::test_campaign.gd :: partial current-mission collection is preserved — 
 ========================================
 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)

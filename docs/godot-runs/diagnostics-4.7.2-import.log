@@ -1253,11 +1253,11 @@ WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 [  17% ] [90m[1mreimport[22m | grey_panel.png[39m[0m
+[  17% ] [90m[1mreimport[22m | trophy.png[39m[0m
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
-[  17% ] [90m[1mreimport[22m | trophy.png[39m[0m
 [  17% ] [90m[1mreimport[22m | grey_button01.png[39m[0m
 [  17% ] [90m[1mreimport[22m | grey_button00.png[39m[0m
 [  18% ] [90m[1mreimport[22m | grey_box.png[39m[0m
