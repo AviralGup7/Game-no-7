@@ -28,7 +28,7 @@
 
 ########## diag-check.log
     453 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    241 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    242 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
     157 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
     121 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      14 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
@@ -45,7 +45,6 @@
       3 ERROR: Failed to load script "res://scripts/player/experience_component.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
-      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "before" variable because the value doesn't have a set type.
       2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
@@ -53,7 +52,7 @@
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_wave_mutators.gd" with error "Compilation failed".
@@ -241,8 +240,6 @@
 ########## diag-wae-probe.log
 
 ########## diag-lsp.txt
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:96:16: ERROR: Cannot infer the type of "before" variable because the value doesn't have a set type.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:120:16: ERROR: Cannot infer the type of "before" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
@@ -256,5 +253,4 @@
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-      1 ERROR: LSP: Failed to parse script: res://tests/verify_campaign_inner.gd
 

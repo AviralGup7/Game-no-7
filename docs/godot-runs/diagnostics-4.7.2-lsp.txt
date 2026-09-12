@@ -7,5 +7,3 @@
 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
-/home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:120:16: ERROR: Cannot infer the type of "before" variable because the value doesn't have a set type.
-/home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:96:16: ERROR: Cannot infer the type of "before" variable because the value doesn't have a set type.
