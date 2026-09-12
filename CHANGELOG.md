@@ -1,5 +1,50 @@
 # Changelog
 
+## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
+
+- Put the twelve-district 864 × 672 m station back. Merging the audit-gate PR resolved a
+  conflict in `data/campaign/station_zero.json` by keeping the older six-district layout, which
+  silently reverted the expansion while the tests, docs and this changelog still described the
+  bigger world — `gdlint`, five GDScript campaign tests, `CampaignDefinition` reconcile and
+  twelve Python tests all failed on the mismatch. The map, its cargo-gating pacing fix
+  (`cargo_records` requires `cargo_guards`) and `docs/campaign/STATION_ZERO_MAP.svg` are restored
+  together, so both PRs' intent survives.
+- Move twelve authored props (`hydro_pallet`, `dock_crane`, `transit_crane`, `reactor_pump`,
+  `cargo_pallet`, `habitat_pallet`, `foundry_heat_exchanger`, `medbay_pallet`, `salvage_pallet_b`,
+  `command_pallet_b`, `archive_vault`, `comms_pallet_b`) 8 m deeper into their own districts. Each
+  16 × 8 landmark sat 4 m inside a district edge, centred on a 16 m doorway, so its 2.5 m inflated
+  footprint blocked the whole nav-cell row across the opening and genuinely sealed those doors.
+  Walkable cells are unchanged at 13 440 and every spawn, checkpoint and objective stays clear.
+- Derive the spatial gates from the data instead of the station they were first tuned on.
+  `tool/validate_level_flow.py` now classifies every floor rect as district / connector / spur /
+  spine, derives door lines from the wall a deck actually touches, samples seven walkable lanes
+  across each whole 16 m opening (which is what found the sealed doors), and computes its
+  traversal budgets from the authored bounds (7 × world axis, one world diagonal per leg,
+  ≤ 3 district hops). The hardcoded `("command", "reactor")` exemption is gone.
+- Derive the combat budgets in `tool/validate_shooter_readiness.py` from the shipped balance data:
+  `combat_reach()` parses `attack_range` / `vision_range` / `ranged_range` out of
+  `data/weapons/*.tres` and `data/enemies/*.tres` (22 m weapon reach, 30 m warlord sight, 14 m
+  ranged) and scales cover reach (2×), room line-of-sight (6× warn / 8× error) and the cover
+  interval (8×) from it. A long lane is now only a defect when no cover lies within cover reach,
+  and the perimeter service ring is aggregated into one note that the gate re-proves closes a loop
+  before accepting it.
+- Derive the object budgets in `tool/validate_visual_performance.py` from the runtime contracts:
+  floor modules are measured against `ArenaNavGrid.WORLD_CELL_LIMIT` (10 240 modules, warn 7 680)
+  and the gate errors if `campaign_geometry.gd` stops `MultiMesh`-batching them; streaming is
+  judged by resident modules (`max_visible_sectors` × mean district modules ≤ 1 200, currently
+  672) rather than by a flat district count that only punished a bigger map.
+- Give all three gates an acknowledged-warning model: accepted design notes live in
+  `ACKNOWLEDGED_WARNINGS` with a written rationale, are matched by id glob, are re-checked every
+  run, and fail CI when they stop matching reality or lose their rationale. `tests/python/
+  test_level_flow_integrity.py` and `test_shooter_readiness.py` assert the model itself, the
+  authored topology and the derived budgets, so a threshold can no longer be loosened quietly.
+- Refresh `docs/GEOMETRY_AUDIT.md`, `docs/LEVEL_FLOW_AUDIT.md`, `docs/SHOOTER_READINESS_AUDIT.md`,
+  `docs/VISUAL_PERFORMANCE_AUDIT.md` and the three `docs/*_report.json` files against the restored
+  station, including an honest worst-case frame estimate (672 resident floor modules, 1 676 rail
+  segments) and the perimeter-rail batching risk it exposes.
+- Fix the two `gdlint` function-argument-name errors in `scripts/debug/debug_error_handler.gd`
+  that were failing the GDScript lint job independently of the map.
+
 ## [Unreleased] — Skill cast-focus prop set (2026-09-12)
 
 - Author the eight missing skill visuals: one cast-focus prop per skill, matching the eight

@@ -1,16 +1,16 @@
 # Geometry & Asset Integrity Audit — Agent 1
 
-**Date:** 2026-09-12
+**Date:** 2026-09-12 (re-run against the restored twelve-district station)
 **Auditor:** Agent 1 — Geometry & Asset Integrity
-**Scope:** Continuous campaign world `data/campaign/station_zero.json`, modular arena system (`scenes/arena/arena.tscn` + `data/arenas/*.tres` + `data/arena_landmarks/*.tres` + `data/arena_themes/*.tres`), decorator props (`scripts/arena/arena_decorator.gd`), and referenced scene / resource assets.
+**Scope:** Continuous campaign world `data/campaign/station_zero.json` (864 × 672 m, 12 districts, 47 floor regions / 3 768 modules, 72 props, 32 encounters / 96 spawns, 30 interactions), modular arena system (`scenes/arena/arena.tscn` + `data/arenas/*.tres` + `data/arena_landmarks/*.tres` + `data/arena_themes/*.tres`), decorator props (`scripts/arena/arena_decorator.gd`), and referenced scene / resource assets.
 **Tool:** `tool/validate_geometry.py` (stdlib only, no Godot runtime) + `tool/validate_campaign.py` + `tool/validate_assets.py` + `tool/validate_resources.py`
-**Result:** **PASS — 0 errors, 0 warnings** across 13 categories (campaign world). No geometry integrity failures detected.
+**Result:** **PASS — 0 errors, 0 warnings** across 13 categories (campaign world). No geometry integrity failures detected. `validate_geometry.py` needed no changes for the twelve-district layout — every threshold it uses is a ratio, a module multiple or a runtime contract, never a station size.
 
 ---
 
 ## Executive Summary
 
-The authored station and the modular Pit arenas are geometrically sound. Every solid sits on the floor, no meshes clip through each other, no spawns or objectives are buried or unreachable, floor modules are fully connected with perimeter walls sealed everywhere except the authored causeway connectors, all authored numbers are finite and within their validated ranges, collision AABBs match visual holders, and all referenced resources resolve.
+The authored station — twelve `128 × 112` districts on a 4 × 3 mesh, stitched by 35 decks and wrapped in a 13 408 m merged perimeter (180 wall AABBs, 1 676 perimeter edges, 13 440 walkable nav cells) — and the modular Pit arenas are geometrically sound. Every solid sits on the floor, no meshes clip through each other, no spawns or objectives are buried or unreachable, floor modules are fully connected with perimeter walls sealed everywhere except the authored causeway connectors, all authored numbers are finite and within their validated ranges, collision AABBs match visual holders, and all referenced resources resolve.
 
 `tool/validate_geometry.py` was created to make these invariants machine-checkable in CI without launching the engine. It subsumes the spatial parts of `tool/validate_campaign.py` and adds eight additional categories that were previously only inspected by hand.
 
@@ -23,7 +23,7 @@ Geometry integrity: OK — 0 issues (0 errors, 0 warnings) across 13 categories
 
 ```
 $ python3 tool/validate_campaign.py
-Campaign topology/content: OK {"authored_enemies": 29, "districts": 6, ... "reachable_walkable_cells": 2505}
+Campaign topology/content: OK {"authored_enemies": 96, "districts": 12, ... "reachable_walkable_cells": 13440}
 
 $ python3 tool/validate_resources.py
 Validated  N files: OK
@@ -56,9 +56,9 @@ No art is sampled; all checks are coordinate / topology checks against the autho
 | `dock_shuttle` | [-112, 1.6, 100] | [20, 3.2, 12] | 0.000 | ✓ |
 | `dock_freight_a` | [-136, 1.5, 72] | [12, 3, 8] | 0.000 | ✓ |
 | `reactor_core` | [112, 5, -80] | [20, 10, 20] | 0.000 | ✓ |
-| … (all 24 props) | — | — | 0.000 | ✓ |
-| 15 interactions | y=0.20 | — | — | ✓ (±0.02) |
-| 29 spawns | y=0.20 | — | — | ✓ (±0.02) |
+| … (all 72 props) | — | — | 0.000 | ✓ |
+| 30 interactions | y=0.20 | — | — | ✓ (±0.02) |
+| 96 spawns | y=0.20 | — | — | ✓ (±0.02) |
 
 **Finding:** No floating objects. Every prop sits exactly on the floor (within float epsilon). No warning.
 
@@ -89,9 +89,9 @@ Four sub-checks, all at exact footprints (visual overlap) rather than the inflat
 
 ### 4 — Gaps Between Modular Walls / Floors
 
-* **Floor connectivity:** `walkable = 2505` cells, `reachable = 2505` cells from `docks` checkpoint. `reachable == walkable`. Disconnecting all north-south causeways (`floors` with `w=16, h=96` removed) makes the validator report `disconnected` — the gap detector works.
-* **Perimeter:** `304` perimeter edges from `744` floor modules (`352 × 272 m` footprint, `88 × 68` nav cells, `5984` total cells). Far above the `>20` sanity threshold.
-* **Causeways stay open:** Checked `x ∈ {-64, -48, 48, 64}` at `z ∈ {-76, 92}` — no wall edge seals the three north and three south connectors. The intended design (districts connected by 16 m-wide causeways) is preserved.
+* **Floor connectivity:** `walkable = 13440` cells, `reachable = 13440` cells from the `docks` checkpoint `[-216, 0.2, 44]`. `reachable == walkable`. Removing the four decks that serve `hydroponics` makes the validator report `760 floor modules are disconnected from the start` plus an islanded `hydro_valve` interaction, and `validate_level_flow` reports the district as unreachable on the story graph — the gap detector works on the restored layout.
+* **Perimeter:** `1 676` perimeter edges from `3 768` floor modules (`864 × 672 m` footprint, `216 × 168` nav cells, `36 288` total cells, 180 merged wall AABBs / 13 408 m). Far above the `>20` sanity threshold.
+* **Decks stay open:** all 35 decks (17 connectors `48 × 16` / `16 × 48`, 14 spurs, 4 perimeter spines) were checked for a sealing wall edge — none. The real sealing risk on this layout was authored props: twelve 16 × 8 pallets/cranes/vaults sat 4 m inside a district edge, centred on a 16 m doorway, and their inflated footprints blocked the whole nav-cell row across the opening. They were moved 8 m deeper into their own districts (see `LEVEL_FLOW_AUDIT.md` §6); walkable cells are unchanged at 13 440 and geometry stays green.
 * **Arena Pit gaps:** The Pit's four walls and yard are authored as continuous `BoxShape3D` strips, not per-module walls, so there are no modular seams to gap. Verified by `scenes/arena/arena.tscn` — four perimeter walls plus yard floor.
 
 **Finding:** No gaps. Floor is fully connected; perimeter walls seal the void everywhere except the authored connectors.
@@ -120,8 +120,8 @@ Four sub-checks, all at exact footprints (visual overlap) rather than the inflat
 
 ### 7 — Duplicate / Stacked Meshes
 
-* **Duplicate ids:** 24 props, 15 interactions, 29 spawns — all ids are `is_valid_identifier` and unique (`Duplicate prop id` check). `Duplicate JSON key` hook catches raw file duplicates.
-* **Colocated `at`:** 24 props at distinct positions; no two share rounded `at` (10 cm tolerance). Minimum separation is 8.0 m (module distance).
+* **Duplicate ids:** 72 props, 30 interactions, 96 spawns — all ids are `is_valid_identifier` and unique (`Duplicate prop id` check). `Duplicate JSON key` hook catches raw file duplicates.
+* **Colocated `at`:** 72 props at distinct positions; no two share rounded `at` (10 cm tolerance). Minimum centre separation is 34.2 m.
 * **Near-duplicate (stacked):** Check `distance < (size_a + size_b) * 0.15` — no pair is suspiciously close relative to its footprint.
 
 **Finding:** No duplicates. The duplication guard that caught the `world_id` double-key regression remains active.
@@ -132,7 +132,7 @@ Four sub-checks, all at exact footprints (visual overlap) rather than the inflat
 
 Checked and present:
 
-* 29 spawns → 6 enemy archetypes (`basic`, `fast`, `heavy`, `ranged`, `dasher`, `warlord`) all in `SUPPORTED_ENEMIES` and `data/enemies/*_enemy.tres` exists. Untacked `splitter`/`exploder` are correctly rejected (they rely on a splitting/exploding subsystem not supported in the campaign encounter flow).
+* 96 spawns → 6 enemy archetypes (`basic`, `fast`, `heavy`, `ranged`, `dasher`, `warlord`) all in `SUPPORTED_ENEMIES` and `data/enemies/*_enemy.tres` exists. Untacked `splitter`/`exploder` are correctly rejected (they rely on a splitting/exploding subsystem not supported in the campaign encounter flow).
 * 7 missions → rewards: `power`, `haste`, `vitality`, `critical_edge`, `storm_edge` in `data/upgrades/*.tres`; `sentinel_spear` in `data/weapons/*.tres`.
 * Arena `data/arenas/*.tres` → every `path="res://..."` resolves to a file on disk (panoramas, scenes, themes, landmarks).
 * Scene assets: `tool/validate_assets.py` verifies every `assets/**/*.glb/.png/.hdr/.ogg/.ttf` against `assets/manifest.json` checksums; `tool/validate_resources.py` verifies every `ExtResource(path="res://...")` points to a file.
@@ -155,10 +155,10 @@ Checked and present:
 
 ### 10 — Objects Outside Intended Bounds
 
-* **World bounds:** `Rect2(-176, -136, 352, 272)` encloses all 24 prop footprints.
+* **World bounds:** `Rect2(-432, -336, 864, 672)` encloses all 72 prop footprints.
 * **District enclosure:** Every prop footprint is `enclosing(sector_rect, footprint)` — no prop pokes through a district wall. Example: `dock_shuttle` footprint `[-122, 94, 20, 12]` is inside `docks` rect `[-160, 56, 96, 64]`.
-* **Interactions:** All 15 are `contains(sector_rect, at)` and `contains(any(floors), at)` — none over the void.
-* **Spawns:** All 29 are on a `floors` rect — none in the void that surrounds the station.
+* **Interactions:** All 30 are `contains(sector_rect, at)` and `contains(any(floors), at)` — none over the void.
+* **Spawns:** All 96 are on a `floors` rect — none in the void that surrounds the station.
 * **Arena obstacles:** All arena obstacles have `|x|,|z| ≤ 8.0` inside `interior_half = 18.0`.
 
 **Finding:** No out-of-bounds objects. Every authored point is on a floor and inside its district.

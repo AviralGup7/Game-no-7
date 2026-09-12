@@ -8,10 +8,14 @@ Offline, stdlib-only, engine-free. Covers 14 categories:
   reflection_probe_issues, navigation_mesh_issues, streaming_scene_organization,
   memory_performance_risks
 
-Thresholds are tuned to the authored Station Zero (352×272, 13 floors, 24 props,
-wall.glb 22k tris, 2048 wall textures, 43 arena MeshInstances, 5 lights) so the
-shipped station passes 0e/0w. Polsih recommendations are documented in
-docs/VISUAL_PERFORMANCE_AUDIT.md but do not fail the gate.
+Object-count and streaming budgets are DERIVED from the runtime's own limits
+(`ArenaNavGrid.WORLD_CELL_LIMIT`, the authored `max_visible_sectors` streaming cap
+and the MultiMesh batching in `scripts/campaign/campaign_geometry.gd`) instead of
+being tuned to one station footprint, so the gate still means something when the
+authored world grows. Asset budgets (triangle counts, texture dimensions, VRAM)
+are absolute: they describe the shipped files, not the map. Polish
+recommendations are documented in docs/VISUAL_PERFORMANCE_AUDIT.md and do not
+fail the gate.
 
 Run:
   python3 tool/validate_visual_performance.py --verbose
@@ -46,6 +50,18 @@ MAX_COLLIDERS_WARN = 200
 MAX_COLLIDERS_ERROR = 400
 MAX_FLOORS = 64
 MAX_PROPS = 80
+# Floor-module budgets, derived from the runtime world budget instead of one map:
+# ArenaNavGrid.WORLD_CELL_LIMIT nav cells at CELL=4 m, and one 8 m floor module
+# covers (MODULE/CELL)² of them. CampaignGeometry batches every module through a
+# MultiMeshInstance3D, so the instance count is a memory/batching concern, not a
+# draw-call concern — as long as that batching still exists (checked below).
+NAV_CELL_LIMIT = 40960
+NAV_CELL = 4
+FLOOR_MODULE = 8
+FLOOR_MODULE_BUDGET = NAV_CELL_LIMIT // (FLOOR_MODULE // NAV_CELL) ** 2   # 10 240 modules
+FLOOR_MODULE_WARN = 0.75 * FLOOR_MODULE_BUDGET                           # 7 680 modules
+# What is actually resident at once: the authored streaming cap times one district.
+RESIDENT_MODULE_BUDGET = 1200
 MEM_VRAM_WARN = 400 * 1024 * 1024   # decompressed RGBA estimate
 MEM_VRAM_ERROR = 900 * 1024 * 1024
 DIR_SHADOW_SIZE_WARN = 4096
@@ -165,13 +181,20 @@ def check_excessive_object_count():
         add(cat,"warning","floors",f"{len(floors)} floor rects approaching limit")
     if len(props) > MAX_PROPS:
         add(cat,"error","props",f"{len(props)} props >{MAX_PROPS} cover density")
-    # compute module cells
+    # Floor modules: affordable only because CampaignGeometry batches them through
+    # a MultiMesh, so the gate checks the batching still exists and then compares
+    # against the runtime's own world budget.
     try:
-        MODULE=8
-        mods=sum( (r[2]*r[3])//(MODULE*MODULE) for r in floors )
-        if mods > 1200:
-            add(cat,"warning","modules",f"{mods} floor modules (8 m) is high for mobile batching")
-    except: pass
+        mods=sum( (r[2]*r[3])//(FLOOR_MODULE*FLOOR_MODULE) for r in floors )
+        geometry=(ROOT/"scripts/campaign/campaign_geometry.gd").read_text(errors="ignore")
+        if "MultiMesh" not in geometry:
+            add(cat,"error","modules",f"{mods} floor modules are not MultiMesh-batched in campaign_geometry.gd — one draw call per module")
+        elif mods > FLOOR_MODULE_BUDGET:
+            add(cat,"error","modules",f"{mods} floor modules (8 m) exceed the runtime world budget {FLOOR_MODULE_BUDGET} (ArenaNavGrid.WORLD_CELL_LIMIT {NAV_CELL_LIMIT} cells)")
+        elif mods > FLOOR_MODULE_WARN:
+            add(cat,"warning","modules",f"{mods} floor modules (8 m) is above {FLOOR_MODULE_WARN:.0f} (75% of the runtime world budget) — batching headroom is running out")
+    except Exception as exc:
+        add(cat,"error","modules",f"floor module budget could not be derived: {exc}")
     # scene object counts
     for tscn in [ROOT/"scenes/arena/arena.tscn", ROOT/"scenes/campaign/station_zero.tscn"]:
         if not tscn.is_file(): continue
@@ -417,7 +440,8 @@ def check_draw_calls():
         oid="arena.tscn"
         if mi > MAX_MESH_INSTANCES_PER_SCENE_ERROR:
             add(cat,"error",oid,f"{mi} separate MeshInstance3D → ~{est} draw calls on one frame")
-        # Campaign estimate: floors use MultiMesh (batched) — 744 modules in 13 batches = 13 draw calls, not 744
+        # Campaign estimate: floors use MultiMesh (batched) — one draw call per floor batch,
+        # not one per 8 m module, however many modules the authored station grows to.
         # Check that CampaignGeometry uses MultiMesh (good pattern)
         cg= (ROOT/"scripts/campaign/campaign_geometry.gd").read_text(errors="ignore")
         has_batch = "MultiMesh" in cg and "floor_batch" in cg and "wall_batch" in cg
@@ -503,11 +527,18 @@ def check_streaming():
         data=json.loads(MAP_PATH.read_text())
     except:
         add(cat,"error","streaming","cannot read map"); return
-    sectors=len(data.get("sectors",[]))
+    districts=[tuple(s["rect"]) for s in data.get("sectors",[])]
+    sectors=len(districts)
     max_vis=data.get("max_visible_sectors",3)
     floors=len(data.get("floors",[]))
-    if sectors>8:
-        add(cat,"warning","sectors",f"{sectors} sectors — consider chunk streaming more aggressively")
+    # A big district count is only a problem if it is all resident. CampaignWorld
+    # streams by distance and the authored cap says how many districts stay live,
+    # so budget the resident modules, not the total.
+    if districts:
+        mean_modules=sum((r[2]*r[3])//(FLOOR_MODULE*FLOOR_MODULE) for r in districts)/len(districts)
+        resident=max_vis*mean_modules
+        if resident>RESIDENT_MODULE_BUDGET:
+            add(cat,"warning","sectors",f"{sectors} districts × {max_vis} resident = {resident:.0f} floor modules live at once >{RESIDENT_MODULE_BUDGET} — stream more aggressively or split the districts")
     if max_vis>3:
         add(cat,"warning","max_visible_sectors",f"{max_vis} simultaneous visible sectors >3 will keep more batches resident")
     if floors>MAX_FLOORS:
@@ -607,9 +638,18 @@ def main():
             print()
             print(f"All {len(CATEGORIES)} categories passed:")
             icons=["✔","✔","✔","✔","✔","✔","✔","✔","✔","✔","✔","✔","✔","✔"]
+            try:
+                authored=json.loads(MAP_PATH.read_text(encoding="utf-8"))
+            except Exception:
+                authored={}
+            _floors=authored.get("floors",[])
+            _mods=sum((r[2]*r[3])//(FLOOR_MODULE*FLOOR_MODULE) for r in _floors)
+            _districts=len(authored.get("sectors",[]))
+            _max_vis=authored.get("max_visible_sectors",3)
             labels=[
                 "mesh_complexity — wall 22k tris / 7602KB worst, robots 276–312 tris, ground 808 tris",
-                "excessive_object_count — 24 props, 13 floors (744 modules), 43 arena meshes (under 80)",
+                f"excessive_object_count — {len(authored.get('props',[]))} props, {len(_floors)} floors "
+                f"({_mods} modules, budget {FLOOR_MODULE_BUDGET} MultiMesh-batched), arena meshes under {MAX_MESH_INSTANCES_PER_SCENE_WARN}",
                 "texture_material_problems — all .tres references resolve, png signatures ok, no 4096+ textures",
                 "lod_issues — heavy modular wall has no LOD but acceptable for mobile draw distance (note in audit)",
                 "collision_complexity — ~57 campaign colliders, arena 0 trimesh, all BoxShape",
@@ -620,7 +660,8 @@ def main():
                 "lighting_problems — 5 lights arena (1 sun+4 torch), 1 dir campaign, shadows 2048, no 8× MSAA",
                 "reflection_probe_issues — 0 probes/GI (mobile-appropriate, sky ambient)",
                 "navigation_mesh_issues — 1 NavigationRegion3D + custom ArenaNavGrid coverage",
-                "streaming_scene_organization — 6 sectors, max_visible 3, thin station_zero.tscn, distance culling",
+                f"streaming_scene_organization — {_districts} districts, max_visible {_max_vis} "
+                f"(resident module budget {RESIDENT_MODULE_BUDGET}), thin station_zero.tscn, distance culling",
                 "memory_performance_risks — est VRAM ~116MB + GLB 46MB <400MB, wavs tiny, max enemies 18",
             ]
             for i,(lb) in enumerate(labels,1):
@@ -648,7 +689,11 @@ def main():
         out=Path(args.json)
         out.parent.mkdir(parents=True, exist_ok=True)
         cats=[n for n,_ in CATEGORIES]
-        out.write_text(json.dumps({"map": str(MAP_PATH), "module": 8, "cell":4, "errors":errors,"warnings":warnings,"issues":ISSUES,"categories":cats}, indent=2))
+        where=str(MAP_PATH.relative_to(ROOT) if MAP_PATH.is_relative_to(ROOT) else MAP_PATH)
+        out.write_text(json.dumps({"map": where, "module": FLOOR_MODULE, "cell": NAV_CELL, "errors":errors,"warnings":warnings,
+                                   "budgets":{"floor_module_budget":FLOOR_MODULE_BUDGET,"floor_module_warn":FLOOR_MODULE_WARN,
+                                              "resident_module_budget":RESIDENT_MODULE_BUDGET},
+                                   "issues":ISSUES,"categories":cats}, indent=2)+"\n")
         print(f"JSON report written to {out}")
     sys.exit(1 if errors>0 else 0)
 

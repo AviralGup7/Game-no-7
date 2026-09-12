@@ -2,9 +2,114 @@
   "map": "data/campaign/station_zero.json",
   "module": 8,
   "cell": 4,
+  "combat_reach": {
+    "weapon": 22.0,
+    "vision": 30.0,
+    "ranged": 14.0,
+    "weapons_read": 9,
+    "enemies_read": 8
+  },
+  "derived_budgets": {
+    "cover_reach": 44.0,
+    "room_los_warn": 132.0,
+    "room_los_error": 176.0,
+    "cover_interval": 176.0
+  },
+  "sightlines": [
+    {
+      "sector": "docks",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "dock_freight_c"
+    },
+    {
+      "sector": "transit",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "transit_pallet_a"
+    },
+    {
+      "sector": "hydroponics",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "hydro_toolshed"
+    },
+    {
+      "sector": "foundry",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "foundry_pallet"
+    },
+    {
+      "sector": "cargo",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "cargo_crane"
+    },
+    {
+      "sector": "reactor",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "reactor_pallet_a"
+    },
+    {
+      "sector": "medbay",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "medbay_garden"
+    },
+    {
+      "sector": "habitat",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "habitat_pod_c"
+    },
+    {
+      "sector": "salvage",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "salvage_pallet_a"
+    },
+    {
+      "sector": "archive",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "archive_pallet"
+    },
+    {
+      "sector": "comms",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "comms_generator"
+    },
+    {
+      "sector": "command",
+      "los": 147.1,
+      "cover": 1.7,
+      "cover_id": "command_pallet_a"
+    }
+  ],
   "errors": 0,
-  "warnings": 0,
-  "issues": [],
+  "warnings": 1,
+  "unacknowledged_warnings": 0,
+  "acknowledged_notes": [
+    {
+      "category": "extremely_long_exposed_corridors",
+      "id": "service_ring",
+      "detail": "4 perimeter deck(s) totalling 2688 m close a loop and carry no interior cover (longest cover-free run 736 m >176 m) \u2014 an open sprint lane by design, never the only route between two districts",
+      "rationale": "The outer service ring is an intentionally open perimeter sprint lane. It is never the only route between two districts (validate_level_flow proves no articulation corridor), four authored ring encounters patrol it, and nothing in the shipped combat data engages beyond 22 m or sees beyond 30 m \u2014 an open lane cannot be shot down its length. Cover lives inside the twelve districts the ring connects."
+    }
+  ],
+  "issues": [
+    {
+      "category": "extremely_long_exposed_corridors",
+      "severity": "warning",
+      "id": "service_ring",
+      "detail": "4 perimeter deck(s) totalling 2688 m close a loop and carry no interior cover (longest cover-free run 736 m >176 m) \u2014 an open sprint lane by design, never the only route between two districts",
+      "acknowledged": true,
+      "rationale": "The outer service ring is an intentionally open perimeter sprint lane. It is never the only route between two districts (validate_level_flow proves no articulation corridor), four authored ring encounters patrol it, and nothing in the shipped combat data engages beyond 22 m or sees beyond 30 m \u2014 an open lane cannot be shot down its length. Cover lives inside the twelve districts the ring connects."
+    }
+  ],
   "categories": [
     "cover_placement",
     "sightline_problems",
