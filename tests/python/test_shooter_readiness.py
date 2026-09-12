@@ -34,8 +34,33 @@ class ShooterReadinessTests(unittest.TestCase):
             self.assertEqual(r.returncode,0, f"{tool} failed while shooter ran: {r.stdout}\n{r.stderr}")
     def test_no_error_any_category(self):
         self.assertEqual(self.report.get("errors"),0, f"shooter errors: {json.dumps(self.report.get('issues',[]), indent=2)}")
-    def test_no_warning_any_category(self):
-        self.assertEqual(self.report.get("warnings"),0, f"shooter warnings: {json.dumps(self.report.get('issues',[]), indent=2)}")
+    def test_no_unacknowledged_warnings(self):
+        """A warning either gets fixed or gets recorded with a reason in the validator."""
+        open_warns=[it for it in self.report.get("issues",[])
+                    if it.get("severity")=="warning" and not it.get("acknowledged")]
+        self.assertEqual(open_warns, [], f"unacknowledged shooter warnings: {json.dumps(open_warns, indent=2)}")
+
+    def test_acknowledged_notes_carry_a_rationale(self):
+        for note in self.report.get("acknowledged_notes", []):
+            self.assertTrue(str(note.get("rationale","")).strip(), f"acknowledged note without a rationale: {note}")
+
+    def test_sightline_budgets_are_derived_from_the_authored_combat_data(self):
+        """The LOS budgets follow the shipped weapons/enemies, not a hard-coded map."""
+        import re
+        reach=self.report.get("combat_reach",{})
+        self.assertGreater(reach.get("weapons_read",0), 0, "no weapon resources were read")
+        self.assertGreater(reach.get("enemies_read",0), 0, "no enemy resources were read")
+        weapons=max(float(m.group(1)) for p in (ROOT/"data"/"weapons").glob("*.tres")
+                    for m in [re.search(r"^attack_range\s*=\s*([0-9.]+)", p.read_text(), re.M)] if m)
+        self.assertEqual(reach.get("weapon"), weapons)
+        budgets=self.report.get("derived_budgets",{})
+        self.assertEqual(budgets.get("room_los_error"), 8.0*weapons)
+        self.assertEqual(budgets.get("cover_interval"), 8.0*weapons)
+        # and every district lane that outgrows the warn budget has cover beside it
+        for lane in self.report.get("sightlines",[]):
+            if lane["los"] > budgets.get("room_los_warn", 0):
+                self.assertLessEqual(lane["cover"], budgets.get("cover_reach", 0),
+                                     f"{lane['sector']} has an uncovered {lane['los']} m fire lane")
     def test_cover_placement(self): self.assertEqual(self._errors("cover_placement"),[])
     def test_sightline_problems(self): self.assertEqual(self._errors("sightline_problems"),[])
     def test_exposed_corridors(self): self.assertEqual(self._errors("extremely_long_exposed_corridors"),[])

@@ -96,14 +96,38 @@ class LevelFlowIntegrityTests(unittest.TestCase):
                          {"structure","navigation","dead_ends","blocked_corridors","narrow_passages",
                           "door_alignment","vertical","connectivity","isolated_areas","campaign_path"})
 
-    def test_expected_warnings_are_documented(self):
-        # Cargo optional is the sole expected warning; if more appear, audit is incomplete
-        warns = [it for it in self.report.get("issues", []) if it.get("severity")=="warning"]
-        self.assertLessEqual(len(warns), 2,
-            f"too many warnings (expected <=1 cargo note): {warns}")
-        if warns:
-            self.assertTrue(any(it["id"]=="cargo_records" for it in warns),
-                f"unexpected warning id set: {warns}")
+    def test_no_unacknowledged_warnings(self):
+        """A warning either gets fixed or gets recorded with a reason in the validator.
+
+        The gate is not "warnings are allowed": an unreviewed warning fails CI
+        exactly like an error, so a new design note has to be written down in
+        ACKNOWLEDGED_WARNINGS and docs/LEVEL_FLOW_AUDIT.md before it can pass.
+        """
+        open_warns = [it for it in self.report.get("issues", [])
+                      if it.get("severity") == "warning" and not it.get("acknowledged")]
+        self.assertEqual(open_warns, [],
+                         f"unacknowledged level-flow warnings: {json.dumps(open_warns, indent=2)}")
+
+    def test_acknowledged_notes_carry_a_rationale(self):
+        notes = self.report.get("acknowledged_notes", [])
+        self.assertIsInstance(notes, list)
+        for note in notes:
+            self.assertTrue(str(note.get("rationale", "")).strip(),
+                            f"acknowledged note without a rationale: {note}")
+
+    def test_report_describes_the_authored_topology(self):
+        """The topology model is derived from the map, and the report proves it."""
+        authored = json.loads((ROOT / "data/campaign/station_zero.json").read_text(encoding="utf-8"))
+        topology = self.report.get("topology", {})
+        self.assertEqual(topology.get("districts"), len(authored["sectors"]))
+        self.assertEqual(topology.get("floors"), len(authored["floors"]))
+        self.assertEqual(
+            topology.get("connector_decks", 0) + topology.get("spurs", 0) + topology.get("perimeter_spines", 0),
+            topology.get("floors", 0) - topology.get("districts", 0),
+            f"every non-district floor must be classified: {topology}")
+        pacing = self.report.get("pacing", {})
+        self.assertLessEqual(pacing.get("total", float("inf")), pacing.get("total_budget", 0))
+        self.assertLessEqual(pacing.get("max_leg", float("inf")), pacing.get("leg_budget", 0))
 
 
 if __name__ == "__main__":

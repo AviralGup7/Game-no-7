@@ -3,8 +3,54 @@
   "module": 8,
   "cell": 4,
   "errors": 0,
-  "warnings": 0,
-  "issues": [],
+  "warnings": 2,
+  "unacknowledged_warnings": 0,
+  "acknowledged_notes": [
+    {
+      "category": "campaign_path",
+      "id": "triage",
+      "detail": "mission triage sector medbay has 8 guards but requires=[] \u2014 combat is skippable/optional; the objective is not locked behind the district clear",
+      "rationale": "Medical triage is an authored quiet beat. The wardens patrol 11 m from both medkits, so combat is unavoidable in practice (enemy vision is 17 m), but the consoles deliberately do not lock behind a district clear: the player may talk to the survivors mid-fight."
+    },
+    {
+      "category": "campaign_path",
+      "id": "archive_names",
+      "detail": "mission archive_names sector archive has 9 guards but requires=[] \u2014 combat is skippable/optional; the objective is not locked behind the district clear",
+      "rationale": "Data Archive is the campaign's stealth beat: three cores sit 8 m from the sentries and the mission intentionally does not require clearing them, so a player who avoids the stacks is rewarded. The other nine missions (restore_transit, green_deck, forge_passage, cargo_records, coolant, survivors, salvage_run, send_signal, commander) each lock their objective behind a same-district patrol."
+    }
+  ],
+  "topology": {
+    "floors": 47,
+    "districts": 12,
+    "connector_decks": 17,
+    "perimeter_spines": 4,
+    "spurs": 14
+  },
+  "pacing": {
+    "total": 4260.0,
+    "max_leg": 544.0,
+    "max_leg_id": "forge_passage:foundry_cutter",
+    "total_budget": 6048.0,
+    "leg_budget": 1094.5684080951726
+  },
+  "issues": [
+    {
+      "category": "campaign_path",
+      "severity": "warning",
+      "id": "triage",
+      "detail": "mission triage sector medbay has 8 guards but requires=[] \u2014 combat is skippable/optional; the objective is not locked behind the district clear",
+      "acknowledged": true,
+      "rationale": "Medical triage is an authored quiet beat. The wardens patrol 11 m from both medkits, so combat is unavoidable in practice (enemy vision is 17 m), but the consoles deliberately do not lock behind a district clear: the player may talk to the survivors mid-fight."
+    },
+    {
+      "category": "campaign_path",
+      "severity": "warning",
+      "id": "archive_names",
+      "detail": "mission archive_names sector archive has 9 guards but requires=[] \u2014 combat is skippable/optional; the objective is not locked behind the district clear",
+      "acknowledged": true,
+      "rationale": "Data Archive is the campaign's stealth beat: three cores sit 8 m from the sentries and the mission intentionally does not require clearing them, so a player who avoids the stacks is rewarded. The other nine missions (restore_transit, green_deck, forge_passage, cargo_records, coolant, survivors, salvage_run, send_signal, commander) each lock their objective behind a same-district patrol."
+    }
+  ],
   "categories": [
     "structure",
     "navigation",

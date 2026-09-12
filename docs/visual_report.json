@@ -1,9 +1,14 @@
 {
-  "map": "/home/user/Game-no-7/data/campaign/station_zero.json",
+  "map": "data/campaign/station_zero.json",
   "module": 8,
   "cell": 4,
   "errors": 0,
   "warnings": 0,
+  "budgets": {
+    "floor_module_budget": 10240,
+    "floor_module_warn": 7680.0,
+    "resident_module_budget": 1200
+  },
   "issues": [],
   "categories": [
     "mesh_complexity",
