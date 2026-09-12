@@ -1,0 +1,575 @@
+<!doctype html>
+<!--
+  3D Modular Environment & Wall Inspector
+  Inspects 3D modular walls and ground tiles with Three.js.
+
+  Run: python3 tool/serve_art.py --port 8000
+  Open: http://localhost:8000/tool/wall_preview.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Stand · 3D Modular Environment Inspector</title>
+<style>
+:root {
+  color-scheme: dark;
+  --paper: #e7e5de;
+  --muted: #8d969b;
+  --edge: #303a3e;
+  --gold: #d1ad73;
+  --cyan: #38bdf8;
+  --panel: #151d21;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0e151a;
+  color: var(--paper);
+  font: 13px/1.5 system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+button, select {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+button:hover { border-color: #a5977d; }
+button.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(56, 189, 248, 0.08);
+}
+header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--edge);
+  background: #11191e;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mark {
+  width: 32px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--gold);
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
+  color: var(--gold);
+  font: 600 18px Georgia, serif;
+}
+.brand strong {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+}
+.eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.header-right a {
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 12px;
+}
+main {
+  height: calc(100vh - 64px);
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+aside {
+  background: var(--panel);
+  border-right: 1px solid var(--edge);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 4px 0 8px;
+}
+p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
+.section-title {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.btn-group button {
+  flex: 1 1 calc(50% - 6px);
+  padding: 6px 10px;
+  font-size: 11px;
+}
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#viewport {
+  position: absolute;
+  inset: 0;
+}
+.stage-top {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.stage-actions {
+  pointer-events: auto;
+  display: flex;
+  gap: 6px;
+}
+.stage-actions button {
+  font-size: 11px;
+  background: rgba(16, 25, 29, 0.85);
+  backdrop-filter: blur(10px);
+}
+.footer-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 20px;
+  background: rgba(18, 27, 33, 0.92);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+}
+.footer-bar strong {
+  color: #fff;
+}
+.badge {
+  color: #86efac;
+  font-weight: 500;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0e151a;
+  z-index: 10;
+  flex-direction: column;
+  gap: 10px;
+}
+.loading.hidden { display: none; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/": "./vendor/"
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">VII</div>
+    <div>
+      <strong>LAST STAND</strong>
+      <div class="eyebrow">Arena · 3D Modular Environment</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <a href="./hero_preview.html">Inspect Hero ↗</a>
+    <a href="./hd_preview.html">View Arena ↗</a>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div>
+      <div class="eyebrow">SCI-FI ARCHITECTURE &amp; ENVIRONMENT</div>
+      <h1>Modular 3D Assets</h1>
+      <p>Modular 3D walls &amp; ground tiles with dedicated PBR textures (Military Sector 07, Industrial Hazard, Quantum Tech, Derelict Wasteland).</p>
+    </div>
+
+    <div>
+      <div class="section-title">Model Category</div>
+      <div class="btn-group">
+        <button id="cat-walls" class="active">Wall Types</button>
+        <button id="cat-grounds">Ground Tiles</button>
+        <button id="cat-assembly">Full Environment</button>
+      </div>
+    </div>
+
+    <div id="section-wall-variants">
+      <div class="section-title">Wall Theme Variant</div>
+      <div class="btn-group">
+        <button id="var-wall-mil" class="active">Military (Sector 07)</button>
+        <button id="var-wall-haz">Industrial Hazard</button>
+        <button id="var-wall-tech">Quantum Tech</button>
+        <button id="var-wall-rust">Derelict Rusted</button>
+      </div>
+    </div>
+
+    <div id="section-ground-variants" style="display:none;">
+      <div class="section-title">Ground Tile Variant</div>
+      <div class="btn-group">
+        <button id="var-gnd-mil" class="active">Diamond Tread</button>
+        <button id="var-gnd-haz">Hazard Reactor Grate</button>
+        <button id="var-gnd-tech">Quantum Hex Grid</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Visual Channels</div>
+      <div class="btn-group">
+        <button id="mat-pbr" class="active">PBR Shaded</button>
+        <button id="mat-wire">Wireframe</button>
+        <button id="mat-normals">Normals</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Arena Lighting</div>
+      <div class="btn-group">
+        <button id="light-dawn" class="active">Dawn Light</button>
+        <button id="light-crucible">Ember Crucible</button>
+        <button id="light-frost">Frost Hollow</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">Asset Inventory</div>
+      <p style="font-size: 11px; line-height: 1.6;">
+        • <strong>Walls:</strong> <code>wall.glb</code>, <code>wall_hazard.glb</code>, <code>wall_tech.glb</code>, <code>wall_rusted.glb</code><br>
+        • <strong>Ground:</strong> <code>ground.glb</code>, <code>ground_hazard.glb</code>, <code>ground_tech.glb</code><br>
+        • <strong>Godot Scenes:</strong> <code>scenes/environment/*.tscn</code><br>
+        • <strong>PBR Textures:</strong> 2K Albedo, Normal, ORM, Emission
+      </p>
+    </div>
+  </aside>
+
+  <section class="stage">
+    <div id="viewport"></div>
+    <div class="stage-top">
+      <div>
+        <div class="eyebrow">PRODUCTION GLTF 2.0 / PBR ASSET</div>
+        <div style="font-size: 16px; font-weight: 500; font-family: Georgia, serif;" id="view-caption">Military Sector 07 Modular Wall Bay</div>
+      </div>
+      <div class="stage-actions">
+        <button id="btn-turntable" aria-pressed="false">Turntable: Off</button>
+        <button id="btn-reset">Reset Camera</button>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <div>
+        <span>Model: <strong id="stat-model">wall.glb</strong></span> &nbsp;|&nbsp;
+        <span>PBR Resolution: <strong>2048×2048</strong></span> &nbsp;|&nbsp;
+        <span>Format: <strong>glTF 2.0 Binary</strong></span>
+      </div>
+      <div class="badge">● glTF 2.0 Verified Valid</div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="eyebrow">LOADING 3D ASSETS</div>
+      <span>Parsing 3D models &amp; PBR texture maps…</span>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/OrbitControls.js';
+
+const viewport = document.getElementById('viewport');
+const loading = document.getElementById('loading');
+const viewCaption = document.getElementById('view-caption');
+const statModel = document.getElementById('stat-model');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e151a);
+
+const camera = new THREE.PerspectiveCamera(40, viewport.clientWidth / viewport.clientHeight, 0.05, 100);
+camera.position.set(0, 0.1, 1.4);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+viewport.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.target.set(0, 0, 0);
+
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.85);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
+sunLight.position.set(2, 4, 3);
+sunLight.castShadow = true;
+scene.add(sunLight);
+
+const fillLight = new THREE.DirectionalLight(0x38bdf8, 1.0);
+fillLight.position.set(-2, -1, -2);
+scene.add(fillLight);
+
+const envRoot = new THREE.Group();
+scene.add(envRoot);
+
+let turntable = false;
+let currentCategory = 'walls';
+let currentWallVar = 'wall';
+let currentGndVar = 'ground';
+let currentMatMode = 'pbr';
+
+const cachedModels = {};
+const loader = new GLTFLoader();
+
+function loadGLTF(path) {
+  return new Promise((resolve, reject) => {
+    if (cachedModels[path]) {
+      resolve(cachedModels[path].clone(true));
+      return;
+    }
+    loader.load(path, (gltf) => {
+      cachedModels[path] = gltf.scene;
+      resolve(gltf.scene.clone(true));
+    }, undefined, reject);
+  });
+}
+
+async function renderScene() {
+  loading.classList.remove('hidden');
+  while (envRoot.children.length > 0) {
+    envRoot.remove(envRoot.children[0]);
+  }
+
+  try {
+    if (currentCategory === 'walls') {
+      const glbPath = `/data/models/${currentWallVar}/${currentWallVar}.glb`;
+      statModel.textContent = `${currentWallVar}.glb`;
+      const model = await loadGLTF(glbPath);
+      model.position.set(0, 0, 0);
+      envRoot.add(model);
+      controls.target.set(0, 0, 0);
+      camera.position.set(0, 0.05, 1.4);
+
+      const titles = {
+        'wall': 'Military Sector 07 Modular Wall Bay (1.00m × 0.27m)',
+        'wall_hazard': 'Industrial Reactor Hazard Wall Bay (1.00m × 0.27m)',
+        'wall_tech': 'Quantum Cryo Tech Lab Wall Bay (1.00m × 0.27m)',
+        'wall_rusted': 'Derelict Wasteland Corroded Wall Bay (1.00m × 0.27m)'
+      };
+      viewCaption.textContent = titles[currentWallVar] || currentWallVar;
+
+    } else if (currentCategory === 'grounds') {
+      const glbPath = `/data/models/${currentGndVar}/${currentGndVar}.glb`;
+      statModel.textContent = `${currentGndVar}.glb`;
+      const model = await loadGLTF(glbPath);
+      model.position.set(0, 0, 0);
+      envRoot.add(model);
+      controls.target.set(0, 0, 0);
+      camera.position.set(0.9, 1.0, 1.2);
+
+      const titles = {
+        'ground': 'Military Diamond Tread Ground Tile (1.00m × 1.00m)',
+        'ground_hazard': 'Industrial Hazard Reactor Grate Tile (1.00m × 1.00m)',
+        'ground_tech': 'Quantum Hex Power Grid Ground Tile (1.00m × 1.00m)'
+      };
+      viewCaption.textContent = titles[currentGndVar] || currentGndVar;
+
+    } else if (currentCategory === 'assembly') {
+      statModel.textContent = 'Assembly (Walls + Grounds)';
+      viewCaption.textContent = 'Modular 3D Environment Assembly (2x2 Platform + Wall Perimeter)';
+
+      const wPath = `/data/models/${currentWallVar}/${currentWallVar}.glb`;
+      const gPath = `/data/models/${currentGndVar}/${currentGndVar}.glb`;
+
+      const wModel = await loadGLTF(wPath);
+      const gModel = await loadGLTF(gPath);
+
+      // 2x2 Ground tiles
+      for (let gz = -1; gz <= 0; gz++) {
+        for (let gx = -1; gx <= 0; gx++) {
+          const tile = gModel.clone(true);
+          tile.position.set(gx * 1.0 + 0.5, 0, gz * 1.0 + 0.5);
+          envRoot.add(tile);
+        }
+      }
+
+      // 2 Wall bays along back edge
+      for (let bx = -1; bx <= 0; bx++) {
+        const wall = wModel.clone(true);
+        wall.position.set(bx * 1.00087 + 0.5, 0.134, -0.5);
+        envRoot.add(wall);
+      }
+
+      controls.target.set(0, 0.1, 0);
+      camera.position.set(1.4, 1.0, 1.8);
+    }
+
+    applyMaterialMode(currentMatMode);
+  } catch (err) {
+    console.error('Failed to load asset:', err);
+  } finally {
+    loading.classList.add('hidden');
+  }
+}
+
+function applyMaterialMode(mode) {
+  currentMatMode = mode;
+  envRoot.traverse(child => {
+    if (!child.isMesh) return;
+    if (mode === 'pbr') {
+      child.material.wireframe = false;
+    } else if (mode === 'wire') {
+      child.material.wireframe = true;
+    } else if (mode === 'normals') {
+      child.material = new THREE.MeshNormalMaterial();
+    }
+  });
+}
+
+// Category selection
+document.getElementById('cat-walls').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'walls';
+  document.getElementById('section-wall-variants').style.display = 'block';
+  document.getElementById('section-ground-variants').style.display = 'none';
+  renderScene();
+};
+document.getElementById('cat-grounds').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'grounds';
+  document.getElementById('section-wall-variants').style.display = 'none';
+  document.getElementById('section-ground-variants').style.display = 'block';
+  renderScene();
+};
+document.getElementById('cat-assembly').onclick = (e) => {
+  setActive(e.target);
+  currentCategory = 'assembly';
+  document.getElementById('section-wall-variants').style.display = 'block';
+  document.getElementById('section-ground-variants').style.display = 'block';
+  renderScene();
+};
+
+// Wall variants
+document.getElementById('var-wall-mil').onclick = (e) => { setActive(e.target); currentWallVar = 'wall'; renderScene(); };
+document.getElementById('var-wall-haz').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_hazard'; renderScene(); };
+document.getElementById('var-wall-tech').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_tech'; renderScene(); };
+document.getElementById('var-wall-rust').onclick = (e) => { setActive(e.target); currentWallVar = 'wall_rusted'; renderScene(); };
+
+// Ground variants
+document.getElementById('var-gnd-mil').onclick = (e) => { setActive(e.target); currentGndVar = 'ground'; renderScene(); };
+document.getElementById('var-gnd-haz').onclick = (e) => { setActive(e.target); currentGndVar = 'ground_hazard'; renderScene(); };
+document.getElementById('var-gnd-tech').onclick = (e) => { setActive(e.target); currentGndVar = 'ground_tech'; renderScene(); };
+
+// Material Display Modes
+document.getElementById('mat-pbr').onclick = (e) => { setActive(e.target); applyMaterialMode('pbr'); };
+document.getElementById('mat-wire').onclick = (e) => { setActive(e.target); applyMaterialMode('wire'); };
+document.getElementById('mat-normals').onclick = (e) => { setActive(e.target); applyMaterialMode('normals'); };
+
+// Lighting Presets
+document.getElementById('light-dawn').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xfffaed);
+  fillLight.color.set(0x38bdf8);
+  ambientLight.color.set(0xdbeafe);
+  scene.background.set(0x0e151a);
+};
+document.getElementById('light-crucible').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xfb923c);
+  fillLight.color.set(0xef4444);
+  ambientLight.color.set(0x7c2d12);
+  scene.background.set(0x180d0d);
+};
+document.getElementById('light-frost').onclick = (e) => {
+  setActive(e.target);
+  sunLight.color.set(0xbae6fd);
+  fillLight.color.set(0x60a5fa);
+  ambientLight.color.set(0x1e3a8a);
+  scene.background.set(0x0b1320);
+};
+
+// Action Buttons
+const btnTurntable = document.getElementById('btn-turntable');
+btnTurntable.onclick = () => {
+  turntable = !turntable;
+  btnTurntable.textContent = `Turntable: ${turntable ? 'On' : 'Off'}`;
+  btnTurntable.classList.toggle('active', turntable);
+};
+
+document.getElementById('btn-reset').onclick = () => {
+  renderScene();
+};
+
+function setActive(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = viewport.clientWidth / viewport.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (turntable) {
+    envRoot.rotation.y += 0.008;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+renderScene();
+</script>
+</body>
+</html>

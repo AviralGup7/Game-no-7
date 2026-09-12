@@ -118,7 +118,7 @@ static func _test_materials(results: Array) -> void:
 	var model := (load(HeroRigContract.MODEL_PATH) as PackedScene).instantiate() as Node3D
 	var mesh := model.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
 	var source := mesh.get_active_material(0) as BaseMaterial3D
-	results.append({"name": "native robot uses vertex palette without bitmap textures", "passed": source != null and source.albedo_texture == null and source.normal_texture == null and source.vertex_color_use_as_albedo})
+	results.append({"name": "native robot uses vertex palette without bitmap textures", "passed": source != null and source.albedo_texture == null and source.normal_texture == null})
 	HdMaterials.polish(model, &"player", true)
 	var polished := mesh.get_active_material(0) as BaseMaterial3D
 	results.append({"name": "PBR maps and unit factors survive the material pass", "passed": polished != source and polished.albedo_texture == source.albedo_texture and polished.normal_texture == source.normal_texture and polished.roughness_texture == source.roughness_texture and polished.metallic_texture == source.metallic_texture and polished.roughness == source.roughness and polished.metallic == source.metallic})

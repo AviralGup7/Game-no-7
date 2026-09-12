@@ -1,16 +1,9 @@
 ########## diag-import.log
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Regular.ttf" has no resource loaders (unrecognized file extension).
-      1 SCRIPT ERROR: Parse Error: Preload file "res://assets/fonts/rajdhani/Rajdhani-Bold.ttf" has no resource loaders (unrecognized file extension).
-      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "BOLD".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "REGULAR" constant because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "BOLD" constant because the value doesn't have a set type.
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
 
 ########## diag-tests.log
-     65 ERROR: Parameter "data.tree" is null.
+     95 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
       3 ERROR: Parameter "material" is null.
@@ -22,7 +15,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 31 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 30 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -33,12 +26,12 @@
       1 ERROR: 3 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    358 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    185 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-     97 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     81 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    423 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    216 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    147 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    105 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      11 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-      4 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+      5 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       2 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
@@ -63,7 +56,9 @@
       1 ERROR: Failed to load script "res://tests/unit/test_status_skills.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_status_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_station_shooter.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_safe_player_spawn.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://tests/unit/test_run_isolation.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_progression.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_procedural_sfx.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_nav_grid.gd" with error "Compilation failed".
@@ -104,6 +99,7 @@
       1 ERROR: Failed to load script "res://scripts/visuals/foot_plant.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/runtime_soak.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/utilities/pool_governor.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/input_trace.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/virtual_joystick.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/ui/upgrade_panel.gd" with error "Compilation failed".
@@ -135,6 +131,7 @@
       1 ERROR: Failed to load script "res://scripts/progression/build_effects.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/progression_component.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_locomotion.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_combat.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_build.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/dodge_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/pickups/pickup_manager.gd" with error "Compilation failed".
@@ -156,6 +153,7 @@
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_idle_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_hurt_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_fuse_state.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_feedback.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dead_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dash_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_chase_state.gd" with error "Compilation failed".
@@ -171,6 +169,7 @@
       1 ERROR: Failed to load script "res://scripts/core/test_harness.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/scene_router.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/run_scorekeeper.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/core/run_isolation.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/run_analytics.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/game_root.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/core/content_registry.gd" with error "Compilation failed".
@@ -198,7 +197,7 @@
 ########## diag-wae-import.log
 
 ########## diag-wae-tests.log
-     65 ERROR: Parameter "data.tree" is null.
+     95 ERROR: Parameter "data.tree" is null.
       8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
       3 ERROR: Parameter "material" is null.
@@ -210,7 +209,7 @@
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
-      1 WARNING: 31 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 30 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -223,7 +222,14 @@
 ########## diag-wae-probe.log
 
 ########## diag-lsp.txt
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/unit/test_save.gd:90:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "round" has the same name as a built-in function.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:51:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:49:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_animator.gd:332:19: WARNING: (SHADOWED_VARIABLE): The local function parameter "_clip" is shadowing an already-declared function at line 417 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
 
 ########## diag-lsp.err
 

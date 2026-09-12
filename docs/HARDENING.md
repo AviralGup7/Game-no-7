@@ -217,10 +217,10 @@ file count and the guard-needle count from the tools themselves rather than trus
   definition pass added `test_regress_run_modes`, the mobile-input pass `test_regress_mobile_input_contract`,
   the `main` merge (PR #42, save/runtime/enemy-AI hardening) eight more, and the debug-mode
   follow-up `test_regress_debug_mode` (eleven: the trap's no-freeze/no-recursion/overlay/wiring/integration shapes).
-- GDScripts under `scripts/`: 218 (was 139 at the sweep; the subsystem rebuilds since have added
+- GDScripts under `scripts/`: 220 (was 139 at the sweep; the subsystem rebuilds since have added
   their config/record types, each of which is `validate()`-checked at load rather than guarded per
   call; the debug-mode pass added the five `scripts/debug/` scripts)
-- Validated files: 165/165 (was 85, then 151, then 159: +4 authored midgame waves)
+- Validated files: 175/175 (was 163: +2 campaign scenes and +10 3D environment scenes)
 - Guard needles: 201 (was 61, then 99, then 175 at the run-definition pass) — each one an inlined
   guard, a bounded export, or an absence; the mobile-input pass added six (interruption handlers,
   back-button routing, press-down fire, layout wiring); the merge of `main` and the four headless
