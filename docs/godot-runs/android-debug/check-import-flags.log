@@ -1,9 +1,0 @@
-Godot log validation failed: dbg-import-flags.log
-ERROR: Required extension VK_KHR_surface not found.
-   at: _initialize_instance_extensions (drivers/vulkan/rendering_context_driver_vulkan.cpp:487)
-ERROR: Condition "err != OK" is true. Returning: err
-   at: initialize (drivers/vulkan/rendering_context_driver_vulkan.cpp:928)
-ERROR: Condition "err != OK" is true. Returning: err
-   at: initialize (drivers/vulkan/rendering_context_driver_vulkan.cpp:928)
-WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
