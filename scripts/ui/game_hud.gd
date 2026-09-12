@@ -81,31 +81,30 @@ func _ready() -> void:
 	_top.add_child(spacer)
 
 	_currency_label = _value_chip(_top, UiTheme.CYAN, "CREDITS 0")
-	_score_label = UiFactory.label("SCORE", _top, 16)
+	var score_stack := VBoxContainer.new()
+	score_stack.add_theme_constant_override("separation", 0)
+	_top.add_child(score_stack)
+	_score_label = UiFactory.label("SCORE", score_stack, 16)
 	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_score_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_score_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_score_label.modulate = UiTheme.MUTED
 	_score_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
 	_score_label.add_theme_constant_override("outline_size", 3)
-	_score_value = UiFactory.title("0", _top, 28)
+	_score_value = UiFactory.title("0", score_stack, 28)
 	_score_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_score_value.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	_score_value.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_score_value.modulate = Color.WHITE
 	_score_value.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.75))
 	_score_value.add_theme_constant_override("outline_size", 5)
-	var score_stack := VBoxContainer.new()
-	score_stack.add_theme_constant_override("separation", 0)
-	score_stack.add_child(_score_label)
-	score_stack.add_child(_score_value)
-	_top.add_child(score_stack)
 
 	_pause_button = UiFactory.button(
 		"PAUSE", _top, 20, Vector2(UiLayout.MIN_TOUCH * 1.5, UiLayout.MIN_TOUCH)
 	)
 	_pause_button.size_flags_vertical = SIZE_SHRINK_CENTER
 	_pause_button.tooltip_text = "Pause the run"
+	TouchButtonInput.attach(_pause_button)
 	UiTheme.decorate(_pause_button, "pause")
 	_pause_button.pressed.connect(func() -> void: GameRoot.request_pause())
 
@@ -142,7 +141,7 @@ func _value_chip(parent: Node, accent: Color, text: String) -> Label:
 	var chip := Label.new()
 	chip.text = text
 	chip.mouse_filter = MOUSE_FILTER_IGNORE
-	chip.add_theme_font_override("font", UiTheme.BOLD)
+	chip.add_theme_font_override("font", UiTheme.bold_font)
 	chip.add_theme_font_size_override("font_size", 20)
 	chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER

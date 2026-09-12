@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/campaign/campaign_game.gd" id="1_campaign"]
+
+[node name="StationZero" type="Node"]
+script = ExtResource("1_campaign")
+
+[node name="WorldRoot" type="Node3D" parent="."]
+
+[node name="UIRoot" type="CanvasLayer" parent="."]

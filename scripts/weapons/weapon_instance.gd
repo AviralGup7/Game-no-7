@@ -228,7 +228,7 @@ func roll_on_hit_effects() -> bool:
 func build_payload(source: Node, source_id: StringName) -> DamagePayload:
 	var payload := DamagePayload.new()
 	payload.amount = effective_damage()
-	payload.source = source
+	payload.source = source if is_instance_valid(source) else null
 	payload.source_id = source_id
 	payload.damage_type = config.damage_type if config != null else &"physical"
 	if config != null:

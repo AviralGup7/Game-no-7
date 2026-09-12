@@ -113,4 +113,6 @@ static func suite() -> Array:
 		"passed": is_equal_approx(qprog.get_stat(&"pickup_radius_add", 0.0), 0.75),
 		"why": "%f" % qprog.get_stat(&"pickup_radius_add", 0.0),
 	})
+	for component in [prog, cprog, c2, mprog, kprog, hprog, rprog, aprog, sprog, cuprog, bprog, cap, fresh, qprog]:
+		component.free()
 	return results

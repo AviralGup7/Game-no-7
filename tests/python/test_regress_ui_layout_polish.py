@@ -112,8 +112,8 @@ class ThemeConsistencyTests(unittest.TestCase):
 
     def test_labels_use_the_project_font(self):
         txt = read("scripts/ui/ui_theme.gd")
-        self.assertIn('theme.set_font("font", "Label", REGULAR)', txt)
-        self.assertIn('theme.set_font("font", "RichTextLabel", REGULAR)', txt)
+        self.assertIn('theme.set_font("font", "Label", regular_font)', txt)
+        self.assertIn('theme.set_font("font", "RichTextLabel", regular_font)', txt)
 
     def test_arena_chrome_files_are_present(self):
         chrome = ROOT / "data" / "ui" / "chrome"

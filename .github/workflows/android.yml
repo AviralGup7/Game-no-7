@@ -36,19 +36,19 @@ defaults:
 env:
   GODOT_VERSION: "4.4.1-stable"
   APK_PATH: build/LastStandArena-debug.apk
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
   ADB_SERVER_SOCKET: "tcp:127.0.0.1:5037"
 
 # ---------------------------------------------------------------------------
 # Split pipeline (was one monolith job `build-android`):
 #
 #  1) validate-resources  — fast, no Godot: resource + asset + Python tests
-#  2) godot-tests         — Godot import + headless GDScript tests + import checks
+#  2) godot-tests         — Godot import + native GDScript tests + import checks
 #  3) build-android       — heavy: JDK + Android SDK + build template + APK export
 #
 #  validate-* and godot-tests run in parallel; build-android still *needs*
 #  both so the graph is intact, but it runs whenever validate-resources is
-#  green (a headless-suite failure must not skip the APK). Publish needs build.
+#  green (a native-suite failure still produces a diagnostic APK). Publishing
+#  requires ALL validation jobs to succeed; a diagnostic APK is never a release.
 # ---------------------------------------------------------------------------
 
 jobs:
@@ -84,6 +84,9 @@ jobs:
       # tag). Catches the phantom-member defect class offline — the class that
       # shipped five times before it existed (see CHANGELOG.md / the gate's
       # docstring). Hermetic: stdlib-only, no Godot binary, no network.
+      - name: Authored campaign topology and content
+        run: python3 tool/validate_campaign.py
+
       - name: Engine API contract gate
         shell: bash
         run: python3 tool/check_engine_api.py
@@ -115,6 +118,13 @@ jobs:
         shell: bash
         run: python3 tool/check_signals.py
 
+      - name: GDScript lint and architecture guards
+        run: |
+          python3 -m pip install gdtoolkit==4.3.4
+          gdlint scripts tests
+          python3 tool/check_typed_arch.py
+          python3 tool/validate_guards.py
+
       - name: Python unit tests (incl. regression guards)
         shell: bash
         run: |
@@ -132,11 +142,13 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # ---- Stage 1b: Godot headless tests (needs import) -------------------------
+  # ---- Stage 1b: native Godot tests (software renderer; no physical display) ---
   godot-tests:
-    name: Godot headless tests
+    name: Godot host regression tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      XDG_DATA_HOME: ${{ runner.temp }}/last-stand-godot-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,71 +158,31 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-          include-templates: true
+          include-templates: false
 
-      - name: Verify Android export templates installed
-        shell: bash
-        run: bash scripts/install_export_templates.sh
+      - name: Install software renderer for native checks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri
 
       - name: Import project (godot --import)
-        shell: bash
         run: |
           set +e
-          godot --headless --path . --import > godot-import.log 2>&1
+          bash scripts/run_godot.sh --path . --import > godot-import.log 2>&1
           code=$?
           set -e
-          echo "--- godot import errors surfaced as annotations ---"
-          awk '
-            {
-              line=$0; gsub(/[[:space:]]+/, " ", line);
-              if (line ~ /SCRIPT ERROR:|Parse Error:|Identifier not found|not declared|Failed to compile depended/) {
-                print "::error title=godot import::" line;
-                for (i=0;i<6;i++) {
-                  if ((getline nxt) > 0) {
-                    gsub(/[[:space:]]+/, " ", nxt);
-                    if (nxt ~ /res:\/\/.*\.gd/) print "::error title=godot import::" nxt;
-                    if (nxt ~ /^SCRIPT ERROR|^Parse Error|^ERROR/) break;
-                  } else break;
-                }
-              }
-            }
-          ' godot-import.log
-          exit "$code"
+          tail -60 godot-import.log
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
 
-      # Capture the full Godot output (stdout+stderr) so engine/runtime errors
-      # that only appear on stderr can be surfaced as ::error annotations (the
-      # step log itself is only downloadable from a blob store). Keeps the run's
-      # real exit code.
-      - name: Run headless unit tests
-        shell: bash
+      - name: Run native unit tests
         run: |
           set +e
-          godot --headless --path . --script res://tests/run_tests.gd > godot-unit.log 2>&1
+          bash scripts/run_godot.sh --path . --script res://tests/run_tests.gd > godot-unit.log 2>&1
           code=$?
           set -e
-          echo "--- godot unit test log (last 120 lines) ---"
           tail -120 godot-unit.log
-          echo "--- engine/script errors surfaced as annotations ---"
-          # Godot prints the error, then an 'at: res://....gd:N' line. Re-emit
-          # the error plus the following res:// location lines as ::error
-          # annotations (visible via the checks API) because the raw step log
-          # lives on an unreachable blob store.
-          awk '
-            {
-              line=$0; gsub(/[[:space:]]+/, " ", line);
-              if (line ~ /SCRIPT ERROR:|Parse Error:|Failed to load script/) {
-                print "::error title=godot engine::" line;
-                for (i=0;i<8;i++) {
-                  if ((getline nxt) > 0) {
-                    gsub(/[[:space:]]+/, " ", nxt);
-                    if (nxt ~ /res:\/\/.*\.gd/) { print "::error title=godot engine::" nxt; }
-                    if (nxt ~ /^SCRIPT ERROR|^Parse Error|^ERROR/) break;
-                  } else break;
-                }
-              }
-            }
-          ' godot-unit.log
-          exit "$code"
+          python3 tool/check_godot_log.py godot-unit.log --exit-code "$code" --allow-test-errors \
+            --require '^GDScript tests: [1-9][0-9]* total, 0 failed$'
 
       - name: Validate hero combat clips, sockets and lifecycle
         shell: bash
@@ -220,7 +192,7 @@ jobs:
       # contract across Android resolutions / text scales). It was previously
       # never invoked by CI, so UI regressions could land unnoticed.
       # The script isolates save data into a disposable profile.
-      - name: Run headless UI validation
+      - name: Run native UI validation
         shell: bash
         run: bash scripts/ui/run_ui_validation.sh
 
@@ -237,9 +209,20 @@ jobs:
                 done
           done
 
+      - name: Validate shipping campaign and checkpoint flow
+        shell: bash
+        run: bash scripts/run_campaign_validation.sh
+
       - name: Validate imported 3D assets, animations, textures and audio
         shell: bash
-        run: godot --headless --path . --script res://tests/validate_asset_imports.gd
+        run: |
+          set +e
+          bash scripts/run_godot.sh --path . --script res://tests/validate_asset_imports.gd > godot-assets.log 2>&1
+          code=$?
+          set -e
+          tail -60 godot-assets.log
+          python3 tool/check_godot_log.py godot-assets.log --exit-code "$code" \
+            --require '^Asset imports: [1-9][0-9]* resources, 0 failures$'
 
       - name: Upload reports (godot-tests)
         if: always()
@@ -288,13 +271,31 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Accept Android SDK licenses
+      - name: Install the pinned Godot Android SDK dependencies
         shell: bash
-        run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
+        run: |
+          # Godot 4.4.1's template pins compileSdk/build-tools 34 and Java 17.
+          # Check sdkmanager's status, not the harmless SIGPIPE from `yes`.
+          set +e
+          yes | sdkmanager --licenses > sdk-licenses.log 2>&1
+          code=${PIPESTATUS[1]}
+          set -e
+          test "$code" -eq 0 || { cat sdk-licenses.log; exit "$code"; }
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install software renderer for host import only
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri
 
       - name: Import project
-        shell: bash
-        run: godot --headless --path . --import
+        run: |
+          set +e
+          bash scripts/run_godot.sh --path . --import > godot-import.log 2>&1
+          code=$?
+          set -e
+          tail -60 godot-import.log
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project
@@ -309,7 +310,7 @@ jobs:
           echo "godot templates dir: $HOME/.local/share/godot/export_templates"
           find "$HOME/.local/share/godot/export_templates" -maxdepth 2 -type f | head -40 || true
           set +e
-          godot --headless --path . --export-debug "Android" "$APK_PATH" 2>&1 | tee build/export.log
+          bash scripts/run_godot.sh --path . --export-debug "Android" "$APK_PATH" 2>&1 | tee build/export.log
           code=${PIPESTATUS[0]}
           set -e
           echo "--- godot export log (tail) ---"
@@ -318,13 +319,12 @@ jobs:
             printf '::error file=build/export.log,title=godot export failed::'
             grep -iE "ERROR:|error:|failed|denied|not found|Exception|Could not|FAILURE:|What went wrong" build/export.log | head -25
           fi
-          exit "$code"
+          python3 tool/check_godot_log.py build/export.log --exit-code "$code"
 
-      - name: Verify APK exists and is non-zero
-        shell: bash
+      - name: Verify Android APK identity, ABI, permissions and signature
         run: |
-          test -f "$APK_PATH" && test -s "$APK_PATH"
-          echo "APK size: $(stat -c%s "$APK_PATH") bytes"
+          python3 tool/check_android_apk.py "$APK_PATH" --build-type debug \
+            --report build/apk-validation.json
 
       - name: Report APK size by container and largest entries
         run: python3 tool/apk_size_report.py "$APK_PATH" | tee build/apk-size-report.json
@@ -336,6 +336,7 @@ jobs:
           path: |
             ${{ env.APK_PATH }}
             build/apk-size-report.json
+            build/apk-validation.json
           retention-days: 30
 
       - name: Build summary
@@ -365,16 +366,20 @@ jobs:
           retention-days: 14
 
   # ---- Stage 3: publish (only when a Release is cut / workflow_dispatch) ----
-  # Publish only the APK produced by the successful validation/build job.
+  # Diagnostic APKs may build after a test failure; they must never be published.
+  # Require all three jobs, not just the (deliberately permissive) build job.
   # This is a debug-signed milestone, not a Play-ready production build.
   # Fix: `release` events (GitHub UI → Publish release) have event_name == 'release',
   # not a tag ref, so the previous `workflow_dispatch || tags` check skipped them.
   publish-release:
     if: >-
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'workflow_dispatch'
       || startsWith(github.ref, 'refs/tags/')
-      || github.event_name == 'release'
-    needs: build-android
+      || github.event_name == 'release')
+      && needs.validate-resources.result == 'success'
+      && needs.godot-tests.result == 'success'
+      && needs.build-android.result == 'success'
+    needs: [validate-resources, godot-tests, build-android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -408,7 +413,7 @@ jobs:
 
             **Debug-signed APK for sideloading/testing; not a Google Play production release.**
 
-            Published from the exact commit validated by this workflow: headless unit tests,
+            Published from the exact commit validated by this workflow: native unit tests,
             native asset import checks, resource/asset validation, Python tests and Android export.
             SHA256SUMS.txt contains the APK checksum.
           generate_release_notes: true

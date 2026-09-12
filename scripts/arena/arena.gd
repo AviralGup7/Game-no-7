@@ -385,10 +385,37 @@ func get_safe_player_spawn() -> Transform3D:
 	var xf := Transform3D.IDENTITY
 	if marker != null:
 		xf = marker.global_transform
-	xf.origin = unstuck_origin(xf.origin)
+	xf.origin = _find_clear_player_origin(unstuck_origin(xf.origin))
 	if not xf.basis.is_conformal() or xf.basis.determinant() == 0.0:
 		xf.basis = Basis.IDENTITY
 	return xf
+
+
+func _find_clear_player_origin(origin: Vector3) -> Vector3:
+	var hazards := get_node_or_null("ArenaHazards") as ArenaHazards
+	if _player_origin_clear(origin, hazards):
+		return origin
+	# Deterministic outward search; honor the collider-backed nav grid including
+	# decorations. No RNG consumption means this cannot perturb the wave seed.
+	var half := maxf(interior_half - 2.25, 3.0)
+	for ring in range(1, ceili(half * 2.0) + 1):
+		for z in range(-ring, ring + 1):
+			for x in range(-ring, ring + 1):
+				if absi(x) != ring and absi(z) != ring:
+					continue
+				var candidate := origin + Vector3(x, 0.0, z)
+				if absf(candidate.x) > half or absf(candidate.z) > half:
+					continue
+				if _player_origin_clear(candidate, hazards):
+					return candidate
+	push_warning("Arena has no clear player spawn outside its hazards and colliders")
+	return origin
+
+
+func _player_origin_clear(at: Vector3, hazards: ArenaHazards) -> bool:
+	if _nav_grid != null and _nav_grid.is_built() and not _nav_grid.is_walkable(at):
+		return false
+	return hazards == null or hazards.is_spawn_clear(at)
 
 
 func unstuck_origin(p: Vector3) -> Vector3:

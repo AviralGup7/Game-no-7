@@ -1,5 +1,31 @@
 # Player — Architecture, Tuning & Stability Postmortems
 
+## Current controls (Station Zero)
+
+| Action | Keyboard / mouse | Controller |
+|---|---|---|
+| Move | WASD / arrows | Left stick |
+| Fire | Hold left mouse / Space / Enter | A / South |
+| Reload | R | X / West |
+| Dodge | Shift | B / East |
+| Skills 1 / 2 / 3 | Q / E / F | LB / RB / Left-stick click |
+| Switch weapon | Tab | Y / North |
+| Pause | Esc | Start |
+| Camera yaw / pitch | J–L / I–K, right-mouse drag | Right stick |
+| Reset camera | Z | Back / Select |
+| Lock-on | T | Right-stick click |
+
+Touch uses the floating left joystick and the right FIRE/aim pad, plus reload,
+dodge, weapon-switch and skill buttons. Reload and Skill 3 have distinct defaults;
+movement arrows no longer also orbit the camera. Settings remaps are atomic:
+conflicts or a full editable-binding list never delete a working binding, and
+staged swaps are validated against the final map. The preserved mouse FIRE
+binding does not consume an editable keyboard/controller slot.
+
+Schema 7 migrates only exact legacy factory pairs; custom bindings are preserved.
+See [save resilience](SAVE_RESILIENCE.md).
+
+
 Merged successor of the player-integration handoff and the two stability
 postmortems. Three sections: the live player contract, the NaN-crash hardening,
 and the boot/visibility hardening.

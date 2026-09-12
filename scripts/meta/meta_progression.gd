@@ -64,16 +64,20 @@ func _load() -> void:
 				_ranks[&"vitality_tome"] = maxi(int(_ranks[&"vitality_tome"]), int(v))
 
 
-func _save() -> void:
+func _save(flush: bool = true) -> void:
 	if SaveManager == null:
 		return
 	SaveManager.set_meta_wallet(_wallet)
 	SaveManager.set_meta_ranks(_ranks.duplicate())
 	SaveManager.set_prestige_rank(_prestige_rank)
-	SaveManager.save_now()
+	if flush:
+		SaveManager.save_now()
 
 
 func _on_run_ended(_score: int, _wave: int, _best: int) -> void:
+	# Campaign rewards are banked once as objectives/encounters are completed.
+	if GameRoot.is_campaign():
+		return
 	# Bank a cut of the run's unspent currency into the persistent wallet.
 	# Prestige multiplies the banked cut; victory runs bank a slightly larger share.
 	var run := GameRoot.get_run()
@@ -90,11 +94,11 @@ func get_wallet() -> int:
 	return _wallet
 
 
-func grant_currency(amount: int) -> void:
+func grant_currency(amount: int, flush: bool = true) -> void:
 	if amount <= 0:
 		return
 	_wallet += amount
-	_save()
+	_save(flush)
 	wallet_changed.emit(_wallet)
 
 

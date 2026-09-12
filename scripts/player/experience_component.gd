@@ -151,6 +151,15 @@ func reset_for_new_run() -> void:
 	xp_changed.emit(_xp, _level, _xp_into_level(), xp_for_level(_level))
 
 
+## Restore checkpoint XP without multiplying it or re-granting level-up boons.
+func restore_total(total: int) -> void:
+	var restored := clampi(total, 0, 1000000)
+	_level = level_for_total_xp(restored)
+	_xp = maxi(restored - total_xp_for_level(_level), 0)
+	_unlock_skills_for_level()
+	xp_changed.emit(_xp, _level, _xp, xp_for_level(_level))
+
+
 func get_debug_snapshot() -> Dictionary:
 	return {"level": _level, "xp": _xp, "need": xp_for_level(_level), "total": total_xp_earned()}
 

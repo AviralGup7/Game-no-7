@@ -74,6 +74,7 @@ var _active_stem_cues: Array[StringName] = []
 var _stems: Array[Dictionary] = []
 var _dwell_left := 0.0
 var _wired := false
+var _boss_ref: WeakRef = null
 
 
 func _ready() -> void:
@@ -252,7 +253,12 @@ func _play_cue_on_active() -> void:
 func _process(delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0:
 		delta = 0.016
+	if _state == STATE_BOSS and _boss_ref != null and _boss_ref.get_ref() == null:
+		_boss_ref = null
+		request_state(STATE_CALM)  # A streamed-out commander is not slain.
 	_heat = maxf(_heat - HEAT_DECAY_PER_SECOND * delta, 0.0)
+	if GameRoot.is_campaign() and _state == STATE_BATTLE and _heat <= 0.05:
+		request_state(STATE_CALM)
 	_tick_intensity(delta)
 	_tick_bed_crossfade(delta)
 	_tick_stems(delta)
@@ -442,6 +448,7 @@ func add_heat(amount: float) -> void:
 
 
 func _on_run_started(_run_id: int, _seed: int) -> void:
+	_boss_ref = null
 	# A restarted run must open calm even if the previous run ended mid-fight.
 	_heat = 0.0
 	request_state(STATE_CALM)
@@ -462,11 +469,13 @@ func _on_damaged(_enemy: Node, _result: DamageResult) -> void:
 	add_heat(HEAT_PER_DAMAGE)
 
 
-func _on_boss(_boss: Node, _boss_id: StringName) -> void:
+func _on_boss(boss: Node, _boss_id: StringName) -> void:
+	_boss_ref = weakref(boss) if boss != null else null
 	request_state(STATE_BOSS)
 
 
 func _on_boss_slain(_boss_id: StringName) -> void:
+	_boss_ref = null
 	# The fight goes on (adds remain); drop back to battle instead of silence.
 	if _state == STATE_BOSS:
 		request_state(STATE_BATTLE)

@@ -37,7 +37,7 @@ class SafeSpawnTests(unittest.TestCase):
         txt = read("scripts/arena/arena.gd")
         self.assertIn("func get_safe_player_spawn() -> Transform3D:", txt)
         self.assertIn("func unstuck_origin(p: Vector3) -> Vector3:", txt)
-        self.assertIn("xf.origin = unstuck_origin(xf.origin)", txt)
+        self.assertIn("xf.origin = _find_clear_player_origin(unstuck_origin(xf.origin))", txt)
         self.assertIn("p.y = maxf(p.y, 0.15)", txt)
 
     def test_main_spawns_through_the_safe_pose(self):

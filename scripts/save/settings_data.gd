@@ -48,7 +48,7 @@ func set_graphics_quality(value: StringName) -> void:
 
 
 func set_text_scale(value: float) -> void:
-	text_scale = clampf(value, MIN_TEXT_SCALE, MAX_TEXT_SCALE)
+	text_scale = clampf(value, MIN_TEXT_SCALE, MAX_TEXT_SCALE) if is_finite(value) else 1.0
 
 
 func set_muted(value: bool) -> void:
@@ -170,9 +170,9 @@ func _d(data: Dictionary, key: String, typed_default: Variant, type_hint: String
 				return float(raw)
 			return typed_default
 		"bool":
-			return bool(raw)
+			return raw if raw is bool else typed_default
 		"string":
-			return String(raw)
+			return String(raw) if raw is String or raw is StringName else typed_default
 		"float":
 			if typeof(raw) == TYPE_FLOAT or typeof(raw) == TYPE_INT:
 				return float(raw)

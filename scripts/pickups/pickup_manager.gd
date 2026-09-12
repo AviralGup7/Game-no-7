@@ -198,12 +198,20 @@ func _apply_effect(cfg: PickupConfig, level: int, collector: Node) -> void:
 				if hp != null:
 					hp.heal(amount)
 		PickupConfig.EFFECT_CURRENCY:
+			if GameRoot.is_campaign():
+				var wallet := get_tree().get_first_node_in_group("meta_progression") as MetaProgression
+				if wallet != null:
+					wallet.grant_currency(int(round(amount)), false)
+				return
 			var run_c := GameRoot.get_run() if GameRoot != null else null
 			if run_c != null:
 				run_c.add_currency(int(round(amount)))
 				if EventBus != null:
 					EventBus.currency_changed.emit(run_c.currency, int(round(amount)))
 		PickupConfig.EFFECT_SCORE:
+			if GameRoot.is_campaign() and player != null:
+				player.add_xp(amount)  # Campaign salvage advances XP, not an arena score.
+				return
 			var run_s := GameRoot.get_run() if GameRoot != null else null
 			if run_s != null:
 				run_s.add_score(int(round(amount)))

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pathlib
+import re
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -56,7 +57,7 @@ class RemapPersistenceTests(unittest.TestCase):
 
     def test_schema_is_at_least_six(self) -> None:
         txt = read("scripts/save/save_schema.gd")
-        self.assertIn("const SCHEMA_VERSION := 6", txt)
+        self.assertGreaterEqual(int(re.search(r"const SCHEMA_VERSION := (\d+)", txt).group(1)), 6)
         self.assertIn("input_bindings", read("scripts/save/settings_data.gd"))
 
 
@@ -80,11 +81,14 @@ class TutorialAndWaveTests(unittest.TestCase):
 
 
 class DocsAndChromeTests(unittest.TestCase):
-    def test_readme_names_seven_modes(self) -> None:
+    def test_readme_describes_the_shipping_campaign(self) -> None:
+        # Arena/mode data remains tested separately; it is no longer the app's
+        # primary flow. Documentation must follow the chosen connected world.
         txt = read("README.md")
-        self.assertIn("**7 game modes**", txt)
-        self.assertIn("Hold the Line", txt)
-        self.assertIn("Relic Hunt", txt)
+        self.assertIn("one fixed, connected station", txt)
+        self.assertIn("scenes/campaign/station_zero.tscn", txt)
+        self.assertIn("seven story objectives", txt)
+        self.assertNotIn("pick upgrades between\nwaves", txt)
 
     def test_diagnostics_workflow_tracks_this_branch(self) -> None:
         txt = read(".github/workflows/gdscript-diagnostics.yml")

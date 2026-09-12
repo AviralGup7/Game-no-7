@@ -1,47 +1,58 @@
-# Last Stand: Arena
+# Last Stand: Station Zero
 
-A polished, expandable **third-person arena survival / action game** for Android,
-built with **Godot 4.x** and **GDScript** (landscape, touch controls, mobile-optimised
-rendering).
+An Android **third-person campaign shooter**, built with **Godot 4.4.1-stable**
+and **GDScript**. Landscape, touch-first, fully offline.
 
-You fight waves of enemies in a compact arena. Enemies pursue and attack; you move
-with a virtual joystick, attack with a melee weapon, dodge, pick upgrades between
-waves, and chase a high score. When you fall — or win — you see your run summary
-and can instantly restart.
+Explore **one fixed, connected station** rather than starting an arena or choosing
+a seed. Travel from the docks through transit, cargo, the reactor, habitat and
+command; restore station systems, recover evacuation manifests and open the way home.
+There are no chapter-loading gates between districts.
 
-> **Project status — gameplay loop overhaul (see `CHANGELOG.md`).** Beyond the
-> Phase 1–4 foundation and meta game, the loop now includes: **7 game modes**
-> (Standard, Boss Rush, Survival, Challenge, Campaign, Hold the Line, Relic Hunt) with distinct objectives and
-> wave scripts; **8 transformative upgrades** (chain lightning melee, fire/frost
-> dodge trails, kill summons, thorn nova, execute, lifesteal burst, static aura);
-> **differentiated arenas** (pressure plates, orbiting movers, denser hazard grids);
-> a **narrator + campaign beat sheet**; and a **prestige endgame** (permanent score/
-> currency mults, titles, cosmetics). Still ships 8 enemy archetypes, switchable
-> weapons, skills, mutators, armory, achievements, and daily challenge — and
-> enemies now fight like individuals: perception (sight/hearing/reaction/memory),
-> deterministic personalities, maneuver-based pursuit, pack awareness. Nothing
-> walks through objects: a shared nav grid routes AI around the same obstacles
-> (pillars, central landmark) that physics collides with.
-> All content stays data-driven (`.tres` under `res://data/`) and headless-tested.
-> See `docs/ENEMY_AI_RESEARCH.md`.
+- **352 × 272 m world footprint**, six districts and seven story objectives.
+- **Eight finite encounters / 29 authored enemies**, including a three-phase
+  commander. Defeated enemies stay defeated across checkpoint retries.
+- **Checkpoints and persistent campaign progress**: objectives, credits, upgrades,
+  XP and equipped weapons/skills survive Continue. Green rest pads refill health
+  and stamina when safe; completed missions also advance your checkpoint.
+- **Android budgets**: at most 18 active enemies, two activations per streaming tick
+  and three visible district batches. Instanced floor modules and merged static
+  collision keep the connected paths loaded without simulating every district.
+- Native touch **INTERACT**, **MAP**, pause, move, aim/fire, reload, dodge, swap and
+  skills. The station chart shows the current objective and a navigable route.
+
+[Campaign guide and validation status](docs/campaign/README.md) ·
+[Authored station overview](docs/campaign/STATION_ZERO_MAP.svg)
+
+> **Implementation status:** the default scene is now
+> `scenes/campaign/station_zero.tscn`. Offline topology/content and regression checks
+> pass; the new native campaign suite is registered in CI but has **not run in the
+> current workspace**, which has no Godot/Android toolchain or device. This is not
+> an APK/device certification. Existing audit evidence predates the campaign.
+>
+> The old arena/mode scenes remain as development/regression fixtures, not the
+> shipping menu. Existing firearm/robot resources, combat and Android fixes are
+> reused. Legacy content IDs (for example `gladius`, the Pulse Carbine) and saved
+> settings/Armory purchases remain compatible through additive save schema 8.
 
 ---
 
 ## Key principles
 
-- **Data-driven content.** New enemies, arenas, upgrades, weapons, cameras and audio
+- **Data-driven content.** New enemies, upgrades, weapons, cameras and audio
   are added as typed `.tres` resources under `res://data/`, discovered + validated by
-  the `ContentRegistry` autoload. Core systems are not rewritten to add content.
+  the `ContentRegistry` autoload. The fixed world lives in `data/campaign/station_zero.json`;
+  its physics, navigation and station chart read the same coordinates.
 - **One collision contract.** Every 3D layer/mask bit comes from
   `CollisionLayers` (`scripts/core/collision_layers.gd`) — bodies *and* spatial
   queries — and `tests/python/test_regress_collision_contract.py` pins the authored
   scene bits, the reserved layers and the deliberate no-body-block decision to it.
   Movement integrates in `_physics_process` with `physics/common/physics_interpolation`
   enabled, so the fixed 60 Hz tick can never alias against the render rate.
-- **Deterministic + testable.** Score, wave generation, upgrade selection, save
-  validation and spawn logic expose pure/deterministic functions exercised headlessly.
+- **Authored + testable.** World topology, stable encounter IDs, once-only rewards
+  and save migration have offline/native regression suites. Native/device execution
+  is reported separately from static validation.
 - **Graceful failure.** Missing optional assets, a corrupted save, or an invalid
-  content resource produce diagnostics + fallback, never a crash.
+  content resource are handled with diagnostics and fallbacks rather than silently ignored.
 - **Legally safe assets.** Every third-party asset is logged with its licence in
   `THIRD_PARTY_ASSETS.md` / `AUDIO_MANIFEST.md`; no unattributed or unclear assets.
 - **Reproducible.** Godot version, Android requirements, build + CI steps are pinned
@@ -50,30 +61,54 @@ and can instantly restart.
 
 ---
 
-## Getting started (development)
+## Build and use the Android app
 
-1. Install the pinned Godot 4.x editor (see `docs/BUILD.md` for the exact version).
-2. Clone this repository.
-3. `godot --path . --editor` to import assets, then press **F5** (or run the
-   `scenes/main/main.tscn` scene).
-4. Keyboard dev controls: `WASD`/arrows to move, `Space`/`Enter` to attack,
-   `Shift` to dodge, `Q`/`E`/`R` for skills, `Tab` to switch weapons, `Esc` to pause
-   (attack/dodge/skills/weapon-switch are remappable in Settings).
-5. On an Android device/emulator, touch: left-side floating joystick, right-side
-   attack + dodge + weapon-switch buttons, tappable skill bar.
-
-Run the headless unit tests:
+The shipping target is **Android / ARM64**, using the **Mobile renderer**, not a
+PC game. Install Godot 4.4.1-stable with matching export templates, Java 17, and
+Android SDK platform/build-tools 34 (details in [BUILD.md](docs/BUILD.md)).
 
 ```bash
-godot --headless --path . --import          # first run: import + generate caches
-godot --headless --path . --script res://tests/run_tests.gd
+bash scripts/build_android.sh
+# Produces build/LastStandArena-debug.apk (debug-signed for sideload testing).
+# The build checks the real APK's package, SDK levels, native ABI, permissions,
+# Mobile-renderer metadata and signature; it does not just check ZIP size.
+ANDROID_SERIAL=<device-serial> bash scripts/device_qa.sh
 ```
+
+On the phone, move with the left stick, hold/drag FIRE to shoot/aim, and tap
+RELOAD, DODGE, SWAP or a READY skill. INTERACT appears near a console or supply locker; MAP shows the connected
+station. Skills, MAP, INTERACT and PAUSE handle independent touch fingers; no keyboard is required. Android Back opens/closes pause and navigates
+screens. Complete [DEVICE_QA.md](docs/DEVICE_QA.md) on a real phone: host tests are
+not proof of Android input, driver, thermal or power-loss behavior.
+
+### Optional development-host preview
+
+Open `project.godot` in the pinned Godot editor and press **F5** after import.
+The Compatibility/Xvfb helper is only for host import previews and regression
+tests. APK export stays headless and preserves the Android Mobile renderer.
+
+<details>
+<summary>Keyboard / controller development controls (not required on Android)</summary>
+
+`WASD`/arrows move, left mouse/`Space`/`Enter` fire, `R` reloads, `Shift` dodges,
+`Q`/`E`/`F` cast skills, `G` interacts, `M` opens the station map,
+`Tab` switches weapons and `Esc` pauses. `J`/`L` orbit
+camera yaw, `I`/`K` pitch. These optional bindings are remappable on the host;
+see [PLAYER.md](docs/PLAYER.md) and [SAVE_RESILIENCE.md](docs/SAVE_RESILIENCE.md).
+
+</details>
+
+Run native tests with an **isolated profile** and the strict log checker; see
+[BUILD.md](docs/BUILD.md#validation--tests) for the copyable command. Do not run
+save-mutating UI/game-flow tests against your normal player profile. A zero Godot
+exit code alone is not sufficient: script errors can otherwise look like a pass.
 
 Offline gates (no Godot binary needed — these run in CI's `validate-resources`
 stage and anywhere python3 is available):
 
 ```bash
-python3 -m unittest discover -s tests/python     # 871 unit + regression guards
+python3 tool/validate_campaign.py               # fixed-world topology + clearance
+python3 -m unittest discover -s tests/python     # unit + regression guards
 python3 tool/check_typed_arch.py                 # typed-architecture contract
 python3 tool/validate_guards.py                  # inlined-guard needles
 python3 tool/check_engine_api.py                 # engine-API contract: every typed member
@@ -95,32 +130,18 @@ python3 tool/check_signals.py                    # signal contract: every signal
 
 ---
 
-## Downloaded 3D asset kit
+## Asset library and provenance
 
-The reviewed asset library contains **9 downloaded rigged/animated character models,
-81 downloaded models, photo-PBR arena texture sets, real HDRI panorama skies,
-UI/particle textures, 2 fonts, 29 sound effects and 5 music loops**
-(~49.08 MiB of locked downloads), plus the **Arena Warden hero and PBR gladius**
-(~4.93 MiB of checksum-locked authored assets). All source files have pinned provenance,
-SHA-256 checksums and preserved licences.
+The runtime uses the robot and firearm models in `assets/scifi/`. The reviewed
+library also retains the earlier downloaded character/arena kits, authored Warden
+rig, PBR textures, HDRI skies, fonts, effects and music. Source files are
+checksum-locked with provenance and preserved licences; the old Warden/gladius
+art reports describe that asset lineage, **not the current live player loadout**.
 
-**Integrated — HD realism pass:** the arena was rebuilt with photo-PBR rock floor,
-aged-brick walls, marble dais/cornices, an iron-banded wooden gate, corner towers
-and flickering torch sconces; each arena gets its own real Poly Haven CC0 HDRI
-sky (sunrise / sunset / moonlit) with image-based lighting; 2× MSAA, 8×
-anisotropic filtering, high-quality PCF shadows and glow are enabled; every
-character, enemy and arena prop receives a role-tuned PBR material pass
-(`HdMaterials`). Earlier work — six pickup models, approved characters/enemies on
-live actors, KayKit dungeon props, per-arena themes, pooled VFX and registered
-SFX/music — remains. See the [asset catalogue](docs/ASSET_CATALOG.md) and
-[quality audit](docs/ASSET_AUDIT.md) for exact additions, replacement selections,
-upstream checks and limitations. **Hero fidelity:** the live player now uses a new human-proportioned PBR armored
-Warden, with all **76 clips retargeted**, 23 deform bones, one body surface, shared
-1K PBR maps and a matching gladius. The existing attack timing, four dodges,
-hurt/death, casts and hand sockets are retained; incomplete imports safely fall
-back to KayKit. This is authored armored art, **not a scanned photoreal human**;
-enemy meshes remain the approved stylized set. See [hero fidelity](docs/HERO_FIDELITY.md)
-for the reproducible recipe, compatibility gate, review tool and validation limits.
+See [the asset catalogue](docs/ASSET_CATALOG.md), [asset audit](docs/ASSET_AUDIT.md)
+and [hero rig tooling](docs/HERO_FIDELITY.md). The inventory and lock verifiers
+below are the source of truth for current counts and sizes. Headless import tests
+check structure and animation contracts, not visual quality or phone frame rate.
 
 ```bash
 python3 scripts/download_assets.py --verify  # offline integrity check
@@ -133,8 +154,9 @@ python3 tool/serve_art.py --port 8000         # optional live hero comparison / 
 
 ```
 assets/        reviewed 3D models, animations, textures, UI, fonts, audio + source lock
-scenes/        main, arena, player, ui (canonical scene tree)
+scenes/        campaign (shipping), player, ui; main/arena legacy test fixtures
 scripts/       core autoloads + per-system controllers/state
+data/campaign/ authored JSON coordinates, checkpoints, finite encounters and missions
 data/          typed .tres content: enemies, upgrades, arenas, cameras, weapons,
                skills, status, pickups, waves, audio
 tests/         unit suites + doubles + run_tests.gd (headless runner)
@@ -153,15 +175,17 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 
 | Doc | Purpose |
 |---|---|
+| `docs/campaign/README.md` | Connected world, persistence, authoring and validation status |
 | `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
 | `docs/ARCHITECTURE.md` | Systems map, ownership, determinism, timing + hardening contracts |
 | `docs/EXTENDING.md` | Step-by-step extension guides (enemy / upgrade / arena / weapon / cue / UI) |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
-| `docs/ANDROID_PERMISSIONS.md` | why the app requests no Android permissions + how to verify |
+| `docs/ANDROID_PERMISSIONS.md` | VIBRATE-only permission policy + how to verify |
 | `docs/ANDROID_PERFORMANCE.md` | Mobile performance posture + adaptive quality governor |
 | `docs/PERFORMANCE_GOVERNOR.md` | Frame-time governor algorithm write-up |
 | `docs/DEBUG_MODE.md` | Debug-mode error trap (freeze + copyable report) |
 | `docs/DEVICE_QA.md` | On-device play checklist |
+| `docs/PROJECT_AUDIT.md` | Project-wide audit fixes, regression evidence and remaining validation limits |
 | `docs/HARDENING.md` | Hardening pass summary + pinned contracts |
 | `docs/PLAYER.md` | Player contract + movement/startup stability postmortems |
 | `docs/CAMERA.md` | Modular third-person camera rig + design principles |

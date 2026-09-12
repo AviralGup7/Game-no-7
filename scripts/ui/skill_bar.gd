@@ -40,6 +40,7 @@ func _make_slot(index: int) -> Button:
 	var slot := index
 	button.pressed.connect(func() -> void: _on_slot_pressed(slot))
 	wrapper.add_child(button)
+	TouchButtonInput.attach(button)
 	var cd := Label.new()
 	cd.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -170,6 +171,8 @@ func _short_name(cfg: SkillConfig) -> String:
 
 
 func _key_hint(index: int) -> String:
+	if OS.has_feature("mobile"):
+		return "TAP / READY"
 	var cfg := _controller.slot_skill(index) if _controller != null else null
 	if cfg == null:
 		return ""
@@ -189,3 +192,9 @@ func fit_touch_targets(bar_size: Vector2) -> void:
 		button.custom_minimum_size = Vector2(width, height)
 
 
+
+func cancel_touch_input() -> void:
+	for button in _buttons:
+		var input := button.get_node_or_null("TouchButtonInput") as TouchButtonInput
+		if input != null:
+			input.cancel()

@@ -43,6 +43,7 @@ func _run() -> void:
 	# Modularisation smoke: the HUD vitals are a dedicated UiGauges dock and the
 	# confirm modal is a wired UiModal controller.
 	_check("hud gauges dock is a real component", is_instance_valid(_ui._hud._gauges) and _ui._hud._gauges is UiGauges)
+	_check("score labels share their intended vertical stack", _ui._hud._score_label.get_parent() is VBoxContainer and _ui._hud._score_label.get_parent() == _ui._hud._score_value.get_parent())
 	_check("gauges expose wired meters",
 		_ui._hud._gauges.health_bar != null and _ui._hud._gauges.stamina_bar != null and _ui._hud._gauges.xp_bar != null)
 	_check("modal controller wired to dialog", is_instance_valid(_ui._modal) and _ui._confirm != null)
@@ -102,6 +103,7 @@ func _run() -> void:
 	await _settle()
 	_check("resume returns to gameplay", _screen() == "playing" and not get_tree().paused)
 	await _test_touch()
+	await _test_android_controls_and_interruption()
 	await _test_upgrades()
 	await _test_hud_and_effects()
 	EventBus.enemy_killed.emit(null, &"grunt", 50, 20)
@@ -148,6 +150,8 @@ func _run() -> void:
 	get_tree().paused = false
 	_ui.queue_free()
 	await get_tree().process_frame
+	preload("res://tests/doubles/audio_probe.gd").stop()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(0 if _failures.is_empty() else 1)
 
 func _screen() -> String:
@@ -170,6 +174,11 @@ func _test_touch() -> void:
 	GameRoot.request_pause()
 	await _settle()
 	_check("modal cancels captured stick", not joystick.is_active() and joystick.get_value() == Vector2.ZERO)
+	# is_held() deliberately reports false on hidden controls. Resume before
+	# testing real gameplay multi-touch, rather than injecting into a hidden HUD.
+	GameRoot.request_resume()
+	await _settle()
+	_ui._touch.show()
 	var button: TouchActionButton = _ui._touch._buttons[0]
 	var emitted := [0]
 	button.pressed.connect(func() -> void: emitted[0] += 1)
@@ -335,7 +344,7 @@ func _test_layouts() -> void:
 	_ui._apply_settings(large)
 	_ui._show_screen(&"settings")
 	await _settle()
-	_check("live text scale metadata applied", _ui._menu.get_theme_default_font() == UiTheme.REGULAR)
+	_check("live text scale metadata applied", _ui._menu.get_theme_default_font() == UiTheme.regular_font)
 	_ui._apply_settings(SaveManager.get_settings())
 
 ## Pure geometry contract for the overlay solver: exercised over every common
@@ -395,6 +404,7 @@ func _test_armory_and_save() -> void:
 	settings.set_text_scale(1.2)
 	SaveManager.save_settings(settings)
 	_check("settings persist through existing API", SaveManager.save_now())
+	_check("saved profile passes integrity before reload", SaveManager._read_raw(SaveManager.SAVE_PATH) is Dictionary)
 	_check("existing ranks available to presentation", SaveManager.get_meta_ranks().size() > 0)
 	_ui._armory.refresh()
 	_check("Armory shows current wallet", _ui._armory._wallet_label.text.contains(str(_meta.get_wallet())))
@@ -434,4 +444,54 @@ func _test_tutorial() -> void:
 	GameRoot.request_main_menu()
 	_check("coach stops on menu", not tutorial.is_active())
 	tutorial.queue_free()
+	await _settle()
+
+
+func _test_android_controls_and_interruption() -> void:
+	# Real Button.gui_input signals reach the adapters before BaseButton's
+	# mouse handler. No mouse-emulation event is needed for these extra fingers.
+	_ui._touch.show()
+	var fire: TouchActionButton = _ui._touch._buttons[0]
+	var stick: TouchJoystick = _ui._touch.joystick
+	stick._begin(10, Vector2(50, 50))
+	stick._update(Vector2(100, 50))
+	var finger := InputEventScreenTouch.new()
+	finger.index = 11
+	finger.pressed = true
+	finger.position = Vector2(40, 40)
+	fire._gui_input(finger)
+	var skill: Button = _ui._skill_bar._buttons[0]
+	skill.disabled = false
+	var presses: Array[int] = [0]
+	var observer := func() -> void: presses[0] += 1
+	skill.pressed.connect(observer)
+	finger = finger.duplicate() as InputEventScreenTouch
+	finger.index = 12
+	skill.gui_input.emit(finger)
+	_check("Android third-finger skill works while moving and firing", presses[0] == 1 and stick.is_active() and fire.is_held())
+	var emulated := InputEventMouseButton.new()
+	emulated.device = InputEvent.DEVICE_ID_EMULATION
+	emulated.button_index = MOUSE_BUTTON_LEFT
+	emulated.pressed = true
+	skill.gui_input.emit(emulated)
+	_check("Android skill mouse copy never duplicates activation", presses[0] == 1)
+	skill.pressed.disconnect(observer)
+	finger = finger.duplicate() as InputEventScreenTouch
+	finger.index = 13
+	_ui._hud._pause_button.gui_input.emit(finger)
+	_check("Android pause works without lifting joystick or FIRE", GameRoot.get_current_state() == GameRoot.State.PAUSED and not stick.is_active() and not fire.is_held())
+	GameRoot.request_resume()
+	await _settle()
+	_ui._touch.show()
+	stick._begin(10, Vector2(50, 50))
+	fire._gui_input(finger)
+	SaveManager.persist_settings()
+	GameRoot._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	_ui._touch._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	SaveManager._notification(Node.NOTIFICATION_APPLICATION_PAUSED)
+	_check("Android interruption stops held controls and pauses the run", GameRoot.is_paused() and not stick.is_active() and not fire.is_held())
+	_check("Android background event flushes pending profile data", not SaveManager._dirty and SaveManager._read_raw(SaveManager.SAVE_PATH) is Dictionary)
+	GameRoot._notification(Node.NOTIFICATION_APPLICATION_RESUMED)
+	_check("Android foregrounding never auto-resumes combat", GameRoot.is_paused())
+	GameRoot.request_resume()
 	await _settle()

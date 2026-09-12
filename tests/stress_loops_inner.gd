@@ -10,6 +10,8 @@ extends Node
 ##   godot --headless --path . --script res://tests/stress_loops.gd
 ## Exit code 0 only when every check passes. Run with isolated XDG_DATA_HOME.
 
+const FlowFixture = preload("res://tests/doubles/flow_fixture.gd")
+const AudioProbe = preload("res://tests/doubles/audio_probe.gd")
 const MAIN_SCENE := "res://scenes/main/main.tscn"
 const BASIC_ENEMY := "res://scenes/enemies/basic_enemy.tscn"
 const WARLORD_ENEMY := "res://scenes/enemies/warlord_enemy.tscn"
@@ -90,18 +92,7 @@ func _find_buttons_containing(root: Node, token: String) -> Array:
 
 
 func _sfx_snapshot() -> Dictionary:
-	var by_cue := {}
-	var total := 0
-	var unknowns := 0
-	for p in AudioManager._sfx_pool:
-		if (p as AudioStreamPlayer).playing:
-			total += 1
-			var cue := _cue_for_stream((p as AudioStreamPlayer).stream)
-			if cue == &"":
-				unknowns += 1
-			else:
-				by_cue[String(cue)] = int(by_cue.get(String(cue), 0)) + 1
-	return {"total": total, "unknowns": unknowns, "by_cue": by_cue}
+	return AudioProbe.snapshot()
 
 
 func _cue_for_stream(stream: AudioStream) -> StringName:
@@ -114,8 +105,7 @@ func _cue_for_stream(stream: AudioStream) -> StringName:
 
 
 func _stop_all_sfx() -> void:
-	for p in AudioManager._sfx_pool:
-		(p as AudioStreamPlayer).stop()
+	AudioProbe.stop()
 
 
 func _count(snapshot: Dictionary, cue: String) -> int:
@@ -135,12 +125,12 @@ func _music_playing_cue() -> String:
 
 
 func _connect_completion_tracking() -> void:
-	for p in AudioManager._sfx_pool:
-		(p as AudioStreamPlayer).finished.connect(_on_sfx_finished.bind(p))
+	for p in AudioProbe.players():
+		p.connect("finished", _on_sfx_finished.bind(p))
 
 
-func _on_sfx_finished(player: AudioStreamPlayer) -> void:
-	var cue := _cue_for_stream(player.stream)
+func _on_sfx_finished(player: Node) -> void:
+	var cue := AudioProbe.cue_for(player.get("stream") as AudioStream)
 	_completed.append(String(cue) if cue != &"" else "<unknown>")
 
 
@@ -269,16 +259,8 @@ func _compare_bus(loop: int) -> void:
 	for sig in _bus_baseline.keys():
 		if int(now.get(sig, -1)) != int(_bus_baseline[sig]):
 			drift.append("%s:%d->%d" % [sig, _bus_baseline[sig], now.get(sig, -1)])
-	if loop == 1:
-		# TutorialManager lazily wires 3 guarded (dup-proof) connections on the
-		# first run_started; allowlist exactly that, then re-baseline.
-		var expected := ["wave_completed:4->5", "upgrade_selected:3->4", "skill_cast:2->3"]
-		drift.sort()
-		expected.sort()
-		_check("L1 first-run wiring is only the tutorial trio", drift == expected, str(drift))
-		_bus_baseline = now
-	else:
-		_check("L%d EventBus connections stable" % loop, drift.is_empty(), str(drift))
+	# Tutorial subscriptions are now created once at startup, not lazily.
+	_check("L%d EventBus connections stable" % loop, drift.is_empty(), str(drift))
 
 
 # ------------------------------------------------------------------ run ----
@@ -327,6 +309,11 @@ func _menu_and_start(loop: int) -> void:
 	enter_btn.pressed.emit()
 	var reached := await _wait_for(func() -> bool: return GameRoot.get_current_state() == GameRoot.State.PLAYING, 60.0)
 	_check(tag + " run reaches PLAYING", reached)
+	# This is a lifecycle/audio census, not a performance benchmark. Synthetic
+	# or unoptimized hosts must not persist an automatic tier during the loop.
+	var monitor := _world().get_node_or_null("PerformanceMonitor") as PerformanceMonitor
+	if monitor != null:
+		monitor.set_auto_scale(false)
 	_snap("%s.start" % tag)
 
 
@@ -389,6 +376,8 @@ func _player_validity_checks(tag: String, player: Node) -> void:
 
 
 func _natural_combat_window(tag: String, player: Node) -> void:
+	_check(tag + " clear movement lane exists", FlowFixture.place_on_clear_lane(_world(), player as Player))
+	await _phys(4)
 	# Let wave 1 play naturally: locomotion, footsteps, camera follow, spawns,
 	# enemy AI + attacks, hurt feedback on an invulnerable player.
 	var rig: Node = _world().get_node_or_null("CameraRig")
@@ -397,6 +386,10 @@ func _natural_combat_window(tag: String, player: Node) -> void:
 	Input.action_press("move_right")
 	for i in range(120):
 		await get_tree().physics_frame
+		if i == 47:
+			# Keep the two-second AI window, but do not walk beyond the checked
+			# six-meter lane into unrelated authored steps/props.
+			Input.action_release("move_right")
 	Input.action_release("move_right")
 	var p1 := (player as Node3D).global_position
 	_check(tag + " player moved under input", p0.distance_to(p1) > 1.0, "%.2fm" % p0.distance_to(p1))
@@ -591,7 +584,7 @@ func _weapon_checks(tag: String, player: Node) -> void:
 		if int(_sfx_snapshot()["total"]) > 0:
 			break
 	var snap := _sfx_snapshot()
-	_check(tag + " attack swing audible", _count(snap, "player_attack") == 1, str(snap))
+	_check(tag + " firearm shot audible", _count(snap, "player_shot") == 1, str(snap))
 	await _wait_for(func() -> bool: return int(_sfx_snapshot()["total"]) == 0, 3.0)
 
 
@@ -640,6 +633,8 @@ func _projectile_checks(tag: String, player: Node) -> void:
 	_check(tag + " projectile pool present", pool != null)
 	if pool == null:
 		return
+	# Real firearm shots from the preceding input check may still be in flight.
+	pool.call("release_all")
 	var idle0: int = pool.call("idle_count")
 	var kids0 := pool.get_child_count()
 	var origin := (player as Node3D).global_position + Vector3(0, 1, 0)
@@ -836,4 +831,6 @@ func _finish() -> void:
 		get_tree().current_scene.queue_free()
 		await get_tree().process_frame
 		await get_tree().process_frame
+	AudioProbe.stop()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(code)

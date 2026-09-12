@@ -122,6 +122,9 @@ func _exit_tree() -> void:
 ## deaths. Unbind those run-scoped feeds; HUD EventBus stays connected.
 func isolate_run() -> void:
 	_unbind_run_events()
+	var build_effects := get_node_or_null("BuildEffects") as BuildEffects
+	if build_effects != null:
+		build_effects.isolate_run()
 	if _player_audio != null:
 		_player_audio.isolate_run()
 

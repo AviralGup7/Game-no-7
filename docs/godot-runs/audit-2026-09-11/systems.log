@@ -1,0 +1,402 @@
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+STRESS SYSTEMS: booting real game
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+STRESS SYSTEMS: lifecycle matrix
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2245694063 mode=standard arena=default_arena seed=549895737
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: A start
+  PASS: A paused paused flag
+  PASS: A paused state
+  PASS: A paused world children unique
+  PASS: A paused no @-suffixed dupes
+  PASS: A paused arena present
+  PASS: A paused single player node
+  PASS: A paused autoloads valid
+  PASS: A paused audio pool 16
+  PASS: A paused music players 2
+  PASS: A paused bus connections stable
+  PASS: A resumed paused flag
+  PASS: A resumed state
+  PASS: A resumed world children unique
+  PASS: A resumed no @-suffixed dupes
+  PASS: A resumed arena present
+  PASS: A resumed single player node
+  PASS: A resumed autoloads valid
+  PASS: A resumed audio pool 16
+  PASS: A resumed music players 2
+  PASS: A resumed bus connections stable
+  PASS: B pause menu button exists
+  PASS: B leave dialog appears
+  PASS: B dialog cancel ticks back once
+  PASS: B cancel stays paused
+[diagnostic] Entered main menu
+  PASS: B dialog confirm ticks back once
+  PASS: B menu paused flag
+  PASS: B menu state
+  PASS: B menu world children unique
+  PASS: B menu no @-suffixed dupes
+  PASS: B menu world cleared at menu
+  PASS: B menu autoloads valid
+  PASS: B menu audio pool 16
+  PASS: B menu music players 2
+  PASS: B menu bus connections stable
+  PASS: B old player freed
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 32244117 mode=standard arena=default_arena seed=2462789219
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: C start
+  PASS: C new player live
+[diagnostic] Starting run 1857694646 mode=standard arena=default_arena seed=2509486315
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: C1 restarted paused flag
+  PASS: C1 restarted state
+  PASS: C1 restarted world children unique
+  PASS: C1 restarted no @-suffixed dupes
+  PASS: C1 restarted arena present
+  PASS: C1 restarted single player node
+  PASS: C1 restarted autoloads valid
+  PASS: C1 restarted audio pool 16
+  PASS: C1 restarted music players 2
+  PASS: C1 restarted bus connections stable
+  PASS: C1 old player freed
+  PASS: C1 music calm
+[diagnostic] Starting run 636547146 mode=standard arena=default_arena seed=1260357588
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: C2 restarted paused flag
+  PASS: C2 restarted state
+  PASS: C2 restarted world children unique
+  PASS: C2 restarted no @-suffixed dupes
+  PASS: C2 restarted arena present
+  PASS: C2 restarted single player node
+  PASS: C2 restarted autoloads valid
+  PASS: C2 restarted audio pool 16
+  PASS: C2 restarted music players 2
+  PASS: C2 restarted bus connections stable
+  PASS: C2 old player freed
+  PASS: C2 music calm
+[diagnostic] Starting run 3973057853 mode=standard arena=default_arena seed=3503536106
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: C3 restarted paused flag
+  PASS: C3 restarted state
+  PASS: C3 restarted world children unique
+  PASS: C3 restarted no @-suffixed dupes
+  PASS: C3 restarted arena present
+  PASS: C3 restarted single player node
+  PASS: C3 restarted autoloads valid
+  PASS: C3 restarted audio pool 16
+  PASS: C3 restarted music players 2
+  PASS: C3 restarted bus connections stable
+  PASS: C3 old player freed
+  PASS: C3 music calm
+[diagnostic] Starting run 1795449517 mode=standard arena=default_arena seed=4258759249
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: D restart-from-pause paused flag
+  PASS: D restart-from-pause state
+  PASS: D restart-from-pause world children unique
+  PASS: D restart-from-pause no @-suffixed dupes
+  PASS: D restart-from-pause arena present
+  PASS: D restart-from-pause single player node
+  PASS: D restart-from-pause autoloads valid
+  PASS: D restart-from-pause audio pool 16
+  PASS: D restart-from-pause music players 2
+  PASS: D restart-from-pause bus connections stable
+  PASS: D old player freed
+[diagnostic] Entered main menu
+  PASS: E menu paused flag
+  PASS: E menu state
+  PASS: E menu world children unique
+  PASS: E menu no @-suffixed dupes
+  PASS: E menu world cleared at menu
+  PASS: E menu autoloads valid
+  PASS: E menu audio pool 16
+  PASS: E menu music players 2
+  PASS: E menu bus connections stable
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2080160452 mode=standard arena=default_arena seed=2139860135
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: E start
+  PASS: E paused paused flag
+  PASS: E paused state
+  PASS: E paused world children unique
+  PASS: E paused no @-suffixed dupes
+  PASS: E paused arena present
+  PASS: E paused single player node
+  PASS: E paused autoloads valid
+  PASS: E paused audio pool 16
+  PASS: E paused music players 2
+  PASS: E paused bus connections stable
+  PASS: E resumed paused flag
+  PASS: E resumed state
+  PASS: E resumed world children unique
+  PASS: E resumed no @-suffixed dupes
+  PASS: E resumed arena present
+  PASS: E resumed single player node
+  PASS: E resumed autoloads valid
+  PASS: E resumed audio pool 16
+  PASS: E resumed music players 2
+  PASS: E resumed bus connections stable
+[LastStand][soak] END wave=1 samples=0 min_fps=17 peak_enemies=3 elapsed=0s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=17 peak_enemies=3 elapsed=0s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: F gameover paused flag
+  PASS: F gameover state
+  PASS: F gameover world children unique
+  PASS: F gameover no @-suffixed dupes
+  PASS: F gameover arena present
+  PASS: F gameover single player node
+  PASS: F gameover autoloads valid
+  PASS: F gameover audio pool 16
+  PASS: F gameover music players 2
+  PASS: F gameover bus connections stable
+[diagnostic] Entered main menu
+  PASS: F menu paused flag
+  PASS: F menu state
+  PASS: F menu world children unique
+  PASS: F menu no @-suffixed dupes
+  PASS: F menu world cleared at menu
+  PASS: F menu autoloads valid
+  PASS: F menu audio pool 16
+  PASS: F menu music players 2
+  PASS: F menu bus connections stable
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 1635159279 mode=standard arena=default_arena seed=3389054899
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: F start
+[LastStand][soak] END wave=1 samples=0 min_fps=0 peak_enemies=0 elapsed=0s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=0 peak_enemies=0 elapsed=0s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: G1 gameover paused flag
+  PASS: G1 gameover state
+  PASS: G1 gameover world children unique
+  PASS: G1 gameover no @-suffixed dupes
+  PASS: G1 gameover arena present
+  PASS: G1 gameover single player node
+  PASS: G1 gameover autoloads valid
+  PASS: G1 gameover audio pool 16
+  PASS: G1 gameover music players 2
+  PASS: G1 gameover bus connections stable
+[diagnostic] Starting run 3331522629 mode=standard arena=default_arena seed=1234763095
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: G1 restarted paused flag
+  PASS: G1 restarted state
+  PASS: G1 restarted world children unique
+  PASS: G1 restarted no @-suffixed dupes
+  PASS: G1 restarted arena present
+  PASS: G1 restarted single player node
+  PASS: G1 restarted autoloads valid
+  PASS: G1 restarted audio pool 16
+  PASS: G1 restarted music players 2
+  PASS: G1 restarted bus connections stable
+[LastStand][soak] END wave=1 samples=0 min_fps=4 peak_enemies=3 elapsed=0s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=4 peak_enemies=3 elapsed=0s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: G2 gameover paused flag
+  PASS: G2 gameover state
+  PASS: G2 gameover world children unique
+  PASS: G2 gameover no @-suffixed dupes
+  PASS: G2 gameover arena present
+  PASS: G2 gameover single player node
+  PASS: G2 gameover autoloads valid
+  PASS: G2 gameover audio pool 16
+  PASS: G2 gameover music players 2
+  PASS: G2 gameover bus connections stable
+[diagnostic] Starting run 3548250227 mode=standard arena=default_arena seed=1863682245
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/EffectDirector/@Node3D@2725/Disc" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: G2 restarted paused flag
+  PASS: G2 restarted state
+  PASS: G2 restarted world children unique
+  PASS: G2 restarted no @-suffixed dupes
+  PASS: G2 restarted arena present
+  PASS: G2 restarted single player node
+  PASS: G2 restarted autoloads valid
+  PASS: G2 restarted audio pool 16
+  PASS: G2 restarted music players 2
+  PASS: G2 restarted bus connections stable
+[diagnostic] Entered main menu
+  PASS: Z parked menu paused flag
+  PASS: Z parked menu state
+  PASS: Z parked menu world children unique
+  PASS: Z parked menu no @-suffixed dupes
+  PASS: Z parked menu world cleared at menu
+  PASS: Z parked menu autoloads valid
+  PASS: Z parked menu audio pool 16
+  PASS: Z parked menu music players 2
+  PASS: Z parked menu bus connections stable
+STRESS SYSTEMS: UI stress
+  MENU buttons: { "START RUN": 2, "DAILY CHALLENGE  /  TODAY\'S SEED": 2, "ARMORY": 2, "SETTINGS": 2, "HOW TO PLAY": 2, "Debug mode: freeze on error with a copyable report": 1, "QUIT": 2 }
+  PASS: menu has buttons
+  PASS: menu buttons all wired
+  PASS: QUIT present
+  PASS: QUIT wired (factory+request)
+  QUIT excluded from emission by design
+  VIEWPORT: (1280.0, 1280.0)
+  PASS: menu buttons inside viewport
+  PASS: settings entry exists
+  PASS: settings opens
+  SETTINGS widgets: 4 sliders 6 toggles 2 options
+  PASS: settings has sliders
+  PASS: settings BACK exists
+  PASS: BACK ticks ui_back once
+  PASS: settings back at menu
+  PASS: draft discarded on BACK
+  PASS: SAVE exists
+  PASS: SAVE ticks ui_confirm once
+  PASS: settings_changed emitted once
+  PASS: slider values persisted
+  SETTINGS saved quality=high fps=30
+  PASS: settings restored
+  PASS: settings closed
+  PASS: armory opens
+  PASS: armory entry ticks once
+  PASS: armory close ticks back once
+  PASS: armory returns to menu
+  PASS: help close ticks back once
+  PASS: menu wiring stable after tour
+STRESS SYSTEMS: graphics tiers (in-run)
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 3850451090 mode=standard arena=default_arena seed=3870727177
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: gfx run starts
+  PASS: perf monitor present
+  PASS: step in cooldown declines
+  PASS: step ok after cooldown
+  PASS: step rearms cooldown
+  PASS: tier 0 applies (c0)
+  PASS: tier 0 fps 30 (c0)
+  PASS: tier signal args (c0)
+  PASS: tier 1 applies (c0)
+  PASS: tier 1 fps 60 (c0)
+  PASS: tier signal args (c0)
+  PASS: tier 2 applies (c0)
+  PASS: tier 2 fps 0 (c0)
+  PASS: tier signal args (c0)
+  PASS: tier 3 applies (c0)
+  PASS: tier 3 fps 0 (c0)
+  PASS: tier signal args (c0)
+  PASS: tier 0 applies (c1)
+  PASS: tier 0 fps 30 (c1)
+  PASS: tier signal args (c1)
+  PASS: tier 1 applies (c1)
+  PASS: tier 1 fps 60 (c1)
+  PASS: tier signal args (c1)
+  PASS: tier 2 applies (c1)
+  PASS: tier 2 fps 0 (c1)
+  PASS: tier signal args (c1)
+  PASS: tier 3 applies (c1)
+  PASS: tier 3 fps 0 (c1)
+  PASS: tier signal args (c1)
+  PASS: tier emits >= 7
+  PASS: same-tier set silent
+  PASS: settings low -> tier 0
+  PASS: settings medium -> tier 1
+[LastStand][soak] t=5s fps=60 min=15 enemies=3 peak=3 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=15 enemies=3 peak=3 wave=1 hp=100/100
+  PASS: settings high -> tier 2
+  PASS: viewport stable
+  PASS: ui intact
+  PASS: camera intact
+[diagnostic] Entered main menu
+STRESS SYSTEMS: audio sweep
+  CUES (42): [&"enemy_dash", &"enemy_explosion", &"enemy_windup", &"player_attack", &"player_death", &"player_dodge", &"player_hurt", &"player_low_health", &"player_reload", &"player_shot", &"player_step", &"player_switch", &"enemy_attack", &"enemy_hit", &"enemy_death", &"enemy_spawn", &"upgrade_select", &"pickup", &"wave_started", &"game_over", &"ui_confirm", &"ui_back", &"footstep", &"equip", &"item_drop", &"skill_cast", &"skill_ready", &"level_up", &"wave_completed", &"boss_spawned", &"boss_phase_changed", &"boss_slain", &"music_menu", &"music_calm", &"music_battle", &"music_boss", &"music_victory", &"music_battle_l2", &"music_battle_l3", &"music_boss_l2", &"music_boss_l3", &"music_calm_l2"]
+  PASS: cues registered
+  PASS: music beds present
+  PASS: cue ui_confirm plays once
+  PASS: cue ui_back plays once
+  PASS: cue player_attack plays once
+  PASS: cue player_step plays once
+  PASS: cue player_dodge plays once
+  PASS: cue player_death plays once
+  PASS: cue enemy_hit plays once
+  PASS: cue enemy_death plays once
+  PASS: cue enemy_spawn plays once
+  PASS: cue level_up plays once
+  PASS: cue game_over plays once
+  PASS: cue boss_spawned plays once
+  PASS: bulk cue accepted enemy_dash
+  PASS: bulk cue accepted enemy_explosion
+  PASS: bulk cue accepted enemy_windup
+  PASS: bulk cue accepted player_hurt
+  PASS: bulk cue accepted player_low_health
+  PASS: bulk cue accepted player_reload
+  PASS: bulk cue accepted player_shot
+  PASS: bulk cue accepted player_switch
+  PASS: bulk cue accepted enemy_attack
+  PASS: bulk cue accepted upgrade_select
+  PASS: bulk cue accepted pickup
+  PASS: bulk cue accepted wave_started
+  PASS: bulk cue accepted footstep
+  PASS: bulk cue accepted equip
+  PASS: bulk cue accepted item_drop
+  PASS: bulk cue accepted skill_cast
+  PASS: bulk cue accepted skill_ready
+  PASS: bulk cue accepted wave_completed
+  PASS: bulk cue accepted boss_phase_changed
+  PASS: bulk cue accepted boss_slain
+  PASS: bulk cues settle silent
+  PASS: pool still 16
+  PASS: bus volumes sane
+  PASS: master unmuted
+STRESS SYSTEMS: save persistence
+  PASS: save loaded
+  PASS: best score sane
+  PASS: settings round-trip
+  PASS: settings restored
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 1693940362 mode=standard arena=default_arena seed=2959069617
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: save run starts
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[LastStand][soak] END wave=1 samples=0 min_fps=66 peak_enemies=9 elapsed=0s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=66 peak_enemies=9 elapsed=0s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: scoring run keeps/raises best
+[diagnostic] Entered main menu
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 80932514 mode=standard arena=default_arena seed=2492624942
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: save run2 starts
+[LastStand][soak] END wave=1 samples=0 min_fps=0 peak_enemies=0 elapsed=0s
+[diagnostic] [LastStand][soak] END wave=1 samples=0 min_fps=0 peak_enemies=0 elapsed=0s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: scoreless run keeps best
+[diagnostic] Entered main menu
+  USERDIR: ["debug_mode.cfg:25", "last_stand_save.backup.2.json:1108", "last_stand_save.backup.3.json:1753", "last_stand_save.backup.json:1108", "last_stand_save.json:1124"]
+  PASS: save files exist
+  MENU NODES boot=393 end=487
+  PASS: menu nodes stable across tours
+  PASS: menu fps restored to project default
+  PASS: settings pristine at end
+  PASS: zero error/audio diagnostics
+STRESS SYSTEMS: 296 checks, 0 failed, frames=935

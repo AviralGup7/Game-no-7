@@ -133,6 +133,28 @@ func instances() -> Array[HazardInstance]:
 	return _instances
 
 
+## Spawn safety uses the damaging footprint, not the telegraph's current phase.
+## Avoid the whole orbit path so a random initial angle cannot hit a new player.
+func is_spawn_clear(at: Vector3, body_pad: float = 0.65) -> bool:
+	if not at.is_finite() or not is_finite(body_pad) or body_pad < 0.0:
+		return false
+	for instance in _instances:
+		var config := instance.config
+		if config == null or not config.affects_player:
+			continue
+		if config.damage <= 0.0 and config.status_effect_id == &"":
+			continue
+		var reach := instance.radius + body_pad
+		var offset := Vector2(at.x - instance.origin.x, at.z - instance.origin.z)
+		var orbit := instance.orbit_radius(_arena_half)
+		if orbit > 0.0:
+			if absf(offset.length() - orbit) <= reach:
+				return false
+		elif offset.length_squared() <= reach * reach:
+			return false
+	return true
+
+
 ## Public authoring seam: place one authored HazardPlacement right now. Arena and mode
 ## layouts go through here, and so do tools/tests that want a specific hazard at a
 ## specific spot without editing any .tres.

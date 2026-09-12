@@ -78,7 +78,7 @@ script = ExtResource("2_plan")
 wave_number = 11
 archetypes = Array[StringName]([])
 beat_title = "Attrition"
-beat_line = "The gate holds \u2014 barely. Buy time with steel."
+beat_line = "The gate holds — barely. Buy time with steel."
 
 [sub_resource type="Resource" id="wp12"]
 script = ExtResource("2_plan")
@@ -114,7 +114,7 @@ mode_id = &"campaign"
 display_name = "Campaign: The Last Stand"
 blurb = "Scripted encounters, lore beats, and a final Warlord reckoning."
 intro_line = "They sealed the gate. You are the last line. Hold the stand."
-victory_line = "The gate holds. The Last Stand is won \u2014 for now."
+victory_line = "The gate holds. The Last Stand is won — for now."
 objective = &"clear_waves"
 score_mult = 1.2
 currency_mult = 1.3

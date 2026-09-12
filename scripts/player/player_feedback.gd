@@ -126,7 +126,7 @@ func _request_camera_shake(amplitude: float, duration: float) -> void:
 
 
 func _request_vibration(duration_msec: int, _amplitude: int) -> void:
-	if SaveManager.get_settings().vibration_enabled:
+	if OS.has_feature("mobile") and SaveManager.get_settings().vibration_enabled and duration_msec > 0:
 		Input.vibrate_handheld(duration_msec)
 
 

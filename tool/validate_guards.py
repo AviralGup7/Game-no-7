@@ -53,9 +53,9 @@ def main() -> int:
         ("scripts/utilities/weighted_table.gd", "is_finite(weight)"),
         ("scripts/utilities/weighted_table.gd", "clampf(weight"),
         # Player vitals.
-        ("scripts/player/health_component.gd", "is_finite(float(payload.amount))"),
+        ("scripts/player/health_component.gd", "not payload.is_valid()"),
         ("scripts/player/health_component.gd", "clampf(current_health / max_health, 0.0, 1.0)"),
-        ("scripts/player/health_component.gd", "clampf(_mitigate(amount, payload), 0.0, INF)"),
+        ("scripts/player/health_component.gd", "amount = _mitigate(amount, payload)\n\tif not is_finite(amount):"),
         ("scripts/player/experience_component.gd", "clampf(mult, 0.0, 10.0)"),
         ("scripts/player/stamina_component.gd", "clampf(_current / _max, 0.0, 1.0)"),
         ("scripts/player/progression_component.gd", "is_finite(base)"),

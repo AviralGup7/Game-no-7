@@ -11,9 +11,9 @@ class SaveManagerTests(unittest.TestCase):
         self.assertNotIn("_write_raw(SAVE_PATH, JSON.stringify(_save))\n\t_dirty = false\n\tif ok:",txt)
     def test_save_schema_int_rounding(self):
         txt=read("scripts/save/save_schema.gd")
-        self.assertIn("int(round(float(v)))",txt)
+        self.assertIn("_int_or(roundf(float(v)), 0)",txt)
         self.assertIn("func _string_int_map",txt)
-        self.assertIn("maxi(int(round(float(v))), 0)",txt)
+        self.assertIn("maxi(_int_or(roundf(float(v)), 0), 0)",txt)
 
     def test_save_commit_is_non_destructive_and_durable(self):
         txt=read("scripts/save/save_manager.gd")
@@ -29,7 +29,7 @@ class SaveManagerTests(unittest.TestCase):
     def test_integrity_is_verified_before_normalization(self):
         txt=read("scripts/save/save_manager.gd")
         self.assertLess(txt.index("raw = _read_raw(candidate)"), txt.index("validate_save_data(raw)"))
-        self.assertIn("if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed)", txt)
+        self.assertIn("if parsed.has(INTEGRITY_KEY) and not _integrity_valid(parsed, text)", txt)
         self.assertIn('"algorithm": "sha256"', txt)
 
     def test_backup_rotation_skips_missing_generations(self):
@@ -40,7 +40,7 @@ class SaveManagerTests(unittest.TestCase):
 
     def test_run_build_seed_key_is_seed(self):
         txt=read("scripts/save/save_schema.gd")
-        self.assertIn('out.seed = maxi(_int_or(seed_raw, 0), 0)', txt)
+        self.assertIn('out.seed = _seed_or(seed_raw)', txt)
         self.assertNotIn("out.run_seed =", txt)
 
 if __name__=="__main__": unittest.main()

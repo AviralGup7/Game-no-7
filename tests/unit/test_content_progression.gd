@@ -84,18 +84,23 @@ static func suite() -> Array:
 				references_ok = false
 	results.append({"name": "all content references resolve", "passed": references_ok, "why": ""})
 
-	# Distinct data identities: the library contains melee, ranged and hybrid
-	# resolver paths plus multiple status/control patterns.
-	var kinds := {}
-	var patterns := {}
+	# Station Zero deliberately ships firearms only. Keep the generic melee /
+	# hybrid resolver tests elsewhere; weapon variety now comes from magazines,
+	# cadence, pellet counts and status riders, not obsolete melee data rows.
+	var firearms := true
+	var cadences := {}
+	var magazines := {}
+	var pellets := {}
 	for cfg in weapons.values():
 		var wc := cfg as WeaponConfig
-		kinds[wc.kind] = true
-		patterns[wc.attack_pattern] = true
+		firearms = firearms and wc.kind == &"ranged" and wc.ammo_per_magazine > 0
+		cadences[wc.swing_cooldown] = true
+		magazines[wc.ammo_per_magazine] = true
+		pellets[wc.projectile_count] = true
 	results.append({
-		"name": "weapon library spans resolver kinds and attack patterns",
-		"passed": kinds.size() == 3 and patterns.size() >= 4,
-		"why": "kinds=%s patterns=%s" % [str(kinds.keys()), str(patterns.keys())],
+		"name": "firearm library spans cadences, magazines and pellet counts",
+		"passed": firearms and weapons.size() == 9 and cadences.size() >= 3 and magazines.size() >= 3 and pellets.size() >= 2,
+		"why": "cadences=%s magazines=%s pellets=%s" % [str(cadences.keys()), str(magazines.keys()), str(pellets.keys())],
 	})
 
 	var categories := {}
@@ -191,4 +196,5 @@ static func suite() -> Array:
 		"why": "version=%d/%d build=%s" % [got_version, expected_version, str(build)],
 	})
 
+	prog.free()
 	return results

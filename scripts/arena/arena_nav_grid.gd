@@ -38,6 +38,8 @@ var _blocked: PackedByteArray = PackedByteArray()
 var _flow_dist: PackedFloat32Array = PackedFloat32Array()
 var _flow_target := Vector2i(-1, -1)
 var _built := false
+var _world_min := Vector2(-12.0, -12.0)
+var _conservative_los := false
 
 # Fixed 8-neighbor order. South (+z / +cell.y) is first so equal-cost detours
 # around a wall symmetric about z=0 pick the cheap south lane deterministically
@@ -56,6 +58,8 @@ const NEIGHBORS: Array[Vector2i] = [
 ## leaving the real ones open. An AABB has no second reading.
 func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) -> void:
 	half = clampf(half_extent, 2.0, 200.0)
+	_world_min = Vector2(-half, -half)
+	_conservative_los = false
 	cell_size = clampf(cell_size_value, 0.2, 2.0)
 	width = maxi(8, int(ceilf(2.0 * half / cell_size)))
 	depth = width
@@ -87,6 +91,40 @@ func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) ->
 	_built = true
 
 
+## Coarse shared campaign navigation. Unauthored void is blocked, rather than
+## treating the huge bounding rectangle as a walkable square. At 4 m/cell the
+## full station is under 6,000 cells; one field serves every active encounter.
+func build_world(bounds: Rect2, regions: Array[Rect2], blockers: Array[AABB]) -> void:
+	_built = false
+	if not bounds.position.is_finite() or not bounds.size.is_finite() or bounds.size.x <= 0 or bounds.size.y <= 0 or bounds.size.x > 512 or bounds.size.y > 512:
+		return
+	_world_min = bounds.position
+	_conservative_los = true
+	half = maxf(bounds.size.x, bounds.size.y) * 0.5
+	cell_size = 4.0
+	width = ceili(bounds.size.x / cell_size)
+	depth = ceili(bounds.size.y / cell_size)
+	_built = false
+	if width <= 0 or depth <= 0 or width * depth > 8192:
+		return
+	_blocked.resize(width * depth)
+	_blocked.fill(1)
+	_flow_dist.resize(width * depth)
+	_flow_dist.fill(INF)
+	_flow_target = Vector2i(-1, -1)
+	for z in range(depth):
+		for x in range(width):
+			var at := cell_center(Vector2i(x, z))
+			for region in regions:
+				if region.has_point(Vector2(at.x, at.z)):
+					_blocked[z * width + x] = 0
+					break
+	obstacle_count = blockers.size()
+	for box in blockers:
+		_mark_blocked(box.grow(AGENT_MARGIN + cell_size * 0.5))
+	_built = true
+
+
 
 ## Mark every cell whose CENTER falls inside `aabb` as blocked.
 ##
@@ -98,11 +136,11 @@ func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) ->
 ## intersecting a blocked cell. Mark exactly the cells whose centers lie inside.
 func _mark_blocked(aabb: AABB) -> void:
 	var c0 := _clamp_cell(Vector2i(
-		ceili((aabb.position.x + half) / cell_size - 0.5),
-		ceili((aabb.position.z + half) / cell_size - 0.5)))
+		ceili((aabb.position.x - _world_min.x) / cell_size - 0.5),
+		ceili((aabb.position.z - _world_min.y) / cell_size - 0.5)))
 	var c1 := _clamp_cell(Vector2i(
-		floori((aabb.end.x + half) / cell_size - 0.5),
-		floori((aabb.end.z + half) / cell_size - 0.5)))
+		floori((aabb.end.x - _world_min.x) / cell_size - 0.5),
+		floori((aabb.end.z - _world_min.y) / cell_size - 0.5)))
 	for z in range(c0.y, c1.y + 1):
 		for x in range(c0.x, c1.x + 1):
 			_blocked[z * width + x] = 1
@@ -113,19 +151,21 @@ func is_built() -> bool:
 
 
 func to_cell(pos: Vector3) -> Vector2i:
-	var cx := int(floorf((pos.x + half) / cell_size))
-	var cz := int(floorf((pos.z + half) / cell_size))
+	var cx := int(floorf((pos.x - _world_min.x) / cell_size))
+	var cz := int(floorf((pos.z - _world_min.y) / cell_size))
 	return Vector2i(clampi(cx, 0, width - 1), clampi(cz, 0, depth - 1))
 
 
 func cell_center(c: Vector2i) -> Vector3:
-	return Vector3((c.x + 0.5) * cell_size - half, 0.0, (c.y + 0.5) * cell_size - half)
+	return Vector3((c.x + 0.5) * cell_size + _world_min.x, 0.0, (c.y + 0.5) * cell_size + _world_min.y)
 
 
 func is_walkable(pos: Vector3) -> bool:
 	if not _built:
 		return false
 	if not is_finite(pos.x) or not is_finite(pos.z):
+		return false
+	if pos.x < _world_min.x or pos.z < _world_min.y or pos.x >= _world_min.x + width * cell_size or pos.z >= _world_min.y + depth * cell_size:
 		return false
 	var c := to_cell(pos)
 	if c.x < 0 or c.y < 0 or c.x >= width or c.y >= depth:
@@ -229,6 +269,10 @@ func flow_field_direction(pos: Vector3) -> Vector3:
 		var ni := nc.y * width + nc.x
 		if _blocked[ni] != 0:
 			continue
+		# Field lookup must obey the same no-corner-cut rule as field building.
+		if n.x != 0 and n.y != 0:
+			if is_blocked_cell(c + Vector2i(n.x, 0)) or is_blocked_cell(c + Vector2i(0, n.y)):
+				continue
 		var nd := _flow_dist[ni]
 		# Tie-break: prefer south (+z) then east (+x) so a symmetric wall
 		# always yields the same, cheaper southern detour.
@@ -287,6 +331,12 @@ func has_line_of_sight(from: Vector3, to: Vector3) -> bool:
 		if x == x2 and z == z2:
 			break
 		var e2 := err * 2
+		# At the coarse campaign resolution, string-pulling/vision may not
+		# cut diagonally between a wall and void. Legacy fine-grid LOS retains
+		# its established boundary semantics.
+		if _conservative_los and e2 > -dz and e2 < dx:
+			if is_blocked_cell(Vector2i(x + sx, z)) or is_blocked_cell(Vector2i(x, z + sz)):
+				return false
 		if e2 > -dz:
 			err -= dz
 			x += sx

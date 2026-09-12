@@ -203,7 +203,7 @@ func _on_spawn_tick() -> void:
 
 
 func _spawn_one() -> bool:
-	if _ledger.is_empty() or not _configured:
+	if _ledger.is_empty() or not _configured or get_active_count() >= _max_simultaneous:
 		return false
 	# PEEK, don't pop: the ledger removes the entry ONLY after a spawn succeeds.
 	var archetype: StringName = _ledger.peek()
@@ -217,11 +217,11 @@ func _spawn_one() -> bool:
 	if point == null:
 		# Fallback: allow any in-bounds point (relax the min-distance rule) so a player
 		# camping every marker cannot cause an infinite no-point stall.
-		point = SpawnPlacer.fallback_point(_arena)
+		point = SpawnPlacer.fallback_point(_arena, archetype)
 	if point == null:
 		return _count_failure(archetype, &"no_valid_point",
 			"No valid spawn point for %s; retried up to bound then counted failed." % String(archetype))
-	var instance := config.scene.instantiate() as EnemyBase
+	var instance := _instantiate_enemy(config)
 	if instance == null:
 		return _count_failure(archetype, &"bad_scene", "Scene did not yield an EnemyBase for %s." % String(archetype))
 	var parent := _container if _container != null else self
@@ -229,7 +229,10 @@ func _spawn_one() -> bool:
 	# Deterministic jitter around the marker so simultaneous spawns on the same
 	# point do not stack into one body.
 	instance.global_transform = point.global_transform
-	instance.global_position = point.global_position + _spawn_jitter()
+	var jittered := point.global_position + _spawn_jitter()
+	# A valid marker does not make its random offset valid: jitter can cross a
+	# wall or land inside a crate. Fall back to the already-validated marker.
+	instance.global_position = jittered if SpawnPlacer.position_is_clear(_arena, jittered) else point.global_position
 	# Freshly instantiated at a marker: reset interpolation so the body does not
 	# glide in from the scene origin over its first tick (and so the camera's
 	# spring arm is never asked to resolve an in-flight lerp).
@@ -441,19 +444,27 @@ func _dispatch_split(base: EnemyBase, config: EnemyConfig, at: Vector3) -> void:
 ## Burst-spawn one child around the parent position. Returns false when the spawn
 ## was impossible (caller falls back to extending the pending queue).
 func _spawn_split_child(child_cfg: EnemyConfig, at: Vector3, index: int, total: int) -> bool:
-	if child_cfg.scene == null or not _configured:
+	if child_cfg == null or child_cfg.scene == null or not _configured:
 		return false
-	var instance := child_cfg.scene.instantiate() as EnemyBase
+	# Bursts obey the same cap as timer spawns. Overflow goes into the pending
+	# queue through _dispatch_split rather than creating an unbounded mob.
+	if get_active_count() >= _max_simultaneous:
+		return false
+	var angle := TAU * float(index) / float(maxi(total, 1)) + _rng.randf_range(-0.35, 0.35)
+	var outward := Vector3(cos(angle), 0.0, sin(angle))
+	var spawn_position := at + outward * SPLIT_BURST_RADIUS
+	if not SpawnPlacer.position_is_clear(_arena, spawn_position):
+		return false
+	var instance := _instantiate_enemy(child_cfg)
 	if instance == null:
 		return false
 	var parent := _container if _container != null else self
 	parent.add_child(instance)
-	var angle := TAU * float(index) / float(maxi(total, 1)) + _rng.randf_range(-0.35, 0.35)
-	var outward := Vector3(cos(angle), 0.0, sin(angle))
-	instance.global_position = at + outward * SPLIT_BURST_RADIUS
+	instance.global_position = spawn_position
 	instance.reset_physics_interpolation()
 	instance.set_bounds(SpawnPlacer.interior_half(_arena))
 	instance.initialize(child_cfg, _player as Node3D, _run_seed)
+	instance.set_nav_grid(_arena.get_nav_grid() if _arena != null else null)
 	instance.set_spawn_serial(_spawn_index)
 	_apply_spawn_scaling(instance, child_cfg)
 	# Children inherit wave scaling but never roll elite (keeps burst costs legible).
@@ -463,6 +474,17 @@ func _spawn_split_child(child_cfg: EnemyConfig, at: Vector3, index: int, total: 
 	_ledger.register_direct_spawn(child_cfg.archetype_id)
 	_spawn_index += 1
 	return true
+
+
+## A failed `as EnemyBase` cast loses the only reference to a Node. Keep the
+## untyped root until validation and free a rejected scene (including children).
+func _instantiate_enemy(config: EnemyConfig) -> EnemyBase:
+	var root := config.scene.instantiate()
+	if root is EnemyBase:
+		return root as EnemyBase
+	if root != null:
+		root.free()
+	return null
 
 
 func _detonate(source: EnemyBase, at: Vector3, config: EnemyConfig) -> void:

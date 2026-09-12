@@ -18,7 +18,8 @@ class HealthInputTests(unittest.TestCase):
         self.assertIn("or not _event_is_valid(event)", txt)
         self.assertIn('"key_physical"', txt)
         self.assertIn('"keycode"', txt)
-        self.assertIn("if code < 0", txt)
+        self.assertIn("raw_code < 0", txt)
+        self.assertIn("is_finite(float(raw_code))", txt)
         self.assertLess(txt.index("if parsed.is_empty():"), txt.index("InputMap.action_erase_event(aname, existing)"))
     def test_armor_vitality_not_needed_here(self): pass
 if __name__=="__main__": unittest.main()

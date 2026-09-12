@@ -38,6 +38,8 @@ func _ready() -> void:
 
 
 func set_max_health(value: float) -> void:
+	if not is_finite(value):
+		return
 	var new_max := maxf(value, 1.0)
 	var clamped := minf(current_health, new_max)
 	var changed := not is_equal_approx(max_health, new_max) or not is_equal_approx(current_health, clamped)
@@ -48,7 +50,11 @@ func set_max_health(value: float) -> void:
 
 
 func set_invulnerable(duration: float) -> void:
-	_invulnerable_until = maxf(_invulnerable_until, _now() + maxf(duration, 0.0))
+	if not is_finite(duration) or duration <= 0.0:
+		return
+	var until := _now() + duration
+	if is_finite(until):
+		_invulnerable_until = maxf(_invulnerable_until, until)
 
 
 func is_invulnerable() -> bool:
@@ -79,8 +85,6 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 	if payload != null and not is_instance_valid(payload):
 		result.ignored_reason = DamageResult.IGNORE_INVALID_PAYLOAD
 		return result
-	if payload != null and not is_finite(float(payload.amount)):
-		payload.amount = 0.0
 	if _is_dead:
 		result.ignored_reason = DamageResult.IGNORE_DEAD
 		return result
@@ -92,7 +96,11 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 		return result
 	var amount := payload.amount
 	# Damage mitigation: clamp so it can never accidentally heal or go negative.
-	amount = clampf(_mitigate(amount, payload), 0.0, INF)
+	amount = _mitigate(amount, payload)
+	if not is_finite(amount):
+		result.ignored_reason = DamageResult.IGNORE_INVALID_PAYLOAD
+		return result
+	amount = maxf(amount, 0.0)
 	# Fully absorbed / zero-amount hits are blocked, not accepted: a shield that
 	# eats the whole swing must not stagger, proc on-hit status, or emit damaged.
 	if amount <= 0.0:
@@ -100,14 +108,23 @@ func take_damage(payload: DamagePayload) -> DamageResult:
 		return result
 	result.accepted = true
 	result.final_amount = amount
+	result.source = payload.source if is_instance_valid(payload.source) else null
+	result.source_id = payload.source_id
 	result.was_critical = payload.was_critical
 	current_health = maxf(current_health - amount, 0.0)
 	result.target_died = current_health <= 0.0
 	result.knockback_applied = payload.knockback
+	# Commit death before notifying observers: a chain/execute/heal callback can
+	# synchronously re-enter this component while `damaged` is being emitted.
+	# Keep the public health_changed -> damaged -> died ordering, but never
+	# accept a second lethal hit or heal a corpse during that fan-out.
+	if result.target_died:
+		_is_dead = true
+		_invulnerable_until = 0.0
 	health_changed.emit(current_health, max_health)
 	damaged.emit(result)
 	if result.target_died:
-		_die()
+		died.emit()
 	return result
 
 
@@ -133,14 +150,6 @@ func _mitigate(amount: float, payload: DamagePayload) -> float:
 	return amount
 
 
-func _die() -> void:
-	if _is_dead:
-		return
-	_is_dead = true
-	_invulnerable_until = 0.0
-	died.emit()
-
-
 func reset(max_hp: float) -> void:
 	_is_dead = false
 	_invulnerable_until = 0.0
@@ -153,7 +162,7 @@ func reset(max_hp: float) -> void:
 	# (origin/main fixed the same transient by assigning current_health first;
 	# assigning both directly additionally avoids the duplicate emission that
 	# set_max_health would still produce.)
-	max_health = maxf(max_hp, 1.0)
+	max_health = maxf(max_hp, 1.0) if is_finite(max_hp) else 100.0
 	current_health = max_health
 	health_changed.emit(current_health, max_health)
 

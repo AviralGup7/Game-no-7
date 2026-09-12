@@ -1,0 +1,27 @@
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 4184990161 mode=standard arena=default_arena seed=91276392
+[LastStand][input] --- joystick_cancel (3 events) ---
+[LastStand][input] #1 t=17484 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=17484 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=17484 begin i=2 pos=(100.0, 100.0)
+[diagnostic] [LastStand][input] joystick_cancel n=3 last=[LastStand][input] #3 t=17484 begin i=2 pos=(100.0, 100.0)
+[diagnostic] Upgrade choices presented (wave 1): [&"stamina_reservoir", &"fortified", &"force"]
+WARNING: [diagnostic] Upgrade missing_upgrade is not currently offered
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Upgrade selected: stamina_reservoir
+[diagnostic] Entered main menu
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 3684275691 mode=standard arena=default_arena seed=5695371275779888110 [Daily 20260911]
+[diagnostic] Starting run 2748862420 mode=standard arena=default_arena seed=5695371275779888110 [Daily 20260911]
+[diagnostic] Entered main menu
+[diagnostic] Starting run 997399852 mode=standard arena=default_arena seed=2412804475
+[diagnostic] Entered main menu
+UI TESTS: 2638 checks, 0 failed

@@ -36,7 +36,7 @@ func _ready() -> void:
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.mouse_filter = MOUSE_FILTER_IGNORE
 	_label.text = {"attack": "FIRE", "dodge": "DODGE", "switch_weapon": "SWAP", "reload": "RELOAD"}.get(action_name, action_name.to_upper())
-	_label.add_theme_font_override("font", UiTheme.BOLD)
+	_label.add_theme_font_override("font", UiTheme.bold_font)
 	_label.add_theme_font_size_override("font_size", 18)
 	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_label.add_theme_constant_override("outline_size", 5)

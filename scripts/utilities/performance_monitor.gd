@@ -113,7 +113,7 @@ var _test_now_msec := -1
 
 func _ready() -> void:
 	add_to_group("performance_monitor")
-	var tree := get_tree()
+	var tree := get_tree() if is_inside_tree() else null
 	if tree != null:
 		_root_viewport = tree.root as Viewport
 	arm()
@@ -479,7 +479,7 @@ func _restore_msaa() -> void:
 func _resolve_root_viewport() -> Viewport:
 	if _root_viewport != null and is_instance_valid(_root_viewport):
 		return _root_viewport
-	var tree := get_tree()
+	var tree := get_tree() if is_inside_tree() else null
 	if tree == null:
 		return null
 	_root_viewport = tree.root as Viewport
@@ -488,14 +488,16 @@ func _resolve_root_viewport() -> Viewport:
 
 ## Shadows, glow, and sun energy promised by Settings.graphics_quality.
 func _apply_render_tier() -> void:
-	var tree := get_tree()
+	var tree := get_tree() if is_inside_tree() else null
 	if tree == null:
 		return
 	var shadow_on := _tier >= TIER_MEDIUM
 	var glow_on := _tier >= TIER_HIGH
 	var shadow_size := 1024 if _tier <= TIER_MEDIUM else 2048
 	RenderingServer.directional_shadow_atlas_set_size(shadow_size, true)
-	for n in tree.get_nodes_in_group("arena"):
+	var lit_worlds := tree.get_nodes_in_group("arena")
+	lit_worlds.append_array(tree.get_nodes_in_group("campaign_world"))
+	for n in lit_worlds:
 		if n is Node:
 			_tune_arena_lights(n as Node, shadow_on, glow_on)
 
@@ -520,7 +522,7 @@ func _configured_max_fps() -> int:
 ## into scripts compiled by the --script test harness (see tests/run_tests.gd
 ## header); the Node is the real EventBus script when autoloads ran.
 func _report_info(text: String) -> void:
-	var tree := get_tree()
+	var tree := get_tree() if is_inside_tree() else null
 	if tree == null:
 		return
 	var bus := tree.root.get_node_or_null("/root/EventBus") as EventBusService

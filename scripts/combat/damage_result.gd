@@ -12,6 +12,11 @@ var accepted: bool = false
 ## The amount actually dealt to health after mitigation.
 var final_amount: float = 0.0
 
+## Original attacker attribution for offensive procs. Environmental damage has
+## no source; observers must not turn it into a player's weapon hit.
+var source: Node = null
+var source_id: StringName = &"unknown"
+
 ## Whether this hit rolled as a critical hit.
 var was_critical: bool = false
 

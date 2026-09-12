@@ -329,7 +329,7 @@ func _on_died() -> void:
 	_one_shot(KEY_DEATH)
 
 
-func _on_finished(_clip: StringName) -> void:
+func _on_finished(_finished_clip: StringName) -> void:
 	if _dead:
 		return
 	_locked = false

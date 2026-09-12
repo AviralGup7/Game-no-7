@@ -502,16 +502,17 @@ static func _landmark_builder(results: Array) -> void:
 
 static func _refused_kind_builds_nothing(results: Array) -> void:
 	# What replaces the old `_:` arm. An id with no builder is reported and builds NOTHING.
-	# This case deliberately prints one "USER ERROR: ArenaLandmark: kind ..." line in the CI
-	# log: the refusal is the behaviour under test, and the log noise is the point. Godot's
-	# USER ERROR is not a SCRIPT ERROR, so neither CI grep treats it as a failure.
+	# Refusing an unknown kind must emit exactly the declared diagnostic. Any
+	# other engine/script error still fails the strict unit log gate.
 	# previously any unrecognised kind quietly became an obelisk, so a typo read as "this arena
 	# has a pillar in it" and no line of code was wrong.
 	var probe := ArenaLandmarkConfig.new()
 	probe.landmark_id = &"probe"
 	probe.kind = &"wishing_well"
 	var holder := ArenaLandmark.new()
+	ExpectedErrors.begin(["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"])
 	holder.build(probe)
+	ExpectedErrors.end()
 	_check(results, "an unbuildable kind creates no children",
 			holder.get_child_count() == 0, "children=%d" % holder.get_child_count())
 	_check(results, "an unbuildable kind blocks no cells",

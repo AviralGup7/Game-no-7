@@ -31,7 +31,7 @@ func validate() -> Array[String]:
 	if abilities.is_empty():
 		problems.append("phase has no abilities")
 	for ability in abilities:
-		if ability not in [&"slam", &"charge", &"summon"]:
+		if ability not in [&"slam", &"charge", &"summon", &"shockwave"]:
 			problems.append("unknown ability id: %s" % String(ability))
 	if ability_interval < 0.0:
 		problems.append("ability_interval cannot be negative")

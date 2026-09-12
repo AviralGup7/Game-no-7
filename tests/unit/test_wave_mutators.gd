@@ -54,8 +54,8 @@ static func suite() -> Array:
 
 	# --- Bounds are applied once, after the fold, to whatever the data asked for ---
 	# `push_error` fires on the INF/NaN lines below on purpose: the rule under test is "a broken
-	# number is reported, then bounded". Godot prints those as `USER ERROR:`, which the CI log
-	# grep does not treat as a script error (same reasoning as test_arena_world.gd's refusal cases).
+	# number is reported, then bounded". The log gate requires these exact two
+	# messages and rejects any additional error rather than ignoring the error channel.
 	var wild := WaveModifiers.neutral()
 	wild.hp_mult = 0.0
 	wild.score_mult = -3.0
@@ -64,7 +64,12 @@ static func suite() -> Array:
 	wild.elite_bonus = 5.0
 	wild.explode_chance = 2.0
 	wild.count_bonus = 9
+	ExpectedErrors.begin([
+		"ERROR: WaveModifiers: damage_mult is not finite before clamping",
+		"ERROR: WaveModifiers: speed_mult is not finite before clamping",
+	])
 	wild.clamp_bounds()
+	ExpectedErrors.end()
 	results.append({
 		"name": "clamp_bounds floors multipliers, caps chances and bounds counts",
 		"passed": is_equal_approx(wild.hp_mult, WaveMutatorConfig.MULT_FLOOR) \

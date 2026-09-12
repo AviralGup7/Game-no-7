@@ -87,13 +87,13 @@ static func suite() -> Array:
 	})
 	var binds := {"attack": [{"kind": "keycode", "code": 32}]}
 	sd.set_input_bindings(binds)
-	var round := SettingsData.new()
-	round.from_dict(sd.to_dict())
+	var restored := SettingsData.new()
+	restored.from_dict(sd.to_dict())
 	results.append({
 		"name": "input_bindings round-trip through settings dict",
-		"passed": round.input_bindings.has("attack")
-			and (round.input_bindings["attack"] as Array).size() == 1,
-		"why": str(round.input_bindings),
+		"passed": restored.input_bindings.has("attack")
+			and (restored.input_bindings["attack"] as Array).size() == 1,
+		"why": str(restored.input_bindings),
 	})
 	var migrated_binds = SaveScript.normalize_save({
 		"schema_version": 5,

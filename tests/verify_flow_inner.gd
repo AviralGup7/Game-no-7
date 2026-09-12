@@ -12,6 +12,8 @@ extends Node
 ## Returns exit code 0 only when every check passes. Run with an isolated
 ## XDG_DATA_HOME so the local save is untouched.
 
+const FlowFixture = preload("res://tests/doubles/flow_fixture.gd")
+const AudioProbe = preload("res://tests/doubles/audio_probe.gd")
 const MAIN_SCENE := "res://scenes/main/main.tscn"
 const BASIC_ENEMY := "res://scenes/enemies/basic_enemy.tscn"
 const WARLORD_ENEMY := "res://scenes/enemies/warlord_enemy.tscn"
@@ -86,18 +88,7 @@ func _find_button(root: Node, text: String) -> Button:
 
 ## {total, unknowns, by_cue: {cue_name: count}} for currently playing SFX voices.
 func _sfx_snapshot() -> Dictionary:
-	var by_cue := {}
-	var total := 0
-	var unknowns := 0
-	for p in AudioManager._sfx_pool:
-		if (p as AudioStreamPlayer).playing:
-			total += 1
-			var cue := _cue_for_stream((p as AudioStreamPlayer).stream)
-			if cue == &"":
-				unknowns += 1
-			else:
-				by_cue[String(cue)] = int(by_cue.get(String(cue), 0)) + 1
-	return {"total": total, "unknowns": unknowns, "by_cue": by_cue}
+	return AudioProbe.snapshot()
 
 
 func _cue_for_stream(stream: AudioStream) -> StringName:
@@ -110,8 +101,7 @@ func _cue_for_stream(stream: AudioStream) -> StringName:
 
 
 func _stop_all_sfx() -> void:
-	for p in AudioManager._sfx_pool:
-		(p as AudioStreamPlayer).stop()
+	AudioProbe.stop()
 
 
 func _count(snapshot: Dictionary, cue: String) -> int:
@@ -133,12 +123,12 @@ func _music_playing_cue() -> String:
 
 
 func _connect_completion_tracking() -> void:
-	for p in AudioManager._sfx_pool:
-		(p as AudioStreamPlayer).finished.connect(_on_sfx_finished.bind(p))
+	for p in AudioProbe.players():
+		p.connect("finished", _on_sfx_finished.bind(p))
 
 
-func _on_sfx_finished(player: AudioStreamPlayer) -> void:
-	var cue := _cue_for_stream(player.stream)
+func _on_sfx_finished(player: Node) -> void:
+	var cue := AudioProbe.cue_for(player.get("stream") as AudioStream)
 	_completed.append(String(cue) if cue != &"" else "<unknown>")
 
 
@@ -218,7 +208,7 @@ func _menu_checks(loop: int) -> void:
 	_check(tag + " menu music is recorded ogg", stream is AudioStreamOggVorbis)
 	if stream is AudioStreamOggVorbis:
 		_check(tag + " menu music loops", (stream as AudioStreamOggVorbis).loop)
-		_check(tag + " menu music is arena_menu track", stream.resource_path.get_file() == "arena_menu.ogg")
+		_check(tag + " menu music matches its registered track", stream == AudioManager.get_cue_stream(&"music_menu"))
 	var buses: Array[String] = []
 	for i in range(AudioServer.get_bus_count()):
 		buses.append(AudioServer.get_bus_name(i))
@@ -264,6 +254,8 @@ func _menu_checks(loop: int) -> void:
 	var reached := await _wait_for(func() -> bool: return GameRoot.get_current_state() == GameRoot.State.PLAYING, 60.0)
 	_check(tag + " run reaches PLAYING", reached)
 	await _frames(3)
+	var health := GameRoot.get_active_player().get_health_component()
+	_check(tag + " player starts outside damaging hazards", health.current_health == health.max_health)
 	var played := _drain_played()
 	_check(tag + " launch plays wave fanfare", _count(played, "wave_started") == 1, str(played))
 	_check(tag + " launch spawns opening wave", _count(played, "enemy_spawn") >= 1, str(played))
@@ -311,8 +303,11 @@ func _player_animation_checks(tag: String, player: Node) -> void:
 	_check(tag + " player animation playing", anim.is_playing())
 	await _phys(4)
 	_check(tag + " player idles", anim.current_animation == "Idle", anim.current_animation)
-	# Walk through the real input path.
+	# Walk through the real input path, along a collider/hazard-checked lane.
+	_check(tag + " clear movement lane exists", FlowFixture.place_on_clear_lane(_world(), player as Player))
+	await _phys(4)
 	_stop_all_sfx()
+	_completed.clear()
 	Input.action_press("move_right")
 	var saw_walk := false
 	var steps := 0
@@ -323,6 +318,10 @@ func _player_animation_checks(tag: String, player: Node) -> void:
 		steps = maxi(steps, _count(_sfx_snapshot(), "player_step"))
 	Input.action_release("move_right")
 	_check(tag + " walk clip plays on input", saw_walk, anim.current_animation)
+	# A short step can finish on the audio thread between physics-frame polls.
+	# Include completion events, but only from this isolated walk interval.
+	await _frames(1)
+	steps = maxi(steps, _count(_drain_played(), "player_step"))
 	_check(tag + " footsteps sound while walking", steps >= 1)
 	await _wait_for(func() -> bool: return anim.current_animation == "Idle", 3.0)
 	_check(tag + " returns to idle", anim.current_animation == "Idle", anim.current_animation)
@@ -340,7 +339,7 @@ func _player_animation_checks(tag: String, player: Node) -> void:
 			break
 	var snap := _sfx_snapshot()
 	_check(tag + " attack clip plays", saw_attack, anim.current_animation)
-	_check(tag + " swing sound exactly once", snap["total"] == 1 and _count(snap, "player_attack") == 1, str(snap))
+	_check(tag + " firearm shot sound exactly once", snap["total"] == 1 and _count(snap, "player_shot") == 1, str(snap))
 	await _wait_for(func() -> bool: return anim.current_animation == "Idle", 5.0)
 	# Dodge through the real input path.
 	_stop_all_sfx()
@@ -495,8 +494,8 @@ func _boss_checks(tag: String, player: Node, container: Node) -> void:
 	_check(tag + " boss slain sting exactly once", _count(snap, "boss_slain") == 1, str(snap))
 	_check(tag + " boss death sound once", _count(snap, "enemy_death") == 1, str(snap))
 	_check(tag + " boss killing blow lands hit sound", _count(snap, "enemy_hit") == 1, str(snap))
-	# Overkill through the Enrage threshold trips the phase sting on the way down.
-	_check(tag + " overkill trips enrage sting", _count(snap, "boss_phase_changed") == 1, str(snap))
+	# Death is now committed before observers run: no spurious enrage on a corpse.
+	_check(tag + " lethal damage does not enrage a dead boss", _count(snap, "boss_phase_changed") == 0, str(snap))
 	_check(tag + " boss death sounds accounted", _only_allowed(snap, ["boss_slain", "enemy_death", "enemy_hit", "boss_phase_changed", "item_drop", "level_up"]), str(snap))
 	await get_tree().create_timer(0.7).timeout
 	_check(tag + " boss bar hides after death", not (_ui()._boss_bar as Control).visible)
@@ -589,4 +588,6 @@ func _finish() -> void:
 		get_tree().current_scene.queue_free()
 		await get_tree().process_frame
 		await get_tree().process_frame
+	AudioProbe.stop()
+	await get_tree().create_timer(0.1).timeout
 	get_tree().quit(code)

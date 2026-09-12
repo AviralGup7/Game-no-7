@@ -9,17 +9,60 @@
 | JDK | 17 (or bundled by Godot Android editor) | required by Android export |
 | Python | 3.10+ | validation tooling (`tool/validate_resources.py`) |
 
-Keep the editor version and its **export templates** identical. Mixing editor and
-template versions breaks exports. The CI workflow (`android.yml`) installs the same
-pinned Godot version on a fresh runner.
+`.godot-version` is the local source of truth; the CI pin is checked against it.
+Keep the editor and **export templates** identical. The local build fails before
+expensive work on a patch-version mismatch. `GODOT_BIN` can name the editor binary.
+The Bash build/test wrappers support Linux/WSL and macOS with Python installed;
+on Windows use WSL or the editor's native export UI.
+
+## Shipping campaign entry
+
+`project.godot` and `SceneRouter` boot `scenes/campaign/station_zero.tscn`.
+The default menu offers Continue/New Campaign, not arena/daily/seed selection.
+Both Android export presets explicitly include `data/campaign/*.json`;
+`check_android_apk.py` opens the exported campaign JSON and checks its actual
+content/topology in addition to the APK metadata. The configured non-OBB export
+must contain `assets/data/campaign/station_zero.json`; alternate encrypted/packed
+layouts require an explicit checker change, not a waived missing-content gate.
+
+`python3 tool/validate_campaign.py` is offline. `bash scripts/run_campaign_validation.sh`
+imports and runs the real shipping scene using an isolated profile, a timeout and
+strict logs. It is called by the local build and CI native job. An absent engine
+returns **NOT TESTED / exit 2**, never a passing result. See [campaign notes](campaign/README.md).
+
+## Android target versus host-only rendering
+
+The APK uses `project.godot`'s **Mobile renderer**, Android's 60 FPS ceiling and
+2x startup MSAA. The 4.4.1 Android template pins compile SDK/build-tools 34 and
+Java 17; the export remains ARM64 with min SDK 24 / target SDK 34. This is a
+sideload milestone, not a claim of current Google Play or 16 KB-page compliance.
+
+`scripts/run_godot.sh` uses Compatibility only for **host import previews and
+regression tests**. This avoids 4.4.1 dummy-renderer errors from 3D previews and
+material teardown without hiding errors. On display-less Linux those host steps
+need Xvfb/Mesa (CI installs them):
+
+```bash
+sudo apt-get install xvfb libgl1-mesa-dri
+```
+
+**They are not Android app dependencies.** The helper detects export commands,
+uses `--headless` with **no renderer override**, and rejects explicit export-time
+renderer overrides. This prevents the host test backend from leaking into the
+Android manifest/project. The final APK verifier checks its renderer metadata.
+
+`GODOT_BIN` (or legacy `GODOT`) chooses the engine. `GODOT_HEADLESS=1` is an explicit
+logic-only host diagnostic mode, not release validation. See
+[ANDROID_HARDENING.md](ANDROID_HARDENING.md) for the Android follow-up and
+[PROJECT_AUDIT.md](PROJECT_AUDIT.md) for the earlier source-built host-test limits.
 
 ## First clone / import
 
 ```bash
-godot --headless --path . --import
+bash scripts/run_godot.sh --path . --import
 ```
 
-Generates `.godot/` caches (global class registry, `.uid` files, import steps). This
+Generates `.godot/` caches, the global class registry and import/UID sidecars. This
 is required before tests/export run and is also done automatically in CI.
 
 The reviewed core art/audio files are checked into `assets/`; a fresh clone does
@@ -41,7 +84,7 @@ already-versioned files. See `docs/ASSET_CATALOG.md` and the provenance manifest
 After import, test actual Godot resource types, skeletons and animation names (including the authored Warden):
 
 ```bash
-godot --headless --path . --script res://tests/validate_asset_imports.gd
+bash scripts/run_godot.sh --path . --script res://tests/validate_asset_imports.gd
 bash tool/test_hero_runtime.sh  # isolated profile; Player combat animation/equipment lifecycle
 ```
 
@@ -64,8 +107,14 @@ with `aapt dump permissions`.
 Never commit a keystore or its passwords. Supply through CI secrets / env instead:
 
 - `ANDROID_HOME` — Android SDK root.
-- `KEYSTORE_PATH` — path to a `.keystore` (signing).
-- `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` — signing credentials.
+- `GODOT_ANDROID_KEYSTORE_RELEASE_PATH` — release keystore path.
+- `GODOT_ANDROID_KEYSTORE_RELEASE_USER` — key alias.
+- `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD` — shared keystore/key password.
+
+The build wrapper also maps the legacy `KEYSTORE_PATH`, `KEY_ALIAS`,
+`KEYSTORE_PASSWORD` / `KEY_PASSWORD` aliases to Godot's native variables. Godot's
+Android exporter requires the key and keystore passwords to match; conflicting
+aliases are rejected. These values are never written into a tracked preset.
 
 Without a keystore a **debug-signed APK** can still be produced for local validation.
 
@@ -77,6 +126,7 @@ gdlint scripts tests
 
 # Structural validation of .tscn/.tres hand-authored files
 python3 tool/validate_resources.py
+python3 tool/validate_campaign.py
 
 # Engine-API contract gate (offline, stdlib-only): every typed member access,
 # bare global call and .tscn/.tres property is checked against the pinned
@@ -99,27 +149,43 @@ python3 tool/check_string_formats.py
 # wrong arity fails the build instead of erroring at runtime.
 python3 tool/check_signals.py
 
-# Content/data registry validation runs at startup and via TestHarness.
-# Headless unit tests:
-godot --headless --path . --script res://tests/run_tests.gd
 ```
 
-Exit code `0` means all checks pass.
+Run native units/integrations in an isolated profile (Bash; after importing):
 
-> **Scope note (live-loop integrations):** the headless runner above is invoked with
-> `--script`, which starts a bare `SceneTree` — it does **not** instantiate the
-> project's autoload singletons (`GameRoot`, `EventBus`, `ContentRegistry`,
-> `AudioManager`, …). For that reason the suites in `run_tests.gd` only exercise pure
-> unit logic plus node-based integrations that do not depend on autoloads (e.g. the
-> combat integration uses real `HealthComponent`/`DamagePayload` but injects its own
-> clock). Driving the **real** end-to-end loop through GameRoot/EventBus/ContentRegistry
-> (menu → run → wave-complete → upgrade selection/apply → game-over → restart, or
-> SpawnManager accounting) requires a context where autoloads are live, e.g. a headless
-> run of the main scene (`godot --headless --path .`) or a scene that owns those nodes.
-> Attempting such a real-singleton test inside `run_tests.gd` fails at compile/parse time
-> (autoload identifiers like `EventBus` are unresolved and loading the real `player.tscn`
-> transitively compiles scripts that reference them), so it is intentionally **not**
-> placed there.
+```bash
+(
+  mkdir -p .cache/test-reports
+  source scripts/godot_test_env.sh
+  godot_test_profile "$(mktemp -d "$PWD/.cache/test-reports/profile.XXXXXX")"
+  godot_test_timeout 180 bash scripts/run_godot.sh --path . --script res://tests/run_tests.gd \
+    > .cache/test-reports/unit.log 2>&1
+  code=$?
+  python3 tool/check_godot_log.py .cache/test-reports/unit.log --exit-code "$code" \
+    --allow-test-errors --require '^GDScript tests: [1-9][0-9]* total, 0 failed$'
+)
+bash tool/test_hero_runtime.sh
+bash scripts/ui/run_ui_validation.sh      # legacy combat/UI regressions
+bash scripts/run_campaign_validation.sh  # shipping campaign flow
+```
+
+The wrappers isolate **both HOME and XDG paths**, including Godot's macOS save
+location, and retain disposable profiles/logs for inspection. UI checks run with a
+fresh profile and then the same existing profile. Do not run save-mutating UI or
+flow harnesses against your own progression.
+
+Godot can return zero even after script/resource errors. `tool/check_godot_log.py`
+requires a clean error channel and a non-empty success summary, not just an exit
+code. Unit-only intentional diagnostics use `ExpectedErrors.begin([...])` / `end()`
+with exact lines and counts; missing, additional, nested or unterminated messages
+still fail. Import/export/player/UI logs do **not** enable this exception protocol.
+
+The runner compiles before project autoload identifiers are registered, so it
+runtime-loads suite/stage scripts rather than preloading game classes. Tree-independent
+units run in `_initialize()`; live-node suites wait for `_process()`, when global
+transforms are meaningful. The real project autoloads are available to those
+runtime-loaded stages. Preserve this load-order boundary when adding integrations.
+The player and UI harnesses cover additional multi-frame lifecycle behavior.
 
 ## Android export
 
@@ -136,8 +202,12 @@ CI installs the matching export templates for the pinned Godot version via
 `scripts/install_export_templates.sh`. That script is deliberately strict: it downloads
 the `Godot_v<version>_export_templates.tpz` release asset (if not already present),
 extracts it with Python's `zipfile`, copies the files into Godot's data dir
-(`~/.local/share/godot/export_templates/<version-string>/`, where the version string
-uses a dot before `stable`, e.g. `4.4.1.stable`), and **fails loudly** unless the
+(`$XDG_DATA_HOME/godot/export_templates/<version-string>/`, defaulting to
+`~/.local/share/godot/...` on Linux, or `~/Library/Application Support/Godot/...` on
+macOS). The version uses a dot before `stable`, e.g. `4.4.1.stable`.
+`GODOT_TEMPLATE_DIR` overrides the **complete per-version directory**. The installer
+validates every archive member in private staging (including traversal/symlink
+rejection), checks the version, and **fails loudly** unless the
 Android build templates (`android_debug.apk`, `android_release.apk`,
 `android_source.zip`) are actually present.
 
@@ -148,34 +218,39 @@ done by `scripts/install_android_build_template.sh`, which mirrors Godot's own
 installer: unzip `android_source.zip` into `res://android/build`, add an empty
 `.gdignore`, write the template identifier into `res://android/.build_version`, and
 `chmod +x gradlew` (Python's `zipfile` does not preserve Unix exec bits). Run this
-before `godot --export-*`. A JDK (Temurin 17) is also required for the Gradle build.
+before `godot --export-*`. Matching existing templates are reused without deleting
+project customizations. An incomplete or different-version `android/build` is
+refused: preserve your customizations and explicitly move it aside before retrying.
+A JDK (Temurin 17) is also required for the Gradle build.
 
 What the build script does:
 
-1. Verify `godot` exists.
-2. Verify `export_presets.cfg` contains the Android preset.
-3. Verify required project files (`project.godot`, main scene, scripts).
-4. Verify the documented Godot version or report a mismatch.
-5. Verify locked asset hashes, formats/dependencies and the Python asset tests (offline).
-6. `godot --headless --path . --import`
-7. Run native asset import checks (`tests/validate_asset_imports.gd`).
-8. Run the headless unit tests (`tests/run_tests.gd`).
-9. `python3 tool/validate_resources.py`
-10. Install the Android build template into the project.
-11. Export the selected debug/release APK using the Android preset.
-12. Verify the APK exists and is non-zero.
-13. Print the APK path and write a concise build report to `build/BUILD_REPORT.txt`.
+1. Verify the engine exists and matches `.godot-version` exactly.
+2. Verify required files and that the selected preset is Android.
+3. Run locked-asset, resource, architecture, guard, API/path/format/signal and Python checks.
+4. Import and validate the full Godot log (not just process status).
+5. Run native asset and unit/integration tests in a disposable profile.
+6. Run the player runtime and fresh/existing-profile UI lifecycle checks.
+7. Install/reuse matching export and Android build templates safely.
+8. Remove the selected stale APK, then export debug or release.
+9. Run `tool/check_android_apk.py`: verify the APK's identity/version, launcher,
+   SDK levels, native ELF/ABI, Mobile-renderer metadata, permission policy and
+   signature; reject test/developer assets. Write `build/apk-validation.json`.
+10. Write `build/BUILD_REPORT.txt` with the result; failures record the failed stage.
 
-**Release signing note:** `BUILD_TYPE=release` uses `--export-release`, which requires
-the Android export preset's keystore to be configured (editor setting, never
-committed). Debug builds need no keystore and are what CI publishes as artifacts/milestones.
+**Release signing:** `BUILD_TYPE=release` uses `--export-release` with the native
+secret environment variables above or private editor credentials. Debug builds
+need no custom keystore and are what CI publishes as artifacts/milestones. A
+failed native CI job can still produce a **diagnostic APK artifact**, but release
+publication requires offline validation, native tests **and** Android export to
+all succeed.
 
 ### Manual export command
 
 ```bash
-godot --headless --path . --export-debug "Android" build/LastStandArena-debug.apk
+bash scripts/run_godot.sh --path . --export-debug "Android" build/LastStandArena-debug.apk
 # release (keystore configured in the editor):
-godot --headless --path . --export-release "Android" build/LastStandArena.apk
+bash scripts/run_godot.sh --path . --export-release "Android" build/LastStandArena.apk
 ```
 
 ## Debug vs release
@@ -199,22 +274,18 @@ godot --headless --path . --export-release "Android" build/LastStandArena.apk
 - **"preset not found"** → confirm `export_presets.cfg` lists a preset named `Android`.
 - **Import errors on fresh clone** → run `--import` once (needed for class registry).
 - **Play rejects debug-signed APK** → provide a release keystore + CI secrets.
-- **"Parse error" toasts for `main.gd` / `virtual_joystick.gd` /
-  `test_locomotion_nan.gd` on first open in a Godot 4.6/4.7 editor** → these are the
-  editor's first-load dependency-ordering artifacts, not script defects: the scripts are
-  valid GDScript on both the pinned 4.4.1 (CI loads and executes all three) and the newer
-  parser (diff-verified against the engine sources), and the toast clears once the import
-  finishes. Close the project, delete its `.godot` cache folder, and reopen; if a message
-  persists after a full reimport, copy the exact text + line from the Debugger panel into a
-  bug report — a persistent message is actionable, the startup toast alone is not
-  (upstream: godotengine/godot#120407, #119715, #119100).
+- **Parse/compile errors** → first confirm the pinned engine and finish a clean
+  import. Inspect the full log with `tool/check_godot_log.py`; do not dismiss an
+  error just because Godot exited zero or a test summary printed. Persistent
+  errors need the exact message, engine version and `res://` location. The newer
+  diagnostics workflow is informational and does not replace the pinned gate.
 
 ## Publish a GitHub milestone release
 
 Dispatch `Android build` on the intended branch with an explicit version tag:
 
 ```bash
-gh workflow run android.yml --ref <branch> -f release_tag=v0.4.0
+gh workflow run android.yml --ref <branch> -f release_tag=v0.7.0
 ```
 
 Tag-push runs also use the tag that triggered them. Publication waits for all checks
@@ -243,3 +314,19 @@ dependencies. `tool/validate_assets.py` verifies the separate derived-output and
 recipe lock. Rebuild/review instructions and validation limitations are in
 `docs/HERO_FIDELITY.md`. Export presets include the derived provenance report and
 its licence notice; authoring code and browser tooling stay excluded.
+
+## Android package and on-device validation
+
+```bash
+python3 tool/check_android_apk.py build/LastStandArena-debug.apk \
+  --build-type debug --report build/apk-validation.json
+ANDROID_SERIAL=<device-serial> bash scripts/device_qa.sh
+bash scripts/device_qa.sh --checklist  # instructions only; not a test pass
+```
+
+The checker requires `aapt2`/`aapt`, `apksigner` and Java. Set `ANDROID_SDK_ROOT` /
+`ANDROID_HOME` or `ANDROID_BUILD_TOOLS_DIR` if needed. CI installs platform-tools,
+`platforms;android-34` and `build-tools;34.0.0` explicitly for the pinned template.
+The device helper refuses missing/ambiguous devices, validates the actual APK
+before installation, scopes adb/logcat to the selected device/process, and never
+uninstalls or clears progression. See [DEVICE_QA.md](DEVICE_QA.md).

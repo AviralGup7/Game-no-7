@@ -27,9 +27,22 @@ func _run() -> void:
 	print("Player tests: %d checks, %d failed" % [result.get("checks", 0), failures.size()])
 	for failure in failures:
 		print("FAIL: " + String(failure))
-	# Drain the pooled audio commands before shutting down the dummy audio driver.
-	for child in root.get_node("AudioManager").get_children():
-		if child is AudioStreamPlayer:
-			(child as AudioStreamPlayer).stop()
+	# Player Foley lives in a nested spatial bank, not only direct 2D children.
+	# Drain both banks before driver teardown so playback resources can retire.
+	var audio := root.get_node_or_null("AudioManager")
+	if audio != null:
+		audio.call("isolate_run")
+		_stop_audio(audio)
 	await create_timer(0.1).timeout
 	quit(0 if failures.is_empty() else 1)
+
+
+func _stop_audio(node: Node) -> void:
+	if node is AudioStreamPlayer:
+		(node as AudioStreamPlayer).stop()
+	elif node is AudioStreamPlayer3D:
+		(node as AudioStreamPlayer3D).stop()
+	elif node is AudioStreamPlayer2D:
+		(node as AudioStreamPlayer2D).stop()
+	for child in node.get_children():
+		_stop_audio(child)

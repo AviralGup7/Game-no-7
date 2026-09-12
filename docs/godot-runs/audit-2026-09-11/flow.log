@@ -1,0 +1,253 @@
+ERROR: No renderers available.
+   at: setup (main/main.cpp:2319)
+Godot Engine v4.4.1.stable.custom_build - https://godotengine.org
+
+VERIFY FLOW: booting real game
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+VERIFY FLOW: loop 1 — menu
+  PASS: L1 state is main_menu
+  PASS: L1 menu screen shown
+  PASS: L1 music state menu
+  PASS: L1 menu bed is music_menu cue
+  PASS: L1 menu music is recorded ogg
+  PASS: L1 menu music loops
+  PASS: L1 menu music matches its registered track
+  PASS: L1 mixer has Music bus
+  PASS: L1 mixer has SFX bus
+  PASS: L1 mixer not muted at boot
+  PASS: L1 START RUN button exists
+  PASS: L1 START RUN plays exactly one sound
+  PASS: L1 START RUN tick is ui_confirm
+  PASS: L1 START RUN navigates to setup
+  PASS: L1 ENTER ARENA button exists
+  PASS: L1 ENTER ARENA launch detachable
+  PASS: L1 ENTER ARENA ticks exactly once
+  PASS: L1 ENTER ARENA tick is ui_confirm
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2838023278 mode=standard arena=default_arena seed=4197685548
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L1 run reaches PLAYING
+  PASS: L1 player starts outside damaging hazards
+  PASS: L1 launch plays wave fanfare
+  PASS: L1 launch spawns opening wave
+  PASS: L1 launch sounds all expected
+  PASS: L1 hud visible in run
+VERIFY FLOW: loop 1 — run
+  PASS: L1 player exists in tree
+  PASS: L1 run music is calm bed
+  PASS: L1 player rig has AnimationPlayer (import ok)
+  PASS: L1 player animation playing
+  PASS: L1 player idles
+  PASS: L1 clear movement lane exists
+  PASS: L1 walk clip plays on input
+  PASS: L1 footsteps sound while walking
+  PASS: L1 returns to idle
+  PASS: L1 attack clip plays
+  PASS: L1 firearm shot sound exactly once
+  PASS: L1 dodge clip plays
+  PASS: L1 dodge sound exactly once
+  PASS: L1 test enemy initialized
+  PASS: L1 enemy visual scale applied
+  PASS: L1 hit accepted
+  PASS: L1 hit sound exactly once
+  PASS: L1 flash targets exist
+  PASS: L1 hit flash overlay on
+  PASS: L1 hit flash overlay clears
+  PASS: L1 hit preserves visual scale
+  PASS: L1 telegraph flash shows
+  PASS: L1 spawn sound exactly once
+[diagnostic] Enemy basic died
+  PASS: L1 lethal hit kills
+  PASS: L1 death sound exactly once
+  PASS: L1 killing blow also lands hit sound
+  PASS: L1 death sounds accounted
+  PASS: L1 no surprise level-up sting
+  PASS: L1 death shrink progresses
+  PASS: L1 dead enemy freed
+  PASS: L1 level-up triggers
+  PASS: L1 level-up sting exactly once
+  PASS: L1 level-up announced
+  PASS: L1 victory clip plays
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L1 boss spawn sting exactly once
+  PASS: L1 boss music state
+  PASS: L1 boss bar shown
+  PASS: L1 boss bar named
+  PASS: L1 boss phase advances
+  PASS: L1 phase sting exactly once
+  PASS: L1 phase label Fury
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L1 boss lethal hit kills
+  PASS: L1 boss slain sting exactly once
+  PASS: L1 boss death sound once
+  PASS: L1 boss killing blow lands hit sound
+  PASS: L1 lethal damage does not enrage a dead boss
+  PASS: L1 boss death sounds accounted
+[LastStand][soak] t=5s fps=60 min=5 enemies=1 peak=3 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=5 enemies=1 peak=3 wave=1 hp=100/100
+  PASS: L1 boss bar hides after death
+  PASS: L1 music back to battle
+  PASS: L1 dead boss freed
+  PASS: L1 HUD pause button exists
+  PASS: L1 pause tick exactly once
+  PASS: L1 tree paused
+  PASS: L1 state paused
+  PASS: L1 pause screen shown
+  PASS: L1 resume button exists
+  PASS: L1 resume tick exactly once
+  PASS: L1 tree resumed
+  PASS: L1 state back to playing
+  PASS: L1 background mutes master
+  PASS: L1 background flag set
+  PASS: L1 foreground restores mute
+  PASS: L1 background flag cleared
+  PASS: L1 bg/fg transition silent
+VERIFY FLOW: loop 1 — end of run
+  PASS: L1 player present at run end
+[LastStand][soak] END wave=1 samples=1 min_fps=5 peak_enemies=3 elapsed=6s
+[diagnostic] [LastStand][soak] END wave=1 samples=1 min_fps=5 peak_enemies=3 elapsed=6s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L1 game-over sting exactly once
+  PASS: L1 player death sound once
+  PASS: L1 run-end sounds exact
+  PASS: L1 state game_over
+  PASS: L1 game-over screen shown
+  PASS: L1 victory bed after run
+[diagnostic] Entered main menu
+  PASS: L1 back to main menu
+  PASS: L1 menu music restored
+VERIFY FLOW: loop 2 — menu
+  PASS: L2 state is main_menu
+  PASS: L2 menu screen shown
+  PASS: L2 music state menu
+  PASS: L2 menu bed is music_menu cue
+  PASS: L2 menu music is recorded ogg
+  PASS: L2 menu music loops
+  PASS: L2 menu music matches its registered track
+  PASS: L2 mixer has Music bus
+  PASS: L2 mixer has SFX bus
+  PASS: L2 mixer not muted at boot
+  PASS: L2 START RUN button exists
+  PASS: L2 START RUN plays exactly one sound
+  PASS: L2 START RUN tick is ui_confirm
+  PASS: L2 START RUN navigates to setup
+  PASS: L2 ENTER ARENA button exists
+  PASS: L2 ENTER ARENA launch detachable
+  PASS: L2 ENTER ARENA ticks exactly once
+  PASS: L2 ENTER ARENA tick is ui_confirm
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 468863797 mode=standard arena=default_arena seed=860551359
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L2 run reaches PLAYING
+  PASS: L2 player starts outside damaging hazards
+  PASS: L2 launch plays wave fanfare
+  PASS: L2 launch spawns opening wave
+  PASS: L2 launch sounds all expected
+  PASS: L2 hud visible in run
+VERIFY FLOW: loop 2 — run
+  PASS: L2 player exists in tree
+  PASS: L2 run music is calm bed
+  PASS: L2 player rig has AnimationPlayer (import ok)
+  PASS: L2 player animation playing
+  PASS: L2 player idles
+  PASS: L2 clear movement lane exists
+  PASS: L2 walk clip plays on input
+  PASS: L2 footsteps sound while walking
+  PASS: L2 returns to idle
+  PASS: L2 attack clip plays
+  PASS: L2 firearm shot sound exactly once
+  PASS: L2 dodge clip plays
+  PASS: L2 dodge sound exactly once
+  PASS: L2 test enemy initialized
+  PASS: L2 enemy visual scale applied
+  PASS: L2 hit accepted
+  PASS: L2 hit sound exactly once
+  PASS: L2 flash targets exist
+  PASS: L2 hit flash overlay on
+  PASS: L2 hit flash overlay clears
+  PASS: L2 hit preserves visual scale
+  PASS: L2 telegraph flash shows
+  PASS: L2 spawn sound exactly once
+[diagnostic] Enemy basic died
+  PASS: L2 lethal hit kills
+  PASS: L2 death sound exactly once
+  PASS: L2 killing blow also lands hit sound
+  PASS: L2 death sounds accounted
+  PASS: L2 no surprise level-up sting
+WARNING: [Physics interpolation] Interpolated instance triggered from outside physics process: "/root/Main/WorldRoot/Player/VisualRoot/CharacterModel/CharacterVisual/Model/Skeleton3D/@BoneAttachment3D@687/gladius/Hardware" (possibly benign).
+     at: instance_set_transform (servers/rendering/renderer_scene_cull.cpp:1032)
+  PASS: L2 death shrink progresses
+  PASS: L2 dead enemy freed
+  PASS: L2 level-up triggers
+  PASS: L2 level-up sting exactly once
+  PASS: L2 level-up announced
+  PASS: L2 victory clip plays
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.6, 0.0)
+  PASS: L2 boss spawn sting exactly once
+  PASS: L2 boss music state
+  PASS: L2 boss bar shown
+  PASS: L2 boss bar named
+  PASS: L2 boss phase advances
+  PASS: L2 phase sting exactly once
+  PASS: L2 phase label Fury
+[diagnostic] EffectDirector ring at (0.0, 0.0, 0.0)
+[diagnostic] EffectDirector burst at (0.0, 0.5, 0.0)
+[diagnostic] Enemy warlord died
+  PASS: L2 boss lethal hit kills
+  PASS: L2 boss slain sting exactly once
+  PASS: L2 boss death sound once
+  PASS: L2 boss killing blow lands hit sound
+  PASS: L2 lethal damage does not enrage a dead boss
+  PASS: L2 boss death sounds accounted
+[LastStand][soak] t=5s fps=60 min=28 enemies=1 peak=3 wave=1 hp=100/100
+[diagnostic] [LastStand][soak] t=5s fps=60 min=28 enemies=1 peak=3 wave=1 hp=100/100
+  PASS: L2 boss bar hides after death
+  PASS: L2 music back to battle
+  PASS: L2 dead boss freed
+  PASS: L2 HUD pause button exists
+  PASS: L2 pause tick exactly once
+  PASS: L2 tree paused
+  PASS: L2 state paused
+  PASS: L2 pause screen shown
+  PASS: L2 resume button exists
+  PASS: L2 resume tick exactly once
+  PASS: L2 tree resumed
+  PASS: L2 state back to playing
+  PASS: L2 background mutes master
+  PASS: L2 background flag set
+  PASS: L2 foreground restores mute
+  PASS: L2 background flag cleared
+  PASS: L2 bg/fg transition silent
+VERIFY FLOW: loop 2 — end of run
+  PASS: L2 player present at run end
+[LastStand][soak] END wave=1 samples=1 min_fps=28 peak_enemies=3 elapsed=6s
+[diagnostic] [LastStand][soak] END wave=1 samples=1 min_fps=28 peak_enemies=3 elapsed=6s
+[LastStand][input] --- run_ended (0 events) ---
+[diagnostic] [LastStand][input] run_ended n=0 last=
+  PASS: L2 game-over sting exactly once
+  PASS: L2 player death sound once
+  PASS: L2 run-end sounds exact
+  PASS: L2 state game_over
+  PASS: L2 game-over screen shown
+  PASS: L2 victory bed after run
+[diagnostic] Starting run 4071041171 mode=standard arena=default_arena seed=2162980958
+[diagnostic] Director grants a breather: no mutators for wave 1
+[diagnostic] Wave 1 started (3 planned)
+  PASS: L2 restart reaches playing
+  PASS: L2 restart player alive
+  PASS: L2 restart music calm
+  PASS: L2 restart heat reset
+  PASS: zero error/audio diagnostics
+VERIFY FLOW: 197 checks, 0 failed

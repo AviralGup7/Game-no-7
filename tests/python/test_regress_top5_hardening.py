@@ -157,8 +157,9 @@ class DeviceQaTests(unittest.TestCase):
         self.assertTrue((ROOT / "scripts/device_qa.sh").is_file())
         self.assertTrue((ROOT / "docs/DEVICE_QA.md").is_file())
         sh = read("scripts/device_qa.sh")
-        self.assertIn("adb", sh)
-        self.assertIn("LastStandArena-debug.apk", sh)
+        self.assertIn("android_device_qa.py", sh)
+        self.assertIn("adb", read("tool/android_device_qa.py"))
+        self.assertIn("LastStandArena-debug.apk", read("tool/android_device_qa.py"))
 
 
 if __name__ == "__main__":

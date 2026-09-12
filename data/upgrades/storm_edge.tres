@@ -6,14 +6,14 @@
 script = ExtResource("1_script")
 upgrade_id = &"storm_edge"
 display_name = "Storm Edge"
-description = "Close-range hits chain lightning to nearby foes. Build-defining crowd clear."
+description = "Your hits chain lightning to nearby foes. Build-defining crowd clear."
 rarity = &"legendary"
 category = &"transform"
 max_stacks = 2
 stat_modifiers = {
 "attack_damage_multiplier": 0.05,
 }
-tags = Array[StringName]([&"transform", &"melee", &"shock", &"aoe"])
+tags = Array[StringName]([&"transform", &"ranged", &"shock", &"aoe"])
 effect_tags = Array[StringName]([&"chain_melee"])
 prerequisites = Array[StringName]([])
 exclusions = Array[StringName]([&"cinder_step"])

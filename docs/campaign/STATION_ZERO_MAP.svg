@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="1080" viewBox="0 0 1420 1080">
+<rect width="1420" height="1080" fill="#080f19"/>
+<style>text{font-family:Arial,sans-serif}.muted{fill:#92a7bd}.white{fill:#eaf2fa}</style>
+<rect x="52" y="50" width="44" height="4" fill="#65d9ed"/>
+<text x="112" y="58" fill="#65d9ed" font-size="14" letter-spacing="3">LAST STAND / CAMPAIGN FIELD GUIDE</text>
+<text x="52" y="119" class="white" font-size="48" font-weight="700">STATION ZERO</text>
+<text x="54" y="154" class="muted" font-size="19" letter-spacing="3">THE LONG WAY HOME</text>
+<rect x="40" y="178" width="960" height="756" rx="14" fill="#0c1826" stroke="#233d54"/>
+<rect x="94.4" y="698.8" width="254.4" height="169.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="391.2" y="698.8" width="254.4" height="169.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="688.0" y="698.8" width="254.4" height="169.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="688.0" y="232.4" width="254.4" height="212.0" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="391.2" y="232.4" width="254.4" height="212.0" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="94.4" y="232.4" width="254.4" height="212.0" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="348.8" y="762.4" width="42.4" height="63.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="645.6" y="762.4" width="42.4" height="63.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="348.8" y="317.2" width="42.4" height="63.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="645.6" y="317.2" width="42.4" height="63.6" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="200.4" y="444.4" width="42.4" height="254.4" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="497.2" y="444.4" width="42.4" height="254.4" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="794.0" y="444.4" width="42.4" height="254.4" fill="#21364a" stroke="none" opacity="1"/>
+<rect x="94.4" y="698.8" width="254.4" height="169.6" fill="#65d9ed" stroke="none" opacity="0.12"/>
+<rect x="94.4" y="698.8" width="254.4" height="169.6" fill="none" stroke="#65d9ed" opacity="1"/>
+<text x="134.4" y="719.8" fill="#65d9ed" font-size="13" font-weight="700">01 / DOCKING QUARTER</text>
+<rect x="391.2" y="698.8" width="254.4" height="169.6" fill="#f4bd68" stroke="none" opacity="0.12"/>
+<rect x="391.2" y="698.8" width="254.4" height="169.6" fill="none" stroke="#f4bd68" opacity="1"/>
+<text x="431.2" y="719.8" fill="#f4bd68" font-size="13" font-weight="700">02 / TRANSIT WORKS</text>
+<rect x="688.0" y="698.8" width="254.4" height="169.6" fill="#e89c69" stroke="none" opacity="0.12"/>
+<rect x="688.0" y="698.8" width="254.4" height="169.6" fill="none" stroke="#e89c69" opacity="1"/>
+<text x="728.0" y="719.8" fill="#e89c69" font-size="13" font-weight="700">03 / CARGO EXCHANGE</text>
+<rect x="688.0" y="232.4" width="254.4" height="212.0" fill="#f06f66" stroke="none" opacity="0.12"/>
+<rect x="688.0" y="232.4" width="254.4" height="212.0" fill="none" stroke="#f06f66" opacity="1"/>
+<text x="728.0" y="253.4" fill="#f06f66" font-size="13" font-weight="700">04 / REACTOR SPINE</text>
+<rect x="391.2" y="232.4" width="254.4" height="212.0" fill="#85d4a3" stroke="none" opacity="0.12"/>
+<rect x="391.2" y="232.4" width="254.4" height="212.0" fill="none" stroke="#85d4a3" opacity="1"/>
+<text x="431.2" y="253.4" fill="#85d4a3" font-size="13" font-weight="700">05 / HABITAT RING</text>
+<rect x="94.4" y="232.4" width="254.4" height="212.0" fill="#b8a0ec" stroke="none" opacity="0.12"/>
+<rect x="94.4" y="232.4" width="254.4" height="212.0" fill="none" stroke="#b8a0ec" opacity="1"/>
+<text x="134.4" y="253.4" fill="#b8a0ec" font-size="13" font-weight="700">06 / COMMAND REACH</text>
+<rect x="195.1" y="799.5" width="53.0" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="142.1" y="730.6" width="31.8" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="279.9" y="815.4" width="31.8" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="274.6" y="720.0" width="21.2" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="497.2" y="767.7" width="42.4" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="428.3" y="725.3" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="576.7" y="820.7" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="582.0" y="730.6" width="21.2" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="751.6" y="741.2" width="42.4" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="836.4" y="815.4" width="42.4" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="889.4" y="730.6" width="21.2" height="42.4" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="804.6" y="773.0" width="21.2" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="788.7" y="311.9" width="53.0" height="53.0" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="735.7" y="391.4" width="31.8" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="884.1" y="264.2" width="31.8" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="889.4" y="391.4" width="21.2" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="497.2" y="322.5" width="42.4" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="428.3" y="364.9" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="576.7" y="269.5" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="576.7" y="380.8" width="31.8" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="200.4" y="317.2" width="42.4" height="42.4" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="120.9" y="364.9" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="279.9" y="258.9" width="31.8" height="31.8" fill="#304453" stroke="#547083" opacity="1"/>
+<rect x="295.8" y="391.4" width="21.2" height="21.2" fill="#304453" stroke="#547083" opacity="1"/>
+<polyline points="142.1,831.3 142.1,820.7 142.1,810.1 142.1,799.5 142.1,788.9 142.1,788.9 152.7,788.9 163.3,788.9 173.9,788.9 184.5,788.9 195.1,788.9 205.7,788.9 216.3,788.9 226.9,788.9 237.5,788.9 248.1,788.9 258.7,788.9 269.3,788.9 279.9,788.9 290.5,788.9 301.1,788.9 311.7,788.9 322.3,788.9 332.9,788.9 343.5,788.9 354.1,788.9 364.7,788.9 375.3,788.9 385.9,788.9 396.5,788.9 407.1,788.9 417.7,788.9 428.3,788.9 438.9,788.9 449.5,788.9 460.1,788.9 470.7,788.9 481.3,788.9 481.3,788.9 481.3,778.3 481.3,767.7 481.3,757.1 491.9,757.1 502.5,757.1 513.1,757.1 523.7,757.1 534.3,757.1 544.9,757.1 555.5,757.1 555.5,767.7 566.1,767.7 576.7,767.7 587.3,767.7 597.9,767.7 608.5,767.7 619.1,767.7 629.7,767.7 640.3,767.7 650.9,767.7 661.5,767.7 672.1,767.7 682.7,767.7 693.3,767.7 703.9,767.7 714.5,767.7 725.1,767.7 735.7,767.7 735.7,757.1 735.7,746.5 735.7,746.5 735.7,735.9 735.7,725.3 746.3,725.3 756.9,725.3 767.5,725.3 778.1,725.3 788.7,725.3 799.3,725.3 809.9,725.3 809.9,735.9 809.9,746.5 809.9,757.1 820.5,757.1 831.1,757.1 841.7,757.1 841.7,767.7 841.7,778.3 841.7,788.9 852.3,788.9 862.9,788.9 873.5,788.9 884.1,788.9 884.1,788.9 884.1,799.5 894.7,799.5 894.7,810.1 894.7,820.7 894.7,831.3 894.7,841.9 894.7,852.5 884.1,852.5 873.5,852.5 862.9,852.5 852.3,852.5 841.7,852.5 831.1,852.5 820.5,852.5 820.5,852.5 831.1,852.5 841.7,852.5 852.3,852.5 862.9,852.5 873.5,852.5 884.1,852.5 894.7,852.5 894.7,841.9 894.7,831.3 894.7,820.7 894.7,810.1 894.7,799.5 894.7,788.9 884.1,788.9 873.5,788.9 873.5,778.3 873.5,767.7 873.5,757.1 873.5,746.5 873.5,735.9 873.5,725.3 873.5,714.7 873.5,704.1 862.9,704.1 852.3,704.1 841.7,704.1 831.1,704.1 831.1,693.5 831.1,682.9 831.1,672.3 831.1,661.7 831.1,651.1 831.1,640.5 831.1,629.9 831.1,619.3 831.1,608.7 831.1,598.1 831.1,587.5 831.1,576.9 831.1,566.3 831.1,555.7 831.1,545.1 831.1,534.5 831.1,523.9 831.1,513.3 831.1,502.7 831.1,492.1 831.1,481.5 831.1,470.9 831.1,460.3 831.1,449.7 831.1,439.1 841.7,439.1 852.3,439.1 862.9,439.1 873.5,439.1 873.5,428.5 873.5,417.9 873.5,407.3 873.5,396.7 873.5,386.1 873.5,375.5 884.1,375.5 884.1,364.9 884.1,354.3 884.1,343.7 884.1,343.7 884.1,354.3 884.1,364.9 884.1,375.5 873.5,375.5 862.9,375.5 852.3,375.5 841.7,375.5 831.1,375.5 820.5,375.5 809.9,375.5 799.3,375.5 788.7,375.5 778.1,375.5 778.1,364.9 767.5,364.9 756.9,364.9 746.3,364.9 735.7,364.9 725.1,364.9 714.5,364.9 703.9,364.9 693.3,364.9 682.7,364.9 672.1,364.9 661.5,364.9 650.9,364.9 640.3,364.9 629.7,364.9 619.1,364.9 608.5,364.9 597.9,364.9 587.3,364.9 576.7,364.9 566.1,364.9 555.5,364.9 544.9,364.9 534.3,364.9 523.7,364.9 513.1,364.9 502.5,364.9 491.9,364.9 481.3,364.9 481.3,354.3 481.3,343.7 481.3,333.1 481.3,322.5 481.3,322.5 481.3,333.1 481.3,343.7 481.3,354.3 470.7,354.3 460.1,354.3 449.5,354.3 438.9,354.3 428.3,354.3 417.7,354.3 417.7,364.9 417.7,375.5 407.1,375.5 396.5,375.5 385.9,375.5 375.3,375.5 364.7,375.5 354.1,375.5 343.5,375.5 332.9,375.5 322.3,375.5 311.7,375.5 301.1,375.5 290.5,375.5 279.9,375.5 279.9,386.1 279.9,396.7 279.9,407.3 269.3,407.3 258.7,407.3 248.1,407.3 237.5,407.3 226.9,407.3 226.9,407.3 226.9,417.9 226.9,428.5 226.9,439.1 226.9,449.7 226.9,460.3 226.9,470.9 226.9,481.5 226.9,492.1 226.9,502.7 226.9,513.3 226.9,523.9 226.9,534.5 226.9,545.1 226.9,555.7 226.9,566.3 226.9,576.9 226.9,587.5 226.9,598.1 226.9,608.7 226.9,619.3 226.9,629.9 226.9,640.5 226.9,651.1 226.9,661.7 226.9,672.3 226.9,682.9 226.9,693.5 226.9,704.1 226.9,714.7 226.9,725.3 226.9,735.9 226.9,746.5 226.9,757.1 226.9,767.7 226.9,778.3 226.9,788.9 216.3,788.9 205.7,788.9 195.1,788.9 184.5,788.9 184.5,799.5 184.5,810.1 184.5,820.7 184.5,831.3" fill="none" stroke="#eacb79" stroke-width="2" opacity=".65" stroke-dasharray="6 5"/>
+<circle cx="136.8" cy="826.0" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="433.6" cy="826.0" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="709.2" cy="847.2" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="730.4" cy="274.8" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="412.4" cy="253.6" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="115.6" cy="253.6" r="7" fill="#0b1827" stroke="#70e6b8" stroke-width="2"/>
+<circle cx="200.4" cy="741.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="232.2" cy="730.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="253.4" cy="751.8" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="486.6" cy="720.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="550.2" cy="720.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="529.0" cy="741.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="571.4" cy="709.4" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="730.4" cy="783.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="751.6" cy="794.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="836.4" cy="773.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="857.6" cy="730.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="910.6" cy="804.8" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="794.0" cy="402.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="836.4" cy="423.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="857.6" cy="402.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="772.8" cy="359.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="857.6" cy="274.8" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="486.6" cy="380.8" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="550.2" cy="380.8" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="486.6" cy="296.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="550.2" cy="317.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="221.6" cy="402.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="179.2" cy="423.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="264.0" cy="423.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="158.0" cy="317.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="211.0" cy="571.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="232.2" cy="614.0" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="804.6" cy="571.6" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<circle cx="825.8" cy="529.2" r="3.2" fill="#d87871" stroke="none" stroke-width="1"/>
+<rect x="323.6" y="716.0" width="8" height="8" fill="#aec3d5"/>
+<rect x="620.4" y="843.2" width="8" height="8" fill="#aec3d5"/>
+<rect x="917.2" y="843.2" width="8" height="8" fill="#aec3d5"/>
+<rect x="917.2" y="249.6" width="8" height="8" fill="#aec3d5"/>
+<rect x="620.4" y="249.6" width="8" height="8" fill="#aec3d5"/>
+<rect x="111.6" y="419.2" width="8" height="8" fill="#aec3d5"/>
+<circle cx="136.8" cy="783.6" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="136.8" y="787.6" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">1</text>
+<circle cx="476.0" cy="783.6" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="476.0" y="787.6" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">2</text>
+<circle cx="730.4" cy="741.2" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="730.4" y="745.2" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">3</text>
+<circle cx="878.8" cy="783.6" r="5" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<circle cx="815.2" cy="847.2" r="5" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<circle cx="878.8" cy="338.4" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="878.8" y="342.4" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">4</text>
+<circle cx="476.0" cy="317.2" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="476.0" y="321.2" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">5</text>
+<circle cx="221.6" cy="402.0" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="221.6" y="406.0" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">6</text>
+<circle cx="179.2" cy="826.0" r="11" fill="#f4cf7a" stroke="#101c29" stroke-width="2"/>
+<text x="179.2" y="830.0" text-anchor="middle" font-size="12" font-weight="700" fill="#152434">7</text>
+<text x="950" y="216" fill="#92a7bd" font-size="14">N</text>
+<path d="M970 220 V199 M965 205 L970 199 L975 205" fill="none" stroke="#92a7bd" stroke-width="1.5"/>
+<text x="1040" y="207" fill="#65d9ed" font-size="13" letter-spacing="2">MISSION LOG</text>
+<text x="1040" y="251" fill="#f4cf7a" font-size="16">01</text>
+<text x="1080" y="251" class="white" font-size="16" font-weight="700">A signal in the dark</text>
+<text x="1080" y="272" class="muted" font-size="13">Find the dock relay. Reconnect it to</text>
+<text x="1080" y="293" class="muted" font-size="13">learn what happened to Station Zero.</text>
+<text x="1040" y="330" fill="#f4cf7a" font-size="16">02</text>
+<text x="1080" y="330" class="white" font-size="16" font-weight="700">Bring the grid online</text>
+<text x="1080" y="351" class="muted" font-size="13">Travel to Transit Works, secure its</text>
+<text x="1080" y="372" class="muted" font-size="13">generator crew and restore station</text>
+<text x="1080" y="393" class="muted" font-size="13">power.</text>
+<text x="1040" y="430" fill="#f4cf7a" font-size="16">03</text>
+<text x="1080" y="430" class="white" font-size="16" font-weight="700">Names, not numbers</text>
+<text x="1080" y="451" class="muted" font-size="13">Search Cargo Exchange for all three</text>
+<text x="1080" y="472" class="muted" font-size="13">evacuation manifests. The survivors</text>
+<text x="1080" y="493" class="muted" font-size="13">need a route home.</text>
+<text x="1040" y="530" fill="#f4cf7a" font-size="16">04</text>
+<text x="1080" y="530" class="white" font-size="16" font-weight="700">Stop the cascade</text>
+<text x="1080" y="551" class="muted" font-size="13">Cross the eastern service causeway.</text>
+<text x="1080" y="572" class="muted" font-size="13">Defeat the coolant wardens and</text>
+<text x="1080" y="593" class="muted" font-size="13">disable the reactor override.</text>
+<text x="1040" y="630" fill="#f4cf7a" font-size="16">05</text>
+<text x="1080" y="630" class="white" font-size="16" font-weight="700">Open the lifeline</text>
+<text x="1080" y="651" class="muted" font-size="13">Reach the Habitat Ring and open its</text>
+<text x="1080" y="672" class="muted" font-size="13">evacuation uplink after securing the</text>
+<text x="1080" y="693" class="muted" font-size="13">residential wing.</text>
+<text x="1040" y="730" fill="#f4cf7a" font-size="16">06</text>
+<text x="1080" y="730" class="white" font-size="16" font-weight="700">Break the lockdown</text>
+<text x="1080" y="751" class="muted" font-size="13">Find the security commander in</text>
+<text x="1080" y="772" class="muted" font-size="13">Command Reach. Take back control of</text>
+<text x="1080" y="793" class="muted" font-size="13">the evacuation lock.</text>
+<text x="1040" y="830" fill="#f4cf7a" font-size="16">07</text>
+<text x="1080" y="830" class="white" font-size="16" font-weight="700">The long way home</text>
+<text x="1080" y="851" class="muted" font-size="13">Return through the connected station</text>
+<text x="1080" y="872" class="muted" font-size="13">to the Docking Quarter and board the</text>
+<text x="1080" y="893" class="muted" font-size="13">evacuation shuttle.</text>
+<circle cx="57" cy="971" r="4" fill="#f4cf7a"/><text x="70" y="976" fill="#f4cf7a" font-size="14">STORY OBJECTIVE / ROUTE</text>
+<circle cx="335" cy="971" r="4" fill="none" stroke="#70e6b8" stroke-width="1.5"/><text x="348" y="976" fill="#70e6b8" font-size="14">CHECKPOINT</text>
+<rect x="535" y="967" width="8" height="8" fill="#aec3d5"/><text x="552" y="976" fill="#aec3d5" font-size="14">SUPPLY LOCKER</text>
+<circle cx="765" cy="971" r="3.5" fill="#d87871"/><text x="779" y="976" fill="#d87871" font-size="14">AUTHORED GUARD</text>
+<path d="M52 1000 H1370" stroke="#233d54"/>
+<text x="52" y="1036" class="white" font-size="15">352 × 272 m footprint  /  6 connected districts  /  7 objectives  /  8 finite encounters</text>
+<text x="1370" y="1036" text-anchor="end" class="muted" font-size="13">FIXED WORLD · ANDROID-FIRST</text>
+</svg>

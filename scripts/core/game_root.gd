@@ -54,6 +54,7 @@ var _daily: Dictionary = {}  # DailyChallenge card for daily runs, {} for standa
 var _pending_mode: StringName = GameMode.MODE_STANDARD
 var _pending_weapon: StringName = &""
 var _prestige_rank: int = 0
+var _campaign_session := false
 
 
 func _ready() -> void:
@@ -94,7 +95,7 @@ func _process(delta: float) -> void:
 		_current_run.elapsed_seconds += delta
 		_score.tick_combo()
 		# Survival mode: victory on the clock, not on a wave cap.
-		if GameMode.is_survival_victory(_current_run.mode_id, _current_run.elapsed_seconds):
+		if not _campaign_session and GameMode.is_survival_victory(_current_run.mode_id, _current_run.elapsed_seconds):
 			_declare_victory()
 
 
@@ -152,16 +153,42 @@ func _unhandled_input(event: InputEvent) -> void:
 func request_play() -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
 		return
+	_campaign_session = false  # Legacy harness entry; the app uses start_campaign.
 	_daily = {}
 	if _pending_mode == &"":
 		_pending_mode = GameMode.MODE_STANDARD
 	transition_to(State.STARTING_RUN)
 
 
+## Shipping entry point: one fixed campaign world, never an arena/seed chooser.
+func start_campaign(fresh: bool = false) -> void:
+	if _current_state not in [State.MAIN_MENU, State.GAME_OVER]:
+		return
+	if (fresh or not SaveManager.has_campaign()) and not SaveManager.new_campaign():
+		EventBus.announcement.emit(&"save", "Campaign could not be saved. Please retry.", &"warning")
+		return
+	_campaign_session = true
+	_daily.clear()
+	_pending_weapon = &""
+	_pending_mode = GameMode.MODE_CAMPAIGN
+	transition_to(State.STARTING_RUN)
+
+
+func is_campaign() -> bool:
+	return _campaign_session
+
+
+func complete_campaign() -> void:
+	if _campaign_session and _current_state == State.PLAYING:
+		_current_run.victory = true
+		request_game_over()
+
+
 ## Start a run in a specific game mode (standard / boss rush / survival / ...).
 func request_play_mode(mode_id: StringName) -> void:
 	if _current_state != State.MAIN_MENU and _current_state != State.GAME_OVER:
 		return
+	_campaign_session = false  # Legacy harness entry; the app uses start_campaign.
 	_daily = {}
 	_pending_mode = GameMode.validated(mode_id)
 	transition_to(State.STARTING_RUN)
@@ -173,6 +200,7 @@ func start_daily_run() -> void:
 		return
 	if DailyChallenge == null:
 		return
+	_campaign_session = false
 	_daily = DailyChallenge.challenge_for_today()
 	_pending_mode = GameMode.MODE_STANDARD
 	transition_to(State.STARTING_RUN)
@@ -415,6 +443,9 @@ func _set_paused(value: bool) -> void:
 ## ---------- Run lifecycle ----------
 
 func _start_new_run() -> void:
+	if _campaign_session:
+		_start_campaign_session()
+		return
 	var arena_id: StringName = ContentRegistry.get_selected_arena_id()
 	_current_run.reset()
 	_current_run.run_id = _next_run_id()
@@ -466,7 +497,30 @@ func _call_build_world(arena_id: StringName) -> void:
 	EventBus.report_warning("No world builder registered; skipping world build (headless/direct use)")
 
 
+func _start_campaign_session() -> void:
+	_current_run.reset()
+	_current_run.run_id = _next_run_id()
+	_current_run.run_seed = 0  # Compatibility input for combat APIs, not world generation.
+	_current_run.arena_id = &""
+	_current_run.mode_id = GameMode.MODE_CAMPAIGN
+	_score.reset_run(_current_run)
+	_call_build_world(&"station_zero")
+	if _active_player == null or not is_instance_valid(_active_player):
+		EventBus.report_error("Campaign world/player failed to load")
+		transition_to(State.ERROR)
+		return
+	EventBus.run_started.emit(_current_run.run_id, 0)
+	transition_to(State.PLAYING)
+
+
 func _finalize_run() -> void:
+	if _campaign_session:
+		# CampaignDirector owns checkpoint/build/currency persistence. Do not
+		# create a fake wave/arena result or bank the same mission reward again.
+		EventBus.run_ended.emit(_current_run.score, 0, _best_score)
+		_click(&"game_over")
+		_set_paused(false)
+		return
 	_sync_run_build_mirror()
 	var summary := _current_run.summary()
 	# Persist best score/wave and lifetime stats via the save/analytics systems.

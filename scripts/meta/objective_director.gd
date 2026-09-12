@@ -52,6 +52,11 @@ func _ready() -> void:
 ## Bind the per-run world context and arm the objective for the active mode.
 ## `arena_center` grounds the Defend beacon; `pickups` spawns Relic Hunt shards.
 func configure(mode_id: StringName, arena_center: Vector3, pickups: PickupManager) -> void:
+	_bus.unbind_all()
+	if is_instance_valid(_beacon):
+		remove_child(_beacon)
+		_beacon.queue_free()
+	_beacon = null
 	_mode_id = GameMode.validated(mode_id)
 	_objective = GameMode.objective(_mode_id)
 	_arena_center = arena_center
@@ -99,7 +104,7 @@ func _on_run_started(_run_id: int, _seed: int) -> void:
 ## ---------- Defend: beacon drain / repair / win-on-clock ----------
 
 func _physics_process(delta: float) -> void:
-	if not _active or _resolved:
+	if not _active or _resolved or not is_finite(delta) or delta <= 0.0:
 		return
 	if _objective != GameMode.OBJECTIVE_DEFEND_POINT:
 		return
@@ -137,7 +142,8 @@ func _enemies_near_beacon() -> int:
 	var count := 0
 	var center := _beacon.global_position if _beacon != null and is_instance_valid(_beacon) else _arena_center
 	for e in tree.get_nodes_in_group("enemies"):
-		if e is Node3D and (e as Node3D).global_position.distance_to(center) <= BEACON_RADIUS:
+		var enemy := e as EnemyBase
+		if is_instance_valid(enemy) and enemy.is_alive() and not enemy.is_queued_for_deletion() and enemy.global_position.distance_to(center) <= BEACON_RADIUS:
 			count += 1
 	return count
 
@@ -145,8 +151,8 @@ func _enemies_near_beacon() -> int:
 func _spawn_beacon() -> void:
 	_beacon = Node3D.new()
 	_beacon.name = "DefendBeacon"
-	_beacon.global_position = _arena_center
 	add_child(_beacon)
+	_beacon.global_position = _arena_center
 	# Glowing crystal pillar so the point to defend is unmistakable.
 	var pillar := MeshInstance3D.new()
 	pillar.name = "BeaconMesh"
