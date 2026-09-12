@@ -1,0 +1,39 @@
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:360)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.2 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+[LastStand][input] --- joystick_cancel (2 events) ---
+[LastStand][input] #1 t=7672 touch i=21 p=(0.5, 0.5) pressed=true active=false own=-1
+[LastStand][input] #2 t=7672 begin i=21 pos=(0.5, 0.5)
+[diagnostic] [LastStand][input] joystick_cancel n=2 last=[LastStand][input] #2 t=7672 begin i=21 pos=(0.5, 0.5)
+[diagnostic] Quality auto-scaled medium -> low (sustained frame-time deficit)
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy dasher died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy fast died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] EffectDirector ring at (-112.0, 0.2, -56.0)
+[diagnostic] EffectDirector ring at (-112.0, 0.2, -56.0)
+[diagnostic] EffectDirector burst at (-112.0, 0.8, -56.0)
+[diagnostic] EffectDirector ring at (-112.0, 0.2, -56.0)
+[diagnostic] EffectDirector burst at (-112.0, 0.7, -56.0)
+[diagnostic] Enemy warlord died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy ranged died
+[diagnostic] Entered main menu
+CAMPAIGN TESTS: 175 checks, 0 failed

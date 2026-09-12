@@ -1172,15 +1172,12 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 7: cloth_3.ogg
 	reimport: step 8: draw_knife_1.ogg
 	reimport: step 9: drop_leather.ogg
-	reimport: step 10: handle_coins.ogg
 	reimport: step 11: handle_coins_2.ogg
 	reimport: step 12: knife_slice.ogg
 	reimport: step 13: knife_slice_2.ogg
 	reimport: step 14: battle.ogg
 	reimport: step 15: boss.ogg
-	reimport: step 16: calm.ogg
 	reimport: step 17: menu.ogg
-	reimport: step 18: victory.ogg
 	reimport: step 19: arena_boss.ogg
 	reimport: step 20: footstep_concrete_000.ogg
 	reimport: step 21: footstep_concrete_001.ogg
@@ -1192,7 +1189,6 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 27: impact_generic_light_001.ogg
 	reimport: step 28: impact_punch_heavy_000.ogg
 	reimport: step 29: impact_punch_medium_000.ogg
-	reimport: step 30: impact_punch_medium_001.ogg
 	reimport: step 31: impact_soft_heavy_000.ogg
 	reimport: step 32: impact_wood_heavy_000.ogg
 	reimport: step 33: arena_gameplay.ogg
@@ -1203,6 +1199,8 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 38: cloth_1.ogg
 	reimport: step 39: cloth_2.ogg
 	reimport: step 40: cloth_3.ogg
+	reimport: step 41: draw_knife_1.ogg
+	reimport: step 42: drop_leather.ogg
 	reimport: step 43: handle_coins.ogg
 	reimport: step 44: handle_coins_2.ogg
 	reimport: step 45: knife_slice.ogg
@@ -1218,6 +1216,7 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 55: arena_calm.ogg
 	reimport: step 56: footstep_concrete_002.ogg
 	reimport: step 57: footstep_concrete_003.ogg
+	reimport: step 58: impact_bell_heavy_000.ogg
 	reimport: step 59: impact_generic_light_000.ogg
 	reimport: step 60: impact_generic_light_001.ogg
 	reimport: step 61: impact_punch_heavy_000.ogg
@@ -1226,15 +1225,16 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 64: impact_soft_heavy_000.ogg
 	reimport: step 65: impact_wood_heavy_000.ogg
 	reimport: step 66: arena_gameplay.ogg
+	reimport: step 67: arena_menu.ogg
 	reimport: step 68: arena_victory.ogg
 	reimport: step 69: impact_wood_medium_000.ogg
 	reimport: step 70: grey_box.png
-	reimport: step 71: grey_button00.png
-WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
+     at: load_image (modules/hdr/image_loader_hdr.cpp:47)
+	reimport: step 71: grey_button00.png
+WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
      at: load_image (modules/hdr/image_loader_hdr.cpp:47)
@@ -1416,7 +1416,6 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 	reimport: step 243: Warden_normal.png
 	reimport: step 244: Warden_ORM.png
 	reimport: step 245: circle_01.png
-	reimport: step 246: circle_05.png
 	reimport: step 247: dirt_01.png
 	reimport: step 248: flame_01.png
 	reimport: step 249: flare_01.png
@@ -3410,3 +3409,4 @@ reimport: end
 loading_editor_layout: begin: Loading editor steps: 5
 	loading_editor_layout: step 0: Loading editor layout...
 loading_editor_layout: end
+cannot connect to daemon at tcp:5037: Connection refused

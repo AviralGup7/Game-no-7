@@ -1,0 +1,92 @@
+Godot log OK: build/ui-import.log
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:360)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.2 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2443469976 mode=standard arena=default_arena seed=2840107653
+[LastStand][input] --- joystick_cancel (3 events) ---
+[LastStand][input] #1 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2507 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2507 begin i=2 pos=(100.0, 100.0)
+[diagnostic] [LastStand][input] joystick_cancel n=3 last=[LastStand][input] #3 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] --- joystick_cancel (5 events) ---
+[LastStand][input] #1 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2507 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #4 t=2507 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #5 t=2535 begin i=10 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=5 last=[LastStand][input] #5 t=2535 begin i=10 pos=(50.0, 50.0)
+[LastStand][input] --- joystick_cancel (7 events) ---
+[LastStand][input] #1 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2507 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2507 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #4 t=2507 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #5 t=2535 begin i=10 pos=(50.0, 50.0)
+[LastStand][input] #6 t=2536 end i=10 value=(0.520833, 0.0)
+[LastStand][input] #7 t=2544 begin i=10 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=7 last=[LastStand][input] #7 t=2544 begin i=10 pos=(50.0, 50.0)
+[diagnostic] Upgrade choices presented (wave 1): [&"force", &"swift", &"fortified"]
+WARNING: [diagnostic] Upgrade missing_upgrade is not currently offered
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Upgrade selected: force
+[diagnostic] Entered main menu
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 238273261 mode=standard arena=default_arena seed=7119930954250028008 [Daily 20260912]
+[diagnostic] Starting run 3991082177 mode=standard arena=default_arena seed=7119930954250028008 [Daily 20260912]
+[diagnostic] Entered main menu
+[diagnostic] Starting run 4254847202 mode=standard arena=default_arena seed=1232273224
+[diagnostic] Entered main menu
+UI TESTS: 2644 checks, 0 failed
+Godot log OK: build/ui-tests-fresh.log
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:360)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.2 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2585227838 mode=standard arena=default_arena seed=3026493177
+[LastStand][input] --- joystick_cancel (3 events) ---
+[LastStand][input] #1 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2233 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2233 begin i=2 pos=(100.0, 100.0)
+[diagnostic] [LastStand][input] joystick_cancel n=3 last=[LastStand][input] #3 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] --- joystick_cancel (5 events) ---
+[LastStand][input] #1 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2233 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #4 t=2233 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #5 t=2263 begin i=10 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=5 last=[LastStand][input] #5 t=2263 begin i=10 pos=(50.0, 50.0)
+[LastStand][input] --- joystick_cancel (7 events) ---
+[LastStand][input] #1 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #2 t=2233 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #3 t=2233 begin i=2 pos=(100.0, 100.0)
+[LastStand][input] #4 t=2233 end i=2 value=(0.46875, 0.104167)
+[LastStand][input] #5 t=2263 begin i=10 pos=(50.0, 50.0)
+[LastStand][input] #6 t=2264 end i=10 value=(0.520833, 0.0)
+[LastStand][input] #7 t=2273 begin i=10 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=7 last=[LastStand][input] #7 t=2273 begin i=10 pos=(50.0, 50.0)
+[diagnostic] Upgrade choices presented (wave 1): [&"stamina_reservoir", &"scavenger", &"haste"]
+WARNING: [diagnostic] Upgrade missing_upgrade is not currently offered
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Upgrade selected: stamina_reservoir
+[diagnostic] Entered main menu
+[diagnostic] Content selection changed to arena default_arena
+[diagnostic] Starting run 2156723068 mode=standard arena=default_arena seed=7119930954250028008 [Daily 20260912]
+[diagnostic] Starting run 1625172657 mode=standard arena=default_arena seed=7119930954250028008 [Daily 20260912]
+[diagnostic] Entered main menu
+[diagnostic] Starting run 3459706489 mode=standard arena=default_arena seed=2208691327
+[diagnostic] Entered main menu
+UI TESTS: 2644 checks, 0 failed
+Godot log OK: build/ui-tests-existing.log
+UI validation complete. Isolated profile: /home/runner/work/Game-no-7/Game-no-7/.cache/ui-validation/profile.EmR8aj
