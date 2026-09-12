@@ -99,7 +99,8 @@ jobs:
             --report build/apk-validation.json > check-apk.log 2>&1
           echo "apk verify: $?" | tee -a step-results.txt
           cat check-apk.log || true
-          python3 tool/apk_size_report.py "$APK_PATH" > apk-size.txt 2>&1
+          # Same invocation as android.yml: JSON report with per-container sizes.
+          python3 tool/apk_size_report.py "$APK_PATH" | tee build/apk-size-report.json > apk-size.txt 2>&1
           echo "size report: $?" | tee -a step-results.txt
           # Raw tool output so parse-level checker bugs are diagnosable from
           # the committed logs without re-running the pipeline.
@@ -122,7 +123,7 @@ jobs:
           for f in dbg-import.log check-import.log check-export.log check-apk.log \
                    step-results.txt apk-size.txt aapt-badging.txt aapt-xmltree.txt \
                    apk-entries.txt apk-perms.txt build/export.log \
-                   build/apk-validation.json; do
+                   build/apk-validation.json build/apk-size-report.json; do
             cp -f "$f" docs/godot-runs/android-debug/ 2>/dev/null || true
           done
           git config user.name "github-actions[bot]"
@@ -136,3 +137,18 @@ jobs:
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
           cat step-results.txt || true
+
+      - name: Verdict
+        run: |
+          failed=0
+          for report in import export verify size; do
+            line=$(grep " ${report}:" step-results.txt | tail -1 || true)
+            case "$line" in *": 0"*|*"(engine: 0)"*) ;; "") ;; *) echo "stage failed: $line"; failed=1;; esac
+          done
+          python3 - <<'PY' || failed=1
+          import json
+          report = json.load(open("build/apk-validation.json"))
+          print("APK validation valid:", report.get("valid"))
+          raise SystemExit(0 if report.get("valid") else 1)
+          PY
+          exit "$failed"
