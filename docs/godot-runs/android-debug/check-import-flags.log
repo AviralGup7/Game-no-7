@@ -1,8 +1,4 @@
-Godot log validation failed: godot-import.log
-ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
-   at: init_output_device (drivers/alsa/audio_driver_alsa.cpp:90)
-WARNING: All audio drivers failed, falling back to the dummy driver.
-     at: initialize (servers/audio_server.cpp:246)
+Godot log validation failed: dbg-import-flags.log
 ERROR: Required extension VK_KHR_surface not found.
    at: _initialize_instance_extensions (drivers/vulkan/rendering_context_driver_vulkan.cpp:487)
 ERROR: Condition "err != OK" is true. Returning: err

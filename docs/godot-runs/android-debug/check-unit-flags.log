@@ -1,8 +1,4 @@
-Godot log validation failed: godot-unit.log
-ERROR: Condition "status < 0" is true. Returning: ERR_CANT_OPEN
-   at: init_output_device (drivers/alsa/audio_driver_alsa.cpp:90)
-WARNING: All audio drivers failed, falling back to the dummy driver.
-     at: initialize (servers/audio_server.cpp:246)
+Godot log validation failed: dbg-unit-flags.log
 ERROR: Parameter "material" is null.
    at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)
 ERROR: Parameter "material" is null.
@@ -57,3 +53,11 @@ ERROR: Texture with GL ID of 106: leaked 22369620 bytes.
    at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)
 ERROR: Texture with GL ID of 106: leaked 22369620 bytes.
    at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2378)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2378)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:614)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:614)

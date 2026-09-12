@@ -1,0 +1,180 @@
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:360)
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.2 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+SUITE: res://tests/unit/test_save.gd
+SUITE: res://tests/unit/test_campaign.gd
+SUITE: res://tests/unit/test_audit_boundaries.gd
+SUITE: res://tests/unit/test_combat.gd
+SUITE: res://tests/unit/test_configs.gd
+SUITE: res://tests/unit/test_scoring.gd
+SUITE: res://tests/unit/test_waves.gd
+SUITE: res://tests/unit/test_combo.gd
+SUITE: res://tests/unit/test_upgrades.gd
+SUITE: res://tests/unit/test_upgrade_selection.gd
+SUITE: res://tests/unit/test_progression.gd
+SUITE: res://tests/unit/test_rng_tables.gd
+SUITE: res://tests/unit/test_status_skills.gd
+SUITE: res://tests/unit/test_drops_elites.gd
+SUITE: res://tests/unit/test_locomotion_nan.gd
+SUITE: res://tests/unit/test_camera_arena_containment.gd
+SUITE: res://tests/unit/test_camera_modules.gd
+SUITE: res://tests/unit/test_ui_layout.gd
+SUITE: res://tests/unit/test_safe_player_spawn.gd
+SUITE: res://tests/unit/test_systems_completion.gd
+SUITE: res://tests/unit/test_director_mutators.gd
+SUITE: res://tests/unit/test_wave_mutators.gd
+TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
+ERROR: WaveModifiers: damage_mult is not finite before clamping
+   at: push_error (core/variant/variant_utility.cpp:1098)
+ERROR: WaveModifiers: speed_mult is not finite before clamping
+   at: push_error (core/variant/variant_utility.cpp:1098)
+TEST EXPECTED ERRORS END
+WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+SUITE: res://tests/unit/test_meta_misc.gd
+SUITE: res://tests/unit/test_planner_extended.gd
+SUITE: res://tests/unit/test_extracted_modules.gd
+SUITE: res://tests/unit/test_procedural_sfx.gd
+SUITE: res://tests/unit/test_enemy_behaviors.gd
+SUITE: res://tests/unit/test_nav_grid.gd
+SUITE: res://tests/unit/test_enemy_brain.gd
+SUITE: res://tests/unit/test_content_progression.gd
+SUITE: res://tests/unit/test_presentation_scripts.gd
+SUITE: res://tests/unit/test_game_modes.gd
+TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
+ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
+   at: push_error (core/variant/variant_utility.cpp:1098)
+TEST EXPECTED ERRORS END
+SUITE: res://tests/unit/test_collision_layers.gd
+SUITE: res://tests/unit/test_hazards.gd
+ERROR: Parameter "material" is null.
+   at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)
+ERROR: Parameter "material" is null.
+   at: material_is_animated (drivers/gles3/storage/material_storage.cpp:2488)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (drivers/gles3/storage/material_storage.cpp:2527)
+ERROR: Parameter "material" is null.
+   at: material_update_dependency (drivers/gles3/storage/material_storage.cpp:2539)
+SUITE: res://tests/unit/test_arena_world.gd
+TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
+ERROR: ArenaLandmark: kind 'wishing_well' has no builder
+   at: push_error (core/variant/variant_utility.cpp:1098)
+TEST EXPECTED ERRORS END
+SUITE: res://tests/unit/test_performance_monitor.gd
+SUITE: res://tests/unit/test_pool_governor.gd
+SUITE: res://tests/unit/test_minimap_radar.gd
+SUITE: res://tests/unit/test_audio_policy.gd
+SUITE: res://tests/unit/test_spatial_audio.gd
+SUITE: res://tests/unit/test_error_report.gd
+SUITE: res://tests/unit/test_event_bus_contract.gd
+[diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] GameRoot ready
+[diagnostic] RunAnalytics ready (offline only)
+SUITE: res://tests/unit/test_model_visual.gd
+SUITE: res://tests/unit/test_audit_runtime.gd
+[diagnostic] audit_enemy split into 3 x audit_enemy
+SUITE: res://tests/unit/test_audit_combat.gd
+SUITE: res://tests/unit/test_android_runtime.gd
+[LastStand][input] --- joystick_cancel (6 events) ---
+[LastStand][input] #1 t=1280 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=1280 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=1280 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=1280 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=1280 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=11185 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=11185 begin i=0 pos=(50.0, 50.0)
+SUITE: res://tests/unit/test_weapons.gd
+SUITE: res://tests/unit/test_station_shooter.gd
+SUITE: res://tests/unit/test_area_combat.gd
+SUITE: res://tests/unit/test_character_visuals.gd
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+SUITE: res://tests/unit/test_hero_rig.gd
+WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+SUITE: res://tests/unit/test_arena_obstacles_node.gd
+SUITE: res://tests/unit/test_decorator_collision.gd
+ERROR: Parameter "material" is null.
+   at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)
+ERROR: Parameter "material" is null.
+   at: material_is_animated (drivers/gles3/storage/material_storage.cpp:2488)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (drivers/gles3/storage/material_storage.cpp:2527)
+ERROR: Parameter "material" is null.
+   at: material_update_dependency (drivers/gles3/storage/material_storage.cpp:2539)
+SUITE: res://tests/unit/test_enemy_scene_inheritance.gd
+SUITE: res://tests/unit/test_hazards_live.gd
+ERROR: Parameter "material" is null.
+   at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)
+ERROR: Parameter "material" is null.
+   at: material_is_animated (drivers/gles3/storage/material_storage.cpp:2488)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (drivers/gles3/storage/material_storage.cpp:2527)
+ERROR: Parameter "material" is null.
+   at: material_update_dependency (drivers/gles3/storage/material_storage.cpp:2539)
+SUITE: res://tests/unit/test_status_manager.gd
+SUITE: res://tests/unit/test_run_isolation.gd
+[diagnostic] Enemy probe_basic died
+[diagnostic] Enemy probe_exploder died
+[diagnostic] Enemy probe_boss died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
+   at: push_error (core/variant/variant_utility.cpp:1098)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+TEST EXPECTED ERRORS END
+[diagnostic] Enemy basic died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy splitter died
+[diagnostic] splitter split into 2 x mite
+[diagnostic] Enemy mite died
+[diagnostic] Enemy mite died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1118)
+[diagnostic] Enemy basic died
+========================================
+GDScript tests: 1567 total, 0 failed
+========================================
+ERROR: Texture with GL ID of 105: leaked 22369620 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)
+ERROR: Texture with GL ID of 106: leaked 22369620 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2378)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:614)
