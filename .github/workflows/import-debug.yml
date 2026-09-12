@@ -1,13 +1,13 @@
 name: Import debug repro (temporary)
 
-# TEMPORARY diagnostic workflow. The Actions log-download endpoint is
-# unreachable from some environments, so this job reproduces the Android
-# workflow's failing godot-tests steps verbatim on the pinned engine
-# (4.4.1-stable) and commits every captured log back to the branch under
-# docs/godot-runs/android-debug/ where they can be read anywhere.
-# It also runs the previous headless invocation for comparison, so the
-# regression (content vs. rendering mode) can be isolated.
-# Remove this file once the Android workflow is green again.
+# TEMPORARY diagnostic workflow. Round 2:
+#  1) import + unit tests with candidate run_godot.sh flags
+#     (--audio-driver Dummy --rendering-driver opengl3)
+#  2) minimal repro: does an UNREFERENCED material_override temp trigger the
+#     GLES3 'Parameter "material" is null' storage errors while a kept
+#     reference does not?
+# Logs are committed back to docs/godot-runs/android-debug/ because the
+# Actions log endpoint is unreachable from some environments.
 
 on:
   push:
@@ -32,7 +32,7 @@ env:
 
 jobs:
   repro:
-    name: Reproduce godot-tests import/test steps (4.4.1)
+    name: Repro round 2 (candidate flags + MRE)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -52,68 +52,90 @@ jobs:
       - name: Install software renderer
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgl1-mesa-dri mesa-utils
+          sudo apt-get install -y xvfb libgl1-mesa-dri
 
-      # Exact copy of the failing android.yml step.
-      - name: Import project via run_godot.sh (xvfb + gl_compatibility)
+      - name: Import with candidate flags
         run: |
           set +e
-          bash scripts/run_godot.sh --path . --import > godot-import.log 2>&1
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot --rendering-method gl_compatibility --rendering-driver opengl3 \
+            --audio-driver Dummy --path . --import > dbg-import-flags.log 2>&1
           code=$?
           set -e
-          echo "import exit: $code" | tee step-results.txt
-          python3 tool/check_godot_log.py godot-import.log --exit-code "$code" > check-import.log 2>&1 || true
-          tail -80 godot-import.log || true
-          cat check-import.log || true
+          echo "import-flags exit: $code" | tee step-results.txt
+          python3 tool/check_godot_log.py dbg-import-flags.log --exit-code "$code" > check-import-flags.log 2>&1 || true
+          cat check-import-flags.log || true
           true
 
-      # Previous (green) invocation, same engine, for comparison.
-      - name: Import project headless (old invocation)
+      - name: Unit tests with candidate flags
         run: |
           set +e
-          godot --headless --path . --import > godot-import-headless.log 2>&1
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot --rendering-method gl_compatibility --rendering-driver opengl3 \
+            --audio-driver Dummy --path . --script res://tests/run_tests.gd > dbg-unit-flags.log 2>&1
           code=$?
           set -e
-          echo "import-headless exit: $code" | tee -a step-results.txt
-          python3 tool/check_godot_log.py godot-import-headless.log --exit-code "$code" > check-import-headless.log 2>&1 || true
-          cat check-import-headless.log || true
+          echo "unit-flags exit: $code" | tee -a step-results.txt
+          python3 tool/check_godot_log.py dbg-unit-flags.log --exit-code "$code" --allow-test-errors \
+            --require '^GDScript tests: [1-9][0-9]* total, 0 failed$' > check-unit-flags.log 2>&1 || true
+          grep -c 'Parameter "material" is null' dbg-unit-flags.log | tee mre-material-count.txt || true
+          cat check-unit-flags.log || true
           true
 
-      - name: Unit tests via run_godot.sh
+      - name: Minimal dangling-material repro
         run: |
+          cat > mre_tree.gd <<'GD'
+          extends SceneTree
+
+          var _kept: StandardMaterial3D
+          var _frames := 0
+
+          func _initialize() -> void:
+              var cam := Camera3D.new()
+              cam.current = true
+              root.add_child(cam)
+              var sun := DirectionalLight3D.new()
+              root.add_child(sun)
+              # Case A: kept reference (expected: quiet)
+              var mi_a := MeshInstance3D.new()
+              mi_a.mesh = BoxMesh.new()
+              _kept = StandardMaterial3D.new()
+              _kept.albedo_color = Color.RED
+              mi_a.material_override = _kept
+              root.add_child(mi_a)
+              # Case B: unreferenced temp (expected: dangling RID spam)
+              var mi_b := MeshInstance3D.new()
+              mi_b.mesh = BoxMesh.new()
+              mi_b.material_override = StandardMaterial3D.new()
+              root.add_child(mi_b)
+              print("MRE: instances created")
+
+          func _process(_delta: float) -> bool:
+              _frames += 1
+              if _frames == 45:
+                  print("MRE: quitting after 45 frames")
+                  quit(0)
+              return false
+          GD
           set +e
-          bash scripts/run_godot.sh --path . --script res://tests/run_tests.gd > godot-unit.log 2>&1
-          code=$?
+          for i in 1 2 3; do
+            LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
+              godot --rendering-method gl_compatibility --rendering-driver opengl3 \
+              --audio-driver Dummy --path . --script res://mre_tree.gd \
+              --quit-after 1200 > "dbg-mre-$i.log" 2>&1
+            echo "mre-$i exit: $?" >> step-results.txt
+          done
+          rm -f mre_tree.gd
+          grep -c 'Parameter "material" is null' dbg-mre-1.log > mre-1-material-count.txt || echo 0 > mre-1-material-count.txt
           set -e
-          echo "unit exit: $code" | tee -a step-results.txt
-          python3 tool/check_godot_log.py godot-unit.log --exit-code "$code" --allow-test-errors \
-            --require '^GDScript tests: [1-9][0-9]* total, 0 failed$' > check-unit.log 2>&1 || true
-          tail -40 godot-unit.log || true
-          cat check-unit.log || true
           true
-
-      - name: Unit tests headless (old invocation)
-        run: |
-          set +e
-          godot --headless --path . --script res://tests/run_tests.gd > godot-unit-headless.log 2>&1
-          code=$?
-          set -e
-          echo "unit-headless exit: $code" | tee -a step-results.txt
-          true
-
-      - name: Environment capture
-        run: |
-          {
-            glxinfo -B 2>&1 || true
-            godot --version 2>&1 || true
-          } > gl-env.log 2>&1 || true
 
       - name: Publish logs to the branch
         if: always()
         run: |
           mkdir -p docs/godot-runs/android-debug
-          for f in godot-import.log godot-import-headless.log godot-unit.log godot-unit-headless.log \
-                   check-import.log check-import-headless.log check-unit.log step-results.txt gl-env.log; do
+          rm -f docs/godot-runs/android-debug/*
+          for f in dbg-*.log check-*.log step-results.txt mre-material-count.txt mre-1-material-count.txt; do
             cp -f "$f" docs/godot-runs/android-debug/ 2>/dev/null || true
           done
           git config user.name "github-actions[bot]"
@@ -122,7 +144,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no debug log changes"
           else
-            git commit -q -m "debug: 4.4.1 import/unit repro logs [skip ci]"
+            git commit -q -m "debug: 4.4.1 flags + MRE repro logs [skip ci]"
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
