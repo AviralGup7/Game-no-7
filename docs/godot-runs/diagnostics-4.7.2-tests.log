@@ -109,13 +109,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=1953 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=1953 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=1953 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=1953 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=1953 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12104 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12104 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=1959 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=1959 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=1959 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=1959 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=1959 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12805 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12805 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
