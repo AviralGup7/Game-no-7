@@ -12,7 +12,9 @@ set +e
 GODOT_BIN="$GODOT" bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" --import > build/ui-import.log 2>&1
 engine_status=$?
 set -e
-python3 tool/check_godot_log.py build/ui-import.log --exit-code "$engine_status"
+# Headless import only demotes the enumerated dummy-renderer preview pair.
+python3 tool/check_godot_log.py build/ui-import.log --exit-code "$engine_status" \
+  --allow-engine-noise
 # Run twice against the same isolated profile: fresh, then saved ranks/settings.
 for profile in fresh existing; do
   set +e

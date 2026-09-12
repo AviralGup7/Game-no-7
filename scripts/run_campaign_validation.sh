@@ -19,7 +19,9 @@ GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --pa
   > build/campaign-import.log 2>&1
 code=$?
 set -e
-python3 tool/check_godot_log.py build/campaign-import.log --exit-code "$code"
+# Headless import only demotes the enumerated dummy-renderer preview pair.
+python3 tool/check_godot_log.py build/campaign-import.log --exit-code "$code" \
+  --allow-engine-noise
 set +e
 GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" \
   --script res://tests/verify_campaign.gd 2>&1 | tee build/campaign-tests.log

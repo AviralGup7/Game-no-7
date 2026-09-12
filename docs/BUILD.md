@@ -43,6 +43,10 @@ log channel the strict `tool/check_godot_log.py` gate can trust:
 - **`--import` always runs headless.** Resource import touches neither a
   display nor a GL context, and under Xvfb the editor's own Vulkan (`VK_KHR_surface`)
   and ALSA probes print environment ERROR lines that must never reach the gate.
+  The headless editor's GLB/GLTF preview-thumbnail generation emits an
+  enumerated dummy-renderer null-texture pair, demoted via
+  `check_godot_log.py --allow-engine-noise` (context-bound; importers, parse
+  errors and every other line still fail the step).
 - **Scene-running steps** (`--script`, `.tscn`, plain `--path`) stay **native**:
   real Compatibility GL via Mesa/Xvfb so rendering regressions are exercised,
   pinned to `--rendering-driver opengl3` and Dummy audio so a host without a

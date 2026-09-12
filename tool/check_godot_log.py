@@ -41,12 +41,20 @@ EXPECTED_END = "TEST EXPECTED ERRORS END"
 #   3. Engine exit reports fired when any object/resource outlives the script
 #      engine's teardown windows. Both spelling variants exist (4.4.1 prints
 #      the uncounted form; other versions print "N instances were leaked").
+#   4. Headless (`--display-driver headless`) editor import asks the *dummy*
+#      rendering server for textures while generating GLB/GLTF preview
+#      thumbnails; the fetch is a null-texture ERR_PRINT (149x on a cold
+#      import here, none once cached). Importers/parse checks are unaffected.
 # Add a new entry only with the captured log line AND its `at:` context line.
 ENGINE_NOISE: list[tuple[re.Pattern[str], str]] = [
     (
         re.compile(r'^\s*ERROR: Parameter "material" is null\.$'),
         r"at: material_(casts_shadows|is_animated|get_instance_shader_parameters|update_dependency)"
         r" \(drivers/gles3/storage/material_storage\.cpp:\d+\)",
+    ),
+    (
+        re.compile(r'^\s*ERROR: Parameter "t" is null\.$'),
+        r"at: texture_2d_get \(servers/rendering/dummy/storage/texture_storage\.h:\d+\)",
     ),
     (
         re.compile(r"^\s*ERROR: Texture with GL ID of \d+: leaked \d+ bytes\.$"),
@@ -125,8 +133,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allow-test-errors", action="store_true",
                         help="Honor exact, bounded ExpectedErrors blocks in unit tests only")
     parser.add_argument("--allow-engine-noise", action="store_true",
-                        help="Demote enumerated GLES3/driver lifecycle reports on native runs "
-                             "only (see ENGINE_NOISE in this file); never use for --import logs")
+                        help="Demote enumerated engine lifecycle reports only (see ENGINE_NOISE "
+                             "in this file): GLES3 scene-teardown/shutdown pairs on native runs "
+                             "and the dummy-renderer preview pair on headless --import runs")
     parser.add_argument("--require", help="Regex that must match a successful test summary")
     args = parser.parse_args(argv)
     try:

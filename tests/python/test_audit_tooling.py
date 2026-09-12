@@ -146,6 +146,8 @@ class GodotLogTests(unittest.TestCase):
         pairs = (
             ('ERROR: Parameter "material" is null.\n'
              "   at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)"),
+            ('ERROR: Parameter "t" is null.\n'
+             "   at: texture_2d_get (servers/rendering/dummy/storage/texture_storage.h:107)"),
             ("ERROR: Texture with GL ID of 105: leaked 22369620 bytes.\n"
              "   at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)"),
             ("WARNING: ObjectDB instances leaked at exit (run with `--verbose` for details).\n"

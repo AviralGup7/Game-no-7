@@ -175,7 +175,10 @@ jobs:
           code=$?
           set -e
           tail -60 godot-import.log
-          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
+          # Import is headless; the only demoted pair is the dummy renderer's
+          # null-texture fetch while generating GLB/GLTF preview thumbnails.
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code" \
+            --allow-engine-noise
 
       # The unittest suite runs native (xvfb + Mesa GL). --allow-engine-noise
       # only demotes the enumerated GLES3/driver lifecycle reports that a
@@ -304,7 +307,8 @@ jobs:
           code=$?
           set -e
           tail -60 godot-import.log
-          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code" \
+            --allow-engine-noise
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project

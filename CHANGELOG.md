@@ -12,14 +12,15 @@
   native but pin `--audio-driver Dummy` and `--rendering-driver opengl3` so
   host audio/Vulkan availability cannot change the log.
 - Add `tool/check_godot_log.py --allow-engine-noise`: an opt-in, context-bound
-  demotion for the enumerated GLES3 lifecycle reports a real GL driver emits
-  at scene teardown/process exit (null-material scene-cull RID queries, GL
-  texture exit accounting, ObjectDB/`resources still in use` exit reports,
-  both `--verbose` hint spellings). Each entry must match its C++ `at:` line,
-  so any other failure reusing the headline still fails; import gates stay
-  fully strict. Wire it into the native unit/asset/hero/UI/campaign/export
-  gates (CI and `scripts/build_android.sh`), with GDScript/Python regression
-  coverage of the new routing and demotion rules.
+  demotion for enumerated engine lifecycle reports — the dummy-renderer
+  null-texture preview fetches on cold headless `--import` (149 identical
+  pairs), plus the GLES3 lines a real GL driver emits at scene teardown /
+  process exit (null-material scene-cull RID queries, GL texture exit
+  accounting, ObjectDB/`resources still in use` exit reports, both `--verbose`
+  hint spellings). Each entry must match its C++ `at:` line, so any other
+  failure reusing the headline still fails. Wired into every CI/build gate
+  (import, native unit/asset/hero/UI/campaign, export), with Python
+  regression coverage of the new routing and demotion rules.
 
 ## [Unreleased] — Continuous campaign world (2026-09-12)
 
