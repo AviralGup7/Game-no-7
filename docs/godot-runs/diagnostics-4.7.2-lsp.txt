@@ -2,7 +2,7 @@
 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:98:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "scale" is shadowing an already-declared property in the base class "Control".
-/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:167:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:175:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".

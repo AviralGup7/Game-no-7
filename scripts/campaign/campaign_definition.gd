@@ -4,8 +4,11 @@ extends RefCounted
 
 const PATH := "res://data/campaign/station_zero.json"
 const WORLD_ID := "station_zero"
+## Largest authored station the coarse 4 m navigation grid may hold. The real
+## limit is the cell budget in ArenaNavGrid (40,960 cells), not the deck meshes.
+const WORLD_EXTENT_LIMIT := 1024.0
 var title := "STATION ZERO"
-var bounds := Rect2(-176, -136, 352, 272)
+var bounds := Rect2(-432, -336, 864, 672)
 var floors: Array[Rect2] = []
 var sectors: Array[Dictionary] = []
 var props: Array[Dictionary] = []
@@ -24,7 +27,7 @@ func load_authored() -> bool:
 		return false
 	title = String(raw.get("title", title))
 	bounds = rect(raw.get("bounds", []))
-	if not bounds.has_area() or bounds.size.x > 512 or bounds.size.y > 512:
+	if not bounds.has_area() or bounds.size.x > WORLD_EXTENT_LIMIT or bounds.size.y > WORLD_EXTENT_LIMIT:
 		return false
 	floors.clear()
 	for value in raw.get("floors", []):
@@ -209,7 +212,22 @@ func encounter(id: String) -> Dictionary:
 
 
 func checkpoint(id: String) -> Transform3D:
-	return Transform3D(Basis.IDENTITY, point(sector(id).get("checkpoint", [-144, 0.2, 104])))
+	return Transform3D(Basis.IDENTITY, point(sector(id).get("checkpoint", [-216, 0.2, 44])))
+
+
+## Locomotion clamp for the player and every streamed actor: a square that
+## circumscribes the authored bounds, so enlarging the station can never leave
+## a district outside the clamp (the decks' own perimeter rails still stop
+## movement long before this limit).
+func containment_half() -> float:
+	if not bounds.has_area():
+		return 0.0
+	var result := 0.0
+	for corner in [bounds.position, bounds.position + Vector2(bounds.size.x, 0.0),
+			Vector2(bounds.position.x, bounds.position.y + bounds.size.y), bounds.end]:
+		result = maxf(result, absf(corner.x))
+		result = maxf(result, absf(corner.y))
+	return result
 
 
 func solid_boxes() -> Array[AABB]:

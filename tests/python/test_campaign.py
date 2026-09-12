@@ -1,5 +1,7 @@
 """Authored campaign/topology and shipping-entry contracts; no fake engine claims."""
+import re
 from copy import deepcopy
+import math
 from pathlib import Path
 import tempfile
 import unittest
@@ -13,6 +15,84 @@ def source(path):
     return (ROOT / path).read_text(encoding="utf-8")
 
 
+def report_district_area(data):
+    return sum(s["rect"][2] * s["rect"][3] for s in data["sectors"])
+
+
+def _crosses(edge, seam, horizontal_connector):
+    """True when a perimeter wall module seals this connector seam point.
+
+    Seam points are sampled 4 m off the 8 m module centre line so a wall whose
+    segment boundary lands exactly on the centre is still detected.
+    """
+    (ax, az), (bx, bz) = edge
+    if horizontal_connector:
+        return ax == bx == seam[0] and min(az, bz) < seam[1] < max(az, bz)
+    return az == bz == seam[1] and min(ax, bx) < seam[0] < max(ax, bx)
+
+
+class CampaignRuntimeBudgetTests(unittest.TestCase):
+    """The offline validator and the GDScript loader must agree on budgets.
+
+    The station grew to 864 x 672 m, so the world caps now live in three places
+    (validator, nav grid, definition). These checks keep them from drifting,
+    and keep actor clamps tied to the authored bounds instead of a literal.
+    """
+
+    def test_world_budget_constants_match_the_runtime(self):
+        grid = source("scripts/arena/arena_nav_grid.gd")
+        definition = source("scripts/campaign/campaign_definition.gd")
+        for text in (grid, definition):
+            self.assertIn(f"const WORLD_EXTENT_LIMIT := {campaign.MAX_WORLD_EXTENT}.0", text)
+        self.assertIn(f"const WORLD_CELL_LIMIT := {campaign.MAX_NAV_CELLS}", grid)
+        # The loader row budgets are enforced offline too.
+        self.assertIn(f"raw.floors.size() > {campaign.MAX_FLOOR_REGIONS}", definition)
+        self.assertIn(f"value.size() > {campaign.MAX_TABLE_ROWS}", definition)
+
+    def test_expanded_world_still_fits_the_runtime_budgets(self):
+        data = campaign.load()
+        self.assertLessEqual(len(data["floors"]), campaign.MAX_FLOOR_REGIONS)
+        for key in ("sectors", "props", "interactions", "encounters", "missions"):
+            self.assertLessEqual(len(data[key]), campaign.MAX_TABLE_ROWS, key)
+        x, z, w, d = data["bounds"]
+        self.assertLessEqual(math.ceil(w / campaign.CELL) * math.ceil(d / campaign.CELL),
+                             campaign.MAX_NAV_CELLS)
+
+    def test_loader_row_budgets_are_enforced_offline(self):
+        data = deepcopy(campaign.load())
+        data["floors"] = data["floors"] + [[0, 0, 8, 8]] * (campaign.MAX_FLOOR_REGIONS + 1)
+        with self.assertRaisesRegex(campaign.CampaignError, "loader budget"):
+            campaign.validate(data)
+
+    def test_actor_clamps_follow_the_authored_world(self):
+        game = source("scripts/campaign/campaign_game.gd")
+        encounters = source("scripts/campaign/campaign_encounters.gd")
+        self.assertIn("player.set_bounds(definition.containment_half())", game)
+        self.assertIn("actor.set_bounds(_definition.containment_half())", encounters)
+        for name, text in (("campaign_game.gd", game), ("campaign_encounters.gd", encounters)):
+            with self.subTest(script=name):
+                self.assertNotRegex(text, r"set_bounds\(\s*[0-9]",
+                                    f"{name} hard-codes a clamp radius")
+
+    def test_service_causeways_are_distance_culled_too(self):
+        world = source("scripts/campaign/campaign_world.gd")
+        self.assertIn("_connectors.append(", world)
+        self.assertIn("root.visible = near.distance_to(Vector2(at.x, at.z)) < 105.0", world)
+        # The three-batch Android budget stays measured over districts only.
+        self.assertIn("_visible_ids.append(String(entry.id))", world)
+        self.assertIn('"visible_districts": _visible_ids.duplicate()', world)
+
+    def test_campaign_combat_uses_a_bounded_flow_field(self):
+        grid = source("scripts/arena/arena_nav_grid.gd")
+        encounters = source("scripts/campaign/campaign_encounters.gd")
+        self.assertIn("func rebuild_flow_field(target_pos: Vector3, radius: float = 0.0)", grid)
+        self.assertRegex(encounters, r"rebuild_flow_field\(\w+, FLOW_RADIUS\)")
+        self.assertRegex(encounters, r"const FLOW_RADIUS := (\d+)\.0")
+        radius = float(re.search(r"const FLOW_RADIUS := (\d+)\.0", encounters).group(1))
+        # Every actor that can be live sits inside the window (spawn 70 / despawn 90 m).
+        self.assertGreaterEqual(radius, 90.0)
+
+
 class CampaignTopologyTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -21,33 +101,65 @@ class CampaignTopologyTests(unittest.TestCase):
 
     def test_all_authored_content_is_valid_and_connected(self):
         report = campaign.validate(self.authored)
-        self.assertEqual(report["districts"], 6)
-        self.assertEqual(report["missions"], 7)
-        self.assertEqual(report["authored_enemies"], 29)
-        self.assertEqual(report["navigation_cells"], 5984)
-        self.assertEqual(report["reachable_walkable_cells"], 2505)
+        self.assertEqual(report["districts"], 12)
+        self.assertEqual(report["missions"], 13)
+        self.assertEqual(report["authored_enemies"], 96)
+        self.assertEqual(report["navigation_cells"], 36288)
+        self.assertEqual(report["reachable_walkable_cells"], 13440)
+
+    def test_expanded_footprint_is_authored_not_generated(self):
+        x, z, w, d = self.authored["bounds"]
+        # Six times the original 352 x 272 m station (rounded out to the 8 m
+        # module grid), still one fixed world with no roll or seed.
+        self.assertEqual((w, d), (864, 672))
+        self.assertGreaterEqual(w * d / (352 * 272), 6.0)
+        self.assertLess(w * d / (352 * 272), 6.5)
+        self.assertNotIn("seed", self.authored)
+        self.assertNotIn("arena_id", self.authored)
+        self.assertEqual(len(self.authored["sectors"]), 12)
+        self.assertEqual(report_district_area(self.authored), 12 * 128 * 112)
 
     def test_coordinate_conversion_is_rectangular_and_offset(self):
-        self.assertEqual((self.graph.width, self.graph.depth), (88, 68))
-        self.assertEqual(self.graph.cell([-144, .2, 104]), (8, 60))
-        self.assertEqual(self.graph.center((8, 60)), (-142, 106))
+        self.assertEqual((self.graph.width, self.graph.depth), (216, 168))
+        self.assertEqual(self.graph.cell([-216, .2, 44]), (54, 95))
+        self.assertEqual(self.graph.center((54, 95)), (-214, 46))
 
     def test_void_is_not_a_giant_walkable_arena(self):
-        for point in [(-170, 0), (60, 0), (-60, 0), (160, -128)]:
+        for point in [(-420, 0), (420, 0), (0, -320), (0, 320), (-176, -120), (176, 120)]:
             with self.subTest(point=point):
                 self.assertNotIn(self.graph.cell(point), self.graph.walkable)
 
-    def test_all_three_long_causeways_are_walkable(self):
-        for x in [-112, 0, 112]:
-            for z in range(-36, 56, 4):
-                self.assertIn(self.graph.cell([x, z]), self.graph.walkable)
+    def test_every_connector_deck_is_walkable(self):
+        districts = [tuple(s["rect"]) for s in self.authored["sectors"]]
+        connectors = [f for f in self.authored["floors"] if tuple(f) not in districts]
+        self.assertGreaterEqual(len(connectors), 30)
+        for area in connectors:
+            x, z, w, d = area
+            centre = [x + w / 2.0, .2, z + d / 2.0]
+            with self.subTest(connector=area):
+                self.assertIn(self.graph.cell(centre), self.graph.walkable)
 
     def test_shared_district_edges_are_open_not_walled(self):
-        for x in [-64, -48, 48, 64]:
-            for z in [-76, 92]:
-                blocking = [(a, b) for a, b in self.graph.perimeter_edges()
-                            if a[0] == b[0] == x and min(a[1], b[1]) < z < max(a[1], b[1])]
-                self.assertEqual(blocking, [], f"Sealed connector at {x},{z}")
+        """A deck edge that borders another deck is never railed shut."""
+        floors = self.authored["floors"]
+        edges = self.graph.perimeter_edges()
+        for area in floors:
+            x, z, w, d = area
+            horizontal = w > d
+            seams = []
+            if horizontal:
+                for sx, step in ((x, -4.0), (x + w, 4.0)):
+                    seams += [(sx, z + d / 2.0 - 4.0, step, 0.0), (sx, z + d / 2.0 + 4.0, step, 0.0)]
+            else:
+                for sz, step in ((z, -4.0), (z + d, 4.0)):
+                    seams += [(x + w / 2.0 - 4.0, sz, 0.0, step), (x + w / 2.0 + 4.0, sz, 0.0, step)]
+            for sx, sz, dx, dz in seams:
+                if not any(fx <= sx + dx < fx + fw and fz <= sz + dz < fz + fd
+                           for fx, fz, fw, fd in floors):
+                    continue  # outer boundary: a rail there is correct
+                blocking = [edge for edge in edges if _crosses(edge, (sx, sz), horizontal)]
+                with self.subTest(deck=area, seam=(sx, sz)):
+                    self.assertEqual(blocking, [], f"Sealed connector at {sx},{sz}")
 
     def test_each_checkpoint_can_reach_every_story_target(self):
         targets = {t for m in self.authored["missions"] for t in m["targets"]}
@@ -65,22 +177,35 @@ class CampaignTopologyTests(unittest.TestCase):
 
     def test_station_routes_have_real_distance_not_teleport_links(self):
         sectors = {s["id"]: s for s in self.authored["sectors"]}
-        route = self.graph.path(sectors["docks"]["checkpoint"], sectors["reactor"]["checkpoint"])
-        self.assertGreater(len(route) * 4, 400)
+        for far in ["command", "comms", "foundry"]:
+            route = self.graph.path(sectors["docks"]["checkpoint"], sectors[far]["checkpoint"])
+            with self.subTest(district=far):
+                self.assertGreater(len(route) * 4, 400)
         for a, b in zip(route, route[1:]):
             self.assertAlmostEqual(campaign.math.dist(a, b), 4)
 
-    def test_disconnect_all_north_south_routes_is_rejected(self):
+    def test_disconnecting_every_connector_deck_is_rejected(self):
         data = deepcopy(self.authored)
-        data["floors"] = [r for r in data["floors"] if not (r[2] == 16 and r[3] == 96)]
+        districts = [tuple(s["rect"]) for s in data["sectors"]]
+        data["floors"] = [r for r in data["floors"] if tuple(r) in districts]
         with self.assertRaisesRegex(campaign.CampaignError, "disconnected"):
             campaign.validate(data)
 
     def test_blocked_guard_spawn_regression_is_caught(self):
         data = deepcopy(self.authored)
-        data["encounters"][1]["members"][3]["at"] = [20, .2, 64]
+        data["encounters"][1]["members"][0]["at"] = [-420, .2, -320]
         with self.assertRaisesRegex(campaign.CampaignError, "Blocked or unreachable"):
             campaign.validate(data)
+
+    def test_every_district_has_a_rest_pad_supply_and_guard_post(self):
+        for sector in self.authored["sectors"]:
+            with self.subTest(district=sector["id"]):
+                lockers = [i for i in self.authored["interactions"]
+                           if i["sector"] == sector["id"] and i["kind"] == "cache"]
+                guards = [m for g in self.authored["encounters"] if g["sector"] == sector["id"]
+                          for m in g["members"]]
+                self.assertEqual(len(lockers), 1)
+                self.assertGreaterEqual(len(guards), 6)
 
     def test_invalid_target_and_reference_are_rejected(self):
         for mutation in ["position", "reference", "encounter"]:
