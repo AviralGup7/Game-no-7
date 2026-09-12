@@ -37,7 +37,7 @@ static func read_text_file(path: String) -> String:
 	if file == null:
 		return ""
 	var length := int(file.get_length())
-	if length > MAX_FILE_BYTES:
+	if length < 0 or length > MAX_FILE_BYTES:
 		file.close()
 		return ""
 	var text := file.get_as_text()

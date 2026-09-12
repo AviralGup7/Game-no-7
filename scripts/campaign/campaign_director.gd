@@ -117,14 +117,18 @@ func _visit_checkpoint() -> void:
 		return
 	if near == _checkpoint_inside or not encounters.safe_to_rest(player.global_position):
 		return
-	_checkpoint_inside = near
+	var previous_checkpoint := String(progress.checkpoint)
 	progress.checkpoint = near
 	player.get_health_component().heal(player.get_health_component().get_max())
 	player.get_stamina_component().restore_full()
 	if save_progress(true):
+		_checkpoint_inside = near
 		message.emit("CHECKPOINT SAVED / health and stamina restored")
 	else:
-		message.emit("Restored health. Saving failed — please retry before closing.")
+		progress.checkpoint = previous_checkpoint
+		SaveManager.store_campaign(progress, false)
+		_checkpoint_inside = ""
+		message.emit("Restored health. Saving failed — checkpoint not advanced; retry here.")
 
 
 func current_mission() -> Dictionary:
@@ -220,7 +224,8 @@ func _complete_mission() -> void:
 		# A save-error dialog may have paused during the reward transaction.
 		# Finish after Resume instead of losing the ending behind that overlay.
 		_completion_pending = GameRoot.get_current_state() != GameRoot.State.PLAYING
-		GameRoot.complete_campaign()
+		if not _completion_pending:
+			GameRoot.complete_campaign()
 
 
 func _on_member_defeated(_id: String, credits: int) -> void:

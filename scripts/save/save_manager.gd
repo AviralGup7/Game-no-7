@@ -494,6 +494,7 @@ func _write_raw(path: String, contents: String) -> bool:
 	var err := DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
 	if err != OK:
 		EventBus.report_warning("Could not commit save %s (error %d)" % [path, err])
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
 	return err == OK
 
 

@@ -83,6 +83,23 @@ func _clear_cards() -> void:
 	_card_buttons.clear()
 
 
+const CATEGORY_ICONS: Dictionary[StringName, Texture2D] = {
+	&"damage": preload("res://assets/scifi/ui/upgrades/sword.png"),
+	&"defense": preload("res://assets/scifi/ui/upgrades/shield.png"),
+	&"mobility": preload("res://assets/scifi/ui/upgrades/arrow_right.png"),
+	&"crit": preload("res://assets/scifi/ui/upgrades/exploding.png"),
+	&"status": preload("res://assets/scifi/ui/upgrades/flask_full.png"),
+	&"aoe": preload("res://assets/scifi/ui/upgrades/fire.png"),
+	&"sustain": preload("res://assets/scifi/ui/upgrades/suit_hearts.png"),
+	&"economy": preload("res://assets/scifi/ui/upgrades/tokens.png"),
+	&"projectile": preload("res://assets/scifi/ui/upgrades/bow.png"),
+	&"skill": preload("res://assets/scifi/ui/upgrades/hand.png"),
+	&"hybrid": preload("res://assets/scifi/ui/upgrades/crown_a.png"),
+	&"transform": preload("res://assets/scifi/ui/upgrades/skull.png"),
+}
+const DEFAULT_UPGRADE_ICON: Texture2D = preload("res://assets/scifi/ui/upgrades/award.png")
+
+
 func _add_card(cfg: UpgradeConfig) -> void:
 	if _cards_box == null:
 		return
@@ -97,7 +114,7 @@ func _add_card(cfg: UpgradeConfig) -> void:
 	var body := "%s\n%s\n\n%s" % [cfg.display_name, rarity, cfg.description]
 	body += "\n\nRANK %d → %d / %d" % [stack, stack + 1, cfg.max_stacks]
 	btn.text = body
-	btn.icon = cfg.icon if cfg.icon != null else preload("res://assets/scifi/ui/upgrades/award.png")
+	btn.icon = cfg.icon if cfg.icon != null else CATEGORY_ICONS.get(cfg.category, DEFAULT_UPGRADE_ICON)
 	btn.expand_icon = true
 	btn.add_theme_constant_override("icon_max_width", 32)
 	btn.add_theme_font_size_override("font_size", UiFactory.font_scaled(21))
