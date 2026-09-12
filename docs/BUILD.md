@@ -37,22 +37,35 @@ The APK uses `project.godot`'s **Mobile renderer**, Android's 60 FPS ceiling and
 Java 17; the export remains ARM64 with min SDK 24 / target SDK 34. This is a
 sideload milestone, not a claim of current Google Play or 16 KB-page compliance.
 
-`scripts/run_godot.sh` uses Compatibility only for **host import previews and
-regression tests**. This avoids 4.4.1 dummy-renderer errors from 3D previews and
-material teardown without hiding errors. On display-less Linux those host steps
-need Xvfb/Mesa (CI installs them):
+`scripts/run_godot.sh` routes Godot by invocation type, so each step keeps a
+log channel the strict `tool/check_godot_log.py` gate can trust:
+
+- **`--import` always runs headless.** Resource import touches neither a
+  display nor a GL context, and under Xvfb the editor's own Vulkan (`VK_KHR_surface`)
+  and ALSA probes print environment ERROR lines that must never reach the gate.
+- **Scene-running steps** (`--script`, `.tscn`, plain `--path`) stay **native**:
+  real Compatibility GL via Mesa/Xvfb so rendering regressions are exercised,
+  pinned to `--rendering-driver opengl3` and Dummy audio so a host without a
+  Vulkan ICD or sound device logs identically everywhere. Under a real GL
+  driver the engine prints a small, enumerated set of teardown/shutdown
+  reports (scene-cull null-material RID queries, GL texture exit accounting,
+  ObjectDB/resource exit reports) that carry no `res://` location and are not
+  game defects; the native-step gates opt into demoting exactly those
+  headline+`at:` pairs via `check_godot_log.py --allow-engine-noise`.
+- **Export** detects export commands, uses `--headless` with **no renderer
+  override**, and rejects explicit export-time renderer overrides. This
+  prevents the host test backend from leaking into the Android manifest/project.
+  The final APK verifier checks its renderer metadata.
+
+On display-less Linux the native steps need Xvfb/Mesa (CI installs them):
 
 ```bash
 sudo apt-get install xvfb libgl1-mesa-dri
 ```
 
-**They are not Android app dependencies.** The helper detects export commands,
-uses `--headless` with **no renderer override**, and rejects explicit export-time
-renderer overrides. This prevents the host test backend from leaking into the
-Android manifest/project. The final APK verifier checks its renderer metadata.
-
-`GODOT_BIN` (or legacy `GODOT`) chooses the engine. `GODOT_HEADLESS=1` is an explicit
-logic-only host diagnostic mode, not release validation. See
+**They are not Android app dependencies.** `GODOT_BIN` (or legacy `GODOT`) chooses
+the engine. `GODOT_HEADLESS=1` forces headless as an explicit logic-only host
+diagnostic mode, not release validation. See
 [ANDROID_HARDENING.md](ANDROID_HARDENING.md) for the Android follow-up and
 [PROJECT_AUDIT.md](PROJECT_AUDIT.md) for the earlier source-built host-test limits.
 

@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased] — CI native-gate repair (2026-09-12)
+
+- Fix the Android workflow's failing Godot host jobs. The native renderer move
+  ran every step through Xvfb + GL with a strict content gate, but `--import`
+  under the editor probes host Vulkan (`VK_KHR_surface`) and ALSA audio and
+  prints environment ERROR lines on display-less runners, so both
+  `godot-tests` and `build-android` failed at the import step with exit 0.
+- Route `scripts/run_godot.sh` by invocation: `--import` is headless again
+  (import touches no display/GL; old green behavior), scene-running steps stay
+  native but pin `--audio-driver Dummy` and `--rendering-driver opengl3` so
+  host audio/Vulkan availability cannot change the log.
+- Add `tool/check_godot_log.py --allow-engine-noise`: an opt-in, context-bound
+  demotion for the enumerated GLES3 lifecycle reports a real GL driver emits
+  at scene teardown/process exit (null-material scene-cull RID queries, GL
+  texture exit accounting, ObjectDB/`resources still in use` exit reports,
+  both `--verbose` hint spellings). Each entry must match its C++ `at:` line,
+  so any other failure reusing the headline still fails; import gates stay
+  fully strict. Wire it into the native unit/asset/hero/UI/campaign/export
+  gates (CI and `scripts/build_android.sh`), with GDScript/Python regression
+  coverage of the new routing and demotion rules.
+
 ## [Unreleased] — Continuous campaign world (2026-09-12)
 
 - Make the shipping entry a fixed 352 × 272 m station with six connected districts,

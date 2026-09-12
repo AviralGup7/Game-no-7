@@ -90,6 +90,9 @@ run_godot() {
   tail -40 "$log"
   local checks=("$log" --exit-code "$code")
   if [ "$log" = "$OUT_DIR/godot-unit.log" ]; then checks+=(--allow-test-errors); fi
+  # Import runs headless (strict gate). Scene-running/export steps run native
+  # under GLES3; demote only the enumerated engine lifecycle reports there.
+  if [ "$log" != "$OUT_DIR/godot-import.log" ]; then checks+=(--allow-engine-noise); fi
   if [ -n "$summary" ]; then checks+=(--require "$summary"); fi
   python3 "$PROJECT_DIR/tool/check_godot_log.py" "${checks[@]}"
 }

@@ -79,13 +79,26 @@ class NativeRendererTests(unittest.TestCase):
             virtual.chmod(0o755)
             env = dict(os.environ, GODOT_BIN=str(engine), PATH=str(root) + os.pathsep + os.environ["PATH"])
             env.pop("DISPLAY", None)
-            for headless, expected in (("1", "ENGINE: --headless --path . --import"),
-                                       ("0", "SOFTWARE: 1\nENGINE: --rendering-method gl_compatibility --path . --import")):
+            # Importing touches no display or GL context, so it always runs
+            # headless: the editor's Vulkan/audio probes on a CI host print
+            # environment ERROR lines that must never reach the strict gate.
+            for headless in ("0", "1"):
                 env["GODOT_HEADLESS"] = headless
                 result = subprocess.run(["bash", str(ROOT / "scripts/run_godot.sh"), "--path", ".", "--import"],
                                         env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(result.stdout.strip(), expected)
+                self.assertEqual(result.stdout.strip(), "ENGINE: --headless --path . --import")
+            # Scene-running steps stay native (real GL under a virtual display)
+            # with deterministic host driver pins.
+            env["GODOT_HEADLESS"] = "0"
+            result = subprocess.run(["bash", str(ROOT / "scripts/run_godot.sh"),
+                                     "--path", ".", "--script", "res://tests/run_tests.gd"],
+                                    env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(),
+                             "SOFTWARE: 1\nENGINE: --rendering-method gl_compatibility "
+                             "--rendering-driver opengl3 --audio-driver Dummy "
+                             "--path . --script res://tests/run_tests.gd")
 
 
 class GodotLogTests(unittest.TestCase):
@@ -128,6 +141,40 @@ class GodotLogTests(unittest.TestCase):
                      'TEST EXPECTED ERRORS: ["SCRIPT ERROR: never suppress this"]\n' + end):
             with self.subTest(text=text):
                 self.assertTrue(validate_log(text + SUCCESS, required=SUMMARY, allow_test_errors=True))
+
+    def test_engine_noise_demotion_is_opt_in_and_context_bound(self):
+        pairs = (
+            ('ERROR: Parameter "material" is null.\n'
+             "   at: material_casts_shadows (drivers/gles3/storage/material_storage.cpp:2501)"),
+            ("ERROR: Texture with GL ID of 105: leaked 22369620 bytes.\n"
+             "   at: ~Utilities (drivers/gles3/storage/utilities.cpp:77)"),
+            ("WARNING: ObjectDB instances leaked at exit (run with `--verbose` for details).\n"
+             "     at: cleanup (core/object/object.cpp:2378)"),
+            ("WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).\n"
+             "     at: cleanup (core/object/object.cpp:2378)"),
+            ("ERROR: 1 resources still in use at exit (run with `--verbose` for details).\n"
+             "   at: clear (core/io/resource.cpp:614)"),
+        )
+        for pair in pairs:
+            with self.subTest(pair=pair):
+                noisy = validate_log(pair + "\n" + SUCCESS, required=SUMMARY)
+                demoted = validate_log(pair + "\n" + SUCCESS, required=SUMMARY,
+                                       allow_engine_noise=True)
+                if pair.startswith("WARNING: 10"):
+                    # The counted ObjectDB spelling never matched the gate.
+                    self.assertEqual(noisy, [])
+                else:
+                    # Default stays strict: every one of these fails without the flag.
+                    self.assertTrue(noisy)
+                self.assertEqual(demoted, [])
+        # The same headline from a different call site is not lifecycle noise.
+        novel = ('ERROR: Parameter "material" is null.\n'
+                 "   at: material_free (drivers/gles3/storage/material_storage.cpp:99)")
+        self.assertTrue(validate_log(novel + "\n" + SUCCESS, required=SUMMARY,
+                                     allow_engine_noise=True))
+        # Script errors are never demoted, flag or not.
+        self.assertTrue(validate_log("SCRIPT ERROR: Invalid access\n" + SUCCESS,
+                                     allow_engine_noise=True))
 
     def test_missing_file_and_invalid_summary_regex_fail_cli(self):
         for extra in ([], ["--require", "["]):

@@ -25,6 +25,9 @@ GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --pa
   --script res://tests/verify_campaign.gd 2>&1 | tee build/campaign-tests.log
 code=${PIPESTATUS[0]}
 set -e
+# Campaign scenes run native under GLES3; demote only the enumerated engine
+# lifecycle reports (scene teardown / process exit), script errors stay fatal.
 python3 tool/check_godot_log.py build/campaign-tests.log --exit-code "$code" \
+  --allow-engine-noise \
   --require '^CAMPAIGN TESTS: [1-9][0-9]* checks, 0 failed$'
 printf 'Native campaign validation complete. Isolated profile: %s\n' "$TEST_DATA"

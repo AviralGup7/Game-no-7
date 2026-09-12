@@ -1,13 +1,11 @@
 name: Import debug repro (temporary)
 
-# TEMPORARY diagnostic workflow. Round 2:
-#  1) import + unit tests with candidate run_godot.sh flags
-#     (--audio-driver Dummy --rendering-driver opengl3)
-#  2) minimal repro: does an UNREFERENCED material_override temp trigger the
-#     GLES3 'Parameter "material" is null' storage errors while a kept
-#     reference does not?
-# Logs are committed back to docs/godot-runs/android-debug/ because the
-# Actions log endpoint is unreachable from some environments.
+# TEMPORARY diagnostic workflow. Round 3: verify the native-gate repair by
+# running the remaining godot-tests steps (hero runtime, UI validation,
+# campaign validation, asset imports) through the FIXED scripts, capturing
+# their logs + gate verdicts back to docs/godot-runs/android-debug/ (the
+# Actions log endpoint is unreachable from some environments).
+# Remove this file once the Android workflow is green on main.
 
 on:
   push:
@@ -32,7 +30,7 @@ env:
 
 jobs:
   repro:
-    name: Repro round 2 (candidate flags + MRE)
+    name: Verify native steps after gate repair (4.4.1)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -54,79 +52,61 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb libgl1-mesa-dri
 
-      - name: Import with candidate flags
+      - name: Import project (fixed routing)
         run: |
           set +e
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
-            godot --rendering-method gl_compatibility --rendering-driver opengl3 \
-            --audio-driver Dummy --path . --import > dbg-import-flags.log 2>&1
+          bash scripts/run_godot.sh --path . --import > dbg-import.log 2>&1
           code=$?
           set -e
-          echo "import-flags exit: $code" | tee step-results.txt
-          python3 tool/check_godot_log.py dbg-import-flags.log --exit-code "$code" > check-import-flags.log 2>&1 || true
-          cat check-import-flags.log || true
+          python3 tool/check_godot_log.py dbg-import.log --exit-code "$code" > check-import.log 2>&1
+          echo "import gate: $? (engine: $code)" | tee step-results.txt
           true
 
-      - name: Unit tests with candidate flags
+      - name: Unit tests (fixed gates)
         run: |
           set +e
-          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
-            godot --rendering-method gl_compatibility --rendering-driver opengl3 \
-            --audio-driver Dummy --path . --script res://tests/run_tests.gd > dbg-unit-flags.log 2>&1
+          bash scripts/run_godot.sh --path . --script res://tests/run_tests.gd > dbg-unit.log 2>&1
           code=$?
           set -e
-          echo "unit-flags exit: $code" | tee -a step-results.txt
-          python3 tool/check_godot_log.py dbg-unit-flags.log --exit-code "$code" --allow-test-errors \
-            --require '^GDScript tests: [1-9][0-9]* total, 0 failed$' > check-unit-flags.log 2>&1 || true
-          grep -c 'Parameter "material" is null' dbg-unit-flags.log | tee mre-material-count.txt || true
-          cat check-unit-flags.log || true
+          python3 tool/check_godot_log.py dbg-unit.log --exit-code "$code" --allow-test-errors \
+            --allow-engine-noise \
+            --require '^GDScript tests: [1-9][0-9]* total, 0 failed$' > check-unit.log 2>&1
+          echo "unit gate: $? (engine: $code)" | tee -a step-results.txt
           true
 
-      - name: Minimal dangling-material repro
+      - name: Asset imports (fixed gates)
         run: |
-          cat > mre_tree.gd <<'GD'
-          extends SceneTree
-
-          var _kept: StandardMaterial3D
-          var _frames := 0
-
-          func _initialize() -> void:
-              var cam := Camera3D.new()
-              cam.current = true
-              root.add_child(cam)
-              var sun := DirectionalLight3D.new()
-              root.add_child(sun)
-              # Case A: kept reference (expected: quiet)
-              var mi_a := MeshInstance3D.new()
-              mi_a.mesh = BoxMesh.new()
-              _kept = StandardMaterial3D.new()
-              _kept.albedo_color = Color.RED
-              mi_a.material_override = _kept
-              root.add_child(mi_a)
-              # Case B: unreferenced temp (expected: dangling RID spam)
-              var mi_b := MeshInstance3D.new()
-              mi_b.mesh = BoxMesh.new()
-              mi_b.material_override = StandardMaterial3D.new()
-              root.add_child(mi_b)
-              print("MRE: instances created")
-
-          func _process(_delta: float) -> bool:
-              _frames += 1
-              if _frames == 45:
-                  print("MRE: quitting after 45 frames")
-                  quit(0)
-              return false
-          GD
           set +e
-          for i in 1 2 3; do
-            LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a -s '-screen 0 1280x720x24' \
-              godot --rendering-method gl_compatibility --rendering-driver opengl3 \
-              --audio-driver Dummy --path . --script res://mre_tree.gd \
-              --quit-after 1200 > "dbg-mre-$i.log" 2>&1
-            echo "mre-$i exit: $?" >> step-results.txt
-          done
-          rm -f mre_tree.gd
-          grep -c 'Parameter "material" is null' dbg-mre-1.log > mre-1-material-count.txt || echo 0 > mre-1-material-count.txt
+          bash scripts/run_godot.sh --path . --script res://tests/validate_asset_imports.gd > dbg-assets.log 2>&1
+          code=$?
+          set -e
+          python3 tool/check_godot_log.py dbg-assets.log --exit-code "$code" \
+            --allow-engine-noise \
+            --require '^Asset imports: [1-9][0-9]* resources, 0 failures$' > check-assets.log 2>&1
+          echo "assets gate: $? (engine: $code)" | tee -a step-results.txt
+          true
+
+      - name: Hero runtime (fixed wrapper)
+        run: |
+          set +e
+          GODOT_BIN="$(command -v godot)" bash tool/test_hero_runtime.sh > dbg-hero.log 2>&1
+          echo "hero wrapper: $?" | tee -a step-results.txt
+          set -e
+          true
+
+      - name: UI validation (fixed wrapper)
+        run: |
+          set +e
+          GODOT_BIN="$(command -v godot)" bash scripts/ui/run_ui_validation.sh > dbg-ui.log 2>&1
+          echo "ui wrapper: $?" | tee -a step-results.txt
+          set -e
+          true
+
+      - name: Campaign validation (fixed wrapper)
+        run: |
+          set +e
+          GODOT_BIN="$(command -v godot)" bash scripts/run_campaign_validation.sh > dbg-campaign.log 2>&1
+          echo "campaign wrapper: $?" | tee -a step-results.txt
           set -e
           true
 
@@ -135,8 +115,13 @@ jobs:
         run: |
           mkdir -p docs/godot-runs/android-debug
           rm -f docs/godot-runs/android-debug/*
-          for f in dbg-*.log check-*.log step-results.txt mre-material-count.txt mre-1-material-count.txt; do
-            cp -f "$f" docs/godot-runs/android-debug/ 2>/dev/null || true
+          for f in dbg-*.log check-*.log step-results.txt \
+                   build/hero-runtime-tests.log build/ui-import.log \
+                   build/ui-tests-fresh.log build/ui-tests-existing.log \
+                   build/campaign-import.log build/campaign-tests.log; do
+            base="$(basename "$f")"
+            case "$base" in ui-*.log) base="build-$base";; esac
+            cp -f "$f" "docs/godot-runs/android-debug/$base" 2>/dev/null || true
           done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -144,7 +129,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "no debug log changes"
           else
-            git commit -q -m "debug: 4.4.1 flags + MRE repro logs [skip ci]"
+            git commit -q -m "debug: native gate repair verification logs [skip ci]"
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
