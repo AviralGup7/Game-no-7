@@ -1,6 +1,6 @@
 {
   "apk": "build/LastStandArena-debug.apk",
-  "apk_bytes": 223448255,
+  "apk_bytes": 223448171,
   "groups": {
     "android_other": {
       "compressed_bytes": 2822077,
@@ -13,8 +13,8 @@
       "files": 2
     },
     "assets": {
-      "compressed_bytes": 138697806,
-      "uncompressed_bytes": 141069765,
+      "compressed_bytes": 138697720,
+      "uncompressed_bytes": 141069785,
       "files": 1203
     }
   },

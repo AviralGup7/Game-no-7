@@ -403,13 +403,13 @@ Archive:  build/LastStandArena-debug.apk
       170  1981-01-01 01:01   assets/assets/environment/space_station/computer.glb.import
       176  1981-01-01 01:01   assets/assets/environment/space_station/container-tall.glb.import
       176  1981-01-01 01:01   assets/assets/environment/space_station/container-wide.glb.import
-      169  1981-01-01 01:01   assets/assets/environment/space_station/container.glb.import
+      170  1981-01-01 01:01   assets/assets/environment/space_station/container.glb.import
       174  1981-01-01 01:01   assets/assets/environment/space_station/display-wall.glb.import
       194  1981-01-01 01:01   assets/assets/environment/space_station/panel.png.import
       167  1981-01-01 01:01   assets/assets/environment/space_station/rocks.glb.import
       100  1981-01-01 01:01   assets/assets/environment/space_station/support.tscn.remap
-      174  1981-01-01 01:01   assets/assets/environment/space_station/table-display.glb.import
-      168  1981-01-01 01:01   assets/assets/fonts/rajdhani/Rajdhani-Bold.ttf.import
+      175  1981-01-01 01:01   assets/assets/environment/space_station/table-display.glb.import
+      170  1981-01-01 01:01   assets/assets/fonts/rajdhani/Rajdhani-Bold.ttf.import
       173  1981-01-01 01:01   assets/assets/fonts/rajdhani/Rajdhani-Regular.ttf.import
    189564  1981-01-01 01:01   assets/assets/manifest.json
       109  1981-01-01 01:01   assets/assets/materials/arena_floor_rock.tres.remap
@@ -419,63 +419,63 @@ Archive:  build/LastStandArena-debug.apk
       109  1981-01-01 01:01   assets/assets/materials/arena_wall_brick.tres.remap
       109  1981-01-01 01:01   assets/assets/materials/arena_wall_stone.tres.remap
       103  1981-01-01 01:01   assets/assets/materials/arena_wood.tres.remap
-      151  1981-01-01 01:01   assets/assets/scifi/audio/alert.wav.import
+      152  1981-01-01 01:01   assets/assets/scifi/audio/alert.wav.import
       174  1981-01-01 01:01   assets/assets/scifi/audio/battle.ogg.import
-      171  1981-01-01 01:01   assets/assets/scifi/audio/boss.ogg.import
+      172  1981-01-01 01:01   assets/assets/scifi/audio/boss.ogg.import
       172  1981-01-01 01:01   assets/assets/scifi/audio/calm.ogg.import
-      149  1981-01-01 01:01   assets/assets/scifi/audio/dash.wav.import
+      150  1981-01-01 01:01   assets/assets/scifi/audio/dash.wav.import
       153  1981-01-01 01:01   assets/assets/scifi/audio/impact.wav.import
-      172  1981-01-01 01:01   assets/assets/scifi/audio/menu.ogg.import
+      171  1981-01-01 01:01   assets/assets/scifi/audio/menu.ogg.import
       153  1981-01-01 01:01   assets/assets/scifi/audio/pickup.wav.import
       153  1981-01-01 01:01   assets/assets/scifi/audio/reload.wav.import
-      151  1981-01-01 01:01   assets/assets/scifi/audio/shot.wav.import
+      150  1981-01-01 01:01   assets/assets/scifi/audio/shot.wav.import
       151  1981-01-01 01:01   assets/assets/scifi/audio/step.wav.import
       174  1981-01-01 01:01   assets/assets/scifi/audio/victory.ogg.import
     14372  1981-01-01 01:01   assets/assets/scifi/build_report.json
       194  1981-01-01 01:01   assets/assets/scifi/fx/flare.png.import
-      193  1981-01-01 01:01   assets/assets/scifi/fx/ring.png.import
-      193  1981-01-01 01:01   assets/assets/scifi/fx/smoke.png.import
-      194  1981-01-01 01:01   assets/assets/scifi/fx/spark.png.import
+      192  1981-01-01 01:01   assets/assets/scifi/fx/ring.png.import
+      194  1981-01-01 01:01   assets/assets/scifi/fx/smoke.png.import
+      193  1981-01-01 01:01   assets/assets/scifi/fx/spark.png.import
       194  1981-01-01 01:01   assets/assets/scifi/fx/trace.png.import
-      175  1981-01-01 01:01   assets/assets/scifi/guns/ember_scepter.glb.import
+      174  1981-01-01 01:01   assets/assets/scifi/guns/ember_scepter.glb.import
       168  1981-01-01 01:01   assets/assets/scifi/guns/gladius.glb.import
       171  1981-01-01 01:01   assets/assets/scifi/guns/moonlance.glb.import
-      175  1981-01-01 01:01   assets/assets/scifi/guns/sentinel_spear.glb.import
-      172  1981-01-01 01:01   assets/assets/scifi/guns/stormhammer.glb.import
+      176  1981-01-01 01:01   assets/assets/scifi/guns/sentinel_spear.glb.import
+      173  1981-01-01 01:01   assets/assets/scifi/guns/stormhammer.glb.import
       168  1981-01-01 01:01   assets/assets/scifi/guns/sunbow.glb.import
       171  1981-01-01 01:01   assets/assets/scifi/guns/twinfangs.glb.import
-      172  1981-01-01 01:01   assets/assets/scifi/guns/venom_chain.glb.import
-      169  1981-01-01 01:01   assets/assets/scifi/guns/warreaxe.glb.import
+      173  1981-01-01 01:01   assets/assets/scifi/guns/venom_chain.glb.import
+      170  1981-01-01 01:01   assets/assets/scifi/guns/warreaxe.glb.import
       173  1981-01-01 01:01   assets/assets/scifi/hazard_tile.glb.import
       170  1981-01-01 01:01   assets/assets/scifi/pickups/antidote.glb.import
       172  1981-01-01 01:01   assets/assets/scifi/pickups/coin_cache.glb.import
       172  1981-01-01 01:01   assets/assets/scifi/pickups/health_orb.glb.import
       168  1981-01-01 01:01   assets/assets/scifi/pickups/magnet.glb.import
-      174  1981-01-01 01:01   assets/assets/scifi/pickups/stamina_shard.glb.import
-      168  1981-01-01 01:01   assets/assets/scifi/pickups/xp_gem.glb.import
+      175  1981-01-01 01:01   assets/assets/scifi/pickups/stamina_shard.glb.import
+      167  1981-01-01 01:01   assets/assets/scifi/pickups/xp_gem.glb.import
       167  1981-01-01 01:01   assets/assets/scifi/robots/basic.glb.import
       167  1981-01-01 01:01   assets/assets/scifi/robots/dasher.glb.import
       170  1981-01-01 01:01   assets/assets/scifi/robots/exploder.glb.import
-      164  1981-01-01 01:01   assets/assets/scifi/robots/fast.glb.import
+      166  1981-01-01 01:01   assets/assets/scifi/robots/fast.glb.import
       167  1981-01-01 01:01   assets/assets/scifi/robots/heavy.glb.import
-      167  1981-01-01 01:01   assets/assets/scifi/robots/player.glb.import
+      168  1981-01-01 01:01   assets/assets/scifi/robots/player.glb.import
       168  1981-01-01 01:01   assets/assets/scifi/robots/ranged.glb.import
       170  1981-01-01 01:01   assets/assets/scifi/robots/splitter.glb.import
       169  1981-01-01 01:01   assets/assets/scifi/robots/warlord.glb.import
-      196  1981-01-01 01:01   assets/assets/scifi/ui/icons/audioOff.png.import
+      197  1981-01-01 01:01   assets/assets/scifi/ui/icons/audioOff.png.import
       196  1981-01-01 01:01   assets/assets/scifi/ui/icons/audioOn.png.import
       198  1981-01-01 01:01   assets/assets/scifi/ui/icons/checkmark.png.import
       197  1981-01-01 01:01   assets/assets/scifi/ui/icons/contrast.png.import
       194  1981-01-01 01:01   assets/assets/scifi/ui/icons/cross.png.import
-      196  1981-01-01 01:01   assets/assets/scifi/ui/icons/gamepad.png.import
-      193  1981-01-01 01:01   assets/assets/scifi/ui/icons/gear.png.import
+      195  1981-01-01 01:01   assets/assets/scifi/ui/icons/gamepad.png.import
+      192  1981-01-01 01:01   assets/assets/scifi/ui/icons/gear.png.import
       192  1981-01-01 01:01   assets/assets/scifi/ui/icons/home.png.import
-      196  1981-01-01 01:01   assets/assets/scifi/ui/icons/joystick.png.import
-      196  1981-01-01 01:01   assets/assets/scifi/ui/icons/musicOff.png.import
-      196  1981-01-01 01:01   assets/assets/scifi/ui/icons/musicOn.png.import
-      193  1981-01-01 01:01   assets/assets/scifi/ui/icons/pause.png.import
-      194  1981-01-01 01:01   assets/assets/scifi/ui/icons/phone.png.import
-      192  1981-01-01 01:01   assets/assets/scifi/ui/icons/play.png.import
+      197  1981-01-01 01:01   assets/assets/scifi/ui/icons/joystick.png.import
+      197  1981-01-01 01:01   assets/assets/scifi/ui/icons/musicOff.png.import
+      195  1981-01-01 01:01   assets/assets/scifi/ui/icons/musicOn.png.import
+      194  1981-01-01 01:01   assets/assets/scifi/ui/icons/pause.png.import
+      193  1981-01-01 01:01   assets/assets/scifi/ui/icons/phone.png.import
+      193  1981-01-01 01:01   assets/assets/scifi/ui/icons/play.png.import
       195  1981-01-01 01:01   assets/assets/scifi/ui/icons/return.png.import
       192  1981-01-01 01:01   assets/assets/scifi/ui/icons/star.png.import
       195  1981-01-01 01:01   assets/assets/scifi/ui/icons/target.png.import
@@ -484,22 +484,22 @@ Archive:  build/LastStandArena-debug.apk
       200  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/arrow_right.png.import
       193  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/award.png.import
       192  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/bow.png.import
-      195  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/crown_a.png.import
+      196  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/crown_a.png.import
       198  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/exploding.png.import
       193  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/fire.png.import
-      199  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/flask_full.png.import
+      198  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/flask_full.png.import
       193  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/hand.png.import
       198  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/hourglass.png.import
       198  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/pawn_skip.png.import
       196  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/pawn_up.png.import
       194  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/pouch.png.import
-      194  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/shield.png.import
+      195  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/shield.png.import
       194  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/skull.png.import
-      198  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/suit_hearts.png.import
-      207  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/suit_hearts_broken.png.import
-      193  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/sword.png.import
-      195  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/timer_0.png.import
-      195  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/tokens.png.import
+      200  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/suit_hearts.png.import
+      206  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/suit_hearts_broken.png.import
+      194  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/sword.png.import
+      196  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/timer_0.png.import
+      194  1981-01-01 01:01   assets/assets/scifi/ui/upgrades/tokens.png.import
     10801  1981-01-01 01:01   assets/ceiling.json
       100  1981-01-01 01:01   assets/data/arena_landmarks/crystal.tres.remap
        98  1981-01-01 01:01   assets/data/arena_landmarks/forge.tres.remap
@@ -512,7 +512,7 @@ Archive:  build/LastStandArena-debug.apk
       105  1981-01-01 01:01   assets/data/arenas/frost_hollow.tres.remap
       157  1981-01-01 01:01   assets/data/audio/enemy_dash.wav.import
       162  1981-01-01 01:01   assets/data/audio/enemy_explosion.wav.import
-      158  1981-01-01 01:01   assets/data/audio/enemy_windup.wav.import
+      159  1981-01-01 01:01   assets/data/audio/enemy_windup.wav.import
       106  1981-01-01 01:01   assets/data/audio/player_attack.tres.remap
       105  1981-01-01 01:01   assets/data/audio/player_death.tres.remap
       105  1981-01-01 01:01   assets/data/audio/player_dodge.tres.remap
@@ -555,52 +555,52 @@ Archive:  build/LastStandArena-debug.apk
       203  1981-01-01 01:01   assets/data/models/ceiling/ceiling_render.png.import
       207  1981-01-01 01:01   assets/data/models/ceiling/raw_ceiling_hazard.png.import
       208  1981-01-01 01:01   assets/data/models/ceiling/raw_ceiling_military.png.import
-      204  1981-01-01 01:01   assets/data/models/ceiling/raw_ceiling_tech.png.import
-      167  1981-01-01 01:01   assets/data/models/ceiling/scene.gltf.import
-      199  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_ORM.png.import
+      205  1981-01-01 01:01   assets/data/models/ceiling/raw_ceiling_tech.png.import
+      168  1981-01-01 01:01   assets/data/models/ceiling/scene.gltf.import
+      200  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_ORM.png.import
       203  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_albedo.png.import
-      204  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_emission.png.import
-      202  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_normal.png.import
+      205  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_emission.png.import
+      203  1981-01-01 01:01   assets/data/models/ceiling/textures/Ceiling_normal.png.import
       176  1981-01-01 01:01   assets/data/models/ceiling_hazard/ceiling_hazard.glb.import
       167  1981-01-01 01:01   assets/data/models/ceiling_hazard/scene.gltf.import
       207  1981-01-01 01:01   assets/data/models/ceiling_hazard/textures/Ceiling_Hazard_ORM.png.import
       210  1981-01-01 01:01   assets/data/models/ceiling_hazard/textures/Ceiling_Hazard_albedo.png.import
       212  1981-01-01 01:01   assets/data/models/ceiling_hazard/textures/Ceiling_Hazard_emission.png.import
-      209  1981-01-01 01:01   assets/data/models/ceiling_hazard/textures/Ceiling_Hazard_normal.png.import
+      210  1981-01-01 01:01   assets/data/models/ceiling_hazard/textures/Ceiling_Hazard_normal.png.import
       174  1981-01-01 01:01   assets/data/models/ceiling_tech/ceiling_tech.glb.import
       168  1981-01-01 01:01   assets/data/models/ceiling_tech/scene.gltf.import
       205  1981-01-01 01:01   assets/data/models/ceiling_tech/textures/Ceiling_Tech_ORM.png.import
-      208  1981-01-01 01:01   assets/data/models/ceiling_tech/textures/Ceiling_Tech_albedo.png.import
+      207  1981-01-01 01:01   assets/data/models/ceiling_tech/textures/Ceiling_Tech_albedo.png.import
       209  1981-01-01 01:01   assets/data/models/ceiling_tech/textures/Ceiling_Tech_emission.png.import
       207  1981-01-01 01:01   assets/data/models/ceiling_tech/textures/Ceiling_Tech_normal.png.import
-      208  1981-01-01 01:01   assets/data/models/environment_showcase.png.import
+      209  1981-01-01 01:01   assets/data/models/environment_showcase.png.import
       168  1981-01-01 01:01   assets/data/models/ground/ground.glb.import
-      201  1981-01-01 01:01   assets/data/models/ground/ground_render.png.import
-      205  1981-01-01 01:01   assets/data/models/ground/raw_ground_hazard.png.import
+      202  1981-01-01 01:01   assets/data/models/ground/ground_render.png.import
+      206  1981-01-01 01:01   assets/data/models/ground/raw_ground_hazard.png.import
       208  1981-01-01 01:01   assets/data/models/ground/raw_ground_military.png.import
-      203  1981-01-01 01:01   assets/data/models/ground/raw_ground_tech.png.import
-      168  1981-01-01 01:01   assets/data/models/ground/scene.gltf.import
-      199  1981-01-01 01:01   assets/data/models/ground/textures/Ground_ORM.png.import
+      204  1981-01-01 01:01   assets/data/models/ground/raw_ground_tech.png.import
+      167  1981-01-01 01:01   assets/data/models/ground/scene.gltf.import
+      198  1981-01-01 01:01   assets/data/models/ground/textures/Ground_ORM.png.import
       202  1981-01-01 01:01   assets/data/models/ground/textures/Ground_albedo.png.import
       204  1981-01-01 01:01   assets/data/models/ground/textures/Ground_emission.png.import
-      202  1981-01-01 01:01   assets/data/models/ground/textures/Ground_normal.png.import
-      175  1981-01-01 01:01   assets/data/models/ground_hazard/ground_hazard.glb.import
+      201  1981-01-01 01:01   assets/data/models/ground/textures/Ground_normal.png.import
+      174  1981-01-01 01:01   assets/data/models/ground_hazard/ground_hazard.glb.import
       168  1981-01-01 01:01   assets/data/models/ground_hazard/scene.gltf.import
       206  1981-01-01 01:01   assets/data/models/ground_hazard/textures/Ground_Hazard_ORM.png.import
       209  1981-01-01 01:01   assets/data/models/ground_hazard/textures/Ground_Hazard_albedo.png.import
-      210  1981-01-01 01:01   assets/data/models/ground_hazard/textures/Ground_Hazard_emission.png.import
+      211  1981-01-01 01:01   assets/data/models/ground_hazard/textures/Ground_Hazard_emission.png.import
       209  1981-01-01 01:01   assets/data/models/ground_hazard/textures/Ground_Hazard_normal.png.import
       173  1981-01-01 01:01   assets/data/models/ground_tech/ground_tech.glb.import
       168  1981-01-01 01:01   assets/data/models/ground_tech/scene.gltf.import
-      204  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_ORM.png.import
-      206  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_albedo.png.import
+      203  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_ORM.png.import
+      207  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_albedo.png.import
       209  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_emission.png.import
       207  1981-01-01 01:01   assets/data/models/ground_tech/textures/Ground_Tech_normal.png.import
-      168  1981-01-01 01:01   assets/data/models/wall/scene.gltf.import
+      167  1981-01-01 01:01   assets/data/models/wall/scene.gltf.import
       197  1981-01-01 01:01   assets/data/models/wall/textures/Wall_ORM.png.import
       200  1981-01-01 01:01   assets/data/models/wall/textures/Wall_albedo.png.import
       202  1981-01-01 01:01   assets/data/models/wall/textures/Wall_emission.png.import
-      200  1981-01-01 01:01   assets/data/models/wall/textures/Wall_normal.png.import
+      199  1981-01-01 01:01   assets/data/models/wall/textures/Wall_normal.png.import
       166  1981-01-01 01:01   assets/data/models/wall/wall.glb.import
       200  1981-01-01 01:01   assets/data/models/wall/wall_render.png.import
       209  1981-01-01 01:01   assets/data/models/wall/wall_variants_render.png.import
@@ -608,28 +608,28 @@ Archive:  build/LastStandArena-debug.apk
       168  1981-01-01 01:01   assets/data/models/wall_hazard/scene.gltf.import
       204  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_ORM.png.import
       207  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_albedo.png.import
-      208  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_emission.png.import
-      207  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_normal.png.import
-      172  1981-01-01 01:01   assets/data/models/wall_hazard/wall_hazard.glb.import
+      209  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_emission.png.import
+      206  1981-01-01 01:01   assets/data/models/wall_hazard/textures/Wall_Hazard_normal.png.import
+      173  1981-01-01 01:01   assets/data/models/wall_hazard/wall_hazard.glb.import
       200  1981-01-01 01:01   assets/data/models/wall_rusted/raw_texture.png.import
       168  1981-01-01 01:01   assets/data/models/wall_rusted/scene.gltf.import
-      203  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_ORM.png.import
+      204  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_ORM.png.import
       207  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_albedo.png.import
-      208  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_emission.png.import
+      209  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_emission.png.import
       207  1981-01-01 01:01   assets/data/models/wall_rusted/textures/Wall_Rusted_normal.png.import
       173  1981-01-01 01:01   assets/data/models/wall_rusted/wall_rusted.glb.import
       200  1981-01-01 01:01   assets/data/models/wall_tech/raw_texture.png.import
       167  1981-01-01 01:01   assets/data/models/wall_tech/scene.gltf.import
       202  1981-01-01 01:01   assets/data/models/wall_tech/textures/Wall_Tech_ORM.png.import
-      204  1981-01-01 01:01   assets/data/models/wall_tech/textures/Wall_Tech_albedo.png.import
+      205  1981-01-01 01:01   assets/data/models/wall_tech/textures/Wall_Tech_albedo.png.import
       207  1981-01-01 01:01   assets/data/models/wall_tech/textures/Wall_Tech_emission.png.import
       205  1981-01-01 01:01   assets/data/models/wall_tech/textures/Wall_Tech_normal.png.import
       171  1981-01-01 01:01   assets/data/models/wall_tech/wall_tech.glb.import
       168  1981-01-01 01:01   assets/data/models/warehouse/scene.gltf.import
       201  1981-01-01 01:01   assets/data/models/warehouse/textures/Metal_normal.png.import
       210  1981-01-01 01:01   assets/data/models/warehouse/textures/WetConcrete_baseColor.png.import
-      218  1981-01-01 01:01   assets/data/models/warehouse/textures/WetConcrete_metallicRoughness.png.import
-      207  1981-01-01 01:01   assets/data/models/warehouse/textures/WetConcrete_normal.png.import
+      217  1981-01-01 01:01   assets/data/models/warehouse/textures/WetConcrete_metallicRoughness.png.import
+      206  1981-01-01 01:01   assets/data/models/warehouse/textures/WetConcrete_normal.png.import
       104  1981-01-01 01:01   assets/data/mutators/bounty_hunt.tres.remap
       104  1981-01-01 01:01   assets/data/mutators/elite_surge.tres.remap
       104  1981-01-01 01:01   assets/data/mutators/ember_winds.tres.remap
@@ -667,11 +667,11 @@ Archive:  build/LastStandArena-debug.apk
        97  1981-01-01 01:01   assets/data/status/slow.tres.remap
        97  1981-01-01 01:01   assets/data/status/stun.tres.remap
        99  1981-01-01 01:01   assets/data/status/warcry.tres.remap
-      196  1981-01-01 01:01   assets/data/ui/chrome/btn_dark.png.import
+      197  1981-01-01 01:01   assets/data/ui/chrome/btn_dark.png.import
       197  1981-01-01 01:01   assets/data/ui/chrome/btn_gold.png.import
       198  1981-01-01 01:01   assets/data/ui/chrome/hud_frame.png.import
       194  1981-01-01 01:01   assets/data/ui/chrome/panel.png.import
-      203  1981-01-01 01:01   assets/data/ui/ui_page_render.png.import
+      202  1981-01-01 01:01   assets/data/ui/ui_page_render.png.import
       103  1981-01-01 01:01   assets/data/upgrades/adrenaline.tres.remap
       105  1981-01-01 01:01   assets/data/upgrades/arcane_surge.tres.remap
       103  1981-01-01 01:01   assets/data/upgrades/blood_rite.tres.remap
@@ -731,8 +731,8 @@ Archive:  build/LastStandArena-debug.apk
       101  1981-01-01 01:01   assets/data/weapons/warreaxe.tres.remap
      3703  1981-01-01 01:01   assets/docs/ANDROID_PERMISSIONS.md
       205  1981-01-01 01:01   assets/docs/campaign/STATION_ZERO_MAP.svg.import
-      203  1981-01-01 01:01   assets/docs/ui_redesign/ui_gameplay_hud.png.import
-      201  1981-01-01 01:01   assets/docs/ui_redesign/ui_main_menu.png.import
+      204  1981-01-01 01:01   assets/docs/ui_redesign/ui_gameplay_hud.png.import
+      200  1981-01-01 01:01   assets/docs/ui_redesign/ui_main_menu.png.import
       196  1981-01-01 01:01   assets/docs/ui_redesign/ui_pause.png.import
       203  1981-01-01 01:01   assets/docs/ui_redesign/ui_run_summary.png.import
       199  1981-01-01 01:01   assets/docs/ui_redesign/ui_upgrade.png.import
@@ -1208,7 +1208,7 @@ Archive:  build/LastStandArena-debug.apk
      5138  1981-01-01 01:01   assets/scripts/weapons/weapon_instance.gdc
        57  1981-01-01 01:01   assets/scripts/weapons/weapon_manager.gd.remap
     10086  1981-01-01 01:01   assets/scripts/weapons/weapon_manager.gdc
-      199  1981-01-01 01:01   assets/texture_0.webp.import
+      198  1981-01-01 01:01   assets/texture_0.webp.import
   1002516  1981-01-01 01:01   assets/wall.json
      1738  1981-01-01 01:01   DebugProbesKt.bin
         6  1981-01-01 01:01   META-INF/androidx.activity_activity.version
@@ -1314,4 +1314,4 @@ Archive:  build/LastStandArena-debug.apk
       668  1981-01-01 01:01   res/xml/godot_provider_paths.xml
     52876  1981-01-01 01:01   resources.arsc
 ---------                     -------
-229318252                     1312 files
+229318272                     1312 files

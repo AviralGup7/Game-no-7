@@ -1166,6 +1166,7 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 1: Rajdhani-Bold.ttf
 	reimport: step 2: Rajdhani-Regular.ttf
 	reimport: step 3: Rajdhani-Bold.ttf
+	reimport: step 4: chop.ogg
 	reimport: step 5: cloth_1.ogg
 	reimport: step 6: cloth_2.ogg
 	reimport: step 7: cloth_3.ogg
@@ -1189,7 +1190,6 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 25: impact_bell_heavy_000.ogg
 	reimport: step 26: impact_generic_light_000.ogg
 	reimport: step 27: impact_generic_light_001.ogg
-	reimport: step 28: impact_punch_heavy_000.ogg
 	reimport: step 29: impact_punch_medium_000.ogg
 	reimport: step 30: impact_punch_medium_001.ogg
 	reimport: step 31: impact_soft_heavy_000.ogg
@@ -1197,8 +1197,6 @@ reimport: begin: (Re)Importing Assets steps: 422
 	reimport: step 33: arena_gameplay.ogg
 	reimport: step 34: arena_menu.ogg
 	reimport: step 35: Rajdhani-Regular.ttf
-	reimport: step 36: Rajdhani-Bold.ttf
-	reimport: step 37: chop.ogg
 	reimport: step 38: cloth_1.ogg
 	reimport: step 39: cloth_2.ogg
 	reimport: step 40: cloth_3.ogg
