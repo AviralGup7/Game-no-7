@@ -1,12 +1,6 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 treat_warnings_as_errors=true
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
 [diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
 [diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
 [diagnostic] GameRoot ready
