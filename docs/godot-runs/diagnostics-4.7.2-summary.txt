@@ -19,7 +19,6 @@
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Invalid access to property or key 'members' on a base object of type 'Dictionary'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
@@ -231,7 +230,6 @@
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Invalid access to property or key 'members' on a base object of type 'Dictionary'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
