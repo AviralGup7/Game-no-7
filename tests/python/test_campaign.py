@@ -223,6 +223,13 @@ class CampaignEntryAndPersistenceContracts(unittest.TestCase):
         self.assertIn("func perimeter(regions: Array[Rect2])", geometry)
         self.assertIn("MultiMesh.new()", geometry)
 
+    def test_native_campaign_harness_types_dynamic_ledger_sizes(self):
+        harness = source("tests/verify_campaign_inner.gd")
+        # Dictionary members are Variants: := cannot infer their size() result
+        # in the native parser. Keep both before/after counters explicitly typed.
+        self.assertEqual(harness.count("var before: int = _session.progress.defeated.size()"), 2)
+        self.assertNotIn("var before := _session.progress.defeated.size()", harness)
+
     def test_native_campaign_wrapper_and_ci_are_registered(self):
         wrapper = source("scripts/run_campaign_validation.sh")
         self.assertIn("godot_test_profile", wrapper)

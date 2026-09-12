@@ -93,7 +93,7 @@ func _kill(member: Dictionary) -> void:
 	payload.amount = 100000.0
 	payload.source = _session.player
 	payload.source_id = &"campaign_test"
-	var before := _session.progress.defeated.size()
+	var before: int = _session.progress.defeated.size()
 	actor.apply_damage(payload)
 	actor.apply_damage(payload)
 	_check("death counted exactly once / " + String(member.id), _session.progress.defeated.size() == before + 1)
@@ -117,7 +117,7 @@ func _budget() -> void:
 func _streaming_and_reload() -> void:
 	var member: Dictionary = _session.definition.encounters[0].members[0]
 	_check("explicit encounter activation works", _session.encounters._spawn(member))
-	var before := _session.progress.defeated.size()
+	var before: int = _session.progress.defeated.size()
 	await _move_to(_session.definition.checkpoint("reactor").origin)
 	_session.encounters.stream_nearby()
 	_check("leaving a district is not a defeat", _session.progress.defeated.size() == before)

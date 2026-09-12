@@ -147,11 +147,14 @@ jobs:
     name: Godot host regression tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      XDG_DATA_HOME: ${{ runner.temp }}/last-stand-godot-tests
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # The runner context is unavailable in job-level env expressions.
+      # Set the isolated profile at runtime for all subsequent native steps.
+      - name: Isolate Godot test data
+        run: echo "XDG_DATA_HOME=${RUNNER_TEMP}/last-stand-godot-tests" >> "$GITHUB_ENV"
 
       - name: Set up Godot ${{ env.GODOT_VERSION }}
         uses: chickensoft-games/setup-godot@v2

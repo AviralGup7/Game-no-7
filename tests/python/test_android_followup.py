@@ -121,6 +121,17 @@ class AndroidRuntimeSourceTests(unittest.TestCase):
         self.assertIn("await _test_android_controls_and_interruption()", read("tests/ui/ui_test_runner.gd"))
         self.assertIn("SaveManager._notification(Node.NOTIFICATION_APPLICATION_PAUSED)", read("tests/ui/ui_test_runner.gd"))
 
+    def test_ci_profile_isolation_is_configured_in_a_runtime_step(self):
+        ci = read(".github/workflows/android.yml")
+        job = ci.split("  godot-tests:", 1)[1].split("  build-android:", 1)[0]
+        settings, steps = job.split("    steps:", 1)
+        self.assertNotIn("${{ runner.", settings)
+        self.assertIn(
+            'echo "XDG_DATA_HOME=${RUNNER_TEMP}/last-stand-godot-tests" >> "$GITHUB_ENV"',
+            steps,
+        )
+        self.assertLess(steps.index("Isolate Godot test data"), steps.index("Run native unit tests"))
+
     def test_ci_verifies_android_apk_and_installs_the_engine_sdk(self):
         ci = read(".github/workflows/android.yml")
         self.assertIn("tool/check_android_apk.py", ci)
