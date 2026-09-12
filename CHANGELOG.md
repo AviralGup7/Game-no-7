@@ -1,5 +1,35 @@
 # Changelog
 
+## [Unreleased] — CI native-gate repair (2026-09-12)
+
+- Fix the Android workflow's failing Godot host jobs. The native renderer move
+  ran every step through Xvfb + GL with a strict content gate, but `--import`
+  under the editor probes host Vulkan (`VK_KHR_surface`) and ALSA audio and
+  prints environment ERROR lines on display-less runners, so both
+  `godot-tests` and `build-android` failed at the import step with exit 0.
+- Route `scripts/run_godot.sh` by invocation: `--import` is headless again
+  (import touches no display/GL; old green behavior), scene-running steps stay
+  native but pin `--audio-driver Dummy` and `--rendering-driver opengl3` so
+  host audio/Vulkan availability cannot change the log.
+- Fix `tool/check_android_apk.py` against real build-tools 34 output: its
+  renderer-metadata regex only matched aapt2's short attribute names
+  (`A: android:name=...`), while current aapt2 prints namespace-prefixed names
+  (`A: http://schemas.android.com/apk/res/android:name(...)=...`), so every
+  real APK failed with "manifest lacks Godot rendering-method metadata". The
+  parser now accepts both forms, with fixtures captured from the actual CI
+  runner output. APK verification failures are also surfaced as GitHub
+  annotations (step logs are unreachable from some environments).
+- Add `tool/check_godot_log.py --allow-engine-noise`: an opt-in, context-bound
+  demotion for enumerated engine lifecycle reports — the dummy-renderer
+  null-texture preview fetches on cold headless `--import` (149 identical
+  pairs), plus the GLES3 lines a real GL driver emits at scene teardown /
+  process exit (null-material scene-cull RID queries, GL texture exit
+  accounting, ObjectDB/`resources still in use` exit reports, both `--verbose`
+  hint spellings). Each entry must match its C++ `at:` line, so any other
+  failure reusing the headline still fails. Wired into every CI/build gate
+  (import, native unit/asset/hero/UI/campaign, export), with Python
+  regression coverage of the new routing and demotion rules.
+
 ## [Unreleased] — Continuous campaign world (2026-09-12)
 
 - Make the shipping entry a fixed 352 × 272 m station with six connected districts,
