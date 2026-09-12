@@ -1,2 +1,0 @@
-APK permissions line:
-uses-permission: name='android.permission.VIBRATE'
