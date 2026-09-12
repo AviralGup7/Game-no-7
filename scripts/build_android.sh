@@ -100,7 +100,7 @@ run_godot() {
 
 step "Run offline validation"
 (cd "$PROJECT_DIR" && python3 scripts/download_assets.py --verify)
-for check in validate_campaign validate_geometry validate_assets validate_resources check_typed_arch validate_guards check_engine_api check_scene_paths check_string_formats check_signals; do
+for check in validate_campaign validate_geometry validate_level_flow validate_assets validate_resources check_typed_arch validate_guards check_engine_api check_scene_paths check_string_formats check_signals; do
   (cd "$PROJECT_DIR" && python3 "tool/$check.py")
 done
 (cd "$PROJECT_DIR" && python3 -m unittest discover -s tests/python)
