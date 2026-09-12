@@ -2770,3 +2770,543 @@ ERROR: Failed to load script "res://tests/unit/test_enemy_behaviors.gd" with err
 ===== res://tests/unit/test_enemy_brain.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
+===== res://tests/unit/test_enemy_scene_inheritance.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_error_report.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_event_bus_contract.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_extracted_modules.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/meta/prestige.gd:35)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:110)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:105)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/ranged_resolver.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/weapon_instance.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/character_controller.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/dodge_controller.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/stamina_component.gd:76)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/player_combat.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_extracted_modules.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_extracted_modules.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_game_modes.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/meta/game_mode.gd:64)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/narrator.gd:72)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/meta/prestige.gd:35)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/progression/build_effects.gd:78)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_game_modes.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_game_modes.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_hazards.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/arena/arena_hazards.gd:201)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/meta/game_mode.gd:64)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_mode_layout.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_hazards.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_hazards.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_hazards_live.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/arena/arena_hazards.gd:201)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_hazards_live.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_hazards_live.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_hero_rig.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_locomotion_nan.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/utilities/input_trace.gd:26)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/virtual_joystick.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:105)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/ranged_resolver.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/weapon_instance.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/character_controller.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/dodge_controller.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/player/player_locomotion.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_locomotion_nan.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_locomotion_nan.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_meta_misc.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/waves/wave_mutators.gd:50)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/meta/daily_challenge.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/experience_component.gd:127)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/arena/arena.gd:149)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup.gd:119)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/minimap.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_meta_misc.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_meta_misc.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_minimap_radar.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/arena/arena.gd:149)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup.gd:119)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/minimap.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_minimap_radar.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_minimap_radar.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_model_visual.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_nav_grid.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_nav_grid.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_nav_grid.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_performance_monitor.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_planner_extended.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_pool_governor.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_presentation_scripts.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_procedural_sfx.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/audio/procedural_sfx.gd:44)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_procedural_sfx.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_procedural_sfx.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_progression.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_progression.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_progression.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_rng_tables.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_run_isolation.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/projectile_pool.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/pickups/pickup_manager.gd:47)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/objective_director.gd:76)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:110)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/run_isolation.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/utilities/pool_governor.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_run_isolation.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_run_isolation.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_safe_player_spawn.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/arena/arena.gd:149)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_safe_player_spawn.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_safe_player_spawn.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_save.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/meta/prestige.gd:35)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_save.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_save.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_scoring.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_spatial_audio.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_station_shooter.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/ranged_resolver.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/weapons/weapon_instance.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_station_shooter.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_station_shooter.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_status_manager.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_status_manager.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_status_manager.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_status_skills.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_status_skills.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_status_skills.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_systems_completion.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
+          at: GDScript::reload (res://scripts/player/targeting_component.gd:29)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/meta/narrator.gd:72)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_systems_completion.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_systems_completion.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_ui_layout.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_upgrade_selection.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_upgrades.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/unit/test_wave_mutators.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/waves/wave_mutators.gd:50)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_wave_mutators.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_wave_mutators.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_waves.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/waves/wave_manager.gd:56)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_waves.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/unit/test_weapons.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/enemy_audio.gd:65)
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://scripts/enemies/boss_controller.gd:151)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/visuals/effect_director.gd:148)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/core/content_registry.gd:38)
+SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+          at: GDScript::reload (res://scripts/player/progression_component.gd:115)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://tests/unit/test_weapons.gd:0)
+ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/validate_asset_imports.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/verify_campaign.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/verify_campaign_inner.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://tests/verify_campaign_inner.gd:29)
+ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/verify_flow.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://tests/verify_flow_inner.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+          at: GDScript::reload (res://tests/verify_flow_inner.gd:97)
+ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
