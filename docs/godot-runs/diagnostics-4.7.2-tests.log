@@ -1,817 +1,125 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _begin (res://scripts/ui/virtual_joystick.gd:101)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:45)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _update (res://scripts/ui/virtual_joystick.gd:135)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:46)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _begin (res://scripts/ui/virtual_joystick.gd:101)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:56)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _update (res://scripts/ui/virtual_joystick.gd:135)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:57)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _update (res://scripts/ui/virtual_joystick.gd:135)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:60)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _update (res://scripts/ui/virtual_joystick.gd:135)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:64)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _begin (res://scripts/ui/virtual_joystick.gd:101)
-       [1] _joystick (res://tests/unit/test_locomotion_nan.gd:73)
-       [2] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _begin (res://scripts/ui/virtual_joystick.gd:101)
-       [1] _gui_input (res://scripts/ui/virtual_joystick.gd:81)
-       [2] _joystick (res://tests/unit/test_locomotion_nan.gd:88)
-       [3] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _update (res://scripts/ui/virtual_joystick.gd:135)
-       [1] _gui_input (res://scripts/ui/virtual_joystick.gd:85)
-       [2] _joystick (res://tests/unit/test_locomotion_nan.gd:92)
-       [3] suite (res://tests/unit/test_locomotion_nan.gd:18)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+SUITE: res://tests/unit/test_save.gd
+SUITE: res://tests/unit/test_campaign.gd
+SUITE: res://tests/unit/test_audit_boundaries.gd
+SUITE: res://tests/unit/test_combat.gd
+SUITE: res://tests/unit/test_configs.gd
+SUITE: res://tests/unit/test_scoring.gd
+SUITE: res://tests/unit/test_waves.gd
+SUITE: res://tests/unit/test_combo.gd
+SUITE: res://tests/unit/test_upgrades.gd
+SUITE: res://tests/unit/test_upgrade_selection.gd
+SUITE: res://tests/unit/test_progression.gd
+SUITE: res://tests/unit/test_rng_tables.gd
+SUITE: res://tests/unit/test_status_skills.gd
+SUITE: res://tests/unit/test_drops_elites.gd
+SUITE: res://tests/unit/test_locomotion_nan.gd
+SUITE: res://tests/unit/test_camera_arena_containment.gd
+SUITE: res://tests/unit/test_camera_modules.gd
+SUITE: res://tests/unit/test_ui_layout.gd
+SUITE: res://tests/unit/test_safe_player_spawn.gd
+SUITE: res://tests/unit/test_systems_completion.gd
+SUITE: res://tests/unit/test_director_mutators.gd
+SUITE: res://tests/unit/test_wave_mutators.gd
+TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
 ERROR: WaveModifiers: damage_mult is not finite before clamping
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] clamp_bounds (res://scripts/waves/wave_modifiers.gd:130)
-       [1] suite (res://tests/unit/test_wave_mutators.gd:67)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
+       [1] suite (res://tests/unit/test_wave_mutators.gd:71)
+       [2] _run_suites (res://tests/run_tests.gd:149)
+       [3] _initialize (res://tests/run_tests.gd:105)
 ERROR: WaveModifiers: speed_mult is not finite before clamping
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] clamp_bounds (res://scripts/waves/wave_modifiers.gd:130)
-       [1] suite (res://tests/unit/test_wave_mutators.gd:67)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
+       [1] suite (res://tests/unit/test_wave_mutators.gd:71)
+       [2] _run_suites (res://tests/run_tests.gd:149)
+       [3] _initialize (res://tests/run_tests.gd:105)
+TEST EXPECTED ERRORS END
 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] fold_into (res://scripts/waves/wave_mutators.gd:79)
          [1] combine (res://scripts/waves/wave_mutators.gd:63)
-         [2] suite (res://tests/unit/test_wave_mutators.gd:141)
-         [3] _run_suites (res://tests/run_tests.gd:141)
-         [4] _initialize (res://tests/run_tests.gd:97)
+         [2] suite (res://tests/unit/test_wave_mutators.gd:146)
+         [3] _run_suites (res://tests/run_tests.gd:149)
+         [4] _initialize (res://tests/run_tests.gd:105)
 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] resolve_for_wave (res://scripts/waves/wave_mutators.gd:148)
-         [1] suite (res://tests/unit/test_wave_mutators.gd:197)
-         [2] _run_suites (res://tests/run_tests.gd:141)
-         [3] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'
-   at: parse_string (core/io/json.cpp:629)
-   GDScript backtrace (most recent call first):
-       [0] parse_safe (res://scripts/utilities/json_helpers.gd:15)
-       [1] suite (res://tests/unit/test_meta_misc.gd:65)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
-ERROR: Not supported by this display server.
-   at: keyboard_get_keycode_from_physical (servers/display/display_server.cpp:1224)
-   GDScript backtrace (most recent call first):
-       [0] binding_label (res://scripts/utilities/input_remapper.gd:32)
-       [1] suite (res://tests/unit/test_meta_misc.gd:98)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+         [1] suite (res://tests/unit/test_wave_mutators.gd:202)
+         [2] _run_suites (res://tests/run_tests.gd:149)
+         [3] _initialize (res://tests/run_tests.gd:105)
+SUITE: res://tests/unit/test_meta_misc.gd
+SUITE: res://tests/unit/test_planner_extended.gd
+SUITE: res://tests/unit/test_extracted_modules.gd
+SUITE: res://tests/unit/test_procedural_sfx.gd
+SUITE: res://tests/unit/test_enemy_behaviors.gd
+SUITE: res://tests/unit/test_nav_grid.gd
+SUITE: res://tests/unit/test_enemy_brain.gd
+SUITE: res://tests/unit/test_content_progression.gd
+SUITE: res://tests/unit/test_presentation_scripts.gd
+SUITE: res://tests/unit/test_game_modes.gd
+TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] validated (res://scripts/meta/game_mode.gd:336)
-       [1] suite (res://tests/unit/test_game_modes.gd:35)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+       [1] suite (res://tests/unit/test_game_modes.gd:36)
+       [2] _run_suites (res://tests/run_tests.gd:149)
+       [3] _initialize (res://tests/run_tests.gd:105)
+TEST EXPECTED ERRORS END
+SUITE: res://tests/unit/test_collision_layers.gd
+SUITE: res://tests/unit/test_hazards.gd
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
        [0] _snapshots (res://tests/unit/test_hazards.gd:499)
        [1] suite (res://tests/unit/test_hazards.gd:27)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _initialize (res://tests/run_tests.gd:97)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+       [2] _run_suites (res://tests/run_tests.gd:149)
+       [3] _initialize (res://tests/run_tests.gd:105)
+SUITE: res://tests/unit/test_arena_world.gd
+TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] build (res://scripts/arena/arena_landmark.gd:82)
        [1] _refused_kind_builds_nothing (res://tests/unit/test_arena_world.gd:514)
        [2] suite (res://tests/unit/test_arena_world.gd:117)
-       [3] _run_suites (res://tests/run_tests.gd:141)
-       [4] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:40)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:40)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:48)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:64)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:64)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:64)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:69)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:69)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:69)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:74)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:74)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:74)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:98)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:98)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:99)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:99)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:110)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:110)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:111)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:111)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] request_step_down (res://scripts/utilities/performance_monitor.gd:291)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:115)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] request_step_down (res://scripts/utilities/performance_monitor.gd:291)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:115)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] request_step_up (res://scripts/utilities/performance_monitor.gd:298)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:118)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] request_step_up (res://scripts/utilities/performance_monitor.gd:298)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:118)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:127)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:127)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:129)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:129)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:131)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:131)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:187)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:187)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:191)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:191)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:201)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:201)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:205)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:205)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:212)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:212)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:343)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:212)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [5] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:222)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] set_tier (res://scripts/utilities/performance_monitor.gd:304)
-       [4] configure (res://scripts/utilities/performance_monitor.gd:162)
-       [5] suite (res://tests/unit/test_performance_monitor.gd:222)
-       [6] _run_suites (res://tests/run_tests.gd:141)
-       [7] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [4] suite (res://tests/unit/test_performance_monitor.gd:226)
-       [5] _run_suites (res://tests/run_tests.gd:141)
-       [6] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] arm (res://scripts/utilities/performance_monitor.gd:155)
-       [3] suite (res://tests/unit/test_performance_monitor.gd:226)
-       [4] _run_suites (res://tests/run_tests.gd:141)
-       [5] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:227)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:227)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:227)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _resolve_root_viewport (res://scripts/utilities/performance_monitor.gd:482)
-       [1] _apply_msaa (res://scripts/utilities/performance_monitor.gd:456)
-       [2] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:447)
-       [3] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [4] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [5] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [6] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [7] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [8] suite (res://tests/unit/test_performance_monitor.gd:239)
-       [9] _run_suites (res://tests/run_tests.gd:141)
-       [10] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _apply_render_tier (res://scripts/utilities/performance_monitor.gd:491)
-       [1] _apply_tier_to_engine (res://scripts/utilities/performance_monitor.gd:448)
-       [2] _change_tier (res://scripts/utilities/performance_monitor.gd:322)
-       [3] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [4] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [5] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [6] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [7] suite (res://tests/unit/test_performance_monitor.gd:239)
-       [8] _run_suites (res://tests/run_tests.gd:141)
-       [9] _initialize (res://tests/run_tests.gd:97)
-ERROR: Parameter "data.tree" is null.
-   at: get_tree (scene/main/node.h:559)
-   GDScript backtrace (most recent call first):
-       [0] _report_info (res://scripts/utilities/performance_monitor.gd:523)
-       [1] _change_tier (res://scripts/utilities/performance_monitor.gd:328)
-       [2] _auto_step (res://scripts/utilities/performance_monitor.gd:309)
-       [3] _tick_auto_scale (res://scripts/utilities/performance_monitor.gd:348)
-       [4] process_tick (res://scripts/utilities/performance_monitor.gd:219)
-       [5] _drive (res://tests/unit/test_performance_monitor.gd:273)
-       [6] suite (res://tests/unit/test_performance_monitor.gd:239)
-       [7] _run_suites (res://tests/run_tests.gd:141)
-       [8] _initialize (res://tests/run_tests.gd:97)
-Unicode parsing error: Invalid unicode codepoint (2014), cannot represent as ASCII/Latin-1
+       [3] _run_suites (res://tests/run_tests.gd:149)
+       [4] _initialize (res://tests/run_tests.gd:105)
+TEST EXPECTED ERRORS END
+SUITE: res://tests/unit/test_performance_monitor.gd
+SUITE: res://tests/unit/test_pool_governor.gd
+SUITE: res://tests/unit/test_minimap_radar.gd
+SUITE: res://tests/unit/test_audio_policy.gd
+SUITE: res://tests/unit/test_spatial_audio.gd
+SUITE: res://tests/unit/test_error_report.gd
+SUITE: res://tests/unit/test_event_bus_contract.gd
 [diagnostic] AudioAssetIntegrator registered 29 SFX + 5 music state cues from approved library
-[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 6 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
+[diagnostic] ContentRegistry ready: 8 enemies, 38 upgrades, 3 arenas, 3 cameras, 9 weapons, 8 skills, 14 status, 7 pickups, 10 waves, 6 hazards, 7 mutators, 7 modes, prestige ladder loaded
 [diagnostic] GameRoot ready
 [diagnostic] RunAnalytics ready (offline only)
+SUITE: res://tests/unit/test_model_visual.gd
+SUITE: res://tests/unit/test_audit_runtime.gd
+[diagnostic] audit_enemy split into 3 x audit_enemy
+SUITE: res://tests/unit/test_audit_combat.gd
+SUITE: res://tests/unit/test_android_runtime.gd
+[LastStand][input] --- joystick_cancel (6 events) ---
+[LastStand][input] #1 t=1267 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=1267 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=1267 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=1267 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=1267 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=4756 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=4756 begin i=0 pos=(50.0, 50.0)
+SUITE: res://tests/unit/test_weapons.gd
+SUITE: res://tests/unit/test_station_shooter.gd
+SUITE: res://tests/unit/test_area_combat.gd
+SUITE: res://tests/unit/test_character_visuals.gd
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -819,8 +127,9 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
          [3] suite (res://tests/unit/test_character_visuals.gd:19)
-         [4] _run_suites (res://tests/run_tests.gd:141)
-         [5] _process (res://tests/run_tests.gd:159)
+         [4] _run_suites (res://tests/run_tests.gd:149)
+         [5] _process (res://tests/run_tests.gd:176)
+SUITE: res://tests/unit/test_hero_rig.gd
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -829,8 +138,8 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:86)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:95)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:141)
-         [6] _process (res://tests/run_tests.gd:159)
+         [5] _run_suites (res://tests/run_tests.gd:149)
+         [6] _process (res://tests/run_tests.gd:176)
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -839,8 +148,8 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:86)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:141)
-         [6] _process (res://tests/run_tests.gd:159)
+         [5] _run_suites (res://tests/run_tests.gd:149)
+         [6] _process (res://tests/run_tests.gd:176)
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -849,21 +158,27 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:89)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:141)
-         [6] _process (res://tests/run_tests.gd:159)
+         [5] _run_suites (res://tests/run_tests.gd:149)
+         [6] _process (res://tests/run_tests.gd:176)
+SUITE: res://tests/unit/test_arena_obstacles_node.gd
+SUITE: res://tests/unit/test_decorator_collision.gd
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
        [0] suite (res://tests/unit/test_decorator_collision.gd:53)
-       [1] _run_suites (res://tests/run_tests.gd:141)
-       [2] _process (res://tests/run_tests.gd:159)
+       [1] _run_suites (res://tests/run_tests.gd:149)
+       [2] _process (res://tests/run_tests.gd:176)
+SUITE: res://tests/unit/test_enemy_scene_inheritance.gd
+SUITE: res://tests/unit/test_hazards_live.gd
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
        [0] _visuals_are_optional (res://tests/unit/test_hazards_live.gd:255)
        [1] suite (res://tests/unit/test_hazards_live.gd:117)
-       [2] _run_suites (res://tests/run_tests.gd:141)
-       [3] _process (res://tests/run_tests.gd:159)
+       [2] _run_suites (res://tests/run_tests.gd:149)
+       [3] _process (res://tests/run_tests.gd:176)
+SUITE: res://tests/unit/test_status_manager.gd
+SUITE: res://tests/unit/test_run_isolation.gd
 [diagnostic] Enemy probe_basic died
 [diagnostic] Enemy probe_exploder died
 [diagnostic] Enemy probe_boss died
@@ -873,52 +188,52 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:782)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
@@ -927,81 +242,83 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
          [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
          [3] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:798)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [7] _process (res://tests/run_tests.gd:166)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
          [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [7] _process (res://tests/run_tests.gd:166)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
          [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [7] _process (res://tests/run_tests.gd:166)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
          [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [7] _process (res://tests/run_tests.gd:166)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
          [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [7] _process (res://tests/run_tests.gd:166)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] report_error (res://scripts/core/event_bus.gd:165)
-       [1] _count_failure (res://scripts/enemies/spawn_manager.gd:360)
+       [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
        [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-       [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-       [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+       [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+       [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
        [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-       [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-       [7] _process (res://tests/run_tests.gd:166)
+       [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+       [7] _process (res://tests/run_tests.gd:183)
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
-         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:531)
-         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:802)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+TEST EXPECTED ERRORS END
 [diagnostic] Enemy basic died
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
@@ -1009,13 +326,13 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role spl
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:820)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:822)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy splitter died
 [diagnostic] splitter split into 2 x mite
 [diagnostic] Enemy mite died
@@ -1026,13 +343,13 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:847)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:849)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
      at: push_warning (core/variant/variant_utility.cpp:1033)
@@ -1040,21 +357,20 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:293)
-         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:238)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:881)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:883)
          [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
-         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:215)
-         [9] _process (res://tests/run_tests.gd:166)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1166 total, 2 failed
-  FAIL  test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]
-  FAIL  test_hero_rig.gd :: native robot uses vertex palette without bitmap textures —
-::error title=GDScript test failures (2)::test_content_progression.gd :: weapon library spans resolver kinds and attack patterns — kinds=[&"ranged"] patterns=[&"volley"]%0Atest_hero_rig.gd :: native robot uses vertex palette without bitmap textures —
+GDScript tests: 1566 total, 1 failed
+  FAIL  test_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
+::error title=GDScript test failures (1)::test_hero_rig.gd :: native robot uses vertex palette without bitmap textures — 
 ========================================
-WARNING: 31 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-ERROR: 3 resources still in use at exit (run with --verbose for details).
+ERROR: 1 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:822)
