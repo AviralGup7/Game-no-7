@@ -2,6 +2,13 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SUITE: res://tests/unit/test_save.gd
 SUITE: res://tests/unit/test_campaign.gd
+SCRIPT ERROR: Invalid access to property or key 'members' on a base object of type 'Dictionary'.
+          at: _reconcile (res://tests/unit/test_campaign.gd:72)
+          GDScript backtrace (most recent call first):
+              [0] _reconcile (res://tests/unit/test_campaign.gd:72)
+              [1] suite (res://tests/unit/test_campaign.gd:15)
+              [2] _run_suites (res://tests/run_tests.gd:149)
+              [3] _initialize (res://tests/run_tests.gd:105)
 SUITE: res://tests/unit/test_audit_boundaries.gd
 SUITE: res://tests/unit/test_combat.gd
 SUITE: res://tests/unit/test_configs.gd
@@ -109,13 +116,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=2079 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=2079 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=2079 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=2079 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=2079 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12102 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12102 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=1530 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=1530 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=1530 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=1530 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=1530 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=10040 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=10040 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -366,7 +373,13 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1655 total, 0 failed
+GDScript tests: 1565 total, 5 failed
+  FAIL  test_campaign.gd :: fixed station has twelve districts and thirteen missions — 
+  FAIL  test_campaign.gd :: all 96 authored spawn ids are unique — 
+  FAIL  test_campaign.gd :: campaign nav is coarse and rectangular — 
+  FAIL  test_campaign.gd :: campaign nav uses its authored world origin — 
+  FAIL  test_campaign.gd :: floor instancing uses the authored module union — 
+::error title=GDScript test failures (5)::test_campaign.gd :: fixed station has twelve districts and thirteen missions — %0Atest_campaign.gd :: all 96 authored spawn ids are unique — %0Atest_campaign.gd :: campaign nav is coarse and rectangular — %0Atest_campaign.gd :: campaign nav uses its authored world origin — %0Atest_campaign.gd :: floor instancing uses the authored module union — 
 ========================================
 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
