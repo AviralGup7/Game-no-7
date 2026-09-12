@@ -1775,18 +1775,6 @@ WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0
 [  71% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -1836,18 +1824,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  72% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -1897,18 +1873,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  74% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -2343,18 +2307,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  86% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -2558,18 +2510,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  92% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -2619,18 +2559,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  94% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -2708,18 +2636,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  96% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
@@ -2769,18 +2685,6 @@ ERROR: glTF import: Tried to read texture at index 3, but this glTF file does no
 [  97% ] [90m[1mreimport[22m | focus.glb[39m[0m
 [   0% ] [90m[1mimport[22m | Started Import Scene (104 steps)[39m[0m
 [   0% ] [90m[1mimport[22m | Importing Scene...[39m[0m
-ERROR: glTF import: Tried to read texture at index 0, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read sampler for texture at index 0, but this glTF file does not contain any textures.
-   at: _get_sampler_for_texture (modules/gltf/gltf_document.cpp:2562)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 1, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 2, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
-ERROR: glTF import: Tried to read texture at index 3, but this glTF file does not contain any textures.
-   at: _get_texture (modules/gltf/gltf_document.cpp:2522)
 [   1% ] [90m[1mimport[22m | Running Custom Script...[39m[0m
 [  99% ] [90m[1mimport[22m | Saving...[39m[0m
 [92m[ DONE ][39m [1mimport[22m
