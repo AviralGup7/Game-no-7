@@ -87,6 +87,9 @@ jobs:
       - name: Authored campaign topology and content
         run: python3 tool/validate_campaign.py
 
+      - name: Geometry & asset integrity (13 categories)
+        run: python3 tool/validate_geometry.py --verbose
+
       - name: Engine API contract gate
         shell: bash
         run: python3 tool/check_engine_api.py
