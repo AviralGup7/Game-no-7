@@ -13,7 +13,10 @@ set +e
 GODOT_BIN="$GODOT" godot_test_timeout 90 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" --script res://tests/run_player_tests.gd 2>&1 | tee build/hero-runtime-tests.log
 engine_status=${PIPESTATUS[0]}
 set -e
-# Require a real completion summary AND a clean error channel.
+# Require a real completion summary AND a clean error channel. The native run
+# renders real hero scenes under GLES3, so only the enumerated engine
+# lifecycle reports are demoted; script errors remain fatal.
 python3 tool/check_godot_log.py build/hero-runtime-tests.log --exit-code "$engine_status" \
+  --allow-engine-noise \
   --require '^Player tests: [1-9][0-9]* checks, 0 failed$'
 printf 'Hero runtime validation passed. Isolated profile: %s\n' "$TEST_DATA"

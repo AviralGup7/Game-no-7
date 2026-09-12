@@ -175,8 +175,15 @@ jobs:
           code=$?
           set -e
           tail -60 godot-import.log
-          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
+          # Import is headless; the only demoted pair is the dummy renderer's
+          # null-texture fetch while generating GLB/GLTF preview thumbnails.
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code" \
+            --allow-engine-noise
 
+      # The unittest suite runs native (xvfb + Mesa GL). --allow-engine-noise
+      # only demotes the enumerated GLES3/driver lifecycle reports that a
+      # real GL driver emits at scene teardown / process exit; script and
+      # engine errors that reference res:// still fail the step.
       - name: Run native unit tests
         run: |
           set +e
@@ -185,6 +192,7 @@ jobs:
           set -e
           tail -120 godot-unit.log
           python3 tool/check_godot_log.py godot-unit.log --exit-code "$code" --allow-test-errors \
+            --allow-engine-noise \
             --require '^GDScript tests: [1-9][0-9]* total, 0 failed$'
 
       - name: Validate hero combat clips, sockets and lifecycle
@@ -225,6 +233,7 @@ jobs:
           set -e
           tail -60 godot-assets.log
           python3 tool/check_godot_log.py godot-assets.log --exit-code "$code" \
+            --allow-engine-noise \
             --require '^Asset imports: [1-9][0-9]* resources, 0 failures$'
 
       - name: Upload reports (godot-tests)
@@ -298,7 +307,8 @@ jobs:
           code=$?
           set -e
           tail -60 godot-import.log
-          python3 tool/check_godot_log.py godot-import.log --exit-code "$code"
+          python3 tool/check_godot_log.py godot-import.log --exit-code "$code" \
+            --allow-engine-noise
 
       # Gradle Android export requires the build template inside the project.
       - name: Install Android build template into project
@@ -322,12 +332,26 @@ jobs:
             printf '::error file=build/export.log,title=godot export failed::'
             grep -iE "ERROR:|error:|failed|denied|not found|Exception|Could not|FAILURE:|What went wrong" build/export.log | head -25
           fi
-          python3 tool/check_godot_log.py build/export.log --exit-code "$code"
+          # The editor exporter can print the same exit-time driver reports the
+          # native test steps see; only those enumerated pairs are demoted.
+          python3 tool/check_godot_log.py build/export.log --exit-code "$code" \
+            --allow-engine-noise
 
+      # The checker writes the failure reason into the report even on error;
+      # surface it as an annotation because raw step logs are not reachable
+      # from every environment that reads CI results.
       - name: Verify Android APK identity, ABI, permissions and signature
         run: |
+          set +e
           python3 tool/check_android_apk.py "$APK_PATH" --build-type debug \
             --report build/apk-validation.json
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            err=$(python3 -c 'import json; print(json.load(open("build/apk-validation.json")).get("error", "unknown"))' 2>/dev/null || echo "unknown")
+            echo "::error title=APK verification::${err}"
+            exit "$code"
+          fi
 
       - name: Report APK size by container and largest entries
         run: python3 tool/apk_size_report.py "$APK_PATH" | tee build/apk-size-report.json

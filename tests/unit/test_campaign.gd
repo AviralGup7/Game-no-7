@@ -9,8 +9,8 @@ static func suite() -> Array:
 	_check(results, "campaign data loads without a generated world", definition.load_authored())
 	if not definition.valid:
 		return results
-	_check(results, "fixed station has six districts and seven missions", definition.sectors.size() == 6 and definition.missions.size() == 7)
-	_check(results, "all 29 authored spawn ids are unique", definition.spawn_ids().size() == 29)
+	_check(results, "fixed station has twelve districts and thirteen missions", definition.sectors.size() == 12 and definition.missions.size() == 13)
+	_check(results, "all 96 authored spawn ids are unique", definition.spawn_ids().size() == 96)
 	_schema(results)
 	_reconcile(results, definition)
 	_navigation(results, definition)
@@ -64,21 +64,24 @@ static func _reconcile(results: Array, definition: CampaignDefinition) -> void:
 	_check(results, "campaign cursor cannot skip uncompleted story", result.mission == 0 and not result.completed)
 	_check(results, "unknown checkpoint returns safely to docks", result.checkpoint == "docks")
 	_check(results, "unknown and future objective identifiers are dropped", result.interacted.is_empty() and result.defeated.is_empty() and result.visited == ["docks"])
-	raw = {"started": true, "interacted": ["dock_link", "transit_power", "manifest_a"]}
+	# Missions 01-03 (dock relay, transit power, hydroponics purge) are complete;
+	# a manifest picked up out of order belongs to a later mission and is dropped.
+	raw = {"started": true, "interacted": ["dock_link", "transit_power", "hydro_valve", "manifest_a"]}
 	raw.defeated = []
-	for member in definition.encounter("transit_guards").members:
-		raw.defeated.append(String(member.id))
+	for encounter_id in ["transit_guards", "hydro_drones"]:
+		for member in definition.encounter(encounter_id).members:
+			raw.defeated.append(String(member.id))
 	result = CampaignProgress.reconcile(raw, definition)
-	_check(results, "completed ledger restores a stale mission cursor", result.mission == 2)
-	_check(results, "partial current-mission collection is preserved", "manifest_a" in result.interacted and "manifest_b" not in result.interacted)
+	_check(results, "completed ledger restores a stale mission cursor", result.mission == 3)
+	_check(results, "partial current-mission collection is preserved", "hydro_valve" in result.interacted and "manifest_a" not in result.interacted)
 
 
 static func _navigation(results: Array, definition: CampaignDefinition) -> void:
 	var grid := ArenaNavGrid.new()
 	grid.build_world(definition.bounds, definition.floors, definition.solid_boxes())
-	_check(results, "campaign nav is coarse and rectangular", grid.width == 88 and grid.depth == 68 and grid.cell_size == 4)
-	_check(results, "campaign nav uses its authored world origin", grid.to_cell(Vector3(-144, 0, 104)) == Vector2i(8, 60))
-	_check(results, "void is not walkable", not grid.is_walkable(Vector3(60, 0, 0)))
+	_check(results, "campaign nav is coarse and rectangular", grid.width == 216 and grid.depth == 168 and grid.cell_size == 4)
+	_check(results, "campaign nav uses its authored world origin", grid.to_cell(Vector3(-216, 0, 44)) == Vector2i(54, 95))
+	_check(results, "void is not walkable", not grid.is_walkable(Vector3(-420, 0, 0)))
 	_check(results, "out-of-world coordinates never wrap into the map", not grid.is_walkable(Vector3(10000, 0, 10000)))
 	grid.rebuild_flow_field(definition.checkpoint("docks").origin)
 	for sector in definition.sectors:
@@ -93,8 +96,8 @@ static func _navigation(results: Array, definition: CampaignDefinition) -> void:
 			_check(results, "clear reachable spawn / " + String(member.id), grid.is_walkable(at) and grid.flow_field_reachable(at))
 	var route := grid.find_path(definition.checkpoint("docks").origin, definition.checkpoint("reactor").origin)
 	_check(results, "long campaign route exists without a teleport", route.size() > 1)
-	_check(results, "floor instancing uses the authored module union", CampaignGeometry.floor_cells(definition.floors).size() == 744)
-	_check(results, "perimeter collision merges adjacent wall modules", CampaignGeometry.perimeter(definition.floors).size() < 100)
+	_check(results, "floor instancing uses the authored module union", CampaignGeometry.floor_cells(definition.floors).size() == 3768)
+	_check(results, "perimeter collision merges adjacent wall modules", CampaignGeometry.perimeter(definition.floors).size() < 260)
 	grid.build(12, 0.5, [])
 	_check(results, "legacy nav API still resets to a centred fine grid", grid.width == grid.depth and grid.cell_size == 0.5 and grid.to_cell(Vector3.ZERO) == Vector2i(24, 24))
 

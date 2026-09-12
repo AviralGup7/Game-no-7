@@ -19,12 +19,20 @@ GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --pa
   > build/campaign-import.log 2>&1
 code=$?
 set -e
-python3 tool/check_godot_log.py build/campaign-import.log --exit-code "$code"
+# Headless import only demotes the enumerated dummy-renderer preview pair.
+python3 tool/check_godot_log.py build/campaign-import.log --exit-code "$code" \
+  --allow-engine-noise
 set +e
-GODOT_BIN="$GODOT" godot_test_timeout 180 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" \
+# 420 s, not 180 s: the 864 x 672 m station drives far more geometry per frame
+# on the runner's software GL renderer, and the walkthrough now covers 13
+# missions. This is a host-harness budget, not an Android frame-time claim.
+GODOT_BIN="$GODOT" godot_test_timeout 420 bash "$ROOT/scripts/run_godot.sh" --path "$ROOT" \
   --script res://tests/verify_campaign.gd 2>&1 | tee build/campaign-tests.log
 code=${PIPESTATUS[0]}
 set -e
+# Campaign scenes run native under GLES3; demote only the enumerated engine
+# lifecycle reports (scene teardown / process exit), script errors stay fatal.
 python3 tool/check_godot_log.py build/campaign-tests.log --exit-code "$code" \
+  --allow-engine-noise \
   --require '^CAMPAIGN TESTS: [1-9][0-9]* checks, 0 failed$'
 printf 'Native campaign validation complete. Isolated profile: %s\n' "$TEST_DATA"

@@ -59,7 +59,9 @@ func build_world(world_id: StringName) -> void:
 	_world_root.add_child(player)
 	var progress := SaveManager.get_campaign()
 	player.reset_for_new_run(definition.checkpoint(String(progress.checkpoint)))
-	player.set_bounds(176.0)
+	# Clamp follows the authored world, not a hard-coded radius: a larger
+	# station keeps every district inside the playable square.
+	player.set_bounds(definition.containment_half())
 	GameRoot.set_active_player(player)
 	var camera := CAMERA_SCENE.instantiate() as CameraRig
 	camera.name = "CameraRig"

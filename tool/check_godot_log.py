@@ -26,9 +26,56 @@ ERROR = re.compile(
 EXPECTED_BEGIN = "TEST EXPECTED ERRORS: "
 EXPECTED_END = "TEST EXPECTED ERRORS END"
 
+# Engine-side lifecycle noise, opt-in via --allow-engine-noise for *native*
+# scene-running steps only. With a real OpenGL driver (xvfb + Mesa) the GLES3
+# backend emits reports that the dummy renderer used headless never produces.
+# None of them carries a res:// path or maps to a game/asset defect, and the
+# engine exits 0 afterwards; every entry is matched together with its C++
+# `at:` line so a different failure that reuses the same headline still fails.
+#   1. Scene-cull material queries hit a material RID in the frame between a
+#      node's deferred instance update and its scripted teardown (freed
+#      Ref<Material> on the node side). Godot 4.4.1 GLES3 ERR_FAIL_NULL paths.
+#   2. The GLES3 texture allocator reports still-resident GL textures from the
+#      driver destructor at process exit (viewport windows freed after the
+#      driver). Shutdown ordering; no Android/desktop build impact.
+#   3. Engine exit reports fired when any object/resource outlives the script
+#      engine's teardown windows. Both spelling variants exist (4.4.1 prints
+#      the uncounted form; other versions print "N instances were leaked").
+#   4. Headless (`--display-driver headless`) editor import asks the *dummy*
+#      rendering server for textures while generating GLB/GLTF preview
+#      thumbnails; the fetch is a null-texture ERR_PRINT (149x on a cold
+#      import here, none once cached). Importers/parse checks are unaffected.
+# Add a new entry only with the captured log line AND its `at:` context line.
+ENGINE_NOISE: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(r'^\s*ERROR: Parameter "material" is null\.$'),
+        r"at: material_(casts_shadows|is_animated|get_instance_shader_parameters|update_dependency)"
+        r" \(drivers/gles3/storage/material_storage\.cpp:\d+\)",
+    ),
+    (
+        re.compile(r'^\s*ERROR: Parameter "t" is null\.$'),
+        r"at: texture_2d_get \(servers/rendering/dummy/storage/texture_storage\.h:\d+\)",
+    ),
+    (
+        re.compile(r"^\s*ERROR: Texture with GL ID of \d+: leaked \d+ bytes\.$"),
+        r"at: ~Utilities \(drivers/gles3/storage/utilities\.cpp:\d+\)",
+    ),
+    (
+        # The `--verbose` hint is backticked in some builds and plain in others.
+        re.compile(r"^\s*WARNING: (\d+ )?ObjectDB instances (were )?leaked at exit"
+                   r" \(run with `?--verbose`? for details\)\.$"),
+        r"at: cleanup \(core/object/object\.cpp:\d+\)",
+    ),
+    (
+        re.compile(r"^\s*ERROR: \d+ resources? still in use at exit"
+                   r" \(run with `?--verbose`? for details\)\.$"),
+        r"at: clear \(core/io/resource\.cpp:\d+\)",
+    ),
+]
+
 
 def validate_log(text: str, exit_code: int = 0, required: str | None = None,
-                 allow_test_errors: bool = False) -> list[str]:
+                 allow_test_errors: bool = False, allow_engine_noise: bool = False) -> list[str]:
     clean = ANSI.sub("", text)
     problems: list[str] = []
     if exit_code != 0:
@@ -63,6 +110,13 @@ def validate_log(text: str, exit_code: int = 0, required: str | None = None,
             if expected is not None and expected[line.strip()] > 0:
                 expected[line.strip()] -= 1
                 continue
+            if allow_engine_noise:
+                # Demote only when the headline AND its C++ `at:` line are an
+                # enumerated engine-lifecycle pair; anything else still fails.
+                context = lines[index + 1] if index + 1 < len(lines) else ""
+                if any(headline.match(line) and re.search(at_pattern, context)
+                       for headline, at_pattern in ENGINE_NOISE):
+                    continue
             # Preserve the nearby res:// stack location, not just the headline.
             problems.append("\n".join(lines[index:index + 4]))
     if expected is not None:
@@ -78,13 +132,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--exit-code", type=int, default=0)
     parser.add_argument("--allow-test-errors", action="store_true",
                         help="Honor exact, bounded ExpectedErrors blocks in unit tests only")
+    parser.add_argument("--allow-engine-noise", action="store_true",
+                        help="Demote enumerated engine lifecycle reports only (see ENGINE_NOISE "
+                             "in this file): GLES3 scene-teardown/shutdown pairs on native runs "
+                             "and the dummy-renderer preview pair on headless --import runs")
     parser.add_argument("--require", help="Regex that must match a successful test summary")
     args = parser.parse_args(argv)
     try:
         if args.require is not None:
             re.compile(args.require)
         text = args.log.read_text(encoding="utf-8", errors="replace")
-        problems = validate_log(text, args.exit_code, args.require, args.allow_test_errors)
+        problems = validate_log(text, args.exit_code, args.require, args.allow_test_errors,
+                                args.allow_engine_noise)
     except (OSError, re.error) as error:
         print(f"Godot log validation failed: {error}", file=sys.stderr)
         return 1

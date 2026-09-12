@@ -211,7 +211,7 @@ file count and the guard-needle count from the tools themselves rather than trus
 
 - Start: 1901 sum (1719 ins / 182 del)
 - After sweep: 4000+ sum (target 4000)
-- Tests: 1154 python + the headless Godot suites (was 95) — all green. The two branches merged in
+- Tests: 1164 python + the headless Godot suites (was 95) — all green. The two branches merged in
   `main` brought their own suites (`test_regress_systems_completion`, `test_regress_solid_props_and
   _buttons`, the camera-containment and minimap sweeps), which is most of that growth; the run-
   definition pass added `test_regress_run_modes`, the mobile-input pass `test_regress_mobile_input_contract`,
