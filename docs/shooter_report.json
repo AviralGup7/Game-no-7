@@ -1,0 +1,25 @@
+{
+  "map": "data/campaign/station_zero.json",
+  "module": 8,
+  "cell": 4,
+  "errors": 0,
+  "warnings": 0,
+  "issues": [],
+  "categories": [
+    "cover_placement",
+    "sightline_problems",
+    "extremely_long_exposed_corridors",
+    "unintended_sniper_sightlines",
+    "areas_with_no_cover",
+    "areas_with_excessive_cover",
+    "enemy_spawn_feasibility",
+    "player_spawn_safety",
+    "arena_combat_space_dimensions",
+    "chokepoints",
+    "flanking_routes",
+    "traversal_loops",
+    "navigation_around_props",
+    "head_height_weapon_obstructions",
+    "potential_camping_spots"
+  ]
+}
