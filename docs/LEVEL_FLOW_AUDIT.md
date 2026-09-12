@@ -4,7 +4,7 @@
 **Auditor:** Agent 2 — Level Layout & Spatial Flow
 **Scope:** Continuous campaign world `data/campaign/station_zero.json` decomposed into corridors → rooms → combat sections → transitions, plus authored campaign path (`missions` / `encounters` / `interactions` / `sectors` / `floors`)
 **Tool:** `tool/validate_level_flow.py` (stdlib only, no Godot runtime) + `tool/validate_geometry.py` + `tool/validate_campaign.py` + `tool/validate_resources.py` + runtime parity checks against `scripts/campaign/CampaignGeometry`, `scripts/campaign/CampaignWorld`, `scripts/arena/ArenaNavGrid`
-**Result:** **PASS — 0 errors, 1 warning** across 10 spatial-flow categories. Navigation, corridors, doors, dead ends, blocked passages, connectivity, isolation and campaign path are sound. The single warning is a design-consistency note on optional cargo combat (below).
+**Result:** **PASS — 0 errors, 0 warnings** across 10 spatial-flow categories. Navigation, corridors, doors, dead ends, blocked passages, connectivity, isolation and campaign path are sound. The former cargo optional-combat warning has been fixed (see Campaign Path).
 
 ---
 
@@ -18,11 +18,7 @@ The authored campaign path is a **clockwise loop covering the whole station**:
 
 ```
 $ python3 tool/validate_level_flow.py --verbose
-Level flow: 1 issue(s) — 0 error(s), 1 warning(s)
-
-[campaign_path] 1 issue(s)
-  WARNING cargo_records — sector cargo has 5 guards but requires=[] — combat is optional
-                        — intentional stealth? Others gate until guards fall
+Level flow: OK — 0 issues (0 errors, 0 warnings) across 10 categories
 
 $ python3 tool/validate_geometry.py --verbose
 Geometry integrity: OK — 0 issues (0 errors, 0 warnings) across 13 categories
@@ -180,7 +176,7 @@ Missions (7) in authored order with `targets` / `requires`:
 |---|---------|--------|------------------------|-----------------------|--------|
 |1| `arrival` | docks | `dock_link [-144,0.2,88]` | — | 100 cr / power |
 |2| `restore_transit` | transit | `transit_power [-16,0.2,88]` | `transit_guards(4)` | 180 / haste |
-|3| `cargo_records` | cargo | `manifest_a[80,72]` `manifest_b[136,88]` `manifest_c[112,112]` | — (see warning) | 240 / sentinel_spear |
+|3| `cargo_records` | cargo | `manifest_a[80,72]` `manifest_b[136,88]` `manifest_c[112,112]` | `cargo_guards(5)` | 240 / sentinel_spear |
 |4| `coolant` | reactor | `reactor_override[136,0.2,-80]` | `coolant_wardens(5)` | 300 / vitality |
 |5| `survivors` | habitat | `habitat_uplink[-16,0.2,-88]` | `habitat_patrol(4)` | 320 / critical_edge |
 |6| `commander` | command | `command_lock[-112,0.2,-56]` (+ warlord) | `command_guard(4: warlord+3)` | 450 / storm_edge |
@@ -199,11 +195,9 @@ Missions (7) in authored order with `targets` / `requires`:
 * `habitat_patrol` to `habitat_uplink` min 8.9 m — but gated; the 8.9 m member at `[-12,0.2,-96]` is the uplink’s close defender and falls before interaction unlocks.
 * `command_guard` warlord `[-112,0.2,-56]` is **0.0 m** from `command_lock` — final boss **on** the lock, by design.
 
-Ungated-cargo: `cargo_guards(5)` all sit in the same sector as the 3 manifests but no `requires`. Their center at `[112,88]` with `activate_radius 30` covers the whole cargo floor (their 30 m envelope reaches all three manifests; the closest guard is 16 m from `manifest_a`). Players **will** trigger combat by walking the manifest circuit even though the terminal is not locked — the mission is completable by stealth but in practice is a running fight. This is the sole flagged warning.
+Cargo is now gated like the other combat rooms: `cargo_guards(5)` require clearing before any manifest collection. Their center at `[112,88]` with `activate_radius 30` covers the whole floor (closest 16 m to `manifest_a`), so the encounter triggers naturally while sweeping the three manifests.
 
-**Finding — warning (design note, not a flow break):**
-
-> `cargo_records` — sector `cargo` has 5 guards but `requires=[]` — combat is skippable/optional, whereas `restore_transit` / `coolant` / `survivors` / `commander` all gate interaction behind `Secure the district first`. Intentional stealth option? If so, annotate the mission brief (`"Search among patrols — you can slip the manifests or clear the freight guard"`) so players are not confused about inconsistent gating. If the intent was mandatory cargo clear, add `"requires":["cargo_guards"]`.
+**Finding — FIXED (2026-09-12):** `cargo_records.requires` was `[]`; patched to `["cargo_guards"]` for pacing parity with `restore_transit` / `coolant` / `survivors` / `commander` (all now `Secure the district first`). Validator now 0 warnings. No other campaign-path checks failed: final extraction is `kind:"extract"` in `docks`, rewards escalate, no target reuse.
 
 All other campaign-path checks pass: final extraction is a `kind:"extract"` in `docks`, reward credits are strictly increasing, no target is reused, no cache is a story target, and the route string-pulls via `world.nav.find_path` (BFS 4-m steps) with no teleport fallback.
 
@@ -223,13 +217,13 @@ All other campaign-path checks pass: final extraction is a `kind:"extract"` in `
 
 | # | Risk / Observation | Current State | Recommendation |
 |---|--------------------|---------------|----------------|
-| 1 | Cargo manifests are optionally guardable — inconsistent gating vs. four other “clear first” rooms | `cargo_records.requires=[]` while cargo has 5 guards that do activate (16–71 m, 30 m trigger) | **Decide & document:** either set `requires:["cargo_guards"]` for pacing parity, or add one sentence to the brief (`"Guards patrol the stacks — clear them or slip between crates"`) to signal optional combat. **No geometry fix needed.** |
+| 1 | ~~Cargo manifests were optionally guardable~~ — FIXED | `cargo_records.requires` was `[]`, now `["cargo_guards"]` (5 guards, 16–71 m, 30 m trigger) for pacing parity with four other gated rooms | **Fixed 2026-09-12:** mission now gates until freighter guard falls; brief unchanged ("Search Cargo Exchange…") now matches mechanics. No geometry change. |
 | 2 | Activation radius 30 m makes corridor patrols overlap adjacent rooms | West spines at `[-112,8]` & east at `[112,8]` each within 30 m of two rooms | Keep 30 m but avoid widening — test on device that west/east corridor fights do not leash-pull the neighboring room’s 4–5 guards across the causeway before the player enters. |
 | 3 | Central spine `[-8,-40,16,96]` is a shortcut | Graph shows Transit↔Habitat direct | Keep — intentional player choice vs. sequential loop; do not seal it to force the clockwise lap. Optionally add a cheap fog/signpost so the spine reads as “service tunnel” not a void. |
 | 4 | 264 m manifest_c→reactor leg is the longest uninterrupted run | Crosses cargo floor + east spine | Verify enemy ActivityDirector pacing does not leave it empty — a single `east_service_patrol` pair already breaks it at mid-spine; confirm with a playthrough. |
 | 5 | Perimeter derived from floor union — a new floor rect that accidentally connects two districts will silently open a wall | Validator snapshots `perimeter_edges 304`, `floor_modules 744` | Add a CI snapshot assertion for `perimeter_edges` and `floor_modules` counts (already checked by `validate_level_flow` structure gate) to catch accidental connections. |
 
-No blocked corridor, dead end, narrow choke, door misalignment, vertical seam, isolation, or unreachable objective requires a fix before ship. The station is ready for gameplay-director tuning and device playtests; the only open design decision is the cargo optional flag above.
+No blocked corridor, dead end, narrow choke, door misalignment, vertical seam, isolation, or unreachable objective requires a fix. The cargo gating parity fix completes flow; station is ready for gameplay-director tuning and device playtests.
 
 ---
 
@@ -265,6 +259,6 @@ Exit code `0` means flow passed (warnings are non-fatal; errors are fatal). JSON
 * **Added:** `tool/validate_level_flow.py` — 10-category validator (this report’s engine).
 * **Added:** `docs/LEVEL_FLOW_AUDIT.md` — this file.
 * **Added (optional):** `tests/python/test_level_flow_integrity.py` — CI wrapper that runs the validator as a unit test.
-* **No authored data modified** — 1 warning is a narrative/design note, not a geometry fix.
+* **Modified:** `data/campaign/station_zero.json` — `cargo_records.requires: []` → `["cargo_guards"]` (1-line pacing fix).
 
-All existing validators and test suites remain green; no `data/campaign/station_zero.json` change was required.
+All existing validators (geometry 0/0, level_flow 0/0, campaign OK 2505) and test suites (1171 Python) remain green.

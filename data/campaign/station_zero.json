@@ -1137,7 +1137,9 @@
         "manifest_b",
         "manifest_c"
       ],
-      "requires": [],
+      "requires": [
+        "cargo_guards"
+      ],
       "reward": {
         "credits": 240,
         "xp": 160,
