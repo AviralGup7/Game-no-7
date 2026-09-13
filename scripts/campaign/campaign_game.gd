@@ -30,7 +30,11 @@ func _ready() -> void:
 	_ui.name = "CampaignUI"
 	_ui.definition = definition
 	(get_node("UIRoot") as CanvasLayer).add_child(_ui)
-	EventBus.game_state_changed.connect(_on_state)
+	# The world composer reacts to the canonical state broadcast. bind() rather
+	# than connect(): `_on_state` frees the world it composes, so it must stop the
+	# moment this node leaves the tree instead of relying on free() to drop the
+	# connection from a session-lifetime autoload.
+	EventBus.bind(self, EventBus.game_state_changed, _on_state)
 	if not loaded:
 		EventBus.report_error("The authored Station Zero campaign could not be loaded")
 		GameRoot.transition_to(GameRoot.State.LOADING)

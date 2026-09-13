@@ -4,11 +4,16 @@ extends RefCounted
 
 const PATH := "res://data/campaign/station_zero.json"
 const WORLD_ID := "station_zero"
-## Largest authored station the coarse 4 m navigation grid may hold. The real
-## limit is the cell budget in ArenaNavGrid (40,960 cells), not the deck meshes.
+## Largest authored station the coarse 4 m navigation grid
+## (`CampaignContract.NAV_CELL_SIZE_M`) may hold. The real limit is the cell budget
+## in ArenaNavGrid (40,960 cells), not the deck meshes. Single-sourced in
+## CampaignBudgets; the drift is pinned by tests/python/test_campaign_budgets.py.
 const WORLD_EXTENT_LIMIT := CampaignBudgets.WORLD_EXTENT_LIMIT
 const MAX_FLOOR_REGIONS := CampaignBudgets.MAX_FLOOR_REGIONS
 const MAX_TABLE_ROWS := CampaignBudgets.MAX_TABLE_ROWS
+## Ids already reported by `sector()`. Static so a rebuilt world cannot re-spam
+## the same unknown id into the log the fallback report is meant to be readable in.
+static var _reported_sector_ids: Dictionary = {}
 var title := "STATION ZERO"
 var bounds := Rect2(-432, -336, 864, 672)
 var floors: Array[Rect2] = []
@@ -54,7 +59,7 @@ func load_authored() -> bool:
 static func source_is_valid(raw: Dictionary) -> bool:
 	if raw.get("world_id", "") != WORLD_ID or raw.get("schema_version", 0) != 1:
 		return false
-	if raw.get("module_size", 0) != 8 or raw.get("navigation_cell", 0) != 4:
+	if raw.get("module_size", 0) != int(CampaignContract.MODULE_SIZE_M) or raw.get("navigation_cell", 0) != int(CampaignContract.NAV_CELL_SIZE_M):
 		return false
 	if not raw.get("title") is String or not _numbers(raw.get("bounds"), 4):
 		return false
@@ -64,7 +69,7 @@ static func source_is_valid(raw: Dictionary) -> bool:
 		if not _numbers(area, 4) or not rect(area).has_area():
 			return false
 		for number in area:
-			if not is_equal_approx(roundf(float(number) / 8.0) * 8.0, float(number)):
+			if not is_equal_approx(roundf(float(number) / CampaignContract.MODULE_SIZE_M) * CampaignContract.MODULE_SIZE_M, float(number)):
 				return false
 	var fields := {"sectors": ["name", "rect", "checkpoint", "accent"],
 		"props": ["sector", "kind", "at", "size"], "encounters": ["sector", "members", "activate_radius"],
@@ -84,7 +89,7 @@ static func source_is_valid(raw: Dictionary) -> bool:
 		if row.rect not in raw.floors:
 			return false
 		sector_ids.append(String(row.id))
-	if "docks" not in sector_ids:
+	if String(CampaignContract.DISTRICT_HOME) not in sector_ids:
 		return false
 	for key in ["props", "encounters", "interactions", "missions"]:
 		for row in raw[key]:
@@ -100,21 +105,21 @@ static func source_is_valid(raw: Dictionary) -> bool:
 		if not _rows(row.members, ["type", "at"]) or not _positive_number(row.activate_radius):
 			return false
 		for member in row.members:
-			if not _numbers(member.at, 3) or member.id in spawns or member.type not in ["basic", "fast", "heavy", "ranged", "dasher", "warlord"]:
+			if not _numbers(member.at, 3) or member.id in spawns or member.type not in CampaignContract.ENCOUNTER_ARCHETYPES:
 				return false
 			spawns.append(String(member.id))
 		encounter_ids.append(String(row.id))
 	for row in raw.interactions:
 		if not _numbers(row.at, 3) or not row.name is String or not _positive_number(row.credits):
 			return false
-		if row.kind not in ["terminal", "collect", "extraction", "cache"]:
+		if row.kind not in CampaignContract.INTERACTION_KINDS:
 			return false
 		interaction_ids.append(String(row.id))
 	var used_targets: Array = []
 	for row in raw.missions:
 		if not row.title is String or not row.brief is String or not row.targets is Array or not row.requires is Array or not row.reward is Dictionary:
 			return false
-		if row.targets.is_empty() or row.kind not in ["interact", "collect", "clear", "extract"]:
+		if row.targets.is_empty() or row.kind not in CampaignContract.MISSION_KINDS:
 			return false
 		for id in row.targets:
 			if id not in interaction_ids or id in used_targets:
@@ -182,15 +187,30 @@ static func rect(value: Variant) -> Rect2:
 	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
 
 
+## District record by authored id. An unknown id returns the home district
+## record instead, because every caller (checkpoint placement, HUD, map) needs a
+## record to draw and a missing one would teleport the player onto the origin.
+## The substitution is reported once per id per session: `_reported_sector_ids`
+## keeps a save that names a district the shipped data no longer has from
+## repeating the same line every physics tick.
 func sector(id: String) -> CampaignSector:
 	for item in sectors:
 		if item.id == id:
 			return item
+	_report_unknown_sector(id)
 	for item in sectors:
-		if item.id == "docks":
+		if item.id == String(CampaignContract.DISTRICT_HOME):
 			return item
 	push_error("CampaignDefinition: required docks sector is missing")
 	return null
+
+
+func _report_unknown_sector(id: String) -> void:
+	if _reported_sector_ids.get(id, false):
+		return
+	_reported_sector_ids[id] = true
+	push_warning("CampaignDefinition.sector: no authored district '%s' in %s — using the %s record instead; check the saved checkpoint id against the shipped campaign data" % [id, PATH, String(CampaignContract.DISTRICT_HOME)])
+
 
 func sector_at(at: Vector3) -> CampaignSector:
 	for item in sectors:

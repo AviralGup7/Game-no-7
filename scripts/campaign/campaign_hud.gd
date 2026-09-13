@@ -155,11 +155,11 @@ func _refresh_values() -> void:
 		_gauges.set_weapon_text("%s / %s" % [weapon.config.display_name, status], "Hold FIRE and slide to aim")
 	var item := director.nearest_interaction()
 	_interact.visible = not item.is_empty()
-	_interact.text = "BOARD" if item.get("kind", "") == "extraction" else "INTERACT"
+	_interact.text = "BOARD" if item.get("kind", "") == CampaignContract.INTERACTION_EXTRACTION else "INTERACT"
 	_interact.tooltip_text = String(item.get("name", ""))
 	if not item.is_empty():
 		_mission.text = String(item.name)
-		if item.kind != "cache" and director.remaining_guards() > 0:
+		if item.kind != CampaignContract.INTERACTION_CACHE and director.remaining_guards() > 0:
 			_mission.text += " / SECURE DISTRICT FIRST"
 	elif director.remaining_guards() > 0:
 		_mission.text = "%s / %d HOSTILES / %dm" % [String(mission.get("title", "")), director.remaining_guards(), ceili(director.distance_to_target())]

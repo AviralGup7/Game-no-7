@@ -59,7 +59,7 @@ func _draw() -> void:
 		var at := _project(item.at)
 		draw_circle(at, 3.0 if compact else 6.0, UiTheme.GOLD)
 	for item in definition.interactions:
-		if item.kind == "cache" and item.id not in director.progress.interacted:
+		if item.kind == CampaignContract.INTERACTION_CACHE and item.id not in director.progress.interacted:
 			var at := _project(item.at)
 			draw_rect(Rect2(at - Vector2(2, 2), Vector2(4, 4)), UiTheme.MUTED)
 	var here := _project(director.player.global_position)

@@ -9,6 +9,16 @@ const TICK := CampaignBudgets.STREAM_TICK_SECONDS
 const DESPAWN_DISTANCE := CampaignBudgets.DESPAWN_DISTANCE
 const SPAWN_DISTANCE := CampaignBudgets.SPAWN_DISTANCE
 const SPAWNS_PER_TICK := CampaignBudgets.SPAWNS_PER_TICK
+## Distance a required guard must clear before it is placed at its authored spot:
+## an actor popping in on top of the hero is a pop-in and an unavoidable ambush.
+## `CLEARANCE_RINGS` are the alternate offsets probed when the authored point is
+## too close or unwalkable, and `RING_SAMPLES` is how many evenly spaced angles
+## each ring tries. The final `return authored` is the proven fallback: a guard
+## with no clear ring point spawns at its authored position anyway. These are
+## spawn-legality rules, not the CampaignBudgets flow numbers.
+const PLAYER_CLEARANCE := 8.0
+const CLEARANCE_RINGS: Array = [8.0, 12.0, 16.0]
+const RING_SAMPLES := 8
 ## Flow-field window for combat on the expanded station: it comfortably covers
 ## every actor that can be live (spawn 70 m / despawn 90 m) while keeping each
 ## rebuild proportional to the crowd instead of to the whole 864 x 672 m deck.
@@ -33,7 +43,11 @@ func configure(world: CampaignWorld, player: Player, defeated: Array[String]) ->
 	_actors = Node3D.new()
 	_actors.name = "ActiveEncounterActors"
 	add_child(_actors)
-	EventBus.enemy_killed.connect(_on_enemy_killed)
+	# bind(), not connect(): this node is created and freed with every world
+	# build, and the bus outlives it. EventBus.bind disconnects on tree exit, so
+	# the ownership contract is explicit instead of relying on Godot dropping
+	# connections when the target is freed.
+	EventBus.bind(self, EventBus.enemy_killed, _on_enemy_killed)
 
 
 func _process(delta: float) -> void:
@@ -91,7 +105,7 @@ func _spawn(member: CampaignMember) -> bool:
 	if config == null or config.scene == null:
 		EventBus.report_error("Campaign enemy resource is missing: %s" % String(member.type))
 		return false
-	var scene := COMMANDER_SCENE if String(member.type) == "warlord" else config.scene
+	var scene := COMMANDER_SCENE if String(member.type) == CampaignContract.ENCOUNTER_COMMANDER else config.scene
 	var root := scene.instantiate()
 	if not root is EnemyBase:
 		root.free()
@@ -117,13 +131,13 @@ func _spawn(member: CampaignMember) -> bool:
 
 
 func _safe_spawn_position(authored: Vector3) -> Vector3:
-	if authored.distance_to(_player.global_position) >= 8.0 and _world.nav.is_walkable(authored):
+	if authored.distance_to(_player.global_position) >= PLAYER_CLEARANCE and _world.nav.is_walkable(authored):
 		return authored
-	for radius in [8.0, 12.0, 16.0]:
-		for step in range(8):
-			var angle := TAU * float(step) / 8.0
-			var candidate := authored + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
-			if candidate.distance_to(_player.global_position) >= 8.0 and _world.nav.is_walkable(candidate):
+	for radius in CLEARANCE_RINGS:
+		for step in range(RING_SAMPLES):
+			var angle := TAU * float(step) / float(RING_SAMPLES)
+			var candidate := authored + Vector3(cos(angle) * float(radius), 0.0, sin(angle) * float(radius))
+			if candidate.distance_to(_player.global_position) >= PLAYER_CLEARANCE and _world.nav.is_walkable(candidate):
 				return candidate
 	return authored
 

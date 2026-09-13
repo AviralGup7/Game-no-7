@@ -7,6 +7,9 @@ signal changed
 signal message(text: String)
 const INTERACT_RANGE := 4.5
 const UPDATE_INTERVAL := 0.25
+## Mission-complete sting, pulled back so it cannot compete with the combat bed
+## that is already playing on the SFX bus.
+const REWARD_STING_VOLUME_DB := -8.0
 ## Route refreshes are distance-throttled, not just time-throttled: on the
 ## expanded station an A* across the deck is the most expensive one-off query,
 ## so it only re-runs after the player has actually moved this far.
@@ -45,8 +48,12 @@ func configure(station: CampaignWorld, hero: Player, wallet: MetaProgression) ->
 	encounters.configure(world, player, progress.defeated)
 	encounters.member_defeated.connect(_on_member_defeated)
 	player.get_experience_component().xp_changed.connect(_on_xp_changed)
-	EventBus.weapon_equipped.connect(_on_weapon_equipped)
-	EventBus.weapon_switched.connect(_on_weapon_switched)
+	# Persistence triggers, not state ownership: the weapon layer keeps its own
+	# signals and the HUD/armory still observe them. bind() is used because this
+	# director node is rebuilt with every world build while the bus is an
+	# autoload, so teardown has to unhook the pair rather than rely on free().
+	EventBus.bind(self, EventBus.weapon_equipped, _on_weapon_equipped)
+	EventBus.bind(self, EventBus.weapon_switched, _on_weapon_switched)
 	_ready_to_save = true
 	_refresh_markers()
 	_update_route()
@@ -174,7 +181,7 @@ func nearest_interaction() -> CampaignInteraction:
 	var distance := INTERACT_RANGE
 	var targets := target_ids()
 	for item in definition.interactions:
-		if item.id in progress.interacted or (item.kind != "cache" and item.id not in targets):
+		if item.id in progress.interacted or (item.kind != CampaignContract.INTERACTION_CACHE and item.id not in targets):
 			continue
 		var d := item.at.distance_to(player.global_position)
 		if d <= distance:
@@ -189,12 +196,12 @@ func try_interact() -> bool:
 	var item := nearest_interaction()
 	if item == null:
 		return false
-	if item.kind != "cache" and remaining_guards() > 0:
+	if item.kind != CampaignContract.INTERACTION_CACHE and remaining_guards() > 0:
 		message.emit("Secure the district first / %d hostiles remaining" % remaining_guards())
 		return false
 	var snapshot := _capture_runtime()
 	progress.interacted.append(String(item.id))
-	if item.kind == "cache":
+	if item.kind == CampaignContract.INTERACTION_CACHE:
 		player.get_health_component().heal(30.0)
 		if not _commit_reward(int(item.credits), true):
 			_restore_runtime(snapshot)
@@ -250,7 +257,7 @@ func _complete_mission() -> bool:
 	if not _commit_reward(int(reward.credits), true):
 		return false
 	message.emit("OBJECTIVE COMPLETE / " + String(mission.title))
-	AudioManager.play_sfx(&"upgrade_select", -8.0)
+	AudioManager.play_sfx(&"upgrade_select", REWARD_STING_VOLUME_DB)
 	if bool(progress.completed):
 		# A save-error dialog may have paused during the reward transaction.
 		# Finish after Resume instead of losing the ending behind that overlay.

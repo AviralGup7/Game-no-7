@@ -20,6 +20,18 @@ var _spawned: Array[Node3D] = []
 var _blockers: Array[AABB] = []
 var _scene_cache := {}
 
+## One line per asset path for the whole session: a decorated arena mounts dozens
+## of props and the decorator is rebuilt every run, so a per-call warning would bury
+## the report that makes a missing art asset visible.
+static var _reported_mounts: Dictionary = {}
+
+
+func _report_mount(path: String, reason: String) -> void:
+	if _reported_mounts.get(path, false):
+		return
+	_reported_mounts[path] = true
+	push_warning("ArenaDecorator: prop %s %s — the primitive placeholder stays in its place; re-import the asset or drop the mount" % [path, reason])
+
 
 ## Nodes this decorator added to the tree (clear() drops them all).
 func spawned() -> Array[Node3D]:
@@ -53,18 +65,22 @@ func clear() -> void:
 
 
 ## Instantiate a cached PackedScene under `host`. Returns true when the model was
-## actually added (falls back silently on missing/unimported art).
+## actually added; a missing or unimported asset leaves the primitive the caller
+## builds in its place and says so once per path via `_report_mount` — a prop that
+## quietly becomes a box is an art regression, not a normal frame.
 func _mount_model(host: Node, path: String, y_offset: float, scale_factor: float) -> bool:
 	if not _scene_cache.has(path):
 		var res := load(path)
 		_scene_cache[path] = res if res is PackedScene else null
 	var scene: PackedScene = _scene_cache.get(path)
 	if scene == null:
+		_report_mount(path, "the file did not load as a PackedScene")
 		return false
 	var inst := scene.instantiate()
 	if inst == null or not inst is Node3D:
 		if inst != null:
 			inst.free()
+		_report_mount(path, "its root is not a Node3D")
 		return false
 	(inst as Node3D).position = Vector3(0, y_offset, 0)
 	(inst as Node3D).scale = Vector3.ONE * scale_factor

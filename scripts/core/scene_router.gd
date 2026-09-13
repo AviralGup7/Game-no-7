@@ -1,11 +1,16 @@
 extends Node
 ## Autoload: SceneRouter
-## Controlled, duplicate-safe scene changes with loading transitions and failure
-## recovery. GameRoot decides *which* scene/state; SceneRouter decides *how* the
-## tree change happens. The main game scene is persistent and composes world + UI,
-## so most transitions are state changes rather than scene swaps; this autoload
-## exists to keep scene-loading policy in one place and to be a clean seam for
-## future full-scene routing (e.g. dedicated menu scenes).
+## One scene change at a time. GameRoot decides *which* scene/state; SceneRouter
+## decides *how* the tree change happens. What is proven here: a second request
+## made while a transition holds the lock is refused with a warning, the engine's
+## Error from `change_scene_to_file()` is checked and reported, and the lock is
+## held until `current_scene` actually differs from the scene that was replaced
+## (bounded at 120 frames, and a timeout is reported through the same channel).
+## Nothing is re-routed or rolled back on failure: the caller keeps the tree it
+## already has and reads `get_last_error()`. The main game scene is persistent and
+## composes world + UI, so most transitions are state changes rather than scene
+## swaps; this autoload exists to keep scene-loading policy in one place and to be
+## a clean seam for future full-scene routing (e.g. dedicated menu scenes).
 
 var _transitioning := false
 var _last_error := ""

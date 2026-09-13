@@ -1,0 +1,327 @@
+{
+  "purpose": "Fallback ledger for res://scripts/**. tests/python/test_regress_audit_cleanup.py recomputes the same sweep this file was written from and fails if a substitution site appears, disappears or loses its diagnostic without an edit here. A fallback that is visible in the log costs one line; a silent one costs a shipped regression.",
+  "policy": {
+    "sweep": "A function is a substitution site when its code (comments stripped) either calls/returns an identifier containing 'fallback' or constructs a stand-in primitive (BoxMesh/CapsuleMesh). Every site must be listed below, exactly once.",
+    "diagnostics": [
+      "push_warning(",
+      "push_error(",
+      "report_warning(",
+      "report_error(",
+      "report_info(",
+      "report_diagnostic(",
+      "errors.append(",
+      "problems.append("
+    ],
+    "reporting": "disposition 'reports' names the function in the same file that must contain at least one diagnostic call (reported_in) and, when the site can run more than once (hot or per-mount cadence), the dedupe guard that keeps it to one line per source per session (dedupe_guard).",
+    "cadence": "'hot' means the site can run every frame or every shot; 'per-build' means at most once per world/scene build; 'per-mount' means once per actor or prop mount. 'hot' and 'per-build' entries must carry a dedupe_guard.",
+    "exempt": "disposition 'exempt' is for values the caller already owns (a fallback argument, an authored default, a clamp) \u2014 a substitution of an authored asset is never exempt.",
+    "silent_comment": "no source file may describe a fallback as silent; the test greps for that too."
+  },
+  "sites": [
+    {
+      "file": "scripts/campaign/campaign_geometry.gd",
+      "function": "floor_batch",
+      "disposition": "reports",
+      "reported_in": "_report_fallback",
+      "dedupe_guard": "_reported_fallbacks",
+      "cadence": "per-build",
+      "note": "box floor tile stands in for a ground module whose mesh cannot be extracted"
+    },
+    {
+      "file": "scripts/campaign/campaign_geometry.gd",
+      "function": "wall_batch",
+      "disposition": "reports",
+      "reported_in": "_report_fallback",
+      "dedupe_guard": "_reported_fallbacks",
+      "cadence": "per-build",
+      "note": "solid box stands in for a wall module; the substitution is decided where the mesh extraction failed"
+    },
+    {
+      "file": "scripts/campaign/campaign_geometry.gd",
+      "function": "_module_mesh",
+      "disposition": "reports",
+      "reported_in": "_report_fallback",
+      "dedupe_guard": "_reported_fallbacks",
+      "cadence": "per-build",
+      "note": "the failure point: instantiate, search, free, report"
+    },
+    {
+      "file": "scripts/campaign/campaign_geometry.gd",
+      "function": "_report_fallback",
+      "disposition": "reports",
+      "reported_in": "_report_fallback",
+      "dedupe_guard": "_reported_fallbacks",
+      "cadence": "per-build",
+      "note": "the reporter itself; one line per (site, scene) pair"
+    },
+    {
+      "file": "scripts/campaign/campaign_geometry.gd",
+      "function": "box",
+      "disposition": "exempt",
+      "reason": "primitive builder used both by authored landmark silhouettes and by the reported batcher fallbacks; the substitution decision is made at the call sites listed above"
+    },
+    {
+      "file": "scripts/weapons/projectile_pool.gd",
+      "function": "_make_projectile",
+      "disposition": "reports",
+      "reported_in": "_report_substitution",
+      "dedupe_guard": "_reported_substitutions",
+      "cadence": "hot",
+      "note": "code-built capsule stands in for the authored projectile scene"
+    },
+    {
+      "file": "scripts/weapons/projectile_pool.gd",
+      "function": "_report_substitution",
+      "disposition": "reports",
+      "reported_in": "_report_substitution",
+      "dedupe_guard": "_reported_substitutions",
+      "cadence": "hot",
+      "note": "the reporter itself; one line per scene path per session"
+    },
+    {
+      "file": "scripts/weapons/projectile_pool.gd",
+      "function": "_ready",
+      "disposition": "exempt",
+      "reason": "allocates the substitute CapsuleMesh the reported fallback path borrows; the pool's own _ready is not a failure"
+    },
+    {
+      "file": "scripts/arena/decorator_props.gd",
+      "function": "_mount_model",
+      "disposition": "reports",
+      "reported_in": "_report_mount",
+      "dedupe_guard": "_reported_mounts",
+      "cadence": "per-mount",
+      "note": "audited asset mount (moved here from arena_decorator.gd by the decorator split): a prop that cannot load or has a non-Node3D root keeps the primitive the caller built"
+    },
+    {
+      "file": "scripts/arena/decorator_props.gd",
+      "function": "_report_mount",
+      "disposition": "reports",
+      "reported_in": "_report_mount",
+      "dedupe_guard": "_reported_mounts",
+      "cadence": "per-mount",
+      "note": "the reporter itself; one line per asset path for the whole session, shared by every decorator of every run"
+    },
+    {
+      "file": "scripts/arena/decorator_props.gd",
+      "function": "_primitive_pillar",
+      "disposition": "exempt",
+      "reason": "primitive stand-in builder; the failure that selects it is reported at the mount site (_report_mount)"
+    },
+    {
+      "file": "scripts/arena/decorator_props.gd",
+      "function": "_primitive_rock",
+      "disposition": "exempt",
+      "reason": "primitive stand-in builder; the failure that selects it is reported at the mount site (_report_mount)"
+    },
+    {
+      "file": "scripts/arena/decorator_props.gd",
+      "function": "_primitive_brazier",
+      "disposition": "exempt",
+      "reason": "primitive stand-in builder; the failure that selects it is reported at the mount site (_report_mount)"
+    },
+    {
+      "file": "scripts/arena/arena_warehouse_yard.gd",
+      "function": "_place_structure",
+      "disposition": "exempt",
+      "reason": "the box IS the authored warehouse shell: `with_mesh` is a caller choice (walls that only need collision), and no asset load failed \u2014 the decorator's prop mounts are the reported sites in this directory"
+    },
+    {
+      "file": "scripts/arena/hazard_marker.gd",
+      "function": "_mount_floor_model",
+      "disposition": "reports",
+      "reported_in": "_report_mount",
+      "dedupe_guard": "_reported_mounts",
+      "cadence": "per-mount",
+      "note": "audited asset mount: the code-built disc stays visible when the authored tile cannot be mounted"
+    },
+    {
+      "file": "scripts/arena/hazard_marker.gd",
+      "function": "_report_mount",
+      "disposition": "reports",
+      "reported_in": "_report_mount",
+      "dedupe_guard": "_reported_mounts",
+      "cadence": "per-mount",
+      "note": "the reporter itself; one line per asset path"
+    },
+    {
+      "file": "scripts/arena/hazard_marker.gd",
+      "function": "_mount_orb",
+      "disposition": "exempt",
+      "reason": "the ember orb is the authored visual for one hazard id; every other id is documented as having no orb, not as failing to load one"
+    },
+    {
+      "file": "scripts/arena/arena_hazards.gd",
+      "function": "_safe_default_layout",
+      "disposition": "exempt",
+      "reason": "the four compass vents are the authored default for a config that lists no placements (docs/ANDROID_PERFORMANCE.md); nothing failed to load"
+    },
+    {
+      "file": "scripts/arena/arena_landmark.gd",
+      "function": "_build_forge",
+      "disposition": "exempt",
+      "reason": "primitive silhouette for an authored landmark kind; an unknown kind is refused with push_error('ArenaLandmark: kind ...'), pinned by tool/validate_guards.py"
+    },
+    {
+      "file": "scripts/arena/arena_landmark.gd",
+      "function": "_build_obelisk",
+      "disposition": "exempt",
+      "reason": "primitive silhouette for an authored landmark kind; unknown kinds are refused by the reported default branch"
+    },
+    {
+      "file": "scripts/arena/arena_obstacles.gd",
+      "function": "layout_for",
+      "disposition": "exempt",
+      "reason": "an arena that authors no obstacle list is documented as a choice (ArenaConfig header), so the default layout is not a failure"
+    },
+    {
+      "file": "scripts/arena/arena_obstacles.gd",
+      "function": "build_nodes",
+      "disposition": "exempt",
+      "reason": "builds the authored default layout's boxes; selection is reported nowhere because nothing failed"
+    },
+    {
+      "file": "scripts/audio/music_manager.gd",
+      "function": "_arena_cue",
+      "disposition": "exempt",
+      "reason": "reads the arena's authored cue override; an absent override selects the state bed. A missing stream is reported separately ('Music cue missing, staying silent', 'Music stem missing')"
+    },
+    {
+      "file": "scripts/enemies/enemy_navigator.gd",
+      "function": "direction",
+      "disposition": "exempt",
+      "reason": "per-frame steering: the caller's fallback direction is an argument, and a warning here would spam the log every tick; a missing nav grid is reported once by the enemy that builds it"
+    },
+    {
+      "file": "scripts/enemies/enemy_navigator.gd",
+      "function": "direction_toward",
+      "disposition": "exempt",
+      "reason": "per-frame steering; same argument as direction()"
+    },
+    {
+      "file": "scripts/enemies/enemy_ranged_state.gd",
+      "function": "_cfg",
+      "disposition": "exempt",
+      "reason": "typed read of an @export_range value with the config default; the config's validate() and the resource loader report a malformed resource once per file"
+    },
+    {
+      "file": "scripts/enemies/spawn_manager.gd",
+      "function": "_spawn_one",
+      "disposition": "exempt",
+      "reason": "the distance-relaxed spawn point is an authored anti-stall rule, not a load failure; every real failure is reported through _count_failure with its reason"
+    },
+    {
+      "file": "scripts/main/camera_profile.gd",
+      "function": "_sanitize_smoothing",
+      "disposition": "exempt",
+      "reason": "non-finite clamp on an authored profile value; the profile's validate() reports a malformed resource once per file"
+    },
+    {
+      "file": "scripts/player/stamina_component.gd",
+      "function": "_stat",
+      "disposition": "exempt",
+      "reason": "per-frame stat read that returns the authored default when the progression component is not wired yet"
+    },
+    {
+      "file": "scripts/weapons/weapon_manager.gd",
+      "function": "_stat",
+      "disposition": "exempt",
+      "reason": "per-shot stat read; same shape as the stamina read"
+    },
+    {
+      "file": "scripts/progression/upgrade_config.gd",
+      "function": "modifier_value",
+      "disposition": "exempt",
+      "reason": "typed read of an authored modifier dictionary with a caller default; unknown keys are validated by UpgradeConfig.validate() at load"
+    },
+    {
+      "file": "scripts/save/save_schema.gd",
+      "function": "_int_or",
+      "disposition": "exempt",
+      "reason": "v8 additive-schema normalization of a missing/foreign save key; the schema's caller reports a rejected profile, and a per-key warning would name every pre-v8 field"
+    },
+    {
+      "file": "scripts/save/save_schema.gd",
+      "function": "_float_or",
+      "disposition": "exempt",
+      "reason": "same normalization shape as _int_or"
+    },
+    {
+      "file": "scripts/utilities/json_helpers.gd",
+      "function": "parse_safe",
+      "disposition": "exempt",
+      "reason": "total parse over text: the caller owns whether a null/fallback result is normal (no save yet) or a defect, and SaveManager/campaign loaders report that decision"
+    },
+    {
+      "file": "scripts/utilities/json_helpers.gd",
+      "function": "clamped_number",
+      "disposition": "exempt",
+      "reason": "typed clamp read used during normalization; reporting per key would name every optional field of an older profile"
+    },
+    {
+      "file": "scripts/utilities/weighted_table.gd",
+      "function": "roll",
+      "disposition": "exempt",
+      "reason": "empty-table roll returns the caller's fallback; a table that should not be empty is reported by the system that built it"
+    },
+    {
+      "file": "scripts/utilities/weighted_table.gd",
+      "function": "roll_with_rng",
+      "disposition": "exempt",
+      "reason": "wrapper over roll() with the same contract"
+    },
+    {
+      "file": "scripts/utilities/weighted_table.gd",
+      "function": "roll_with_service",
+      "disposition": "exempt",
+      "reason": "wrapper over roll() with the same contract"
+    },
+    {
+      "file": "scripts/debug/debug_error_handler.gd",
+      "function": "_freeze",
+      "disposition": "exempt",
+      "reason": "_fallback_pause remembers the tree's pause state for resume when GameRoot is unavailable; it substitutes no content"
+    }
+  ],
+  "audited_asset_loaders": [
+    {
+      "file": "scripts/core/content_loader.gd",
+      "function": "_load_typed",
+      "reported_in": "_load_typed",
+      "note": "every failed or mistyped resource append()s a message that ContentRegistry.report_error prints once per load; the loader collects rather than emitting per file so a broken directory produces one actionable list"
+    },
+    {
+      "file": "scripts/visuals/character_visuals.gd",
+      "function": "_load_compatible_model",
+      "reported_in": "_report_mount_issue",
+      "note": "missing, unimported, root-not-Node3D, incomplete-rig and no-geometry cases each push one warning and mirror it into the diagnostic feed"
+    },
+    {
+      "file": "scripts/visuals/visual_mount.gd",
+      "function": "_ready",
+      "reported_in": "_ready",
+      "cadence": "per-mount",
+      "note": "reports the mount it refused, naming the role, the path and whether a primitive remains"
+    },
+    {
+      "file": "scripts/campaign/campaign_definition.gd",
+      "function": "sector",
+      "reported_in": "_report_unknown_sector",
+      "dedupe_guard": "_reported_sector_ids",
+      "note": "an unknown district id falls back to the home record once per id, naming the data file"
+    },
+    {
+      "file": "scripts/campaign/campaign_encounters.gd",
+      "function": "_spawn",
+      "reported_in": "_spawn",
+      "note": "a missing enemy resource and a non-EnemyBase scene each emit exactly one report_error naming the archetype or scene"
+    },
+    {
+      "file": "scripts/main/main.gd",
+      "function": "build_world",
+      "reported_in": "_report_arena_substitution",
+      "dedupe_guard": "_reported_arena_substitutions",
+      "note": "serving a different arena than the one requested is reported once per requested id"
+    }
+  ]
+}

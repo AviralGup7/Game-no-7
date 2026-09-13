@@ -1,8 +1,12 @@
 class_name JsonHelpers
 extends RefCounted
 
-## Small, total (never-throwing) JSON + file helpers used by save, analytics
-## export, daily-challenge and debug tooling. All functions are static and pure.
+## Small JSON + file helpers used by save, analytics export, daily-challenge and
+## debug tooling. Every function is static and returns a value instead of failing:
+## the parse/stringify helpers are total over their inputs and never throw, while
+## the file helpers are I/O — they return "" / false when the path cannot be read
+## or written, and the caller decides whether that is normal (no save yet) or a
+## problem worth reporting.
 
 const MAX_FILE_BYTES := 1_000_000
 
@@ -29,7 +33,10 @@ static func stringify_safe(value: Variant, pretty: bool = false) -> String:
 	return text
 
 
-## Read a whole text file; returns "" when missing/unreadable/oversized.
+## Read a whole text file. Returns "" when the path is missing, cannot be opened,
+## reports a negative length (an error handle rather than a file), or is longer
+## than MAX_FILE_BYTES — the size is checked before the contents are read, so an
+## oversized file is never pulled into memory on the way to being rejected.
 static func read_text_file(path: String) -> String:
 	if not FileAccess.file_exists(path):
 		return ""

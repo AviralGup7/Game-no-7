@@ -3,12 +3,21 @@ extends Node
 ## Autoload: EventBus — hardened lifecycle (M3)
 ## Cross-system signals only. Gameplay objects should prefer direct references for
 ## local communication; EventBus is the backbone for decoupled observers (UI, audio,
-## analytics, achievements). Lifecycle: emitted exactly once where the spec says so.
-## Hardening: emitters guard is_instance_valid/is_inside_tree before emit;
-## listeners guard is_connected before connect (prevents duplicate listeners on
-## respawn/pooling) and disconnect in _exit_tree where signals are long-lived
-## (boss/enemy). All handlers are no-ops when target is null/invalid so headless
-## and pooled lifecycles cannot dupe or leak.
+## analytics, achievements). Which signals belong on the bus at all is pinned by
+## res://docs/architecture/event_bus_inventory.json.
+##
+## What the lifecycle provably does, and where it is pinned:
+##   * the bus never deduplicates or replays an emission — "exactly once" is the
+##     emitting system's own contract, not this class's;
+##   * listeners check `is_connected` before connecting (a respawn or a pooled
+##     re-entry cannot register the same callable twice) and per-run nodes either
+##     disconnect in `_exit_tree` (boss/enemy observers) or subscribe through
+##     `bind()` below, which unbinds on tree exit;
+##   * emitters null-check the bus before emitting, so headless/direct use cannot
+##     fail on a missing autoload.
+## Handlers are not universally null-tolerant — each one is responsible for its own
+## validity check. The connection-lifecycle assertions live in
+## tests/integration/android_performance.gd and tests/soak_runtime_inner.gd.
 
 ## The analyzer counts signal usages per script, so every bus signal emitted by
 ## the owning system (GameRoot, wave director, combat, save, ...) reads as
