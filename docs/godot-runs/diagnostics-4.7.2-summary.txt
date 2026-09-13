@@ -1,57 +1,40 @@
 ########## diag-import.log
-     17 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
+      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-tests.log
-     15 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      4 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
-      2 SCRIPT ERROR: Parse Error: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-      2 ERROR: Parameter "material" is null.
-      1 WARNING: [diagnostic] Missing config/scene for audit_enemy; retried up to bound then counted failed. (attempt 1/6)
+      3 ERROR: Parameter "material" is null.
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Parse Error: Variable "_scene_cache" has the same name as a previously declared variable.
-      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "_init".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "center" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array[CharacterBody3D]')
-      1 SCRIPT ERROR: Cannot call method 'instantiate' on a null value.
-      1 SCRIPT ERROR: Cannot call method 'get_node' on a null value.
+      1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/arena/decorator_props.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_warehouse_yard.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
+      1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    367 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    170 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-    109 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     71 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-     71 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-     71 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-     32 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    564 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    263 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    173 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    131 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      16 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       9 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
@@ -68,25 +51,13 @@
       3 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
       2 SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
-      2 SCRIPT ERROR: Parse Error: Could not resolve external class member "_init".
-      2 SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-      2 SCRIPT ERROR: Parse Error: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
       2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
-      2 ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with error "Compilation failed".
-      2 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Parse error".
-      2 ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "Compilation failed".
+      2 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
-      2 ERROR: Failed to load script "res://scripts/enemies/boss_controller.gd" with error "Compilation failed".
-      1 SCRIPT ERROR: Parse Error: Variable "_scene_cache" has the same name as a previously declared variable.
       1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
       1 SCRIPT ERROR: Parse Error: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
-      1 SCRIPT ERROR: Parse Error: Function "apply_visual_scale" has the same name as a previously declared function.
-      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "get_presentation".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "center" variable because the value doesn't have a set type.
       1 SCRIPT ERROR: Compile Error: Identifier not found: RunAnalytics
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
@@ -205,23 +176,26 @@
       1 ERROR: Failed to load script "res://scripts/main/camera/camera_lock_on_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/spawn_placer.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_striker.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_ranged_state.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_presentation.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_presentation.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_pack.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_motion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_idle_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_hurt_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_fuse_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_feedback.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_elite_kit.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_elite_kit.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_debug_view.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dead_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dash_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_combat_response.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_chase_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_brain.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_attack_state.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/boss_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/debug/debug_mode_toggle.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/debug/debug_error_overlay.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
@@ -253,74 +227,49 @@
       1 ERROR: Failed to load script "res://scripts/arena/hazard_marker.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/hazard_instance.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/hazard_config.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/arena/decorator_props.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_warehouse_yard.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/arena/arena_obstacles.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/arena_hazards.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/arena_config.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilation failed".
 
 ########## diag-editor.log
-     17 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-wae-import.log
-     17 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-wae-tests.log
-     15 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      4 SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
-      2 SCRIPT ERROR: Parse Error: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-      2 SCRIPT ERROR: Parse Error: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-      2 ERROR: Parameter "material" is null.
-      1 WARNING: [diagnostic] Missing config/scene for audit_enemy; retried up to bound then counted failed. (attempt 1/6)
+      3 ERROR: Parameter "material" is null.
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
+      1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Parse Error: Variable "_scene_cache" has the same name as a previously declared variable.
-      1 SCRIPT ERROR: Parse Error: Could not resolve external class member "_init".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "center" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array[CharacterBody3D]')
-      1 SCRIPT ERROR: Cannot call method 'instantiate' on a null value.
-      1 SCRIPT ERROR: Cannot call method 'get_node' on a null value.
+      1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/arena/decorator_props.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_warehouse_yard.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
+      1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
 ########## diag-wae-probe.log
-     15 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
 
 ########## diag-lsp.txt
       1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:86:29: ERROR: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
@@ -329,14 +278,10 @@
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_presentation.gd:65:6: ERROR: Function "apply_visual_scale" has the same name as a previously declared function.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_elite_kit.gd:28:6: WARNING: (SHADOWED_VARIABLE): The local variable "tint" is shadowing an already-declared function at line 46 in the current class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:97:22: ERROR: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:97:22: ERROR: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:45:8: WARNING: (UNUSED_SIGNAL): The signal "despawn_requested" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:40:8: WARNING: (UNUSED_SIGNAL): The signal "died" is declared but never explicitly used in the class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:39:8: WARNING: (UNUSED_SIGNAL): The signal "damaged" is declared but never explicitly used in the class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/enemies/enemy_base.gd:206:25: ERROR: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:178:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_map.gd:42:23: ERROR: No constructor of "String" matches the signature "String(Color)".
@@ -348,37 +293,15 @@
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/decorator_props.gd:229:5: ERROR: Variable "_scene_cache" has the same name as a previously declared variable.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_warehouse_yard.gd:99:16: ERROR: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_warehouse_yard.gd:24:17: ERROR: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_warehouse_yard.gd:21:11: ERROR: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_warehouse_yard.gd:146:16: ERROR: Cannot infer the type of "center" variable because the value doesn't have a set type.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_warehouse_yard.gd:135:16: ERROR: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:70:14: ERROR: Could not resolve external class member "_init".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:69:15: ERROR: Could not resolve class "DecoratorProps", because of a parser error.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/arena/arena_decorator.gd:69:15: ERROR: Cannot infer the type of "_props" variable because the value doesn't have a set type.
 
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-     18 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
       1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-      1 SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
       1 ERROR: LSP: Failed to parse script: res://tests/verify_campaign_inner.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_presentation.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_elite_kit.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_base.gd
       1 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_map.gd
       1 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_hud.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/arena/decorator_props.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/arena/arena_warehouse_yard.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/arena/arena_decorator.gd
-      1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 

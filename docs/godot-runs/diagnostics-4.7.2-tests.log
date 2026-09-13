@@ -109,13 +109,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=2094 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=2094 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=2094 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=2094 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=2094 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12327 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12327 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=2104 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=2104 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=2104 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=2104 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=2104 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12111 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12111 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -188,7 +188,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
@@ -201,7 +201,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
@@ -214,7 +214,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
@@ -227,7 +227,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:782)
@@ -311,7 +311,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
@@ -326,7 +326,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role spl
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:822)
@@ -343,7 +343,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:849)
@@ -357,7 +357,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
-         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:279)
          [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
          [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:883)
@@ -366,7 +366,7 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [9] _process (res://tests/run_tests.gd:183)
 [diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1655 total, 0 failed
+GDScript tests: 1663 total, 0 failed
 ========================================
 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)

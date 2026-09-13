@@ -5,44 +5,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
-SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
-SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:206)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/core/content_registry.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
-ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
@@ -75,35 +37,9 @@ ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with erro
 ERROR: LSP: Failed to parse script: res://tests/verify_campaign_inner.gd
 Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/arena/arena_warehouse_yard.gd
-Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/arena/decorator_props.gd
-Variable "_scene_cache" has the same name as a previously declared variable.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/arena/arena_decorator.gd
-Could not resolve class "DecoratorProps", because of a parser error.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_map.gd
 No constructor of "String" matches the signature "String(Color)".
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_hud.gd
 Too many arguments for "get()" call. Expected at most 1 but received 2.
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_presentation.gd
-Function "apply_visual_scale" has the same name as a previously declared function.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_elite_kit.gd
-Could not resolve external class member "get_presentation".
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-ERROR: LSP: Failed to parse script: res://scripts/enemies/enemy_base.gd
-Could not resolve class "EnemyPresentation", because of a parser error.
-   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
-SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:69)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:69)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/main/main.gd:0)
-ERROR: Failed to load script "res://scripts/main/main.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
