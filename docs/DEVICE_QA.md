@@ -49,10 +49,11 @@ This automated smoke is not a substitute for the checklist below.
 - Fresh launch shows **NEW CAMPAIGN**, not an arena/daily/seed chooser. Existing
   saves show Continue; starting over requires confirmation and keeps settings,
   banked credits and permanent Armory ranks.
-- Walk all six districts and all three long service causeways in one world.
-  Shared deck edges are open, outer rails block void, and large props have matching
-  collision. Check both routes around the ring; there must be no chapter load.
-- Complete all seven objectives, including three separate cargo manifests and
+- Walk all twelve districts and the connector / spur / perimeter-ring decks in
+  one world. Shared deck edges are open, outer rails block void, and large props
+  have matching collision. Check both routes around the ring; there must be no
+  chapter load.
+- Complete all thirteen missions, including three separate cargo manifests and
   the return to the docks. Guarded consoles refuse interaction until their authored
   guards are defeated. The commander has finite slam/charge/shockwave phases.
 - Hold MOVE/FIRE and use another finger on **INTERACT** or **MAP**. Interactions

@@ -1,5 +1,9 @@
 # Android performance / stability audit
 
+> **Historical snapshot.** The 502 → 513 Python tests and 110-resource /
+> 222-lock figures below were executed on 2026-09-08. Do not rewrite them.
+> Live tooling: [AGENTS.md](AGENTS.md) / [README.md](README.md).
+
 Date: 2026-09-08. Baseline: `375137151fc3cf63a9034c1ff3f4c29b7a566a37`.
 Engine target: Godot **4.4.1**, Android ARM64, Mobile renderer.
 

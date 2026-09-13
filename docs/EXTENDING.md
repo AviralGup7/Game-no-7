@@ -1,5 +1,8 @@
 # EXTENDING.md — How to add content without rewriting core systems
 
+Agent operating rules, the 11 offline gates, and licensing:
+[AGENTS.md](AGENTS.md). Full `docs/` index: [README.md](README.md).
+
 Content is added through **data resources + registries + scenes**, not core rewrites.
 The `ContentRegistry` autoload discovers `.tres` files under `res://data/<kind>/`,
 validates them, and caches them. Broken content is a hard authoring error: in debug /

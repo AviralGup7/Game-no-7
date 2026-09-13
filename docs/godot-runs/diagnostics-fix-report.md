@@ -1,5 +1,9 @@
 # Godot 4.7.2 diagnostics — remediation report
 
+> **Historical snapshot.** Gate counts in this report (778 / 887 Python tests,
+> 186 classes / 8 autoloads, 159 resources) are from that diagnostics branch.
+> Do not rewrite them. Live tooling: [../AGENTS.md](../AGENTS.md).
+
 Branch `arena/01a08a34-game-no-7`. Baseline harvest:
 `docs/godot-runs/diagnostics-4.7.2-lsp.txt` — **172 warnings, 0 errors**, 13 categories,
 collected from Godot 4.7.2.stable's built-in language server (`tool/lsp_diagnostics.py`,

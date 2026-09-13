@@ -1,4 +1,9 @@
 # Game Forensic Audit — Last Stand: Arena
+
+> **Historical snapshot (2026-09-10).** Counts below (≈908 Python methods,
+> export `0.6.0` / code 3, arena main scene) are from that audit. Do not rewrite
+> them. Live campaign entry, `0.7.0` / code 4, and the 11 gates:
+> [docs/AGENTS.md](docs/AGENTS.md) / [docs/README.md](docs/README.md).
 ### Repository, Gameplay, Architecture & Release Readiness
 
 **Audit date:** 2026-09-10

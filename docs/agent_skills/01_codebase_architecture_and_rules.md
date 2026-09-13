@@ -29,16 +29,20 @@ The codebase adheres to systematic hardening invariants checked by `tool/validat
 
 ## 3. Hermetic Static Analysis Gates (Must Pass Before Push)
 
-Run the gate suite whenever making changes:
+Run the gate suite whenever making changes (the 11 offline gates; see
+[AGENTS.md](../AGENTS.md)):
 ```bash
 python3 tool/validate_resources.py && \
 python3 tool/validate_assets.py && \
+python3 tool/validate_campaign.py && \
+python3 tool/validate_geometry.py && \
 python3 tool/validate_guards.py && \
 python3 tool/check_typed_arch.py && \
 python3 tool/check_engine_api.py && \
 python3 tool/check_scene_paths.py && \
 python3 tool/check_string_formats.py && \
-python3 tool/check_signals.py
+python3 tool/check_signals.py && \
+python3 -m unittest discover -s tests/python -p 'test_*.py'
 ```
 
 ### Gate Responsibilities:
@@ -54,7 +58,7 @@ python3 tool/check_signals.py
 ---
 
 ## 4. Test Suite Execution
-- **Python Regression Suite (1050+ tests)**:
+- **Python Regression Suite** (`python3 -m unittest discover -s tests/python`; live count is in [HARDENING.md](../HARDENING.md)):
   ```bash
   python3 -m unittest discover -s tests/python -p "test_*.py"
   ```

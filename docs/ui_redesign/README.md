@@ -1,5 +1,9 @@
 # UI Redesign — "Last Stand: Arena"
 
+> **Historical snapshot.** The 427 Python tests below are from this redesign
+> pass. Do not rewrite them. Live tooling: [../AGENTS.md](../AGENTS.md)
+> / [../README.md](../README.md).
+
 A cohesive visual overhaul of the whole interface toward a **polished dark-arena**
 look: deep space-navy surfaces, a refined cyan/gold accent system, crisper raised
 cards with soft shadows, glossy rounded meters, and a clear gold **primary

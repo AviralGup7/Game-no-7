@@ -1,5 +1,13 @@
 # Visual / Technical / Performance Audit — Agent 4
 
+> **Correction (2026-09-13).** Category 5 still quotes `floors (13) + props (24)`
+> and category 12 still quotes `walkable 2505`. Those are six-district leftovers.
+> Live campaign: 47 floors, 72 props, 13 440 walkable cells, 1 676 perimeter
+> edges. The “1210 Python tests” line at the end is also a snapshot (see
+> `python3 -m unittest discover` / [HARDENING.md](HARDENING.md) for the live
+> count). The 14-category PASS result is unchanged. Do not rewrite the executed
+> 2026-09-12 prose below.
+
 **Date:** 2026-09-12
 **Auditor:** Agent 4 — Visual/Technical/Performance
 **Scope:** Entire Station Zero delivery as it ships on Android — meshes, textures, materials, LOD, collision, draw calls, lighting, probes, navigation, streaming/visibility, and memory/performance risk. Campaign world `data/campaign/station_zero.json` (864 × 672 m, 12 districts, 47 floor regions, 72 props) + arena Pit (`scenes/arena/arena.tscn`) + shared `data/models/**` PBR modules + `assets/**` robots/weapons + `project.godot` Mobile renderer settings.

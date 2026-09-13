@@ -1,5 +1,9 @@
 # Hero fidelity — Arena Warden
 
+> **Historical snapshot.** The “19 focused Python tests” / 415/415 suite figures
+> below are from 2026-09-09. Do not rewrite them. Live tooling:
+> [AGENTS.md](AGENTS.md) / [README.md](README.md).
+
 **9 September 2026 · implementation + review notes**
 
 ## What changed

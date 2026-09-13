@@ -1,5 +1,9 @@
 # Android-first follow-up — 2026-09-12
 
+> **Historical snapshot.** The 1,099 Python tests below were executed on
+> 2026-09-12. Do not rewrite them. Live tooling: [AGENTS.md](AGENTS.md)
+> / [README.md](README.md).
+
 **Target:** Last Stand: Station Zero, Android / ARM64, landscape, touch-first.
 Keyboard/controller bindings and desktop rendering are development conveniences,
 not requirements to play the Android app.
