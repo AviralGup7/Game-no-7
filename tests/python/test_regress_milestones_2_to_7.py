@@ -132,7 +132,9 @@ class Milestone5_IntegrationPersistence(unittest.TestCase):
     def test_weapon_skill_loadout_snapshot(self):
         txt = read("scripts/player/player.gd")
         self.assertIn("get_build_snapshot", txt)
-        self.assertIn("equipped_weapons", txt)
+        # The build mirror moved to PlayerDebugView with the manager split; Player
+        # keeps the get_build_snapshot() entry point RunState calls.
+        self.assertIn("equipped_weapons", read("scripts/player/player_debug_view.gd"))
 class Milestone6_AndroidPerf(unittest.TestCase):
     def test_mobile_renderer_and_perf(self):
         txt = read("project.godot")

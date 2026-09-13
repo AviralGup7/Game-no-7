@@ -205,6 +205,35 @@ transforms are meaningful. The real project autoloads are available to those
 runtime-loaded stages. Preserve this load-order boundary when adding integrations.
 The player and UI harnesses cover additional multi-frame lifecycle behavior.
 
+### Campaign runtime suite (headless)
+
+The shipping-campaign runtime suite (audit work item #7) instantiates the real
+Station Zero world and drives the real controllers — imported-mesh audit with a
+counted zero-fallback requirement, all 13 missions, a checkpoint save-write
+failure drill (rollback + byte-identical disk save + immediate retry), 20
+pause/map/back/checkpoint cycles (node count, transition lock, sim clock),
+defeat-enemy persistence across a checkpoint retry, and a final
+zero-error-diagnostic case:
+
+```bash
+bash scripts/run_campaign_runtime.sh   # headless, isolated profile, strict logs
+```
+
+The raw engine command is
+`godot --headless --path . --script res://tests/run_campaign_runtime.gd` — it
+refuses to run without `STATION_ZERO_TEST_PROFILE=1` and still requires your
+HOME/XDG paths pointed at a disposable profile, because the suite writes a
+disposable campaign save (the wrapper does both; see `scripts/godot_test_env.sh`).
+Passing requires the exit code, a clean strict log and the exact
+`CAMPAIGN RUNTIME: N checks, 0 failed` summary line; an absent engine returns
+**NOT TESTED / exit 2**, never a pass. This is a host-harness timing budget
+(240 s), not an Android frame-time claim.
+
+The same suite is also **embedded in `res://tests/run_tests.gd`** (deferred
+phase, after the combat and encounter stages), so the CI godot-tests job
+(4.4.1, native) and the 4.7.2 diagnostics job run it with zero workflow
+changes there; only the main workflow adds the dedicated headless step.
+
 ## Android export
 
 An Android export preset named **"Android"** must exist in `export_presets.cfg`

@@ -49,7 +49,11 @@ class CampaignTypedBoundary(unittest.TestCase):
                                  ("CampaignEncounter", "encounters"), ("CampaignInteraction", "interactions"),
                                  ("CampaignMission", "missions")]:
             self.assertIn(f"var {field}: Array[{type_name}]", text)
-        self.assertEqual(1024.0, float(re.search(r"WORLD_EXTENT_LIMIT\s*:=\s*([0-9.]+)", text).group(1)))
+        # The extent cap is single-sourced in CampaignBudgets; the definition
+        # aliases it (pinned by tests/python/test_campaign_budgets.py).
+        self.assertIn("WORLD_EXTENT_LIMIT := CampaignBudgets.WORLD_EXTENT_LIMIT", text)
+        budgets = (ROOT / "scripts/campaign/campaign_budgets.gd").read_text()
+        self.assertEqual(1024.0, float(re.search(r"const WORLD_EXTENT_LIMIT := ([0-9.]+)", budgets).group(1)))
 
 if __name__ == "__main__":
     unittest.main()

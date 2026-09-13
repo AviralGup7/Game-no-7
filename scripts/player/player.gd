@@ -6,20 +6,22 @@ class_name Player
 ## Dash intent is captured in request_dodge() → DodgeController (stamina-checked,
 ## direction from input vs facing, interrupt-aware).
 ##
-## TYPED COMPONENT ARCHITECTURE (see docs/ARCHITECTURE.md):
-## Every component is held as its concrete `class_name` type and called directly —
-## no `has_method()` guards, no `.call()` string dispatch. Components split into
-## REQUIRED (verified once in _ready; a scene variant that omits one fails fast
-## with a push_error + assert instead of silently degrading at runtime) and
-## OPTIONAL (genuinely droppable presentation/legacy pieces, held as nullable
-## typed references).
+## TYPED COMPONENT ARCHITECTURE (see docs/ARCHITECTURE.md): every component is held
+## as its concrete `class_name` type and called directly — no `has_method()` guards,
+## no `.call()` string dispatch.
 ##   REQUIRED : HealthComponent, CharacterController, ProgressionComponent,
 ##              TargetingComponent, DodgeController, StaminaComponent,
-##              ExperienceComponent, WeaponManager, StatusManager
-##   OPTIONAL : SkillController, PlayerFeedback, PlayerAudio
-## Coordinates movement, combat, health, death, and external commands for the
-## player. UI and future systems talk to THIS node through the stable command
-## interface below; Player and EnemyBase share the Damageable combat protocol.
+##              ExperienceComponent, WeaponManager, StatusManager — verified once in
+##              _ready through PlayerComponents; a scene variant that omits one fails
+##              fast (push_error + assert) instead of degrading at runtime.
+##   OPTIONAL : SkillController, PlayerFeedback, PlayerAudio (nullable by design).
+## UI and future systems talk to THIS node through the stable command interface
+## below; Player and EnemyBase share the Damageable combat protocol.
+##
+## Extracted collaborators: PlayerIntake (damage intake + riders), PlayerReactions
+## (component signals → feedback/audio/re-emitted signals), PlayerRunCycle (run
+## resets + starter kit), PlayerDebugView (snapshots) and PlayerComponents (the
+## required-component scene contract).
 
 ## move_started/move_stopped are emitted by PlayerLocomotion and
 ## upgrade_applied by the progression component, both on this node's behalf:
@@ -66,6 +68,9 @@ var _player_audio: PlayerAudio = null
 var _locomotion := PlayerLocomotion.new()
 var _build := PlayerBuild.new()
 var _combat := PlayerCombat.new()
+var _intake := PlayerIntake.new()
+var _reactions := PlayerReactions.new()
+var _run_cycle := PlayerRunCycle.new()
 var _attack_buffer := AttackBuffer.new()
 var _gameplay_time := 0.0
 var _touch_fire_held := false
@@ -86,21 +91,23 @@ func _ready() -> void:
 	_build.bind(_health, _progression, _controller, _stamina, _weapons, _skills, walk_speed, max_health)
 	_combat.bind(self, _weapons, _dodge, _controller, _stamina, _locomotion, _attack_buffer)
 	_combat.buffer_seconds = attack_buffer_seconds
+	_reactions.bind(self, _health, _progression, _feedback, _player_audio)
+	_run_cycle.bind(_build, _health, _progression, _dodge, _stamina, _experience, _weapons, _status, _skills)
 	_locomotion.move_started.connect(move_started.emit)
 	_locomotion.move_stopped.connect(move_stopped.emit)
 	_build.upgrade_applied.connect(upgrade_applied.emit)
 	_health.set_time_source(_health_now)
-	_health.health_changed.connect(_on_health_changed)
+	_health.health_changed.connect(_reactions.on_health_changed)
 	_health.damaged.connect(_on_damaged)
 	_health.died.connect(_on_died)
 	# Damage resistance: route progression resistance through the generic mitigation
 	# seam (HealthComponent stays Player-agnostic).
 	_health.set_mitigation_source(_mitigation_provider)
-	_weapons.attack_resolved.connect(_on_weapon_attack_resolved)
-	_experience.leveled_up.connect(_on_leveled_up)
+	_weapons.attack_resolved.connect(_reactions.on_weapon_attack_resolved)
+	_experience.leveled_up.connect(_reactions.on_leveled_up)
 	_dodge.bind_health(_health)
 	_dodge.bind_motion(_controller, _progression)
-	_dodge.dodged_started.connect(_on_dodge_started)
+	_dodge.dodged_started.connect(_reactions.on_dodge_started)
 	_experience.bind_rewards(_health, _stamina, _skills)
 	_stamina.bind_progression(_progression)
 	_controller.bind_weapons(_weapons)
@@ -156,43 +163,17 @@ func _resolve_components() -> void:
 	_player_audio = get_node_or_null("PlayerAudio") as PlayerAudio
 
 
-## Fail fast when a REQUIRED component is missing from the scene variant.
-## Debug/test builds assert immediately (the bug is caught the moment the scene
-## loads); release builds log once and disable processing rather than silently
-## degrading into a half-functional player.
+## Fail fast when a REQUIRED component is missing from the scene variant (see
+## PlayerComponents): the scene contract lives in one place, the resolution above
+## stays here because it assigns this class's typed fields.
 func _check_required_components() -> bool:
-	var missing := PackedStringArray()
-	if _health == null:
-		missing.append("HealthComponent")
-	if _controller == null:
-		missing.append("CharacterController")
-	if _progression == null:
-		missing.append("ProgressionComponent")
-	if _targeting == null:
-		missing.append("TargetingComponent")
-	if _dodge == null:
-		missing.append("DodgeController")
-	if _stamina == null:
-		missing.append("StaminaComponent")
-	if _experience == null:
-		missing.append("ExperienceComponent")
-	if _weapons == null:
-		missing.append("WeaponManager")
-	if _status == null:
-		missing.append("StatusManager")
-	if missing.is_empty():
-		return true
-	push_error("Player requires components missing from its scene: %s — these are not optional; fix the scene variant of player.tscn." % ", ".join(missing))
-	assert(false, "Player missing required components: %s" % ", ".join(missing))
-	set_physics_process(false)
-	return false
+	return PlayerComponents.check_required(
+		self, _health, _controller, _progression, _targeting, _dodge, _stamina, _experience, _weapons, _status
+	)
 
 
-## Mitigation provider for the generic HealthComponent: computes post-resistance
-## damage from the player's progression-derived damage_resistance_add.
 func _mitigation_provider(amount: float, _payload: DamagePayload) -> float:
-	var resistance := clampf(_progression.get_stat(&"damage_resistance_add", 0.0), 0.0, 1.0)
-	return maxf(amount * (1.0 - resistance), 0.0)
+	return _intake.mitigation(self, amount)
 
 
 func _physics_process(delta: float) -> void:
@@ -311,7 +292,7 @@ func _try_attack() -> bool:
 	_aim_attack()
 	if not _combat.try_start():
 		return false
-	_on_attack_started()
+	_reactions.on_attack_started()
 	return true
 
 
@@ -380,44 +361,7 @@ func request_dodge() -> bool:
 
 
 func apply_damage(payload: DamagePayload) -> DamageResult:
-	var result := DamageResult.new()
-	if _is_dead:
-		result.ignored_reason = DamageResult.IGNORE_DEAD
-		return result
-	# Do not consume a shield for payloads HealthComponent will reject before
-	# intake (malformed, invulnerable, or already-dead). Accepted hits are then
-	# reduced by status mitigation/shields exactly once.
-	if payload == null or not payload.is_valid() or _health.is_invulnerable():
-		return _health.take_damage(payload)
-	var final_payload := _apply_status_intake(payload)
-	var taken := _health.take_damage(final_payload)
-	if taken.accepted and taken.final_amount > 0.0:
-		_apply_payload_status(payload, taken)
-	return taken
-
-
-## Incoming weapon/projectile riders: apply payload effects after an accepted hit.
-func _apply_payload_status(payload: DamagePayload, result: DamageResult = null) -> void:
-	if payload == null or payload.status_effects.is_empty():
-		return
-	var applied := _status.apply_effects(payload.status_effects, payload.source)
-	if result != null:
-		for raw_id in applied:
-			if int(applied[raw_id]) > 0:
-				result.status_effects_applied.append(StringName(String(raw_id)))
-
-
-## Scale + shield an incoming payload through the StatusManager (guard shields,
-## shock vulnerability...). Returns the original payload when no manager exists.
-func _apply_status_intake(payload: DamagePayload) -> DamagePayload:
-	if payload == null:
-		return payload
-	var factor := _status.incoming_damage_factor()
-	var amount := payload.amount * factor
-	amount = _status.absorb_direct(amount)
-	if is_equal_approx(amount, payload.amount):
-		return payload
-	return payload.with_amount(amount)
+	return _intake.apply_damage(self, payload)
 
 
 ## ---------- Stamina / XP / skill / weapon / status facades ----------
@@ -461,6 +405,10 @@ func get_skill_controller() -> SkillController:
 	return _skills
 
 
+func get_character_controller() -> CharacterController:
+	return _controller
+
+
 func get_weapon_manager() -> WeaponManager:
 	return _weapons
 
@@ -489,37 +437,8 @@ func get_experience_component() -> ExperienceComponent:
 	return _experience
 
 
-## Serializable build mirror consumed by RunState. Live components remain the
-## source of truth; this method only reads their stable content ids and tags.
 func get_build_snapshot() -> Dictionary:
-	var weapons: Array = _weapons.get_loadout_ids()
-	var skills: Array = [] if _skills == null else _skills.get_assigned_skill_ids()
-	var archetypes: Array[StringName] = []
-	if ContentRegistry != null:
-		for id in weapons:
-			var wc := ContentRegistry.get_weapon(StringName(String(id)))
-			if wc != null:
-				for tag in wc.tags:
-					if tag not in archetypes:
-						archetypes.append(tag)
-		for id in skills:
-			var sc := ContentRegistry.get_skill(StringName(String(id)))
-			if sc != null:
-				for tag in sc.tags:
-					if tag not in archetypes:
-						archetypes.append(tag)
-		var stacks: Dictionary = _progression.get_upgrade_stack_snapshot()
-		for id in stacks:
-			if int(stacks[id]) <= 0:
-				continue
-			var uc := ContentRegistry.get_upgrade(StringName(String(id)))
-			if uc != null:
-				if uc.category not in archetypes:
-					archetypes.append(uc.category)
-				for tag in uc.tags:
-					if tag not in archetypes:
-						archetypes.append(tag)
-	return {"equipped_weapons": weapons, "equipped_skills": skills, "build_archetypes": archetypes}
+	return PlayerDebugView.build_snapshot(self)
 
 
 func apply_status_effects(effect_ids: Array, source: Node = null) -> Dictionary:
@@ -542,11 +461,7 @@ func rebuild_derived_stats() -> void:
 
 ## Bloodlust-style heal: valid enemy kills heal while the player is alive.
 func _on_enemy_kill_heal(_enemy: Node, _archetype_id: StringName, _score: int, _currency: int) -> void:
-	if _is_dead:
-		return
-	var heal_amount := _progression.get_stat(&"healing_on_kill", 0.0)
-	if heal_amount > 0.0:
-		_health.heal(heal_amount)
+	_reactions.on_enemy_kill_heal()
 
 
 ## Every valid kill feeds XP (elites are worth extra).
@@ -560,21 +475,6 @@ func _on_enemy_kill_xp(enemy: Node, _archetype_id: StringName, _score: int, _cur
 	add_xp(award)
 
 
-func _on_leveled_up(new_level: int) -> void:
-	leveled_up.emit(new_level)
-	# The ExperienceComponent owns the level reward (heal + stamina) and already
-	# plays the `level_up` sting; the player owns the banner. A second stacked
-	# chime here only muddied the celebration, so this plays nothing.
-	if EventBus != null:
-		EventBus.announcement.emit(&"level_up", "Level %d!" % new_level, &"info")
-
-
-func _on_weapon_attack_resolved(_weapon_id: StringName, hit_count: int, was_crit: bool) -> void:
-	attack_finished.emit()
-	if hit_count > 0 and _feedback != null:
-		_feedback.play_impact_feedback(was_crit)
-
-
 func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	global_transform = spawn_transform
 	# Run start is a teleport onto the arena's PlayerStart: snap the interpolation
@@ -584,18 +484,8 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 	_is_dead = false
 	_control_enabled = false
 	_clear_input()
-	# Reset progression FIRST so health derives from the fresh (empty) run modifiers.
-	_progression.reset()
-	_health.reset(_build.derived_max_health())
-	_dodge.reset()
-	_stamina.reset_for_new_run()
-	_experience.reset_for_new_run()
-	if _skills != null:
-		_skills.reset_for_new_run()
-	_weapons.reset_for_new_run()
-	_status.clear_all()
-	_build.rebuild_derived_stats()
-	_equip_starter_kit()
+	_run_cycle.reset_components()
+	_run_cycle.equip_starter_kit()
 	respawned.emit()
 
 
@@ -603,23 +493,6 @@ func reset_for_new_run(spawn_transform: Transform3D) -> void:
 ## no second weapon to switch to.
 func request_weapon_switch() -> bool:
 	return _combat.request_weapon_switch()
-
-
-## Starter kit: daily loadout (or Gladius) in slot 0 + the first skill unlocked
-## (all tolerant when the ContentRegistry is unavailable, e.g. headless direct use).
-## Slot 1 + locked skills are filled by Main from owned meta unlocks after reset.
-func _equip_starter_kit() -> void:
-	_weapons.equip_by_id(_starter_weapon_id(), 0, true)
-	if _skills != null:
-		_skills.assign_skill_by_id(&"seismic_slam", 0, true)
-		_skills.assign_skill_by_id(&"bladestorm", 1, false)
-		_skills.assign_skill_by_id(&"phantom_rush", 2, false)
-
-
-func _starter_weapon_id() -> StringName:
-	if GameRoot != null:
-		return GameRoot.get_daily_weapon()
-	return &"gladius"
 
 
 ## Set the arena interior half-extent for movement/bounds clamping; -1 disables it.
@@ -640,8 +513,18 @@ func _clear_input() -> void:
 	_locomotion.clear()
 
 
-func _on_health_changed(current: float, maximum: float) -> void:
-	EventBus.player_health_changed.emit(current, maximum)
+## Emit relays for PlayerReactions. Keeping the emit() calls in this file means the
+## signal gate keeps arity-checking them as self-signal operations.
+func _emit_attack_started() -> void:
+	attack_started.emit()
+
+
+func _emit_attack_finished() -> void:
+	attack_finished.emit()
+
+
+func _emit_leveled_up(new_level: int) -> void:
+	leveled_up.emit(new_level)
 
 
 func _on_damaged(result: DamageResult) -> void:
@@ -667,38 +550,12 @@ func _on_died() -> void:
 	GameRoot.request_game_over()
 
 
-func _on_attack_started() -> void:
-	attack_started.emit()
-	if _feedback != null:
-		_feedback.play_attack_feedback()
-	if _player_audio != null:
-		_player_audio.play_attack()
-
-
-func _on_dodge_started() -> void:
-	if _player_audio != null:
-		_player_audio.play_dodge()
-	if _feedback != null:
-		_feedback.play_dodge_feedback()
-
-
 func get_progression_snapshot() -> Dictionary:
-	return _progression.get_debug_snapshot()
+	return PlayerDebugView.progression_snapshot(self)
 
 
 func get_debug_snapshot() -> Dictionary:
-	return {
-		"position": global_position,
-		"health": _health.get_debug_snapshot(),
-		"controller": _controller.get_debug_snapshot(),
-		"alive": is_alive(),
-		"control_enabled": _control_enabled,
-		"progression": _progression.get_debug_snapshot(),
-		"level": get_level(),
-		"stamina": get_stamina_fraction(),
-		"weapons": _weapons.get_debug_snapshot(),
-		"skills": {} if _skills == null else _skills.get_debug_snapshot(),
-	}
+	return PlayerDebugView.snapshot(self, _control_enabled)
 
 
 func _cancel_combat() -> void:

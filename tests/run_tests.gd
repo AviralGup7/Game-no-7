@@ -91,6 +91,7 @@ const NODE_SUITES := [
 ]
 
 const INTEGRATION_STAGES := "res://tests/integration_stages.gd"
+const CAMPAIGN_RUNTIME_STAGE := "res://tests/campaign_runtime_stages.gd"
 
 var _failures: Array[String] = []
 var _total := 0
@@ -168,6 +169,33 @@ func _run_suites(paths: Array) -> void:
 
 func _process(_delta: float) -> bool:
 	if _integration_run:
+		# The campaign runtime stage boots the shipping world inside this tree
+		# and reports through polled cases; wait for it before the final report.
+		if _campaign_harness != null and not _campaign_finished():
+			return false
+		if _campaign_harness != null and not _campaign_folded:
+			_fold_campaign_runtime()
+		print("========================================")
+		print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
+		for f in _failures:
+			print("  FAIL  " + f)
+		# GitHub caps ::error annotations at 10 per step, which silently hides the
+		# tail of a long failure list and makes it look like fixes "revealed" new
+		# breakage. Emit the full list as ONE annotation (newlines escaped per the
+		# workflow-command spec) so every failure is always visible.
+		if not _failures.is_empty():
+			var joined := "\n".join(_failures).replace("\n", "%0A")
+			print("::error title=GDScript test failures (%d)::%s" % [_failures.size(), joined])
+		print("========================================")
+		# Also write the full report to a file: CI uploads *.log artifacts, so the
+		# complete failure list is retrievable even when step output is truncated.
+		var report := FileAccess.open("res://godot-test-report.log", FileAccess.WRITE)
+		if report != null:
+			report.store_string("GDScript tests: %d total, %d failed\n" % [_total, _failures.size()])
+			for x in _failures:
+				report.store_string("FAIL  " + x + "\n")
+			report.close()
+		quit(0 if _failures.is_empty() else 1)
 		return false
 	_integration_run = true
 	# Deferred to the first live frame so Node3D children are truly inside the tree.
@@ -186,28 +214,9 @@ func _process(_delta: float) -> bool:
 		if not bool(c.get("passed", false)):
 			_failures.append("encounter :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 
-	print("========================================")
-	print("GDScript tests: %d total, %d failed" % [_total, _failures.size()])
-	for f in _failures:
-		print("  FAIL  " + f)
-	# GitHub caps ::error annotations at 10 per step, which silently hides the
-	# tail of a long failure list and makes it look like fixes "revealed" new
-	# breakage. Emit the full list as ONE annotation (newlines escaped per the
-	# workflow-command spec) so every failure is always visible.
-	if not _failures.is_empty():
-		var joined := "\n".join(_failures).replace("\n", "%0A")
-		print("::error title=GDScript test failures (%d)::%s" % [_failures.size(), joined])
-	print("========================================")
-	# Also write the full report to a file: CI uploads *.log artifacts, so the
-	# complete failure list is retrievable even when step output is truncated.
-	var report := FileAccess.open("res://godot-test-report.log", FileAccess.WRITE)
-	if report != null:
-		report.store_string("GDScript tests: %d total, %d failed\n" % [_total, _failures.size()])
-		for x in _failures:
-			report.store_string("FAIL  " + x + "\n")
-		report.close()
-	quit(0 if _failures.is_empty() else 1)
+	_start_campaign_runtime()
 	return false
+
 
 ## ---------- Integration stages (runtime-loaded; see load-order contract) ----------
 ##
@@ -238,4 +247,57 @@ func _run_boss_integration() -> Array:
 
 func _run_spawn_manager_integration() -> Array:
 	return _stages().call("_run_spawn_manager_integration", self)
+
+
+## ---------- Campaign runtime stage (runtime-loaded; same load-order contract) ----------
+##
+## Boots the shipping Station Zero world inside this SceneTree and drives the
+## real director with fixed-delta ticks: imported-mesh audit, save-write
+## failure rollback, 20 pause/map/back/checkpoint cycles, defeat persistence
+## and all 13 missions. The stage script is load()ed at _process() time —
+## never preloaded — for the same reason as integration_stages.gd, and the
+## harness is polled across frames (it awaits frames internally).
+var _campaign_stage = null
+var _campaign_harness = null
+var _campaign_folded := false
+
+
+func _start_campaign_runtime() -> void:
+	print("SUITE: " + CAMPAIGN_RUNTIME_STAGE)
+	var script: GDScript = load(CAMPAIGN_RUNTIME_STAGE)
+	if script == null:
+		_total += 1
+		_failures.append("Could not load campaign runtime stage: " + CAMPAIGN_RUNTIME_STAGE)
+		return
+	if not script.can_instantiate():
+		_total += 1
+		_failures.append("Campaign runtime stage failed to compile: " + CAMPAIGN_RUNTIME_STAGE)
+		return
+	_campaign_stage = script.new()
+	if _campaign_stage == null:
+		_total += 1
+		_failures.append("Campaign runtime stage did not instantiate: " + CAMPAIGN_RUNTIME_STAGE)
+		return
+	_campaign_harness = _campaign_stage.create_harness(root)
+	if _campaign_harness == null:
+		_total += 1
+		_failures.append("Campaign runtime harness could not load: " + CAMPAIGN_RUNTIME_STAGE)
+		_campaign_harness = null
+
+
+func _campaign_finished() -> bool:
+	return _campaign_stage == null or bool(_campaign_stage.is_finished(_campaign_harness))
+
+
+func _fold_campaign_runtime() -> void:
+	_campaign_folded = true
+	if _campaign_stage == null:
+		return
+	for c in _campaign_stage.get_cases(_campaign_harness):
+		_total += 1
+		if not c is Dictionary:
+			_failures.append("Malformed campaign runtime case")
+			continue
+		if not bool(c.get("passed", false)):
+			_failures.append("campaign_runtime :: %s — %s" % [str(c.get("name", "")), str(c.get("why", ""))])
 

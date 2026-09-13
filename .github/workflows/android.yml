@@ -230,6 +230,16 @@ jobs:
         shell: bash
         run: bash scripts/run_campaign_validation.sh
 
+      # Headless campaign runtime suite (audit work item #7): instantiates the
+      # Station Zero world on the dummy renderer and drives all 13 missions,
+      # the save-write failure drill, 20 pause/map/back/checkpoint cycles and
+      # the defeat-persistence retry. Logic-only (no GL), strict: exit code +
+      # log gate + summary line. The same suite is also embedded in the
+      # run_tests.gd step above and in the 4.7.2 diagnostics job.
+      - name: Run campaign runtime suite (headless)
+        shell: bash
+        run: bash scripts/run_campaign_runtime.sh
+
       - name: Validate imported 3D assets, animations, textures and audio
         shell: bash
         run: |

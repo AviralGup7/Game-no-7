@@ -23,6 +23,9 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 
 DECORATOR = "scripts/arena/arena_decorator.gd"
+# After the decorator split the prop kit (mount, primitives, collider, AABB) lives in
+# DecoratorProps; the decorator keeps the compositions, spot picking and Arena contract.
+PROPS = "scripts/arena/decorator_props.gd"
 ARENA = "scripts/arena/arena.gd"
 BUTTON = "scripts/ui/touch_action_button.gd"
 CONTROLS = "scripts/ui/touch_controls.gd"
@@ -52,7 +55,7 @@ class SolidDecorationTests(unittest.TestCase):
             )
 
     def test_collider_is_on_the_world_layer_the_actors_collide_with(self):
-        body = func_body(DECORATOR, "_add_prop_collision")
+        body = func_body(PROPS, "_add_prop_collision")
         self.assertIn("StaticBody3D.new()", body)
         # Named bits, not `= 1`/`= 0`: this branch's collision contract (`tool/validate_guards.py` and
         # `tests/python/test_regress_collision_contract.py`) refuses a numeric layer anywhere under
@@ -64,12 +67,12 @@ class SolidDecorationTests(unittest.TestCase):
         self.assertIn("_combined_local_aabb(", body)
 
     def test_collider_size_is_clamped(self):
-        body = func_body(DECORATOR, "_add_prop_collision")
+        body = func_body(PROPS, "_add_prop_collision")
         for const in ("MIN_PROP_HALF", "MAX_PROP_HALF_XZ", "MAX_PROP_HALF_Y"):
             self.assertIn(const, body, msg="collider must clamp with %s" % const)
 
     def test_footprints_are_published_to_the_nav_grid(self):
-        self.assertIn("_blockers.append(", func_body(DECORATOR, "_add_prop_collision"))
+        self.assertIn("_blockers.append(", func_body(PROPS, "_add_prop_collision"))
         self.assertIn("arena.register_decoration_blockers(", read(DECORATOR))
         self.assertIn("func get_nav_blockers", read(DECORATOR))
         self.assertIn("func register_decoration_blockers", read(ARENA))
@@ -83,7 +86,8 @@ class SolidDecorationTests(unittest.TestCase):
     def test_structural_pillars_join_the_nav_grid_too(self):
         # Pillars always had collision but were missing from the nav grid, so the
         # AI's intent walked straight through them and leaned on the body.
-        self.assertIn("_blockers.append(", func_body(DECORATOR, "_place_structural"))
+        self.assertIn("_props.add_blocker(", func_body(DECORATOR, "_place_structural"))
+        self.assertIn("_blockers.append(", func_body(PROPS, "add_blocker"))
 
     def test_props_keep_clear_of_spawn_markers(self):
         self.assertIn("SPAWN_MARKER_CLEAR_RADIUS", read(DECORATOR))

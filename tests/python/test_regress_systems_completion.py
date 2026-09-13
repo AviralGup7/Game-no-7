@@ -15,7 +15,13 @@ class LockOnTests(unittest.TestCase):
     def test_lock_on_is_not_double_toggled(self):
         txt = read("scripts/main/camera_rig.gd")
         self.assertIn("func toggle_lock_on() -> bool:", txt)
-        self.assertIn("lock_on_midpoint_factor", txt)
+        # The midpoint framing value is consumed by the lock-on component the rig
+        # delegates to (the typed split moved the code, not the behaviour); the rig
+        # must still own the toggle the Player calls and the look-at mid-shot.
+        lock_on = read("scripts/main/camera/camera_lock_on_controller.gd")
+        self.assertIn("lock_on_midpoint_factor", lock_on)
+        self.assertIn("_lock_on.toggle(", txt)
+        self.assertIn("_lock_on.mid_look_target(", txt)
         self.assertIn('_swap_profile(&"combat")', txt)
         self.assertIn('_swap_profile(&"boss")', txt)
         # camera_reset snaps the boom; lock_on is owned by Player.request_lock_on.
