@@ -1,5 +1,40 @@
 # Changelog
 
+## [Unreleased] — Campaign shipping pass: UI anchors, typed-boundary crashes, enemy materials, overlay fit (2026-09-13)
+
+- Fixed the whole code-built UI rendering zero-size: `set_anchors_preset(FULL_RECT)` on an
+  in-tree 0-size Control preserves size 0 (offsets go to −viewport), collapsing CampaignUI,
+  UiSafeArea and every overlay/scroll. 25 call sites in 18 files now use
+  `set_anchors_and_offsets_preset()`; menu, HUD, pause, map, settings, armory and result all
+  lay out at full viewport size.
+- Fixed typed-boundary crashes in the shipping HUD: `campaign_hud` used Dictionary-style
+  `.get()`/`.is_empty()` on typed CampaignSector/Mission/Interaction records (now null-safe
+  property access); `campaign_map` wrapped an already-Color accent in `Color(String)`
+  (now direct); `target_ids`/`remaining_guards`/`next_target`/`try_interact` crashed on a
+  null mission after campaign completion (now guarded).
+- Fixed the campaign harness teleporting to origin: `CampaignDefinition.point()` fed
+  already-Vector3 positions returned `Vector3.ZERO`, failing all interaction/story checks.
+  Call sites now pass typed positions through directly; `_kill()` takes CampaignMember.
+- Menu copy matches the authored station: "Twelve connected districts".
+- Fixed enemies rendering as flat single-color boxes: mounts were fine, but
+  `EnemyFeedback.recolor()` painted `material_override` over every mesh including the
+  mounted vertex-palette robots. Recolor now tints only the fallback primitive; the
+  `primitive kept` warnings were test-double noise (bare `EnemyBase.new()` fixtures now
+  carry VisualRoot/CharacterModel/Body mounts). `PlayerEquipment` lazily rebinds the
+  hand socket and warns when an equipped weapon has no visible model.
+- Overlay fit on short viewports: factory overlays tighten margins/separation below 780px
+  (88px touch floor kept), always show the scrollbar there, restart at the top on show,
+  and clip long button captions; the pause screen flows its six actions into two columns
+  on short+wide screens so it fits 720p without scrolling.
+- Combat text no longer leaks across screens: damage numbers hide, stop and clear when
+  leaving PLAYING (previously froze mid-fade over pause/map), and the HUD toast stays
+  hidden until its first layout pass places it.
+- Investigated, no code change: floor style mapping verified correct against the shipped
+  PBR albedos (tech = blue hex, hazard = chevron/amber; no red exists in either set);
+  damage-number wiring verified end to end; the vertex-palette box robot is the intended
+  Warden look. Verified offline only (gdparse + repo gates + Python suite); awaiting CI
+  godot-tests and the device pass.
+
 ## [Unreleased] — Campaign perf: single-sourced budgets, flow-field cache hardening, hot-path allocation pass (2026-09-13)
 
 - New `scripts/campaign/campaign_budgets.gd` (`CampaignBudgets`) is the ONE typed home for the

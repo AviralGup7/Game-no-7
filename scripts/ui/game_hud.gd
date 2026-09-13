@@ -41,7 +41,7 @@ var _weapon_tip_cache := ""
 
 func _ready() -> void:
 	name = "GameplayHUD"
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 
 	# --- Top status plate ----------------------------------------------------

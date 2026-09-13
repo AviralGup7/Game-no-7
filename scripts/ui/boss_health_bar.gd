@@ -63,7 +63,7 @@ func _ready() -> void:
 ## UiTheme.bar styling token so boss/HUD meters read identically.
 func _make_bar(fill: Color) -> ProgressBar:
 	var bar := ProgressBar.new()
-	bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bar.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bar.show_percentage = false
 	bar.min_value = 0.0

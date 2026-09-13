@@ -38,10 +38,10 @@ var _last_player_hp := -1.0
 var _last_applied_quality: StringName = &""
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	_backdrop = MenuBackdrop.new()
-	_backdrop.set_anchors_preset(PRESET_FULL_RECT)
+	_backdrop.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_backdrop.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(_backdrop)
 	_safe = UiSafeArea.new()
@@ -165,7 +165,7 @@ func _build_hud() -> void:
 	_banner = AnnouncementBanner.new()
 	_safe.add_child(_banner)
 	_boss_gate = Control.new()
-	_boss_gate.set_anchors_preset(PRESET_FULL_RECT)
+	_boss_gate.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_boss_gate.mouse_filter = MOUSE_FILTER_IGNORE
 	_safe.add_child(_boss_gate)
 	_boss_bar = BossHealthBar.new()

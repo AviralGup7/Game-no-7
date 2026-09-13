@@ -1,13 +1,8 @@
 ########## diag-import.log
-      4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
       3 WARNING: Ignoring unsupported header information in HDR: PRIMARIES=0 0 0 0 0 0 0 0.
       3 WARNING: Ignoring unsupported header information in HDR: GAMMA=1.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-tests.log
-      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
       3 ERROR: Parameter "material" is null.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
@@ -17,7 +12,7 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
@@ -31,13 +26,12 @@
       1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    564 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    263 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-    173 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-    131 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     16 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
+    453 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    242 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    157 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    121 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+     14 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
       9 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-      4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
       3 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/skills/skill_controller.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/player/targeting_component.gd" with error "Compilation failed".
@@ -50,18 +44,14 @@
       3 ERROR: Failed to load script "res://scripts/player/experience_component.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/player/character_controller.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/main/camera_rig.gd" with error "Compilation failed".
-      2 SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
       2 ERROR: Failed to load script "res://scripts/ui/ui_root.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/ui/ui_gauges.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
-      1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
-      1 SCRIPT ERROR: Compile Error: Identifier not found: RunAnalytics
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_weapons.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_waves.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/unit/test_wave_mutators.gd" with error "Compilation failed".
@@ -118,8 +108,6 @@
       1 ERROR: Failed to load script "res://scripts/waves/wave_mutators.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/waves/wave_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/foot_plant.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/visuals/effect_readability.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/visuals/effect_event_handlers.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/runtime_soak.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/pool_governor.gd" with error "Compilation failed".
@@ -153,12 +141,7 @@
       1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/progression/build_effects.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/progression_component.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/player/player_run_cycle.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/player/player_reactions.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_locomotion.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/player/player_intake.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/player/player_debug_view.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/player/player_components.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_combat.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_build.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/dodge_controller.gd" with error "Compilation failed".
@@ -172,27 +155,19 @@
       1 ERROR: Failed to load script "res://scripts/meta/daily_challenge.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/meta/achievements.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/main/camera/camera_rig_debug.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/main/camera/camera_lock_on_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/spawn_placer.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_striker.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_ranged_state.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_presentation.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_pack.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_motion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_idle_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_hurt_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_fuse_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_feedback.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_elite_kit.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_debug_view.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dead_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dash_state.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_combat_response.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_chase_state.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/enemies/enemy_brain.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_attack_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/boss_controller.gd" with error "Compilation failed".
@@ -212,8 +187,8 @@
       1 ERROR: Failed to load script "res://scripts/combat/combat_query.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/combat/area_damage.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_ui.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Parse error".
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_encounters.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/campaign/campaign_director.gd" with error "Compilation failed".
@@ -234,19 +209,10 @@
       1 ERROR: Failed to load script "res://scripts/arena/arena.gd" with error "Compilation failed".
 
 ########## diag-editor.log
-      4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-wae-import.log
-      4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 
 ########## diag-wae-tests.log
-      8 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       3 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
       3 ERROR: Parameter "material" is null.
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
@@ -256,7 +222,7 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
-      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+      1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
       1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
@@ -272,20 +238,14 @@
 ########## diag-wae-probe.log
 
 ########## diag-lsp.txt
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:86:29: ERROR: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:158:14: ERROR: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:127:8: ERROR: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:178:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_map.gd:42:23: ERROR: No constructor of "String" matches the signature "String(Color)".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:98:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "scale" is shadowing an already-declared property in the base class "Control".
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:165:75: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:159:51: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:158:47: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:142:45: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:102:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "scale" is shadowing an already-declared property in the base class "Control".
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_director.gd:384:10: WARNING: (UNASSIGNED_VARIABLE): The variable "nearest" is used before being assigned a value.
+      1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_director.gd:379:10: WARNING: (UNASSIGNED_VARIABLE): The variable "nearest" is used before being assigned a value.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
@@ -293,11 +253,4 @@
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-      4 SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-      2 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-      1 SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-      1 ERROR: LSP: Failed to parse script: res://tests/verify_campaign_inner.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_map.gd
-      1 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_hud.gd
-      1 ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
 

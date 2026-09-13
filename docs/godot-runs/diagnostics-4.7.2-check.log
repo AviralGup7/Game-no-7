@@ -494,15 +494,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/campaign/campaign_hud.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:142)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:158)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:159)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:165)
-ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Parse error".
+SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:50)
+ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_interaction.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -510,9 +504,13 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/campaign/campaign_map.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-          at: GDScript::reload (res://scripts/campaign/campaign_map.gd:42)
-ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Parse error".
+SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
+          at: GDScript::reload (res://scripts/campaign/campaign_director.gd:40)
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://scripts/player/player.gd:110)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/campaign/campaign_map.gd:0)
+ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_member.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
@@ -539,7 +537,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://scripts/campaign/campaign_ui.gd:53)
+          at: GDScript::reload (res://scripts/campaign/campaign_ui.gd:59)
 ERROR: Failed to load script "res://scripts/campaign/campaign_ui.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_world.gd
@@ -790,7 +788,7 @@ ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with e
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:117)
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:128)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
 ERROR: Failed to load script "res://scripts/debug/debug_error_overlay.gd" with error "Compilation failed".
@@ -2122,7 +2120,7 @@ ERROR: Failed to load script "res://scripts/ui/damage_number_layer.gd" with erro
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:117)
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:128)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/player/experience_component.gd:127)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2137,7 +2135,7 @@ ERROR: Failed to load script "res://scripts/ui/game_hud.gd" with error "Compilat
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:117)
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:128)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/ui/tutorial_manager.gd:37)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2256,14 +2254,14 @@ ERROR: Failed to load script "res://scripts/ui/ui_commands.gd" with error "Compi
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:117)
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:128)
 ERROR: Failed to load script "res://scripts/ui/ui_factory.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/ui/ui_gauges.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:117)
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:128)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/player/experience_component.gd:127)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
@@ -2791,7 +2789,7 @@ ERROR: Failed to load script "res://tests/integration/test_player.gd" with error
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://tests/integration_stages.gd:967)
+          at: GDScript::reload (res://tests/integration_stages.gd:993)
 ERROR: Failed to load script "res://tests/integration_stages.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/regress_upgrades.gd
@@ -3756,13 +3754,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/verify_campaign_inner.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
-          at: GDScript::reload (res://tests/verify_campaign_inner.gd:86)
-SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
-          at: GDScript::reload (res://tests/verify_campaign_inner.gd:127)
-SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
-          at: GDScript::reload (res://tests/verify_campaign_inner.gd:158)
-ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Parse error".
+SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+          at: GDScript::reload (res://tests/verify_campaign_inner.gd:29)
+ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/verify_flow.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org

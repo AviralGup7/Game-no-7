@@ -52,7 +52,15 @@ func _on_switched(_old: StringName, _new: StringName) -> void:
 
 
 func _refresh() -> void:
-	if _socket == null or _manager == null:
+	if _manager == null:
+		return
+	if _socket == null or not is_instance_valid(_socket):
+		# The hero model can mount after this node is ready (streamed/deferred
+		# mounts); retry the hand-socket bind on every equip so a late model
+		# still gets its visible weapon instead of fighting bare-handed.
+		_socket = null
+		_bind_skeleton()
+	if _socket == null:
 		return
 	var id := _manager.active_weapon_id()
 	if id == _equipped and _model != null:
@@ -64,6 +72,10 @@ func _refresh() -> void:
 		_model = null
 	_muzzle = null
 	if not models.has(id):
+		# An equipped weapon with no visible model otherwise fails silently and
+		# the hero fights bare-handed with no diagnostic anywhere in the log.
+		if id != &"":
+			push_warning("Firearm mount: equipped weapon '%s' has no visible model" % String(id))
 		return
 	_model = models[id].instantiate() as Node3D
 	if _model == null:

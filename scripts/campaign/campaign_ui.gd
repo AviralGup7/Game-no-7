@@ -20,6 +20,12 @@ var _resume_info: Label
 var _result: Label
 var _result_brief: Label
 var _retry: Button
+var _pause_buttons: Array[Button] = []
+var _pause_single: VBoxContainer
+var _pause_split: HBoxContainer
+var _pause_col_a: VBoxContainer
+var _pause_col_b: VBoxContainer
+var _pause_is_split := false
 var _status: Label
 var _menu_message: Label
 var _backdrop: MenuBackdrop
@@ -29,7 +35,7 @@ var _save_error_shown := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_backdrop = MenuBackdrop.new()
 	add_child(_backdrop)
@@ -77,7 +83,7 @@ func _build_menu() -> void:
 	UiFactory.title("STATION ZERO", body, 58)
 	UiFactory.hairline(body)
 	UiFactory.label("THE LONG WAY HOME", body, 26)
-	UiFactory.label("Six connected districts. One silent station.\nRestore power, find the survivors and take back the way home.", body, 22)
+	UiFactory.label("Twelve connected districts. One silent station.\nRestore power, find the survivors and take back the way home.", body, 22)
 	_resume_info = UiFactory.label("", body, 20)
 	_resume_info.modulate = UiTheme.CYAN
 	_continue = UiFactory.button("CONTINUE CAMPAIGN", body, 24)
@@ -105,14 +111,65 @@ func _build_pause() -> void:
 	var body := _screen("pause")
 	UiFactory.screen_header(body, "STATION ZERO", "CAMPAIGN PAUSED", 38,
 		"Objectives and cleared encounters are saved. Continue starts at your last checkpoint.")
-	UiFactory.button("RESUME", body, 24).pressed.connect(GameRoot.request_resume)
-	UiFactory.button("STATION MAP / OBJECTIVE", body, 22).pressed.connect(func() -> void: _show("map"))
-	UiFactory.button("SETTINGS", body, 22).pressed.connect(func() -> void: _show("settings"))
-	UiFactory.button("ARMORY / LOADOUT", body, 22).pressed.connect(func() -> void: _show("armory"))
-	UiFactory.button("RETURN TO CHECKPOINT", body, 22).pressed.connect(func() -> void:
+	_pause_single = VBoxContainer.new()
+	_pause_single.add_theme_constant_override("separation", UiTheme.SPACE_M)
+	body.add_child(_pause_single)
+	_add_pause_button("RESUME", 24).pressed.connect(GameRoot.request_resume)
+	_add_pause_button("STATION MAP / OBJECTIVE", 22).pressed.connect(func() -> void: _show("map"))
+	_add_pause_button("SETTINGS", 22).pressed.connect(func() -> void: _show("settings"))
+	_add_pause_button("ARMORY / LOADOUT", 22).pressed.connect(func() -> void: _show("armory"))
+	_add_pause_button("RETURN TO CHECKPOINT", 22).pressed.connect(func() -> void:
 		_modal.confirm("RETURN TO CHECKPOINT?", "Completed objectives, credits and defeated enemies are kept. Health and stamina are restored at your last checkpoint.",
 			"RETURN", "CANCEL", _retry_checkpoint))
-	UiFactory.button("SAVE & MAIN MENU", body, 22).pressed.connect(_save_and_menu)
+	_add_pause_button("SAVE & MAIN MENU", 22).pressed.connect(_save_and_menu)
+	_pause_split = HBoxContainer.new()
+	_pause_split.add_theme_constant_override("separation", UiTheme.SPACE_M)
+	_pause_split.visible = false
+	body.add_child(_pause_split)
+	_pause_col_a = VBoxContainer.new()
+	_pause_col_a.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pause_col_a.add_theme_constant_override("separation", UiTheme.SPACE_S)
+	_pause_split.add_child(_pause_col_a)
+	_pause_col_b = VBoxContainer.new()
+	_pause_col_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_pause_col_b.add_theme_constant_override("separation", UiTheme.SPACE_S)
+	_pause_split.add_child(_pause_col_b)
+
+
+func _add_pause_button(text: String, font_size: int) -> Button:
+	var b := UiFactory.button(text, _pause_single, font_size)
+	_pause_buttons.append(b)
+	return b
+
+
+## Six 88px buttons in one column (~908px) never fit a 720p viewport; two
+## columns (~460px) do, without breaking the touch-target floor or hiding
+## content behind scroll. Narrow screens keep the single scrolling column.
+func _fit_pause() -> void:
+	if _pause_single == null or _safe == null:
+		return
+	var short := _safe.size.y < 780.0
+	var gap := UiTheme.SPACE_S if short else UiTheme.SPACE_M
+	_pause_single.add_theme_constant_override("separation", gap)
+	_pause_col_a.add_theme_constant_override("separation", gap)
+	_pause_col_b.add_theme_constant_override("separation", gap)
+	var split := short and _safe.size.x >= 1000.0
+	if split == _pause_is_split:
+		return
+	_pause_is_split = split
+	if split:
+		for i in range(_pause_buttons.size()):
+			var b := _pause_buttons[i]
+			_pause_single.remove_child(b)
+			(_pause_col_a if i < 3 else _pause_col_b).add_child(b)
+		_pause_single.visible = false
+		_pause_split.visible = true
+	else:
+		for b in _pause_buttons:
+			b.get_parent().remove_child(b)
+			_pause_single.add_child(b)
+		_pause_split.visible = false
+		_pause_single.visible = true
 
 
 func _build_map() -> void:
@@ -170,6 +227,12 @@ func _show(id: String) -> void:
 		var screen: Control = _screens[key]
 		screen.visible = key == id
 	_hud.visible = id == "playing"
+	_numbers.visible = id == "playing"
+	_numbers.set_process(id == "playing")
+	if id != "playing":
+		# In-flight damage numbers freeze the moment the tree pauses; leaving
+		# them up overlays stale combat text on pause/map/result screens.
+		_numbers.clear_all()
 	_backdrop.visible = id != "playing"
 	if id == "menu":
 		var progress := CampaignProgress.reconcile(SaveManager.get_campaign(), definition)
@@ -193,8 +256,13 @@ func _show(id: String) -> void:
 	elif id == "status":
 		_status.text = "STATION COULD NOT BE LOADED" if GameRoot.get_current_state() == GameRoot.State.ERROR else "CONNECTING TO STATION ZERO"
 	if id in _screens:
-		UiTheme.apply_text_scale(_screens[id], SaveManager.get_settings().text_scale)
-		UiFactory.focus_first(_screens[id])
+		var screen := _screens[id] as Control
+		# Returning to a tall screen (pause/map) restarts at the top instead of
+		# a stale mid-scroll offset left over from the previous visit.
+		for scroller in screen.find_children("*", "ScrollContainer", true, false):
+			(scroller as ScrollContainer).scroll_vertical = 0
+		UiTheme.apply_text_scale(screen, SaveManager.get_settings().text_scale)
+		UiFactory.focus_first(screen)
 
 
 func _on_state(_old: StringName, state: StringName) -> void:
@@ -290,6 +358,7 @@ func _cancel_input() -> void:
 
 func _relayout() -> void:
 	_cancel_input()
+	_fit_pause()
 	_hud.apply_layout()
 	_numbers.set_hud_block(_hud._vitals.get_global_rect())
 	_numbers.set_skill_block(_hud._skills.get_global_rect())
