@@ -511,7 +511,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://scripts/campaign/campaign_ui.gd:53)
+          at: GDScript::reload (res://scripts/campaign/campaign_ui.gd:59)
 ERROR: Failed to load script "res://scripts/campaign/campaign_ui.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_world.gd
