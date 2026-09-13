@@ -72,6 +72,10 @@ func _refresh() -> void:
 		_model = null
 	_muzzle = null
 	if not models.has(id):
+		# An equipped weapon with no visible model otherwise fails silently and
+		# the hero fights bare-handed with no diagnostic anywhere in the log.
+		if id != &"":
+			push_warning("Firearm mount: equipped weapon '%s' has no visible model" % String(id))
 		return
 	_model = models[id].instantiate() as Node3D
 	if _model == null:
