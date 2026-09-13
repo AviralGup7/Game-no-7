@@ -63,7 +63,9 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 	perception.attention_boost = 1.0
 	match perception.status:
 		EnemyPerception.Status.ENGAGED:
-			if String(cfg.ai_behavior) == "ranged":
+			# StringName compare (no per-tick String copy): ai_behavior is a
+			# StringName on EnemyConfig.
+			if cfg.ai_behavior == &"ranged":
 				host.state_machine_change_to(&"ranged")
 			else:
 				host.state_machine_change_to(&"chase")

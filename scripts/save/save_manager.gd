@@ -19,6 +19,8 @@ var _dirty := false
 var _settings := SettingsData.new()
 var _loaded_from_disk := false
 var _debounce: Timer = null
+## In-memory retryable campaign/wallet slice. Not part of the on-disk schema.
+var _pending_profile: Dictionary = {}
 
 
 func _ready() -> void:
@@ -261,9 +263,68 @@ func has_campaign() -> bool:
 
 
 func store_campaign(progress: Dictionary, flush: bool = false) -> bool:
-	_save.campaign = CampaignProgress.normalize(progress)
+	var slice := capture_profile_slice()
+	slice.campaign = CampaignProgress.normalize(progress)
+	return commit_profile_transaction(slice, flush)
+
+
+func capture_profile_slice() -> Dictionary:
+	return {
+		"campaign": CampaignProgress.normalize(_save.get("campaign", {})),
+		"meta_wallet": get_meta_wallet(),
+		"meta_ranks": get_meta_ranks(),
+		"prestige_rank": get_prestige_rank(),
+	}
+
+
+func has_pending_profile_transaction() -> bool:
+	return not _pending_profile.is_empty()
+
+
+func peek_pending_profile_transaction() -> Dictionary:
+	return _pending_profile.duplicate(true)
+
+
+func retry_pending_profile_transaction() -> bool:
+	if _pending_profile.is_empty():
+		return true
+	return commit_profile_transaction(_pending_profile.duplicate(true), true)
+
+
+func commit_profile_transaction(profile: Dictionary, flush: bool = true) -> bool:
+	var normalized := _normalize_profile_slice(profile)
+	_pending_profile = normalized.duplicate(true)
+	var previous := capture_profile_slice()
+	_apply_profile_slice(normalized)
 	mark_dirty()
-	return save_now() if flush else true
+	if not flush:
+		return true
+	var ok := save_now()
+	if ok:
+		return true
+	_apply_profile_slice(previous)
+	mark_dirty()
+	return false
+
+
+func _normalize_profile_slice(profile: Dictionary) -> Dictionary:
+	var ranks: Variant = profile.get("meta_ranks", get_meta_ranks())
+	if not ranks is Dictionary:
+		ranks = {}
+	return {
+		"campaign": CampaignProgress.normalize(profile.get("campaign", {})),
+		"meta_wallet": maxi(int(profile.get("meta_wallet", get_meta_wallet())), 0),
+		"meta_ranks": (ranks as Dictionary).duplicate(true),
+		"prestige_rank": Prestige.clamp_rank(int(profile.get("prestige_rank", get_prestige_rank()))),
+	}
+
+
+func _apply_profile_slice(slice: Dictionary) -> void:
+	_save.campaign = CampaignProgress.normalize(slice.get("campaign", {}))
+	_save.meta_wallet = maxi(int(slice.get("meta_wallet", 0)), 0)
+	var ranks: Variant = slice.get("meta_ranks", {})
+	_save.meta_ranks = (ranks as Dictionary).duplicate(true) if ranks is Dictionary else {}
+	_save.prestige_rank = Prestige.clamp_rank(int(slice.get("prestige_rank", 0)))
 
 
 func new_campaign() -> bool:
@@ -303,25 +364,36 @@ func _load_from_disk() -> void:
 func _flush_save() -> bool:
 	if not _dirty:
 		return true
-	# Never replace the only known-good copy until the new document is completely
-	# written. Keep three generations: a bad storage sector or an interrupted
-	# replacement then costs at most the newest save, not the whole profile.
-	var previous: Variant = _read_raw(SAVE_PATH)
-	if previous != null:
-		# Byte-copy existing generations. Re-stringify of a parsed dict can
-		# scramble key order and break the SHA-256 envelope; writing JSON of
-		# a missing file used to persist the literal "null" and destroy an
-		# older backup on the second save of a new profile.
-		_copy_save_file(BACKUP_2_PATH, BACKUP_3_PATH)
-		_copy_save_file(BACKUP_PATH, BACKUP_2_PATH)
-		_copy_save_file(SAVE_PATH, BACKUP_PATH)
-	var ok := _write_raw(SAVE_PATH, _serialize_save())
-	if ok:
-		_dirty = false
-		EventBus.save_completed.emit()
-	else:
+	if not _pending_profile.is_empty():
+		_apply_profile_slice(_pending_profile)
+	# Stage the new primary bytes first. Backup rotation runs only after that
+	# temp verifies, immediately before the same-directory rename.
+	var tmp := SAVE_PATH + ".tmp"
+	if not _stage_temp(tmp, _serialize_save()):
 		EventBus.save_failed.emit(&"write_failed")
-	return ok
+		return false
+	_rotate_backups_from_primary()
+	if not _commit_rename(tmp, SAVE_PATH):
+		EventBus.save_failed.emit(&"write_failed")
+		return false
+	_dirty = false
+	_pending_profile.clear()
+	EventBus.save_completed.emit()
+	return true
+
+
+func _rotate_backups_from_primary() -> void:
+	# Byte-copy existing generations. Re-stringify of a parsed dict can
+	# scramble key order and break the SHA-256 envelope; writing JSON of
+	# a missing file used to persist the literal "null" and destroy an
+	# older backup on the second save of a new profile.
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	if _read_raw(SAVE_PATH) == null:
+		return
+	_copy_save_file(BACKUP_2_PATH, BACKUP_3_PATH)
+	_copy_save_file(BACKUP_PATH, BACKUP_2_PATH)
+	_copy_save_file(SAVE_PATH, BACKUP_PATH)
 
 
 func _read_raw(path: String) -> Variant:
@@ -476,9 +548,18 @@ func _copy_save_file(from_path: String, to_path: String) -> void:
 
 func _write_raw(path: String, contents: String) -> bool:
 	var tmp := path + ".tmp"
+	if not _stage_temp(tmp, contents):
+		return false
+	return _commit_rename(tmp, path)
+
+
+## Write+flush+verify a temp file. Every failure path discards it; the loader
+## never reads `*.tmp`.
+func _stage_temp(tmp: String, contents: String) -> bool:
 	var file := FileAccess.open(tmp, FileAccess.WRITE)
 	if file == null:
-		EventBus.report_warning("Could not open temporary save: %s" % path)
+		EventBus.report_warning("Could not open temporary save: %s" % tmp)
+		_discard_temp(tmp)
 		return false
 	file.store_string(contents)
 	# Explicitly flush before close: close alone releases the handle, while flush
@@ -487,15 +568,24 @@ func _write_raw(path: String, contents: String) -> bool:
 	var write_error := file.get_error()
 	file.close()
 	if write_error != OK:
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
+		_discard_temp(tmp)
 		return false
+	return true
+
+
+func _commit_rename(tmp: String, path: String) -> bool:
 	# Same-directory rename is the commit point. Do not delete the destination on
 	# failure: that fallback turned a recoverable write error into total data loss.
 	var err := DirAccess.rename_absolute(ProjectSettings.globalize_path(tmp), ProjectSettings.globalize_path(path))
 	if err != OK:
 		EventBus.report_warning("Could not commit save %s (error %d)" % [path, err])
-		DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
-	return err == OK
+		_discard_temp(tmp)
+		return false
+	return true
+
+
+func _discard_temp(tmp: String) -> void:
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp))
 
 
 func _apply_validated(data: Dictionary) -> void:

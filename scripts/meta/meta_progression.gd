@@ -102,6 +102,14 @@ func grant_currency(amount: int, flush: bool = true) -> void:
 	wallet_changed.emit(_wallet)
 
 
+## Restore a prior wallet without writing disk (campaign transaction rollback).
+func restore_wallet(balance: int, persist: bool = false) -> void:
+	_wallet = maxi(balance, 0)
+	if persist:
+		_save(false)
+	wallet_changed.emit(_wallet)
+
+
 func get_rank(item_id: StringName) -> int:
 	return int(_ranks.get(item_id, 0))
 

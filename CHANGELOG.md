@@ -1,5 +1,65 @@
 # Changelog
 
+## [Unreleased] — Campaign perf: single-sourced budgets, flow-field cache hardening, hot-path allocation pass (2026-09-13)
+
+- New `scripts/campaign/campaign_budgets.gd` (`CampaignBudgets`) is the ONE typed home for the
+  station's performance budgets: 18 active enemies, 2 spawns per 0.3 s tick, 3 visible district
+  batches, 6,000-expansion A* cap, 12 m route refresh, 40,960-cell / 1,024 m nav limits, the
+  128 m flow-field window and the 70/90 m streaming radii, plus the 64/512 loader row budgets.
+  `CampaignDefinition`, `CampaignEncounters`, `CampaignDirector` and `ArenaNavGrid` keep their
+  historic constant names as aliases; `tool/validate_campaign.py` mirrors the numbers; new
+  `tests/python/test_campaign_budgets.py` pins every copy (22 new tests) and fails on any drift.
+  Verified offline only; awaiting CI godot-tests.
+- Fixed a budget drift found by that single-sourcing: `CampaignDirector._update_route()` guarded
+  A* re-searches with a literal 6.0 m of player travel while the declared
+  `ROUTE_REFRESH_DISTANCE` budget is 12 m. The guard now uses the constant — deliberate behavior
+  delta: campaign routes re-search after 12 m of travel instead of 6 m (halves the A* refresh
+  rate; route line and distance readout unchanged in kind, target-moved threshold untouched).
+- Flow-field rebuild cache proven complete and revision-hardened: audit #6's player-cell guard in
+  `CampaignEncounters.stream_nearby()` now also checks a new `ArenaNavGrid` blocker-mask
+  `_revision` (bumped once per successful `build()`/`build_world()`, exposed via
+  `get_revision()`, surfaced in the nav debug snapshot). The spawn path keeps its one legitimate
+  rebuild; the grid's same-cell/same-radius no-op guard makes a spawn in a cell-change tick free,
+  so at most one real rebuild happens per tick. Pinned textually by
+  `tests/python/test_campaign_budgets.py::FlowFieldRebuildGuardTests` (guard present, exactly two
+  rebuild sites in streaming, no-op guard intact). Verified offline only; awaiting CI godot-tests.
+- Hot-path allocation removals (no behavior change): per-tick `String(cfg.ai_behavior)` copies in
+  the enemy chase/idle states became StringName compares; `FootPlant` reuses one static
+  `PhysicsRayQueryParameters3D` + exclude list + const offsets instead of allocating three query
+  objects and three Arrays per body per physics frame (player + every live enemy);
+  `CampaignWorld.update_visibility()` reuses a build-time ranking scratch buffer and a cached
+  sort Callable instead of fresh Dictionaries per 0.25 s refresh (A* scratch pattern extended);
+  `CampaignMap` resolves the immutable station chart once per `bind()` instead of re-reading
+  Dictionaries and re-parsing accent colors for 130+ rects on every ~7 Hz redraw; the streaming
+  tick no longer allocates a throwaway `[]` per encounter group and resolves spawn serials from
+  a one-time Dictionary instead of re-scanning the 96-id list per spawn; the camera rig passes
+  its StringName stick group to `get_nodes_in_group` without a String copy. Verified offline
+  only; awaiting CI godot-tests.
+- Physics query audit: enemy steering already issues zero per-enemy physics queries (flow field +
+  grid LOS). The only trivially-safe win (FootPlant query-object reuse) is done; the three
+  remaining batching candidates (per-cell ground cache, spatial-index separation, camera whisker
+  count) are documented in `docs/ANDROID_PERFORMANCE.md` with device measurement plans — none was
+  trivially safe without behavior or mode-awareness changes.
+- `docs/ANDROID_PERFORMANCE.md` gained the 2026-09-13 pass: what changed, the
+  `tool/profile_android.sh` re-verification method, and the device-only unknowns (thermal soak,
+  GPU cost, nav-rebuild spikes) stated honestly.
+- Gates: all 11 green — `python3 -m unittest discover -s tests/python -p 'test_*.py'`
+  (Ran 1250 tests, OK; baseline was 1238), `tool/validate_resources.py` (183 files OK),
+  `tool/validate_assets.py`, `tool/validate_campaign.py`, `tool/validate_geometry.py` (0 issues),
+  `tool/check_typed_arch.py` (clean; 215 classes now that `CampaignBudgets` exists),
+  `tool/validate_guards.py` (201 passed, 0 failed), `tool/check_scene_paths.py`,
+  `tool/check_engine_api.py`, `tool/check_signals.py`, `tool/check_string_formats.py`.
+## [Unreleased] — Transactional campaign persistence (2026-09-13)
+
+- Mission/cache/wallet updates now snapshot into one normalized profile slice and
+  commit through `SaveManager.commit_profile_transaction`. A failed flush restores
+  the previous live campaign/wallet slice, rolls director runtime back, and keeps
+  the slice retryable (director tick + `GameRoot.start_campaign`).
+- Backup rotation happens after the new primary temp verifies and immediately
+  before rename. Temp files are discarded on open, write, and rename failure; the
+  loader still ignores `*.tmp`.
+- Save schema remains v8 / additive. GDScript verified offline only; awaiting CI
+  godot-tests.
 ## [Unreleased] — Docs, licensing and release tooling match reality (2026-09-13)
 
 - Re-derive operational numeric claims from live offline tools: campaign

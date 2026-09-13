@@ -164,6 +164,8 @@ func request_play() -> void:
 func start_campaign(fresh: bool = false) -> void:
 	if _current_state not in [State.MAIN_MENU, State.GAME_OVER]:
 		return
+	if SaveManager.has_pending_profile_transaction():
+		SaveManager.retry_pending_profile_transaction()
 	if (fresh or not SaveManager.has_campaign()) and not SaveManager.new_campaign():
 		EventBus.announcement.emit(&"save", "Campaign could not be saved. Please retry.", &"warning")
 		return

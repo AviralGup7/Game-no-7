@@ -356,7 +356,9 @@ func _is_move_stick_finger(index: int) -> bool:
 	var tree := get_tree()
 	if tree == null:
 		return false
-	for n in tree.get_nodes_in_group(String(STICK_GROUP)):
+	# STICK_GROUP is already a StringName; get_nodes_in_group accepts it
+	# directly (runs on every touch input event, so no String copy).
+	for n in tree.get_nodes_in_group(STICK_GROUP):
 		if n is TouchJoystick and (n as TouchJoystick).owns_index(index):
 			return true
 	return false

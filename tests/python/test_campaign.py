@@ -34,20 +34,25 @@ def _crosses(edge, seam, horizontal_connector):
 class CampaignRuntimeBudgetTests(unittest.TestCase):
     """The offline validator and the GDScript loader must agree on budgets.
 
-    The station grew to 864 x 672 m, so the world caps now live in three places
-    (validator, nav grid, definition). These checks keep them from drifting,
-    and keep actor clamps tied to the authored bounds instead of a literal.
+    The station grew to 864 x 672 m, so every budget is single-sourced in
+    scripts/campaign/campaign_budgets.gd (drift-pinned in detail by
+    tests/python/test_campaign_budgets.py); these checks keep the runtime
+    copies aliasing that home, and keep actor clamps tied to the authored
+    bounds instead of a literal.
     """
 
     def test_world_budget_constants_match_the_runtime(self):
         grid = source("scripts/arena/arena_nav_grid.gd")
         definition = source("scripts/campaign/campaign_definition.gd")
         for text in (grid, definition):
-            self.assertIn(f"const WORLD_EXTENT_LIMIT := {campaign.MAX_WORLD_EXTENT}.0", text)
-        self.assertIn(f"const WORLD_CELL_LIMIT := {campaign.MAX_NAV_CELLS}", grid)
-        # The loader row budgets are enforced offline too.
-        self.assertIn(f"raw.floors.size() > {campaign.MAX_FLOOR_REGIONS}", definition)
-        self.assertIn(f"value.size() > {campaign.MAX_TABLE_ROWS}", definition)
+            self.assertIn("const WORLD_EXTENT_LIMIT := CampaignBudgets.WORLD_EXTENT_LIMIT", text)
+        self.assertIn("const WORLD_CELL_LIMIT := CampaignBudgets.WORLD_CELL_LIMIT", grid)
+        # The loader row budgets are enforced offline too, through local
+        # aliases of the single source.
+        self.assertIn("const MAX_FLOOR_REGIONS := CampaignBudgets.MAX_FLOOR_REGIONS", definition)
+        self.assertIn("const MAX_TABLE_ROWS := CampaignBudgets.MAX_TABLE_ROWS", definition)
+        self.assertIn("raw.floors.size() > MAX_FLOOR_REGIONS", definition)
+        self.assertIn("value.size() > MAX_TABLE_ROWS", definition)
 
     def test_expanded_world_still_fits_the_runtime_budgets(self):
         data = campaign.load()
@@ -87,8 +92,9 @@ class CampaignRuntimeBudgetTests(unittest.TestCase):
         encounters = source("scripts/campaign/campaign_encounters.gd")
         self.assertIn("func rebuild_flow_field(target_pos: Vector3, radius: float = 0.0)", grid)
         self.assertRegex(encounters, r"rebuild_flow_field\(\w+, FLOW_RADIUS\)")
-        self.assertRegex(encounters, r"const FLOW_RADIUS := (\d+)\.0")
-        radius = float(re.search(r"const FLOW_RADIUS := (\d+)\.0", encounters).group(1))
+        self.assertIn("const FLOW_RADIUS := CampaignBudgets.FLOW_FIELD_RADIUS", encounters)
+        budgets = source("scripts/campaign/campaign_budgets.gd")
+        radius = float(re.search(r"const FLOW_FIELD_RADIUS := (\d+)\.0", budgets).group(1))
         # Every actor that can be live sits inside the window (spawn 70 / despawn 90 m).
         self.assertGreaterEqual(radius, 90.0)
 

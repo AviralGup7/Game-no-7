@@ -1,0 +1,49 @@
+{
+  "schema_version": 8,
+  "best_score": 12,
+  "best_wave": 3,
+  "tutorial_completed": false,
+  "achievements": [],
+  "meta_wallet": 40,
+  "meta_ranks": {},
+  "prestige_rank": 0,
+  "lifetime_statistics": {
+    "total_runs": 1,
+    "total_kills": 4,
+    "total_time_seconds": 12.5,
+    "highest_combo": 2,
+    "victories": 0,
+    "bosses_slain": 0
+  },
+  "progression": {
+    "unlocked_upgrades": [],
+    "unlocked_arenas": ["default_arena"],
+    "unlocked_cosmetics": []
+  },
+  "last_run_build": {
+    "schema_version": 1,
+    "seed": 0,
+    "current_wave": 0,
+    "selected_upgrades": {},
+    "active_modifiers": [],
+    "equipped_weapons": [],
+    "equipped_skills": [],
+    "build_archetypes": []
+  },
+  "campaign": {
+    "version": 1,
+    "world_id": "station_zero",
+    "started": true,
+    "checkpoint": "docks",
+    "mission": 0,
+    "completed": false,
+    "defeated": [],
+    "interacted": [],
+    "visited": ["docks"],
+    "upgrades": {},
+    "weapons": ["gladius"],
+    "active_weapon": "gladius",
+    "skills": [],
+    "xp": 0
+  }
+}

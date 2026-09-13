@@ -6,8 +6,8 @@ def read(rel:str)->str: return (ROOT/rel).read_text(encoding="utf-8",errors="ign
 class SaveManagerTests(unittest.TestCase):
     def test_dirty_flag_only_on_success(self):
         txt=read("scripts/save/save_manager.gd")
-        self.assertIn("if ok:",txt)
-        self.assertIn("\tif ok:\n\t\t_dirty = false",txt)
+        self.assertIn("\t_dirty = false",txt)
+        self.assertIn("_pending_profile.clear()",txt)
         self.assertNotIn("_write_raw(SAVE_PATH, JSON.stringify(_save))\n\t_dirty = false\n\tif ok:",txt)
     def test_save_schema_int_rounding(self):
         txt=read("scripts/save/save_schema.gd")
