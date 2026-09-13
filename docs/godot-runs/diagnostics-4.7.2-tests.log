@@ -28,15 +28,15 @@ ERROR: WaveModifiers: damage_mult is not finite before clamping
    GDScript backtrace (most recent call first):
        [0] clamp_bounds (res://scripts/waves/wave_modifiers.gd:130)
        [1] suite (res://tests/unit/test_wave_mutators.gd:71)
-       [2] _run_suites (res://tests/run_tests.gd:149)
-       [3] _initialize (res://tests/run_tests.gd:105)
+       [2] _run_suites (res://tests/run_tests.gd:150)
+       [3] _initialize (res://tests/run_tests.gd:106)
 ERROR: WaveModifiers: speed_mult is not finite before clamping
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
        [0] clamp_bounds (res://scripts/waves/wave_modifiers.gd:130)
        [1] suite (res://tests/unit/test_wave_mutators.gd:71)
-       [2] _run_suites (res://tests/run_tests.gd:149)
-       [3] _initialize (res://tests/run_tests.gd:105)
+       [2] _run_suites (res://tests/run_tests.gd:150)
+       [3] _initialize (res://tests/run_tests.gd:106)
 TEST EXPECTED ERRORS END
 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
      at: push_warning (core/variant/variant_utility.cpp:1033)
@@ -44,15 +44,15 @@ WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's
          [0] fold_into (res://scripts/waves/wave_mutators.gd:79)
          [1] combine (res://scripts/waves/wave_mutators.gd:63)
          [2] suite (res://tests/unit/test_wave_mutators.gd:146)
-         [3] _run_suites (res://tests/run_tests.gd:149)
-         [4] _initialize (res://tests/run_tests.gd:105)
+         [3] _run_suites (res://tests/run_tests.gd:150)
+         [4] _initialize (res://tests/run_tests.gd:106)
 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
          [0] resolve_for_wave (res://scripts/waves/wave_mutators.gd:148)
          [1] suite (res://tests/unit/test_wave_mutators.gd:202)
-         [2] _run_suites (res://tests/run_tests.gd:149)
-         [3] _initialize (res://tests/run_tests.gd:105)
+         [2] _run_suites (res://tests/run_tests.gd:150)
+         [3] _initialize (res://tests/run_tests.gd:106)
 SUITE: res://tests/unit/test_meta_misc.gd
 SUITE: res://tests/unit/test_planner_extended.gd
 SUITE: res://tests/unit/test_extracted_modules.gd
@@ -69,8 +69,8 @@ ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
    GDScript backtrace (most recent call first):
        [0] validated (res://scripts/meta/game_mode.gd:336)
        [1] suite (res://tests/unit/test_game_modes.gd:36)
-       [2] _run_suites (res://tests/run_tests.gd:149)
-       [3] _initialize (res://tests/run_tests.gd:105)
+       [2] _run_suites (res://tests/run_tests.gd:150)
+       [3] _initialize (res://tests/run_tests.gd:106)
 TEST EXPECTED ERRORS END
 SUITE: res://tests/unit/test_collision_layers.gd
 SUITE: res://tests/unit/test_hazards.gd
@@ -79,8 +79,8 @@ ERROR: Parameter "material" is null.
    GDScript backtrace (most recent call first):
        [0] _snapshots (res://tests/unit/test_hazards.gd:499)
        [1] suite (res://tests/unit/test_hazards.gd:27)
-       [2] _run_suites (res://tests/run_tests.gd:149)
-       [3] _initialize (res://tests/run_tests.gd:105)
+       [2] _run_suites (res://tests/run_tests.gd:150)
+       [3] _initialize (res://tests/run_tests.gd:106)
 SUITE: res://tests/unit/test_arena_world.gd
 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
@@ -89,8 +89,8 @@ ERROR: ArenaLandmark: kind 'wishing_well' has no builder
        [0] build (res://scripts/arena/arena_landmark.gd:82)
        [1] _refused_kind_builds_nothing (res://tests/unit/test_arena_world.gd:514)
        [2] suite (res://tests/unit/test_arena_world.gd:117)
-       [3] _run_suites (res://tests/run_tests.gd:149)
-       [4] _initialize (res://tests/run_tests.gd:105)
+       [3] _run_suites (res://tests/run_tests.gd:150)
+       [4] _initialize (res://tests/run_tests.gd:106)
 TEST EXPECTED ERRORS END
 SUITE: res://tests/unit/test_performance_monitor.gd
 SUITE: res://tests/unit/test_pool_governor.gd
@@ -109,13 +109,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=1676 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=1676 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=1676 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=1676 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=1676 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=10276 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=10276 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=2140 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=2140 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=2140 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=2140 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=2140 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12283 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12283 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -127,8 +127,8 @@ WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role bas
          [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
          [2] mount (res://scripts/visuals/character_visuals.gd:69)
          [3] suite (res://tests/unit/test_character_visuals.gd:19)
-         [4] _run_suites (res://tests/run_tests.gd:149)
-         [5] _process (res://tests/run_tests.gd:176)
+         [4] _run_suites (res://tests/run_tests.gd:150)
+         [5] _process (res://tests/run_tests.gd:204)
 SUITE: res://tests/unit/test_hero_rig.gd
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
@@ -138,8 +138,8 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:86)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:95)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:149)
-         [6] _process (res://tests/run_tests.gd:176)
+         [5] _run_suites (res://tests/run_tests.gd:150)
+         [6] _process (res://tests/run_tests.gd:204)
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -148,8 +148,8 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:86)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:149)
-         [6] _process (res://tests/run_tests.gd:176)
+         [5] _run_suites (res://tests/run_tests.gd:150)
+         [6] _process (res://tests/run_tests.gd:204)
 WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: Skeleton3D with handslot.l / handslot.r, clip: Idle, clip: Walking_A, clip: Running_A, clip: Fire, clip: Reload, clip: Hit_A, clip: Death_A, clip: Cast, clip: Cheer, clip: Dodge_Forward, clip: Dodge_Backward, clip: Dodge_Left, clip: Dodge_Right (trying fallback)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -158,16 +158,16 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [2] _mount_config (res://scripts/visuals/character_visuals.gd:89)
          [3] _test_fallback (res://tests/unit/test_hero_rig.gd:100)
          [4] suite (res://tests/unit/test_hero_rig.gd:15)
-         [5] _run_suites (res://tests/run_tests.gd:149)
-         [6] _process (res://tests/run_tests.gd:176)
+         [5] _run_suites (res://tests/run_tests.gd:150)
+         [6] _process (res://tests/run_tests.gd:204)
 SUITE: res://tests/unit/test_arena_obstacles_node.gd
 SUITE: res://tests/unit/test_decorator_collision.gd
 ERROR: Parameter "material" is null.
    at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
    GDScript backtrace (most recent call first):
        [0] suite (res://tests/unit/test_decorator_collision.gd:53)
-       [1] _run_suites (res://tests/run_tests.gd:149)
-       [2] _process (res://tests/run_tests.gd:176)
+       [1] _run_suites (res://tests/run_tests.gd:150)
+       [2] _process (res://tests/run_tests.gd:204)
 SUITE: res://tests/unit/test_enemy_scene_inheritance.gd
 SUITE: res://tests/unit/test_hazards_live.gd
 ERROR: Parameter "material" is null.
@@ -175,8 +175,8 @@ ERROR: Parameter "material" is null.
    GDScript backtrace (most recent call first):
        [0] _visuals_are_optional (res://tests/unit/test_hazards_live.gd:255)
        [1] suite (res://tests/unit/test_hazards_live.gd:117)
-       [2] _run_suites (res://tests/run_tests.gd:149)
-       [3] _process (res://tests/run_tests.gd:176)
+       [2] _run_suites (res://tests/run_tests.gd:150)
+       [3] _process (res://tests/run_tests.gd:204)
 SUITE: res://tests/unit/test_status_manager.gd
 SUITE: res://tests/unit/test_run_isolation.gd
 [diagnostic] Enemy probe_basic died
@@ -195,8 +195,8 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
          [3] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:824)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-         [7] _process (res://tests/run_tests.gd:183)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+         [7] _process (res://tests/run_tests.gd:211)
 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
@@ -207,8 +207,8 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
          [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:829)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-         [7] _process (res://tests/run_tests.gd:183)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+         [7] _process (res://tests/run_tests.gd:211)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -218,8 +218,8 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
          [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:829)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-         [7] _process (res://tests/run_tests.gd:183)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+         [7] _process (res://tests/run_tests.gd:211)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -229,8 +229,8 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
          [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:829)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-         [7] _process (res://tests/run_tests.gd:183)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+         [7] _process (res://tests/run_tests.gd:211)
 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
      at: push_warning (core/variant/variant_utility.cpp:1033)
      GDScript backtrace (most recent call first):
@@ -240,8 +240,8 @@ WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then c
          [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
          [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:829)
          [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-         [7] _process (res://tests/run_tests.gd:183)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+         [7] _process (res://tests/run_tests.gd:211)
 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
    at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
@@ -251,8 +251,8 @@ ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then cou
        [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
        [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:829)
        [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:574)
-       [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-       [7] _process (res://tests/run_tests.gd:183)
+       [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:241)
+       [7] _process (res://tests/run_tests.gd:211)
 TEST EXPECTED ERRORS END
 [diagnostic] Enemy basic died
 [diagnostic] Enemy splitter died
@@ -261,8 +261,65 @@ TEST EXPECTED ERRORS END
 [diagnostic] Enemy mite died
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
+SUITE: res://tests/campaign_runtime_stages.gd
+SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:182)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:281)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:374)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:380)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
+          GDScript backtrace (most recent call first):
+              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+              [2] _process (res://tests/run_tests.gd:217)
+ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
+       [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
+       [2] _process (res://tests/run_tests.gd:217)
 ========================================
-GDScript tests: 1655 total, 0 failed
+GDScript tests: 1664 total, 1 failed
+  FAIL  Campaign runtime harness could not load: res://tests/campaign_runtime_stages.gd
+::error title=GDScript test failures (1)::Campaign runtime harness could not load: res://tests/campaign_runtime_stages.gd
 ========================================
 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)

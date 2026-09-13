@@ -18,20 +18,29 @@
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
+      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
+      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
       1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
-    453 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    242 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-    157 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
-    121 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
-     14 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-      9 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
+    565 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+    265 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    173 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
+    131 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
+     17 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
+     10 SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
       3 ERROR: Failed to load script "res://scripts/visuals/visual_mount.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/skills/skill_controller.gd" with error "Compilation failed".
       3 ERROR: Failed to load script "res://scripts/player/targeting_component.gd" with error "Compilation failed".
@@ -49,6 +58,15 @@
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
+      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+      1 SCRIPT ERROR: Compile Error: Identifier not found: RunAnalytics
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
@@ -99,6 +117,7 @@
       1 ERROR: Failed to load script "res://tests/doubles/fake_arena.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/doubles/audit_damage_victim.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/doubles/audio_probe.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_instance.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/ranged_resolver.gd" with error "Compilation failed".
@@ -108,6 +127,8 @@
       1 ERROR: Failed to load script "res://scripts/waves/wave_mutators.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/waves/wave_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/foot_plant.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/visuals/effect_readability.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/visuals/effect_event_handlers.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/visuals/effect_director.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/runtime_soak.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/utilities/pool_governor.gd" with error "Compilation failed".
@@ -141,7 +162,12 @@
       1 ERROR: Failed to load script "res://scripts/save/save_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/progression/build_effects.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/progression_component.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_run_cycle.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_reactions.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_locomotion.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_intake.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_debug_view.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/player/player_components.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_combat.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/player_build.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/player/dodge_controller.gd" with error "Compilation failed".
@@ -155,19 +181,27 @@
       1 ERROR: Failed to load script "res://scripts/meta/daily_challenge.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/meta/achievements.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/main/main.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_rig_debug.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/main/camera/camera_lock_on_controller.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/spawn_placer.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_striker.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state_machine.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_ranged_state.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_presentation.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_pack.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_motion.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_idle_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_hurt_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_fuse_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_feedback.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_elite_kit.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_debug_view.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dead_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_dash_state.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_combat_response.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_chase_state.gd" with error "Compilation failed".
+      1 ERROR: Failed to load script "res://scripts/enemies/enemy_brain.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_audio.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/enemy_attack_state.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/enemies/boss_controller.gd" with error "Compilation failed".
@@ -228,10 +262,19 @@
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
+      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
+      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
       1 ERROR: 1 resources still in use at exit (run with --verbose for details).
 
@@ -240,6 +283,20 @@
 ########## diag-lsp.txt
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:626:33: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:52: ERROR: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:19: ERROR: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:380:16: ERROR: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:378:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:374:24: ERROR: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:372:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:281:7: ERROR: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:75: ERROR: Cannot find member "volume" in base "AABB".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:50: ERROR: Function "volume()" not found in base AABB.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:182:19: ERROR: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:179:7: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "name" is shadowing an already-declared property in the base class "Node".
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:145:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:105:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
       1 /home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:178:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
@@ -253,4 +310,5 @@
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
+      1 ERROR: LSP: Failed to parse script: res://tests/campaign_runtime/campaign_runtime_inner.gd
 
