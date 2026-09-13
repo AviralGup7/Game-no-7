@@ -335,6 +335,12 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/campaign/campaign_armory.gd:19)
 ERROR: Failed to load script "res://scripts/campaign/campaign_armory.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/campaign/campaign_budgets.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_connector.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/campaign/campaign_definition.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -342,9 +348,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-          at: GDScript::reload (res://scripts/campaign/campaign_director.gd:38)
+          at: GDScript::reload (res://scripts/campaign/campaign_director.gd:40)
 ERROR: Failed to load script "res://scripts/campaign/campaign_director.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/campaign/campaign_encounter.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/campaign/campaign_encounters.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -371,7 +380,7 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/campaign/campaign_encounters.gd:35)
+          at: GDScript::reload (res://scripts/campaign/campaign_encounters.gd:36)
 ERROR: Failed to load script "res://scripts/campaign/campaign_encounters.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://scripts/campaign/campaign_game.gd
@@ -459,22 +468,45 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://scripts/campaign/campaign_hud.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: GameRoot
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:50)
-ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:142)
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:158)
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:159)
+SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
+          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:165)
+ERROR: Failed to load script "res://scripts/campaign/campaign_hud.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/campaign/campaign_interaction.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/campaign/campaign_map.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
-          at: GDScript::reload (res://scripts/campaign/campaign_director.gd:38)
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/player/player.gd:110)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/campaign/campaign_map.gd:0)
-ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
+          at: GDScript::reload (res://scripts/campaign/campaign_map.gd:42)
+ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://scripts/campaign/campaign_member.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_mission.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://scripts/campaign/campaign_progress.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_progress_state.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_prop.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_reward.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+===== res://scripts/campaign/campaign_sector.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 ===== res://scripts/campaign/campaign_ui.gd
@@ -3296,9 +3328,13 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== res://tests/verify_campaign_inner.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://tests/verify_campaign_inner.gd:29)
-ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Compilation failed".
+SCRIPT ERROR: Parse Error: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
+          at: GDScript::reload (res://tests/verify_campaign_inner.gd:86)
+SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
+          at: GDScript::reload (res://tests/verify_campaign_inner.gd:127)
+SCRIPT ERROR: Parse Error: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
+          at: GDScript::reload (res://tests/verify_campaign_inner.gd:158)
+ERROR: Failed to load script "res://tests/verify_campaign_inner.gd" with error "Parse error".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 ===== res://tests/verify_flow.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
