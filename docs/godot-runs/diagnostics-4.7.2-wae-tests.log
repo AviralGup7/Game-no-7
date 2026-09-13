@@ -109,13 +109,13 @@ SUITE: res://tests/unit/test_audit_runtime.gd
 SUITE: res://tests/unit/test_audit_combat.gd
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=2109 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=2109 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=2109 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=2109 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=2109 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12975 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12975 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=2187 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=2187 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=2187 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=2187 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=2187 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12366 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12366 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -262,66 +262,96 @@ TEST EXPECTED ERRORS END
 [diagnostic] Enemy basic died
 [diagnostic] Enemy basic died
 SUITE: res://tests/campaign_runtime_stages.gd
-SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_skill_controller' in base 'Nil'.
+          at: SkillBar._locate_controller (res://scripts/ui/skill_bar.gd:69)
           GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:182)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:281)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:374)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:380)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
-          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
-          GDScript backtrace (most recent call first):
-              [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-              [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-              [2] _process (res://tests/run_tests.gd:217)
-ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+              [0] _locate_controller (res://scripts/ui/skill_bar.gd:69)
+              [1] _ready (res://scripts/ui/skill_bar.gd:23)
+              [2] _ready (res://scripts/campaign/campaign_hud.gd:66)
+              [3] _ready (res://scripts/campaign/campaign_ui.gd:48)
+              [4] _ready (res://scripts/campaign/campaign_game.gd:32)
+ERROR: CAMPAIGN RUNTIME FAIL: static collision covers every authored region, prop and rail
+   at: push_error (core/variant/variant_utility.cpp:1023)
    GDScript backtrace (most recent call first):
-       [0] create_harness (res://tests/campaign_runtime_stages.gd:14)
-       [1] _start_campaign_runtime (res://tests/run_tests.gd:281)
-       [2] _process (res://tests/run_tests.gd:217)
+       [0] _case (res://tests/campaign_runtime/campaign_runtime_inner.gd:79)
+       [1] _stage_world_meshes (res://tests/campaign_runtime/campaign_runtime_inner.gd:224)
+       [2] _stage_boot (res://tests/campaign_runtime/campaign_runtime_inner.gd:145)
+       [3] _frames (res://tests/campaign_runtime/campaign_runtime_inner.gd:84)
+WARNING: [diagnostic] Could not open temporary save: user://last_stand_save.json.tmp
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _stage_temp (res://scripts/save/save_manager.gd:561)
+         [2] _flush_save (res://scripts/save/save_manager.gd:372)
+         [3] save_now (res://scripts/save/save_manager.gd:254)
+         [4] commit_profile_transaction (res://scripts/save/save_manager.gd:302)
+         [5] save_progress (res://scripts/campaign/campaign_director.gd:318)
+         [6] _visit_checkpoint (res://scripts/campaign/campaign_director.gd:138)
+         [7] _physics_process (res://scripts/campaign/campaign_director.gd:102)
+         [8] _stage_save_failure (res://tests/campaign_runtime/campaign_runtime_inner.gd:260)
+         [9] _run (res://tests/campaign_runtime/campaign_runtime_inner.gd:105)
+         [10] _stage_boot (res://tests/campaign_runtime/campaign_runtime_inner.gd:145)
+         [11] _frames (res://tests/campaign_runtime/campaign_runtime_inner.gd:84)
+ERROR: CAMPAIGN RUNTIME FAIL: failed save leaves the on-disk save byte-identical
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _case (res://tests/campaign_runtime/campaign_runtime_inner.gd:79)
+       [1] _stage_save_failure (res://tests/campaign_runtime/campaign_runtime_inner.gd:278)
+       [2] _run (res://tests/campaign_runtime/campaign_runtime_inner.gd:105)
+       [3] _stage_boot (res://tests/campaign_runtime/campaign_runtime_inner.gd:145)
+       [4] _frames (res://tests/campaign_runtime/campaign_runtime_inner.gd:84)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_node_count' in base 'Window'.
+          at: _stage_transition_cycles (res://tests/campaign_runtime/campaign_runtime_inner.gd:374)
+          GDScript backtrace (most recent call first):
+              [0] _stage_transition_cycles (res://tests/campaign_runtime/campaign_runtime_inner.gd:374)
+              [1] _frames (res://tests/campaign_runtime/campaign_runtime_inner.gd:84)
+[diagnostic] Enemy basic died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy fast died
+[diagnostic] Enemy fast died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy dasher died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy fast died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy dasher died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy dasher died
+[diagnostic] Enemy heavy died
+[diagnostic] Enemy basic died
+[diagnostic] EffectDirector ring at (-56.0, 0.2, 152.0)
+[diagnostic] EffectDirector ring at (-56.0, 0.2, 152.0)
+[diagnostic] EffectDirector burst at (-56.0, 0.8, 152.0)
+[diagnostic] EffectDirector ring at (-56.0, 0.2, 152.0)
+[diagnostic] EffectDirector burst at (-56.0, 0.7, 152.0)
+[diagnostic] Enemy warlord died
+[diagnostic] Enemy ranged died
+[diagnostic] Enemy heavy died
 ========================================
-GDScript tests: 1664 total, 1 failed
-  FAIL  Campaign runtime harness could not load: res://tests/campaign_runtime_stages.gd
-::error title=GDScript test failures (1)::Campaign runtime harness could not load: res://tests/campaign_runtime_stages.gd
+GDScript tests: 1923 total, 2 failed
+  FAIL  campaign_runtime :: static collision covers every authored region, prop and rail — 299 colliders vs 119 authored + 1676 rail segments
+  FAIL  campaign_runtime :: failed save leaves the on-disk save byte-identical — failed save leaves the on-disk save byte-identical
+::error title=GDScript test failures (2)::campaign_runtime :: static collision covers every authored region, prop and rail — 299 colliders vs 119 authored + 1676 rail segments%0Acampaign_runtime :: failed save leaves the on-disk save byte-identical — failed save leaves the on-disk save byte-identical
 ========================================
-WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-ERROR: 1 resources still in use at exit (run with --verbose for details).
+ERROR: 5 resources still in use at exit (run with --verbose for details).
    at: clear (core/io/resource.cpp:822)
