@@ -1,9 +1,11 @@
 class_name ProceduralSfx
 extends RefCounted
 
-## Deterministic procedural audio: every SFX + music cue the game references,
-## synthesized as 8-bit mono loops/one-shots so the game is never silent, even
-## with zero shipped sound files. Real audio drops in data/audio/ always win —
+## Deterministic procedural audio: the cues listed in SFX_CUES / MUSIC_CUES /
+## STEM_CUES, synthesized as 8-bit mono loops/one-shots so those cues still sound
+## something even with zero shipped audio files. The coverage is exactly those
+## tables — a cue id outside them is never registered here, and AudioManager
+## reports it as unavailable instead. Real audio drops in data/audio/ always win:
 ## ensure_registered() only fills cues still missing from AudioManager.
 ## Generation is pure/static (seeded noise) so unit tests can assert byte-level
 ## determinism; only ensure_registered() touches autoloads.
@@ -13,10 +15,10 @@ extends RefCounted
 const MIX_RATE := 22050
 
 ## Audio mapping (M4 — updated M7):
-##  LIVE — every catalog cue has a real file + procedural fallback and a gameplay caller (player_step distance-based, equip via player_switch alias, item_drop via pickup spawn, plus weapons/skills/boss/waves/pickups/UI);
-##  FALLBACK — procedural synthesis guarantees silence-free fallback; real file in assets/audio/* wins when AudioManager.has_cue;
+##  LIVE — every catalog cue has a real file (tool/validate_assets.py fails the build when a cue mapping is missing) and a gameplay caller (player_step distance-based, equip via player_switch alias, item_drop via pickup spawn, plus weapons/skills/boss/waves/pickups/UI);
+##  FALLBACK — the cues listed in SFX_CUES/MUSIC_CUES/STEM_CUES are synthesized when AudioManager.has_cue reports no real stream for them; a cue outside these tables is not synthesized and AudioManager.play_sfx reports it as unavailable;
 ##  RESERVED — none currently (footstep/equip/item_drop migrated to LIVE in M7);
-##  UNUSED — none. All cues documented in assets/catalog.json audio_cues + here. Catalog 34 cues + SFX_CUES 29 + MUSIC 5 all LIVE via has_cue seam (the five music beds each ship a recorded loop; procedural pads remain the silent-free fallback).
+##  UNUSED — none. All cues documented in assets/catalog.json audio_cues + here. Catalog 34 cues + SFX_CUES 29 + MUSIC 5 all LIVE via has_cue seam (the five music beds each ship a recorded loop; the procedural pad is used only when that file is absent).
 const SFX_CUES: Array[StringName] = [
 	&"player_attack", &"player_hurt", &"player_death", &"player_dodge",
 	&"player_step", &"player_switch", &"player_shot", &"player_reload", &"player_low_health",

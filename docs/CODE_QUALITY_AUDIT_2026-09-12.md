@@ -212,3 +212,38 @@ Items 8, 10, 13, and 14 describe broader transaction/typing architecture rather 
 - Guard, typed-architecture, engine-API, scene-path, string-format, and signal gates: **passed**.
 
 These results are evidence of strong static hygiene, not evidence that the runtime findings above are impossible.
+
+---
+
+## Ledger update (2026-09-13): the audit cleanup pass
+
+Statuses below are what the code and the offline gates support today. The `gdlint` and `godot-tests`
+jobs remain the authority for GDScript-visible effects; this pass was authored in a sandbox with
+neither, so nothing here is marked fixed on engine evidence it does not have.
+
+| Finding | Status today | Evidence / what remains |
+|---|---|---|
+| 3. EventBus as shared mutable state | **Partially closed** | The per-run campaign subscriptions now go through `EventBus.bind(self, sig, cb)` (`campaign_encounters.gd:48`, `campaign_director.gd:51,52`, `campaign_game.gd:37`). The state channels themselves (`objective_resolved`, `run_started/ended/failed`, `weapon_equipped` as a state mirror, `enemy_killed` as a mutation broadcast) stay on the bus: deleting or rerouting a declared signal fails `tests/unit/test_event_bus_contract.gd`'s both-directions list and `android_performance.gd`'s connection counts, which belongs to the campaign data-flow pass rather than a safe patch. What landed instead is the ownership record — `docs/architecture/event_bus_inventory.json` names the typed owner and observer role of all 42 signals, forbids state/mutation/command roles, lists every campaign reference with its mechanism, and `tests/python/test_regress_audit_cleanup.py` fails on drift in either direction. |
+| 4. Comments assert behaviour the code does not guarantee | **Closed for the flagged files** | `json_helpers.gd`, `scene_router.gd`, `event_bus.gd` and `procedural_sfx.gd` headers now describe what the code proves. The other "guaranteed/atomic" claims listed above were read and found true (`status_effect.gd` clamp, `skill_executor.gd` Frost Nova, `input_remapper.gd` `rebind_first`, `save_manager.gd` tmp+fsync+rename, `game_root.gd` WaveManager emission, `main.gd` `_validate_player_visual`, `camera_profile.gd` lens fallback) and were left alone. "No comment may call a fallback silent" is now a test. `event_bus.gd`'s documented gap (finding 16) stays in the header as an open item rather than being deleted to make the doc read better. |
+| 6. Magic numbers and string ids in campaign code | **Closed for the enumerated families** | `scripts/core/campaign_contract.gd` (`CampaignContract`) is the single typed home for the module/cell dimensions, style ids, district ids, interaction and mission kinds and the commander archetype; the two style if/elif chains became lookup tables asserted equal to the chains they replaced. Recorded leftovers: `data/campaign/station_zero.json` keeps its `module_size`/`navigation_cell` numbers because `tool/validate_campaign.py` requires data and runtime to agree, `scenes/environment/wall.tscn` keeps `Vector3(1.0, 0.27, 0.05)` because a scene cannot read a constant (finding 17's shape; the link is now a Python test), `campaign_progress.gd` keeps its `"docks"`/`"station_zero"` schema defaults (save surface). The performance/streaming budgets are not duplicated into the contract: they are single-sourced in `CampaignBudgets` by the perf pass on the same branch, and each home has its own drift test. |
+| 7. Silent fallbacks hide art regressions | **Closed for the enumerated sites** | `campaign_geometry` (per module scene), `projectile_pool` (per projectile scene), `arena_decorator` and `hazard_marker` (per asset path), `campaign_definition` (per unknown district id) and `main` (per requested arena id) each emit exactly one `push_warning` naming what failed, where, and what replaced it. `docs/architecture/fallback_ledger.json` enumerates all 45 audited sites (39 substitution sites, 6 asset loaders): every entry either names its diagnostic function and its `_reported*` guard or carries a written exemption reason. The test recomputes the sweep, so an undocumented new site, a deleted diagnostic or a removed dedupe guard fails CI. No site reports per frame: the hot ones are guarded or documented as value reads. |
+| 12. `JsonHelpers` clamps a negative file length | **Closed** | `read_text_file` reads `get_length()` once and rejects `length < 0 or length > MAX_FILE_BYTES` before `get_as_text()`, closing both the negative-length misreport and the unbounded whole-file read; the header and docstring now state the return contract instead of claiming purity. Pinned by `tests/python/test_regress_audit_cleanup.py`, which asserts the check exists, runs before the read, closes the handle, and that `MAX_FILE_BYTES` is declared exactly once. No test covered this file before today. |
+| 16. `EventBus.report_diagnostic` dedupes nothing | **Open** | Still a 512-array eviction with duplicates, and `report_error`/`report_warning` bypass it entirely. Dedupe-by-signature with a cap changes what the debug overlay shows and needs its own integration test. |
+| 17. Collision-layer contract has no automated verification | **Partially closed** | `tests/python/test_regress_collision_contract.py` remains the only automated link. This pass added the same shape of link for the constants that can only exist in a scene (`WALL_MODULE_HEIGHT_M`/`WALL_MODULE_THICKNESS_M` vs `wall.tscn`'s `BoxShape3D`); the per-node `.collision_layer` audit of `build_*.py` output is not done. |
+
+Static-only this pass, all green in the sandbox: `validate_resources` (`Validated 183 files: OK`),
+`validate_assets`, `validate_campaign`, `validate_geometry` (0 issues / 13 categories),
+`validate_level_flow` (2 acknowledged notes), `validate_visual_performance` (0 issues / 14
+categories), `check_engine_api`, `check_scene_paths`, `check_string_formats`, `check_signals`,
+`check_typed_arch` (247 project classes — 246 on the branch this pass is stacked on, +1 for
+`CampaignContract`), `validate_guards` (Passed 201, Failed 0), and
+`python3 -m unittest discover -s tests/python`: **Ran 1348 tests — OK**, +29 on that branch's 1 319.
+While this ledger was being written the shared branch was red on one pre-existing error,
+`test_regress_campaign_typed::test_definition_exposes_typed_graph`, whose regex pinned the
+`WORLD_EXTENT_LIMIT := 1024.0` literal the campaign-budgets pass had just aliased; that pin was fixed
+upstream (assert the alias, read `1024.0` from `campaign_budgets.gd`) rather than here, and the doc
+counts in `docs/HARDENING.md` and `docs/campaign/README.md` are re-derived from the live suite count.
+`check_signals` reports 239 autoload-receiver ops against the 243 the same tree with raw `connect`
+reports: the four `bind()` conversions are not `.connect(` literals, so the gate counts four fewer ops.
+The gate itself was not modified; the new test asserts each documented mechanism per file, so a `bind`
+cannot silently regress into a raw `connect`.

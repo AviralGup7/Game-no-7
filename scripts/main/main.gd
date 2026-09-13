@@ -10,6 +10,9 @@ const CAMERA_SCENE := preload("res://scenes/main/camera_rig.tscn")
 const SPAWN_SCENE := preload("res://scenes/enemies/spawn_manager.tscn")
 const WAVE_MANAGER_SCRIPT := preload("res://scripts/waves/wave_manager.gd")
 
+## Arena substitutions already reported this session, keyed by requested id.
+static var _reported_arena_substitutions: Dictionary = {}
+
 var _world_root: Node3D = null
 var _ui_root: UiRoot = null
 var _spawn_manager: SpawnManager = null
@@ -133,6 +136,8 @@ func build_world(arena_id: StringName) -> void:
 					break
 	var arena_scene: PackedScene = null
 	if arena_cfg != null and arena_cfg.scene != null:
+		if arena_cfg.arena_id != arena_id:
+			_report_arena_substitution(arena_id, arena_cfg.arena_id)
 		arena_scene = arena_cfg.scene
 	else:
 		EventBus.report_error("Arena config/scene missing for %s" % String(arena_id))
@@ -148,6 +153,19 @@ func build_world(arena_id: StringName) -> void:
 		EventBus.report_error("World build incomplete: player failed to spawn; run systems not created")
 		return
 	_create_systems(arena, player)
+
+
+## An arena the caller asked for that could not be served is a content defect, not
+## a per-run detail: the requested id is replaced by the registry's selected arena
+## (or the first arena with a scene) and the run visibly plays somewhere else.
+## `build_world` runs on every new run, so the report is keyed by the requested id
+## and emitted once per session rather than once per run.
+func _report_arena_substitution(requested: StringName, served: StringName) -> void:
+	var key := String(requested)
+	if _reported_arena_substitutions.get(key, false):
+		return
+	_reported_arena_substitutions[key] = true
+	push_warning("Main: arena %s has no usable scene — the run was built in %s instead; check data/arenas for the missing or import-failed arena" % [key, String(served)])
 
 
 func _spawn_player(arena: Arena) -> Player:

@@ -1,0 +1,80 @@
+{
+  "purpose": "Ownership ledger for the EventBus autoload (res://scripts/core/event_bus.gd). tests/python/test_regress_audit_cleanup.py reads this file and fails if the bus and the ledger drift apart in either direction, so a new channel — or a new campaign use of an existing one — has to be written down here on purpose.",
+  "policy": {
+    "allowed_roles": ["ui", "audio", "visuals", "telemetry", "diagnostics"],
+    "forbidden_roles": ["state", "gameplay_state", "mutation", "command", "query"],
+    "rule": "The bus carries notifications for decoupled observers (UI, audio, visuals, analytics). It never owns state: every entry names the typed class that owns the state the signal describes. A signal whose role list contains only forbidden roles is a state channel and fails the test.",
+    "subscription_rule": "A node that is created and freed per run subscribes with EventBus.bind(host, signal, callable) so leaving the tree unbinds. Session-lifetime observers (UI screens built once in _ready) may use raw connect(); every such file is listed in allowed_raw_connect."
+  },
+  "signals": {
+    "game_state_changed": {"owner": "GameRoot (State enum, transition_to)", "roles": ["ui", "audio", "telemetry"], "note": "Notification of a transition GameRoot already validated and applied; no listener can request one through the bus."},
+    "run_started": {"owner": "GameRoot (_current_run)", "roles": ["ui", "audio", "telemetry"]},
+    "run_ended": {"owner": "GameRoot (_current_run)", "roles": ["ui", "audio", "telemetry", "visuals"]},
+    "player_health_changed": {"owner": "HealthComponent", "roles": ["ui", "telemetry"]},
+    "player_died": {"owner": "HealthComponent (via Player)", "roles": ["ui", "audio", "visuals"]},
+    "enemy_spawned": {"owner": "SpawnManager (arena) / CampaignEncounters (campaign)", "roles": ["visuals", "telemetry"]},
+    "enemy_damaged": {"owner": "EnemyBase damage intake", "roles": ["ui", "audio", "visuals"]},
+    "enemy_killed": {"owner": "EnemyBase death path (idempotent)", "roles": ["ui", "audio", "visuals", "telemetry"], "note": "CampaignEncounters observes it for streaming bookkeeping. Replacing that observe-with-a-typed-signal link means moving defeat ownership onto CampaignDirector, which is the campaign data-flow restructure tracked as docs/CODE_QUALITY_AUDIT_2026-09-12.md finding 14 — deliberately not attempted here."},
+    "wave_started": {"owner": "WaveManager", "roles": ["ui", "audio", "telemetry"]},
+    "wave_progressed": {"owner": "WaveManager / SpawnLedger", "roles": ["ui", "telemetry"]},
+    "wave_completed": {"owner": "WaveManager", "roles": ["ui", "audio", "telemetry"]},
+    "upgrade_choices_presented": {"owner": "UpgradeService via GameRoot", "roles": ["ui"]},
+    "upgrade_selected": {"owner": "UpgradeService via GameRoot", "roles": ["ui", "telemetry", "audio"]},
+    "score_changed": {"owner": "RunScorekeeper", "roles": ["ui", "telemetry"]},
+    "currency_changed": {"owner": "RunScorekeeper / MetaProgression", "roles": ["ui", "telemetry"]},
+    "combo_changed": {"owner": "RunScorekeeper", "roles": ["ui", "telemetry"]},
+    "pause_changed": {"owner": "GameRoot", "roles": ["ui", "audio"]},
+    "settings_changed": {"owner": "SaveManager (SettingsData)", "roles": ["ui", "audio", "visuals"]},
+    "save_completed": {"owner": "SaveManager", "roles": ["ui", "telemetry"]},
+    "save_failed": {"owner": "SaveManager", "roles": ["ui", "telemetry"]},
+    "weapon_equipped": {"owner": "WeaponManager slots", "roles": ["ui", "audio", "visuals", "telemetry"], "note": "CampaignDirector also observes it as a save trigger; the equip itself is a typed WeaponManager call."},
+    "weapon_switched": {"owner": "WeaponManager slots", "roles": ["ui", "audio", "visuals", "telemetry"]},
+    "projectile_fired": {"owner": "WeaponManager fire path", "roles": ["audio", "visuals"]},
+    "skill_unlocked": {"owner": "SkillController", "roles": ["ui", "telemetry"]},
+    "skill_cast": {"owner": "SkillExecutor / SkillController", "roles": ["ui", "audio", "visuals"]},
+    "skill_ready": {"owner": "SkillController cooldown clock", "roles": ["ui"]},
+    "pickup_collected": {"owner": "Pickup / PickupManager", "roles": ["ui", "audio", "visuals", "telemetry"]},
+    "pickup_spawned": {"owner": "PickupManager", "roles": ["visuals", "telemetry"]},
+    "status_applied": {"owner": "StatusManager", "roles": ["ui", "visuals"]},
+    "status_expired": {"owner": "StatusManager", "roles": ["ui", "visuals"]},
+    "player_leveled_up": {"owner": "ExperienceComponent", "roles": ["ui", "audio", "visuals"]},
+    "stamina_changed": {"owner": "StaminaComponent", "roles": ["ui"]},
+    "boss_phase_changed": {"owner": "BossController", "roles": ["ui", "audio", "visuals"]},
+    "boss_spawned": {"owner": "BossController via SpawnManager/encounters", "roles": ["ui", "audio", "visuals", "telemetry"]},
+    "boss_slain": {"owner": "BossController death path", "roles": ["ui", "audio", "visuals", "telemetry"]},
+    "wave_mutator_applied": {"owner": "WaveManager / WaveMutators fold", "roles": ["ui", "telemetry"]},
+    "achievement_unlocked": {"owner": "Achievements", "roles": ["ui", "telemetry"]},
+    "tutorial_step_completed": {"owner": "TutorialManager", "roles": ["ui", "telemetry"]},
+    "announcement": {"owner": "Narrator / WaveManager / MetaProgression", "roles": ["ui"]},
+    "diagnostic": {"owner": "EventBusService.report_info/report_warning/report_error", "roles": ["diagnostics"]},
+    "objective_progress": {"owner": "ObjectiveDirector", "roles": ["ui", "telemetry"]},
+    "objective_resolved": {"owner": "ObjectiveDirector decides the condition, GameRoot decides victory vs game over", "roles": ["telemetry", "ui"], "note": "Closest remaining state-trigger-shaped channel on the bus: exactly one consumer (GameRoot). Moving it to a direct typed call touches arena run lifecycle, which this cleanup is not allowed to restructure; recorded as a follow-up for the arena-mode owner."}
+  },
+  "campaign_uses": [
+    {"file": "scripts/campaign/campaign_game.gd", "signal": "game_state_changed", "mechanism": "bind", "direction": "observe", "purpose": "world visibility, checkpoint flush and teardown on state transitions"},
+    {"file": "scripts/campaign/campaign_director.gd", "signal": "weapon_equipped", "mechanism": "bind", "direction": "observe", "purpose": "persistence trigger after a loadout change"},
+    {"file": "scripts/campaign/campaign_director.gd", "signal": "weapon_switched", "mechanism": "bind", "direction": "observe", "purpose": "persistence trigger after a switch"},
+    {"file": "scripts/campaign/campaign_encounters.gd", "signal": "enemy_killed", "mechanism": "bind", "direction": "observe", "purpose": "streaming bookkeeping: retire the active slot and record the defeat"},
+    {"file": "scripts/campaign/campaign_encounters.gd", "signal": "enemy_spawned", "mechanism": "emit", "direction": "emit", "purpose": "visual/analytics fan-out for a newly streamed guard"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "game_state_changed", "mechanism": "connect", "direction": "observe", "purpose": "screen switching"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "settings_changed", "mechanism": "connect", "direction": "observe", "purpose": "theme/text-scale reapply"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "save_failed", "mechanism": "connect", "direction": "observe", "purpose": "save-error notice and modal"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "save_completed", "mechanism": "connect", "direction": "observe", "purpose": "clear the save-error notice"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "announcement", "mechanism": "connect", "direction": "observe", "purpose": "menu message / HUD toast"},
+    {"file": "scripts/campaign/campaign_ui.gd", "signal": "enemy_damaged", "mechanism": "connect", "direction": "observe", "purpose": "floating damage numbers"},
+    {"file": "scripts/campaign/campaign_armory.gd", "signal": "save_failed", "mechanism": "connect", "direction": "observe", "purpose": "inline purchase warning"}
+  ],
+  "allowed_raw_connect": [
+    {"file": "scripts/campaign/campaign_ui.gd", "reason": "Built once in CampaignGame._ready and never rebuilt per run; there is no per-run teardown for bind() to guard."},
+    {"file": "scripts/campaign/campaign_armory.gd", "reason": "Owned by CampaignUI, which is itself session-lifetime; the armory is never re-created inside a session."}
+  ],
+  "diagnostic_api": {
+    "methods": ["report_info", "report_warning", "report_error", "report_diagnostic"],
+    "rule": "Every report_* call is allowed anywhere: it is the diagnostic channel (the 'diagnostic' signal), not a state channel, and the test does not count it as a bus subscription."
+  },
+  "moved_to_typed_ownership": [
+    {"state": "campaign progress (mission cursor, defeated ids, interacted ids, checkpoint)", "owner": "CampaignDirector.progress + CampaignProgress", "channel": "CampaignEncounters.member_defeated (typed signal, connected directly by the director) instead of a bus broadcast"},
+    {"state": "HUD/pause/result screen text and objective line", "owner": "CampaignDirector.changed / CampaignDirector.message", "channel": "direct typed signals from the director to CampaignUI/CampaignHud"},
+    {"state": "checkpoint rest eligibility", "owner": "CampaignEncounters.safe_to_rest()", "channel": "direct typed call from CampaignDirector._visit_checkpoint()"}
+  ]
+}

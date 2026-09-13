@@ -36,6 +36,17 @@ const RIM_WIDTH := 0.18
 
 static var _scene_cache := {}
 
+## One line per asset path per session: every hazard marker in an arena mounts the
+## same tile, so a per-instance warning would repeat it for each vent and each run.
+static var _reported_mounts: Dictionary = {}
+
+
+func _report_mount(path: String, reason: String) -> void:
+	if _reported_mounts.get(path, false):
+		return
+	_reported_mounts[path] = true
+	push_warning("HazardMarker: floor tile %s %s — the code-built disc stays visible; re-import the asset or clear MODEL_BY_HAZARD for this hazard" % [path, reason])
+
 var _disc: MeshInstance3D = null
 var _material: StandardMaterial3D = null
 var _rim_mat: StandardMaterial3D = null
@@ -110,6 +121,9 @@ func _build_rim(radius: float, height: float, glow: Color) -> void:
 	add_child(rim)
 
 
+## The authored glb under the pulse disc. A hazard id with no table entry is a
+## documented configuration (the disc alone is the visual); a table entry whose
+## file cannot be mounted is a defect, and `_report_mount` says so once per path.
 func _mount_floor_model(config: HazardConfig, radius: float) -> void:
 	var spec: Dictionary = MODEL_BY_HAZARD.get(config.hazard_id, {})
 	if spec.is_empty():
@@ -122,9 +136,11 @@ func _mount_floor_model(config: HazardConfig, radius: float) -> void:
 		_scene_cache[path] = res if res is PackedScene else null
 	var scene: PackedScene = _scene_cache.get(path)
 	if scene == null:
+		_report_mount(path, "the file did not load as a PackedScene")
 		return
 	var inst := scene.instantiate() as Node3D
 	if inst == null:
+		_report_mount(path, "its root is not a Node3D")
 		return
 	var fit_scale := float(spec.get("fixed", 1.0))
 	if bool(spec.get("fit", false)):

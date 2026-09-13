@@ -16,6 +16,11 @@ const SWEEP_RADIUS := 0.25
 @export var pool_size: int = 48
 @export var projectile_scene: PackedScene = null
 
+## One line per substitution source for the whole session: the pool is rebuilt on
+## every run and filled in a loop, so a per-call warning would repeat the same
+## defect dozens of times and bury the report it exists to make.
+static var _reported_substitutions: Dictionary = {}
+
 var _idle: Array[Projectile] = []
 var _active: Array[Projectile] = []
 var _fallback_mesh: CapsuleMesh = null
@@ -47,6 +52,7 @@ func _make_projectile() -> Projectile:
 			# Rejected scene roots are not reference counted or owned by the tree.
 			inst.free()
 	if p == null:
+		_report_substitution()
 		p = _make_fallback_projectile()
 	add_child(p)
 	p.pool_reset()
@@ -64,6 +70,16 @@ func _make_projectile() -> Projectile:
 		if authored != null and authored.get_class() == "SphereShape3D":
 			p.sweep_radius = float(authored.radius)
 	return p
+
+
+## The one line a substitution produces: which source failed (an unset export or
+## the offending scene path) and what every pooled shot is instead.
+func _report_substitution() -> void:
+	var source := String(projectile_scene.resource_path) if projectile_scene != null else "<projectile_scene unset>"
+	if _reported_substitutions.get(source, false):
+		return
+	_reported_substitutions[source] = true
+	push_warning("ProjectilePool: %s yields no Projectile, so pooled shots use the code-built capsule and sphere fallback (no authored mesh, and hit detection uses SWEEP_RADIUS %f); point the export at a Projectile-rooted scene" % [source, SWEEP_RADIUS])
 
 
 ## Minimal code-built projectile so the pool works with zero scene assets.

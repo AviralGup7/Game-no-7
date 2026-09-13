@@ -1,0 +1,31 @@
+/home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:134:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "cue_id" is shadowing an already-declared variable at line 9 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:138:23: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/audio/audio_config.gd:142:26: WARNING: (SHADOWED_VARIABLE): The local function parameter "bus" is shadowing an already-declared variable at line 11 in the current class.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:142:45: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:158:47: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:159:51: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:165:75: ERROR: Too many arguments for "get()" call. Expected at most 1 but received 2.
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_hud.gd:98:6: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "scale" is shadowing an already-declared property in the base class "Control".
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_map.gd:42:23: ERROR: No constructor of "String" matches the signature "String(Color)".
+/home/runner/work/Game-no-7/Game-no-7/scripts/campaign/campaign_world.gd:171:6: WARNING: (SHADOWED_GLOBAL_IDENTIFIER): The variable "sign" has the same name as a built-in function.
+/home/runner/work/Game-no-7/Game-no-7/scripts/debug/debug_error_handler.gd:522:9: WARNING: (INCOMPATIBLE_TERNARY): Values of the ternary operator are not mutually compatible.
+/home/runner/work/Game-no-7/Game-no-7/scripts/utilities/input_remapper.gd:58:11: WARNING: (INT_AS_ENUM_WITHOUT_CAST): Integer used when an enum value is expected. If this is intended, cast the integer to the enum type using the "as" keyword.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:105:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:145:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:179:7: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:182:19: ERROR: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:50: ERROR: Function "volume()" not found in base AABB.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:75: ERROR: Cannot find member "volume" in base "AABB".
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:281:7: ERROR: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:372:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:374:24: ERROR: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:378:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:380:16: ERROR: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:19: ERROR: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:52: ERROR: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+/home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:626:33: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+/home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
+/home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:127:8: ERROR: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
+/home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:158:14: ERROR: Invalid argument for "_kill()" function: argument 1 should be "Dictionary" but is "CampaignMember".
+/home/runner/work/Game-no-7/Game-no-7/tests/verify_campaign_inner.gd:86:29: ERROR: Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".

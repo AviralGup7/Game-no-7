@@ -3,12 +3,19 @@ extends RefCounted
 ## Render/collision helpers for authored station modules. Exterior walls come
 ## from the FLOOR UNION, so shared district/causeway edges never seal a route.
 
-const MODULE := 8.0
+const MODULE := CampaignContract.MODULE_SIZE_M
+
+## One diagnostic per (call site, module scene) pair for the whole session. A
+## station build calls the batchers once per district and once per merged
+## perimeter segment, so a per-call warning would bury the report that makes the
+## substitution visible.
+static var _reported_fallbacks: Dictionary = {}
 
 # The campaign used to render its station as flat-colour BoxMesh placeholders,
 # even though the authored PBR module library shipped in the same build. Keep
-# the 8 m gameplay grid, but batch the 1 m assets at module scale so the map and
-# its collision/navigation contract remain unchanged.
+# the gameplay module grid (CampaignContract.MODULE_SIZE_M), but batch the 1 m
+# assets at module scale so the map and its collision/navigation contract remain
+# unchanged.
 const GROUND_MILITARY: PackedScene = preload("res://scenes/environment/ground.tscn")
 const GROUND_HAZARD: PackedScene = preload("res://scenes/environment/ground_hazard.tscn")
 const GROUND_TECH: PackedScene = preload("res://scenes/environment/ground_tech.tscn")
@@ -128,7 +135,7 @@ static func collider(parent: Node3D, bounds: AABB) -> void:
 
 static func floor_batch(parent: Node3D, area: Rect2, style: StringName, fallback: Material) -> void:
 	var cells := floor_cells([area])
-	var mesh := _module_mesh(_ground_scene(style))
+	var mesh := _module_mesh(_ground_scene(style), &"floor_batch")
 	if mesh == null:
 		var box_mesh := BoxMesh.new()
 		box_mesh.size = Vector3(MODULE - 0.12, 0.22, MODULE - 0.12)
@@ -159,7 +166,7 @@ static func floor_batch(parent: Node3D, area: Rect2, style: StringName, fallback
 
 
 static func wall_batch(parent: Node3D, bounds: AABB, style: StringName, fallback: Material) -> void:
-	var mesh := _module_mesh(_wall_scene(style))
+	var mesh := _module_mesh(_wall_scene(style), &"wall_batch")
 	if mesh == null:
 		box(parent, bounds.get_center(), bounds.size, fallback)
 		return
@@ -173,10 +180,10 @@ static func wall_batch(parent: Node3D, bounds: AABB, style: StringName, fallback
 	for index in range(count):
 		var offset := (float(index) + 0.5) * length / float(count)
 		var at := Vector3(bounds.position.x + offset, bounds.position.y + bounds.size.y * 0.5, bounds.get_center().z)
-		var basis := Basis.IDENTITY.scaled(Vector3(length / float(count), bounds.size.y / 0.27, 1.0))
+		var basis := Basis.IDENTITY.scaled(Vector3(length / float(count), bounds.size.y / CampaignContract.WALL_MODULE_HEIGHT_M, 1.0))
 		if vertical:
 			at = Vector3(bounds.get_center().x, bounds.position.y + bounds.size.y * 0.5, bounds.position.z + offset)
-			basis = Basis(Vector3.UP, PI * 0.5).scaled(Vector3(length / float(count), bounds.size.y / 0.27, 1.0))
+			basis = Basis(Vector3.UP, PI * 0.5).scaled(Vector3(length / float(count), bounds.size.y / CampaignContract.WALL_MODULE_HEIGHT_M, 1.0))
 		multi.set_instance_transform(index, Transform3D(basis, at))
 	var instance := MultiMeshInstance3D.new()
 	instance.multimesh = multi
@@ -184,30 +191,42 @@ static func wall_batch(parent: Node3D, bounds: AABB, style: StringName, fallback
 
 
 static func _ground_scene(style: StringName) -> PackedScene:
-	if style == &"hazard":
+	if style == CampaignContract.STYLE_HAZARD:
 		return GROUND_HAZARD
-	if style == &"tech":
+	if style == CampaignContract.STYLE_TECH:
 		return GROUND_TECH
 	return GROUND_MILITARY
 
 
 static func _wall_scene(style: StringName) -> PackedScene:
-	if style == &"hazard":
+	if style == CampaignContract.STYLE_HAZARD:
 		return WALL_HAZARD
-	if style == &"tech":
+	if style == CampaignContract.STYLE_TECH:
 		return WALL_TECH
-	if style == &"rusted":
+	if style == CampaignContract.STYLE_RUSTED:
 		return WALL_RUSTED
 	return WALL_MILITARY
 
 
-static func _module_mesh(source: PackedScene) -> Mesh:
+static func _module_mesh(source: PackedScene, site: StringName) -> Mesh:
 	var root := source.instantiate()
 	var result := _find_mesh(root)
 	root.free()
 	if result == null:
-		push_warning("CampaignGeometry: environment module has no MeshInstance3D; using fallback geometry")
+		_report_fallback(site, source.resource_path)
 	return result
+
+
+## The only report a geometry substitution makes: named site, named scene, and
+## what the player gets instead. `_reported_fallbacks` keeps it to one line per
+## (site, scene) pair so a full station build cannot spam the log the report is
+## meant to be readable in.
+static func _report_fallback(site: StringName, source_path: String) -> void:
+	var key := "%s|%s" % [site, source_path]
+	if _reported_fallbacks.get(key, false):
+		return
+	_reported_fallbacks[key] = true
+	push_warning("CampaignGeometry.%s: %s carries no MeshInstance3D — this surface is drawn as fallback box geometry instead of the authored module, so re-export or re-wire that scene" % [site, source_path])
 
 
 static func _find_mesh(node: Node) -> Mesh:

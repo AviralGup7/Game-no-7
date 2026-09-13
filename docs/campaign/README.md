@@ -167,9 +167,10 @@ legacy unit/UI suites remain registered as regressions.
 - Campaign topology/content checks passed, including every one of the twelve
   checkpoints, 30 interactions and 96 spawn positions. All 13,440 walkable cells
   form one connected component, and every connector deck is walkable at both seams.
-- **1,319 Python tests passed**, including campaign topology mutations,
-  bootstrap/persistence/touch contracts, runtime-budget parity and APK
-  campaign-content fixtures.
+- **1,348 Python tests passed**, including campaign topology mutations,
+  bootstrap/persistence/touch contracts, runtime-budget parity, APK campaign-content
+  fixtures and the audit-cleanup ledgers (`test_regress_audit_cleanup.py`, 29 of them:
+  fallback-literal, fallback-ledger and EventBus-ownership pins).
 - GDScript lint and offline resource, engine-API, scene-path, string-format,
   signal, typed-architecture and guard checks passed. Advisory unsafe/dynamic
   access warnings are reported by the existing contract tools, not suppressed.

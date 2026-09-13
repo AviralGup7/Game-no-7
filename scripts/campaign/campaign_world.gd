@@ -54,12 +54,12 @@ func build(authored: CampaignDefinition) -> bool:
 			var deck := Node3D.new()
 			deck.name = "Causeway%s" % [region]
 			routes.add_child(deck)
-			CampaignGeometry.floor_batch(deck, region, &"military", CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
+			CampaignGeometry.floor_batch(deck, region, CampaignContract.STYLE_MILITARY, CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
 			var connector := CampaignConnector.new()
 			connector.root = deck
 			connector.area = region
 			_connectors.append(connector)
-	update_visibility(definition.checkpoint("docks").origin)
+	update_visibility(definition.checkpoint(String(CampaignContract.DISTRICT_HOME)).origin)
 	return true
 
 
@@ -83,17 +83,16 @@ func _render_perimeter_wall(parent: Node3D, bounds: AABB, fallback: Material) ->
 
 
 func _floor_style(sector_id: StringName) -> StringName:
-	# Hazard plating belongs around heat/cargo machinery; clean powered panels
-	# mark transit, habitation and life support. Docks/command retain military tread.
-	if sector_id == &"reactor" or sector_id == &"cargo" or sector_id == &"foundry" or sector_id == &"salvage":
-		return &"hazard"
-	if sector_id == &"transit" or sector_id == &"habitat" or sector_id == &"medbay" or sector_id == &"hydroponics":
-		return &"tech"
-	return &"military"
+	# The district→style policy (hazard plating around heat/cargo machinery, powered
+	# panels on transit/habitation/life support, military tread elsewhere) is authored
+	# once in CampaignContract.FLOOR_STYLE_BY_DISTRICT.
+	return CampaignContract.floor_style(sector_id)
 
 
 func _wall_style_at(at: Vector3) -> StringName:
-	var nearest_id := &"docks"
+	# Nearest authored district wins, then CampaignContract.WALL_STYLE_BY_DISTRICT
+	# decides the theme; a district the table does not name keeps military tread.
+	var nearest_id := CampaignContract.DISTRICT_HOME
 	var nearest_distance := INF
 	for sector in definition.sectors:
 		var area := sector.rect
@@ -102,17 +101,11 @@ func _wall_style_at(at: Vector3) -> StringName:
 		if distance < nearest_distance:
 			nearest_distance = distance
 			nearest_id = StringName(String(sector.id))
-	if nearest_id == &"reactor" or nearest_id == &"foundry":
-		return &"hazard"
-	if nearest_id == &"transit" or nearest_id == &"habitat" or nearest_id == &"hydroponics" or nearest_id == &"medbay":
-		return &"tech"
-	if nearest_id == &"cargo" or nearest_id == &"command" or nearest_id == &"salvage":
-		return &"rusted"
-	return &"military"
+	return CampaignContract.wall_style(nearest_id)
 
 
 func _navigation_is_connected() -> bool:
-	nav.rebuild_flow_field(definition.checkpoint("docks").origin)
+	nav.rebuild_flow_field(definition.checkpoint(String(CampaignContract.DISTRICT_HOME)).origin)
 	var points: Array[Vector3] = []
 	for sector in definition.sectors:
 		points.append(sector.checkpoint)
@@ -216,7 +209,7 @@ func update_markers(interacted: Array, targets: Array) -> void:
 	for id in _markers:
 		var marker: Node3D = _markers[id]
 		var item := definition.interaction(String(id))
-		marker.visible = id not in interacted and (id in targets or item.kind == "cache")
+		marker.visible = id not in interacted and (id in targets or item.kind == CampaignContract.INTERACTION_CACHE)
 
 
 func update_visibility(at: Vector3) -> void:

@@ -211,6 +211,114 @@
 - Refresh the measured Python-test counts in `docs/HARDENING.md` and `docs/campaign/README.md`
   to the suite's current total (1,290) — the doc-count guard re-derives them from the suite and
   had drifted from the merged tip's 1,280.
+## [Unreleased] — Audit cleanup: constants home, fallback ledgers, honest comments (2026-09-13)
+
+Static-only pass over `docs/CODE_QUALITY_AUDIT_2026-09-12.md` weaknesses 3, 4, 6 and 7 plus finding
+12. No runtime behaviour, no data or save-schema change: every edit either names a value that was
+already spelled out inline, adds a once-per-session diagnostic on a path that previously failed
+quietly, or rewrites a comment that claimed more than the code proves. **Verified offline only;
+awaiting CI godot-tests** — the sandbox has no Godot binary and no `gdlint`, so all GDScript-visible
+effects (arity of the four converted subscriptions, the new `class_name`, the two new reporters) are
+pinned by Python tests here and re-proved by `godot-tests` in CI.
+
+- Move the campaign magic numbers into one typed home, `scripts/core/campaign_contract.gd`
+  (`CampaignContract`, one new project class). Module and cell dimensions (`MODULE_SIZE_M` 8.0,
+  `NAV_CELL_SIZE_M` 4.0, `WALL_MODULE_HEIGHT_M` 0.27, `WALL_MODULE_THICKNESS_M` 0.05), the four
+  style ids, the twelve district ids plus `DISTRICT_HOME := DISTRICT_DOCKS`, the interaction and
+  mission kind lists, `ENCOUNTER_COMMANDER`, and the two floor/wall style lookup tables that replace
+  the if/elif chains in `campaign_world.gd`. Readers updated in `campaign_geometry/world/definition/
+  director/map/hud/encounters.gd`; the authored JSON keeps its own `navigation_cell: 4.0` because
+  `tool/validate_campaign.py:175` requires the data and the runtime constants to agree, which is the
+  check that has to stay a comparison rather than a substitution. Nothing was invented: the style
+  tables are asserted equal to the chains they replaced, and
+  `test_wall_module_dimensions_match_the_shipped_module_scene` ties the two scene-only constants to the
+  `BoxShape3D` in `scenes/environment/wall.tscn` (scenes cannot read GDScript constants, the same
+  way `test_regress_collision_contract.py` pins collision bits).
+- Stop treating EventBus as shared mutable state. Four per-run subscriptions now go through
+  `EventBus.bind(host, sig, cb)` so host teardown unbinds them — `campaign_encounters.gd:48`
+  (`enemy_killed`), `campaign_director.gd:51,52` (`weapon_equipped`, `weapon_switched`),
+  `campaign_game.gd:37` (`game_state_changed`); no per-run node needs an `_exit_tree` unbind anymore,
+  because `bind` disconnects on `tree_exiting` (CONNECT_ONE_SHOT) itself. `campaign_ui.gd` and
+  `campaign_armory.gd` deliberately keep raw `connect`
+  (session-lifetime UI singletons, no per-run teardown) and that exception is written down rather
+  than left to folklore. `bind` is count-neutral for `tests/integration/android_performance.gd`'s
+  `get_connections()` assertions because it ends in the same `sig.connect(cb)`.
+- Record the ownership policy instead of asserting it in prose: `docs/architecture/
+  event_bus_inventory.json` types the owner of all 42 bus signals, tags each with an observer role
+  (`ui`/`audio`/`visuals`/`telemetry`/`diagnostics`), forbids the roles a bus must never own
+  (`state`, `mutation`, `command`, `query`), and lists every campaign bus reference with its
+  mechanism. `docs/architecture/fallback_ledger.json` does the same for fallbacks: 41 audited sites,
+  the 39 substitution sites (a function whose body builds stand-in geometry or returns a `fallback`
+  value) plus the 6 asset loaders, each either pointing at the function that emits its diagnostic and
+  its `_reported*` dedupe guard, or carrying a written exemption reason. The decorator split moved
+  `_mount_model`, `_report_mount` and the primitive stand-ins into `scripts/arena/decorator_props.gd`,
+  so the prop-mount report lives there now — including replacing that file's `falls back silently on
+  missing/unimported art` docstring line, which is exactly the comment class finding 4 is about.
+- Give the remaining silent substitutions a voice, once per source per session: a wall/floor module
+  whose scene carries no `MeshInstance3D` (`campaign_geometry._report_fallback`, keyed by
+  site+scene path), a projectile scene that yields no `Projectile` (`projectile_pool.
+  _report_substitution`), an arena prop and a hazard tile that cannot be mounted
+  (`arena_decorator`/`hazard_marker._report_mount`, keyed by asset path), a saved checkpoint naming a
+  district the shipped data does not author (`campaign_definition._report_unknown_sector`) and a run
+  that silently built a different arena than requested (`main._report_arena_substitution`). All are
+  `push_warning`, so no new `ERROR:`/`USER ERROR:` line can trip `tool/check_godot_log.py`; none sits
+  on a per-frame path without its guard.
+- Rewrite the comments that overclaimed, to describe what the code proves: `json_helpers.gd` (the
+  helpers are total over their inputs but they do I/O — `""`/`false` on failure, and finding 12 is
+  now stated where it is enforced: `read_text_file` rejects `length < 0 or length >
+  MAX_FILE_BYTES` before `get_as_text()`, so an error handle or an oversized file never reaches
+  memory), `scene_router.gd` (the lock plus timeout plus error report is what the "atomic" comment
+  actually delivered; nothing is re-routed or rolled back), `event_bus.gd` (no dedupe, no replay, and
+  handlers are not universally null-tolerant), `procedural_sfx.gd` (which cues are live, which are
+  fallback and which are unused). A comment may no longer call a fallback silent — that is a test.
+- Pin all of it in `tests/python/test_regress_audit_cleanup.py` (29 tests): a raw literal from a
+  converted family reappearing in campaign code fails; a fallback site added without a ledger entry
+  fails; a ledger entry whose diagnostic or dedupe guard was deleted fails; the bus and its
+  inventory must stay in sync in both directions; any campaign bus reference outside the documented
+  set fails. Each control was checked by mutation — reintroducing `8.0` inside an expression,
+  deleting `push_warning` from `projectile_pool`, removing `_reported_mounts`' read, adding an
+  undeclared bus signal, drifting `wall.tscn` to `0.3`, and adding a silent-fallback comment each
+  turn exactly one test red.
+- Gates (twelve static gates plus the Python suite, all run in the sandbox; the `gdlint`/
+  architecture-guard step and the `godot-tests` job are CI-only — this sandbox has no `gdlint` and no
+  Godot binary): `Validated 183 files: OK` · `Assets OK: 128 3D models, 135 PNGs, 46 audio files, 2
+  fonts` · `Campaign topology/content: OK` (12 districts, 13 missions, 32 encounters, 3 768 floor
+  modules, 36 288 nav cells, 13 440 walkable, 96 authored enemies) · `Geometry integrity: OK — 0
+  issues (0 errors, 0 warnings) across 13 categories` · `PASSED with 2 acknowledged design note(s).` ·
+  `Visual/performance: OK — 0 issues (0 errors, 0 warnings) across 14 categories` · `engine-api
+  contract: clean (340 GDScripts …, 32 unsafe-access warnings reported)` — 339 on the base, +1 file for
+  `CampaignContract` · `scene-path contract: clean (39 scenes, 236 node paths …)` ·
+  `typed-architecture gate: clean (247 project classes, 9 autoloads checked)` — 246 on the base, +1
+  class here · `Passed 201, Failed 0` · `string-format contract: clean (996 format uses checked: 433
+  array-form, 563 scalar-form)` — 989/426/563 on the base, the seven extra uses being this pass's
+  array-form conversions · `Ran 1348 tests — OK` (+29 on the base's 1 319, and the suite is green with
+  no exception: while this pass was in review the shared branch was red on
+  `test_regress_campaign_typed::test_definition_exposes_typed_graph`, whose regex pinned the
+  `WORLD_EXTENT_LIMIT := 1024.0` literal the budgets pass had aliased; that pin was fixed upstream in
+  `d8f1fa8` by asserting the alias and reading `1024.0` from `campaign_budgets.gd`, and this commit's
+  `docs/HARDENING.md` / `docs/campaign/README.md` counts were re-derived from the live
+  `countTestCases()` after that landed rather than copied from the older run);
+  the 1319 in the older entry further down is the same claim one commit earlier, and
+  `test_hardening_python_count_matches_this_suite` re-derives the number from discovery rather than
+  storing it, which is why both docs had to move in this commit and not after it · `check_signals` reads
+  `clean (174 self-signal ops, 239 autoload-receiver ops, …)` where the same tree with raw `connect`
+  reads 243: the four `bind()` conversions are not `.connect(` literals, so the gate counts four fewer
+  ops. That is static-analysis arithmetic, not a gate failure — the gate is untouched, and the new test
+  asserts the documented mechanism per file so a `bind` cannot silently regress into a raw `connect`.
+
+- Deliberately not done here, and recorded rather than quietly skipped: the campaign still consumes
+  `enemy_killed`/`enemy_spawned`/`objective_resolved`/`run_*` off the bus, because deleting or
+  rerouting a declared signal fails `tests/unit/test_event_bus_contract.gd`'s both-directions list
+  and `android_performance.gd`'s connection counts — the state-ownership move for those channels is
+  Agent 01's campaign-data-flow step, with the target owner named per signal in the inventory.
+  `campaign_progress.gd` keeps its `"docks"`/`"station_zero"` schema defaults (Agent 02's save
+  surface; pinned by a test that asserts the exception stays a documented one), the wall module's
+  `0.27`/`0.05` remain duplicated in `scenes/environment/wall.tscn` because scenes cannot read
+  constants (finding 17; the test is the link). The performance/streaming budgets are a deliberately
+  different family and are not duplicated here: they are single-sourced in `CampaignBudgets` (tick
+  cadence, the 70/90 m streaming radii, the flow window, the `max_*` caps, the nav extents), and each
+  home keeps its own pin — `test_campaign_budgets.py` for theirs, `test_regress_audit_cleanup.py`
+  for mine.
 
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 

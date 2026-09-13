@@ -19,6 +19,17 @@ rewrite those counts. Agent rules: [AGENTS.md](AGENTS.md). Shipping pitch:
 | [SAVE_RESILIENCE.md](SAVE_RESILIENCE.md) | On-device save fault checklist |
 | [DEBUG_MODE.md](DEBUG_MODE.md) | Error-freeze overlay, session log, crash files |
 
+## Architecture ledgers (read by tests, not shipped in the APK)
+
+| File | What it is |
+|---|---|
+| [architecture/event_bus_inventory.json](architecture/event_bus_inventory.json) | Typed owner + observer role for all 42 `EventBus` signals, the roles the bus must never own, and every campaign reference to it with its subscription mechanism |
+| [architecture/fallback_ledger.json](architecture/fallback_ledger.json) | Every asset-substitution / fallback site under `scripts/`, each naming its diagnostic function and once-per-session guard or carrying a written exemption reason |
+
+`tests/python/test_regress_audit_cleanup.py` recomputes both sweeps from source and fails on drift in
+either direction, which is why these live here rather than in `data/` (everything under `data/campaign/`
+is packaged into the APK).
+
 ## Campaign world
 
 | File | What it is |
