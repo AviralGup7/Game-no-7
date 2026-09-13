@@ -40,27 +40,27 @@ func _draw() -> void:
 		draw_rect(_rect(area), Color(0.16, 0.25, 0.32))
 	for sector in definition.sectors:
 		var accent := Color(String(sector.accent))
-		var area := _rect(CampaignDefinition.rect(sector.rect))
+		var area := _rect(sector.rect)
 		draw_rect(area, accent.darkened(0.8))
 		draw_rect(area, accent.darkened(0.4), false, 1.0)
 		if not compact and UiTheme.bold_font != null:
 			draw_string(UiTheme.bold_font, area.position + Vector2(24, 18), String(sector.id).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, area.size.x - 32, 16, accent)
-		var checkpoint := _project(CampaignDefinition.point(sector.checkpoint))
+		var checkpoint := _project(sector.checkpoint)
 		draw_arc(checkpoint, 3.0 if compact else 5.0, 0, TAU, 16, UiTheme.HEALTH, 1.5)
 	for prop in definition.props:
-		var at := CampaignDefinition.point(prop.at)
-		var extent := CampaignDefinition.point(prop.size)
+		var at := prop.at
+		var extent := prop.size
 		draw_rect(_rect(Rect2(at.x - extent.x * 0.5, at.z - extent.z * 0.5, extent.x, extent.z)), Color(0.26, 0.34, 0.41))
 	if not is_instance_valid(director) or not is_instance_valid(director.player):
 		return
 	_draw_route()
 	for id in director.target_ids():
 		var item := definition.interaction(String(id))
-		var at := _project(CampaignDefinition.point(item.at))
+		var at := _project(item.at)
 		draw_circle(at, 3.0 if compact else 6.0, UiTheme.GOLD)
 	for item in definition.interactions:
 		if item.kind == "cache" and item.id not in director.progress.interacted:
-			var at := _project(CampaignDefinition.point(item.at))
+			var at := _project(item.at)
 			draw_rect(Rect2(at - Vector2(2, 2), Vector2(4, 4)), UiTheme.MUTED)
 	var here := _project(director.player.global_position)
 	draw_circle(here, 5.0 if compact else 7.0, Color.WHITE)

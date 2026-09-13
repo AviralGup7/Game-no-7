@@ -10,11 +10,11 @@ const WORLD_EXTENT_LIMIT := 1024.0
 var title := "STATION ZERO"
 var bounds := Rect2(-432, -336, 864, 672)
 var floors: Array[Rect2] = []
-var sectors: Array[Dictionary] = []
-var props: Array[Dictionary] = []
-var encounters: Array[Dictionary] = []
-var interactions: Array[Dictionary] = []
-var missions: Array[Dictionary] = []
+var sectors: Array[CampaignSector] = []
+var props: Array[CampaignProp] = []
+var encounters: Array[CampaignEncounter] = []
+var interactions: Array[CampaignInteraction] = []
+var missions: Array[CampaignMission] = []
 var max_active_enemies := 18
 var max_visible_sectors := 3
 var valid := false
@@ -24,26 +24,26 @@ func load_authored() -> bool:
 	valid = false
 	var raw := JsonHelpers.load_dict(PATH)
 	if not source_is_valid(raw):
+		push_error("CampaignDefinition: Station Zero JSON failed its runtime structure contract; run tool/validate_campaign.py")
 		return false
-	title = String(raw.get("title", title))
-	bounds = rect(raw.get("bounds", []))
+	title = String(raw["title"])
+	bounds = rect(raw["bounds"])
 	if not bounds.has_area() or bounds.size.x > WORLD_EXTENT_LIMIT or bounds.size.y > WORLD_EXTENT_LIMIT:
+		push_error("CampaignDefinition: authored bounds exceed the runtime world budget; run tool/validate_campaign.py")
 		return false
 	floors.clear()
-	for value in raw.get("floors", []):
+	for value in raw["floors"]:
 		var area := rect(value)
 		if not area.has_area() or not bounds.encloses(area):
+			push_error("CampaignDefinition: a floor lies outside authored bounds; run tool/validate_campaign.py")
 			return false
 		floors.append(area)
-	sectors.assign(raw.get("sectors", []))
-	props.assign(raw.get("props", []))
-	encounters.assign(raw.get("encounters", []))
-	interactions.assign(raw.get("interactions", []))
-	missions.assign(raw.get("missions", []))
-	max_active_enemies = clampi(int(raw.get("max_active_enemies", 18)), 1, 18)
-	max_visible_sectors = clampi(int(raw.get("max_visible_sectors", 3)), 1, 3)
-	valid = not floors.is_empty() and not sectors.is_empty() and not missions.is_empty()
-	return valid
+	_parse_sectors(raw["sectors"]); _parse_props(raw["props"]); _parse_encounters(raw["encounters"])
+	_parse_interactions(raw["interactions"]); _parse_missions(raw["missions"])
+	max_active_enemies = clampi(int(raw["max_active_enemies"]), 1, 18)
+	max_visible_sectors = clampi(int(raw["max_visible_sectors"]), 1, 3)
+	valid = true
+	return true
 
 
 ## APK data is trusted content, but a missing/partial file still fails closed
@@ -180,39 +180,38 @@ static func rect(value: Variant) -> Rect2:
 	return Rect2(float(value[0]), float(value[1]), float(value[2]), float(value[3]))
 
 
-func sector(id: String) -> Dictionary:
+func sector(id: String) -> CampaignSector:
 	for item in sectors:
-		if String(item.get("id", "")) == id:
+		if item.id == id:
 			return item
 	for item in sectors:
-		if String(item.id) == "docks":
+		if item.id == "docks":
 			return item
-	return {}
+	push_error("CampaignDefinition: required docks sector is missing")
+	return null
 
-
-func sector_at(at: Vector3) -> Dictionary:
+func sector_at(at: Vector3) -> CampaignSector:
 	for item in sectors:
-		if rect(item.rect).has_point(Vector2(at.x, at.z)):
+		if item.rect.has_point(Vector2(at.x, at.z)):
 			return item
-	return {}
+	return null
 
-
-func interaction(id: String) -> Dictionary:
+func interaction(id: String) -> CampaignInteraction:
 	for item in interactions:
-		if String(item.id) == id:
+		if item.id == id:
 			return item
-	return {}
+	push_error("CampaignDefinition: unknown interaction id '%s'" % id)
+	return null
 
-
-func encounter(id: String) -> Dictionary:
+func encounter(id: String) -> CampaignEncounter:
 	for item in encounters:
-		if String(item.id) == id:
+		if item.id == id:
 			return item
-	return {}
-
+	push_error("CampaignDefinition: unknown encounter id '%s'" % id)
+	return null
 
 func checkpoint(id: String) -> Transform3D:
-	return Transform3D(Basis.IDENTITY, point(sector(id).get("checkpoint", [-216, 0.2, 44])))
+	return Transform3D(Basis.IDENTITY, sector(id).checkpoint)
 
 
 ## Locomotion clamp for the player and every streamed actor: a square that
@@ -233,8 +232,8 @@ func containment_half() -> float:
 func solid_boxes() -> Array[AABB]:
 	var result: Array[AABB] = []
 	for prop in props:
-		var size := point(prop.size)
-		result.append(AABB(point(prop.at) - size * 0.5, size))
+		var size := prop.size
+		result.append(AABB(prop.at - size * 0.5, size))
 	return result
 
 
@@ -242,5 +241,42 @@ func spawn_ids() -> Array[String]:
 	var result: Array[String] = []
 	for group in encounters:
 		for member in group.members:
-			result.append(String(member.id))
+			result.append(member.id)
 	return result
+
+
+func _parse_sectors(rows: Array) -> void:
+	sectors.clear()
+	for row in rows:
+		var item := CampaignSector.new()
+		item.id = String(row["id"]); item.name = String(row["name"]); item.rect = rect(row["rect"]); item.checkpoint = point(row["checkpoint"]); item.accent = Color(String(row["accent"])); item.description = String(row["description"]); sectors.append(item)
+
+func _parse_props(rows: Array) -> void:
+	props.clear()
+	for row in rows:
+		var item := CampaignProp.new()
+		item.id = String(row["id"]); item.sector = String(row["sector"]); item.kind = String(row["kind"]); item.at = point(row["at"]); item.size = point(row["size"]); props.append(item)
+
+func _parse_interactions(rows: Array) -> void:
+	interactions.clear()
+	for row in rows:
+		var item := CampaignInteraction.new()
+		item.id = String(row["id"]); item.sector = String(row["sector"]); item.kind = String(row["kind"]); item.name = String(row["name"]); item.at = point(row["at"]); item.credits = int(row["credits"]); interactions.append(item)
+
+func _parse_encounters(rows: Array) -> void:
+	encounters.clear()
+	for row in rows:
+		var item := CampaignEncounter.new()
+		item.id = String(row["id"]); item.sector = String(row["sector"]); item.center = Vector2(float(row["center"][0]), float(row["center"][1])); item.activate_radius = float(row["activate_radius"])
+		for member_row in row["members"]:
+			var member := CampaignMember.new()
+			member.id = String(member_row["id"]); member.type = String(member_row["type"]); member.at = point(member_row["at"]); item.members.append(member)
+		encounters.append(item)
+
+func _parse_missions(rows: Array) -> void:
+	missions.clear()
+	for row in rows:
+		var item := CampaignMission.new()
+		item.id = String(row["id"]); item.title = String(row["title"]); item.brief = String(row["brief"]); item.sector = String(row["sector"]); item.kind = String(row["kind"]); item.targets.assign(row["targets"]); item.requires.assign(row["requires"])
+		var reward := CampaignReward.new(); var reward_row: Dictionary = row["reward"]
+		reward.credits = int(reward_row["credits"]); reward.xp = int(reward_row["xp"]); reward.upgrade = String(reward_row.get("upgrade", "")); reward.weapon = String(reward_row.get("weapon", "")); item.reward = reward; missions.append(item)
