@@ -162,5 +162,128 @@ class RefactorSurfaceTests(unittest.TestCase):
         self.assertIn("var _props := DecoratorProps.new()", read(DECORATOR))
 
 
+DECL = re.compile(
+    r"^(?P<indent>[ \t]*)"
+    r"(?P<kw>static\s+func|func|var|const|class|enum|signal)\s+"
+    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)"
+)
+BLOCK = re.compile(r"^(?:if|elif|else|for|while|match)\b")
+
+
+def _strip_annotations(line):
+    """Drop leading @export / @onready / @export_range(...) tokens from a statement."""
+    text = line.strip()
+    while text.startswith("@"):
+        depth = 0
+        index = 0
+        while index < len(text):
+            char = text[index]
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+            elif char == " " and depth == 0:
+                break
+            index += 1
+        text = text[index:].strip()
+    return text
+
+
+def member_declarations(source):
+    """Yield (name, line_number) for every class-level declaration in one script.
+
+    Mirrors the Godot parser's scope rule: a declaration is a member when the innermost
+    enclosing block is the file (or an inner `class`), and a local when it sits inside a
+    function body — locals may legally reuse a name across functions or blocks. Function
+    and control-flow openers push a block whether or not their header ends in `:`, so a
+    signature spread over several lines still scopes its body correctly.
+    """
+    stack = []  # (indent, kind) where kind is "class", "func" or "local"
+    pending = None  # indent of an opener whose header has not closed yet
+    for number, raw in enumerate(source.splitlines(), 1):
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            continue
+        indent = len(raw) - len(raw.lstrip(" \t"))
+        statement = _strip_annotations(raw)
+        if pending is not None:
+            if statement.rstrip().endswith(":"):
+                pending = None  # the header closes here; its body starts below
+            continue
+        while stack and stack[-1][0] >= indent:
+            stack.pop()
+        parent = stack[-1][1] if stack else None
+        match = DECL.match(statement)
+        if match:
+            if parent in (None, "class"):
+                yield match.group("name"), number
+            keyword = match.group("kw")
+            if keyword in ("func", "static func"):
+                stack.append((indent, "func"))
+            elif keyword == "class":
+                stack.append((indent, "class"))
+            else:
+                continue
+            pending = None if statement.rstrip().endswith(":") else indent
+            continue
+        if BLOCK.match(statement):
+            stack.append((indent, "local" if parent in ("func", "local") else "block"))
+            pending = None if statement.rstrip().endswith(":") else indent
+
+
+class DuplicateDeclarationTests(unittest.TestCase):
+    """The engine rejects a file that declares the same member twice.
+
+    Godot's parser fails the whole script with `Function "x" has the same name as a
+    previously declared function` (or the `var` equivalent). A duplicated block left
+    behind by a hand splice is invisible to gdlint and to every static gate in `tool/`,
+    and the only symptom is a suite failing to load at runtime: this is what turned a
+    green 1655-test Godot run into `1612 total, 13 failed` after the manager splits.
+    """
+
+    SCRIPT_ROOTS = ("scripts", "tests")
+
+    def test_every_gdscript_file_has_unique_class_level_declarations(self):
+        seen = []
+        checked = 0
+        for root in self.SCRIPT_ROOTS:
+            for path in sorted((ROOT / root).rglob("*.gd")):
+                checked += 1
+                names = {}
+                for name, number in member_declarations(
+                    path.read_text(encoding="utf-8", errors="replace")
+                ):
+                    if name in names:
+                        rel = path.relative_to(ROOT).as_posix()
+                        seen.append(
+                            "%s: `%s` declared on lines %d and %d"
+                            % (rel, name, names[name], number)
+                        )
+                    names[name] = number
+        self.assertGreater(checked, 100, "expected to scan the whole GDScript tree")
+        self.assertEqual([], seen, "duplicate member declarations:\n" + "\n".join(seen))
+
+    def test_the_scan_flags_a_duplicated_member(self):
+        """Self-check: the scanner must actually catch the bug it guards against."""
+        sample = (
+            "class_name Sample\n"
+            "extends RefCounted\n"
+            "\n"
+            "var _cache := {}\n"
+            "\n"
+            "func walk(host: Node) -> void:\n"
+            "\tvar _cache := {}\n"
+            "\tif host != null:\n"
+            "\t\tvar _cache := {}\n"
+            "\n"
+            "var _cache := {}\n"
+        )
+        found = list(member_declarations(sample))
+        names = [name for name, _ in found]
+        self.assertEqual([("_cache", 4), ("walk", 6), ("_cache", 11)], found)
+        self.assertEqual(
+            2, names.count("_cache"), "the two locals inside walk() must be skipped"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

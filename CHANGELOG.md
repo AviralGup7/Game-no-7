@@ -183,8 +183,24 @@
   `test_regress_player_hardening.py`, `test_regress_arena_guards.py` and the GDScript
   integration/UI runners, so moving them would relocate the contract without shrinking
   the surface those suites drive.
+- Fix two duplicated declarations the split left behind, found by the committed Godot 4.7.2
+  diagnostics run in `docs/godot-runs/` (the workflow records real engine output because the
+  Actions log endpoint is not reachable from every environment). The per-file bullets above are
+  the offline results as measured at each step, not a claim about the final tree. The engine rejected
+  `scripts/enemies/enemy_presentation.gd` (`Function "apply_visual_scale" has the same name as
+  a previously declared function`, line 65) and `scripts/arena/decorator_props.gd` (`Variable
+  "_scene_cache" has the same name as a previously declared variable`, line 229). Both were
+  splice artefacts, both are parse errors that fail the whole script, and the cascade is what
+  took the headless suite from `GDScript tests: 1655 total, 0 failed` on the pre-split tip
+  (`8baab54`) to `1612 total, 13 failed` after the split: eight `test_enemy_scene_inheritance`
+  cases loading `script=<null>`, `test_decorator_collision.gd` running no cases, and four
+  `test_audit_runtime` cases. Neither `gdlint` nor any of the ten `tool/` gates sees a repeated
+  member declaration, so `tests/python/test_regress_manager_component_splits.py` now scans every
+  `.gd` file under `scripts/` and `tests/` for duplicate class-level declarations (scope-aware,
+  with a self-check that it catches the bug it guards, and validated against the two pre-fix
+  files). The diagnostics workflow re-run on this commit is the confirmation step.
 - Refresh the measured Python-test counts in `docs/HARDENING.md` and `docs/campaign/README.md`
-  to the suite's current total (1,288) — the doc-count guard re-derives them from the suite and
+  to the suite's current total (1,290) — the doc-count guard re-derives them from the suite and
   had drifted from the merged tip's 1,280.
 
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)

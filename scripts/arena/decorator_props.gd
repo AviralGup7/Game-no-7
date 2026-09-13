@@ -224,11 +224,6 @@ func _combined_local_aabb(root: Node3D) -> AABB:
 	return bounds
 
 
-# ---------------------- model mounting (optional) ----------------------
-
-var _scene_cache := {}
-
-
 # ---------------------- prestige banners ----------------------
 
 

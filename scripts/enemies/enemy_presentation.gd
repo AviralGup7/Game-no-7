@@ -59,15 +59,6 @@ func apply_visual_scale(host: EnemyBase, scale_factor: float) -> void:
 		visual.scale = Vector3.ONE * scale_factor
 
 
-
-
-
-func apply_visual_scale(host: EnemyBase, scale_factor: float) -> void:
-	var visual := host.get_visual_root()
-	if visual != null and scale_factor > 0.0:
-		visual.scale = Vector3.ONE * scale_factor
-
-
 func _show_attack_telegraph_ring(host: EnemyBase) -> void:
 	if not host.is_inside_tree():
 		return
