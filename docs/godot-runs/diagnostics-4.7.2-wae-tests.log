@@ -1,43 +1,5 @@
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
-SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
-          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:206)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/core/content_registry.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/audio/audio_manager.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
-ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Compilation failed".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 SUITE: res://tests/unit/test_save.gd
 SUITE: res://tests/unit/test_campaign.gd
 SUITE: res://tests/unit/test_audit_boundaries.gd
@@ -100,78 +62,6 @@ SUITE: res://tests/unit/test_nav_grid.gd
 SUITE: res://tests/unit/test_enemy_brain.gd
 SUITE: res://tests/unit/test_content_progression.gd
 SUITE: res://tests/unit/test_presentation_scripts.gd
-SCRIPT ERROR: Parse Error: Could not resolve class "DecoratorProps", because of a parser error.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:69)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "_props" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:69)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Could not resolve external class member "_init".
-          at: GDScript::reload (res://scripts/arena/arena_decorator.gd:70)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-ERROR: Failed to load script "res://scripts/arena/arena_decorator.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-       [1] _run_suites (res://tests/run_tests.gd:149)
-       [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Variable "_scene_cache" has the same name as a previously declared variable.
-          at: GDScript::reload (res://scripts/arena/decorator_props.gd:229)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-ERROR: Failed to load script "res://scripts/arena/decorator_props.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-       [1] _run_suites (res://tests/run_tests.gd:149)
-       [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-          at: GDScript::reload (res://scripts/arena/arena_warehouse_yard.gd:21)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Could not parse global class "DecoratorProps" from "res://scripts/arena/decorator_props.gd".
-          at: GDScript::reload (res://scripts/arena/arena_warehouse_yard.gd:24)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/arena/arena_warehouse_yard.gd:99)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "bounds" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/arena/arena_warehouse_yard.gd:135)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-SCRIPT ERROR: Parse Error: Cannot infer the type of "center" variable because the value doesn't have a set type.
-          at: GDScript::reload (res://scripts/arena/arena_warehouse_yard.gd:146)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _initialize (res://tests/run_tests.gd:105)
-ERROR: Failed to load script "res://scripts/arena/arena_warehouse_yard.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-   GDScript backtrace (most recent call first):
-       [0] suite (res://tests/unit/test_presentation_scripts.gd:31)
-       [1] _run_suites (res://tests/run_tests.gd:149)
-       [2] _initialize (res://tests/run_tests.gd:105)
 SUITE: res://tests/unit/test_game_modes.gd
 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
@@ -215,55 +105,17 @@ SUITE: res://tests/unit/test_event_bus_contract.gd
 [diagnostic] RunAnalytics ready (offline only)
 SUITE: res://tests/unit/test_model_visual.gd
 SUITE: res://tests/unit/test_audit_runtime.gd
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _pack_test_enemy_scene (res://tests/integration_stages.gd:701)
-          GDScript backtrace (most recent call first):
-              [0] _pack_test_enemy_scene (res://tests/integration_stages.gd:701)
-              [1] suite (res://tests/unit/test_audit_runtime.gd:17)
-              [2] _run_suites (res://tests/run_tests.gd:149)
-              [3] _process (res://tests/run_tests.gd:176)
-WARNING: [diagnostic] Missing config/scene for audit_enemy; retried up to bound then counted failed. (attempt 1/6)
-     at: push_warning (core/variant/variant_utility.cpp:1033)
-     GDScript backtrace (most recent call first):
-         [0] report_warning (res://scripts/core/event_bus.gd:159)
-         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
-         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
-         [3] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
-         [4] _test_spawns (res://tests/unit/test_audit_runtime.gd:66)
-         [5] suite (res://tests/unit/test_audit_runtime.gd:18)
-         [6] _run_suites (res://tests/run_tests.gd:149)
-         [7] _process (res://tests/run_tests.gd:176)
-SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array[CharacterBody3D]')
-          at: _test_spawns (res://tests/unit/test_audit_runtime.gd:78)
-          GDScript backtrace (most recent call first):
-              [0] _test_spawns (res://tests/unit/test_audit_runtime.gd:78)
-              [1] suite (res://tests/unit/test_audit_runtime.gd:18)
-              [2] _run_suites (res://tests/run_tests.gd:149)
-              [3] _process (res://tests/run_tests.gd:176)
-SCRIPT ERROR: Cannot call method 'instantiate' on a null value.
-          at: _test_objective (res://tests/unit/test_audit_runtime.gd:127)
-          GDScript backtrace (most recent call first):
-              [0] _test_objective (res://tests/unit/test_audit_runtime.gd:127)
-              [1] suite (res://tests/unit/test_audit_runtime.gd:19)
-              [2] _run_suites (res://tests/run_tests.gd:149)
-              [3] _process (res://tests/run_tests.gd:176)
+[diagnostic] audit_enemy split into 3 x audit_enemy
 SUITE: res://tests/unit/test_audit_combat.gd
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _boss_death_boundary (res://tests/unit/test_audit_combat.gd:108)
-          GDScript backtrace (most recent call first):
-              [0] _boss_death_boundary (res://tests/unit/test_audit_combat.gd:108)
-              [1] suite (res://tests/unit/test_audit_combat.gd:7)
-              [2] _run_suites (res://tests/run_tests.gd:149)
-              [3] _process (res://tests/run_tests.gd:176)
 SUITE: res://tests/unit/test_android_runtime.gd
 [LastStand][input] --- joystick_cancel (6 events) ---
-[LastStand][input] #1 t=2039 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #2 t=2039 begin i=0 pos=(20.0, 20.0)
-[LastStand][input] #3 t=2039 end i=0 value=(1.0, 0.0)
-[LastStand][input] #4 t=2040 begin i=-2 pos=(30.0, 20.0)
-[LastStand][input] #5 t=2040 end i=-2 value=(1.0, 0.0)
-[LastStand][input] #6 t=12163 begin i=0 pos=(50.0, 50.0)
-[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12163 begin i=0 pos=(50.0, 50.0)
+[LastStand][input] #1 t=2078 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #2 t=2078 begin i=0 pos=(20.0, 20.0)
+[LastStand][input] #3 t=2078 end i=0 value=(1.0, 0.0)
+[LastStand][input] #4 t=2078 begin i=-2 pos=(30.0, 20.0)
+[LastStand][input] #5 t=2078 end i=-2 value=(1.0, 0.0)
+[LastStand][input] #6 t=12176 begin i=0 pos=(50.0, 50.0)
+[diagnostic] [LastStand][input] joystick_cancel n=6 last=[LastStand][input] #6 t=12176 begin i=0 pos=(50.0, 50.0)
 SUITE: res://tests/unit/test_weapons.gd
 SUITE: res://tests/unit/test_station_shooter.gd
 SUITE: res://tests/unit/test_area_combat.gd
@@ -310,12 +162,12 @@ WARNING: CharacterVisuals: incomplete hero res://assets/scifi/guns/gladius.glb: 
          [6] _process (res://tests/run_tests.gd:176)
 SUITE: res://tests/unit/test_arena_obstacles_node.gd
 SUITE: res://tests/unit/test_decorator_collision.gd
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: suite (res://tests/unit/test_decorator_collision.gd:45)
-          GDScript backtrace (most recent call first):
-              [0] suite (res://tests/unit/test_decorator_collision.gd:45)
-              [1] _run_suites (res://tests/run_tests.gd:149)
-              [2] _process (res://tests/run_tests.gd:176)
+ERROR: Parameter "material" is null.
+   at: material_get_instance_shader_parameters (servers/rendering/dummy/storage/material_storage.cpp:264)
+   GDScript backtrace (most recent call first):
+       [0] suite (res://tests/unit/test_decorator_collision.gd:53)
+       [1] _run_suites (res://tests/run_tests.gd:149)
+       [2] _process (res://tests/run_tests.gd:176)
 SUITE: res://tests/unit/test_enemy_scene_inheritance.gd
 SUITE: res://tests/unit/test_hazards_live.gd
 ERROR: Parameter "material" is null.
@@ -327,33 +179,196 @@ ERROR: Parameter "material" is null.
        [3] _process (res://tests/run_tests.gd:176)
 SUITE: res://tests/unit/test_status_manager.gd
 SUITE: res://tests/unit/test_run_isolation.gd
-SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
-          at: _make_enemy (res://tests/integration_stages.gd:136)
-          GDScript backtrace (most recent call first):
-              [0] _make_enemy (res://tests/integration_stages.gd:136)
-              [1] _run_enemy_encounter_integration (res://tests/integration_stages.gd:213)
-              [2] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-              [3] _process (res://tests/run_tests.gd:183)
-SCRIPT ERROR: Cannot call method 'get_node' on a null value.
-          at: _run_enemy_encounter_integration (res://tests/integration_stages.gd:214)
-          GDScript backtrace (most recent call first):
-              [0] _run_enemy_encounter_integration (res://tests/integration_stages.gd:214)
-              [1] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
-              [2] _process (res://tests/run_tests.gd:183)
+[diagnostic] Enemy probe_basic died
+[diagnostic] Enemy probe_exploder died
+[diagnostic] Enemy probe_boss died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:780)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:782)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+[diagnostic] Enemy basic died
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
+         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+         [3] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:798)
+         [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
+         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+         [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
+         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+         [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 4/6)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
+         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+         [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 5/6)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] report_warning (res://scripts/core/event_bus.gd:159)
+         [1] _count_failure (res://scripts/enemies/spawn_manager.gd:366)
+         [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+         [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+         [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [7] _process (res://tests/run_tests.gd:183)
+ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] report_error (res://scripts/core/event_bus.gd:165)
+       [1] _count_failure (res://scripts/enemies/spawn_manager.gd:363)
+       [2] _spawn_one (res://scripts/enemies/spawn_manager.gd:214)
+       [3] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+       [4] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+       [5] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+       [6] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+       [7] _process (res://tests/run_tests.gd:183)
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] force_spawn_one (res://scripts/enemies/spawn_manager.gd:553)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:803)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+TEST EXPECTED ERRORS END
+[diagnostic] Enemy basic died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role splitter (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:822)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+[diagnostic] Enemy splitter died
+[diagnostic] splitter split into 2 x mite
+[diagnostic] Enemy mite died
+[diagnostic] Enemy mite died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:849)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+[diagnostic] Enemy basic died
+WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
+     at: push_warning (core/variant/variant_utility.cpp:1033)
+     GDScript backtrace (most recent call first):
+         [0] _report_mount_issue (res://scripts/visuals/character_visuals.gd:49)
+         [1] _mount_config (res://scripts/visuals/character_visuals.gd:78)
+         [2] mount (res://scripts/visuals/character_visuals.gd:69)
+         [3] initialize (res://scripts/enemies/enemy_base.gd:299)
+         [4] _spawn_one (res://scripts/enemies/spawn_manager.gd:241)
+         [5] queue_wave (res://scripts/enemies/spawn_manager.gd:122)
+         [6] _run_spawn_manager_integration (res://tests/integration_stages.gd:883)
+         [7] _run_enemy_encounter_integration (res://tests/integration_stages.gd:553)
+         [8] _run_enemy_encounter_integration (res://tests/run_tests.gd:232)
+         [9] _process (res://tests/run_tests.gd:183)
+[diagnostic] Enemy basic died
 ========================================
-GDScript tests: 1612 total, 13 failed
-  FAIL  test_audit_runtime.gd :: forced spawning obeys simultaneous cap and keeps pending ledger — 
-  FAIL  test_audit_runtime.gd :: split child can spawn in clear geometry — 
-  FAIL  test_audit_runtime.gd :: split child receives the arena navigation grid — 
-  FAIL  test_audit_runtime.gd :: split burst obeys the same population cap — 
-  FAIL  Suite ran no cases: res://tests/unit/test_decorator_collision.gd
-  FAIL  test_enemy_scene_inheritance.gd :: basic: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: fast: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: heavy: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: dasher: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: exploder: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: ranged: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: splitter: root runs enemy_base.gd — script=<null>
-  FAIL  test_enemy_scene_inheritance.gd :: warlord: root runs enemy_base.gd — script=<null>
-::error title=GDScript test failures (13)::test_audit_runtime.gd :: forced spawning obeys simultaneous cap and keeps pending ledger — %0Atest_audit_runtime.gd :: split child can spawn in clear geometry — %0Atest_audit_runtime.gd :: split child receives the arena navigation grid — %0Atest_audit_runtime.gd :: split burst obeys the same population cap — %0ASuite ran no cases: res://tests/unit/test_decorator_collision.gd%0Atest_enemy_scene_inheritance.gd :: basic: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: fast: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: heavy: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: dasher: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: exploder: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: ranged: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: splitter: root runs enemy_base.gd — script=<null>%0Atest_enemy_scene_inheritance.gd :: warlord: root runs enemy_base.gd — script=<null>
+GDScript tests: 1655 total, 0 failed
 ========================================
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)
