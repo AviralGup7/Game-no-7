@@ -3,7 +3,7 @@
 ## [Unreleased] — Docs, licensing and release tooling match reality (2026-09-13)
 
 - Re-derive operational numeric claims from live offline tools: campaign
-  validation **1,258** Python tests (was 1,147), HARDENING python count **1,258**
+  validation **1,262** Python tests (was 1,147), HARDENING python count **1,262**
   (was 1,164), ARCHITECTURE **9 autoloads** (was “8”), DEVICE_QA **twelve
   districts / thirteen missions** (was six / seven).
 - Add correction banners to mixed-era geometry/visual audits and historical

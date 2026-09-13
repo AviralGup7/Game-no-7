@@ -42,7 +42,7 @@ Run from the repo root. No Godot, no network, no extra pip packages.
 | 3 | `python3 tool/validate_campaign.py` | 12 districts, 13 missions, 96 authored enemies, 47 floors, 72 landmarks, 30 interactions, 32 encounters, 3 768 modules, 36 288 nav cells, **13 440** walkable, **1 676** perimeter edges |
 | 4 | `python3 tool/validate_geometry.py` | 0 issues across 13 categories |
 | 5 | `python3 tool/validate_guards.py` | Passed **201**, Failed 0 |
-| 6 | `python3 tool/check_typed_arch.py` | **214** project classes, **9 autoloads** |
+| 6 | `python3 tool/check_typed_arch.py` | **223** project classes, **9 autoloads** |
 | 7 | `python3 tool/check_engine_api.py` | **304** GDScripts vs pinned 4.4.1 ClassDB; advisory `[unsafe]` count is reported, not silenced |
 | 8 | `python3 tool/check_scene_paths.py` | **39** scenes, **236** resolved paths |
 | 9 | `python3 tool/check_string_formats.py` | **966** `%` uses checked |
