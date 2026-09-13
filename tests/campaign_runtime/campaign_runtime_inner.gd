@@ -180,7 +180,7 @@ func _stage_world_meshes() -> void:
 		var root := (module as PackedScene).instantiate()
 		var instance := _find_mesh_instance(root)
 		var imported := instance != null and instance.mesh != null and instance.mesh is not BoxMesh \
-			and instance.mesh.get_surface_count() > 0 and instance.mesh.get_aabb().get_volume() > 0.0
+			and instance.mesh.get_surface_count() > 0 and instance.mesh.get_aabb().volume() > 0.0
 		if not imported:
 			module_failures.append(name)
 		root.free()
@@ -278,7 +278,7 @@ func _stage_save_failure() -> void:
 	_case("failed save leaves the on-disk save byte-identical",
 		_read_file_text(SaveManager.SAVE_PATH) == baseline)
 	_case("failed save leaves no temporary file behind",
-		not FileAccess.file_exists(block_target))
+		not DirAccess.file_exists(block_target))
 	_case("store keeps the pre-failure checkpoint in memory",
 		String(SaveManager.get_campaign().get("checkpoint", "")) == checkpoint_before)
 	# The failed commit leaves a retryable pending transaction carrying the
@@ -371,13 +371,13 @@ func _stage_transition_cycles() -> void:
 	# before the leak baseline is taken.
 	await _cycle("warmup", _expected_checkpoint(previous), ui)
 	await _frames(2)
-	var baseline_nodes: int = get_tree().root.get_node_count()
+	var baseline_nodes := get_tree().root.get_node_count()
 	for cycle in range(CYCLE_COUNT):
 		var label := "cycle %d" % (cycle + 1)
 		var expect := _expected_checkpoint(previous)
 		await _cycle(label, expect, ui)
 		await _frames(2)
-		var nodes: int = get_tree().root.get_node_count()
+		var nodes := get_tree().root.get_node_count()
 		_case(label + " / no node leak (%d nodes)" % nodes, nodes == baseline_nodes,
 			"baseline %d" % baseline_nodes)
 		previous = expect
@@ -428,7 +428,7 @@ func _cycle(label: String, expect: String, ui: CampaignUI) -> void:
 		String(_session.progress.checkpoint) == expect,
 		"checkpoint " + String(_session.progress.checkpoint))
 	_case(label + " / simulation resumes exactly",
-		_session.player.global_position.is_equal_approx(at),
+		is_equal_approx(_session.player.global_position, at),
 		"player at " + str(_session.player.global_position))
 	var root := GameRoot.get_debug_snapshot()
 	_case(label + " / transition lock is clear",
