@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Transactional campaign persistence (2026-09-13)
+
+- Mission/cache/wallet updates now snapshot into one normalized profile slice and
+  commit through `SaveManager.commit_profile_transaction`. A failed flush restores
+  the previous live campaign/wallet slice, rolls director runtime back, and keeps
+  the slice retryable (director tick + `GameRoot.start_campaign`).
+- Backup rotation happens after the new primary temp verifies and immediately
+  before rename. Temp files are discarded on open, write, and rename failure; the
+  loader still ignores `*.tmp`.
+- Save schema remains v8 / additive. GDScript verified offline only; awaiting CI
+  godot-tests.
+
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 
 - Put the twelve-district 864 × 672 m station back. Merging the audit-gate PR resolved a

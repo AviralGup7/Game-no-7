@@ -21,6 +21,9 @@ The previous implementation had a good temporary-file shape, but it had three da
 ## Implemented contract
 
 - The primary save is written to `*.tmp`, flushed, closed, then committed with same-directory rename.
+- Backup rotation runs only after that temp verifies, immediately before the rename. Failed primaries no longer rotate history first.
+- Every temp failure path (open, buffered write, rename) deletes the temp. The loader never considers `*.tmp`; recovery uses primary then the three backups.
+- Campaign mission/wallet commits go through one in-memory profile transaction (`commit_profile_transaction`). A failed flush rolls the live store back and keeps the slice retryable until a later `save_now` / pause / director tick succeeds. Pending transactions are not a save-schema field.
 - A failed commit never deletes the destination and leaves the dirty flag set, so the next lifecycle event can retry.
 - A SHA-256 integrity envelope detects accidental or partial post-write corruption. Legacy saves without an envelope remain readable and are upgraded on their next write.
 - Three backup generations are retained. Loading tries primary, backup 1, backup 2, and backup 3 in order and reports recovery when an older generation is used.

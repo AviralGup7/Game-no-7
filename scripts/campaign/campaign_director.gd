@@ -26,6 +26,8 @@ var _route_target_position := Vector3.INF
 var _ready_to_save := false
 var _stopped := false
 var _completion_pending := false
+var _staging_persist := false
+var _retry_notice := false
 
 
 func configure(station: CampaignWorld, hero: Player, wallet: MetaProgression) -> void:
@@ -79,6 +81,12 @@ func _restore_build() -> void:
 func _physics_process(delta: float) -> void:
 	if _stopped or not is_instance_valid(player) or GameRoot.get_current_state() != GameRoot.State.PLAYING:
 		return
+	if SaveManager.has_pending_profile_transaction():
+		if _retry_pending_transaction():
+			if _retry_notice:
+				message.emit("Progress saved.")
+				_retry_notice = false
+		return
 	if _completion_pending:
 		_completion_pending = false
 		GameRoot.complete_campaign()
@@ -130,8 +138,9 @@ func _visit_checkpoint() -> void:
 		message.emit("CHECKPOINT SAVED / health and stamina restored")
 	else:
 		progress.checkpoint = previous_checkpoint
-		SaveManager.store_campaign(progress, false)
+		save_progress(false)
 		_checkpoint_inside = ""
+		_retry_notice = true
 		message.emit("Restored health. Saving failed — checkpoint not advanced; retry here.")
 
 
@@ -181,19 +190,32 @@ func try_interact() -> bool:
 	if item.kind != "cache" and remaining_guards() > 0:
 		message.emit("Secure the district first / %d hostiles remaining" % remaining_guards())
 		return false
+	var snapshot := _capture_runtime()
 	progress.interacted.append(String(item.id))
 	if item.kind == "cache":
 		player.get_health_component().heal(30.0)
-		_commit_reward(int(item.credits), true)
+		if not _commit_reward(int(item.credits), true):
+			_restore_runtime(snapshot)
+			_retry_notice = true
+			message.emit("Supply claimed in memory. Saving failed — retry nearby.")
+			return true
 		message.emit("SUPPLY LOCKER / +%d credits / +30 health" % int(item.credits))
 	else:
 		var all_done := true
 		for id in current_mission().get("targets", []):
 			all_done = all_done and id in progress.interacted
 		if all_done:
-			_complete_mission()
+			if not _complete_mission():
+				_restore_runtime(snapshot)
+				_retry_notice = true
+				message.emit("Objective not saved. Retry the console.")
+				return true
 		else:
-			save_progress(true)
+			if not save_progress(true):
+				_restore_runtime(snapshot)
+				_retry_notice = true
+				message.emit("Manifest not saved. Retry the console.")
+				return true
 			message.emit("Manifest recovered. Find the remaining records.")
 	_refresh_markers()
 	_route_origin = Vector3.INF
@@ -202,12 +224,13 @@ func try_interact() -> bool:
 	return true
 
 
-func _complete_mission() -> void:
+func _complete_mission() -> bool:
 	var mission := current_mission()
 	if mission.is_empty():
-		return
-	# Advance BEFORE rewards/save. A single atomic save includes the completed
-	# target IDs, new mission cursor, build and wallet: Continue cannot replay it.
+		return false
+	_staging_persist = true
+	# Advance BEFORE rewards/save. One SaveManager transaction then includes the
+	# completed target IDs, new mission cursor, build and wallet.
 	progress.mission = int(progress.mission) + 1
 	progress.checkpoint = String(mission.sector)
 	progress.completed = int(progress.mission) >= definition.missions.size()
@@ -221,7 +244,9 @@ func _complete_mission() -> void:
 	if weapon != &"":
 		player.get_weapon_manager().equip_by_id(weapon, 1, true)
 	player.add_xp(float(reward.get("xp", 0)))
-	_commit_reward(int(reward.get("credits", 0)), true)
+	_staging_persist = false
+	if not _commit_reward(int(reward.get("credits", 0)), true):
+		return false
 	message.emit("OBJECTIVE COMPLETE / " + String(mission.title))
 	AudioManager.play_sfx(&"upgrade_select", -8.0)
 	if bool(progress.completed):
@@ -230,6 +255,7 @@ func _complete_mission() -> void:
 		_completion_pending = GameRoot.get_current_state() != GameRoot.State.PLAYING
 		if not _completion_pending:
 			GameRoot.complete_campaign()
+	return true
 
 
 func _on_member_defeated(_id: String, credits: int) -> void:
@@ -237,12 +263,10 @@ func _on_member_defeated(_id: String, credits: int) -> void:
 	changed.emit()
 
 
-func _commit_reward(credits: int, flush: bool) -> void:
-	save_progress(false)
+func _commit_reward(credits: int, flush: bool) -> bool:
 	if credits > 0:
-		_meta.grant_currency(credits, flush)
-	elif flush:
-		SaveManager.save_now()
+		_meta.grant_currency(credits, false)
+	return save_progress(flush)
 
 
 func _on_xp_changed(_xp: int, _level: int, _into: int, _need: int) -> void:
@@ -258,6 +282,8 @@ func _on_weapon_switched(_old: StringName, _id: StringName) -> void:
 
 
 func save_progress(flush: bool = true) -> bool:
+	if _staging_persist:
+		return true
 	if not _ready_to_save or not is_instance_valid(player):
 		return false
 	progress.started = true
@@ -266,7 +292,61 @@ func save_progress(flush: bool = true) -> bool:
 	progress.weapons = player.get_weapon_manager().get_loadout_ids()
 	progress.active_weapon = String(player.get_weapon_manager().active_weapon_id())
 	progress.skills = player.get_skill_controller().get_assigned_skill_ids()
-	return SaveManager.store_campaign(progress, flush)
+	var slice := SaveManager.capture_profile_slice()
+	slice.campaign = CampaignProgress.normalize(progress)
+	if _meta != null:
+		slice.meta_wallet = _meta.get_wallet()
+	return SaveManager.commit_profile_transaction(slice, flush)
+
+
+func _retry_pending_transaction() -> bool:
+	var pending := SaveManager.peek_pending_profile_transaction()
+	if pending.is_empty():
+		return true
+	_staging_persist = true
+	progress = CampaignProgress.reconcile(pending.get("campaign", {}), definition)
+	if _meta != null:
+		_meta.restore_wallet(int(pending.get("meta_wallet", 0)), false)
+	_restore_player_from_progress()
+	_staging_persist = false
+	return SaveManager.retry_pending_profile_transaction()
+
+
+func _capture_runtime() -> Dictionary:
+	return {
+		"progress": progress.duplicate(true),
+		"wallet": _meta.get_wallet() if _meta != null else 0,
+	}
+
+
+func _restore_runtime(snapshot: Dictionary) -> void:
+	_staging_persist = true
+	progress = CampaignProgress.reconcile(snapshot.get("progress", {}), definition)
+	if _meta != null:
+		_meta.restore_wallet(int(snapshot.get("wallet", 0)), false)
+	_restore_player_from_progress()
+	_staging_persist = false
+
+
+func _restore_player_from_progress() -> void:
+	if not is_instance_valid(player):
+		return
+	var stage := maxi(int(progress.mission) + 1, 1)
+	GameRoot.record_current_wave(stage)
+	player.get_progression_component().restore_progression(progress.get("upgrades", {}), stage)
+	player.get_weapon_manager().configure(0)
+	for slot in range(progress.weapons.size()):
+		var id := StringName(String(progress.weapons[slot]))
+		player.get_weapon_manager().equip_by_id(id, slot, true)
+		if String(id) == String(progress.active_weapon):
+			player.get_weapon_manager().switch_to(slot)
+	for slot in range(progress.skills.size()):
+		var skill := StringName(String(progress.skills[slot]))
+		player.get_skill_controller().assign_skill_by_id(skill, slot, true)
+	player.get_experience_component().restore_total(int(progress.xp))
+	if _meta != null:
+		_meta.apply_all_to_run()
+	player.rebuild_derived_stats()
 
 
 func _refresh_markers() -> void:
