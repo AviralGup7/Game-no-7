@@ -29,8 +29,13 @@ SUPPORTED_ENEMIES = {"basic", "fast", "heavy", "ranged", "dasher", "warlord"}
 # with headroom, and 40,960 cells keeps the blocked/flow arrays under ~200 KB
 # while the bounded flow field (see ArenaNavGrid.rebuild_flow_field) keeps each
 # combat rebuild proportional to the local crowd, not to the whole station.
+#
+# These mirror the runtime single source, scripts/campaign/campaign_budgets.gd;
+# tests/python/test_campaign_budgets.py fails if either side drifts.
 MAX_WORLD_EXTENT = 1024
 MAX_NAV_CELLS = 40960
+MAX_ACTIVE_ENEMIES = 18
+MAX_VISIBLE_DISTRICTS = 3
 # CampaignDefinition refuses to load more than this offline too, so a future
 # expansion cannot author a world the APK loader would silently reject.
 MAX_FLOOR_REGIONS = 64
@@ -173,8 +178,10 @@ def validate(data, root=ROOT):
     require(numbers(bounds, 4) and 0 < bounds[2] <= MAX_WORLD_EXTENT
             and 0 < bounds[3] <= MAX_WORLD_EXTENT, "Invalid world bounds")
     require(data.get("module_size") == MODULE and data.get("navigation_cell") == CELL, "Module/nav sizes must match runtime")
-    require(1 <= data.get("max_active_enemies", 0) <= 18, "Android enemy budget exceeds 18")
-    require(1 <= data.get("max_visible_sectors", 0) <= 3, "Android district budget exceeds 3")
+    require(1 <= data.get("max_active_enemies", 0) <= MAX_ACTIVE_ENEMIES,
+            f"Android enemy budget exceeds {MAX_ACTIVE_ENEMIES}")
+    require(1 <= data.get("max_visible_sectors", 0) <= MAX_VISIBLE_DISTRICTS,
+            f"Android district budget exceeds {MAX_VISIBLE_DISTRICTS}")
     for key in ("floors", "sectors", "props", "interactions", "encounters", "missions"):
         require(isinstance(data.get(key), list) and data[key], f"Missing/invalid {key}")
     require(len(data["floors"]) <= MAX_FLOOR_REGIONS, "Floor regions exceed the runtime loader budget")
@@ -213,7 +220,10 @@ def validate(data, root=ROOT):
         require(enclosing(tables["sectors"][prop["sector"]]["rect"], footprint(prop)), "Landmark extends outside its district")
     for group in data["encounters"]:
         require(20 <= group.get("activate_radius", 0) <= 50, "Invalid activation radius")
-        require(isinstance(group.get("members"), list) and 0 < len(group["members"]) <= 18, "Invalid encounter members")
+        # A single finite encounter can never field more actors than the
+        # simultaneous-live budget admits.
+        require(isinstance(group.get("members"), list) and 0 < len(group["members"]) <= MAX_ACTIVE_ENEMIES,
+                "Invalid encounter members")
         for member in group["members"]:
             require(isinstance(member, dict) and isinstance(member.get("id"), str), "Invalid spawn record")
             require(member["id"] not in all_ids, "Duplicate spawn id")

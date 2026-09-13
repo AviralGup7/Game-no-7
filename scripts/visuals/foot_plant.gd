@@ -6,6 +6,20 @@ extends RefCounted
 
 const WORLD_MASK := 0xFFFFFFF1
 const LERP_RATE := 14.0
+## Ground sample offsets around the body centre (world space, xz plane).
+const GROUND_OFFSETS: Array[Vector3] = [
+	Vector3.ZERO, Vector3(0.18, 0.0, 0.0), Vector3(-0.18, 0.0, 0.0),
+]
+
+## Shared ground-probe scratch: apply() runs once per physics frame for the
+## player AND every live enemy, so per-call query/exclude construction was
+## three PhysicsRayQueryParameters3D plus three exclude Arrays per body per
+## frame. The server reads the parameters at intersect_ray() time (the same
+## reuse pattern EnemyPack._sep_query relies on), and probes never nest, so
+## one shared query object is safe.
+static var _ground_query: PhysicsRayQueryParameters3D = null
+static var _ground_exclude: Array[RID] = []
+
 
 static func apply(body: CharacterBody3D, max_offset: float = 0.14, delta: float = 0.016) -> float:
 	if body == null or not body.is_inside_tree():
@@ -36,20 +50,22 @@ static func apply(body: CharacterBody3D, max_offset: float = 0.14, delta: float 
 
 
 static func _sample_ground(body: CharacterBody3D, world: World3D) -> float:
-	var offsets: Array[Vector3] = [Vector3.ZERO, Vector3(0.18, 0.0, 0.0), Vector3(-0.18, 0.0, 0.0)]
+	if _ground_query == null:
+		_ground_query = PhysicsRayQueryParameters3D.new()
+		_ground_query.collision_mask = WORLD_MASK
+		_ground_query.collide_with_areas = false
+		_ground_query.collide_with_bodies = true
+		_ground_query.hit_from_inside = true
+		_ground_exclude.resize(1)
+	_ground_exclude[0] = body.get_rid()
+	_ground_query.exclude = _ground_exclude
 	var best := INF
 	var hit_any := false
 	var dt := 0.016
-	for off in offsets:
-		var from: Vector3 = body.global_position + off + Vector3.UP * 0.55
-		var to: Vector3 = body.global_position + off + Vector3.DOWN * 1.6
-		var query := PhysicsRayQueryParameters3D.create(from, to)
-		query.exclude = [body.get_rid()]
-		query.collision_mask = WORLD_MASK
-		query.collide_with_areas = false
-		query.collide_with_bodies = true
-		query.hit_from_inside = true
-		var hit := world.direct_space_state.intersect_ray(query)
+	for off in GROUND_OFFSETS:
+		_ground_query.from = body.global_position + off + Vector3.UP * 0.55
+		_ground_query.to = body.global_position + off + Vector3.DOWN * 1.6
+		var hit := world.direct_space_state.intersect_ray(_ground_query)
 		if hit.is_empty() or _skip_collider(hit.get("collider")):
 			continue
 		hit_any = true

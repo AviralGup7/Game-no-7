@@ -5,14 +5,14 @@ extends Node
 
 signal member_defeated(spawn_id: String, credits: int)
 const COMMANDER_SCENE := preload("res://scenes/campaign/security_commander.tscn")
-const TICK := 0.3
-const DESPAWN_DISTANCE := 90.0
-const SPAWN_DISTANCE := 70.0
-const SPAWNS_PER_TICK := 2
+const TICK := CampaignBudgets.STREAM_TICK_SECONDS
+const DESPAWN_DISTANCE := CampaignBudgets.DESPAWN_DISTANCE
+const SPAWN_DISTANCE := CampaignBudgets.SPAWN_DISTANCE
+const SPAWNS_PER_TICK := CampaignBudgets.SPAWNS_PER_TICK
 ## Flow-field window for combat on the expanded station: it comfortably covers
 ## every actor that can be live (spawn 70 m / despawn 90 m) while keeping each
 ## rebuild proportional to the crowd instead of to the whole 864 x 672 m deck.
-const FLOW_RADIUS := 128.0
+const FLOW_RADIUS := CampaignBudgets.FLOW_FIELD_RADIUS
 var _definition: CampaignDefinition
 var _world: CampaignWorld
 var _player: Player
@@ -22,6 +22,7 @@ var _active: Dictionary = {}  # authored member id -> EnemyBase
 var _enabled := true
 var _clock := 0.0
 var _flow_cell := Vector2i(-2147483648, -2147483648)
+var _flow_revision := -1
 
 
 func configure(world: CampaignWorld, player: Player, defeated: Array[String]) -> void:
@@ -60,9 +61,11 @@ func stream_nearby() -> void:
 			actor.queue_free()
 			_active.erase(id)
 	var player_cell := _world.nav.to_cell(at)
-	if not _active.is_empty() and player_cell != _flow_cell:
+	var nav_revision := _world.nav.get_revision()
+	if not _active.is_empty() and (player_cell != _flow_cell or nav_revision != _flow_revision):
 		_world.nav.rebuild_flow_field(at, FLOW_RADIUS)
 		_flow_cell = player_cell
+		_flow_revision = nav_revision
 	var spawned := 0
 	for group in _definition.encounters:
 		var center := Vector3(group.center.x, 0.2, group.center.y)

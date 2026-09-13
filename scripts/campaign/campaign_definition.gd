@@ -6,7 +6,9 @@ const PATH := "res://data/campaign/station_zero.json"
 const WORLD_ID := "station_zero"
 ## Largest authored station the coarse 4 m navigation grid may hold. The real
 ## limit is the cell budget in ArenaNavGrid (40,960 cells), not the deck meshes.
-const WORLD_EXTENT_LIMIT := 1024.0
+const WORLD_EXTENT_LIMIT := CampaignBudgets.WORLD_EXTENT_LIMIT
+const MAX_FLOOR_REGIONS := CampaignBudgets.MAX_FLOOR_REGIONS
+const MAX_TABLE_ROWS := CampaignBudgets.MAX_TABLE_ROWS
 var title := "STATION ZERO"
 var bounds := Rect2(-432, -336, 864, 672)
 var floors: Array[Rect2] = []
@@ -15,8 +17,8 @@ var props: Array[CampaignProp] = []
 var encounters: Array[CampaignEncounter] = []
 var interactions: Array[CampaignInteraction] = []
 var missions: Array[CampaignMission] = []
-var max_active_enemies := 18
-var max_visible_sectors := 3
+var max_active_enemies := CampaignBudgets.MAX_ACTIVE_ENEMIES
+var max_visible_sectors := CampaignBudgets.MAX_VISIBLE_DISTRICTS
 var valid := false
 
 
@@ -40,8 +42,8 @@ func load_authored() -> bool:
 		floors.append(area)
 	_parse_sectors(raw["sectors"]); _parse_props(raw["props"]); _parse_encounters(raw["encounters"])
 	_parse_interactions(raw["interactions"]); _parse_missions(raw["missions"])
-	max_active_enemies = clampi(int(raw["max_active_enemies"]), 1, 18)
-	max_visible_sectors = clampi(int(raw["max_visible_sectors"]), 1, 3)
+	max_active_enemies = clampi(int(raw.get("max_active_enemies", CampaignBudgets.MAX_ACTIVE_ENEMIES)), 1, CampaignBudgets.MAX_ACTIVE_ENEMIES)
+	max_visible_sectors = clampi(int(raw.get("max_visible_sectors", CampaignBudgets.MAX_VISIBLE_DISTRICTS)), 1, CampaignBudgets.MAX_VISIBLE_DISTRICTS)
 	valid = true
 	return true
 
@@ -56,7 +58,7 @@ static func source_is_valid(raw: Dictionary) -> bool:
 		return false
 	if not raw.get("title") is String or not _numbers(raw.get("bounds"), 4):
 		return false
-	if not raw.get("floors") is Array or raw.floors.is_empty() or raw.floors.size() > 64:
+	if not raw.get("floors") is Array or raw.floors.is_empty() or raw.floors.size() > MAX_FLOOR_REGIONS:
 		return false
 	for area in raw.floors:
 		if not _numbers(area, 4) or not rect(area).has_area():
@@ -134,7 +136,7 @@ static func source_is_valid(raw: Dictionary) -> bool:
 
 
 static func _rows(value: Variant, required: Array) -> bool:
-	if not value is Array or value.is_empty() or value.size() > 512:
+	if not value is Array or value.is_empty() or value.size() > MAX_TABLE_ROWS:
 		return false
 	var ids: Array = []
 	for row in value:
