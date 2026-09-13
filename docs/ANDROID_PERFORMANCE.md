@@ -3,6 +3,108 @@
 Date: 2026-09-08. Baseline: `375137151fc3cf63a9034c1ff3f4c29b7a566a37`.
 Engine target: Godot **4.4.1**, Android ARM64, Mobile renderer.
 
+## Campaign hot-path pass (2026-09-13)
+
+The 6× station (864 × 672 m, 216 × 168 coarse nav cells) keeps its budgets —
+≤18 active enemies, ≤2 spawns per 0.3 s streaming tick, ≤3 visible district
+roots, 6,000-expansion A* cap with a 12 m route refresh, ≤40,960 nav cells —
+and this pass makes them single-sourced and removes the avoidable hot-path
+allocations found by audit. All of it is source-derived; no device numbers
+are claimed (no Godot binary or device in this workspace; GDScript verified
+offline only, awaiting CI godot-tests).
+
+### Flow-field rebuild: cache proven complete
+
+Audit #6's fix is complete and now revision-hardened. In
+`CampaignEncounters.stream_nearby()` the 128 m combat Dijkstra rebuild runs
+ONLY when `player_cell != _flow_cell or nav_revision != _flow_revision` (and
+actors are live); `ArenaNavGrid` bumps a new `_revision` counter once per
+successful `build()`/`build_world()` and exposes `get_revision()`, so a
+rebuilt grid invalidates the cache too. The one other rebuild site is the
+spawn event (`_spawn`), which a new reader legitimately needs; when the same
+tick already rebuilt for a cell change, the grid's own
+`tc == _flow_target and is_equal_approx(radius, _flow_radius)` no-op guard
+makes the spawn call free — at most ONE real rebuild per tick. Both
+invariants are pinned textually by `tests/python/test_campaign_budgets.py`.
+
+### Hot-path allocation removals (no behavior change)
+
+| Area | Before | After |
+|---|---|---|
+| Enemy chase/idle states | `String(cfg.ai_behavior)` copy per physics tick per enemy | StringName compare (`cfg.ai_behavior == &"ranged"`) |
+| FootPlant ground probe (player + every live enemy, per physics frame) | 3 × `PhysicsRayQueryParameters3D.create()` + 3 exclude Arrays + 1 offsets Array per body per frame | one shared static query + exclude list + const offsets (server reads parameters at `intersect_ray()` time — same pattern as `EnemyPack._sep_query`) |
+| District streaming (`CampaignWorld.update_visibility`, 4 Hz) | fresh `Array[Dictionary]` ranking + per-district Dictionaries + sort lambda per refresh | one per-district entry allocated at build, distances updated in place, cached sort Callable (the A* scratch-buffer pattern) |
+| Minimap/chart (`CampaignMap._draw`, ~7 Hz while HUD is up) | re-read sector/prop Dictionaries and re-parsed accent colors/label strings for 130+ rects per redraw | static world-space layout resolved once per `bind()`; redraws iterate packed arrays |
+| Streaming tick | `group.get("center", [])` built a throwaway empty Array per group per tick | `const EMPTY_CENTER` default; `String(member.id/type)` computed once per spawn; spawn serial resolved from a one-time Dictionary instead of allocating + scanning the 96-id list per spawn |
+| Camera rig touch handling | `String(STICK_GROUP)` copy per input event | StringName passed straight to `get_nodes_in_group` |
+
+Camera rig audit otherwise clean: the collision solver already reuses its
+query objects behind a spring-arm cache, and the combat-framing group scan is
+interval-throttled (`combat_check_interval`).
+
+### Budget single-sourcing
+
+`scripts/campaign/campaign_budgets.gd` (class `CampaignBudgets`) is now the
+ONE typed home for every budget above plus the streaming radii they justify.
+`CampaignDefinition`, `CampaignEncounters`, `CampaignDirector` and
+`ArenaNavGrid` keep their historic constant names as aliases of it;
+`tool/validate_campaign.py` mirrors the numbers for offline content checks;
+`tests/python/test_campaign_budgets.py` fails if ANY copy (runtime alias,
+validator mirror, or authored JSON) drifts. One real drift was found and
+fixed while doing this: `_update_route()` compared player travel against a
+literal `6.0` while the declared budget `ROUTE_REFRESH_DISTANCE` is 12 m —
+the guard now uses the constant, halving the campaign A* refresh rate. This
+is the one deliberate behavior delta: routes re-search after 12 m of player
+travel instead of 6 m (the route line and distance readout tolerate it; the
+target-moved threshold is unchanged).
+
+### Physics queries: done vs. deferred
+
+Done (trivially safe): the FootPlant query-object reuse above; note also
+that enemy steering already takes ZERO per-enemy physics queries — flow-field
+lookups and grid LOS walks replace them.
+
+Deferred — top 3 batching/caching candidates, each needs a device soak
+before it is justified, because each trades determinism or behavior for cost:
+
+1. **FootPlant ground height per nav cell.** Up to 57 rays/frame (player +
+   18 enemies × 3 offsets) all hit the same static decks on the campaign
+   world; a per-cell ground-height cache keyed on the nav revision would
+   collapse them to a handful of probes per cell crossing. NOT done yet:
+   arena mode has moving platforms (`AnimatableBody3D` velocity terms), so
+   the cache needs a mode-aware invalidation story first. Measure: Perfetto
+   physics-step slice + `PhysicsServer3D` query counts during a crowded
+   campaign encounter, before/after.
+2. **EnemyPack separation (`intersect_shape` per enemy per 0.12 s).** At the
+   18-actor cap that is ~150 shape queries/s; a single shared spatial-index
+   pass (`RadiusSpatialIndex` already exists) could produce the same push
+   from enemy positions alone. NOT done yet: steering output would change
+   (index vs. true shape overlap), so it needs a soak-test comparison of
+   pack spacing. Measure: physics time in the 18-actor encounter + visual
+   spacing A/B on device.
+3. **Camera whisker fan.** The solver casts 1 arm + N whiskers + 1 ground
+   probe per RENDER frame; already cached, but the whisker count is a lever
+   on low tier. NOT done yet: purely GPU/CPU-frame trade, no behavior risk.
+   Measure: render-frame CPU time and camera clip-through reports on the
+   low-tier device, whisker count A/B.
+
+### Re-verify on device
+
+```bash
+GODOT_BIN=/path/to/godot bash tool/profile_android.sh          # fresh + existing save lifecycle
+GODOT_BIN=/path/to/godot bash tool/profile_android.sh --low-tier
+```
+
+then the physical-device matrix below. Watch specifically: physics-step time
+in the first crowded encounter (FootPlant + separation), frame-time p95
+while the HUD minimap is visible (CampaignMap redraw), and route/A* cost in
+`CampaignDirector` after 12 m+ travel legs. Device-only unknowns, stated
+honestly: thermal soak behavior of the sustained 60 fps cap, GPU cost of
+MSAA/shadows/HDRI at native resolution, and actual nav-rebuild frame spikes
+on big-cell stations are all UNMEASURED here — this workspace has no engine
+and no device, so everything above is static-analysis + pinned regression
+evidence only.
+
 ## HD realism pass delta (same date)
 
 The presentation overhaul below keeps the Mobile renderer but raises quality:

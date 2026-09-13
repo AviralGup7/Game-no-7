@@ -54,7 +54,9 @@ func physics_update(host: EnemyBase, delta: float) -> void:
 	flat_offset.y = 0.0
 	var dist := flat_offset.length()
 	# Ranged archetypes orbit + volley instead of closing to melee.
-	if String(cfg.ai_behavior) == "ranged":
+	# StringName compare: ai_behavior is a StringName, so this avoids a String
+	# copy per physics tick per enemy.
+	if cfg.ai_behavior == &"ranged":
 		host.state_machine_change_to(&"ranged")
 		return
 	# Exploder: inside the fuse radius, plant and ignite instead of meleeing.

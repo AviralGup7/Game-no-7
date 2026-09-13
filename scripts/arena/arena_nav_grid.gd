@@ -28,16 +28,18 @@ const AGENT_MARGIN := 0.5
 const WALL_MARGIN := 0.75
 const INF := 1.0e9
 
-## Authored-campaign world budgets. The station is 864 x 672 m = 36,288 cells,
-## so the arrays stay under ~200 KB, but a full-grid Dijkstra would no longer
-## be free: rebuild_flow_field() bounds its expansion to the crowd around the
-## target and find_path() reuses its scratch buffers behind an expansion cap.
-const WORLD_EXTENT_LIMIT := 1024.0
-const WORLD_CELL_LIMIT := 40960
+## Authored-campaign world budgets, single-sourced in CampaignBudgets (the
+## drift is pinned by tests/python/test_campaign_budgets.py). The station is
+## 864 x 672 m = 36,288 cells, so the arrays stay under ~200 KB, but a
+## full-grid Dijkstra would no longer be free: rebuild_flow_field() bounds its
+## expansion to the crowd around the target and find_path() reuses its scratch
+## buffers behind an expansion cap.
+const WORLD_EXTENT_LIMIT := CampaignBudgets.WORLD_EXTENT_LIMIT
+const WORLD_CELL_LIMIT := CampaignBudgets.WORLD_CELL_LIMIT
 ## One-off A* budget. A route across the whole station expands a few thousand
 ## cells; the cap turns an unbounded search into a partial route instead of a
 ## dropped frame (see find_path).
-const ASTAR_EXPANSION_LIMIT := 6000
+const ASTAR_EXPANSION_LIMIT := CampaignBudgets.ASTAR_EXPANSION_LIMIT
 ## Waypoints the greedy string-puller may look ahead; bounds its LOS scans.
 const STRING_PULL_LOOKAHEAD := 24
 
@@ -52,6 +54,9 @@ var _flow_dist: PackedFloat32Array = PackedFloat32Array()
 var _flow_target := Vector2i(-1, -1)
 var _flow_radius := 0.0
 var _built := false
+## Monotonic blocker-mask revision: bumped once per successful build, so flow
+## consumers can detect a rebuilt mask without re-reading the grid.
+var _revision := 0
 var _world_min := Vector2(-12.0, -12.0)
 var _conservative_los := false
 # A* scratch, allocated once per grid size instead of once per query.
@@ -108,6 +113,7 @@ func build(half_extent: float, cell_size_value: float, blockers: Array[AABB]) ->
 		_mark_blocked(box.grow(AGENT_MARGIN))
 		obstacle_count += 1
 	_built = true
+	_revision += 1
 
 
 ## Coarse shared campaign navigation. Unauthored void is blocked, rather than
@@ -145,6 +151,7 @@ func build_world(bounds: Rect2, regions: Array[Rect2], blockers: Array[AABB]) ->
 	for box in blockers:
 		_mark_blocked(box.grow(AGENT_MARGIN + cell_size * 0.5))
 	_built = true
+	_revision += 1
 
 
 
@@ -170,6 +177,13 @@ func _mark_blocked(aabb: AABB) -> void:
 
 func is_built() -> bool:
 	return _built
+
+
+## Blocker-mask generation: changes exactly once per successful build. Flow
+## consumers cache it alongside their cached player cell so a rebuilt grid
+## invalidates their no-rebuild decision.
+func get_revision() -> int:
+	return _revision
 
 
 func to_cell(pos: Vector3) -> Vector2i:
@@ -512,6 +526,7 @@ func get_debug_snapshot() -> Dictionary:
 		"cells": width * depth,
 		"obstacles": obstacle_count,
 		"flow_target": _flow_target,
+		"revision": _revision,
 	}
 
 

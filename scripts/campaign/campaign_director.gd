@@ -10,7 +10,9 @@ const UPDATE_INTERVAL := 0.25
 ## Route refreshes are distance-throttled, not just time-throttled: on the
 ## expanded station an A* across the deck is the most expensive one-off query,
 ## so it only re-runs after the player has actually moved this far.
-const ROUTE_REFRESH_DISTANCE := 12.0
+## Single-sourced in CampaignBudgets; pinned by
+## tests/python/test_campaign_budgets.py.
+const ROUTE_REFRESH_DISTANCE := CampaignBudgets.ROUTE_REFRESH_DISTANCE
 var definition: CampaignDefinition
 var progress: Dictionary
 var encounters: CampaignEncounters
@@ -384,7 +386,9 @@ func _update_route() -> void:
 		route.clear()
 		return
 	var target_position := CampaignDefinition.point(target.at)
-	if _route_origin.is_finite() and _route_origin.distance_to(player.global_position) < 6.0 and _route_target == String(target.id) and _route_target_position.distance_to(target_position) < 4.0:
+	# The 12 m player-travel threshold is ROUTE_REFRESH_DISTANCE (a literal
+	# 6.0 here once drifted from the declared budget and doubled the A* rate).
+	if _route_origin.is_finite() and _route_origin.distance_to(player.global_position) < ROUTE_REFRESH_DISTANCE and _route_target == String(target.id) and _route_target_position.distance_to(target_position) < 4.0:
 		return
 	_route_origin = player.global_position
 	_route_target = String(target.id)

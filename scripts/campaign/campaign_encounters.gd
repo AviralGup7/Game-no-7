@@ -5,23 +5,34 @@ extends Node
 
 signal member_defeated(spawn_id: String, credits: int)
 const COMMANDER_SCENE := preload("res://scenes/campaign/security_commander.tscn")
-const TICK := 0.3
-const DESPAWN_DISTANCE := 90.0
-const SPAWN_DISTANCE := 70.0
-const SPAWNS_PER_TICK := 2
+## Streaming/flow budgets, single-sourced in CampaignBudgets; the drift is
+## pinned by tests/python/test_campaign_budgets.py.
+const TICK := CampaignBudgets.STREAM_TICK_SECONDS
+const DESPAWN_DISTANCE := CampaignBudgets.DESPAWN_DISTANCE
+const SPAWN_DISTANCE := CampaignBudgets.SPAWN_DISTANCE
+const SPAWNS_PER_TICK := CampaignBudgets.SPAWNS_PER_TICK
 ## Flow-field window for combat on the expanded station: it comfortably covers
 ## every actor that can be live (spawn 70 m / despawn 90 m) while keeping each
 ## rebuild proportional to the crowd instead of to the whole 864 x 672 m deck.
-const FLOW_RADIUS := 128.0
+const FLOW_RADIUS := CampaignBudgets.FLOW_FIELD_RADIUS
+## Authoring omits no "center" today, but the default must not allocate an
+## Array per group per tick when the key is present.
+const EMPTY_CENTER: Array = []
 var _definition: CampaignDefinition
 var _world: CampaignWorld
 var _player: Player
 var _progress: Dictionary
 var _actors: Node3D
 var _active: Dictionary = {}  # authored member id -> EnemyBase
+var _spawn_serials: Dictionary = {}  # authored member id -> spawn serial
 var _enabled := true
 var _clock := 0.0
+## Flow-field rebuild cache: the field is rebuilt ONLY when the player's nav
+## cell changes, the nav mask revision changes, or a spawn forces it (see
+## _spawn). A plain per-tick rebuild of the 128 m Dijkstra window is what
+## audit #6 removed; the revision check also catches a rebuilt grid.
 var _flow_cell := Vector2i(-2147483648, -2147483648)
+var _flow_revision := -1
 
 
 func configure(world: CampaignWorld, player: Player, progress: Dictionary) -> void:
@@ -32,6 +43,11 @@ func configure(world: CampaignWorld, player: Player, progress: Dictionary) -> vo
 	_actors = Node3D.new()
 	_actors.name = "ActiveEncounterActors"
 	add_child(_actors)
+	# Spawn serials are fixed by the authored table; resolve them once instead
+	# of allocating + scanning the 96-id list on every spawn.
+	var serials := _definition.spawn_ids()
+	for index in range(serials.size()):
+		_spawn_serials[serials[index]] = index
 	EventBus.enemy_killed.connect(_on_enemy_killed)
 
 
@@ -59,13 +75,20 @@ func stream_nearby() -> void:
 			actor.process_mode = Node.PROCESS_MODE_DISABLED
 			actor.queue_free()
 			_active.erase(id)
+	# Rebuild the flow field ONLY on a player cell change or a nav-mask
+	# revision change; a spawn is the one other legitimate cause and rebuilds
+	# itself (see _spawn). The nav grid additionally no-ops a rebuild whose
+	# target cell/radius already matches, so a spawn in the same tick as a
+	# cell change cannot run the Dijkstra twice.
 	var player_cell := _world.nav.to_cell(at)
-	if not _active.is_empty() and player_cell != _flow_cell:
+	var nav_revision := _world.nav.get_revision()
+	if not _active.is_empty() and (player_cell != _flow_cell or nav_revision != _flow_revision):
 		_world.nav.rebuild_flow_field(at, FLOW_RADIUS)
 		_flow_cell = player_cell
+		_flow_revision = nav_revision
 	var spawned := 0
 	for group in _definition.encounters:
-		var center_data: Array = group.get("center", [])
+		var center_data: Array = group.get("center", EMPTY_CENTER)
 		var center := Vector3(float(center_data[0]), 0.2, float(center_data[1]))
 		if center.distance_to(at) > float(group.activate_radius):
 			continue
@@ -83,28 +106,33 @@ func stream_nearby() -> void:
 
 
 func _spawn(member: Dictionary) -> bool:
-	if _active.size() >= _definition.max_active_enemies or _active.has(String(member.id)) or String(member.id) in _progress.defeated:
+	var id := String(member.id)
+	if _active.size() >= _definition.max_active_enemies or _active.has(id) or id in _progress.defeated:
 		return false
-	var config := ContentRegistry.get_enemy(StringName(String(member.type)))
+	var type := String(member.type)
+	var config := ContentRegistry.get_enemy(StringName(type))
 	if config == null or config.scene == null:
-		EventBus.report_error("Campaign enemy resource is missing: %s" % String(member.type))
+		EventBus.report_error("Campaign enemy resource is missing: %s" % type)
 		return false
-	var scene := COMMANDER_SCENE if String(member.type) == "warlord" else config.scene
+	var scene := COMMANDER_SCENE if type == "warlord" else config.scene
 	var root := scene.instantiate()
 	if not root is EnemyBase:
 		root.free()
 		EventBus.report_error("Campaign encounter scene is not an EnemyBase")
 		return false
 	var actor := root as EnemyBase
-	actor.name = String(member.id)
+	actor.name = id
 	_actors.add_child(actor)
 	actor.global_position = _safe_spawn_position(CampaignDefinition.point(member.at))
 	actor.reset_physics_interpolation()
 	actor.set_bounds(_definition.containment_half())
 	actor.initialize(config, _player, 0)
-	actor.set_spawn_serial(_definition.spawn_ids().find(String(member.id)))
+	actor.set_spawn_serial(int(_spawn_serials.get(id, -1)))
 	actor.set_nav_grid(_world.nav)
-	_active[String(member.id)] = actor
+	_active[id] = actor
+	# A new reader needs a current field. When this tick already rebuilt for a
+	# player cell change, the grid's same-cell/same-radius guard makes this a
+	# no-op instead of a second Dijkstra.
 	_world.nav.rebuild_flow_field(_player.global_position, FLOW_RADIUS)
 	EventBus.enemy_spawned.emit(actor, config.archetype_id)
 	var boss := actor.get_boss_controller()

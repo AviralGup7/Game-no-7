@@ -12,6 +12,12 @@ var _visible_ids: Array[String] = []
 var _solids: Array[AABB] = []
 # Service causeways / ring decks: rendered, distance-culled, never simulated.
 var _connectors: Array[Dictionary] = []
+# Visibility-ranking scratch: one entry per district, allocated once at build
+# and reused by every update_visibility() refresh (the same scratch-buffer
+# pattern ArenaNavGrid uses for A*), so the streaming tick allocates no
+# Dictionaries and builds no sort lambda per refresh.
+var _rank_entries: Array[Dictionary] = []
+var _rank_by_distance: Callable = func(a: Dictionary, b: Dictionary) -> bool: return float(a.distance) < float(b.distance)
 
 
 func build(authored: CampaignDefinition) -> bool:
@@ -40,6 +46,7 @@ func build(authored: CampaignDefinition) -> bool:
 		_render_perimeter_wall(rails, wall, rail_mat)
 	for sector in definition.sectors:
 		_build_district(sector)
+		_rank_entries.append({"id": String(sector.id), "area": CampaignDefinition.rect(sector.rect), "distance": INF})
 	# Connector decks are distance-culled like districts: at 6x the station size
 	# they are most of the always-drawn geometry, and the depth fog hides them
 	# long before their culling distance. Collision stays merged and loaded.
@@ -217,15 +224,15 @@ func update_markers(interacted: Array, targets: Array) -> void:
 
 
 func update_visibility(at: Vector3) -> void:
-	var ranked: Array[Dictionary] = []
-	for sector in definition.sectors:
-		var area := CampaignDefinition.rect(sector.rect)
+	var px := Vector2(at.x, at.z)
+	for entry in _rank_entries:
+		var area: Rect2 = entry.area
 		var nearest := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
-		ranked.append({"id": String(sector.id), "distance": nearest.distance_to(Vector2(at.x, at.z))})
-	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.distance) < float(b.distance))
+		entry.distance = nearest.distance_to(px)
+	_rank_entries.sort_custom(_rank_by_distance)
 	_visible_ids.clear()
-	for i in range(ranked.size()):
-		var entry := ranked[i]
+	for i in range(_rank_entries.size()):
+		var entry := _rank_entries[i]
 		var shown := i < definition.max_visible_sectors and float(entry.distance) < 105.0
 		var visual: Node3D = _visuals[entry.id]
 		visual.visible = shown

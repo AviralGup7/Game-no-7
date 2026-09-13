@@ -8,6 +8,15 @@ var director: CampaignDirector
 var compact := false
 var _chart := Rect2()
 var _scale := 1.0
+## Static chart geometry resolved once per bind(): the definition is immutable
+## for the whole session, so redraws (~7 Hz while the HUD minimap is up)
+## iterate packed world-space values instead of re-reading Dictionaries and
+## re-parsing accent colors/label strings for 130+ rects every redraw.
+var _sector_areas: Array[Rect2] = []
+var _sector_accents: Array[Color] = []
+var _sector_names: Array[String] = []
+var _sector_checkpoints: Array[Vector2] = []
+var _prop_areas: Array[Rect2] = []
 
 
 func _ready() -> void:
@@ -18,11 +27,36 @@ func _ready() -> void:
 func bind(authored: CampaignDefinition, session: CampaignDirector = null) -> void:
 	definition = authored
 	director = session
+	_resolve_static_layout()
 	queue_redraw()
+
+
+func _resolve_static_layout() -> void:
+	_sector_areas.clear()
+	_sector_accents.clear()
+	_sector_names.clear()
+	_sector_checkpoints.clear()
+	_prop_areas.clear()
+	if definition == null:
+		return
+	for sector in definition.sectors:
+		_sector_areas.append(CampaignDefinition.rect(sector.rect))
+		_sector_accents.append(Color(String(sector.accent)))
+		_sector_names.append(String(sector.id).to_upper())
+		var checkpoint := CampaignDefinition.point(sector.checkpoint)
+		_sector_checkpoints.append(Vector2(checkpoint.x, checkpoint.z))
+	for prop in definition.props:
+		var at := CampaignDefinition.point(prop.at)
+		var extent := CampaignDefinition.point(prop.size)
+		_prop_areas.append(Rect2(at.x - extent.x * 0.5, at.z - extent.z * 0.5, extent.x, extent.z))
 
 
 func _project(point: Vector3) -> Vector2:
 	return _chart.position + (Vector2(point.x, point.z) - definition.bounds.position) * _scale
+
+
+func _project_world(point: Vector2) -> Vector2:
+	return _chart.position + (point - definition.bounds.position) * _scale
 
 
 func _rect(area: Rect2) -> Rect2:
@@ -38,19 +72,16 @@ func _draw() -> void:
 	_chart = Rect2((size - definition.bounds.size * _scale) * 0.5, definition.bounds.size * _scale)
 	for area in definition.floors:
 		draw_rect(_rect(area), Color(0.16, 0.25, 0.32))
-	for sector in definition.sectors:
-		var accent := Color(String(sector.accent))
-		var area := _rect(CampaignDefinition.rect(sector.rect))
+	for i in range(_sector_areas.size()):
+		var accent := _sector_accents[i]
+		var area := _rect(_sector_areas[i])
 		draw_rect(area, accent.darkened(0.8))
 		draw_rect(area, accent.darkened(0.4), false, 1.0)
 		if not compact and UiTheme.bold_font != null:
-			draw_string(UiTheme.bold_font, area.position + Vector2(24, 18), String(sector.id).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, area.size.x - 32, 16, accent)
-		var checkpoint := _project(CampaignDefinition.point(sector.checkpoint))
-		draw_arc(checkpoint, 3.0 if compact else 5.0, 0, TAU, 16, UiTheme.HEALTH, 1.5)
-	for prop in definition.props:
-		var at := CampaignDefinition.point(prop.at)
-		var extent := CampaignDefinition.point(prop.size)
-		draw_rect(_rect(Rect2(at.x - extent.x * 0.5, at.z - extent.z * 0.5, extent.x, extent.z)), Color(0.26, 0.34, 0.41))
+			draw_string(UiTheme.bold_font, area.position + Vector2(24, 18), _sector_names[i], HORIZONTAL_ALIGNMENT_LEFT, area.size.x - 32, 16, accent)
+		draw_arc(_project_world(_sector_checkpoints[i]), 3.0 if compact else 5.0, 0, TAU, 16, UiTheme.HEALTH, 1.5)
+	for prop_area in _prop_areas:
+		draw_rect(_rect(prop_area), Color(0.26, 0.34, 0.41))
 	if not is_instance_valid(director) or not is_instance_valid(director.player):
 		return
 	_draw_route()
