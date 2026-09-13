@@ -37,6 +37,9 @@ ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with erro
 ERROR: LSP: Failed to parse script: res://tests/verify_campaign_inner.gd
 Invalid argument for "_spawn()" function: argument 1 should be "CampaignMember" but is "Dictionary".
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
+ERROR: LSP: Failed to parse script: res://tests/campaign_runtime/campaign_runtime_inner.gd
+Cannot find member "volume" in base "AABB".
+   at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
 ERROR: LSP: Failed to parse script: res://scripts/campaign/campaign_map.gd
 No constructor of "String" matches the signature "String(Color)".
    at: reload_all_workspace_scripts (modules/gdscript/language_server/gdscript_workspace.cpp:201)
