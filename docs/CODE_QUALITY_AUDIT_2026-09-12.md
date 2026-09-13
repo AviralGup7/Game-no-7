@@ -1,5 +1,9 @@
 # Manual Code-Quality and Bug Audit — 2026-09-12
 
+> **Historical snapshot.** The 1,138 Python tests / 175 resources below were
+> executed on 2026-09-12. Do not rewrite them. Live tooling: [AGENTS.md](AGENTS.md)
+> / [README.md](README.md).
+
 Scope: manual review across campaign composition, world/geometry, encounters, persistence, routing, events, UI, combat-facing integration, resources, tests, and repository structure. This is a source audit, not proof from Android hardware. Findings are classified as **bug**, **high-confidence defect risk**, or **maintainability/performance debt** so speculation is not presented as a reproduced crash.
 
 ## Executive summary

@@ -539,7 +539,7 @@ python3 tool/check_typed_arch.py   # architecture gate
 python3 tool/validate_guards.py    # real-guard contract
 ```
 
-`check_typed_arch.py` (every `class_name` in `scripts/` + the 8 autoloads checked):
+`check_typed_arch.py` (every `class_name` in `scripts/` + the 9 autoloads checked):
 
 1. Bans string dispatch: `.call("...")` with a literal first argument, and
    `has_method(` — except one allowlisted assertion in `test_harness.gd`

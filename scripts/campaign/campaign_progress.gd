@@ -41,10 +41,11 @@ static func normalize(value: Variant) -> Dictionary:
 ## Reconcile disk identifiers against the current authored ledger. The contiguous
 ## completed objective IDs are authoritative, so an out-of-range/stale cursor
 ## cannot skip the story or hide an already-marked future console forever.
-static func reconcile(value: Variant, definition: CampaignDefinition) -> Dictionary:
-	var result := normalize(value)
+static func reconcile(value: Variant, definition: CampaignDefinition) -> CampaignProgressState:
+	var normalized := normalize(value)
+	var result := _state(normalized)
 	if definition == null or not definition.valid:
-		return defaults()
+		return _state(defaults())
 	var members := definition.spawn_ids()
 	var interactions: Array[String] = []
 	var sectors: Array[String] = []
@@ -94,4 +95,14 @@ static func _ids(value: Variant, limit: int, unique: bool = true) -> Array:
 				break
 			if (item is String or item is StringName) and not String(item).is_empty() and String(item).length() <= 64 and (not unique or String(item) not in result):
 				result.append(String(item))
+	return result
+
+
+static func _state(value: Dictionary) -> CampaignProgressState:
+	var result := CampaignProgressState.new()
+	result.version = int(value.version); result.world_id = String(value.world_id); result.started = bool(value.started)
+	result.checkpoint = String(value.checkpoint); result.mission = int(value.mission); result.completed = bool(value.completed)
+	result.defeated.assign(value.defeated); result.interacted.assign(value.interacted); result.visited.assign(value.visited)
+	result.upgrades = value.upgrades.duplicate(true); result.weapons.assign(value.weapons); result.active_weapon = String(value.active_weapon)
+	result.skills.assign(value.skills); result.xp = int(value.xp)
 	return result

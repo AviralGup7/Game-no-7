@@ -11,6 +11,35 @@
   loader still ignores `*.tmp`.
 - Save schema remains v8 / additive. GDScript verified offline only; awaiting CI
   godot-tests.
+## [Unreleased] — Docs, licensing and release tooling match reality (2026-09-13)
+
+- Re-derive operational numeric claims from live offline tools: campaign
+  validation **1,262** Python tests (was 1,147), HARDENING python count **1,262**
+  (was 1,164), ARCHITECTURE **9 autoloads** (was “8”), DEVICE_QA **twelve
+  districts / thirteen missions** (was six / seven).
+- Add correction banners to mixed-era geometry/visual audits and historical
+  snapshot banners to dated audits. Executed counts in those files are not
+  rewritten.
+- Document Kenney Space Station Kit and first-party trees in
+  `THIRD_PARTY_ASSETS.md`; add `ASSET_LICENSES/station-environment.md` and
+  `ui-chrome.md`. Python license-mapping test walks `assets/` + `data/` media
+  and fails on an unmapped file.
+- Add `docs/AGENTS.md` (11 gates, no-Godot rule, CI, licensing) and
+  `docs/README.md` (index of every `docs/` file). README gains **Known
+  limitations** and points at both.
+- Confirm `export_presets.cfg` == `.example` and version `0.7.0` / code 4 match
+  `project.godot`. Document the launcher-name abbreviation (`Station Zero` vs
+  `Last Stand: Station Zero`) and the CI APK size-report command (no local APK).
+  Draft `docs/RELEASE_NOTES_TEMPLATE.md`.
+
+## [Unreleased] — Typed Station Zero campaign boundary (2026-09-13)
+
+- Replaced the mutable campaign content `Dictionary` graph with typed `RefCounted` records for sectors, landmarks, interactions, encounters, members, missions, rewards, connector presentation, and campaign progress. Every authored record field documents its matching JSON key.
+- Kept `CampaignDefinition` as the single Station Zero JSON parse point. It validates the raw authoring document before constructing the typed graph and emits an actionable hard diagnostic when runtime structure or world bounds are invalid.
+- Made `CampaignDirector` the sole campaign-progress mutation authority. `CampaignEncounters` now receives a private defeated-ID snapshot and emits a typed defeat event; the director records and persists that event through the existing save interface.
+- Updated campaign world, geometry, map, UI, encounter, and native validation call sites to consume typed records. The campaign JSON schema, save schema v8, collision contract, and three byte-identical world-budget constants are unchanged.
+- Added `test_regress_campaign_typed.py` to pin JSON-to-record field parity, the single-loader invariant, typed graph declarations, director-owned defeat mutation, and the existing world extent budget.
+- GDScript behavior is **verified offline only; awaiting CI `godot-tests`** because Godot 4.4.1 and gdlint are unavailable in this sandbox. Python and all available static/resource gates pass.
 
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 

@@ -4,9 +4,16 @@ Reviewed **10 September 2026** · Godot 4.4.1 · 3D third-person · Android
 
 **256 checksum-locked files, 49.80 MiB: 94 models, 87 PNGs, 4 JPGs, 3 HDRIs,
 34 audio clips, 2 fonts, 14 binary mesh dependencies and 18 licence/credit notices.**
+That 10 September snapshot is kept as the catalogue's original inventory sentence
+(`tests/python/test_regress_arena_art.py` pins it). **13 September 2026 live lock:**
+**265 checksum-locked files, 49.89 MiB** in `assets/manifest.json` (includes Kenney
+Space Station Kit). `python3 tool/validate_assets.py` over `assets/` + `data/`:
+**128** 3D models, **135** PNGs, **46** audio files, **2** fonts. Project-authored
+trees (Warden, scifi shooter kit, skill foci, ceiling/ground/wall modules, enemy
+telegraph WAVs, UI chrome previews) are **not** in the download lock; they are
+mapped in [THIRD_PARTY_ASSETS.md](../THIRD_PARTY_ASSETS.md).
 In addition, the project-authored Warden bundle has **5 derived files / 4.93 MiB**:
-2 GLBs and 3 shared PNG maps (now **96 models** in the combined inventory).
-Its independent recipe/input/output hash lock is
+2 GLBs and 3 shared PNG maps. Its independent recipe/input/output hash lock is
 `assets/characters/warden/build_report.json`; upstream downloads stay untouched.
 
 See [the audit](ASSET_AUDIT.md) for additions, online comparisons and limitations.

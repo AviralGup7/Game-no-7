@@ -1,5 +1,9 @@
 # Project audit — 2026-09-11
 
+> **Historical snapshot.** Native and Python counts below are from 2026-09-11.
+> Do not rewrite them to match later suites. Live tooling: [AGENTS.md](AGENTS.md)
+> / [README.md](README.md).
+
 > **Android follow-up (2026-09-12):** see [ANDROID_HARDENING.md](ANDROID_HARDENING.md).
 > The native counts below describe the September 11 revision, not validation of
 > the later Android input/lifecycle changes. The shipping project uses Mobile;

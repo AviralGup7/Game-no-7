@@ -1,5 +1,9 @@
 # Asset audit and quality upgrade — 8 September 2026
 
+> **Historical snapshot.** The 222/222 locks and 37 Python tests below were
+> executed on 2026-09-08. Do not rewrite them. Live inventory:
+> [ASSET_CATALOG.md](ASSET_CATALOG.md). Live tooling: [AGENTS.md](AGENTS.md).
+
 ## Hero follow-up — 9 September 2026
 
 The hero-only rig deferral below is now addressed with **project-authored Arena
