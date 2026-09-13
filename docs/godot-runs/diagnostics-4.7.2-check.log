@@ -507,7 +507,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
           at: GDScript::reload (res://scripts/campaign/campaign_director.gd:40)
 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
-          at: GDScript::reload (res://scripts/player/player.gd:110)
+          at: GDScript::reload (res://scripts/player/player.gd:117)
 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
           at: GDScript::reload (res://scripts/campaign/campaign_map.gd:0)
 ERROR: Failed to load script "res://scripts/campaign/campaign_map.gd" with error "Compilation failed".
@@ -2658,6 +2658,30 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://scripts/weapons/weapon_manager.gd:105)
 ERROR: Failed to load script "res://scripts/weapons/weapon_manager.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/campaign_runtime/campaign_runtime_inner.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
+SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:183)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:182)
+SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:281)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:374)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:380)
+SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
+SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
+          at: GDScript::reload (res://tests/campaign_runtime/campaign_runtime_inner.gd:431)
+ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/campaign_runtime_stages.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://tests/doubles/audio_probe.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -2802,6 +2826,9 @@ SCRIPT ERROR: Compile Error: Identifier not found: EventBus
           at: GDScript::reload (res://tests/regress_upgrades_inner.gd:28)
 ERROR: Failed to load script "res://tests/regress_upgrades_inner.gd" with error "Compilation failed".
    at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+===== res://tests/run_campaign_runtime.gd
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
 ===== res://tests/run_player_tests.gd
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
