@@ -198,7 +198,16 @@
   member declaration, so `tests/python/test_regress_manager_component_splits.py` now scans every
   `.gd` file under `scripts/` and `tests/` for duplicate class-level declarations (scope-aware,
   with a self-check that it catches the bug it guards, and validated against the two pre-fix
-  files). The diagnostics workflow re-run on this commit is the confirmation step.
+  files). Confirmed by the diagnostics workflow re-runs on `8974c13`/`eae3448`: the 4.7.2
+  headless suite is back to `GDScript tests: 1663 total, 0 failed` (pre-split baseline was
+  1655/0; the extra cases are the new compile-smoke entries in
+  `tests/unit/test_presentation_scripts.gd`), no parse or compile error points at a refactored
+  file, and the four LSP warnings the run had surfaced on the new modules are gone (three
+  signal exemptions plus the `tint` shadow, fixed in the follow-up commit). Residual, not a
+  failure: the same run reports `WARNING: 10 ObjectDB instances were leaked at exit` and
+  `ERROR: 1 resources still in use at exit` — the WAE run already reported both before the
+  split, no test fails, and naming the objects needs `--verbose` engine output, so it stays an
+  open follow-up rather than a silent pass.
 - Refresh the measured Python-test counts in `docs/HARDENING.md` and `docs/campaign/README.md`
   to the suite's current total (1,290) — the doc-count guard re-derives them from the suite and
   had drifted from the merged tip's 1,280.
