@@ -5,11 +5,49 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
 [  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
 [  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+SCRIPT ERROR: Parse Error: Could not resolve class "EnemyPresentation", because of a parser error.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "_presentation" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:97)
+SCRIPT ERROR: Parse Error: Could not parse global class "EnemyPresentation" from "res://scripts/enemies/enemy_presentation.gd".
+          at: GDScript::reload (res://scripts/enemies/enemy_base.gd:206)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_effect.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/status/status_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/damageable.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/combat/area_damage.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_config.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/hazard_placement.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/arena/arena_config.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/core/content_registry.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/meta/prestige.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_schema.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/save/save_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/audio/audio_manager.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/ui/ui_factory.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_overlay.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/debug/debug_error_handler.gd:0)
+ERROR: Failed to load script "res://scripts/debug/debug_error_handler.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (314 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (336 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | Arena[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | ArenaConfig[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | ArenaDecorator[39m[0m
@@ -20,22 +58,24 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [   2% ] [90m[1mupdate_scripts_classes[22m | ArenaNavGrid[39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | ArenaObstacles[39m[0m
 [   2% ] [90m[1mupdate_scripts_classes[22m | ArenaObstaclePlacement[39m[0m
-[   3% ] [90m[1mupdate_scripts_classes[22m | ArenaThemeConfig[39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | ArenaThemeConfig[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | ArenaWarehouseYard[39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | DecoratorProps[39m[0m
 [   3% ] [90m[1mupdate_scripts_classes[22m | DungeonGenerator[39m[0m
-[   3% ] [90m[1mupdate_scripts_classes[22m | HazardConfig[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | HazardConfig[39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | HazardInstance[39m[0m
 [   4% ] [90m[1mupdate_scripts_classes[22m | HazardMarker[39m[0m
-[   4% ] [90m[1mupdate_scripts_classes[22m | HazardModeLayout[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | HazardModeLayout[39m[0m
 [   5% ] [90m[1mupdate_scripts_classes[22m | HazardPlacement[39m[0m
 [   5% ] [90m[1mupdate_scripts_classes[22m | TorchFlicker[39m[0m
 [   5% ] [90m[1mupdate_scripts_classes[22m | AudioAssetIntegrator[39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | AudioConfig[39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [   6% ] [90m[1mupdate_scripts_classes[22m | MixSnapshot[39m[0m
-[   6% ] [90m[1mupdate_scripts_classes[22m | MusicManager[39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | MusicManager[39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | ProceduralSfx[39m[0m
 [   7% ] [90m[1mupdate_scripts_classes[22m | SfxPolicy[39m[0m
-[   7% ] [90m[1mupdate_scripts_classes[22m | SpatialAttenuation[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | SpatialAttenuation[39m[0m
 [   8% ] [90m[1mupdate_scripts_classes[22m | SpatialVoicePool[39m[0m
 [   8% ] [90m[1mupdate_scripts_classes[22m | VoiceBank[39m[0m
 [   8% ] [90m[1mupdate_scripts_classes[22m | CampaignArmory[39m[0m
@@ -45,217 +85,233 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  10% ] [90m[1mupdate_scripts_classes[22m | CampaignDirector[39m[0m
 [  10% ] [90m[1mupdate_scripts_classes[22m | CampaignEncounter[39m[0m
 [  10% ] [90m[1mupdate_scripts_classes[22m | CampaignEncounters[39m[0m
-[  11% ] [90m[1mupdate_scripts_classes[22m | CampaignGame[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | CampaignGame[39m[0m
 [  11% ] [90m[1mupdate_scripts_classes[22m | CampaignGeometry[39m[0m
 [  11% ] [90m[1mupdate_scripts_classes[22m | CampaignHud[39m[0m
-[  12% ] [90m[1mupdate_scripts_classes[22m | CampaignInteraction[39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | CampaignInteraction[39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | CampaignMap[39m[0m
 [  12% ] [90m[1mupdate_scripts_classes[22m | CampaignMember[39m[0m
-[  13% ] [90m[1mupdate_scripts_classes[22m | CampaignMission[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | CampaignMission[39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | CampaignProgress[39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | CampaignProgressState[39m[0m
 [  13% ] [90m[1mupdate_scripts_classes[22m | CampaignProp[39m[0m
-[  14% ] [90m[1mupdate_scripts_classes[22m | CampaignReward[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | CampaignReward[39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | CampaignSector[39m[0m
 [  14% ] [90m[1mupdate_scripts_classes[22m | CampaignUI[39m[0m
-[  15% ] [90m[1mupdate_scripts_classes[22m | CampaignWorld[39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | CampaignWorld[39m[0m
 [  15% ] [90m[1mupdate_scripts_classes[22m | AreaDamage[39m[0m
 [  15% ] [90m[1mupdate_scripts_classes[22m | CombatLog[39m[0m
-[  16% ] [90m[1mupdate_scripts_classes[22m | CombatQuery[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | CombatQuery[39m[0m
 [  16% ] [90m[1mupdate_scripts_classes[22m | CriticalSystem[39m[0m
 [  16% ] [90m[1mupdate_scripts_classes[22m | Damageable[39m[0m
-[  17% ] [90m[1mupdate_scripts_classes[22m | DamagePayload[39m[0m
-[  17% ] [90m[1mupdate_scripts_classes[22m | DamageResult[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DamagePayload[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | DamageResult[39m[0m
 [  17% ] [90m[1mupdate_scripts_classes[22m | HitstopManager[39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | CollisionLayers[39m[0m
-[  18% ] [90m[1mupdate_scripts_classes[22m | ContentLoader[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | CollisionLayers[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | ContentLoader[39m[0m
 [  18% ] [90m[1mupdate_scripts_classes[22m | ContentRegistryService[39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | EventBindings[39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | EventBusService[39m[0m
-[  19% ] [90m[1mupdate_scripts_classes[22m | GameRootService[39m[0m
-[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  20% ] [90m[1mupdate_scripts_classes[22m | RunIsolation[39m[0m
-[  20% ] [90m[1mupdate_scripts_classes[22m | RunScorekeeper[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | EventBindings[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | EventBusService[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | GameRootService[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | RunIsolation[39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | RunScorekeeper[39m[0m
 [  20% ] [90m[1mupdate_scripts_classes[22m | RunState[39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  21% ] [90m[1mupdate_scripts_classes[22m | UpgradeService[39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | ValidatedConfig[39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | DebugErrorHandlerService[39m[0m
-[  22% ] [90m[1mupdate_scripts_classes[22m | DebugErrorOverlay[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | DebugLogBuffer[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | DebugModeToggle[39m[0m
-[  23% ] [90m[1mupdate_scripts_classes[22m | ErrorReport[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | BossController[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | BossPhaseConfig[39m[0m
-[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyAnimator[39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyAttackState[39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyAudio[39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyBase[39m[0m
-[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyChaseState[39m[0m
-[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyClipCatalog[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | ValidatedConfig[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | DebugErrorHandlerService[39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | DebugErrorOverlay[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | DebugLogBuffer[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | DebugModeToggle[39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | ErrorReport[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | BossController[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | BossPhaseConfig[39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | EnemyAnimator[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyAttackState[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyAudio[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyBase[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | EnemyBrain[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyChaseState[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyClipCatalog[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | EnemyCombatResponse[39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | EnemyConfig[39m[0m
 [  26% ] [90m[1mupdate_scripts_classes[22m | EnemyDashState[39m[0m
-[  27% ] [90m[1mupdate_scripts_classes[22m | EnemyDeadState[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | EnemyDeadState[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | EnemyDebugView[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | EliteAffix[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | EnemyEliteKit[39m[0m
 [  27% ] [90m[1mupdate_scripts_classes[22m | EnemyFeedback[39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | EnemyFuseState[39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | EnemyHurtState[39m[0m
 [  28% ] [90m[1mupdate_scripts_classes[22m | EnemyIdleState[39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | EnemyLocomotion[39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | EnemyMotion[39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | EnemyNavigator[39m[0m
 [  29% ] [90m[1mupdate_scripts_classes[22m | EnemyPack[39m[0m
 [  30% ] [90m[1mupdate_scripts_classes[22m | EnemyPerception[39m[0m
 [  30% ] [90m[1mupdate_scripts_classes[22m | EnemyPersonality[39m[0m
-[  30% ] [90m[1mupdate_scripts_classes[22m | EnemyRangedState[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | EnemyPresentation[39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | EnemyRangedState[39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | EnemyState[39m[0m
 [  31% ] [90m[1mupdate_scripts_classes[22m | EnemyStateMachine[39m[0m
-[  31% ] [90m[1mupdate_scripts_classes[22m | EnemyStriker[39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | EnemyStriker[39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | SpawnLedger[39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | SpawnManager[39m[0m
 [  32% ] [90m[1mupdate_scripts_classes[22m | SpawnPatterns[39m[0m
 [  33% ] [90m[1mupdate_scripts_classes[22m | SpawnPlacer[39m[0m
 [  33% ] [90m[1mupdate_scripts_classes[22m | CameraAutoFollowController[39m[0m
 [  33% ] [90m[1mupdate_scripts_classes[22m | CameraCollisionSolver[39m[0m
-[  33% ] [90m[1mupdate_scripts_classes[22m | CameraFocusTracker[39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | CameraFocusTracker[39m[0m
 [  34% ] [90m[1mupdate_scripts_classes[22m | CameraFovController[39m[0m
 [  34% ] [90m[1mupdate_scripts_classes[22m | CameraFramingController[39m[0m
-[  34% ] [90m[1mupdate_scripts_classes[22m | CameraInputHandler[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | CameraHitstopLocator[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | CameraInputHandler[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | CameraLockOnController[39m[0m
 [  35% ] [90m[1mupdate_scripts_classes[22m | CameraMath[39m[0m
-[  35% ] [90m[1mupdate_scripts_classes[22m | CameraModeController[39m[0m
-[  35% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitController[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | CameraModeController[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitController[39m[0m
 [  36% ] [90m[1mupdate_scripts_classes[22m | CameraOrbitState[39m[0m
-[  36% ] [90m[1mupdate_scripts_classes[22m | CameraShakeController[39m[0m
-[  36% ] [90m[1mupdate_scripts_classes[22m | CameraVelocityTracker[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | CameraRigDebug[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | CameraShakeController[39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | CameraVelocityTracker[39m[0m
 [  37% ] [90m[1mupdate_scripts_classes[22m | CameraProfile[39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | CameraRig[39m[0m
-[  37% ] [90m[1mupdate_scripts_classes[22m | Main[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | CameraRig[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | Main[39m[0m
 [  38% ] [90m[1mupdate_scripts_classes[22m | Achievements[39m[0m
-[  38% ] [90m[1mupdate_scripts_classes[22m | ChallengeTier[39m[0m
-[  38% ] [90m[1mupdate_scripts_classes[22m | Cosmetics[39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | ChallengeTier[39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | Cosmetics[39m[0m
 [  39% ] [90m[1mupdate_scripts_classes[22m | DailyChallenge[39m[0m
-[  39% ] [90m[1mupdate_scripts_classes[22m | GameMode[39m[0m
-[  39% ] [90m[1mupdate_scripts_classes[22m | GameModeConfig[39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | GameMode[39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | GameModeConfig[39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | GameModeWavePlan[39m[0m
 [  40% ] [90m[1mupdate_scripts_classes[22m | MetaProgression[39m[0m
-[  40% ] [90m[1mupdate_scripts_classes[22m | Narrator[39m[0m
-[  40% ] [90m[1mupdate_scripts_classes[22m | ObjectiveDirector[39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | Narrator[39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | ObjectiveDirector[39m[0m
 [  41% ] [90m[1mupdate_scripts_classes[22m | Prestige[39m[0m
-[  41% ] [90m[1mupdate_scripts_classes[22m | PrestigeLadderConfig[39m[0m
-[  41% ] [90m[1mupdate_scripts_classes[22m | PrestigeUnlock[39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | PrestigeLadderConfig[39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | PrestigeUnlock[39m[0m
 [  42% ] [90m[1mupdate_scripts_classes[22m | DropTable[39m[0m
-[  42% ] [90m[1mupdate_scripts_classes[22m | Pickup[39m[0m
-[  42% ] [90m[1mupdate_scripts_classes[22m | PickupConfig[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | Pickup[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | PickupConfig[39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | PickupManager[39m[0m
 [  43% ] [90m[1mupdate_scripts_classes[22m | AttackBuffer[39m[0m
-[  43% ] [90m[1mupdate_scripts_classes[22m | CharacterController[39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | CharacterController[39m[0m
 [  44% ] [90m[1mupdate_scripts_classes[22m | DodgeController[39m[0m
 [  44% ] [90m[1mupdate_scripts_classes[22m | ExperienceComponent[39m[0m
-[  44% ] [90m[1mupdate_scripts_classes[22m | HealthComponent[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | HealthComponent[39m[0m
 [  45% ] [90m[1mupdate_scripts_classes[22m | Player[39m[0m
 [  45% ] [90m[1mupdate_scripts_classes[22m | PlayerAnimation[39m[0m
 [  45% ] [90m[1mupdate_scripts_classes[22m | PlayerAudio[39m[0m
 [  46% ] [90m[1mupdate_scripts_classes[22m | PlayerBuild[39m[0m
 [  46% ] [90m[1mupdate_scripts_classes[22m | PlayerCombat[39m[0m
-[  46% ] [90m[1mupdate_scripts_classes[22m | PlayerEquipment[39m[0m
-[  46% ] [90m[1mupdate_scripts_classes[22m | PlayerFeedback[39m[0m
-[  47% ] [90m[1mupdate_scripts_classes[22m | PlayerLocomotion[39m[0m
-[  47% ] [90m[1mupdate_scripts_classes[22m | ProgressionComponent[39m[0m
-[  47% ] [90m[1mupdate_scripts_classes[22m | StaminaComponent[39m[0m
-[  48% ] [90m[1mupdate_scripts_classes[22m | TargetingComponent[39m[0m
-[  48% ] [90m[1mupdate_scripts_classes[22m | BuildEffects[39m[0m
-[  48% ] [90m[1mupdate_scripts_classes[22m | UpgradeConfig[39m[0m
-[  49% ] [90m[1mupdate_scripts_classes[22m | UpgradeSelector[39m[0m
-[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  49% ] [90m[1mupdate_scripts_classes[22m | SaveSchema[39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | SettingsData[39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | SkillConfig[39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | SkillController[39m[0m
-[  51% ] [90m[1mupdate_scripts_classes[22m | SkillExecutor[39m[0m
-[  51% ] [90m[1mupdate_scripts_classes[22m | StatusEffect[39m[0m
-[  51% ] [90m[1mupdate_scripts_classes[22m | StatusEffectConfig[39m[0m
-[  52% ] [90m[1mupdate_scripts_classes[22m | StatusManager[39m[0m
-[  52% ] [90m[1mupdate_scripts_classes[22m | AchievementGallery[39m[0m
-[  52% ] [90m[1mupdate_scripts_classes[22m | AnnouncementBanner[39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | ArmoryPanel[39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | BossHealthBar[39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | DamageNumberLayer[39m[0m
-[  53% ] [90m[1mupdate_scripts_classes[22m | GameHud[39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | HelpPanel[39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | MenuBackdrop[39m[0m
-[  54% ] [90m[1mupdate_scripts_classes[22m | MenuPanel[39m[0m
-[  55% ] [90m[1mupdate_scripts_classes[22m | Minimap[39m[0m
-[  55% ] [90m[1mupdate_scripts_classes[22m | RunSetupPanel[39m[0m
-[  55% ] [90m[1mupdate_scripts_classes[22m | RunSummaryPanel[39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | UiSafeArea[39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | SettingsPanel[39m[0m
-[  56% ] [90m[1mupdate_scripts_classes[22m | ShooterReticle[39m[0m
-[  57% ] [90m[1mupdate_scripts_classes[22m | SkillBar[39m[0m
-[  57% ] [90m[1mupdate_scripts_classes[22m | TouchActionButton[39m[0m
-[  57% ] [90m[1mupdate_scripts_classes[22m | TouchButtonInput[39m[0m
-[  58% ] [90m[1mupdate_scripts_classes[22m | TouchControls[39m[0m
-[  58% ] [90m[1mupdate_scripts_classes[22m | TutorialManager[39m[0m
-[  58% ] [90m[1mupdate_scripts_classes[22m | UiCommands[39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | PlayerComponents[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | PlayerDebugView[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | PlayerEquipment[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | PlayerFeedback[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | PlayerIntake[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | PlayerLocomotion[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | PlayerReactions[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | PlayerRunCycle[39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | ProgressionComponent[39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | StaminaComponent[39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | TargetingComponent[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | BuildEffects[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | UpgradeConfig[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | UpgradeSelector[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | SaveSchema[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | SettingsData[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | SkillConfig[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | SkillController[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | SkillExecutor[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | StatusEffect[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | StatusEffectConfig[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | StatusManager[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | AchievementGallery[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | AnnouncementBanner[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | ArmoryPanel[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | BossHealthBar[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | DamageNumberLayer[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | GameHud[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | HelpPanel[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | MenuBackdrop[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | MenuPanel[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | Minimap[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | RunSetupPanel[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | RunSummaryPanel[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | UiSafeArea[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | SettingsPanel[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | ShooterReticle[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | SkillBar[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | TouchActionButton[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | TouchButtonInput[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | TouchControls[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | TutorialManager[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | UiCommands[39m[0m
 [  59% ] [90m[1mupdate_scripts_classes[22m | UiFactory[39m[0m
-[  59% ] [90m[1mupdate_scripts_classes[22m | UiGauges[39m[0m
-[  59% ] [90m[1mupdate_scripts_classes[22m | UiLayout[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | UiGauges[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | UiLayout[39m[0m
 [  60% ] [90m[1mupdate_scripts_classes[22m | UiModal[39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | UiRoot[39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | UiText[39m[0m
-[  60% ] [90m[1mupdate_scripts_classes[22m | UiTheme[39m[0m
-[  61% ] [90m[1mupdate_scripts_classes[22m | UpgradePanel[39m[0m
-[  61% ] [90m[1mupdate_scripts_classes[22m | TouchJoystick[39m[0m
-[  61% ] [90m[1mupdate_scripts_classes[22m | InputRemapper[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | UiRoot[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | UiText[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | UiTheme[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | UpgradePanel[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | TouchJoystick[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | InputRemapper[39m[0m
 [  62% ] [90m[1mupdate_scripts_classes[22m | InputTrace[39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | JsonHelpers[39m[0m
-[  62% ] [90m[1mupdate_scripts_classes[22m | ObjectPool[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | JsonHelpers[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | ObjectPool[39m[0m
 [  63% ] [90m[1mupdate_scripts_classes[22m | PerformanceMonitor[39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | PoolGovernor[39m[0m
-[  63% ] [90m[1mupdate_scripts_classes[22m | RadiusSpatialIndex[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | PoolGovernor[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | RadiusSpatialIndex[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | RngService[39m[0m
 [  64% ] [90m[1mupdate_scripts_classes[22m | RuntimeSoak[39m[0m
-[  64% ] [90m[1mupdate_scripts_classes[22m | WeightedTable[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | WeightedTable[39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | CharacterVisuals[39m[0m
 [  65% ] [90m[1mupdate_scripts_classes[22m | EffectDirector[39m[0m
-[  65% ] [90m[1mupdate_scripts_classes[22m | FootPlant[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | HdMaterials[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | HeroRigContract[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | ModelVisual[39m[0m
-[  66% ] [90m[1mupdate_scripts_classes[22m | PlayerCosmetics[39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | RingFade[39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  67% ] [90m[1mupdate_scripts_classes[22m | DifficultyDirector[39m[0m
-[  68% ] [90m[1mupdate_scripts_classes[22m | Scoring[39m[0m
-[  68% ] [90m[1mupdate_scripts_classes[22m | WaveConfig[39m[0m
-[  68% ] [90m[1mupdate_scripts_classes[22m | WaveManager[39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | WaveModifiers[39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | WaveMutators[39m[0m
-[  69% ] [90m[1mupdate_scripts_classes[22m | WaveMutatorConfig[39m[0m
-[  70% ] [90m[1mupdate_scripts_classes[22m | WavePlanner[39m[0m
-[  70% ] [90m[1mupdate_scripts_classes[22m | WaveSpawnEntry[39m[0m
-[  70% ] [90m[1mupdate_scripts_classes[22m | MeleeResolver[39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | Projectile[39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | ProjectilePool[39m[0m
-[  71% ] [90m[1mupdate_scripts_classes[22m | RangedResolver[39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | WeaponConfig[39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | WeaponInstance[39m[0m
-[  72% ] [90m[1mupdate_scripts_classes[22m | WeaponManager[39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | AuditDamageVictim[39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | ExpectedErrors[39m[0m
-[  73% ] [90m[1mupdate_scripts_classes[22m | FakeArena[39m[0m
-[  74% ] [90m[1mupdate_scripts_classes[22m | FakeClock[39m[0m
-[  74% ] [90m[1mupdate_scripts_classes[22m | FakeSaveStorage[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | EffectEventHandlers[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | EffectPlacement[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | EffectPriorities[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | EffectReadability[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | EffectSkillCatalog[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | EffectTemplates[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | FootPlant[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | HdMaterials[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | HeroRigContract[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | ModelVisual[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | PlayerCosmetics[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | RingFade[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | DifficultyDirector[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | Scoring[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | WaveConfig[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | WaveManager[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | WaveModifiers[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | WaveMutators[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | WaveMutatorConfig[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | WavePlanner[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | WaveSpawnEntry[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | MeleeResolver[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | Projectile[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | ProjectilePool[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | RangedResolver[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | WeaponConfig[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | WeaponInstance[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | WeaponManager[39m[0m
 [  74% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | AuditDamageVictim[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | ExpectedErrors[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | FakeArena[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | FakeClock[39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | FakeSaveStorage[39m[0m
 [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  76% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  77% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -265,13 +321,14 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  83% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -294,9 +351,11 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  90% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  91% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -306,7 +365,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  93% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  94% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
@@ -316,6 +375,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
 [  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
