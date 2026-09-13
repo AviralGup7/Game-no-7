@@ -32,10 +32,12 @@ line-ending conversion of checksum-locked source assets/notices.
 Full CC0 terms: https://creativecommons.org/publicdomain/zero/1.0/legalcode
 (an offline copy is included in `kenney-impact.txt` and `kenney-rpg.txt`).
 
-The Android export presets explicitly include this folder's `.txt` / `.md` notices
-and both provenance manifests. Asset authors are credited voluntarily for CC0;
-font licence/copyright retention is mandatory. No third-party game code or plugins
-were taken from the asset redistribution repositories.
+The Android export preset (and `export_presets.cfg.example`) explicitly include
+this folder's `.txt` / `.md` notices and both provenance manifests. Asset authors
+are credited voluntarily for CC0; font licence/copyright retention is mandatory.
+No third-party game code or plugins were taken from the asset redistribution
+repositories. The 2026-09-13 tree map lives in `THIRD_PARTY_ASSETS.md` and is
+enforced by `tests/python/test_license_mapping.py`.
 
 ## Additions — 8 September 2026
 
@@ -55,3 +57,18 @@ were taken from the asset redistribution repositories.
   (https://opengameart.org/content/jrpg-pack-3-evil) displays **License(s): CC0**.
   Only `Evil3 - Apocalypse.ogg` (the boss bed) and this notice were selected; no
   book code or other pack tracks were imported.
+
+## Additions — 9–13 September 2026
+
+- `threejs-pbr.txt`: MIT notice for the pinned three.js HDRI/PBR sample files.
+- `godot-hd-materials.txt`: MIT notice for the Godot Material Testers photo PBR sets.
+- `kenney-space-station.txt`: Kenney **Space Station Kit** CC0 notice (download-locked
+  GLBs under `assets/environment/space_station/`).
+- `nicholas3d-warehouse.txt`: **CC-BY-4.0** notice for Nicholas-3D's warehouse
+  (`data/models/warehouse/`; not in the download lock).
+- `arena-warden.md`: project-authored Warden derivative provenance.
+- `skill-foci.md`: project-authored skill-focus props.
+- `station-shooter.txt`: project-authored scifi robots/guns/FX/audio (`assets/scifi/`).
+- `station-environment.md`: project-authored ceiling/ground/wall modules and
+  `assets/environment/space_station/panel.png`.
+- `ui-chrome.md`: project-authored `data/ui/` design previews (excluded from the APK).

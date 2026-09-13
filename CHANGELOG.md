@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased] — Docs, licensing and release tooling match reality (2026-09-13)
+
+- Re-derive operational numeric claims from live offline tools: campaign
+  validation **1,258** Python tests (was 1,147), HARDENING python count **1,258**
+  (was 1,164), ARCHITECTURE **9 autoloads** (was “8”), DEVICE_QA **twelve
+  districts / thirteen missions** (was six / seven).
+- Add correction banners to mixed-era geometry/visual audits and historical
+  snapshot banners to dated audits. Executed counts in those files are not
+  rewritten.
+- Document Kenney Space Station Kit and first-party trees in
+  `THIRD_PARTY_ASSETS.md`; add `ASSET_LICENSES/station-environment.md` and
+  `ui-chrome.md`. Python license-mapping test walks `assets/` + `data/` media
+  and fails on an unmapped file.
+- Add `docs/AGENTS.md` (11 gates, no-Godot rule, CI, licensing) and
+  `docs/README.md` (index of every `docs/` file). README gains **Known
+  limitations** and points at both.
+- Confirm `export_presets.cfg` == `.example` and version `0.7.0` / code 4 match
+  `project.godot`. Document the launcher-name abbreviation (`Station Zero` vs
+  `Last Stand: Station Zero`) and the CI APK size-report command (no local APK).
+  Draft `docs/RELEASE_NOTES_TEMPLATE.md`.
+
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 
 - Put the twelve-district 864 × 672 m station back. Merging the audit-gate PR resolved a

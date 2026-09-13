@@ -19,7 +19,8 @@ on Windows use WSL or the editor's native export UI.
 
 `project.godot` and `SceneRouter` boot `scenes/campaign/station_zero.tscn`.
 The default menu offers Continue/New Campaign, not arena/daily/seed selection.
-Both Android export presets explicitly include `data/campaign/*.json`;
+The Android export preset (and `export_presets.cfg.example`) explicitly include
+`data/campaign/*.json`;
 `check_android_apk.py` opens the exported campaign JSON and checks its actual
 content/topology in addition to the APK metadata. The configured non-OBB export
 must contain `assets/data/campaign/station_zero.json`; alternate encrypted/packed
@@ -347,3 +348,19 @@ The checker requires `aapt2`/`aapt`, `apksigner` and Java. Set `ANDROID_SDK_ROOT
 The device helper refuses missing/ambiguous devices, validates the actual APK
 before installation, scopes adb/logcat to the selected device/process, and never
 uninstalls or clears progression. See [DEVICE_QA.md](DEVICE_QA.md).
+
+### APK size report (CI)
+
+There is typically **no APK in the checkout**. After a successful export, CI
+records ZIP compressed/uncompressed sizes without extracting the archive
+(this is not installed size or RAM):
+
+```bash
+python3 tool/apk_size_report.py build/LastStandArena-debug.apk | tee build/apk-size-report.json
+```
+
+`export_presets.cfg` matches `export_presets.cfg.example`. `version/name` /
+`version/code` match `project.godot` (`0.7.0` / `4`). The Android launcher
+label `package/name=Station Zero` is the short form of
+`config/name=Last Stand: Station Zero`; the application id is
+`com.laststandarena.game`. There is a single Android preset.

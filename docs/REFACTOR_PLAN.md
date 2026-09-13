@@ -1,5 +1,10 @@
 # Typed Architecture Overhaul — Working Plan
 
+> **Historical snapshot.** The 353 Python tests / 133 classes / 8 autoloads
+> below are from the overhaul. Live tooling reports 9 autoloads — see
+> [ARCHITECTURE.md](ARCHITECTURE.md) and [AGENTS.md](AGENTS.md). Do not rewrite
+> the executed counts in this plan.
+
 ## Problem (verified numbers)
 - `player.gd`: 87 `.call()` + 62 `has_method()` — all on components that ALREADY have `class_name`s
 - `enemy_base.gd`: 30 + 30

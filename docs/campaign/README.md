@@ -154,19 +154,20 @@ bash scripts/build_android.sh
 ANDROID_SERIAL=<device-serial> bash scripts/device_qa.sh
 ```
 
-Both export presets include the JSON explicitly. The APK checker opens the actual
+The Android export preset (and `export_presets.cfg.example`) include the JSON
+explicitly. The APK checker opens the actual
 packaged world, checks topology/content and records its SHA-256 in the packaging
 report. The native campaign suite is registered in CI and the local Android build;
 legacy unit/UI suites remain registered as regressions.
 
-## Validation status — 2026-09-12
+## Validation status — 2026-09-13
 
 **Executed in this workspace:**
 
 - Campaign topology/content checks passed, including every one of the twelve
   checkpoints, 30 interactions and 96 spawn positions. All 13,440 walkable cells
   form one connected component, and every connector deck is walkable at both seams.
-- **1,147 Python tests passed**, including campaign topology mutations,
+- **1,258 Python tests passed**, including campaign topology mutations,
   bootstrap/persistence/touch contracts, runtime-budget parity and APK
   campaign-content fixtures.
 - GDScript lint and offline resource, engine-API, scene-path, string-format,

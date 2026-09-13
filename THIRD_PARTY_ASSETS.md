@@ -1,8 +1,10 @@
 # Third-party visual assets
 
-Asset review date: **2026-09-08**. Target: the existing Godot 4.4.1, Android,
-**3D third-person** low-poly arena game. Characters and world assets are actual
-3D meshes, not sprite replacements. PNGs are only textures, UI, and particles.
+Asset review date: **2026-09-08**, tree-map pass **2026-09-13**. Target: the
+existing Godot 4.4.1, Android, **3D third-person** low-poly arena game.
+Characters and world assets are actual 3D meshes, not sprite replacements.
+PNGs are only textures, UI, and particles. `tests/python/test_license_mapping.py`
+walks every media file under `assets/` and `data/` and fails on an unmapped path.
 
 ## Approved sources
 
@@ -15,6 +17,7 @@ Asset review date: **2026-09-08**. Target: the existing Godot 4.4.1, Android,
 | UI Pack (original 1.0 edition) — Kenney | https://kenney.nl/assets/ui-pack | `assets/ui/panels/` | CC0-1.0 |
 | Game Icons — Kenney | https://kenney.nl/assets/game-icons | `assets/ui/icons/` | CC0-1.0 |
 | Board Game Icons 1.0 — Kenney | https://kenney.nl/assets/board-game-icons | `assets/ui/upgrades/` | CC0-1.0 |
+| Kenney Space Station Kit — Kenney | https://kenney.nl/assets/space-station-kit | `assets/environment/space_station/` (GLBs + `Textures/colormap.png`; **not** `panel.png`) | CC0-1.0 |
 | Rajdhani Regular / Bold — Indian Type Foundry | https://github.com/google/fonts/tree/main/ofl/rajdhani | `assets/fonts/rajdhani/` | SIL OFL-1.1 |
 | HDRI panoramas + sample PBR assets (three.js examples) — three.js authors; HDRIs originally Poly Haven | https://github.com/mrdoob/three.js | `assets/textures/panorama/`, `ASSET_LICENSES/threejs-pbr.txt` | MIT (HDRIs: Poly Haven CC0 captures) |
 | Godot Material Testers HD photo PBR texture sets — Godot Engine contributors | https://github.com/godotengine/godot-demo-projects | `assets/textures/rock/`, `assets/textures/brick/`, `assets/textures/stone/`, `assets/textures/wood/`, `assets/textures/metal/`, `ASSET_LICENSES/godot-hd-materials.txt` | MIT |
@@ -131,6 +134,37 @@ Dungeon Remastered** (CC0). Authored collision boxes keep nav/physics aligned
 if the glTF is not yet imported. The original notice is
 `ASSET_LICENSES/nicholas3d-warehouse.txt`.
 
+
+## Tree map (machine-checked, 2026-09-13)
+
+`tests/python/test_license_mapping.py` classifies every
+`.glb` / `.gltf` / `.bin` / `.png` / `.jpg` / `.jpeg` / `.hdr` / `.ttf` /
+`.otf` / `.ogg` / `.wav` / `.webp` / `.mp3` under `assets/` and `data/`:
+
+1. **Download lock** — `assets/manifest.json`. Licence is
+   `sources[pack].license_file` (must exist under `ASSET_LICENSES/`).
+2. **Extra third-party (not in the download lock)** — warehouse only:
+
+   | Prefix | Notice |
+   |---|---|
+   | `data/models/warehouse/` | `ASSET_LICENSES/nicholas3d-warehouse.txt` (in-tree `license.txt` retained) |
+
+3. **Project-authored trees** — not third-party; each has a notice:
+
+   | Prefix | Notice |
+   |---|---|
+   | `assets/characters/warden/` | `ASSET_LICENSES/arena-warden.md` |
+   | `assets/scifi/` | `ASSET_LICENSES/station-shooter.txt` |
+   | `assets/environment/space_station/panel.png` | `ASSET_LICENSES/station-environment.md` (`tool/station_assets.py`) |
+   | `data/models/skills/` | `ASSET_LICENSES/skill-foci.md` |
+   | `data/models/ceiling` / `data/models/ground` / `data/models/wall` (hazard/tech/rusted variants; **not** warehouse) | `ASSET_LICENSES/station-environment.md` |
+   | `data/models/environment_showcase.png` | `ASSET_LICENSES/station-environment.md` |
+   | `data/audio/enemy_` (`enemy_windup.wav`, `enemy_dash.wav`, `enemy_explosion.wav`) | `AUDIO_MANIFEST.md` (project CC0 synth) |
+   | `data/ui/` (`chrome/`, `ui_page_render.png`) | `ASSET_LICENSES/ui-chrome.md` (APK-excluded previews) |
+
+An unmapped media file fails CI. Adding art means adding a manifest source, an
+`EXTRA_THIRD_PARTY` row, or a first-party prefix + notice — not dropping a
+loose PNG into `data/`.
 
 ## Arena Warden derivative — 9 September 2026
 

@@ -1,5 +1,15 @@
 # Geometry & Asset Integrity Audit — Agent 1
 
+> **Correction (2026-09-13).** The header and executive summary describe the
+> twelve-district station. Later category internals still quote six-district
+> combinatorics (24 props / 15 interactions / 7 missions / 6 checkpoints /
+> perimeter 304 / “10 distinct rectangles”). Those leftover figures are **not**
+> current. Live `validate_campaign.py` / `validate_geometry.py` /
+> `validate_resources.py`: 12 districts, 72 props, 30 interactions, 13 missions,
+> 96 spawns, 12 checkpoints, 1 676 perimeter edges, 47 floor rects, 13 440
+> walkable cells, **183** validated resources. The category *rules* and PASS
+> result still apply. Do not rewrite the executed 2026-09-12 prose below.
+
 **Date:** 2026-09-12 (re-run against the restored twelve-district station)
 **Auditor:** Agent 1 — Geometry & Asset Integrity
 **Scope:** Continuous campaign world `data/campaign/station_zero.json` (864 × 672 m, 12 districts, 47 floor regions / 3 768 modules, 72 props, 32 encounters / 96 spawns, 30 interactions), modular arena system (`scenes/arena/arena.tscn` + `data/arenas/*.tres` + `data/arena_landmarks/*.tres` + `data/arena_themes/*.tres`), decorator props (`scripts/arena/arena_decorator.gd`), and referenced scene / resource assets.
@@ -26,7 +36,7 @@ $ python3 tool/validate_campaign.py
 Campaign topology/content: OK {"authored_enemies": 96, "districts": 12, ... "reachable_walkable_cells": 13440}
 
 $ python3 tool/validate_resources.py
-Validated  N files: OK
+Validated 183 files: OK
 ```
 
 ---

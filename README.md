@@ -36,6 +36,32 @@ There are no chapter-loading gates between districts.
 > reused. Legacy content IDs (for example `gladius`, the Pulse Carbine) and saved
 > settings/Armory purchases remain compatible through additive save schema 8.
 
+Agent rules and the 11 offline gates: [`docs/AGENTS.md`](docs/AGENTS.md).
+Full `docs/` index: [`docs/README.md`](docs/README.md).
+
+## Known limitations
+
+These are product limits, not TODOs to silently “green”:
+
+- **NOT RUNTIME VERIFIED here.** This sandbox has no Godot binary, Android SDK,
+  or phone. Headless GDScript, `--import`, APK export and device QA run in CI
+  (`.github/workflows/android.yml`) or on a developer machine. An absent engine
+  must return **NOT TESTED / exit 2**, never a passing skip.
+- **Shipping entry is the campaign**, not the seven arena game modes. Arena /
+  daily / challenge remain in-tree for regression only.
+- **Debug-signed sideload APK**, not Google Play or 16 KB-page certified. There
+  is typically **no APK in the checkout**; CI writes the size report with
+  `python3 tool/apk_size_report.py build/LastStandArena-debug.apk | tee build/apk-size-report.json`.
+- **Launcher name vs project name.** `project.godot` `config/name` is
+  `Last Stand: Station Zero`; Android `package/name` is the shorter
+  `Station Zero`. Version `0.7.0` / code `4` match. Application id:
+  `com.laststandarena.game`.
+- **PCK encryption is off** until a release keystore and script-encryption key
+  are configured. `bash scripts/release.sh vX.Y.Z` is the tag path.
+- **Campaign Dictionary graphs** still exist on the shipping path (typed
+  architecture is the rule for *new* gameplay). See the 2026-09-12 code-quality
+  audit — historical counts stay in that file.
+
 ---
 
 ## Key principles
@@ -177,8 +203,11 @@ See `docs/EXTENDING.md` for how to add a new enemy / upgrade / arena / weapon / 
 
 | Doc | Purpose |
 |---|---|
+| `docs/README.md` | Index of every file under `docs/` |
+| `docs/AGENTS.md` | Agent rules, 11 offline gates, licensing, release tooling |
 | `docs/campaign/README.md` | Connected world, persistence, authoring and validation status |
-| `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands |
+| `docs/BUILD.md` | Godot/Android versions, export + signing, build/test commands, APK size report |
+| `docs/RELEASE_NOTES_TEMPLATE.md` | Next GitHub Release body (campaign stats + known limitations) |
 | `docs/ARCHITECTURE.md` | Systems map, ownership, determinism, timing + hardening contracts |
 | `docs/EXTENDING.md` | Step-by-step extension guides (enemy / upgrade / arena / weapon / cue / UI) |
 | `docs/ART_STYLE.md` | Visual style, palette, scale, lighting, UI + future content rules |
