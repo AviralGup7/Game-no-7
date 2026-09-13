@@ -214,6 +214,85 @@
 
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 
+- Add the headless campaign runtime suite (audit work item #7, 2026-09-13).
+  `tests/campaign_runtime/campaign_runtime_inner.gd` boots the shipping
+  `station_zero.tscn` and drives the real controllers with fixed-delta
+  director ticks (deterministic frame order; encounter streaming and the
+  quality governor frozen): (a) instantiates the world and counts geometry
+  fallback diagnostics instead of hoping — every module scene and every
+  MultiMesh batch must carry an imported mesh (zero BoxMesh fallbacks),
+  floor batches equal the 47 authored regions, perimeter rails render as
+  batched walls, colliders equal authored solids, and the nav grid reports
+  its 36 288 built cells; (b) traverses all 13 missions and 17 story
+  objectives plus the extraction, including the negative case where the
+  guarded console refuses an early interaction, and measures the exact
+  credit/XP/upgrade/weapon deltas against the authored rewards (one-time
+  supply-cache payments included); (c) simulates a checkpoint save-write
+  failure by blocking the temp commit path (a directory over `*.tmp`, so
+  only the write-open fails): asserts exactly one actionable diagnostic,
+  in-memory rollback to the previous checkpoint, a byte-identical on-disk
+  save, no temp file left behind, the visit lock cleared (immediately
+  retryable), the save dialog with resume, and the failed commit's
+  retryable pending transaction carrying the rolled-back state — then
+  unblocks and asserts the first tick retries and persists the pending
+  slice (announced via the director), and the same-pad retry advances and
+  persists the checkpoint without corrupting the progress ledger;
+  (d) 20 pause → map → back → back → checkpoint cycles: tree
+  pause state, frozen sim clock, transition-lock clearance, node-count leak
+  check against a post-warmup baseline, and exact player position after
+  resume; (e) five authored defeats across `request_restart()`: defeated set
+  preserved, cleared actors cannot respawn, no double-granted XP or credits.
+  A final case asserts zero error diagnostics for the whole run.
+  Entry: `bash scripts/run_campaign_runtime.sh` (headless, isolated
+  profile, strict log gate, `CAMPAIGN RUNTIME: N checks, 0 failed`
+  summary; NOT TESTED/exit 2 without the engine) documented in
+  `docs/BUILD.md`; raw engine command
+  `godot --headless --path . --script res://tests/run_campaign_runtime.gd`.
+  The suite is also embedded in `tests/run_tests.gd` (deferred phase via a
+  runtime-loaded stage, per the load-order contract), so the 4.4.1
+  godot-tests job and the 4.7.2 diagnostics job run it unchanged; only
+  `android.yml` gains one headless step after the campaign-validation step.
+  All 29 new Python pins pass against the current HEAD; the GDScript suite
+  itself is **verified offline only (parse/lint/contract gates) and
+  awaiting CI godot-tests**.
+- The sibling campaign work (typed records, transactional persistence,
+  `CampaignBudgets`) has landed on this branch, so the suite drives the
+  shipped implementations: typed `CampaignProgressState` /
+  `CampaignSector` / `CampaignMission` / `CampaignInteraction` /
+  `CampaignMember` / `CampaignReward` access throughout, and scenario (c)
+  now also verifies the retryable pending-profile-transaction contract
+  (failed commit leaves the rolled-back slice pending; the first tick
+  after unblocking retries, restores and persists it before the pad
+  re-visit advances the checkpoint).
+- The “requires Agent NN” behavior pins in
+  `tests/python/test_campaign_runtime_suite.py` now lock the landed
+  implementations against drift (they were written as the spec those
+  implementations had to satisfy): typed campaign records (work item #2 —
+  a Python mirror of `CampaignProgress.reconcile`
+  cursor/erase/completion semantics plus the `defaults()` field
+  contract), the retryable save transaction (work item #5 —
+  `_visit_checkpoint` rollback order, `commit_profile_transaction`
+  staging through temp-file + rename with no destination deletion, the
+  pending-slice retry on the director's first tick, and the
+  `save_failed` → pause + retry-dialog chain), and single-sourced budgets
+  (weakness #6 — the authored JSON stays inside the `CampaignBudgets`
+  single source that every runtime copy aliases; the detailed aliasing
+  pins live in the sibling `tests/python/test_campaign_budgets.py`).
+- Fixed two stale gates in the merged sibling branches (both failed
+  before this suite's changes — the suite would have been red on a clean
+  checkout of this branch): `test_regress_campaign_typed.py::
+  test_definition_exposes_typed_graph` expected a literal
+  `WORLD_EXTENT_LIMIT := 1024.0` in `campaign_definition.gd`, which the
+  landed budget single-sourcing moved to `CampaignBudgets` (its own
+  `test_campaign_budgets.py` pins that layout); the gate now asserts the
+  alias and the single-source value. And
+  `test_license_mapping.py::test_hardening_python_count_matches_this_
+  suite` re-derives the Python suite count and asserts
+  `docs/HARDENING.md` / `docs/campaign/README.md` state it; both docs
+  were stale at 1262 (the suite had already grown before this commit)
+  and now state the re-derived post-merge total, 1319, including this
+  suite's 29 pins.
+
 - Put the twelve-district 864 × 672 m station back. Merging the audit-gate PR resolved a
   conflict in `data/campaign/station_zero.json` by keeping the older six-district layout, which
   silently reverted the expansion while the tests, docs and this changelog still described the
