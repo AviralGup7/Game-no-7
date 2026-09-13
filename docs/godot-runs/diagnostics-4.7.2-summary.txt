@@ -10,33 +10,29 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+      1 WARNING: [diagnostic] Could not open temporary save: user://last_stand_save.json.tmp
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
-      1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 26 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
-      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'get_skill_controller' in base 'Nil'.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'get_node_count' in base 'Window'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
+      1 ERROR: CAMPAIGN RUNTIME FAIL: static collision covers every authored region, prop and rail
+      1 ERROR: CAMPAIGN RUNTIME FAIL: failed save leaves the on-disk save byte-identical
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 1 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 6 resources still in use at exit (run with --verbose for details).
 
 ########## diag-check.log
     565 SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-    265 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
+    266 SCRIPT ERROR: Compile Error: Identifier not found: EventBus
     173 SCRIPT ERROR: Compile Error: Identifier not found: AudioManager
     131 SCRIPT ERROR: Compile Error: Identifier not found: ContentRegistry
      17 SCRIPT ERROR: Compile Error: Identifier not found: SaveManager
@@ -58,14 +54,6 @@
       2 ERROR: Failed to load script "res://scripts/enemies/spawn_manager.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_base.gd" with error "Compilation failed".
       2 ERROR: Failed to load script "res://scripts/enemies/enemy_animator.gd" with error "Compilation failed".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
-      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
       1 SCRIPT ERROR: Compile Error: Identifier not found: RunAnalytics
       1 SCRIPT ERROR: Compile Error: Identifier not found: DebugErrorHandler
       1 ERROR: Failed to load script "res://tests/verify_flow_inner.gd" with error "Compilation failed".
@@ -117,7 +105,7 @@
       1 ERROR: Failed to load script "res://tests/doubles/fake_arena.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/doubles/audit_damage_victim.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://tests/doubles/audio_probe.gd" with error "Compilation failed".
-      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
+      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_manager.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/weapon_instance.gd" with error "Compilation failed".
       1 ERROR: Failed to load script "res://scripts/weapons/ranged_resolver.gd" with error "Compilation failed".
@@ -254,29 +242,25 @@
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 3/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 2/6)
       1 WARNING: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (attempt 1/6)
+      1 WARNING: [diagnostic] Could not open temporary save: user://last_stand_save.json.tmp
       1 WARNING: WaveMutators: wave 2 declares unknown mutator 'ghost_id'
       1 WARNING: WaveMutators: unknown mutator id 'definitely_not_a_mutator' in a wave's set
       1 WARNING: CharacterVisuals: no VisualRoot/CharacterModel mount point for role basic (primitive kept)
-      1 WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+      1 WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).
       1 TEST EXPECTED ERRORS: ["ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)"]
       1 TEST EXPECTED ERRORS: ["ERROR: WaveModifiers: damage_mult is not finite before clamping","ERROR: WaveModifiers: speed_mult is not finite before clamping"]
       1 TEST EXPECTED ERRORS: ["ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'"]
       1 TEST EXPECTED ERRORS: ["ERROR: ArenaLandmark: kind 'wishing_well' has no builder"]
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
-      1 SCRIPT ERROR: Parse Error: Function "volume()" not found in base AABB.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "imported" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
-      1 SCRIPT ERROR: Parse Error: Cannot find member "volume" in base "AABB".
-      1 SCRIPT ERROR: Parse Error: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'get_skill_controller' in base 'Nil'.
+      1 SCRIPT ERROR: Invalid call. Nonexistent function 'get_node_count' in base 'Window'.
       1 ERROR: [diagnostic] Missing config/scene for ghost; retried up to bound then counted failed. (permanently failed after 6 attempts)
       1 ERROR: WaveModifiers: speed_mult is not finite before clamping
       1 ERROR: WaveModifiers: damage_mult is not finite before clamping
       1 ERROR: GameMode: unknown mode id 'nope' clamped to 'standard'
-      1 ERROR: Failed to load script "res://tests/campaign_runtime/campaign_runtime_inner.gd" with error "Parse error".
+      1 ERROR: CAMPAIGN RUNTIME FAIL: static collision covers every authored region, prop and rail
+      1 ERROR: CAMPAIGN RUNTIME FAIL: failed save leaves the on-disk save byte-identical
       1 ERROR: ArenaLandmark: kind 'wishing_well' has no builder
-      1 ERROR: 1 resources still in use at exit (run with --verbose for details).
+      1 ERROR: 5 resources still in use at exit (run with --verbose for details).
 
 ########## diag-wae-probe.log
 
@@ -284,16 +268,8 @@
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:52:45: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/ui/ui_test_runner.gd:50:49: WARNING: (STATIC_CALLED_ON_INSTANCE): The function "screen_for_state()" is a static function but was called from an instance. Instead, it should be directly called from the type: "UiRoot.screen_for_state()".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:626:33: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local function parameter "name" is shadowing an already-declared property in the base class "Node".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:52: ERROR: Invalid argument for "is_equal_approx()" function: argument 2 should be "float" but is "Vector3".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:431:19: ERROR: Invalid argument for "is_equal_approx()" function: argument 1 should be "float" but is "Vector3".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:380:16: ERROR: Cannot infer the type of "nodes" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:378:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:374:24: ERROR: Cannot infer the type of "baseline_nodes" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:372:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:281:7: ERROR: Cannot call non-static function "file_exists()" on the class "DirAccess" directly. Make an instance instead.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:75: ERROR: Cannot find member "volume" in base "AABB".
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:183:50: ERROR: Function "volume()" not found in base AABB.
-      1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:182:19: ERROR: Cannot infer the type of "imported" variable because the value doesn't have a set type.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:179:7: WARNING: (SHADOWED_VARIABLE_BASE_CLASS): The local variable "name" is shadowing an already-declared property in the base class "Node".
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:145:2: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
       1 /home/runner/work/Game-no-7/Game-no-7/tests/campaign_runtime/campaign_runtime_inner.gd:105:3: WARNING: (REDUNDANT_AWAIT): "await" keyword is unnecessary because the expression isn't a coroutine nor a signal.
@@ -310,5 +286,4 @@
 ########## diag-lsp.err
 
 ########## diag-lsp-editor.log
-      1 ERROR: LSP: Failed to parse script: res://tests/campaign_runtime/campaign_runtime_inner.gd
 
