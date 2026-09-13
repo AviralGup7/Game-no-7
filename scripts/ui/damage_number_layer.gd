@@ -23,7 +23,7 @@ var _camera: Camera3D = null
 func _ready() -> void:
 	add_to_group("damage_number_layer")
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# Every label's position is re-solved from a world projection in _process, so
 	# letting the interpolation system also blend the layer between physics ticks
 	# would double-smooth the numbers (they would trail the hit by a tick). Children

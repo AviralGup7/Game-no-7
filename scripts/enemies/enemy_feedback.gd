@@ -109,10 +109,13 @@ func recolor(color: Color) -> void:
 	if _visual == null:
 		return
 	var is_elite := color.r > 0.85 and color.g < 0.35
-	for mesh in _visual.find_children("*", "MeshInstance3D", true, false):
-		var mi := mesh as MeshInstance3D
-		for idx in mi.get_surface_override_material_count():
-			mi.set_surface_override_material(idx, null)
+	# Tint ONLY the scene-authored fallback primitive. Mounted art (CharacterVisuals
+	# models under CharacterVisual, EnemyAnimator rigs) carries its own designed
+	# vertex palette; painting material_override over every mesh flattens each
+	# robot to one untextured color (campaign "yellow box humanoid" bug: the
+	# mounts were fine, every spawn was re-painted flat by initialize()).
+	var body := _visual.get_node_or_null("CharacterModel/Body") as MeshInstance3D
+	if body != null:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = color
 		mat.roughness = 0.62
@@ -120,7 +123,7 @@ func recolor(color: Color) -> void:
 			mat.emission_enabled = true
 			mat.emission = color * 0.7
 			mat.emission_energy_multiplier = 0.9
-		mi.material_override = mat
+		body.material_override = mat
 	if is_elite:
 		_add_elite_aura()
 

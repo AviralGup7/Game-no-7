@@ -52,7 +52,15 @@ func _on_switched(_old: StringName, _new: StringName) -> void:
 
 
 func _refresh() -> void:
-	if _socket == null or _manager == null:
+	if _manager == null:
+		return
+	if _socket == null or not is_instance_valid(_socket):
+		# The hero model can mount after this node is ready (streamed/deferred
+		# mounts); retry the hand-socket bind on every equip so a late model
+		# still gets its visible weapon instead of fighting bare-handed.
+		_socket = null
+		_bind_skeleton()
+	if _socket == null:
 		return
 	var id := _manager.active_weapon_id()
 	if id == _equipped and _model != null:

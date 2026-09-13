@@ -82,7 +82,7 @@ func _move_to(at: Vector3) -> void:
 	_check("streaming keeps at most three district batches", _session.world.get_debug_snapshot().visible_districts.size() <= 3)
 
 
-func _kill(member: Dictionary) -> void:
+func _kill(member: CampaignMember) -> void:
 	_session.encounters._spawn(member)
 	var actor := _session.encounters._active.get(String(member.id)) as EnemyBase
 	_check("authored actor can be activated / " + String(member.id), actor != null)
@@ -140,7 +140,7 @@ func _streaming_and_reload() -> void:
 func _story() -> void:
 	# One optional supply cache, once, before the story.
 	var cache := _session.definition.interaction("supply_docks")
-	await _move_to(CampaignDefinition.point(cache.at))
+	await _move_to(cache.at)
 	var wallet := SaveManager.get_meta_wallet()
 	_check("supply locker can be opened", _session.try_interact())
 	_check("cache credits reach the permanent wallet", SaveManager.get_meta_wallet() == wallet + int(cache.credits))
@@ -149,7 +149,7 @@ func _story() -> void:
 		var mission: CampaignMission = _session.definition.missions[index]
 		for id in mission.targets:
 			var target := _session.definition.interaction(String(id))
-			await _move_to(CampaignDefinition.point(target.at))
+			await _move_to(target.at)
 			if _session.remaining_guards() > 0:
 				_check("guarded console refuses early interaction", not _session.try_interact())
 				for encounter_id in mission.requires:
@@ -174,7 +174,7 @@ func _story() -> void:
 	GameRoot.request_restart()
 	await _frames(5)
 	_capture_session()
-	_check("completed campaign can be explored", GameRoot.get_current_state() == GameRoot.State.PLAYING and _session.current_mission().is_empty())
+	_check("completed campaign can be explored", GameRoot.get_current_state() == GameRoot.State.PLAYING and _session.current_mission() == null)
 	_check("completed campaign has no repeated reward", SaveManager.get_meta_wallet() == wallet)
 	_check("completed targets cannot pay again", not _session.try_interact())
 	# Real player death -> checkpoint retry, not a new run/world roll.

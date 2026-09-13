@@ -29,7 +29,7 @@ var _save_error_shown := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_backdrop = MenuBackdrop.new()
 	add_child(_backdrop)
@@ -77,7 +77,7 @@ func _build_menu() -> void:
 	UiFactory.title("STATION ZERO", body, 58)
 	UiFactory.hairline(body)
 	UiFactory.label("THE LONG WAY HOME", body, 26)
-	UiFactory.label("Six connected districts. One silent station.\nRestore power, find the survivors and take back the way home.", body, 22)
+	UiFactory.label("Twelve connected districts. One silent station.\nRestore power, find the survivors and take back the way home.", body, 22)
 	_resume_info = UiFactory.label("", body, 20)
 	_resume_info.modulate = UiTheme.CYAN
 	_continue = UiFactory.button("CONTINUE CAMPAIGN", body, 24)
@@ -193,8 +193,13 @@ func _show(id: String) -> void:
 	elif id == "status":
 		_status.text = "STATION COULD NOT BE LOADED" if GameRoot.get_current_state() == GameRoot.State.ERROR else "CONNECTING TO STATION ZERO"
 	if id in _screens:
-		UiTheme.apply_text_scale(_screens[id], SaveManager.get_settings().text_scale)
-		UiFactory.focus_first(_screens[id])
+		var screen := _screens[id] as Control
+		# Returning to a tall screen (pause/map) restarts at the top instead of
+		# a stale mid-scroll offset left over from the previous visit.
+		for scroller in screen.find_children("*", "ScrollContainer", true, false):
+			(scroller as ScrollContainer).scroll_vertical = 0
+		UiTheme.apply_text_scale(screen, SaveManager.get_settings().text_scale)
+		UiFactory.focus_first(screen)
 
 
 func _on_state(_old: StringName, state: StringName) -> void:

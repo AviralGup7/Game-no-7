@@ -132,6 +132,26 @@ class _FakeTarget extends Damageable:
 		return alive
 
 
+## Minimal VisualRoot/CharacterModel/Body mount mirroring enemy_base.tscn, so
+## EnemyBase.initialize() runs the real CharacterVisuals mount path silently.
+## Returns the created nodes (packing callers must set their owner to the root).
+static func _add_visual_mount(enemy: EnemyBase) -> Array[Node]:
+	var visual := Node3D.new()
+	visual.name = &"VisualRoot"
+	enemy.add_child(visual)
+	var mount := Node3D.new()
+	mount.name = &"CharacterModel"
+	visual.add_child(mount)
+	var body := MeshInstance3D.new()
+	body.name = &"Body"
+	var box := BoxMesh.new()
+	box.size = Vector3(0.8, 1.4, 0.8)
+	body.mesh = box
+	body.position = Vector3(0, 0.7, 0)
+	mount.add_child(body)
+	return [visual, mount, body]
+
+
 static func _make_enemy(tree: SceneTree, cfg: EnemyConfig, pos: Vector3, target: Node3D, run_seed: int = 4242) -> EnemyBase:
 	var enemy := EnemyBase.new()
 	var hp := HealthComponent.new()
@@ -140,6 +160,7 @@ static func _make_enemy(tree: SceneTree, cfg: EnemyConfig, pos: Vector3, target:
 	var machine := EnemyStateMachine.new()
 	machine.name = "EnemyStateMachine"
 	enemy.add_child(machine)
+	_add_visual_mount(enemy)
 	tree.root.add_child(enemy)
 	enemy.set_physics_process(false)  # tests drive explicit deterministic steps
 	enemy.global_position = pos
@@ -706,6 +727,11 @@ static func _pack_test_enemy_scene() -> PackedScene:
 	var machine := EnemyStateMachine.new()
 	machine.name = "EnemyStateMachine"
 	proto.add_child(machine)
+	# Same visual mount as _make_enemy: spawned test enemies run the real model
+	# mount silently instead of warning about a missing CharacterModel node.
+	var mount_nodes := _add_visual_mount(proto)
+	for node in mount_nodes:
+		node.owner = proto
 	# The status manager as well, for the same reason: `EnemyBase` resolves it out of the scene, so a
 	# packed scene without this child spawns enemies that are immune to DoT, stuns, shields and the
 	# wave's own status -- and the stamping call returns quietly because `get_status_manager()` is null.

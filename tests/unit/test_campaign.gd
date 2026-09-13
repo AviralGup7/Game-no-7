@@ -85,14 +85,14 @@ static func _navigation(results: Array, definition: CampaignDefinition) -> void:
 	_check(results, "out-of-world coordinates never wrap into the map", not grid.is_walkable(Vector3(10000, 0, 10000)))
 	grid.rebuild_flow_field(definition.checkpoint("docks").origin)
 	for sector in definition.sectors:
-		var at := CampaignDefinition.point(sector.checkpoint)
+		var at: Vector3 = sector.checkpoint
 		_check(results, "reachable checkpoint / " + String(sector.id), grid.is_walkable(at) and grid.flow_field_reachable(at))
 	for item in definition.interactions:
-		var at := CampaignDefinition.point(item.at)
+		var at: Vector3 = item.at
 		_check(results, "reachable interaction / " + String(item.id), grid.is_walkable(at) and grid.flow_field_reachable(at))
 	for group in definition.encounters:
 		for member in group.members:
-			var at := CampaignDefinition.point(member.at)
+			var at: Vector3 = member.at
 			_check(results, "clear reachable spawn / " + String(member.id), grid.is_walkable(at) and grid.flow_field_reachable(at))
 	var route := grid.find_path(definition.checkpoint("docks").origin, definition.checkpoint("reactor").origin)
 	_check(results, "long campaign route exists without a teleport", route.size() > 1)

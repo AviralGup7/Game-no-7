@@ -4,7 +4,7 @@ signal close_requested()
 var _body: VBoxContainer
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_body = UiFactory.center_box(self)
 	refresh()
 

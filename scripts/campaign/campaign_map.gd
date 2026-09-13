@@ -39,7 +39,7 @@ func _draw() -> void:
 	for area in definition.floors:
 		draw_rect(_rect(area), Color(0.16, 0.25, 0.32))
 	for sector in definition.sectors:
-		var accent := Color(String(sector.accent))
+		var accent: Color = sector.accent
 		var area := _rect(sector.rect)
 		draw_rect(area, accent.darkened(0.8))
 		draw_rect(area, accent.darkened(0.4), false, 1.0)

@@ -8,7 +8,7 @@ static func font_scaled(base: int) -> int:
 static func make_panel(parent: Control, panel_name: String) -> Control:
 	var panel := Control.new()
 	panel.name = panel_name
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	parent.add_child(panel)
 	panel.visible = false
@@ -22,14 +22,14 @@ static func make_panel(parent: Control, panel_name: String) -> Control:
 ## This is the single scaffold every floating screen should mount through.
 static func overlay(parent: Control, dim: float = 0.0) -> Dictionary:
 	var panel := Control.new()
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	parent.add_child(panel)
 	var scrim: ColorRect = null
 	if dim > 0.0:
 		scrim = ColorRect.new()
 		scrim.color = Color(0.05, 0.02, 0.01, clampf(dim, 0.0, 1.0))
-		scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
+		scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(scrim)
 	var box := center_box(panel)
@@ -37,7 +37,7 @@ static func overlay(parent: Control, dim: float = 0.0) -> Dictionary:
 
 static func center_box(panel: Control) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
-	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	panel.add_child(scroll)
@@ -61,6 +61,14 @@ static func center_box(panel: Control) -> VBoxContainer:
 		box.custom_minimum_size.x = clampf(
 			panel.size.x - UiTheme.SPACE_L * 2, 240, maxf(panel.size.x * 0.62, 560)
 		)
+		# Short viewports (720p menu/pause stacks are ~900px tall) tighten chrome
+		# instead of hiding cut-off buttons behind undiscoverable scroll-dragging.
+		# Touch targets keep their 88px floor; only air is removed.
+		var short := panel.size.y < 780.0
+		for side in ["left", "right", "top", "bottom"]:
+			margin.add_theme_constant_override("margin_" + side, 12 if short else UiTheme.SPACE_L)
+		box.add_theme_constant_override("separation", UiTheme.SPACE_S if short else UiTheme.SPACE_M)
+		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS if short else ScrollContainer.SCROLL_MODE_AUTO
 	panel.resized.connect(fit)
 	fit.call_deferred()
 	return box
@@ -78,6 +86,9 @@ static func button(text: String, parent: Node, font_size: int, min_size: Vector2
 	b.add_theme_font_size_override("font_size", font_size)
 	b.mouse_filter = Control.MOUSE_FILTER_STOP
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Long captions at high text scales must never bleed past the chrome into
+	# neighbouring columns (menu buttons rendering wider than their column).
+	b.clip_text = true
 	parent.add_child(b)
 	# Every factory button acknowledges its press acoustically (previously the
 	# ui_confirm/ui_back cues existed but had zero call sites, so the whole UI

@@ -15,7 +15,7 @@ var _last_logical := Vector2(-1, -1)
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	var vp := get_viewport()
 	if vp != null:
 		vp.size_changed.connect(refresh)

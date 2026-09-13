@@ -19,7 +19,7 @@ var _heading: Label
 var _daily_stamp := 0
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	var body := UiFactory.center_box(self)
 	_heading = UiFactory.title("PREPARE YOUR STAND", body, 34)
 	UiFactory.label("01  MODE     /     02  ARENA     /     03  LOADOUT", body, 18).modulate = UiTheme.CYAN
