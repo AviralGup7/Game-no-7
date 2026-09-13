@@ -25,10 +25,10 @@ func set_affixes(host: EnemyBase, affixes: Array) -> void:
 	for raw in affixes:
 		_affixes.append(StringName(String(raw)))
 	host.set_meta(META_KEY, _affixes.duplicate())
-	var tint := tint()
+	var affix_tint := tint()
 	var feedback := host.get_feedback()
 	if feedback != null:
-		feedback.recolor(tint)
+		feedback.recolor(affix_tint)
 	var cfg := host.get_config()
 	host.get_presentation().apply_visual_scale(host, (cfg.visual_scale if cfg != null else 1.0) * ELITE_SCALE_MULT)
 

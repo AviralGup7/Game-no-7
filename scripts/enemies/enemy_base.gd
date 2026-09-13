@@ -32,16 +32,20 @@ class_name EnemyBase
 ## the autoload-free headless test harness (run_tests.gd is hermetic by design).
 
 signal initialized(archetype_id: StringName)
-## Emitted by the state scripts on the host's behalf: the analyzer only counts
-## usages inside this file, so pin the exemption right at the declaration.
+## Emitted by the state scripts and the combat-response collaborator on the host's
+## behalf: the analyzer only counts usages inside this file, so pin the exemption
+## right at the declaration.
 @warning_ignore("unused_signal")
 signal state_changed(previous_state: StringName, current_state: StringName)
+@warning_ignore("unused_signal")
 signal damaged(result: DamageResult)
+@warning_ignore("unused_signal")
 signal died()
 @warning_ignore("unused_signal")
 signal attack_started()
 @warning_ignore("unused_signal")
 signal attack_hit(target: Node, result: DamageResult)
+@warning_ignore("unused_signal")
 signal despawn_requested(enemy: Node)
 
 const TARGET_GROUP := "enemies"
