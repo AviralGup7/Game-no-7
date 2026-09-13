@@ -2,7 +2,7 @@ class_name MenuBackdrop
 extends Control
 ## Lightweight vector presentation, no shader, animation, or downloaded art.
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
 

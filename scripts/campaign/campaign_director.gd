@@ -152,8 +152,10 @@ func current_mission() -> CampaignMission:
 
 
 func target_ids() -> Array:
-	var mission := current_mission()
 	var result: Array = []
+	var mission := current_mission()
+	if mission == null:
+		return result
 	for id in mission.targets:
 		if id not in progress.interacted:
 			result.append(id)
@@ -161,8 +163,11 @@ func target_ids() -> Array:
 
 
 func remaining_guards() -> int:
+	var mission := current_mission()
+	if mission == null:
+		return 0
 	var count := 0
-	for id in current_mission().requires:
+	for id in mission.requires:
 		count += encounters.remaining(String(id))
 	return count
 
@@ -203,8 +208,14 @@ func try_interact() -> bool:
 			return true
 		message.emit("SUPPLY LOCKER / +%d credits / +30 health" % int(item.credits))
 	else:
+		# Non-cache targets only surface while their mission is current, but a
+		# stale interaction must no-op instead of crashing on a null mission.
+		var mission_now := current_mission()
+		if mission_now == null:
+			changed.emit()
+			return true
 		var all_done := true
-		for id in current_mission().targets:
+		for id in mission_now.targets:
 			all_done = all_done and id in progress.interacted
 		if all_done:
 			if not _complete_mission():
@@ -364,10 +375,18 @@ func _refresh_markers() -> void:
 func next_target() -> CampaignInteraction:
 	var nearest: CampaignInteraction
 	var distance := INF
+	if not is_instance_valid(player):
+		return nearest
 	# When a console is guarded, navigation takes the player to the remaining
 	# guards first, rather than stranding them at an inactive terminal.
-	for id in current_mission().requires:
-		for member in definition.encounter(String(id)).members:
+	var mission := current_mission()
+	if mission == null:
+		return nearest
+	for id in mission.requires:
+		var group := definition.encounter(String(id))
+		if group == null:
+			continue
+		for member in group.members:
 			if member.id in progress.defeated:
 				continue
 			var at := encounters.member_position(member)
@@ -382,6 +401,8 @@ func next_target() -> CampaignInteraction:
 		return nearest
 	for id in target_ids():
 		var item := definition.interaction(String(id))
+		if item == null:
+			continue
 		var d := item.at.distance_squared_to(player.global_position)
 		if d < distance:
 			distance = d

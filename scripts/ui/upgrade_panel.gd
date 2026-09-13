@@ -18,7 +18,7 @@ var _empty_back: Button
 
 func _ready() -> void:
 	name = "UpgradePanel"
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP  # block clicks through to HUD
 	var box := UiFactory.center_box(self)
 	UiFactory.title(UiText.lookup(&"upgrades_title"), box, UiFactory.font_scaled(30))

@@ -105,22 +105,53 @@ func _set_flash_color(color: Color) -> void:
 			mesh.material_overlay = _flash_material if color.a > 0.0 else null
 
 
+const RECOLOR_BASE_META := &"enemy_feedback_base_albedo"
+
+
 func recolor(color: Color) -> void:
 	if _visual == null:
 		return
 	var is_elite := color.r > 0.85 and color.g < 0.35
+	# Tint in place: multiply each surface's authored albedo by the archetype
+	# tint instead of masking the model with one flat material_override (which
+	# made every spawn an untextured blob and discarded the HdMaterials polish
+	# and any textures underneath). Textures, vertex palettes and the tuned
+	# roughness/metallic survive because only the albedo factor changes.
+	# Order-safe vs polish either way: the duplicate sources roughness/metallic
+	# from the live material while albedo always restarts from the memoized
+	# pre-tint base, so pooled-actor re-initialization never compounds the tint.
+	var aura_root := _visual.get_node_or_null("EliteAura")
 	for mesh in _visual.find_children("*", "MeshInstance3D", true, false):
 		var mi := mesh as MeshInstance3D
-		for idx in mi.get_surface_override_material_count():
-			mi.set_surface_override_material(idx, null)
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = color
-		mat.roughness = 0.62
-		if is_elite:
-			mat.emission_enabled = true
-			mat.emission = color * 0.7
-			mat.emission_energy_multiplier = 0.9
-		mi.material_override = mat
+		if mi == null or mi.mesh == null:
+			continue
+		if aura_root != null and (mi == aura_root or aura_root.is_ancestor_of(mi)):
+			# The elite aura ring's material_override IS its styling; the tint
+			# pass must never clear or repaint auxiliary VFX.
+			continue
+		# A stale flat override (pre-fix flattening) would mask everything below.
+		mi.material_override = null
+		var memo: Dictionary = {}
+		if mi.has_meta(RECOLOR_BASE_META):
+			memo = mi.get_meta(RECOLOR_BASE_META)
+		for idx in range(mi.mesh.get_surface_count()):
+			var active := mi.get_active_material(idx)
+			if active == null or not (active is BaseMaterial3D):
+				continue
+			var source := active as BaseMaterial3D
+			if not memo.has(idx):
+				memo[idx] = source.albedo_color
+			var base: Color = memo[idx]
+			var tinted := source.duplicate() as BaseMaterial3D
+			if tinted == null:
+				continue
+			tinted.albedo_color = base * color
+			if is_elite:
+				tinted.emission_enabled = true
+				tinted.emission = color * 0.7
+				tinted.emission_energy_multiplier = 0.9
+			mi.set_surface_override_material(idx, tinted)
+		mi.set_meta(RECOLOR_BASE_META, memo)
 	if is_elite:
 		_add_elite_aura()
 

@@ -16,7 +16,7 @@ var _save_warning := ""
 var _achievements: Array[StringName] = []
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_body = UiFactory.center_box(self)
 	EventBus.run_started.connect(_on_run_started)
 	EventBus.weapon_equipped.connect(func(id: StringName, _slot: int) -> void: _record_weapon(id))

@@ -31,7 +31,7 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(radius * 2, radius * 2)
 	modulate.a = opacity
 	_label = Label.new()
-	_label.set_anchors_preset(PRESET_FULL_RECT)
+	_label.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.mouse_filter = MOUSE_FILTER_IGNORE

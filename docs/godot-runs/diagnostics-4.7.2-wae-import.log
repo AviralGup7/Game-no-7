@@ -13,22 +13,6 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [  33% ] [90m[1mloading_editor_layout[22m | Reopening scenes...[39m[0m
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:142)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:158)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:159)
-SCRIPT ERROR: Parse Error: Too many arguments for "get()" call. Expected at most 1 but received 2.
-          at: GDScript::reload (res://scripts/campaign/campaign_hud.gd:165)
-SCRIPT ERROR: Parse Error: No constructor of "String" matches the signature "String(Color)".
-          at: GDScript::reload (res://scripts/campaign/campaign_map.gd:42)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/campaign/campaign_ui.gd:0)
-SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
-          at: GDScript::reload (res://scripts/campaign/campaign_game.gd:0)
-ERROR: Failed to load script "res://scripts/campaign/campaign_game.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 [  50% ] [90m[1mloading_editor_layout[22m | Loading central editor layout...[39m[0m
 [  66% ] [90m[1mloading_editor_layout[22m | Loading plugin window layout...[39m[0m
 [  83% ] [90m[1mloading_editor_layout[22m | Editor layout ready.[39m[0m

@@ -22,7 +22,7 @@ var _refresh := 0.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_top = PanelContainer.new()
 	_top.add_theme_stylebox_override("panel", UiTheme.box(Color(0.035, 0.065, 0.11, 0.92)))
@@ -71,6 +71,10 @@ func _ready() -> void:
 		if is_instance_valid(director):
 			director.try_interact())
 	_toast = UiFactory.label("", self, 22)
+	# Hidden until the first layout pass places it: a message arriving between
+	# bind() and apply_layout() must never flash at the (0,0) default origin,
+	# which sits on top of the location panel.
+	_toast.set_meta("fits", false)
 	_toast.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_toast.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_toast.add_theme_color_override("font_outline_color", Color.BLACK)
@@ -139,10 +143,13 @@ func _refresh_values() -> void:
 		return
 	var player := director.player
 	var sector := director.definition.sector_at(player.global_position)
-	_location.text = String(sector.get("name", "SERVICE CAUSEWAY"))
+	_location.text = String(sector.name) if sector != null else "SERVICE CAUSEWAY"
 	var mission := director.current_mission()
-	_mission.text = "STATION SECURED / Explore remaining supply lockers" if mission.is_empty() else "%02d / %02d  %s  ·  %dm" % [
-		int(director.progress.mission) + 1, director.definition.missions.size(), String(mission.title), ceili(director.distance_to_target())]
+	if mission == null:
+		_mission.text = "STATION SECURED / Explore remaining supply lockers"
+	else:
+		_mission.text = "%02d / %02d  %s  ·  %dm" % [
+			int(director.progress.mission) + 1, director.definition.missions.size(), String(mission.title), ceili(director.distance_to_target())]
 	var hp := player.get_health_component()
 	_gauges.set_health(hp.get_current(), hp.get_max())
 	var stamina := player.get_stamina_component()
@@ -154,15 +161,15 @@ func _refresh_values() -> void:
 		var status := "RELOAD %.1fs" % weapon.reload_remaining() if weapon.is_reloading() else "%d / %d" % [weapon.ammo, weapon.config.ammo_per_magazine]
 		_gauges.set_weapon_text("%s / %s" % [weapon.config.display_name, status], "Hold FIRE and slide to aim")
 	var item := director.nearest_interaction()
-	_interact.visible = not item.is_empty()
-	_interact.text = "BOARD" if item.get("kind", "") == "extraction" else "INTERACT"
-	_interact.tooltip_text = String(item.get("name", ""))
-	if not item.is_empty():
+	_interact.visible = item != null
+	_interact.text = "BOARD" if item != null and item.kind == "extraction" else "INTERACT"
+	_interact.tooltip_text = String(item.name) if item != null else ""
+	if item != null:
 		_mission.text = String(item.name)
 		if item.kind != "cache" and director.remaining_guards() > 0:
 			_mission.text += " / SECURE DISTRICT FIRST"
-	elif director.remaining_guards() > 0:
-		_mission.text = "%s / %d HOSTILES / %dm" % [String(mission.get("title", "")), director.remaining_guards(), ceili(director.distance_to_target())]
+	elif mission != null and director.remaining_guards() > 0:
+		_mission.text = "%s / %d HOSTILES / %dm" % [String(mission.title), director.remaining_guards(), ceili(director.distance_to_target())]
 	_mini.queue_redraw()
 
 

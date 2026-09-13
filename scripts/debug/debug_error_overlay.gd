@@ -42,17 +42,17 @@ func _ready() -> void:
 func _build() -> void:
 	_root = Control.new()
 	_root.name = "DebugFreezeRoot"
-	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	# Swallow every tap/click while frozen so no game input leaks through.
 	_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_root)
 	var dim := ColorRect.new()
 	dim.color = Color(0.02, 0.02, 0.04, 0.86)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(dim)
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
 		margin.add_theme_constant_override(side, 16)
 	_root.add_child(margin)
