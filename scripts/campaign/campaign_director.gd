@@ -12,7 +12,7 @@ const UPDATE_INTERVAL := 0.25
 ## so it only re-runs after the player has actually moved this far.
 const ROUTE_REFRESH_DISTANCE := 12.0
 var definition: CampaignDefinition
-var progress: CampaignProgressState
+var progress: Dictionary
 var encounters: CampaignEncounters
 var player: Player
 var world: CampaignWorld
@@ -38,7 +38,7 @@ func configure(station: CampaignWorld, hero: Player, wallet: MetaProgression) ->
 	encounters = CampaignEncounters.new()
 	encounters.name = "CampaignEncounters"
 	add_child(encounters)
-	encounters.configure(world, player, progress.defeated)
+	encounters.configure(world, player, progress)
 	encounters.member_defeated.connect(_on_member_defeated)
 	player.get_experience_component().xp_changed.connect(_on_xp_changed)
 	EventBus.weapon_equipped.connect(_on_weapon_equipped)
@@ -103,7 +103,7 @@ func _physics_process(delta: float) -> void:
 
 func _visit_district() -> void:
 	var sector := definition.sector_at(player.global_position)
-	if sector == null or String(sector.id) in progress.visited:
+	if sector.is_empty() or String(sector.id) in progress.visited:
 		return
 	progress.visited.append(String(sector.id))
 	message.emit(String(sector.name))
@@ -113,7 +113,7 @@ func _visit_district() -> void:
 func _visit_checkpoint() -> void:
 	var near := ""
 	for sector in definition.sectors:
-		if player.global_position.distance_to(sector.checkpoint) <= INTERACT_RANGE:
+		if player.global_position.distance_to(CampaignDefinition.point(sector.checkpoint)) <= INTERACT_RANGE:
 			near = String(sector.id)
 			break
 	if near.is_empty():
@@ -130,20 +130,20 @@ func _visit_checkpoint() -> void:
 		message.emit("CHECKPOINT SAVED / health and stamina restored")
 	else:
 		progress.checkpoint = previous_checkpoint
-		SaveManager.store_campaign(progress.to_dict(), false)
+		SaveManager.store_campaign(progress, false)
 		_checkpoint_inside = ""
 		message.emit("Restored health. Saving failed — checkpoint not advanced; retry here.")
 
 
-func current_mission() -> CampaignMission:
-	var index := progress.mission
-	return definition.missions[index] if index < definition.missions.size() else null
+func current_mission() -> Dictionary:
+	var index := int(progress.get("mission", 0))
+	return definition.missions[index] if index < definition.missions.size() else {}
 
 
 func target_ids() -> Array:
 	var mission := current_mission()
 	var result: Array = []
-	for id in mission.targets:
+	for id in mission.get("targets", []):
 		if id not in progress.interacted:
 			result.append(id)
 	return result
@@ -151,21 +151,21 @@ func target_ids() -> Array:
 
 func remaining_guards() -> int:
 	var count := 0
-	for id in current_mission().requires:
+	for id in current_mission().get("requires", []):
 		count += encounters.remaining(String(id))
 	return count
 
 
-func nearest_interaction() -> CampaignInteraction:
+func nearest_interaction() -> Dictionary:
 	if not is_instance_valid(player):
-		return null
-	var nearest: CampaignInteraction
+		return {}
+	var nearest: Dictionary = {}
 	var distance := INTERACT_RANGE
 	var targets := target_ids()
 	for item in definition.interactions:
 		if item.id in progress.interacted or (item.kind != "cache" and item.id not in targets):
 			continue
-		var d := item.at.distance_to(player.global_position)
+		var d := CampaignDefinition.point(item.at).distance_to(player.global_position)
 		if d <= distance:
 			distance = d
 			nearest = item
@@ -176,7 +176,7 @@ func try_interact() -> bool:
 	if _stopped or not player.is_alive() or GameRoot.get_current_state() != GameRoot.State.PLAYING:
 		return false
 	var item := nearest_interaction()
-	if item == null:
+	if item.is_empty():
 		return false
 	if item.kind != "cache" and remaining_guards() > 0:
 		message.emit("Secure the district first / %d hostiles remaining" % remaining_guards())
@@ -188,7 +188,7 @@ func try_interact() -> bool:
 		message.emit("SUPPLY LOCKER / +%d credits / +30 health" % int(item.credits))
 	else:
 		var all_done := true
-		for id in current_mission().targets:
+		for id in current_mission().get("targets", []):
 			all_done = all_done and id in progress.interacted
 		if all_done:
 			_complete_mission()
@@ -204,24 +204,24 @@ func try_interact() -> bool:
 
 func _complete_mission() -> void:
 	var mission := current_mission()
-	if mission == null:
+	if mission.is_empty():
 		return
 	# Advance BEFORE rewards/save. A single atomic save includes the completed
 	# target IDs, new mission cursor, build and wallet: Continue cannot replay it.
 	progress.mission = int(progress.mission) + 1
 	progress.checkpoint = String(mission.sector)
 	progress.completed = int(progress.mission) >= definition.missions.size()
-	var reward := mission.reward
+	var reward: Dictionary = mission.get("reward", {})
 	GameRoot.record_current_wave(int(progress.mission) + 1)
-	var upgrade := StringName(String(reward.upgrade))
+	var upgrade := StringName(String(reward.get("upgrade", "")))
 	if upgrade != &"":
 		player.get_progression_component().apply_upgrade_by_id(upgrade)
 		player.rebuild_derived_stats()
-	var weapon := StringName(String(reward.weapon))
+	var weapon := StringName(String(reward.get("weapon", "")))
 	if weapon != &"":
 		player.get_weapon_manager().equip_by_id(weapon, 1, true)
-	player.add_xp(float(reward.xp))
-	_commit_reward(int(reward.credits), true)
+	player.add_xp(float(reward.get("xp", 0)))
+	_commit_reward(int(reward.get("credits", 0)), true)
 	message.emit("OBJECTIVE COMPLETE / " + String(mission.title))
 	AudioManager.play_sfx(&"upgrade_select", -8.0)
 	if bool(progress.completed):
@@ -232,9 +232,7 @@ func _complete_mission() -> void:
 			GameRoot.complete_campaign()
 
 
-func _on_member_defeated(id: String, credits: int) -> void:
-	if id not in progress.defeated:
-		progress.defeated.append(id)
+func _on_member_defeated(_id: String, credits: int) -> void:
 	_commit_reward(credits, false)
 	changed.emit()
 
@@ -265,42 +263,35 @@ func save_progress(flush: bool = true) -> bool:
 	progress.started = true
 	progress.xp = player.get_experience_component().total_xp_earned()
 	progress.upgrades = player.get_progression_component().get_progression_snapshot()
-	progress.weapons.clear()
-	for id in player.get_weapon_manager().get_loadout_ids():
-		progress.weapons.append(String(id))
+	progress.weapons = player.get_weapon_manager().get_loadout_ids()
 	progress.active_weapon = String(player.get_weapon_manager().active_weapon_id())
-	progress.skills.clear()
-	for id in player.get_skill_controller().get_assigned_skill_ids():
-		progress.skills.append(String(id))
-	return SaveManager.store_campaign(progress.to_dict(), flush)
+	progress.skills = player.get_skill_controller().get_assigned_skill_ids()
+	return SaveManager.store_campaign(progress, flush)
 
 
 func _refresh_markers() -> void:
 	world.update_markers(progress.interacted, target_ids())
 
 
-func next_target() -> CampaignInteraction:
-	var nearest: CampaignInteraction
+func next_target() -> Dictionary:
+	var nearest: Dictionary = {}
 	var distance := INF
 	# When a console is guarded, navigation takes the player to the remaining
 	# guards first, rather than stranding them at an inactive terminal.
-	for id in current_mission().requires:
-		for member in definition.encounter(String(id)).members:
+	for id in current_mission().get("requires", []):
+		for member in definition.encounter(String(id)).get("members", []):
 			if member.id in progress.defeated:
 				continue
 			var at := encounters.member_position(member)
 			var d := at.distance_squared_to(player.global_position)
 			if d < distance:
 				distance = d
-				nearest = CampaignInteraction.new()
-				nearest.id = member.id
-				nearest.at = at
-				nearest.name = "Secure the district"
-	if nearest != null:
+				nearest = {"id": member.id, "at": [at.x, at.y, at.z], "name": "Secure the district"}
+	if not nearest.is_empty():
 		return nearest
 	for id in target_ids():
 		var item := definition.interaction(String(id))
-		var d := item.at.distance_squared_to(player.global_position)
+		var d := CampaignDefinition.point(item.at).distance_squared_to(player.global_position)
 		if d < distance:
 			distance = d
 			nearest = item
@@ -309,16 +300,16 @@ func next_target() -> CampaignInteraction:
 
 func _update_route() -> void:
 	var target := next_target()
-	if target == null:
+	if target.is_empty():
 		route.clear()
 		return
-	var target_position := target.at
+	var target_position := CampaignDefinition.point(target.at)
 	if _route_origin.is_finite() and _route_origin.distance_to(player.global_position) < 6.0 and _route_target == String(target.id) and _route_target_position.distance_to(target_position) < 4.0:
 		return
 	_route_origin = player.global_position
 	_route_target = String(target.id)
 	_route_target_position = target_position
-	route = world.nav.find_path(player.global_position, target.at)
+	route = world.nav.find_path(player.global_position, CampaignDefinition.point(target.at))
 
 
 func distance_to_target() -> float:
@@ -338,8 +329,8 @@ func available_weapons() -> Array[StringName]:
 		if id not in ids:
 			ids.append(id)
 	for index in range(int(progress.mission)):
-		var reward := definition.missions[index].reward
-		var id := StringName(String(reward.weapon))
+		var reward: Dictionary = definition.missions[index].get("reward", {})
+		var id := StringName(String(reward.get("weapon", "")))
 		if id != &"" and id not in ids:
 			ids.append(id)
 	return ids

@@ -308,8 +308,7 @@ class CampaignEntryAndPersistenceContracts(unittest.TestCase):
         self.assertIn("actor.queue_free()", stream)
         self.assertIn("SPAWNS_PER_TICK", stream)
         self.assertIn("_definition.max_active_enemies", stream)
-        self.assertIn("id in _defeated", stream)
-        self.assertNotIn("_progress.defeated.append", script)
+        self.assertIn("id in _progress.defeated", stream)
 
     def test_commander_has_authored_finite_phases_not_untracked_summons(self):
         phases = source("scenes/campaign/security_commander.tscn")

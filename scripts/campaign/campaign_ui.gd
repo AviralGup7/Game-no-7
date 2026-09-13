@@ -180,7 +180,7 @@ func _show(id: String) -> void:
 		_map.queue_redraw()
 		if is_instance_valid(director):
 			var mission := director.current_mission()
-			_map_brief.text = mission.brief if mission != null else "The evacuation route is open. Explore the station and recover the remaining supplies."
+			_map_brief.text = String(mission.get("brief", "The evacuation route is open. Explore the station and recover the remaining supplies."))
 	elif id == "settings":
 		_settings.refresh()
 	elif id == "armory":

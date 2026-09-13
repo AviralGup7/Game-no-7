@@ -220,9 +220,9 @@ static func _find_mesh(node: Node) -> Mesh:
 	return null
 
 
-static func landmark(parent: Node3D, prop: CampaignProp, accent: Color) -> void:
-	var at := prop.at
-	var size := prop.size
+static func landmark(parent: Node3D, prop: Dictionary, accent: Color) -> void:
+	var at := CampaignDefinition.point(prop.at)
+	var size := CampaignDefinition.point(prop.size)
 	var root := Node3D.new()
 	root.name = String(prop.id)
 	root.position = at

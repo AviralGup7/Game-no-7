@@ -11,7 +11,7 @@ var _checkpoints: Dictionary = {}
 var _visible_ids: Array[String] = []
 var _solids: Array[AABB] = []
 # Service causeways / ring decks: rendered, distance-culled, never simulated.
-var _connectors: Array[CampaignConnector] = []
+var _connectors: Array[Dictionary] = []
 
 
 func build(authored: CampaignDefinition) -> bool:
@@ -49,16 +49,13 @@ func build(authored: CampaignDefinition) -> bool:
 	for region in definition.floors:
 		var is_district := false
 		for sector in definition.sectors:
-			is_district = is_district or sector.rect == region
+			is_district = is_district or CampaignDefinition.rect(sector.rect) == region
 		if not is_district:
 			var deck := Node3D.new()
 			deck.name = "Causeway%s" % [region]
 			routes.add_child(deck)
 			CampaignGeometry.floor_batch(deck, region, &"military", CampaignGeometry.material(Color(0.18, 0.25, 0.3)))
-			var connector := CampaignConnector.new()
-			connector.root = deck
-			connector.area = region
-			_connectors.append(connector)
+			_connectors.append({"root": deck, "area": region})
 	update_visibility(definition.checkpoint("docks").origin)
 	return true
 
@@ -96,7 +93,7 @@ func _wall_style_at(at: Vector3) -> StringName:
 	var nearest_id := &"docks"
 	var nearest_distance := INF
 	for sector in definition.sectors:
-		var area := sector.rect
+		var area := CampaignDefinition.rect(sector.rect)
 		var nearest := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
 		var distance := nearest.distance_squared_to(Vector2(at.x, at.z))
 		if distance < nearest_distance:
@@ -115,12 +112,12 @@ func _navigation_is_connected() -> bool:
 	nav.rebuild_flow_field(definition.checkpoint("docks").origin)
 	var points: Array[Vector3] = []
 	for sector in definition.sectors:
-		points.append(sector.checkpoint)
+		points.append(CampaignDefinition.point(sector.checkpoint))
 	for item in definition.interactions:
-		points.append(item.at)
+		points.append(CampaignDefinition.point(item.at))
 	for group in definition.encounters:
 		for member in group.members:
-			points.append(member.at)
+			points.append(CampaignDefinition.point(member.at))
 	for point in points:
 		if not nav.is_walkable(point) or not nav.flow_field_reachable(point):
 			return false
@@ -159,21 +156,21 @@ func _lighting() -> void:
 	lighting.add_child(sun)
 
 
-func _build_district(sector: CampaignSector) -> void:
+func _build_district(sector: Dictionary) -> void:
 	var root := Node3D.new()
 	root.name = String(sector.id)
 	add_child(root)
 	_visuals[String(sector.id)] = root
-	var accent := sector.accent
+	var accent := Color(String(sector.accent))
 	var sector_id := StringName(String(sector.id))
-	CampaignGeometry.floor_batch(root, sector.rect, _floor_style(sector_id), CampaignGeometry.material(accent.darkened(0.78)))
+	CampaignGeometry.floor_batch(root, CampaignDefinition.rect(sector.rect), _floor_style(sector_id), CampaignGeometry.material(accent.darkened(0.78)))
 	for prop in definition.props:
 		if prop.sector == sector.id:
 			CampaignGeometry.landmark(root, prop, accent)
 	for item in definition.interactions:
 		if item.sector == sector.id:
-			_markers[String(item.id)] = _beacon(root, item.at, accent, String(item.name), false)
-	var checkpoint := sector.checkpoint
+			_markers[String(item.id)] = _beacon(root, CampaignDefinition.point(item.at), accent, String(item.name), false)
+	var checkpoint := CampaignDefinition.point(sector.checkpoint)
 	_checkpoints[String(sector.id)] = _beacon(root, checkpoint, Color(0.3, 0.95, 0.8), "CHECKPOINT / SAFE REST", true)
 	var sign := Label3D.new()
 	sign.text = String(sector.name)
@@ -216,13 +213,13 @@ func update_markers(interacted: Array, targets: Array) -> void:
 	for id in _markers:
 		var marker: Node3D = _markers[id]
 		var item := definition.interaction(String(id))
-		marker.visible = id not in interacted and (id in targets or item.kind == "cache")
+		marker.visible = id not in interacted and (id in targets or item.get("kind", "") == "cache")
 
 
 func update_visibility(at: Vector3) -> void:
 	var ranked: Array[Dictionary] = []
 	for sector in definition.sectors:
-		var area := sector.rect
+		var area := CampaignDefinition.rect(sector.rect)
 		var nearest := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
 		ranked.append({"id": String(sector.id), "distance": nearest.distance_to(Vector2(at.x, at.z))})
 	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.distance) < float(b.distance))
@@ -235,9 +232,9 @@ func update_visibility(at: Vector3) -> void:
 		if shown:
 			_visible_ids.append(String(entry.id))
 	for deck in _connectors:
-		var area := deck.area
+		var area: Rect2 = deck["area"]
 		var near := Vector2(clampf(at.x, area.position.x, area.end.x), clampf(at.z, area.position.y, area.end.y))
-		var root := deck.root
+		var root: Node3D = deck["root"]
 		root.visible = near.distance_to(Vector2(at.x, at.z)) < 105.0
 
 

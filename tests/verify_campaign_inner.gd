@@ -115,7 +115,7 @@ func _budget() -> void:
 
 
 func _streaming_and_reload() -> void:
-	var member: CampaignMember = _session.definition.encounters[0].members[0]
+	var member: Dictionary = _session.definition.encounters[0].members[0]
 	_check("explicit encounter activation works", _session.encounters._spawn(member))
 	var before: int = _session.progress.defeated.size()
 	await _move_to(_session.definition.checkpoint("reactor").origin)
@@ -146,7 +146,7 @@ func _story() -> void:
 	_check("cache credits reach the permanent wallet", SaveManager.get_meta_wallet() == wallet + int(cache.credits))
 	_check("cache cannot be farmed", not _session.try_interact())
 	for index in range(_session.definition.missions.size()):
-		var mission: CampaignMission = _session.definition.missions[index]
+		var mission: Dictionary = _session.definition.missions[index]
 		for id in mission.targets:
 			var target := _session.definition.interaction(String(id))
 			await _move_to(CampaignDefinition.point(target.at))
