@@ -167,7 +167,7 @@ legacy unit/UI suites remain registered as regressions.
 - Campaign topology/content checks passed, including every one of the twelve
   checkpoints, 30 interactions and 96 spawn positions. All 13,440 walkable cells
   form one connected component, and every connector deck is walkable at both seams.
-- **1,262 Python tests passed**, including campaign topology mutations,
+- **1,288 Python tests passed**, including campaign topology mutations,
   bootstrap/persistence/touch contracts, runtime-budget parity and APK
   campaign-content fixtures.
 - GDScript lint and offline resource, engine-API, scene-path, string-format,

@@ -60,7 +60,10 @@ def main() -> int:
         ("scripts/player/stamina_component.gd", "clampf(_current / _max, 0.0, 1.0)"),
         ("scripts/player/progression_component.gd", "is_finite(base)"),
         # Enemies + waves.
-        ("scripts/enemies/enemy_base.gd", "is_finite(resisted.x)"),
+        # The knockback guard moved with the damage path into its component
+        # (EnemyBase.apply_damage -> EnemyCombatResponse): the pin follows the code
+        # so the NaN/inf rejection cannot be dropped anywhere along the seam.
+        ("scripts/enemies/enemy_combat_response.gd", "is_finite(resisted.x)"),
         ("scripts/waves/wave_planner.gd", "maxi(wave_number, 1)"),
         ("scripts/waves/difficulty_director.gd", "is_finite(_now)"),
         ("scripts/waves/scoring.gd", "maxi(int(round(raw)), 0)"),

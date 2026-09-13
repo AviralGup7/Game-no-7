@@ -56,9 +56,10 @@ class HdVisualsTests(unittest.TestCase):
         hd = read("scripts/visuals/hd_materials.gd")
         self.assertIn("class_name HdMaterials", hd)
         self.assertIn("TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC", hd)
+        # Prop mounting (the HD pass) lives in DecoratorProps after the decorator split.
         for path in ("scripts/visuals/character_visuals.gd",
                      "scripts/enemies/enemy_animator.gd",
-                     "scripts/arena/arena_decorator.gd"):
+                     "scripts/arena/decorator_props.gd"):
             self.assertIn("HdMaterials.polish", read(path))
 
     def test_manifest_locks_hd_downloads(self):

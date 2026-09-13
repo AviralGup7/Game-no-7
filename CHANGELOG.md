@@ -89,6 +89,103 @@
 - Updated campaign world, geometry, map, UI, encounter, and native validation call sites to consume typed records. The campaign JSON schema, save schema v8, collision contract, and three byte-identical world-budget constants are unchanged.
 - Added `test_regress_campaign_typed.py` to pin JSON-to-record field parity, the single-loader invariant, typed graph declarations, director-owned defeat mutation, and the existing world extent budget.
 - GDScript behavior is **verified offline only; awaiting CI `godot-tests`** because Godot 4.4.1 and gdlint are unavailable in this sandbox. Python and all available static/resource gates pass.
+## [Unreleased] — Split the oversized manager classes into typed components (2026-09-13)
+
+- Break `scripts/enemies/enemy_base.gd` (984 → 697 lines) into typed `RefCounted`
+  collaborators: `enemy_combat_response.gd` (intake riders, exactly-once death latch,
+  detonate, health fraction), `enemy_motion.gd` (steering), `enemy_brain.gd`
+  (perception, personality, identity, nav grid, run clock), `enemy_presentation.gd`
+  (telegraph ring, visual scale), `enemy_elite_kit.gd` (affix cache, tint, FRENZIED
+  cadence, VAMPIRIC heal) and `enemy_debug_view.gd` (static snapshot). `EnemyBase`
+  keeps `TARGET_GROUP`, the `_alive`/`_damage_scale`/`_health`/`_feedback`/`_audio`/
+  `_machine` fields the tests poke, every public method's signature, and the bare
+  `EnemyBase.new()` + `HealthComponent` + `EnemyStateMachine` construction path the
+  fixtures use; the guard pin for the knockback finite check moved with the code to
+  `tool/validate_guards.py`'s new path. Behavior unchanged: all ten tool gates green,
+  `Passed 201, Failed 0`, `Ran 1238 tests … OK`, engine-api diff vs the pre-split tree
+  reports no new unsafe access (verified offline only; awaiting CI `godot-tests`).
+- Break `scripts/main/camera_rig.gd` (764 → 636 lines) into
+  `camera_lock_on_controller.gd` (candidate pick, toggle, mid-look target),
+  `camera_hitstop_locator.gd` (group → literal path → typed DFS lookup, cached) and
+  `camera_rig_debug.gd` (static snapshot). `CameraRig` keeps `toggle_lock_on()`,
+  `set_camera_profile()`, `reset_transform()`, the `_unhandled_input`/`_process`
+  ordering, the interpolation setup and the `camera_rig` group; the lock-on factor pin
+  in `tests/python/test_regress_systems_completion.py` now reads the controller file.
+  The remaining 636 lines are the rig's own per-frame contract — the
+  `_unhandled_input`/`_handle_look_touch`/`_notification` touch handling and
+  `_update_look_at`/`_apply_follow_position` ordering are asserted textually against
+  `camera_rig.gd` by `tests/unit/test_android_runtime.gd` and eight Python modules, so
+  there is nothing left to move without moving those contracts too.
+- Break `scripts/visuals/effect_director.gd` (756 → 446 lines) into
+  `effect_event_handlers.gd` (all fourteen EventBus translations plus the last-boss
+  origin that `boss_slain` replays), `effect_skill_catalog.gd` (per-skill ring/burst
+  textures, radii, scales, spread and particle counts), `effect_templates.gd` (one-shot
+  burst and ground-ring recipes, plus the settings-free geometry), `effect_placement.gd`
+  (arena origin, floor probe), `effect_readability.gd` (reduced motion, high contrast,
+  deuteranopia-safe ink) and `effect_priorities.gd` (saturation ladder, re-exported as
+  the same `PRIORITY_*` constants so callers and the milestone tests are untouched). The
+  pool itself — caps, claim/steal policy, `_claim_burst`/`_claim_ring`, `_place_ring_on_floor`
+  and the boss-reserve maths — deliberately stays in the director, which is what the pool
+  governor and Android performance pins read. Boss-origin pins in
+  `tests/python/test_regress_visuals_ring_and_effect.py` now read the handler module.
+  Behavior unchanged: all ten tool gates green, `Ran 1238 tests … OK`, engine-api diff
+  vs the pre-split tree reports no new unsafe access; the Python suite is green apart from
+  `test_regress_campaign_typed`, which already fails on the merged branch tip and belongs to
+  the campaign work (verified offline only; awaiting CI `godot-tests`).
+
+- Break `scripts/arena/arena_decorator.gd` (745 → 394 lines) into two typed `RefCounted`
+  collaborators: `decorator_props.gd` (`DecoratorProps` — scene cache, mount/material kit,
+  the four primitive meshes, `_add_prop_collision`'s collider + nav-footprint maths
+  (`_combined_local_aabb`, the `MIN_PROP_HALF*`/`MAX_PROP_HALF*` clamps) and the spawned/
+  blocker ledgers) and `arena_warehouse_yard.gd` (`ArenaWarehouseYard` — the `MAT_*`/
+  `WAREHOUSE_*` constants, `_build_warehouse_compound`, `_place_structure`,
+  `_place_column_at`, `_instantiate_warehouse`, `_mount_warehouse_model` and
+  `_fit_warehouse_to_compound`). `ArenaDecorator` keeps the compositions
+  (`_compose_default`/`_compose_frost`), `_place_structural` (still feeding the nav grid,
+  now through `_props.add_blocker`), `_scatter`, the collision-free `_wall_props`,
+  `_open_spot`/`_spawn_marker_positions`/`_player_spawn_local` and the whole public surface
+  (`decorate`/`clear`/`get_nav_blockers`/`spawned_count`/`apply_prestige_banners`), so
+  `tests/unit/test_decorator_collision.gd` is untouched; `_centerish` turned out to be dead
+  and was dropped. The warehouse, solid-prop and HD-material pins in
+  `tests/python/test_regress_{warehouse_yard,solid_props_and_buttons,hd_visuals}.py` now read
+  the file that owns the code.
+- Add `tests/python/test_regress_manager_component_splits.py`, pinning the split surface the
+  task calls inviolable: the Player privates the integration/UI suites poke
+  (`_attack_buffer`, `_health_now`, `_gameplay_time`, `_locomotion`, `_try_attack`,
+  `_cancel_combat`, `_on_died`) stay declared on `player.gd`, `EnemyBase` keeps its
+  required/optional component split (so bare `EnemyBase.new()` + `HealthComponent` +
+  `EnemyStateMachine` fixtures keep working), no manager or collaborator reintroduces
+  `.call("…")`/`has_method(` string dispatch, and each manager still constructs its
+  components. The new arena/visuals modules also join the compile-smoke list in
+  `tests/unit/test_presentation_scripts.gd`. All ten tool gates green, `Ran 1246 tests … OK`,
+  engine-api diff vs the pre-split tree reports no new unsafe access (verified offline only;
+  awaiting CI `godot-tests`).
+
+- Break `scripts/player/player.gd` (734 → 591 lines) into five typed `RefCounted`
+  collaborators: `player_intake.gd` (Damageable entry point, shield/mitigation intake,
+  payload riders, the mitigation provider HealthComponent holds), `player_reactions.gd`
+  (component signals → feedback/audio and the re-emitted node signals),
+  `player_run_cycle.gd` (run resets in their documented order + the starter kit),
+  `player_debug_view.gd` (debug/build/progression snapshots) and `player_components.gd`
+  (the REQUIRED-component scene contract; resolution stays on Player because it assigns
+  the class's own typed fields). The inviolable members stay declared on `Player`
+  itself — `_attack_buffer`, `_health_now`, `_gameplay_time`, `_locomotion`, `_try_attack`,
+  `_cancel_combat`, `_on_died` — and the three signals Player re-emits keep their
+  `emit()` calls in the root through small relays, so the signal gate still
+  arity-checks them. The `equipped_weapons` build-mirror pin in
+  `tests/python/test_regress_{milestones_2_to_7,player_hardening}.py` now reads
+  `player_debug_view.gd`. All ten tool gates green (engine-api diff vs the pre-split
+  tree: no new unsafe access); the Python suite is green apart from the pre-existing
+  campaign-typed failure described above (verified offline only; awaiting CI `godot-tests`). The remaining 591 lines are deliberately not split further in
+  this pass: the physics step, the touch intent pair, `_aim_attack`'s camera-relative
+  branch and the death latch are asserted textually against `player.gd` by
+  `tests/python/test_android_shooter_controls.py`, `test_regress_run_isolation.py`,
+  `test_regress_player_hardening.py`, `test_regress_arena_guards.py` and the GDScript
+  integration/UI runners, so moving them would relocate the contract without shrinking
+  the surface those suites drive.
+- Refresh the measured Python-test counts in `docs/HARDENING.md` and `docs/campaign/README.md`
+  to the suite's current total (1,288) — the doc-count guard re-derives them from the suite and
+  had drifted from the merged tip's 1,280.
 
 ## [Unreleased] — Restore the expanded station, generalize the audit gates (2026-09-12)
 

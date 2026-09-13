@@ -10,12 +10,17 @@ class VisualsTests(unittest.TestCase):
         self.assertIn("Reset material alpha so reused pooled rings",txt)
         self.assertIn("func trigger(duration: float)",txt)
     def test_boss_slain_uses_last_boss_origin(self):
+        # After the EffectDirector split the boss handlers (and the last-spawn origin
+        # they replay) live in EffectEventHandlers; the director keeps the pool plus
+        # the ground probe the tell is placed with.
+        events=read("scripts/visuals/effect_event_handlers.gd")
+        self.assertIn("_last_boss_at", events)
+        self.assertIn("_has_boss_at", events)
+        self.assertIn("_last_boss_at if _has_boss_at", events)
+        self.assertNotIn("ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32)", events)
         txt=read("scripts/visuals/effect_director.gd")
-        self.assertIn("_last_boss_at", txt)
-        self.assertIn("_has_boss_at", txt)
         self.assertIn("BossController.BOSS_GROUP", txt)
         self.assertIn("func _place_ring_on_floor(", txt)
-        self.assertNotIn("ring_at(Vector3.ZERO, Color(1.0, 0.85, 0.32)", txt)
         self.assertIn("absf(nrm.dot(Vector3.UP)) < 0.95", txt)
 
     def test_effect_director_pool_caps(self):

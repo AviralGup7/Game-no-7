@@ -73,7 +73,8 @@ class PlayerBindTests(unittest.TestCase):
         self.assertIn("_controller.bind_weapons(_weapons)", txt)
         self.assertIn("func request_dodge() -> bool:", txt)
         self.assertIn("func get_build_snapshot() -> Dictionary:", txt)
-        self.assertIn("equipped_weapons", txt)
+        # The mirror body lives in PlayerDebugView now (Player delegates).
+        self.assertIn("equipped_weapons", read("scripts/player/player_debug_view.gd"))
         self.assertIn("Player → WeaponManager → WeaponInstance", txt)
         self.assertIn("is_connected", txt)
         self.assertIn('get_node_or_null("DodgeController")', txt)

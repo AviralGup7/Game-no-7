@@ -18,6 +18,12 @@ extends Node3D
 ## Every prop load is optional: if a source model is missing/unimported the decorator
 ## transparently falls back to a primitive so an arena is never left undecorated.
 ## Budgets are clamped for mobile; nothing here allocates particles or runs per frame.
+##
+## Collaborators (typed RefCounted helpers): `DecoratorProps` builds, mounts and
+## collides every prop and owns the spawned/blocker ledgers; `ArenaWarehouseYard`
+## builds the authored compound north of the Pit. This class keeps the per-arena
+## compositions, the spot picking and the Arena-facing contract (blockers, clear,
+## spawned_count), so the scenes, tests and Arena only ever talk to it.
 
 const MAX_PILLARS := 8
 const MAX_CLUTTER := 22
@@ -31,12 +37,6 @@ const SPAWN_CLEAR_RADIUS := 2.5
 ## markers: a collider sitting on a spawn would have the physics server push a
 ## spawning enemy out of it (and could trap it against a wall).
 const SPAWN_MARKER_CLEAR_RADIUS := 1.7
-## Sanity clamps for a prop collider derived from imported art. A corrupt/huge
-## import must never produce a room-sized invisible wall.
-const MIN_PROP_HALF := 0.18
-const MAX_PROP_HALF_XZ := 1.4
-const MAX_PROP_HALF_Y := 2.2
-
 const DUNGEON := "res://assets/environment/space_station/"
 const SC_PILLAR := DUNGEON + "support.tscn"
 const SC_PILLAR_DECOR := SC_PILLAR
@@ -63,20 +63,12 @@ const SC_SWORD := SC_CANDLE3
 const SC_SWORD_GOLD := SC_CANDLE3
 ## Sword trophies are centre-origin wall art (1.67 m tall): this seats their base on the floor.
 const TROPHY_LIFT := 0.82
-const MAT_METAL := "res://assets/materials/arena_metal.tres"
-const MAT_BRICK := "res://assets/materials/arena_wall_brick.tres"
-const MAT_WOOD := "res://assets/materials/arena_wood.tres"
-const WAREHOUSE_SCENE := "res://data/models/warehouse/scene.gltf"
-## Outside the Pit square, north of the wall. South face (docks) meets the gate.
-const WAREHOUSE_TARGET := Vector3(30.4, 5.0, 11.4)
-const WAREHOUSE_CENTER := Vector3(0.0, 0.0, -25.5)
-const WAREHOUSE_GATE_WIDTH := 6.0
-
-var _spawned: Array[Node3D] = []
+## Typed collaborators: the prop kit (build/mount/collide + the spawned/blocker
+## ledgers) and the authored warehouse yard. The decorator owns the compositions,
+## the spot picking and the public Arena contract.
+var _props := DecoratorProps.new()
+var _yard := ArenaWarehouseYard.new(_props)
 var _rng := RngService.new()
-## Arena-local XZ footprints of every solid prop, published to the Arena so the
-## shared nav grid blocks the same cells the colliders occupy.
-var _blockers: Array[AABB] = []
 
 
 func decorate(arena_id: StringName, arena_half: float, run_seed: int) -> void:
@@ -109,11 +101,7 @@ func _composition_id(arena_id: StringName) -> StringName:
 
 
 func clear() -> void:
-	for n in _spawned:
-		if is_instance_valid(n):
-			n.queue_free()
-	_spawned.clear()
-	_blockers.clear()
+	_props.clear()
 
 
 ## Solid-prop footprints as world-space boxes, the shape `ArenaNavGrid.build()` and
@@ -122,7 +110,7 @@ func clear() -> void:
 ## invisible, and a typo'd key is a runtime miss rather than a parse error. The authored obstacle
 ## placements in `Arena` travel the same way (as `ArenaObstaclePlacement`).
 func get_nav_blockers() -> Array[AABB]:
-	return _blockers
+	return _props.blockers()
 
 
 ## Hand the footprints to the owning Arena (the decorator is its direct child) so the
@@ -131,11 +119,11 @@ func _publish_blockers() -> void:
 	var arena := get_parent() as Arena
 	if arena == null:
 		return
-	arena.register_decoration_blockers(_blockers)
+	arena.register_decoration_blockers(_props.blockers())
 
 
 func spawned_count() -> int:
-	return _spawned.size()
+	return _props.spawned().size()
 
 
 # ---------------------- per-arena compositions — distinct silhouettes ----------------------
@@ -144,14 +132,14 @@ func _compose_default(half: float) -> void:
 	# Warehouse sits NORTH of the Pit square. The north wall is gated so the
 	# hero walks out of the yard into the docks. Coordinates are authored —
 	# this composition does not scatter or pick open spots.
-	_build_warehouse_compound()
+	_yard._build_warehouse_compound(self)
 	_mount_trophy_pair(6.0, -16.0, SC_SWORD_GOLD, SC_SWORD)
 	_mount_trophy_pair(-6.0, -16.0, SC_SWORD, SC_SWORD_GOLD)
 	# Aisles inside the warehouse (outside the square).
-	_place_column_at(Vector3(-8.0, 0.0, -28.5), SC_PILLAR)
-	_place_column_at(Vector3(8.0, 0.0, -28.5), SC_PILLAR)
-	_place_column_at(Vector3(-8.0, 0.0, -23.5), SC_PILLAR)
-	_place_column_at(Vector3(8.0, 0.0, -23.5), SC_PILLAR)
+	_yard._place_column_at(self, Vector3(-8.0, 0.0, -28.5), SC_PILLAR)
+	_yard._place_column_at(self, Vector3(8.0, 0.0, -28.5), SC_PILLAR)
+	_yard._place_column_at(self, Vector3(-8.0, 0.0, -23.5), SC_PILLAR)
+	_yard._place_column_at(self, Vector3(8.0, 0.0, -23.5), SC_PILLAR)
 	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -29.5), 0.65)
 	_mount_prop(SC_BOXSTACK, Vector3(-11.5, 0.0, -26.5), 0.55)
 	_mount_prop(SC_CRATES, Vector3(-11.5, 0.0, -23.5), 0.65)
@@ -216,8 +204,8 @@ func _compose_frost(half: float) -> void:
 		prism.material_override = cmat
 		holder.add_child(prism)
 		add_child(holder)
-		_spawned.append(holder)
-		_add_prop_collision(holder)
+		_props.adopt(holder)
+		_props._add_prop_collision(holder)
 	# Lit candle ring interleaved with the shards — cold light points, emissive only.
 	for i in range(3):
 		var candle_angle := float(i) * TAU / 3.0 + PI / 2.0
@@ -227,151 +215,8 @@ func _compose_frost(half: float) -> void:
 
 # ---------------------- builders ----------------------
 
-## Warehouse north of the Pit square. South face is gated (6 m) to match the
-## open section of Wall_N. Collision is always the authored compound.
-func _build_warehouse_compound() -> void:
-	var brick := _structure_mat(MAT_BRICK)
-	var metal := _structure_mat(MAT_METAL)
-	var wood := _structure_mat(MAT_WOOD)
-	var show_shell := not _mount_warehouse_model()
-	var half_x := WAREHOUSE_TARGET.x * 0.5
-	var half_z := WAREHOUSE_TARGET.z * 0.5
-	var back_z := WAREHOUSE_CENTER.z - half_z
-	var south_z := WAREHOUSE_CENTER.z + half_z
-	_place_structure(Vector3(0.0, 2.5, back_z), Vector3(WAREHOUSE_TARGET.x, 5.0, 0.5), brick, show_shell)
-	_place_structure(Vector3(-half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
-	_place_structure(Vector3(half_x, 2.5, WAREHOUSE_CENTER.z), Vector3(0.5, 5.0, WAREHOUSE_TARGET.z), brick, show_shell)
-	var wing := (WAREHOUSE_TARGET.x - WAREHOUSE_GATE_WIDTH) * 0.5
-	var wing_x := WAREHOUSE_GATE_WIDTH * 0.5 + wing * 0.5
-	_place_structure(Vector3(-wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(wing_x, 2.2, south_z), Vector3(wing, 4.4, 0.45), metal, show_shell)
-	_place_structure(Vector3(0.0, 0.22, south_z + 0.6), Vector3(5.5, 0.44, 1.8), wood, true)
-	_place_structure(Vector3(-13.2, 0.35, WAREHOUSE_CENTER.z), Vector3(3.2, 0.7, 3.0), wood, true)
 
 
-func _structure_mat(path: String) -> Material:
-	var res := load(path)
-	if res is Material:
-		return res
-	return _mat(Color(0.42, 0.38, 0.34))
-
-
-## Authored architecture: a floor-standing box with its own collider and nav footprint.
-## Sized from the call, not from MAX_PROP_HALF_XZ — a warehouse wall is not clutter.
-## `with_mesh` is false when the Nicholas-3D glTF is already drawing the shell.
-func _place_structure(at: Vector3, size: Vector3, mat: Material, with_mesh: bool = true) -> void:
-	var body := StaticBody3D.new()
-	body.position = at
-	body.add_to_group("world_static")
-	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
-	body.collision_mask = CollisionLayers.NO_LAYER
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = size
-	shape.shape = box
-	body.add_child(shape)
-	if with_mesh:
-		var mesh := MeshInstance3D.new()
-		var bm := BoxMesh.new()
-		bm.size = size
-		mesh.mesh = bm
-		if mat != null:
-			mesh.material_override = mat
-		body.add_child(mesh)
-	add_child(body)
-	_spawned.append(body)
-	var foot_half := size * 0.5
-	_blockers.append(AABB(at - foot_half, size))
-
-
-## Nicholas-3D warehouse (CC-BY 4.0). PackedScene after editor import, otherwise
-## `GLTFDocument.append_from_file` so the mesh still loads headless. Fitted to
-## `WAREHOUSE_TARGET` from the imported AABB — not a guessed scale.
-func _mount_warehouse_model() -> bool:
-	var visual := _instantiate_warehouse()
-	if visual == null:
-		return false
-	var holder := Node3D.new()
-	holder.name = "Warehouse"
-	holder.add_child(visual)
-	var bounds := _combined_local_aabb(holder)
-	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
-		holder.free()
-		return false
-	_fit_warehouse_to_compound(holder, visual)
-	add_child(holder)
-	_spawned.append(holder)
-	return true
-
-
-func _instantiate_warehouse() -> Node3D:
-	if ResourceLoader.exists(WAREHOUSE_SCENE):
-		var packed := load(WAREHOUSE_SCENE)
-		if packed is PackedScene:
-			var scene: PackedScene = packed
-			var inst := scene.instantiate()
-			if inst is Node3D:
-				return inst
-			if inst != null:
-				inst.free()
-	var doc := GLTFDocument.new()
-	var state := GLTFState.new()
-	if doc.append_from_file(WAREHOUSE_SCENE, state) != OK:
-		return null
-	var generated := doc.generate_scene(state)
-	if generated is Node3D:
-		return generated
-	if generated != null:
-		generated.free()
-	return null
-
-
-## Rotate the long axis onto X, uniform-scale into the north compound, sit on the floor.
-func _fit_warehouse_to_compound(holder: Node3D, visual: Node3D) -> void:
-	var bounds := _combined_local_aabb(holder)
-	if bounds.size.x < 0.5 and bounds.size.z < 0.5:
-		return
-	if bounds.size.z > bounds.size.x + 0.5:
-		visual.rotation.y += PI * 0.5
-		bounds = _combined_local_aabb(holder)
-	var sx := WAREHOUSE_TARGET.x / maxf(bounds.size.x, 0.01)
-	var sz := WAREHOUSE_TARGET.z / maxf(bounds.size.z, 0.01)
-	var sy := WAREHOUSE_TARGET.y / maxf(bounds.size.y, 0.01)
-	visual.scale *= minf(sx, minf(sz, sy))
-	bounds = _combined_local_aabb(holder)
-	var center := bounds.position + bounds.size * 0.5
-	holder.position = Vector3(
-		WAREHOUSE_CENTER.x - center.x,
-		-bounds.position.y,
-		WAREHOUSE_CENTER.z - center.z)
-
-
-## One structural column at an authored point (same collider contract as `_place_structural`).
-func _place_column_at(at: Vector3, scene_path: String) -> void:
-	var body := StaticBody3D.new()
-	body.position = at
-	body.add_to_group("world_static")
-	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
-	body.collision_mask = CollisionLayers.NO_LAYER
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = Vector3(1.4, 4.0, 1.4)
-	shape.shape = box
-	shape.position.y = 2.0
-	body.add_child(shape)
-	if not _mount_model(body, scene_path, 0.0, 1.0):
-		_primitive_pillar(body)
-	add_child(body)
-	_spawned.append(body)
-	var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
-	_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
-
-
-## Structural pillars get collision (LOS blockers). Uses model when available, else the
-## legacy primitive pillar of matching footprint. Their footprint also joins the nav
-## grid: previously only ArenaObstacles + the landmark were registered, so the AI's
-## INTENT walked straight through these pillars even though physics stopped the body
-## (the enemy then leaned on the pillar until the stuck-nudge freed it).
 func _place_structural(count: int, half: float, scene_path: String) -> void:
 	for i in range(mini(count, MAX_PILLARS)):
 		var at := _open_spot(half, 2.0)
@@ -387,16 +232,16 @@ func _place_structural(count: int, half: float, scene_path: String) -> void:
 		shape.position.y = 2.0
 		body.add_child(shape)
 		# Model visual (idempotent: falls back to primitives automatically).
-		if not _mount_model(body, scene_path, 0.0, 1.0):
-			_primitive_pillar(body)
+		if not _props._mount_model(body, scene_path, 0.0, 1.0):
+			_props._primitive_pillar(body)
 		add_child(body)
-		_spawned.append(body)
+		_props.adopt(body)
 		# `foot_half`, not `half`: the enclosing function's own parameter is the arena's half-extent and
 		# shadowing it is a parse error ("There is already a parameter named \"half\"").
 		var foot_half := Vector3(box.size.x * 0.5, box.size.y * 0.5, box.size.z * 0.5)
 		# The collider is offset up by shape.position.y, so the box is too. `ArenaNavGrid` reads only x
 		# and z, but a footprint that lies about height is a bug waiting for the next reader.
-		_blockers.append(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
+		_props.add_blocker(AABB(at + Vector3(0.0, shape.position.y, 0.0) - foot_half, foot_half * 2.0))
 
 
 ## Scattered floor clutter (barrels / crates / boxes / rubble). Solid: each prop gets
@@ -409,14 +254,14 @@ func _scatter(count: int, half: float, choices: Array) -> void:
 		var yaw := _rng.randf_range(RngService.STREAM_COSMETIC, -PI, PI)
 		var holder := Node3D.new()
 		holder.position = at
-		if not _mount_model(holder, path, 0.0, s):
-			_primitive_rock(holder, s)
+		if not _props._mount_model(holder, path, 0.0, s):
+			_props._primitive_rock(holder, s)
 		holder.rotation.y = yaw
 		add_child(holder)
-		_spawned.append(holder)
+		_props.adopt(holder)
 		# After the yaw is final: the collider inherits the holder's rotation, and the
 		# nav footprint below is expanded to the rotated box's axis-aligned bounds.
-		_add_prop_collision(holder)
+		_props._add_prop_collision(holder)
 
 
 ## Banners / torches set along the arena walls (visual only).
@@ -430,21 +275,14 @@ func _wall_props(half: float, banner: StringName, add_torches: bool) -> void:
 		holder.position = at
 		holder.rotation.y = -angle
 		var path := banner_scene if not add_torches or i % 2 == 0 else SC_TORCH
-		if not _mount_model(holder, path, 0.0, 1.0):
+		if not _props._mount_model(holder, path, 0.0, 1.0):
 			if add_torches and i % 2 == 1:
-				_primitive_brazier(holder)
+				_props._primitive_brazier(holder)
 			else:
-				_primitive_banner(holder)
+				_props._primitive_banner(holder)
 		add_child(holder)
-		_spawned.append(holder)
+		_props.adopt(holder)
 
-
-func _centerish(_half: float, radius: float) -> Vector3:
-	for _attempt in range(12):
-		var p := _rng.point_in_disc(RngService.STREAM_ARENA, radius)
-		if p.length() > CENTER_CLEAR_RADIUS * 0.9:
-			return p
-	return Vector3(radius * 0.7, 0, 0)
 
 
 ## Player spawn in arena-local coordinates (the decorator sits at the arena
@@ -477,7 +315,7 @@ func _open_spot(half: float, margin: float) -> Vector3:
 		if on_marker:
 			continue
 		var blocked := false
-		for n in _spawned:
+		for n in _props.spawned():
 			# Use local position — global_position is not yet valid for nodes
 			# just added this frame (transform propagation is deferred).
 			if (n as Node3D).position.distance_to(p) < PILLAR_CLEARANCE:
@@ -506,11 +344,11 @@ func _spawn_marker_positions() -> Array:
 func _mount_prop(path: String, at: Vector3, scale_factor: float) -> void:
 	var holder := Node3D.new()
 	holder.position = at
-	if not _mount_model(holder, path, 0.0, scale_factor):
-		_primitive_brazier(holder)
+	if not _props._mount_model(holder, path, 0.0, scale_factor):
+		_props._primitive_brazier(holder)
 	add_child(holder)
-	_spawned.append(holder)
-	_add_prop_collision(holder)
+	_props.adopt(holder)
+	_props._add_prop_collision(holder)
 
 
 ## Two flat trophy pieces mounted back to back so a front face reads from either side
@@ -521,188 +359,20 @@ func _mount_trophy_pair(x: float, z: float, face_a: String, face_b: String) -> v
 	holder.position = Vector3(x, 0.0, z)
 	var south := Node3D.new()
 	holder.add_child(south)
-	if not _mount_model(south, face_a, TROPHY_LIFT, 1.0):
-		_primitive_rock(south, 1.2)
+	if not _props._mount_model(south, face_a, TROPHY_LIFT, 1.0):
+		_props._primitive_rock(south, 1.2)
 	var north := Node3D.new()
 	north.rotation.y = PI
 	holder.add_child(north)
-	if not _mount_model(north, face_b, TROPHY_LIFT, 1.0):
-		_primitive_rock(north, 1.2)
+	if not _props._mount_model(north, face_b, TROPHY_LIFT, 1.0):
+		_props._primitive_rock(north, 1.2)
 	add_child(holder)
-	_spawned.append(holder)
-	_add_prop_collision(holder)
+	_props.adopt(holder)
+	_props._add_prop_collision(holder)
 
 
 # ---------------------- prop collision (solid decoration) ----------------------
 
-## Give a floor-standing prop a real collider + a nav-grid footprint, sized from the
-## model's OWN imported AABB so the invisible wall always matches the visible mesh
-## (KayKit props vary in footprint, and a hardcoded box would clip or float).
-func _add_prop_collision(holder: Node3D) -> void:
-	if holder == null or not is_instance_valid(holder):
-		return
-	var bounds := _combined_local_aabb(holder)
-	var center := bounds.position + bounds.size * 0.5
-	var half := Vector3(
-		clampf(bounds.size.x * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_XZ),
-		clampf(bounds.size.y * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_Y),
-		clampf(bounds.size.z * 0.5, MIN_PROP_HALF, MAX_PROP_HALF_XZ))
-	var body := StaticBody3D.new()
-	body.name = "PropCollision"
-	# The world layer is what the player and every enemy are masked against, and a static
-	# prop queries nothing itself. Named, not written as bits: `collision_layer = 1` reads as a
-	# constant to keep and stops meaning anything the moment a layer is renumbered, which is the bug
-	# class `tool/validate_guards.py` and `tests/python/test_regress_collision_contract.py` refuse.
-	body.collision_layer = CollisionLayers.WORLD_BODY_LAYER
-	body.collision_mask = CollisionLayers.NO_LAYER
-	var shape := CollisionShape3D.new()
-	var box := BoxShape3D.new()
-	box.size = half * 2.0
-	shape.shape = box
-	shape.position = center
-	body.add_child(shape)
-	holder.add_child(body)
-	# Nav footprint, expanded to the axis-aligned bounds of the YAW-ROTATED box (the
-	# collider inherits the holder's rotation; the nav grid is axis-aligned). The
-	# centre offset is rotated by the same yaw so an off-centre model's footprint
-	# lands where the mesh actually is.
-	var yaw := holder.rotation.y
-	var cs := absf(cos(yaw))
-	var sn := absf(sin(yaw))
-	var foot := Vector3(half.x * cs + half.z * sn, half.y, half.x * sn + half.z * cs)
-	var local_center := holder.transform.basis * center
-	_blockers.append(AABB(holder.position + local_center - foot, foot * 2.0))
-
-
-## Combined AABB of every mesh under `root`, in `root`-local space. Walks the child
-## transforms explicitly: at decoration time the holder is not in the tree yet, so
-## global_transform is not valid and MeshInstance3D.get_aabb() alone would ignore the
-## model's own node offsets. Returns a zero AABB when nothing drawable is mounted.
-func _combined_local_aabb(root: Node3D) -> AABB:
-	var bounds := AABB()
-	var found := false
-	var stack: Array = [[root, Transform3D.IDENTITY]]
-	while not stack.is_empty():
-		var pair: Array = stack.pop_back()
-		var node := pair[0] as Node3D
-		if node == null:
-			continue
-		var xform: Transform3D = pair[1]
-		if node != root:
-			xform = xform * node.transform
-		if node is MeshInstance3D:
-			var mi := node as MeshInstance3D
-			if mi.mesh != null:
-				var local: AABB = xform * mi.get_aabb()
-				bounds = local if not found else bounds.merge(local)
-				found = true
-		for child in node.get_children():
-			if child is Node3D:
-				stack.append([child, xform])
-	if not found:
-		return AABB(Vector3.ZERO, Vector3.ZERO)
-	return bounds
-
-
-# ---------------------- model mounting (optional) ----------------------
-
-var _scene_cache := {}
-
-
-## Instantiate a cached PackedScene under `host`. Returns true when the model was
-## actually added (falls back silently on missing/unimported art).
-func _mount_model(host: Node, path: String, y_offset: float, scale_factor: float) -> bool:
-	if not _scene_cache.has(path):
-		var res := load(path)
-		_scene_cache[path] = res if res is PackedScene else null
-	var scene: PackedScene = _scene_cache.get(path)
-	if scene == null:
-		return false
-	var inst := scene.instantiate()
-	if inst == null or not inst is Node3D:
-		if inst != null:
-			inst.free()
-		return false
-	(inst as Node3D).position = Vector3(0, y_offset, 0)
-	(inst as Node3D).scale = Vector3.ONE * scale_factor
-	host.add_child(inst)
-	# HD material pass so KayKit dungeon props share the same anisotropic, physically
-	# tuned shading as the arena shell and actors.
-	HdMaterials.polish(inst as Node3D)
-	return true
-
-
-# ---------------------- primitive fallbacks ----------------------
-
-func _mat(color: Color, emission: float = 0.0) -> StandardMaterial3D:
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.roughness = 0.8
-	if emission > 0.0:
-		mat.emission_enabled = true
-		mat.emission = color
-		mat.emission_energy_multiplier = emission
-	return mat
-
-
-func _primitive_pillar(body: Node) -> void:
-	var mesh := MeshInstance3D.new()
-	var box_mesh := BoxMesh.new()
-	box_mesh.size = Vector3(1.2, 4.0, 1.2)
-	mesh.mesh = box_mesh
-	mesh.position.y = 2.0
-	mesh.material_override = _mat(Color(0.5, 0.45, 0.4))
-	body.add_child(mesh)
-	var cap := MeshInstance3D.new()
-	var cap_mesh := BoxMesh.new()
-	cap_mesh.size = Vector3(1.6, 0.4, 1.6)
-	cap.mesh = cap_mesh
-	cap.position.y = 4.1
-	cap.material_override = _mat(Color(0.4, 0.36, 0.32))
-	body.add_child(cap)
-
-
-func _primitive_rock(holder: Node, s: float) -> void:
-	var mesh := MeshInstance3D.new()
-	var rock := BoxMesh.new()
-	rock.size = Vector3(s, s * 0.7, s)
-	mesh.mesh = rock
-	mesh.position = Vector3(0, s * 0.3, 0)
-	mesh.material_override = _mat(Color(0.45, 0.42, 0.38))
-	holder.add_child(mesh)
-
-
-func _primitive_brazier(holder: Node) -> void:
-	var bowl := MeshInstance3D.new()
-	var bm := CylinderMesh.new()
-	bm.top_radius = 0.5
-	bm.bottom_radius = 0.3
-	bm.height = 0.5
-	bowl.mesh = bm
-	bowl.position.y = 0.6
-	bowl.material_override = _mat(Color(0.2, 0.18, 0.18))
-	holder.add_child(bowl)
-
-
-func _primitive_banner(holder: Node) -> void:
-	var pole := MeshInstance3D.new()
-	var pm := CylinderMesh.new()
-	pm.top_radius = 0.08
-	pm.bottom_radius = 0.08
-	pm.height = 4.5
-	pole.mesh = pm
-	pole.position.y = 2.25
-	pole.material_override = _mat(Color(0.3, 0.25, 0.2))
-	holder.add_child(pole)
-
-
-# ---------------------- prestige cosmetics (banners) ----------------------
-
-## Hang the player's prestige-unlocked banners (Cosmetics KIND_BANNER) on the
-## arena walls in their unlock colours. Called by Main after decorate(); a no-op
-## when no banners are unlocked, so it's always safe to invoke. These are the
-## in-world payoff for banner_survivor / banner_last_stand, which previously
-## unlocked in save and never appeared anywhere.
 func apply_prestige_banners(arena_half: float, unlocked: Array) -> void:
 	var banners := Cosmetics.active_banners(unlocked)
 	if banners.is_empty():
@@ -717,29 +387,8 @@ func apply_prestige_banners(arena_half: float, unlocked: Array) -> void:
 		holder.name = "PrestigeBanner_%d" % i
 		holder.position = at
 		holder.rotation.y = -angle
-		_prestige_banner_cloth(holder, Cosmetics.color_of(banners[i]))
+		_props._prestige_banner_cloth(holder, Cosmetics.color_of(banners[i]))
 		add_child(holder)
-		_spawned.append(holder)
+		_props.adopt(holder)
 
 
-## Emissive prestige banner: a tall pole with a glowing coloured cloth.
-func _prestige_banner_cloth(holder: Node, color: Color) -> void:
-	var pole := MeshInstance3D.new()
-	var pm := CylinderMesh.new()
-	pm.top_radius = 0.07
-	pm.bottom_radius = 0.07
-	pm.height = 4.8
-	pole.mesh = pm
-	pole.position.y = 2.4
-	pole.material_override = _mat(Color(0.22, 0.18, 0.15))
-	holder.add_child(pole)
-	var cloth := MeshInstance3D.new()
-	var quad := QuadMesh.new()
-	quad.size = Vector2(1.1, 2.4)
-	cloth.mesh = quad
-	cloth.position = Vector3(0, 3.0, 0.06)
-	var mat := _mat(color, 1.4)
-	mat.albedo_color = color
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	cloth.material_override = mat
-	holder.add_child(cloth)

@@ -16,6 +16,9 @@ class_name CameraRig
 ## - CameraShakeController: trauma noise + event shakes
 ## - CameraModeController: explore/combat/boss/locked modes with blending
 ## - CameraMath: shared helpers (exp_weight, lerp_angle, etc.)
+## - CameraLockOnController: lock candidate selection + per-frame lock re-validation
+## - CameraHitstopLocator: finds the run's HitstopManager for the shake controller
+## - CameraRigDebug: the read-only debug snapshot
 ##
 ## Improvements over previous monolithic version:
 ## - Each concern isolated, testable, reusable
@@ -58,8 +61,8 @@ var _framing := CameraFramingController.new()
 var _fov := CameraFovController.new()
 var _shake := CameraShakeController.new()
 var _mode := CameraModeController.new()
-
-var _hitstop_manager: Node = null
+var _lock_on := CameraLockOnController.new()
+var _hitstop := CameraHitstopLocator.new()
 ## True when the project runs with `physics/common/physics_interpolation` on, so
 ## the rig follows the INTERPOLATED player transform instead of the raw 60 Hz
 ## physics-tick value. See _configure_interpolation().
@@ -96,7 +99,7 @@ func _ready() -> void:
 
 	_refresh_settings()
 	_wire_combat_feedback()
-	_test_hitstop_manager()
+	_hitstop.bind_if_needed(get_tree(), _shake)
 
 	set_process(true)
 	set_process_input(true)
@@ -206,49 +209,7 @@ func set_reduced_motion(enabled: bool) -> void:
 
 
 func get_debug_snapshot() -> Dictionary:
-	var p: Dictionary = {}
-	if _profile != null:
-		p = {
-			"profile_id": String(_profile.profile_id),
-			"distance": _profile.distance,
-			"height": _profile.height,
-			"current_distance": _orbit_state.current_distance,
-			"target_distance": _orbit_state.target_distance,
-			"collision_distance": _orbit_state.collision_distance,
-			"is_colliding": _collision.is_colliding,
-			"yaw_deg": rad_to_deg(_orbit_state.current_yaw),
-			"pitch_deg": rad_to_deg(_orbit_state.current_pitch),
-			"fov": _fov.current_fov,
-			"auto_follow": _auto_follow.is_active,
-			"manual_cooldown": _auto_follow.manual_cooldown,
-			"move_sustain": _auto_follow.sustain_timer,
-			"mode": _mode.current_mode,
-			"enemy_count": _framing.get_enemy_count(),
-			"combat_boost": _framing.get_combat_distance_boost(),
-			"solver": _collision.get_debug_snapshot(),
-			"interpolated_target": _uses_interpolated_target,
-		}
-	return {
-		"enabled": _enabled,
-		"has_target": _target != null and is_instance_valid(_target),
-		"profile": p,
-		"shake_remaining": _shake.get_remaining() if _shake != null else 0.0,
-		"position": global_position,
-		"focus": _focus.focus_point,
-		"target_velocity": _velocity.velocity,
-		"target_speed": _velocity.speed,
-		"modules": {
-			"input": _input_handler != null,
-			"velocity": _velocity != null,
-			"focus": _focus != null,
-			"orbit": _orbit_state != null,
-			"collision": _collision != null,
-			"framing": _framing != null,
-			"fov": _fov != null,
-			"shake": _shake != null,
-			"mode": _mode != null,
-		}
-	}
+	return CameraRigDebug.snapshot(self)
 
 
 # ------------------------------------------------------------------
@@ -402,7 +363,7 @@ func _process(delta: float) -> void:
 		return
 
 	delta = clampf(delta, 0.0, 0.1)
-	_test_hitstop_manager()
+	_hitstop.bind_if_needed(get_tree(), _shake)
 	_mode.tick(delta)
 	# Advances the push-out hold AND the collision solver's query clock.
 	_collision.tick_recovery(delta)
@@ -465,7 +426,7 @@ func _process(delta: float) -> void:
 	_shake.tick(delta, _reduced_motion, _velocity.speed, _collision.is_colliding)
 
 	# 11. Lock-on auto update from targeting component if available
-	_update_lock_on_target()
+	_lock_on.sync_lock_target(_mode, _target, _profile, get_tree())
 
 
 func _apply_follow(weight: float, delta_for_fov: float = 0.016) -> void:
@@ -491,17 +452,9 @@ func _update_look_at() -> void:
 
 	var look_target: Vector3
 	# Lock-on mode – look at lock target + player midpoint (Zelda style)
-	if _mode.is_locked():
-		var lock_t := _mode.get_lock_target()
-		if lock_t != null:
-			var factor := 0.5
-			if _profile != null:
-				factor = clampf(_profile.lock_on_midpoint_factor, 0.0, 1.0)
-			var midpoint := _focus.focus_point.lerp(lock_t.global_position, factor)
-			midpoint.y = _focus.focus_point.y
-			look_target = midpoint
-		else:
-			look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
+	var lock_t := _mode.get_lock_target() if _mode.is_locked() else null
+	if lock_t != null:
+		look_target = _lock_on.mid_look_target(lock_t, _focus.focus_point, _profile)
 	else:
 		look_target = _framing.calculate_look_target(_focus.focus_point, _velocity, _orbit_state)
 
@@ -580,57 +533,7 @@ func _report_bad_camera_frame() -> void:
 
 
 func toggle_lock_on() -> bool:
-	if _profile == null or not _profile.lock_on_enabled or _target == null:
-		return false
-	if _mode.is_locked():
-		_mode.set_lock_target(null)
-		return true
-	var best := _pick_lock_candidate()
-	if best == null:
-		return false
-	_mode.set_lock_target(best)
-	if RunAnalytics != null:
-		RunAnalytics.note_lock_on()
-	return true
-
-
-func _pick_lock_candidate() -> Node3D:
-	if _target == null or not is_instance_valid(_target):
-		return null
-	var targeting := _target.get_node_or_null("TargetingComponent") as TargetingComponent
-	var tree := get_tree()
-	if tree == null:
-		return null
-	var enemies := tree.get_nodes_in_group("enemies")
-	var best: Node = null
-	if targeting != null:
-		best = targeting.pick_best_target(enemies)
-	elif not enemies.is_empty():
-		best = enemies[0]
-	if best is Node3D and is_instance_valid(best):
-		var dist := (best as Node3D).global_position.distance_to(_target.global_position)
-		if dist <= _profile.lock_on_max_distance:
-			return best as Node3D
-	return null
-
-
-func _update_lock_on_target() -> void:
-	if _profile == null or not _profile.lock_on_enabled:
-		return
-	if _target == null:
-		return
-	if not _mode.is_locked():
-		return
-	var lt := _mode.get_lock_target()
-	if lt == null or not is_instance_valid(lt):
-		_mode.set_lock_target(null)
-		return
-	if lt.global_position.distance_to(_target.global_position) > _profile.lock_on_max_distance:
-		var next := _pick_lock_candidate()
-		_mode.set_lock_target(next)
-		return
-	if lt is Damageable and not (lt as Damageable).is_alive():
-		_mode.set_lock_target(_pick_lock_candidate())
+	return _lock_on.toggle(_profile, _mode, _target, get_tree())
 
 
 func _update_combat_explore_mode() -> void:
@@ -661,36 +564,6 @@ func _get_target_facing_yaw() -> float:
 # ------------------------------------------------------------------
 # Hitstop manager & combat feedback
 # ------------------------------------------------------------------
-
-func _test_hitstop_manager() -> void:
-	if _hitstop_manager != null and is_instance_valid(_hitstop_manager):
-		_shake.set_hitstop_manager(_hitstop_manager as HitstopManager)
-		return
-	var tree := get_tree()
-	if tree == null:
-		return
-	_hitstop_manager = tree.get_first_node_in_group("hitstop_manager")
-	if _hitstop_manager == null:
-		var world := tree.current_scene as Node
-		if world != null:
-			_hitstop_manager = world.get_node_or_null("WorldRoot/HitstopManager")
-			if _hitstop_manager == null:
-				_hitstop_manager = _find_node_by_class(world, "HitstopManager")
-	if _hitstop_manager != null:
-		_shake.set_hitstop_manager(_hitstop_manager as HitstopManager)
-
-
-func _find_node_by_class(root: Node, cls_name: String) -> Node:
-	if root == null:
-		return null
-	if cls_name == "HitstopManager" and root is HitstopManager:
-		return root
-	for child in root.get_children():
-		var found := _find_node_by_class(child as Node, cls_name)
-		if found != null:
-			return found
-	return null
-
 
 func _refresh_settings() -> void:
 	_reduced_motion = SaveManager.get_settings().reduced_motion if SaveManager != null else false
